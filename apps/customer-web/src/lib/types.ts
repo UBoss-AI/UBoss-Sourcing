@@ -59,6 +59,16 @@ export interface CurrencyOption {
   /** Minor units per major unit: 2 for INR/USD, 0 for JPY/KRW. */
   exponent: number;
   isBase: boolean;
+  /**
+   * Whether the catalogue actually sells anything in it. Staff can activate a
+   * currency before pricing anything in it; offering that one here would just
+   * hand the shopper an empty shop.
+   *
+   * Optional because a config response cached from before this field existed
+   * legitimately lacks it; absent is treated as "offer it" rather than hiding
+   * every currency at once.
+   */
+  hasProducts?: boolean;
 }
 
 export interface CountryOption {

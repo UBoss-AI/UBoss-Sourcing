@@ -144,10 +144,12 @@ export function LocaleProvider({ children }: { children: ReactNode }): React.JSX
         baseCurrency;
 
       const choice = { country: nextCountry, currency: resolved };
-      writeStored(choice);
-      setStored(choice);
-      setDismissed(true);
 
+      // The profile is the authority once somebody is signed in, so it is
+      // written first and localStorage only mirrors what it accepted. Writing
+      // the mirror first meant a failed save left the browser insisting on a
+      // currency the account had never agreed to - the two then disagreed with
+      // nothing to reconcile them.
       if (profileId !== null) {
         await save.mutateAsync({
           country: nextCountry,
@@ -155,6 +157,10 @@ export function LocaleProvider({ children }: { children: ReactNode }): React.JSX
           ...(detected === null ? {} : { detectedCountry: detected }),
         });
       }
+
+      writeStored(choice);
+      setStored(choice);
+      setDismissed(true);
 
       // Everything priced is now wrong, the cart included.
       await queryClient.invalidateQueries();
@@ -173,6 +179,7 @@ export function LocaleProvider({ children }: { children: ReactNode }): React.JSX
     async (nextCurrency: string) => {
       if (country === null || country === '') {
         // No country yet - remember the currency alone until they answer.
+        // Nothing to save server-side: there is no profile to save it to.
         const choice = { country: '', currency: nextCurrency };
         writeStored(choice);
         setStored(choice);
@@ -185,11 +192,24 @@ export function LocaleProvider({ children }: { children: ReactNode }): React.JSX
     [choose, country, queryClient],
   );
 
+  // Only markets the catalogue is actually priced in. The shopper's current
+  // currency stays in the list even if it has emptied out, so the switcher
+  // never renders with no matching option.
+  const offerable = useMemo(
+    () =>
+      config.localisation.currencies.filter(
+        // `!== false` rather than a truthy test: a config response that
+        // predates this flag must not blank the switcher entirely.
+        (entry) => entry.hasProducts !== false || entry.code === currency,
+      ),
+    [config.localisation.currencies, currency],
+  );
+
   const value = useMemo<LocaleState>(
     () => ({
       currency,
       country: country === '' ? null : country,
-      currencies: config.localisation.currencies,
+      currencies: offerable,
       countries: config.localisation.countries,
       // Only a signed-in shopper is asked, and only once: there is nowhere to
       // remember "no thanks" for a visitor who never signs in.
@@ -208,12 +228,12 @@ export function LocaleProvider({ children }: { children: ReactNode }): React.JSX
     [
       choose,
       config.localisation.countries,
-      config.localisation.currencies,
       country,
       currency,
       detected,
       dismissed,
       localeQuery.isSuccess,
+      offerable,
       profileId,
       serverLocale,
       setCurrency,

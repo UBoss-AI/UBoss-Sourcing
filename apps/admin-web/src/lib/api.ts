@@ -25,7 +25,11 @@ const BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000/ap
   '',
 );
 
-const CSRF_COOKIE = 'uboss_csrf';
+// Scoped to this surface. A cookie is identified by name, domain and path -
+// not by port - so the admin panel and the storefront share one jar whenever
+// they sit on the same hostname. Shared names meant signing into one
+// silently signed you out of the other.
+const CSRF_COOKIE = 'uboss_admin_csrf';
 const CSRF_HEADER = 'x-csrf-token';
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 

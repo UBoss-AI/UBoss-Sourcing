@@ -31,6 +31,14 @@ const WORKER_ID = `${hostname()}-${String(process.pid)}`;
 /** How often to enqueue the periodic maintenance jobs. */
 const MAINTENANCE_INTERVAL_MS = 60_000;
 
+/**
+ * How long to leave a job whose handler this worker does not know.
+ *
+ * Long enough that a rolling deploy has finished and a newer worker is
+ * available, short enough that the work is not noticeably late.
+ */
+const UNKNOWN_HANDLER_RETRY_SECONDS = 30;
+
 let running = true;
 let inFlight = 0;
 
@@ -44,10 +52,27 @@ async function runJob(job: ClaimedJob): Promise<void> {
   const handler = handlerFor(job.jobType);
 
   if (handler === undefined) {
-    // Nothing can process this. Retrying would only fill the queue with noise.
-    jobLogger.error('no handler registered for job type; marking dead');
-    await queue.fail(job.id, `No handler registered for job type "${job.jobType}"`, 0);
-    await forceDead(job.id);
+    // THIS worker cannot process this - which does not mean no worker can.
+    //
+    // Several workers run at once (see the header), and during a rolling
+    // deploy they are briefly at different versions. An old worker that claims
+    // a job type introduced in the new build must hand it back, not destroy
+    // it: killing it here means the work silently never happens, and the
+    // dashboard can only report it after the fact.
+    //
+    // So this is an ordinary retry. The delay gives a newer worker time to
+    // take it, and `fail` still marks the job dead once its attempts are
+    // exhausted - so a job type that no worker anywhere handles is bounded
+    // rather than churning forever.
+    jobLogger.error(
+      { jobType: job.jobType },
+      'no handler registered on this worker; returning the job to the queue',
+    );
+    await queue.fail(
+      job.id,
+      `No handler registered for job type "${job.jobType}" on worker ${WORKER_ID}`,
+      UNKNOWN_HANDLER_RETRY_SECONDS,
+    );
     return;
   }
 

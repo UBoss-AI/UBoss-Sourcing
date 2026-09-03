@@ -21,10 +21,38 @@ import {
 } from '../../modules/identity/auth.service.js';
 import { isSessionActive, verifyAccessToken } from '../../modules/identity/session.service.js';
 
-export const ACCESS_COOKIE = 'uboss_at';
-export const REFRESH_COOKIE = 'uboss_rt';
-export const CSRF_COOKIE = 'uboss_csrf';
 export const CSRF_HEADER = 'x-csrf-token';
+
+/**
+ * Cookie names, scoped to the surface they belong to.
+ *
+ * A cookie's identity is its name plus domain and path - the PORT is not part
+ * of it (RFC 6265). So the admin panel and the storefront share one jar
+ * whenever they sit on the same hostname, which is every local setup and any
+ * deployment that does not give them separate subdomains.
+ *
+ * With one set of names, signing into one surface overwrote the other's
+ * tokens and silently signed that person out. Naming them apart is what keeps
+ * a staff member and a customer signed in at the same time in one browser.
+ *
+ * The names are derived from the audience the route was registered for, not
+ * from anything in the request, so a caller cannot choose which jar to read.
+ */
+export interface CookieNames {
+  access: string;
+  refresh: string;
+  csrf: string;
+}
+
+export function cookieNamesFor(kind: UserKind): CookieNames {
+  const scope = kind === 'ADMIN' ? 'admin' : 'shop';
+
+  return {
+    access: `uboss_${scope}_at`,
+    refresh: `uboss_${scope}_rt`,
+    csrf: `uboss_${scope}_csrf`,
+  };
+}
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -61,13 +89,13 @@ export function csrfCookieOptions(maxAgeSeconds: number): ReturnType<typeof auth
   return { ...authCookieOptions(maxAgeSeconds), httpOnly: false };
 }
 
-function extractAccessToken(request: FastifyRequest): string | null {
+function extractAccessToken(request: FastifyRequest, kind: UserKind): string | null {
   const header = request.headers.authorization;
   if (typeof header === 'string' && header.startsWith('Bearer ')) {
     return header.slice(7);
   }
 
-  const cookie = request.cookies[ACCESS_COOKIE];
+  const cookie = request.cookies[cookieNamesFor(kind).access];
   return typeof cookie === 'string' && cookie.length > 0 ? cookie : null;
 }
 
@@ -79,11 +107,11 @@ const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
  * A Bearer token cannot be attached by a browser to a cross-site request, so
  * that path needs no CSRF check. Cookies can be, so it does.
  */
-function assertCsrf(request: FastifyRequest, usedCookie: boolean): void {
+function assertCsrf(request: FastifyRequest, usedCookie: boolean, kind: UserKind): void {
   if (!usedCookie) return;
   if (SAFE_METHODS.has(request.method)) return;
 
-  const cookieValue = request.cookies[CSRF_COOKIE];
+  const cookieValue = request.cookies[cookieNamesFor(kind).csrf];
   const headerValue = request.headers[CSRF_HEADER];
 
   if (
@@ -107,7 +135,7 @@ async function authenticate(
   request: FastifyRequest,
   expectedKind: UserKind,
 ): Promise<AuthenticatedUser & { sessionId: string }> {
-  const token = extractAccessToken(request);
+  const token = extractAccessToken(request, expectedKind);
   if (token === null) {
     throw unauthorized(ErrorCode.UNAUTHENTICATED, 'Authentication is required.');
   }
@@ -123,7 +151,7 @@ async function authenticate(
     throw forbidden(ErrorCode.FORBIDDEN, 'This credential is not valid for this application.');
   }
 
-  assertCsrf(request, usedCookie);
+  assertCsrf(request, usedCookie, expectedKind);
 
   // The token is stateless but the session is not: logout, deactivation and
   // password change revoke the session, and that must take effect immediately

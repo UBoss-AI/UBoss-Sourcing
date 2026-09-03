@@ -33,9 +33,7 @@ import {
 } from '../../modules/identity/token.service.js';
 import { enqueueNotification } from '../../modules/notifications/notification.service.js';
 import {
-  ACCESS_COOKIE,
-  CSRF_COOKIE,
-  REFRESH_COOKIE,
+  cookieNamesFor,
   authCookieOptions,
   csrfCookieOptions,
   currentUser,
@@ -87,30 +85,39 @@ interface SessionCookies {
   refreshToken: string;
 }
 
-function setSessionCookies(reply: FastifyReply, session: SessionCookies): string {
+function setSessionCookies(
+  reply: FastifyReply,
+  session: SessionCookies,
+  kind: UserKind,
+): string {
   // The CSRF token is readable by JS on purpose - the frontend copies it into
   // the X-CSRF-Token header. It authorises nothing by itself; it only proves
   // the caller could read a same-site cookie.
   const csrfToken = randomBytes(24).toString('base64url');
+  const names = cookieNamesFor(kind);
 
   void reply
-    .setCookie(ACCESS_COOKIE, session.accessToken, authCookieOptions(env.ACCESS_TOKEN_TTL_SECONDS))
+    .setCookie(names.access, session.accessToken, authCookieOptions(env.ACCESS_TOKEN_TTL_SECONDS))
     .setCookie(
-      REFRESH_COOKIE,
+      names.refresh,
       session.refreshToken,
       authCookieOptions(env.REFRESH_TOKEN_TTL_SECONDS),
     )
-    .setCookie(CSRF_COOKIE, csrfToken, csrfCookieOptions(env.REFRESH_TOKEN_TTL_SECONDS));
+    .setCookie(names.csrf, csrfToken, csrfCookieOptions(env.REFRESH_TOKEN_TTL_SECONDS));
 
   return csrfToken;
 }
 
-function clearSessionCookies(reply: FastifyReply): void {
+function clearSessionCookies(reply: FastifyReply, kind: UserKind): void {
   const options = { path: '/', ...(env.COOKIE_DOMAIN.length > 0 ? { domain: env.COOKIE_DOMAIN } : {}) };
+  const names = cookieNamesFor(kind);
+
+  // Only this surface's cookies. Signing out of the admin panel must not sign
+  // the person out of the storefront in the same browser.
   void reply
-    .clearCookie(ACCESS_COOKIE, options)
-    .clearCookie(REFRESH_COOKIE, options)
-    .clearCookie(CSRF_COOKIE, options);
+    .clearCookie(names.access, options)
+    .clearCookie(names.refresh, options)
+    .clearCookie(names.csrf, options);
 }
 
 function requestContext(request: FastifyRequest): {
@@ -160,7 +167,7 @@ export function authRoutes(kind: UserKind) {
         ...context,
       });
 
-      const csrfToken = setSessionCookies(reply, result.session);
+      const csrfToken = setSessionCookies(reply, result.session, kind);
 
       return reply.status(200).send({
         user: {
@@ -180,7 +187,7 @@ export function authRoutes(kind: UserKind) {
     });
 
     app.post('/refresh', { config: loginRateLimit }, async (request, reply) => {
-      const refreshToken = request.cookies[REFRESH_COOKIE];
+      const refreshToken = request.cookies[cookieNamesFor(kind).refresh];
 
       if (typeof refreshToken !== 'string' || refreshToken.length === 0) {
         throw unauthorized(ErrorCode.SESSION_EXPIRED, 'No active session to refresh.');
@@ -192,11 +199,11 @@ export function authRoutes(kind: UserKind) {
       } catch (error) {
         // Rotation failed for any reason - reuse, expiry, deactivation. Clear
         // the cookies so the client stops retrying with a dead token.
-        clearSessionCookies(reply);
+        clearSessionCookies(reply, kind);
         throw error;
       }
 
-      const csrfToken = setSessionCookies(reply, session);
+      const csrfToken = setSessionCookies(reply, session, kind);
 
       return reply.status(200).send({
         accessToken: session.accessToken,
@@ -207,14 +214,14 @@ export function authRoutes(kind: UserKind) {
 
     app.post('/logout', { preHandler: requireAuthenticated(kind) }, async (request, reply) => {
       await revokeSession(currentUser(request).sessionId, 'logout');
-      clearSessionCookies(reply);
+      clearSessionCookies(reply, kind);
       return reply.status(204).send();
     });
 
     app.post('/logout-all', { preHandler: requireAuthenticated(kind) }, async (request, reply) => {
       const auth = currentUser(request);
       const revoked = await revokeAllUserSessions(auth.id, 'logout_all');
-      clearSessionCookies(reply);
+      clearSessionCookies(reply, kind);
       return reply.status(200).send({ sessionsRevoked: revoked });
     });
 
@@ -248,7 +255,7 @@ export function authRoutes(kind: UserKind) {
         });
 
         // changePassword revokes every session, including this one.
-        clearSessionCookies(reply);
+        clearSessionCookies(reply, kind);
         return reply.status(200).send({ passwordChanged: true, signedOut: true });
       },
     );
@@ -302,7 +309,7 @@ export function authRoutes(kind: UserKind) {
           correlationId: context.correlationId,
         });
 
-        clearSessionCookies(reply);
+        clearSessionCookies(reply, kind);
         return reply.status(200).send({ passwordReset: true });
       },
     );

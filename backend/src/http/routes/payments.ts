@@ -532,7 +532,13 @@ export function registerAdminPaymentRoutes(app: FastifyInstance): Promise<void> 
 
       const connection = await prisma.paymentProviderConnection.findUnique({
         where: { id },
-        select: { id: true, lastTestStatus: true, provider: true, mode: true },
+        select: {
+          id: true,
+          lastTestStatus: true,
+          provider: true,
+          mode: true,
+          webhookSecretEnc: true,
+        },
       });
 
       if (connection === null) throw notFound('Payment connection');
@@ -542,6 +548,21 @@ export function registerAdminPaymentRoutes(app: FastifyInstance): Promise<void> 
           ErrorCode.CONNECTOR_TEST_FAILED,
           'Run a successful Test Connection before activating this gateway.',
           [{ field: 'active', code: 'TEST_REQUIRED' }],
+        );
+      }
+
+      // An order is confirmed only by a signature-verified provider event, and
+      // a signature cannot be verified without this secret. Activating without
+      // one is the quietest possible failure: customers are charged by the
+      // gateway, every delivery is rejected as unverified, and no order ever
+      // leaves Pending Payment. Refusing here is the only place that catches
+      // it before money moves.
+      if (active && connection.webhookSecretEnc === null) {
+        throw badRequest(
+          ErrorCode.PAYMENT_PROVIDER_NOT_CONFIGURED,
+          'Add the webhook signing secret before activating this gateway. ' +
+            'Without it no payment can be verified, so no order would ever be confirmed.',
+          [{ field: 'webhookSecret', code: 'REQUIRED' }],
         );
       }
 

@@ -26,6 +26,15 @@ export interface CurrencyView {
   symbol: string;
   exponent: number;
   isBase: boolean;
+  /**
+   * Whether anything is actually sold in it.
+   *
+   * A currency can be active - so staff can enter prices in it - long before
+   * any product has one. The storefront must not offer such a currency: picking
+   * it produces an empty shop with no explanation, because a product with no
+   * price row for a currency is deliberately not sold in that market.
+   */
+  hasProducts: boolean;
 }
 
 export interface CountryView {
@@ -36,11 +45,25 @@ export interface CountryView {
 }
 
 export async function listActiveCurrencies(): Promise<CurrencyView[]> {
-  return prisma.currency.findMany({
-    where: { isActive: true },
-    orderBy: [{ sortOrder: 'asc' }, { code: 'asc' }],
-    select: { code: true, name: true, symbol: true, exponent: true, isBase: true },
-  });
+  const [rows, priced] = await Promise.all([
+    prisma.currency.findMany({
+      where: { isActive: true },
+      orderBy: [{ sortOrder: 'asc' }, { code: 'asc' }],
+      select: { code: true, name: true, symbol: true, exponent: true, isBase: true },
+    }),
+    // One row per currency that any publicly visible product is priced in.
+    prisma.productPrice.groupBy({
+      by: ['currencyCode'],
+      where: {
+        variantKey: '',
+        product: { status: 'ACTIVE', isPublished: true, archivedAt: null },
+      },
+    }),
+  ]);
+
+  const sellable = new Set(priced.map((row) => row.currencyCode));
+
+  return rows.map((row) => ({ ...row, hasProducts: sellable.has(row.code) }));
 }
 
 export async function listActiveCountries(): Promise<CountryView[]> {

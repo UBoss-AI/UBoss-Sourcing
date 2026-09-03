@@ -21,7 +21,7 @@ import { ConfirmDialog, Modal } from '@/components/Modal';
 import { useToast } from '@/components/toast-context';
 import { Badge, Button, Card, Field, Input, PageHeader } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
-import { formatDateTime } from '@/lib/format';
+import { formatDateTime, humanise } from '@/lib/format';
 import { Permission, roleLabel } from '@/lib/permissions';
 
 interface StaffRole {
@@ -353,7 +353,8 @@ export function StaffPage(): React.JSX.Element {
         ) : row.status === 'ACTIVE' ? (
           <Badge tone="success">Active</Badge>
         ) : (
-          <Badge tone="warning">{row.status}</Badge>
+          // Every other status here reads as English; this one should too.
+          <Badge tone="warning">{humanise(row.status)}</Badge>
         ),
     },
     {
