@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Design tokens.
+ *
+ * Raw RGB channels so Tailwind's `<alpha-value>` syntax works — `bg-brand/10`
+ * needs the channels, not a finished colour.
+ *
+ * `brand` and `action` are deliberately different hues. If Add to Cart looks
+ * like every link in the header, people stop seeing either one.
+ */
+@layer base {
+  :root {
+    --surface: 255 255 255;
+    --surface-sunken: 246 248 251;
+    --surface-inverse: 15 23 42;
+    --border: 226 232 240;
+    /* A control boundary needs 3:1 to be perceivable (WCAG 1.4.11). The
+       lighter slate this replaced sat at 1.48:1, which made every input
+       border effectively invisible to a low-vision customer. */
+    --border-strong: 132 144 161;
+    --ink: 15 23 42;
+    --ink-muted: 71 85 105;
+    /* Chosen to clear 4.5:1 on both the card and the page grounds, not
+       picked for looks: this carries SKUs, timestamps and helper text, which
+       are informational however quiet they look. */
+    --ink-subtle: 99 115 138;
+    --ink-inverse: 248 250 252;
+    --brand: 30 58 138;
+    --brand-hover: 30 64 175;
+    --brand-soft: 239 246 255;
+    --action: 194 65 12;
+    --action-hover: 154 52 18;
+    --danger: 185 28 28;
+    --danger-soft: 254 242 242;
+    --success: 21 128 61;
+    --success-soft: 240 253 244;
+    --warning: 161 98 7;
+    --warning-soft: 254 252 232;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-surface-sunken text-ink antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /*
+   * One visible focus ring, everywhere.
+   *
+   * `:focus-visible` rather than `:focus`, so a mouse click leaves no ring
+   * while every keyboard path shows one. Removing focus styling is the single
+   * most common way a storefront becomes unbuyable without a mouse.
+   */
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand ring-offset-2 ring-offset-surface;
+  }
+
+  /* Prices and quantities line up down a column. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  /*
+   * Skip link: hidden until focused. Without it, a keyboard user tabs through
+   * the whole header and category bar on every single page.
+   */
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50
+           focus:rounded-md focus:bg-brand focus:px-4 focus:py-2 focus:text-sm
+           focus:font-medium focus:text-white;
+  }
+
+  /* A placeholder block while content loads. Sized by the caller. */
+  .skeleton {
+    @apply animate-pulse rounded bg-border;
+  }
+}
