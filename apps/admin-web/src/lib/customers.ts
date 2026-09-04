@@ -6,12 +6,20 @@
  */
 import type { BadgeTone } from '@/components/ui';
 
-export interface CustomerLimits {
+/** Agreed terms for one market. Amounts are strings of minor units. */
+export interface CurrencyLimits {
+  currencyCode: string;
   perOrderMinMinor: string | null;
   perOrderMaxMinor: string | null;
   monthlySpendCapMinor: string | null;
-  requiresOrderApproval: boolean;
   approvalThresholdMinor: string | null;
+}
+
+export interface CustomerLimits {
+  /** A policy about the account, so it is not per currency. */
+  requiresOrderApproval: boolean;
+  /** One entry per market this account may order in. Empty means none. */
+  perCurrency: CurrencyLimits[];
 }
 
 export interface CustomerListItem {

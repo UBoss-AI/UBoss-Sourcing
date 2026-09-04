@@ -700,13 +700,9 @@ model CustomerProfile {
   gstin        String? @db.VarChar(32)
   customerCode String? @unique(map: "uq_customer_code") @db.VarChar(32)
 
-  /// Purchasing controls. Null means this particular rule imposes no limit.
-  perOrderMinMinor      BigInt?
-  perOrderMaxMinor      BigInt?
-  monthlySpendCapMinor  BigInt?
-  requiresOrderApproval  Boolean @default(false)
-  /// Order total at or above which approval is required, when approvals are on.
-  approvalThresholdMinor BigInt?
+  /// Whether this account needs sign-off at all. The amounts that decide when
+  /// live in `customer_limits`, one row per currency - see that model.
+  requiresOrderApproval Boolean @default(false)
 
   internalNotes String? @db.Text
 
@@ -741,6 +737,7 @@ model CustomerProfile {
   schedules RecurringSchedule[]
 
   couponRedemptions CouponRedemption[]
+  limits            CustomerLimit[]
 
   @@index([organization], map: "ix_customer_organization")
   @@index([createdAt], map: "ix_customer_created")
@@ -2029,6 +2026,7 @@ model Currency {
   countries       Country[]
   productPrices   ProductPrice[]
   couponMinimums  CouponMinimum[]
+  customerLimits  CustomerLimit[]
 
   @@index([isActive, sortOrder], map: "ix_currency_active_sort")
   @@map("currencies")
@@ -2228,4 +2226,44 @@ model CouponRedemption {
   @@index([couponId, redeemedAt], map: "ix_coupon_redemption_coupon")
   @@index([customerProfileId, couponId], map: "ix_coupon_redemption_customer")
   @@map("coupon_redemptions")
+}
+
+/**
+ * Purchasing limits, per currency.
+ *
+ * These are plain amounts, and an amount means nothing without the currency it
+ * is counted in: a 5,000 rupee minimum read against a dollar cart becomes a
+ * 5,000 dollar one. They used to live as bare columns on `customer_profiles`,
+ * implicitly in the base currency, which was correct only while the catalogue
+ * sold in one.
+ *
+ * A row per market a customer is allowed to buy in. No row means no agreed
+ * terms in that currency, and an account that carries limits anywhere may only
+ * order where it has them - dropping a credit control because the shopper
+ * switched currency is worse than refusing the order.
+ *
+ * `requiresOrderApproval` stays on the profile: whether an account needs
+ * sign-off is a policy about the account, not an amount.
+ */
+model CustomerLimit {
+  customerProfileId String @db.Char(26)
+  currencyCode      String @db.Char(3)
+
+  /// Null on any of these means that particular rule imposes no limit here.
+  perOrderMinMinor     BigInt?
+  perOrderMaxMinor     BigInt?
+  monthlySpendCapMinor BigInt?
+  /// Order total at or above which approval is required, when approvals are on.
+  approvalThresholdMinor BigInt?
+
+  createdAt   DateTime @default(now()) @db.DateTime(3)
+  updatedAt   DateTime @updatedAt @db.DateTime(3)
+  updatedById String?  @db.Char(26)
+
+  customerProfile CustomerProfile @relation(fields: [customerProfileId], references: [id], onDelete: Cascade)
+  currency        Currency        @relation(fields: [currencyCode], references: [code], onDelete: Restrict)
+
+  @@id([customerProfileId, currencyCode])
+  @@index([currencyCode], map: "ix_customer_limit_currency")
+  @@map("customer_limits")
 }

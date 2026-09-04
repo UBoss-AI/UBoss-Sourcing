@@ -20,24 +20,8 @@ export type CustomerProfileModel = runtime.Types.Result.DefaultSelection<Prisma.
 
 export type AggregateCustomerProfile = {
   _count: CustomerProfileCountAggregateOutputType | null
-  _avg: CustomerProfileAvgAggregateOutputType | null
-  _sum: CustomerProfileSumAggregateOutputType | null
   _min: CustomerProfileMinAggregateOutputType | null
   _max: CustomerProfileMaxAggregateOutputType | null
-}
-
-export type CustomerProfileAvgAggregateOutputType = {
-  perOrderMinMinor: number | null
-  perOrderMaxMinor: number | null
-  monthlySpendCapMinor: number | null
-  approvalThresholdMinor: number | null
-}
-
-export type CustomerProfileSumAggregateOutputType = {
-  perOrderMinMinor: bigint | null
-  perOrderMaxMinor: bigint | null
-  monthlySpendCapMinor: bigint | null
-  approvalThresholdMinor: bigint | null
 }
 
 export type CustomerProfileMinAggregateOutputType = {
@@ -49,11 +33,7 @@ export type CustomerProfileMinAggregateOutputType = {
   phone: string | null
   gstin: string | null
   customerCode: string | null
-  perOrderMinMinor: bigint | null
-  perOrderMaxMinor: bigint | null
-  monthlySpendCapMinor: bigint | null
   requiresOrderApproval: boolean | null
-  approvalThresholdMinor: bigint | null
   internalNotes: string | null
   preferredCountry: string | null
   preferredCurrency: string | null
@@ -78,11 +58,7 @@ export type CustomerProfileMaxAggregateOutputType = {
   phone: string | null
   gstin: string | null
   customerCode: string | null
-  perOrderMinMinor: bigint | null
-  perOrderMaxMinor: bigint | null
-  monthlySpendCapMinor: bigint | null
   requiresOrderApproval: boolean | null
-  approvalThresholdMinor: bigint | null
   internalNotes: string | null
   preferredCountry: string | null
   preferredCurrency: string | null
@@ -107,11 +83,7 @@ export type CustomerProfileCountAggregateOutputType = {
   phone: number
   gstin: number
   customerCode: number
-  perOrderMinMinor: number
-  perOrderMaxMinor: number
-  monthlySpendCapMinor: number
   requiresOrderApproval: number
-  approvalThresholdMinor: number
   internalNotes: number
   preferredCountry: number
   preferredCurrency: number
@@ -129,20 +101,6 @@ export type CustomerProfileCountAggregateOutputType = {
 }
 
 
-export type CustomerProfileAvgAggregateInputType = {
-  perOrderMinMinor?: true
-  perOrderMaxMinor?: true
-  monthlySpendCapMinor?: true
-  approvalThresholdMinor?: true
-}
-
-export type CustomerProfileSumAggregateInputType = {
-  perOrderMinMinor?: true
-  perOrderMaxMinor?: true
-  monthlySpendCapMinor?: true
-  approvalThresholdMinor?: true
-}
-
 export type CustomerProfileMinAggregateInputType = {
   id?: true
   userId?: true
@@ -152,11 +110,7 @@ export type CustomerProfileMinAggregateInputType = {
   phone?: true
   gstin?: true
   customerCode?: true
-  perOrderMinMinor?: true
-  perOrderMaxMinor?: true
-  monthlySpendCapMinor?: true
   requiresOrderApproval?: true
-  approvalThresholdMinor?: true
   internalNotes?: true
   preferredCountry?: true
   preferredCurrency?: true
@@ -181,11 +135,7 @@ export type CustomerProfileMaxAggregateInputType = {
   phone?: true
   gstin?: true
   customerCode?: true
-  perOrderMinMinor?: true
-  perOrderMaxMinor?: true
-  monthlySpendCapMinor?: true
   requiresOrderApproval?: true
-  approvalThresholdMinor?: true
   internalNotes?: true
   preferredCountry?: true
   preferredCurrency?: true
@@ -210,11 +160,7 @@ export type CustomerProfileCountAggregateInputType = {
   phone?: true
   gstin?: true
   customerCode?: true
-  perOrderMinMinor?: true
-  perOrderMaxMinor?: true
-  monthlySpendCapMinor?: true
   requiresOrderApproval?: true
-  approvalThresholdMinor?: true
   internalNotes?: true
   preferredCountry?: true
   preferredCurrency?: true
@@ -269,18 +215,6 @@ export type CustomerProfileAggregateArgs<ExtArgs extends runtime.Types.Extension
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Select which fields to average
-  **/
-  _avg?: CustomerProfileAvgAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
-   * Select which fields to sum
-  **/
-  _sum?: CustomerProfileSumAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
    * Select which fields to find the minimum value
   **/
   _min?: CustomerProfileMinAggregateInputType
@@ -311,8 +245,6 @@ export type CustomerProfileGroupByArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   _count?: CustomerProfileCountAggregateInputType | true
-  _avg?: CustomerProfileAvgAggregateInputType
-  _sum?: CustomerProfileSumAggregateInputType
   _min?: CustomerProfileMinAggregateInputType
   _max?: CustomerProfileMaxAggregateInputType
 }
@@ -326,11 +258,7 @@ export type CustomerProfileGroupByOutputType = {
   phone: string | null
   gstin: string | null
   customerCode: string | null
-  perOrderMinMinor: bigint | null
-  perOrderMaxMinor: bigint | null
-  monthlySpendCapMinor: bigint | null
   requiresOrderApproval: boolean
-  approvalThresholdMinor: bigint | null
   internalNotes: string | null
   preferredCountry: string | null
   preferredCurrency: string | null
@@ -345,8 +273,6 @@ export type CustomerProfileGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   _count: CustomerProfileCountAggregateOutputType | null
-  _avg: CustomerProfileAvgAggregateOutputType | null
-  _sum: CustomerProfileSumAggregateOutputType | null
   _min: CustomerProfileMinAggregateOutputType | null
   _max: CustomerProfileMaxAggregateOutputType | null
 }
@@ -378,11 +304,7 @@ export type CustomerProfileWhereInput = {
   phone?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   gstin?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   customerCode?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
-  perOrderMinMinor?: Prisma.BigIntNullableFilter<"CustomerProfile"> | bigint | number | null
-  perOrderMaxMinor?: Prisma.BigIntNullableFilter<"CustomerProfile"> | bigint | number | null
-  monthlySpendCapMinor?: Prisma.BigIntNullableFilter<"CustomerProfile"> | bigint | number | null
   requiresOrderApproval?: Prisma.BoolFilter<"CustomerProfile"> | boolean
-  approvalThresholdMinor?: Prisma.BigIntNullableFilter<"CustomerProfile"> | bigint | number | null
   internalNotes?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   preferredCountry?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   preferredCurrency?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
@@ -402,6 +324,7 @@ export type CustomerProfileWhereInput = {
   orders?: Prisma.OrderListRelationFilter
   schedules?: Prisma.RecurringScheduleListRelationFilter
   couponRedemptions?: Prisma.CouponRedemptionListRelationFilter
+  limits?: Prisma.CustomerLimitListRelationFilter
 }
 
 export type CustomerProfileOrderByWithRelationInput = {
@@ -413,11 +336,7 @@ export type CustomerProfileOrderByWithRelationInput = {
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   gstin?: Prisma.SortOrderInput | Prisma.SortOrder
   customerCode?: Prisma.SortOrderInput | Prisma.SortOrder
-  perOrderMinMinor?: Prisma.SortOrderInput | Prisma.SortOrder
-  perOrderMaxMinor?: Prisma.SortOrderInput | Prisma.SortOrder
-  monthlySpendCapMinor?: Prisma.SortOrderInput | Prisma.SortOrder
   requiresOrderApproval?: Prisma.SortOrder
-  approvalThresholdMinor?: Prisma.SortOrderInput | Prisma.SortOrder
   internalNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredCountry?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredCurrency?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -437,6 +356,7 @@ export type CustomerProfileOrderByWithRelationInput = {
   orders?: Prisma.OrderOrderByRelationAggregateInput
   schedules?: Prisma.RecurringScheduleOrderByRelationAggregateInput
   couponRedemptions?: Prisma.CouponRedemptionOrderByRelationAggregateInput
+  limits?: Prisma.CustomerLimitOrderByRelationAggregateInput
   _relevance?: Prisma.CustomerProfileOrderByRelevanceInput
 }
 
@@ -452,11 +372,7 @@ export type CustomerProfileWhereUniqueInput = Prisma.AtLeast<{
   department?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   phone?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   gstin?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
-  perOrderMinMinor?: Prisma.BigIntNullableFilter<"CustomerProfile"> | bigint | number | null
-  perOrderMaxMinor?: Prisma.BigIntNullableFilter<"CustomerProfile"> | bigint | number | null
-  monthlySpendCapMinor?: Prisma.BigIntNullableFilter<"CustomerProfile"> | bigint | number | null
   requiresOrderApproval?: Prisma.BoolFilter<"CustomerProfile"> | boolean
-  approvalThresholdMinor?: Prisma.BigIntNullableFilter<"CustomerProfile"> | bigint | number | null
   internalNotes?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   preferredCountry?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   preferredCurrency?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
@@ -476,6 +392,7 @@ export type CustomerProfileWhereUniqueInput = Prisma.AtLeast<{
   orders?: Prisma.OrderListRelationFilter
   schedules?: Prisma.RecurringScheduleListRelationFilter
   couponRedemptions?: Prisma.CouponRedemptionListRelationFilter
+  limits?: Prisma.CustomerLimitListRelationFilter
 }, "id" | "userId" | "customerCode">
 
 export type CustomerProfileOrderByWithAggregationInput = {
@@ -487,11 +404,7 @@ export type CustomerProfileOrderByWithAggregationInput = {
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   gstin?: Prisma.SortOrderInput | Prisma.SortOrder
   customerCode?: Prisma.SortOrderInput | Prisma.SortOrder
-  perOrderMinMinor?: Prisma.SortOrderInput | Prisma.SortOrder
-  perOrderMaxMinor?: Prisma.SortOrderInput | Prisma.SortOrder
-  monthlySpendCapMinor?: Prisma.SortOrderInput | Prisma.SortOrder
   requiresOrderApproval?: Prisma.SortOrder
-  approvalThresholdMinor?: Prisma.SortOrderInput | Prisma.SortOrder
   internalNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredCountry?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredCurrency?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -506,10 +419,8 @@ export type CustomerProfileOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.CustomerProfileCountOrderByAggregateInput
-  _avg?: Prisma.CustomerProfileAvgOrderByAggregateInput
   _max?: Prisma.CustomerProfileMaxOrderByAggregateInput
   _min?: Prisma.CustomerProfileMinOrderByAggregateInput
-  _sum?: Prisma.CustomerProfileSumOrderByAggregateInput
 }
 
 export type CustomerProfileScalarWhereWithAggregatesInput = {
@@ -524,11 +435,7 @@ export type CustomerProfileScalarWhereWithAggregatesInput = {
   phone?: Prisma.StringNullableWithAggregatesFilter<"CustomerProfile"> | string | null
   gstin?: Prisma.StringNullableWithAggregatesFilter<"CustomerProfile"> | string | null
   customerCode?: Prisma.StringNullableWithAggregatesFilter<"CustomerProfile"> | string | null
-  perOrderMinMinor?: Prisma.BigIntNullableWithAggregatesFilter<"CustomerProfile"> | bigint | number | null
-  perOrderMaxMinor?: Prisma.BigIntNullableWithAggregatesFilter<"CustomerProfile"> | bigint | number | null
-  monthlySpendCapMinor?: Prisma.BigIntNullableWithAggregatesFilter<"CustomerProfile"> | bigint | number | null
   requiresOrderApproval?: Prisma.BoolWithAggregatesFilter<"CustomerProfile"> | boolean
-  approvalThresholdMinor?: Prisma.BigIntNullableWithAggregatesFilter<"CustomerProfile"> | bigint | number | null
   internalNotes?: Prisma.StringNullableWithAggregatesFilter<"CustomerProfile"> | string | null
   preferredCountry?: Prisma.StringNullableWithAggregatesFilter<"CustomerProfile"> | string | null
   preferredCurrency?: Prisma.StringNullableWithAggregatesFilter<"CustomerProfile"> | string | null
@@ -552,11 +459,7 @@ export type CustomerProfileCreateInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
-  perOrderMinMinor?: bigint | number | null
-  perOrderMaxMinor?: bigint | number | null
-  monthlySpendCapMinor?: bigint | number | null
   requiresOrderApproval?: boolean
-  approvalThresholdMinor?: bigint | number | null
   internalNotes?: string | null
   preferredCountry?: string | null
   preferredCurrency?: string | null
@@ -576,6 +479,7 @@ export type CustomerProfileCreateInput = {
   orders?: Prisma.OrderCreateNestedManyWithoutCustomerProfileInput
   schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUncheckedCreateInput = {
@@ -587,11 +491,7 @@ export type CustomerProfileUncheckedCreateInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
-  perOrderMinMinor?: bigint | number | null
-  perOrderMaxMinor?: bigint | number | null
-  monthlySpendCapMinor?: bigint | number | null
   requiresOrderApproval?: boolean
-  approvalThresholdMinor?: bigint | number | null
   internalNotes?: string | null
   preferredCountry?: string | null
   preferredCurrency?: string | null
@@ -610,6 +510,7 @@ export type CustomerProfileUncheckedCreateInput = {
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerProfileInput
   schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUpdateInput = {
@@ -620,11 +521,7 @@ export type CustomerProfileUpdateInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  perOrderMinMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  perOrderMaxMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  monthlySpendCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -644,6 +541,7 @@ export type CustomerProfileUpdateInput = {
   orders?: Prisma.OrderUpdateManyWithoutCustomerProfileNestedInput
   schedules?: Prisma.RecurringScheduleUpdateManyWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileUncheckedUpdateInput = {
@@ -655,11 +553,7 @@ export type CustomerProfileUncheckedUpdateInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  perOrderMinMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  perOrderMaxMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  monthlySpendCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -678,6 +572,7 @@ export type CustomerProfileUncheckedUpdateInput = {
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerProfileNestedInput
   schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateManyInput = {
@@ -689,11 +584,7 @@ export type CustomerProfileCreateManyInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
-  perOrderMinMinor?: bigint | number | null
-  perOrderMaxMinor?: bigint | number | null
-  monthlySpendCapMinor?: bigint | number | null
   requiresOrderApproval?: boolean
-  approvalThresholdMinor?: bigint | number | null
   internalNotes?: string | null
   preferredCountry?: string | null
   preferredCurrency?: string | null
@@ -717,11 +608,7 @@ export type CustomerProfileUpdateManyMutationInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  perOrderMinMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  perOrderMaxMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  monthlySpendCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -746,11 +633,7 @@ export type CustomerProfileUncheckedUpdateManyInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  perOrderMinMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  perOrderMaxMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  monthlySpendCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -786,11 +669,7 @@ export type CustomerProfileCountOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   gstin?: Prisma.SortOrder
   customerCode?: Prisma.SortOrder
-  perOrderMinMinor?: Prisma.SortOrder
-  perOrderMaxMinor?: Prisma.SortOrder
-  monthlySpendCapMinor?: Prisma.SortOrder
   requiresOrderApproval?: Prisma.SortOrder
-  approvalThresholdMinor?: Prisma.SortOrder
   internalNotes?: Prisma.SortOrder
   preferredCountry?: Prisma.SortOrder
   preferredCurrency?: Prisma.SortOrder
@@ -806,13 +685,6 @@ export type CustomerProfileCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type CustomerProfileAvgOrderByAggregateInput = {
-  perOrderMinMinor?: Prisma.SortOrder
-  perOrderMaxMinor?: Prisma.SortOrder
-  monthlySpendCapMinor?: Prisma.SortOrder
-  approvalThresholdMinor?: Prisma.SortOrder
-}
-
 export type CustomerProfileMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -822,11 +694,7 @@ export type CustomerProfileMaxOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   gstin?: Prisma.SortOrder
   customerCode?: Prisma.SortOrder
-  perOrderMinMinor?: Prisma.SortOrder
-  perOrderMaxMinor?: Prisma.SortOrder
-  monthlySpendCapMinor?: Prisma.SortOrder
   requiresOrderApproval?: Prisma.SortOrder
-  approvalThresholdMinor?: Prisma.SortOrder
   internalNotes?: Prisma.SortOrder
   preferredCountry?: Prisma.SortOrder
   preferredCurrency?: Prisma.SortOrder
@@ -851,11 +719,7 @@ export type CustomerProfileMinOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   gstin?: Prisma.SortOrder
   customerCode?: Prisma.SortOrder
-  perOrderMinMinor?: Prisma.SortOrder
-  perOrderMaxMinor?: Prisma.SortOrder
-  monthlySpendCapMinor?: Prisma.SortOrder
   requiresOrderApproval?: Prisma.SortOrder
-  approvalThresholdMinor?: Prisma.SortOrder
   internalNotes?: Prisma.SortOrder
   preferredCountry?: Prisma.SortOrder
   preferredCurrency?: Prisma.SortOrder
@@ -869,13 +733,6 @@ export type CustomerProfileMinOrderByAggregateInput = {
   activatedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type CustomerProfileSumOrderByAggregateInput = {
-  perOrderMinMinor?: Prisma.SortOrder
-  perOrderMaxMinor?: Prisma.SortOrder
-  monthlySpendCapMinor?: Prisma.SortOrder
-  approvalThresholdMinor?: Prisma.SortOrder
 }
 
 export type CustomerProfileScalarRelationFilter = {
@@ -989,6 +846,20 @@ export type CustomerProfileUpdateOneWithoutCouponRedemptionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerProfileUpdateToOneWithWhereWithoutCouponRedemptionsInput, Prisma.CustomerProfileUpdateWithoutCouponRedemptionsInput>, Prisma.CustomerProfileUncheckedUpdateWithoutCouponRedemptionsInput>
 }
 
+export type CustomerProfileCreateNestedOneWithoutLimitsInput = {
+  create?: Prisma.XOR<Prisma.CustomerProfileCreateWithoutLimitsInput, Prisma.CustomerProfileUncheckedCreateWithoutLimitsInput>
+  connectOrCreate?: Prisma.CustomerProfileCreateOrConnectWithoutLimitsInput
+  connect?: Prisma.CustomerProfileWhereUniqueInput
+}
+
+export type CustomerProfileUpdateOneRequiredWithoutLimitsNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerProfileCreateWithoutLimitsInput, Prisma.CustomerProfileUncheckedCreateWithoutLimitsInput>
+  connectOrCreate?: Prisma.CustomerProfileCreateOrConnectWithoutLimitsInput
+  upsert?: Prisma.CustomerProfileUpsertWithoutLimitsInput
+  connect?: Prisma.CustomerProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerProfileUpdateToOneWithWhereWithoutLimitsInput, Prisma.CustomerProfileUpdateWithoutLimitsInput>, Prisma.CustomerProfileUncheckedUpdateWithoutLimitsInput>
+}
+
 export type CustomerProfileCreateWithoutUserInput = {
   id: string
   fullName: string
@@ -997,11 +868,7 @@ export type CustomerProfileCreateWithoutUserInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
-  perOrderMinMinor?: bigint | number | null
-  perOrderMaxMinor?: bigint | number | null
-  monthlySpendCapMinor?: bigint | number | null
   requiresOrderApproval?: boolean
-  approvalThresholdMinor?: bigint | number | null
   internalNotes?: string | null
   preferredCountry?: string | null
   preferredCurrency?: string | null
@@ -1020,6 +887,7 @@ export type CustomerProfileCreateWithoutUserInput = {
   orders?: Prisma.OrderCreateNestedManyWithoutCustomerProfileInput
   schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUncheckedCreateWithoutUserInput = {
@@ -1030,11 +898,7 @@ export type CustomerProfileUncheckedCreateWithoutUserInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
-  perOrderMinMinor?: bigint | number | null
-  perOrderMaxMinor?: bigint | number | null
-  monthlySpendCapMinor?: bigint | number | null
   requiresOrderApproval?: boolean
-  approvalThresholdMinor?: bigint | number | null
   internalNotes?: string | null
   preferredCountry?: string | null
   preferredCurrency?: string | null
@@ -1053,6 +917,7 @@ export type CustomerProfileUncheckedCreateWithoutUserInput = {
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerProfileInput
   schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
 
 export type CustomerProfileCreateOrConnectWithoutUserInput = {
@@ -1079,11 +944,7 @@ export type CustomerProfileUpdateWithoutUserInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  perOrderMinMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  perOrderMaxMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  monthlySpendCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1102,6 +963,7 @@ export type CustomerProfileUpdateWithoutUserInput = {
   orders?: Prisma.OrderUpdateManyWithoutCustomerProfileNestedInput
   schedules?: Prisma.RecurringScheduleUpdateManyWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileUncheckedUpdateWithoutUserInput = {
@@ -1112,11 +974,7 @@ export type CustomerProfileUncheckedUpdateWithoutUserInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  perOrderMinMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  perOrderMaxMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  monthlySpendCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1135,6 +993,7 @@ export type CustomerProfileUncheckedUpdateWithoutUserInput = {
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerProfileNestedInput
   schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutAddressesInput = {
@@ -1145,11 +1004,7 @@ export type CustomerProfileCreateWithoutAddressesInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
-  perOrderMinMinor?: bigint | number | null
-  perOrderMaxMinor?: bigint | number | null
-  monthlySpendCapMinor?: bigint | number | null
   requiresOrderApproval?: boolean
-  approvalThresholdMinor?: bigint | number | null
   internalNotes?: string | null
   preferredCountry?: string | null
   preferredCurrency?: string | null
@@ -1168,6 +1023,7 @@ export type CustomerProfileCreateWithoutAddressesInput = {
   orders?: Prisma.OrderCreateNestedManyWithoutCustomerProfileInput
   schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUncheckedCreateWithoutAddressesInput = {
@@ -1179,11 +1035,7 @@ export type CustomerProfileUncheckedCreateWithoutAddressesInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
-  perOrderMinMinor?: bigint | number | null
-  perOrderMaxMinor?: bigint | number | null
-  monthlySpendCapMinor?: bigint | number | null
   requiresOrderApproval?: boolean
-  approvalThresholdMinor?: bigint | number | null
   internalNotes?: string | null
   preferredCountry?: string | null
   preferredCurrency?: string | null
@@ -1201,6 +1053,7 @@ export type CustomerProfileUncheckedCreateWithoutAddressesInput = {
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerProfileInput
   schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
 
 export type CustomerProfileCreateOrConnectWithoutAddressesInput = {
@@ -1227,11 +1080,7 @@ export type CustomerProfileUpdateWithoutAddressesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  perOrderMinMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  perOrderMaxMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  monthlySpendCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1250,6 +1099,7 @@ export type CustomerProfileUpdateWithoutAddressesInput = {
   orders?: Prisma.OrderUpdateManyWithoutCustomerProfileNestedInput
   schedules?: Prisma.RecurringScheduleUpdateManyWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileUncheckedUpdateWithoutAddressesInput = {
@@ -1261,11 +1111,7 @@ export type CustomerProfileUncheckedUpdateWithoutAddressesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  perOrderMinMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  perOrderMaxMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  monthlySpendCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1283,6 +1129,7 @@ export type CustomerProfileUncheckedUpdateWithoutAddressesInput = {
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerProfileNestedInput
   schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutCartsInput = {
@@ -1293,11 +1140,7 @@ export type CustomerProfileCreateWithoutCartsInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
-  perOrderMinMinor?: bigint | number | null
-  perOrderMaxMinor?: bigint | number | null
-  monthlySpendCapMinor?: bigint | number | null
   requiresOrderApproval?: boolean
-  approvalThresholdMinor?: bigint | number | null
   internalNotes?: string | null
   preferredCountry?: string | null
   preferredCurrency?: string | null
@@ -1316,6 +1159,7 @@ export type CustomerProfileCreateWithoutCartsInput = {
   orders?: Prisma.OrderCreateNestedManyWithoutCustomerProfileInput
   schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUncheckedCreateWithoutCartsInput = {
@@ -1327,11 +1171,7 @@ export type CustomerProfileUncheckedCreateWithoutCartsInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
-  perOrderMinMinor?: bigint | number | null
-  perOrderMaxMinor?: bigint | number | null
-  monthlySpendCapMinor?: bigint | number | null
   requiresOrderApproval?: boolean
-  approvalThresholdMinor?: bigint | number | null
   internalNotes?: string | null
   preferredCountry?: string | null
   preferredCurrency?: string | null
@@ -1349,6 +1189,7 @@ export type CustomerProfileUncheckedCreateWithoutCartsInput = {
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerProfileInput
   schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
 
 export type CustomerProfileCreateOrConnectWithoutCartsInput = {
@@ -1375,11 +1216,7 @@ export type CustomerProfileUpdateWithoutCartsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  perOrderMinMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  perOrderMaxMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  monthlySpendCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1398,6 +1235,7 @@ export type CustomerProfileUpdateWithoutCartsInput = {
   orders?: Prisma.OrderUpdateManyWithoutCustomerProfileNestedInput
   schedules?: Prisma.RecurringScheduleUpdateManyWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileUncheckedUpdateWithoutCartsInput = {
@@ -1409,11 +1247,7 @@ export type CustomerProfileUncheckedUpdateWithoutCartsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  perOrderMinMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  perOrderMaxMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  monthlySpendCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1431,6 +1265,7 @@ export type CustomerProfileUncheckedUpdateWithoutCartsInput = {
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerProfileNestedInput
   schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutOrdersInput = {
@@ -1441,11 +1276,7 @@ export type CustomerProfileCreateWithoutOrdersInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
-  perOrderMinMinor?: bigint | number | null
-  perOrderMaxMinor?: bigint | number | null
-  monthlySpendCapMinor?: bigint | number | null
   requiresOrderApproval?: boolean
-  approvalThresholdMinor?: bigint | number | null
   internalNotes?: string | null
   preferredCountry?: string | null
   preferredCurrency?: string | null
@@ -1464,6 +1295,7 @@ export type CustomerProfileCreateWithoutOrdersInput = {
   carts?: Prisma.CartCreateNestedManyWithoutCustomerProfileInput
   schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUncheckedCreateWithoutOrdersInput = {
@@ -1475,11 +1307,7 @@ export type CustomerProfileUncheckedCreateWithoutOrdersInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
-  perOrderMinMinor?: bigint | number | null
-  perOrderMaxMinor?: bigint | number | null
-  monthlySpendCapMinor?: bigint | number | null
   requiresOrderApproval?: boolean
-  approvalThresholdMinor?: bigint | number | null
   internalNotes?: string | null
   preferredCountry?: string | null
   preferredCurrency?: string | null
@@ -1497,6 +1325,7 @@ export type CustomerProfileUncheckedCreateWithoutOrdersInput = {
   carts?: Prisma.CartUncheckedCreateNestedManyWithoutCustomerProfileInput
   schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
 
 export type CustomerProfileCreateOrConnectWithoutOrdersInput = {
@@ -1523,11 +1352,7 @@ export type CustomerProfileUpdateWithoutOrdersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  perOrderMinMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  perOrderMaxMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  monthlySpendCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1546,6 +1371,7 @@ export type CustomerProfileUpdateWithoutOrdersInput = {
   carts?: Prisma.CartUpdateManyWithoutCustomerProfileNestedInput
   schedules?: Prisma.RecurringScheduleUpdateManyWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileUncheckedUpdateWithoutOrdersInput = {
@@ -1557,11 +1383,7 @@ export type CustomerProfileUncheckedUpdateWithoutOrdersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  perOrderMinMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  perOrderMaxMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  monthlySpendCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1579,6 +1401,7 @@ export type CustomerProfileUncheckedUpdateWithoutOrdersInput = {
   carts?: Prisma.CartUncheckedUpdateManyWithoutCustomerProfileNestedInput
   schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutSchedulesInput = {
@@ -1589,11 +1412,7 @@ export type CustomerProfileCreateWithoutSchedulesInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
-  perOrderMinMinor?: bigint | number | null
-  perOrderMaxMinor?: bigint | number | null
-  monthlySpendCapMinor?: bigint | number | null
   requiresOrderApproval?: boolean
-  approvalThresholdMinor?: bigint | number | null
   internalNotes?: string | null
   preferredCountry?: string | null
   preferredCurrency?: string | null
@@ -1612,6 +1431,7 @@ export type CustomerProfileCreateWithoutSchedulesInput = {
   carts?: Prisma.CartCreateNestedManyWithoutCustomerProfileInput
   orders?: Prisma.OrderCreateNestedManyWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUncheckedCreateWithoutSchedulesInput = {
@@ -1623,11 +1443,7 @@ export type CustomerProfileUncheckedCreateWithoutSchedulesInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
-  perOrderMinMinor?: bigint | number | null
-  perOrderMaxMinor?: bigint | number | null
-  monthlySpendCapMinor?: bigint | number | null
   requiresOrderApproval?: boolean
-  approvalThresholdMinor?: bigint | number | null
   internalNotes?: string | null
   preferredCountry?: string | null
   preferredCurrency?: string | null
@@ -1645,6 +1461,7 @@ export type CustomerProfileUncheckedCreateWithoutSchedulesInput = {
   carts?: Prisma.CartUncheckedCreateNestedManyWithoutCustomerProfileInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
 
 export type CustomerProfileCreateOrConnectWithoutSchedulesInput = {
@@ -1671,11 +1488,7 @@ export type CustomerProfileUpdateWithoutSchedulesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  perOrderMinMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  perOrderMaxMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  monthlySpendCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1694,6 +1507,7 @@ export type CustomerProfileUpdateWithoutSchedulesInput = {
   carts?: Prisma.CartUpdateManyWithoutCustomerProfileNestedInput
   orders?: Prisma.OrderUpdateManyWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileUncheckedUpdateWithoutSchedulesInput = {
@@ -1705,11 +1519,7 @@ export type CustomerProfileUncheckedUpdateWithoutSchedulesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  perOrderMinMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  perOrderMaxMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  monthlySpendCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1727,6 +1537,7 @@ export type CustomerProfileUncheckedUpdateWithoutSchedulesInput = {
   carts?: Prisma.CartUncheckedUpdateManyWithoutCustomerProfileNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutCouponRedemptionsInput = {
@@ -1737,11 +1548,7 @@ export type CustomerProfileCreateWithoutCouponRedemptionsInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
-  perOrderMinMinor?: bigint | number | null
-  perOrderMaxMinor?: bigint | number | null
-  monthlySpendCapMinor?: bigint | number | null
   requiresOrderApproval?: boolean
-  approvalThresholdMinor?: bigint | number | null
   internalNotes?: string | null
   preferredCountry?: string | null
   preferredCurrency?: string | null
@@ -1760,6 +1567,7 @@ export type CustomerProfileCreateWithoutCouponRedemptionsInput = {
   carts?: Prisma.CartCreateNestedManyWithoutCustomerProfileInput
   orders?: Prisma.OrderCreateNestedManyWithoutCustomerProfileInput
   schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUncheckedCreateWithoutCouponRedemptionsInput = {
@@ -1771,11 +1579,7 @@ export type CustomerProfileUncheckedCreateWithoutCouponRedemptionsInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
-  perOrderMinMinor?: bigint | number | null
-  perOrderMaxMinor?: bigint | number | null
-  monthlySpendCapMinor?: bigint | number | null
   requiresOrderApproval?: boolean
-  approvalThresholdMinor?: bigint | number | null
   internalNotes?: string | null
   preferredCountry?: string | null
   preferredCurrency?: string | null
@@ -1793,6 +1597,7 @@ export type CustomerProfileUncheckedCreateWithoutCouponRedemptionsInput = {
   carts?: Prisma.CartUncheckedCreateNestedManyWithoutCustomerProfileInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerProfileInput
   schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
 
 export type CustomerProfileCreateOrConnectWithoutCouponRedemptionsInput = {
@@ -1819,11 +1624,7 @@ export type CustomerProfileUpdateWithoutCouponRedemptionsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  perOrderMinMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  perOrderMaxMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  monthlySpendCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1842,6 +1643,7 @@ export type CustomerProfileUpdateWithoutCouponRedemptionsInput = {
   carts?: Prisma.CartUpdateManyWithoutCustomerProfileNestedInput
   orders?: Prisma.OrderUpdateManyWithoutCustomerProfileNestedInput
   schedules?: Prisma.RecurringScheduleUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileUncheckedUpdateWithoutCouponRedemptionsInput = {
@@ -1853,11 +1655,7 @@ export type CustomerProfileUncheckedUpdateWithoutCouponRedemptionsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  perOrderMinMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  perOrderMaxMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  monthlySpendCapMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  approvalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1875,6 +1673,143 @@ export type CustomerProfileUncheckedUpdateWithoutCouponRedemptionsInput = {
   carts?: Prisma.CartUncheckedUpdateManyWithoutCustomerProfileNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerProfileNestedInput
   schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
+}
+
+export type CustomerProfileCreateWithoutLimitsInput = {
+  id: string
+  fullName: string
+  organization?: string | null
+  department?: string | null
+  phone?: string | null
+  gstin?: string | null
+  customerCode?: string | null
+  requiresOrderApproval?: boolean
+  internalNotes?: string | null
+  preferredCountry?: string | null
+  preferredCurrency?: string | null
+  localeChosenAt?: Date | string | null
+  detectedCountry?: string | null
+  detectedAt?: Date | string | null
+  consentAcceptedAt?: Date | string | null
+  consentVersion?: string | null
+  invitedById?: string | null
+  invitedAt?: Date | string | null
+  activatedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutCustomerProfileInput
+  addresses?: Prisma.AddressCreateNestedManyWithoutCustomerProfileInput
+  carts?: Prisma.CartCreateNestedManyWithoutCustomerProfileInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCustomerProfileInput
+  schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutCustomerProfileInput
+  couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
+}
+
+export type CustomerProfileUncheckedCreateWithoutLimitsInput = {
+  id: string
+  userId: string
+  fullName: string
+  organization?: string | null
+  department?: string | null
+  phone?: string | null
+  gstin?: string | null
+  customerCode?: string | null
+  requiresOrderApproval?: boolean
+  internalNotes?: string | null
+  preferredCountry?: string | null
+  preferredCurrency?: string | null
+  localeChosenAt?: Date | string | null
+  detectedCountry?: string | null
+  detectedAt?: Date | string | null
+  consentAcceptedAt?: Date | string | null
+  consentVersion?: string | null
+  invitedById?: string | null
+  invitedAt?: Date | string | null
+  activatedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  addresses?: Prisma.AddressUncheckedCreateNestedManyWithoutCustomerProfileInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutCustomerProfileInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerProfileInput
+  schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutCustomerProfileInput
+  couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
+}
+
+export type CustomerProfileCreateOrConnectWithoutLimitsInput = {
+  where: Prisma.CustomerProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerProfileCreateWithoutLimitsInput, Prisma.CustomerProfileUncheckedCreateWithoutLimitsInput>
+}
+
+export type CustomerProfileUpsertWithoutLimitsInput = {
+  update: Prisma.XOR<Prisma.CustomerProfileUpdateWithoutLimitsInput, Prisma.CustomerProfileUncheckedUpdateWithoutLimitsInput>
+  create: Prisma.XOR<Prisma.CustomerProfileCreateWithoutLimitsInput, Prisma.CustomerProfileUncheckedCreateWithoutLimitsInput>
+  where?: Prisma.CustomerProfileWhereInput
+}
+
+export type CustomerProfileUpdateToOneWithWhereWithoutLimitsInput = {
+  where?: Prisma.CustomerProfileWhereInput
+  data: Prisma.XOR<Prisma.CustomerProfileUpdateWithoutLimitsInput, Prisma.CustomerProfileUncheckedUpdateWithoutLimitsInput>
+}
+
+export type CustomerProfileUpdateWithoutLimitsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localeChosenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  detectedCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutCustomerProfileNestedInput
+  addresses?: Prisma.AddressUpdateManyWithoutCustomerProfileNestedInput
+  carts?: Prisma.CartUpdateManyWithoutCustomerProfileNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCustomerProfileNestedInput
+  schedules?: Prisma.RecurringScheduleUpdateManyWithoutCustomerProfileNestedInput
+  couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
+}
+
+export type CustomerProfileUncheckedUpdateWithoutLimitsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localeChosenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  detectedCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  addresses?: Prisma.AddressUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
 
 
@@ -1888,6 +1823,7 @@ export type CustomerProfileCountOutputType = {
   orders: number
   schedules: number
   couponRedemptions: number
+  limits: number
 }
 
 export type CustomerProfileCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1896,6 +1832,7 @@ export type CustomerProfileCountOutputTypeSelect<ExtArgs extends runtime.Types.E
   orders?: boolean | CustomerProfileCountOutputTypeCountOrdersArgs
   schedules?: boolean | CustomerProfileCountOutputTypeCountSchedulesArgs
   couponRedemptions?: boolean | CustomerProfileCountOutputTypeCountCouponRedemptionsArgs
+  limits?: boolean | CustomerProfileCountOutputTypeCountLimitsArgs
 }
 
 /**
@@ -1943,6 +1880,13 @@ export type CustomerProfileCountOutputTypeCountCouponRedemptionsArgs<ExtArgs ext
   where?: Prisma.CouponRedemptionWhereInput
 }
 
+/**
+ * CustomerProfileCountOutputType without action
+ */
+export type CustomerProfileCountOutputTypeCountLimitsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerLimitWhereInput
+}
+
 
 export type CustomerProfileSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1953,11 +1897,7 @@ export type CustomerProfileSelect<ExtArgs extends runtime.Types.Extensions.Inter
   phone?: boolean
   gstin?: boolean
   customerCode?: boolean
-  perOrderMinMinor?: boolean
-  perOrderMaxMinor?: boolean
-  monthlySpendCapMinor?: boolean
   requiresOrderApproval?: boolean
-  approvalThresholdMinor?: boolean
   internalNotes?: boolean
   preferredCountry?: boolean
   preferredCurrency?: boolean
@@ -1977,6 +1917,7 @@ export type CustomerProfileSelect<ExtArgs extends runtime.Types.Extensions.Inter
   orders?: boolean | Prisma.CustomerProfile$ordersArgs<ExtArgs>
   schedules?: boolean | Prisma.CustomerProfile$schedulesArgs<ExtArgs>
   couponRedemptions?: boolean | Prisma.CustomerProfile$couponRedemptionsArgs<ExtArgs>
+  limits?: boolean | Prisma.CustomerProfile$limitsArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerProfileCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customerProfile"]>
 
@@ -1991,11 +1932,7 @@ export type CustomerProfileSelectScalar = {
   phone?: boolean
   gstin?: boolean
   customerCode?: boolean
-  perOrderMinMinor?: boolean
-  perOrderMaxMinor?: boolean
-  monthlySpendCapMinor?: boolean
   requiresOrderApproval?: boolean
-  approvalThresholdMinor?: boolean
   internalNotes?: boolean
   preferredCountry?: boolean
   preferredCurrency?: boolean
@@ -2011,7 +1948,7 @@ export type CustomerProfileSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CustomerProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "fullName" | "organization" | "department" | "phone" | "gstin" | "customerCode" | "perOrderMinMinor" | "perOrderMaxMinor" | "monthlySpendCapMinor" | "requiresOrderApproval" | "approvalThresholdMinor" | "internalNotes" | "preferredCountry" | "preferredCurrency" | "localeChosenAt" | "detectedCountry" | "detectedAt" | "consentAcceptedAt" | "consentVersion" | "invitedById" | "invitedAt" | "activatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["customerProfile"]>
+export type CustomerProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "fullName" | "organization" | "department" | "phone" | "gstin" | "customerCode" | "requiresOrderApproval" | "internalNotes" | "preferredCountry" | "preferredCurrency" | "localeChosenAt" | "detectedCountry" | "detectedAt" | "consentAcceptedAt" | "consentVersion" | "invitedById" | "invitedAt" | "activatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["customerProfile"]>
 export type CustomerProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   addresses?: boolean | Prisma.CustomerProfile$addressesArgs<ExtArgs>
@@ -2019,6 +1956,7 @@ export type CustomerProfileInclude<ExtArgs extends runtime.Types.Extensions.Inte
   orders?: boolean | Prisma.CustomerProfile$ordersArgs<ExtArgs>
   schedules?: boolean | Prisma.CustomerProfile$schedulesArgs<ExtArgs>
   couponRedemptions?: boolean | Prisma.CustomerProfile$couponRedemptionsArgs<ExtArgs>
+  limits?: boolean | Prisma.CustomerProfile$limitsArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerProfileCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -2031,6 +1969,7 @@ export type $CustomerProfilePayload<ExtArgs extends runtime.Types.Extensions.Int
     orders: Prisma.$OrderPayload<ExtArgs>[]
     schedules: Prisma.$RecurringSchedulePayload<ExtArgs>[]
     couponRedemptions: Prisma.$CouponRedemptionPayload<ExtArgs>[]
+    limits: Prisma.$CustomerLimitPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2042,16 +1981,10 @@ export type $CustomerProfilePayload<ExtArgs extends runtime.Types.Extensions.Int
     gstin: string | null
     customerCode: string | null
     /**
-     * Purchasing controls. Null means this particular rule imposes no limit.
+     * Whether this account needs sign-off at all. The amounts that decide when
+     * live in `customer_limits`, one row per currency - see that model.
      */
-    perOrderMinMinor: bigint | null
-    perOrderMaxMinor: bigint | null
-    monthlySpendCapMinor: bigint | null
     requiresOrderApproval: boolean
-    /**
-     * Order total at or above which approval is required, when approvals are on.
-     */
-    approvalThresholdMinor: bigint | null
     internalNotes: string | null
     /**
      * Where the shopper says they are, and what they want to be quoted in.
@@ -2421,6 +2354,7 @@ export interface Prisma__CustomerProfileClient<T, Null = never, ExtArgs extends 
   orders<T extends Prisma.CustomerProfile$ordersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   schedules<T extends Prisma.CustomerProfile$schedulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$schedulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecurringSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   couponRedemptions<T extends Prisma.CustomerProfile$couponRedemptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$couponRedemptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CouponRedemptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  limits<T extends Prisma.CustomerProfile$limitsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$limitsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerLimitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2458,11 +2392,7 @@ export interface CustomerProfileFieldRefs {
   readonly phone: Prisma.FieldRef<"CustomerProfile", 'String'>
   readonly gstin: Prisma.FieldRef<"CustomerProfile", 'String'>
   readonly customerCode: Prisma.FieldRef<"CustomerProfile", 'String'>
-  readonly perOrderMinMinor: Prisma.FieldRef<"CustomerProfile", 'BigInt'>
-  readonly perOrderMaxMinor: Prisma.FieldRef<"CustomerProfile", 'BigInt'>
-  readonly monthlySpendCapMinor: Prisma.FieldRef<"CustomerProfile", 'BigInt'>
   readonly requiresOrderApproval: Prisma.FieldRef<"CustomerProfile", 'Boolean'>
-  readonly approvalThresholdMinor: Prisma.FieldRef<"CustomerProfile", 'BigInt'>
   readonly internalNotes: Prisma.FieldRef<"CustomerProfile", 'String'>
   readonly preferredCountry: Prisma.FieldRef<"CustomerProfile", 'String'>
   readonly preferredCurrency: Prisma.FieldRef<"CustomerProfile", 'String'>
@@ -2941,6 +2871,30 @@ export type CustomerProfile$couponRedemptionsArgs<ExtArgs extends runtime.Types.
   take?: number
   skip?: number
   distinct?: Prisma.CouponRedemptionScalarFieldEnum | Prisma.CouponRedemptionScalarFieldEnum[]
+}
+
+/**
+ * CustomerProfile.limits
+ */
+export type CustomerProfile$limitsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerLimit
+   */
+  select?: Prisma.CustomerLimitSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerLimit
+   */
+  omit?: Prisma.CustomerLimitOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerLimitInclude<ExtArgs> | null
+  where?: Prisma.CustomerLimitWhereInput
+  orderBy?: Prisma.CustomerLimitOrderByWithRelationInput | Prisma.CustomerLimitOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerLimitWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerLimitScalarFieldEnum | Prisma.CustomerLimitScalarFieldEnum[]
 }
 
 /**

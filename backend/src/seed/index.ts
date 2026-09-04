@@ -292,13 +292,34 @@ async function seedCustomers(): Promise<void> {
         organization: customer.organization,
         department: customer.department,
         phone: '+91 98000 00000',
-        perOrderMinMinor: 50_000n, // Rs 500 minimum order
-        perOrderMaxMinor: 50_000_000n, // Rs 500,000 maximum order
         activatedAt: customer.active ? new Date() : null,
         consentAcceptedAt: customer.active ? new Date() : null,
         consentVersion: customer.active ? 'v1' : null,
       },
     });
+
+    // Terms per market. INR is where this business trades; a USD set is seeded
+    // too so the multi-currency path has something to exercise.
+    for (const terms of [
+      { currencyCode: 'INR', min: 50_000n, max: 50_000_000n }, // Rs 500 - Rs 500,000
+      { currencyCode: 'USD', min: 1_000n, max: 600_000n }, // $10 - $6,000
+    ]) {
+      await prisma.customerLimit.upsert({
+        where: {
+          customerProfileId_currencyCode: {
+            customerProfileId: profile.id,
+            currencyCode: terms.currencyCode,
+          },
+        },
+        update: {},
+        create: {
+          customerProfileId: profile.id,
+          currencyCode: terms.currencyCode,
+          perOrderMinMinor: terms.min,
+          perOrderMaxMinor: terms.max,
+        },
+      });
+    }
 
     const addressCount = await prisma.address.count({
       where: { customerProfileId: profile.id },

@@ -17,7 +17,6 @@ import { ErrorCode, unprocessable, type ErrorDetail } from '../../domain/errors.
 import { formatMinorToMajor, type Minor } from '../../domain/money.js';
 import { checkOrderValue, checkQuantity, type QuantityRules } from '../../domain/pricing.js';
 import { prisma } from '../../infra/prisma.js';
-import { getBaseCurrency } from '../settings/currency.service.js';
 
 /**
  * Order statuses that count toward the monthly spend cap.
@@ -36,12 +35,21 @@ const SPEND_COUNTING_STATUSES = [
   'DELIVERED',
 ] as const;
 
+/**
+ * The limits that apply to one customer in one currency.
+ *
+ * `requiresOrderApproval` comes from the profile - whether an account needs
+ * sign-off is a policy about the account. The amounts come from that currency's
+ * `customer_limits` row, because an amount without its currency is meaningless.
+ */
 export interface CustomerLimits {
   perOrderMinMinor: Minor | null;
   perOrderMaxMinor: Minor | null;
   monthlySpendCapMinor: Minor | null;
   requiresOrderApproval: boolean;
   approvalThresholdMinor: Minor | null;
+  /** True when the account has terms in some currency, but not this one. */
+  currencyNotAgreed: boolean;
 }
 
 export interface LineToCheck {
@@ -70,19 +78,54 @@ export interface LimitCheckResult {
   monthToDateMinor: Minor;
 }
 
-export async function loadCustomerLimits(customerProfileId: string): Promise<CustomerLimits | null> {
+export async function loadCustomerLimits(
+  customerProfileId: string,
+  currency: string,
+): Promise<CustomerLimits | null> {
   const profile = await prisma.customerProfile.findUnique({
     where: { id: customerProfileId },
     select: {
-      perOrderMinMinor: true,
-      perOrderMaxMinor: true,
-      monthlySpendCapMinor: true,
       requiresOrderApproval: true,
-      approvalThresholdMinor: true,
+      limits: {
+        select: {
+          currencyCode: true,
+          perOrderMinMinor: true,
+          perOrderMaxMinor: true,
+          monthlySpendCapMinor: true,
+          approvalThresholdMinor: true,
+        },
+      },
     },
   });
 
-  return profile;
+  if (profile === null) return null;
+
+  const forCurrency = profile.limits.find((row) => row.currencyCode === currency);
+
+  if (forCurrency !== undefined) {
+    return {
+      perOrderMinMinor: forCurrency.perOrderMinMinor,
+      perOrderMaxMinor: forCurrency.perOrderMaxMinor,
+      monthlySpendCapMinor: forCurrency.monthlySpendCapMinor,
+      approvalThresholdMinor: forCurrency.approvalThresholdMinor,
+      requiresOrderApproval: profile.requiresOrderApproval,
+      currencyNotAgreed: false,
+    };
+  }
+
+  // No row for this currency. If the account has terms elsewhere, those terms
+  // are a credit control and must not evaporate because the shopper switched
+  // market - so the order is refused rather than run unlimited. An account with
+  // no limits anywhere buys freely in any currency, which is the same freedom
+  // it had before.
+  return {
+    perOrderMinMinor: null,
+    perOrderMaxMinor: null,
+    monthlySpendCapMinor: null,
+    approvalThresholdMinor: null,
+    requiresOrderApproval: profile.requiresOrderApproval,
+    currencyNotAgreed: profile.limits.length > 0,
+  };
 }
 
 /**
@@ -93,6 +136,7 @@ export async function loadCustomerLimits(customerProfileId: string): Promise<Cus
  */
 export async function monthToDateSpend(
   customerProfileId: string,
+  currency: string,
   excludeOrderId?: string,
 ): Promise<Minor> {
   const now = new Date();
@@ -101,6 +145,10 @@ export async function monthToDateSpend(
   const result = await prisma.order.aggregate({
     where: {
       customerProfileId,
+      // Scoped to one currency: summing rupee and dollar totals into a single
+      // figure and comparing it to a cap would be arithmetic on two different
+      // units. Each market's cap counts only that market's orders.
+      currency,
       status: { in: [...SPEND_COUNTING_STATUSES] },
       createdAt: { gte: monthStart },
       ...(excludeOrderId !== undefined ? { id: { not: excludeOrderId } } : {}),
@@ -164,7 +212,7 @@ export async function checkPurchasingLimits(input: LimitCheckInput): Promise<Lim
     }
   }
 
-  const limits = await loadCustomerLimits(input.customerProfileId);
+  const limits = await loadCustomerLimits(input.customerProfileId, input.currency);
 
   if (limits === null) {
     return {
@@ -176,32 +224,27 @@ export async function checkPurchasingLimits(input: LimitCheckInput): Promise<Lim
     };
   }
 
-  // --- 2. The currency these limits are denominated in ---
+  // --- 2. Terms in this currency ---
   //
-  // Purchasing limits are plain amounts with no currency of their own: they
-  // were entered in the business's base currency. Comparing a base-currency
-  // figure against a total in another currency is meaningless - a 500 rupee
-  // minimum would silently become a 500 dollar one - so an account carrying a
-  // money limit may only order in the currency that limit was set in.
-  //
-  // Blocking rather than skipping is deliberate. A spend cap quietly dropped
-  // because the shopper switched currency is a credit control that stopped
-  // working without anybody being told.
-  const hasMoneyLimit =
-    limits.perOrderMinMinor !== null ||
-    limits.perOrderMaxMinor !== null ||
-    limits.monthlySpendCapMinor !== null;
+  // An account with agreed limits somewhere but none here has no terms for
+  // this market. Running the order unlimited would drop a credit control
+  // because the shopper changed currency; refusing says so plainly, and staff
+  // can add terms for the market from the customer's record.
+  if (limits.currencyNotAgreed) {
+    const agreed = await prisma.customerLimit.findMany({
+      where: { customerProfileId: input.customerProfileId },
+      select: { currencyCode: true },
+      orderBy: { currencyCode: 'asc' },
+    });
+    const codes = agreed.map((row) => row.currencyCode);
 
-  const limitsCurrency = await getBaseCurrency();
-
-  if (hasMoneyLimit && input.currency !== limitsCurrency) {
     violations.push({
       field: 'grandTotal',
       code: ErrorCode.CART_CURRENCY_MISMATCH,
       message:
-        `Your account's purchasing limits are set in ${limitsCurrency}. ` +
-        `Switch to ${limitsCurrency} to place this order.`,
-      meta: { limitsCurrency, cartCurrency: input.currency },
+        `Your account has agreed purchasing terms in ${codes.join(', ')}, not ${input.currency}. ` +
+        `Switch to ${codes[0] ?? 'a supported currency'} to place this order.`,
+      meta: { agreedCurrencies: codes.join(','), cartCurrency: input.currency },
     });
 
     return {
@@ -238,7 +281,11 @@ export async function checkPurchasingLimits(input: LimitCheckInput): Promise<Lim
   }
 
   // --- 4. Monthly spend cap ---
-  const monthToDateMinor = await monthToDateSpend(input.customerProfileId, input.excludeOrderId);
+  const monthToDateMinor = await monthToDateSpend(
+    input.customerProfileId,
+    input.currency,
+    input.excludeOrderId,
+  );
 
   if (limits.monthlySpendCapMinor !== null) {
     const projected = monthToDateMinor + input.grandTotalMinor;
@@ -321,9 +368,11 @@ export async function getSpendSummary(
   customerProfileId: string,
   currency: string,
 ): Promise<SpendSummary> {
+  // Both sides of the comparison are scoped to the same currency, so the
+  // summary means what it says.
   const [limits, monthToDate] = await Promise.all([
-    loadCustomerLimits(customerProfileId),
-    monthToDateSpend(customerProfileId),
+    loadCustomerLimits(customerProfileId, currency),
+    monthToDateSpend(customerProfileId, currency),
   ]);
 
   const cap = limits?.monthlySpendCapMinor ?? null;

@@ -111,7 +111,8 @@ export const ModelName = {
   Coupon: 'Coupon',
   CouponCategory: 'CouponCategory',
   CouponMinimum: 'CouponMinimum',
-  CouponRedemption: 'CouponRedemption'
+  CouponRedemption: 'CouponRedemption',
+  CustomerLimit: 'CustomerLimit'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -520,11 +521,7 @@ export const CustomerProfileScalarFieldEnum = {
   phone: 'phone',
   gstin: 'gstin',
   customerCode: 'customerCode',
-  perOrderMinMinor: 'perOrderMinMinor',
-  perOrderMaxMinor: 'perOrderMaxMinor',
-  monthlySpendCapMinor: 'monthlySpendCapMinor',
   requiresOrderApproval: 'requiresOrderApproval',
-  approvalThresholdMinor: 'approvalThresholdMinor',
   internalNotes: 'internalNotes',
   preferredCountry: 'preferredCountry',
   preferredCurrency: 'preferredCurrency',
@@ -1254,6 +1251,21 @@ export const CouponRedemptionScalarFieldEnum = {
 } as const
 
 export type CouponRedemptionScalarFieldEnum = (typeof CouponRedemptionScalarFieldEnum)[keyof typeof CouponRedemptionScalarFieldEnum]
+
+
+export const CustomerLimitScalarFieldEnum = {
+  customerProfileId: 'customerProfileId',
+  currencyCode: 'currencyCode',
+  perOrderMinMinor: 'perOrderMinMinor',
+  perOrderMaxMinor: 'perOrderMaxMinor',
+  monthlySpendCapMinor: 'monthlySpendCapMinor',
+  approvalThresholdMinor: 'approvalThresholdMinor',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  updatedById: 'updatedById'
+} as const
+
+export type CustomerLimitScalarFieldEnum = (typeof CustomerLimitScalarFieldEnum)[keyof typeof CustomerLimitScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2056,4 +2068,13 @@ export const CouponRedemptionOrderByRelevanceFieldEnum = {
 } as const
 
 export type CouponRedemptionOrderByRelevanceFieldEnum = (typeof CouponRedemptionOrderByRelevanceFieldEnum)[keyof typeof CouponRedemptionOrderByRelevanceFieldEnum]
+
+
+export const CustomerLimitOrderByRelevanceFieldEnum = {
+  customerProfileId: 'customerProfileId',
+  currencyCode: 'currencyCode',
+  updatedById: 'updatedById'
+} as const
+
+export type CustomerLimitOrderByRelevanceFieldEnum = (typeof CustomerLimitOrderByRelevanceFieldEnum)[keyof typeof CustomerLimitOrderByRelevanceFieldEnum]
 

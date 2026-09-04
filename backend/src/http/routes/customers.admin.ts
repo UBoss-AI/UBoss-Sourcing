@@ -38,12 +38,25 @@ const minorUnits = z
   .regex(/^\d+$/, 'Expected whole minor units, e.g. "500000".')
   .nullable();
 
-const limitsSchema = z.object({
+/**
+ * Terms for one market.
+ *
+ * The amounts are per currency because an amount without its currency cannot
+ * be compared to anything: a 5,000 rupee minimum read against a dollar cart
+ * would become a 5,000 dollar one.
+ */
+const currencyLimitSchema = z.object({
+  currencyCode: z.string().trim().length(3),
   perOrderMinMinor: minorUnits.optional(),
   perOrderMaxMinor: minorUnits.optional(),
   monthlySpendCapMinor: minorUnits.optional(),
-  requiresOrderApproval: z.boolean().optional(),
   approvalThresholdMinor: minorUnits.optional(),
+});
+
+const limitsSchema = z.object({
+  requiresOrderApproval: z.boolean().optional(),
+  /** Sending this replaces the whole set; an omitted currency loses its terms. */
+  perCurrency: z.array(currencyLimitSchema).max(20).optional(),
 });
 
 const addressSchema = z.object({

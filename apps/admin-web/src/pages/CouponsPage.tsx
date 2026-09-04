@@ -371,7 +371,7 @@ export function CouponsPage(): React.JSX.Element {
               onClick={() => {
                 openEdit(row);
               }}
-              className="text-sm font-medium text-brand hover:underline"
+              className="text-sm font-medium text-accent hover:underline"
             >
               Edit
             </button>

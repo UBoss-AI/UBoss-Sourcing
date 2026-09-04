@@ -346,3 +346,23 @@ export type CouponMinimum = Prisma.CouponMinimumModel
  * 
  */
 export type CouponRedemption = Prisma.CouponRedemptionModel
+/**
+ * Model CustomerLimit
+ * *
+ *  * Purchasing limits, per currency.
+ *  *
+ *  * These are plain amounts, and an amount means nothing without the currency it
+ *  * is counted in: a 5,000 rupee minimum read against a dollar cart becomes a
+ *  * 5,000 dollar one. They used to live as bare columns on `customer_profiles`,
+ *  * implicitly in the base currency, which was correct only while the catalogue
+ *  * sold in one.
+ *  *
+ *  * A row per market a customer is allowed to buy in. No row means no agreed
+ *  * terms in that currency, and an account that carries limits anywhere may only
+ *  * order where it has them - dropping a credit control because the shopper
+ *  * switched currency is worse than refusing the order.
+ *  *
+ *  * `requiresOrderApproval` stays on the profile: whether an account needs
+ *  * sign-off is a policy about the account, not an amount.
+ */
+export type CustomerLimit = Prisma.CustomerLimitModel

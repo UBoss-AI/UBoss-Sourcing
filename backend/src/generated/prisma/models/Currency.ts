@@ -255,6 +255,7 @@ export type CurrencyWhereInput = {
   countries?: Prisma.CountryListRelationFilter
   productPrices?: Prisma.ProductPriceListRelationFilter
   couponMinimums?: Prisma.CouponMinimumListRelationFilter
+  customerLimits?: Prisma.CustomerLimitListRelationFilter
 }
 
 export type CurrencyOrderByWithRelationInput = {
@@ -270,6 +271,7 @@ export type CurrencyOrderByWithRelationInput = {
   countries?: Prisma.CountryOrderByRelationAggregateInput
   productPrices?: Prisma.ProductPriceOrderByRelationAggregateInput
   couponMinimums?: Prisma.CouponMinimumOrderByRelationAggregateInput
+  customerLimits?: Prisma.CustomerLimitOrderByRelationAggregateInput
   _relevance?: Prisma.CurrencyOrderByRelevanceInput
 }
 
@@ -289,6 +291,7 @@ export type CurrencyWhereUniqueInput = Prisma.AtLeast<{
   countries?: Prisma.CountryListRelationFilter
   productPrices?: Prisma.ProductPriceListRelationFilter
   couponMinimums?: Prisma.CouponMinimumListRelationFilter
+  customerLimits?: Prisma.CustomerLimitListRelationFilter
 }, "code">
 
 export type CurrencyOrderByWithAggregationInput = {
@@ -336,6 +339,7 @@ export type CurrencyCreateInput = {
   countries?: Prisma.CountryCreateNestedManyWithoutCurrencyInput
   productPrices?: Prisma.ProductPriceCreateNestedManyWithoutCurrencyInput
   couponMinimums?: Prisma.CouponMinimumCreateNestedManyWithoutCurrencyInput
+  customerLimits?: Prisma.CustomerLimitCreateNestedManyWithoutCurrencyInput
 }
 
 export type CurrencyUncheckedCreateInput = {
@@ -351,6 +355,7 @@ export type CurrencyUncheckedCreateInput = {
   countries?: Prisma.CountryUncheckedCreateNestedManyWithoutCurrencyInput
   productPrices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutCurrencyInput
   couponMinimums?: Prisma.CouponMinimumUncheckedCreateNestedManyWithoutCurrencyInput
+  customerLimits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCurrencyInput
 }
 
 export type CurrencyUpdateInput = {
@@ -366,6 +371,7 @@ export type CurrencyUpdateInput = {
   countries?: Prisma.CountryUpdateManyWithoutCurrencyNestedInput
   productPrices?: Prisma.ProductPriceUpdateManyWithoutCurrencyNestedInput
   couponMinimums?: Prisma.CouponMinimumUpdateManyWithoutCurrencyNestedInput
+  customerLimits?: Prisma.CustomerLimitUpdateManyWithoutCurrencyNestedInput
 }
 
 export type CurrencyUncheckedUpdateInput = {
@@ -381,6 +387,7 @@ export type CurrencyUncheckedUpdateInput = {
   countries?: Prisma.CountryUncheckedUpdateManyWithoutCurrencyNestedInput
   productPrices?: Prisma.ProductPriceUncheckedUpdateManyWithoutCurrencyNestedInput
   couponMinimums?: Prisma.CouponMinimumUncheckedUpdateManyWithoutCurrencyNestedInput
+  customerLimits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCurrencyNestedInput
 }
 
 export type CurrencyCreateManyInput = {
@@ -518,6 +525,20 @@ export type CurrencyUpdateOneRequiredWithoutCouponMinimumsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CurrencyUpdateToOneWithWhereWithoutCouponMinimumsInput, Prisma.CurrencyUpdateWithoutCouponMinimumsInput>, Prisma.CurrencyUncheckedUpdateWithoutCouponMinimumsInput>
 }
 
+export type CurrencyCreateNestedOneWithoutCustomerLimitsInput = {
+  create?: Prisma.XOR<Prisma.CurrencyCreateWithoutCustomerLimitsInput, Prisma.CurrencyUncheckedCreateWithoutCustomerLimitsInput>
+  connectOrCreate?: Prisma.CurrencyCreateOrConnectWithoutCustomerLimitsInput
+  connect?: Prisma.CurrencyWhereUniqueInput
+}
+
+export type CurrencyUpdateOneRequiredWithoutCustomerLimitsNestedInput = {
+  create?: Prisma.XOR<Prisma.CurrencyCreateWithoutCustomerLimitsInput, Prisma.CurrencyUncheckedCreateWithoutCustomerLimitsInput>
+  connectOrCreate?: Prisma.CurrencyCreateOrConnectWithoutCustomerLimitsInput
+  upsert?: Prisma.CurrencyUpsertWithoutCustomerLimitsInput
+  connect?: Prisma.CurrencyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CurrencyUpdateToOneWithWhereWithoutCustomerLimitsInput, Prisma.CurrencyUpdateWithoutCustomerLimitsInput>, Prisma.CurrencyUncheckedUpdateWithoutCustomerLimitsInput>
+}
+
 export type CurrencyCreateWithoutCountriesInput = {
   code: string
   name: string
@@ -530,6 +551,7 @@ export type CurrencyCreateWithoutCountriesInput = {
   updatedAt?: Date | string
   productPrices?: Prisma.ProductPriceCreateNestedManyWithoutCurrencyInput
   couponMinimums?: Prisma.CouponMinimumCreateNestedManyWithoutCurrencyInput
+  customerLimits?: Prisma.CustomerLimitCreateNestedManyWithoutCurrencyInput
 }
 
 export type CurrencyUncheckedCreateWithoutCountriesInput = {
@@ -544,6 +566,7 @@ export type CurrencyUncheckedCreateWithoutCountriesInput = {
   updatedAt?: Date | string
   productPrices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutCurrencyInput
   couponMinimums?: Prisma.CouponMinimumUncheckedCreateNestedManyWithoutCurrencyInput
+  customerLimits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCurrencyInput
 }
 
 export type CurrencyCreateOrConnectWithoutCountriesInput = {
@@ -574,6 +597,7 @@ export type CurrencyUpdateWithoutCountriesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productPrices?: Prisma.ProductPriceUpdateManyWithoutCurrencyNestedInput
   couponMinimums?: Prisma.CouponMinimumUpdateManyWithoutCurrencyNestedInput
+  customerLimits?: Prisma.CustomerLimitUpdateManyWithoutCurrencyNestedInput
 }
 
 export type CurrencyUncheckedUpdateWithoutCountriesInput = {
@@ -588,6 +612,7 @@ export type CurrencyUncheckedUpdateWithoutCountriesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productPrices?: Prisma.ProductPriceUncheckedUpdateManyWithoutCurrencyNestedInput
   couponMinimums?: Prisma.CouponMinimumUncheckedUpdateManyWithoutCurrencyNestedInput
+  customerLimits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCurrencyNestedInput
 }
 
 export type CurrencyCreateWithoutProductPricesInput = {
@@ -602,6 +627,7 @@ export type CurrencyCreateWithoutProductPricesInput = {
   updatedAt?: Date | string
   countries?: Prisma.CountryCreateNestedManyWithoutCurrencyInput
   couponMinimums?: Prisma.CouponMinimumCreateNestedManyWithoutCurrencyInput
+  customerLimits?: Prisma.CustomerLimitCreateNestedManyWithoutCurrencyInput
 }
 
 export type CurrencyUncheckedCreateWithoutProductPricesInput = {
@@ -616,6 +642,7 @@ export type CurrencyUncheckedCreateWithoutProductPricesInput = {
   updatedAt?: Date | string
   countries?: Prisma.CountryUncheckedCreateNestedManyWithoutCurrencyInput
   couponMinimums?: Prisma.CouponMinimumUncheckedCreateNestedManyWithoutCurrencyInput
+  customerLimits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCurrencyInput
 }
 
 export type CurrencyCreateOrConnectWithoutProductPricesInput = {
@@ -646,6 +673,7 @@ export type CurrencyUpdateWithoutProductPricesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   countries?: Prisma.CountryUpdateManyWithoutCurrencyNestedInput
   couponMinimums?: Prisma.CouponMinimumUpdateManyWithoutCurrencyNestedInput
+  customerLimits?: Prisma.CustomerLimitUpdateManyWithoutCurrencyNestedInput
 }
 
 export type CurrencyUncheckedUpdateWithoutProductPricesInput = {
@@ -660,6 +688,7 @@ export type CurrencyUncheckedUpdateWithoutProductPricesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   countries?: Prisma.CountryUncheckedUpdateManyWithoutCurrencyNestedInput
   couponMinimums?: Prisma.CouponMinimumUncheckedUpdateManyWithoutCurrencyNestedInput
+  customerLimits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCurrencyNestedInput
 }
 
 export type CurrencyCreateWithoutCouponMinimumsInput = {
@@ -674,6 +703,7 @@ export type CurrencyCreateWithoutCouponMinimumsInput = {
   updatedAt?: Date | string
   countries?: Prisma.CountryCreateNestedManyWithoutCurrencyInput
   productPrices?: Prisma.ProductPriceCreateNestedManyWithoutCurrencyInput
+  customerLimits?: Prisma.CustomerLimitCreateNestedManyWithoutCurrencyInput
 }
 
 export type CurrencyUncheckedCreateWithoutCouponMinimumsInput = {
@@ -688,6 +718,7 @@ export type CurrencyUncheckedCreateWithoutCouponMinimumsInput = {
   updatedAt?: Date | string
   countries?: Prisma.CountryUncheckedCreateNestedManyWithoutCurrencyInput
   productPrices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutCurrencyInput
+  customerLimits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCurrencyInput
 }
 
 export type CurrencyCreateOrConnectWithoutCouponMinimumsInput = {
@@ -718,6 +749,7 @@ export type CurrencyUpdateWithoutCouponMinimumsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   countries?: Prisma.CountryUpdateManyWithoutCurrencyNestedInput
   productPrices?: Prisma.ProductPriceUpdateManyWithoutCurrencyNestedInput
+  customerLimits?: Prisma.CustomerLimitUpdateManyWithoutCurrencyNestedInput
 }
 
 export type CurrencyUncheckedUpdateWithoutCouponMinimumsInput = {
@@ -732,6 +764,83 @@ export type CurrencyUncheckedUpdateWithoutCouponMinimumsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   countries?: Prisma.CountryUncheckedUpdateManyWithoutCurrencyNestedInput
   productPrices?: Prisma.ProductPriceUncheckedUpdateManyWithoutCurrencyNestedInput
+  customerLimits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCurrencyNestedInput
+}
+
+export type CurrencyCreateWithoutCustomerLimitsInput = {
+  code: string
+  name: string
+  symbol: string
+  exponent?: number
+  isBase?: boolean
+  isActive?: boolean
+  sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  countries?: Prisma.CountryCreateNestedManyWithoutCurrencyInput
+  productPrices?: Prisma.ProductPriceCreateNestedManyWithoutCurrencyInput
+  couponMinimums?: Prisma.CouponMinimumCreateNestedManyWithoutCurrencyInput
+}
+
+export type CurrencyUncheckedCreateWithoutCustomerLimitsInput = {
+  code: string
+  name: string
+  symbol: string
+  exponent?: number
+  isBase?: boolean
+  isActive?: boolean
+  sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  countries?: Prisma.CountryUncheckedCreateNestedManyWithoutCurrencyInput
+  productPrices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutCurrencyInput
+  couponMinimums?: Prisma.CouponMinimumUncheckedCreateNestedManyWithoutCurrencyInput
+}
+
+export type CurrencyCreateOrConnectWithoutCustomerLimitsInput = {
+  where: Prisma.CurrencyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CurrencyCreateWithoutCustomerLimitsInput, Prisma.CurrencyUncheckedCreateWithoutCustomerLimitsInput>
+}
+
+export type CurrencyUpsertWithoutCustomerLimitsInput = {
+  update: Prisma.XOR<Prisma.CurrencyUpdateWithoutCustomerLimitsInput, Prisma.CurrencyUncheckedUpdateWithoutCustomerLimitsInput>
+  create: Prisma.XOR<Prisma.CurrencyCreateWithoutCustomerLimitsInput, Prisma.CurrencyUncheckedCreateWithoutCustomerLimitsInput>
+  where?: Prisma.CurrencyWhereInput
+}
+
+export type CurrencyUpdateToOneWithWhereWithoutCustomerLimitsInput = {
+  where?: Prisma.CurrencyWhereInput
+  data: Prisma.XOR<Prisma.CurrencyUpdateWithoutCustomerLimitsInput, Prisma.CurrencyUncheckedUpdateWithoutCustomerLimitsInput>
+}
+
+export type CurrencyUpdateWithoutCustomerLimitsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  symbol?: Prisma.StringFieldUpdateOperationsInput | string
+  exponent?: Prisma.IntFieldUpdateOperationsInput | number
+  isBase?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  countries?: Prisma.CountryUpdateManyWithoutCurrencyNestedInput
+  productPrices?: Prisma.ProductPriceUpdateManyWithoutCurrencyNestedInput
+  couponMinimums?: Prisma.CouponMinimumUpdateManyWithoutCurrencyNestedInput
+}
+
+export type CurrencyUncheckedUpdateWithoutCustomerLimitsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  symbol?: Prisma.StringFieldUpdateOperationsInput | string
+  exponent?: Prisma.IntFieldUpdateOperationsInput | number
+  isBase?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  countries?: Prisma.CountryUncheckedUpdateManyWithoutCurrencyNestedInput
+  productPrices?: Prisma.ProductPriceUncheckedUpdateManyWithoutCurrencyNestedInput
+  couponMinimums?: Prisma.CouponMinimumUncheckedUpdateManyWithoutCurrencyNestedInput
 }
 
 
@@ -743,12 +852,14 @@ export type CurrencyCountOutputType = {
   countries: number
   productPrices: number
   couponMinimums: number
+  customerLimits: number
 }
 
 export type CurrencyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   countries?: boolean | CurrencyCountOutputTypeCountCountriesArgs
   productPrices?: boolean | CurrencyCountOutputTypeCountProductPricesArgs
   couponMinimums?: boolean | CurrencyCountOutputTypeCountCouponMinimumsArgs
+  customerLimits?: boolean | CurrencyCountOutputTypeCountCustomerLimitsArgs
 }
 
 /**
@@ -782,6 +893,13 @@ export type CurrencyCountOutputTypeCountCouponMinimumsArgs<ExtArgs extends runti
   where?: Prisma.CouponMinimumWhereInput
 }
 
+/**
+ * CurrencyCountOutputType without action
+ */
+export type CurrencyCountOutputTypeCountCustomerLimitsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerLimitWhereInput
+}
+
 
 export type CurrencySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   code?: boolean
@@ -796,6 +914,7 @@ export type CurrencySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   countries?: boolean | Prisma.Currency$countriesArgs<ExtArgs>
   productPrices?: boolean | Prisma.Currency$productPricesArgs<ExtArgs>
   couponMinimums?: boolean | Prisma.Currency$couponMinimumsArgs<ExtArgs>
+  customerLimits?: boolean | Prisma.Currency$customerLimitsArgs<ExtArgs>
   _count?: boolean | Prisma.CurrencyCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["currency"]>
 
@@ -818,6 +937,7 @@ export type CurrencyInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   countries?: boolean | Prisma.Currency$countriesArgs<ExtArgs>
   productPrices?: boolean | Prisma.Currency$productPricesArgs<ExtArgs>
   couponMinimums?: boolean | Prisma.Currency$couponMinimumsArgs<ExtArgs>
+  customerLimits?: boolean | Prisma.Currency$customerLimitsArgs<ExtArgs>
   _count?: boolean | Prisma.CurrencyCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -827,6 +947,7 @@ export type $CurrencyPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     countries: Prisma.$CountryPayload<ExtArgs>[]
     productPrices: Prisma.$ProductPricePayload<ExtArgs>[]
     couponMinimums: Prisma.$CouponMinimumPayload<ExtArgs>[]
+    customerLimits: Prisma.$CustomerLimitPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     /**
@@ -1196,6 +1317,7 @@ export interface Prisma__CurrencyClient<T, Null = never, ExtArgs extends runtime
   countries<T extends Prisma.Currency$countriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Currency$countriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CountryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   productPrices<T extends Prisma.Currency$productPricesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Currency$productPricesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductPricePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   couponMinimums<T extends Prisma.Currency$couponMinimumsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Currency$couponMinimumsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CouponMinimumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  customerLimits<T extends Prisma.Currency$customerLimitsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Currency$customerLimitsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerLimitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1651,6 +1773,30 @@ export type Currency$couponMinimumsArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.CouponMinimumScalarFieldEnum | Prisma.CouponMinimumScalarFieldEnum[]
+}
+
+/**
+ * Currency.customerLimits
+ */
+export type Currency$customerLimitsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerLimit
+   */
+  select?: Prisma.CustomerLimitSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerLimit
+   */
+  omit?: Prisma.CustomerLimitOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerLimitInclude<ExtArgs> | null
+  where?: Prisma.CustomerLimitWhereInput
+  orderBy?: Prisma.CustomerLimitOrderByWithRelationInput | Prisma.CustomerLimitOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerLimitWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerLimitScalarFieldEnum | Prisma.CustomerLimitScalarFieldEnum[]
 }
 
 /**

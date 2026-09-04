@@ -20,6 +20,7 @@ import {
 import { getSpendSummary } from '../../modules/customers/limits.service.js';
 import {
   getCustomerLocale,
+  resolveCurrencyFor,
   setCustomerLocale,
 } from '../../modules/settings/currency.service.js';
 import { currentUser, requireCustomer } from '../plugins/auth.js';
@@ -83,9 +84,23 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
 
     if (profile === null) throw notFound('Profile');
 
-    const business = await prisma.businessProfile.findFirst({ select: { currency: true } });
-    const currency = business?.currency ?? 'INR';
-    const spend = await getSpendSummary(profile.id, currency);
+    // The currency this shopper is actually quoted in, not the business's own.
+    // Showing them a cap denominated in a market they are not browsing would
+    // be worse than showing nothing.
+    const currency = await resolveCurrencyFor(profile.id);
+
+    const [terms, spend] = await Promise.all([
+      prisma.customerLimit.findUnique({
+        where: {
+          customerProfileId_currencyCode: {
+            customerProfileId: profile.id,
+            currencyCode: currency,
+          },
+        },
+        select: { perOrderMinMinor: true, perOrderMaxMinor: true },
+      }),
+      getSpendSummary(profile.id, currency),
+    ]);
 
     return reply.status(200).send({
       profile: {
@@ -108,8 +123,10 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
       // Shown so the customer understands a rejected checkout, rather than
       // hitting an opaque limit error at payment time.
       purchasingLimits: {
-        perOrderMinMinor: profile.perOrderMinMinor?.toString() ?? null,
-        perOrderMaxMinor: profile.perOrderMaxMinor?.toString() ?? null,
+        // The terms for the currency this customer is quoted in. Showing
+        // another market's figures beside their prices would just mislead.
+        perOrderMinMinor: terms?.perOrderMinMinor?.toString() ?? null,
+        perOrderMaxMinor: terms?.perOrderMaxMinor?.toString() ?? null,
         requiresOrderApproval: profile.requiresOrderApproval,
         currency,
       },

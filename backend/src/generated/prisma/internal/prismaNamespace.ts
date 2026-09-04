@@ -457,7 +457,8 @@ export const ModelName = {
   Coupon: 'Coupon',
   CouponCategory: 'CouponCategory',
   CouponMinimum: 'CouponMinimum',
-  CouponRedemption: 'CouponRedemption'
+  CouponRedemption: 'CouponRedemption',
+  CustomerLimit: 'CustomerLimit'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -473,7 +474,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productMedia" | "productAttribute" | "inventoryLocation" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productMedia" | "productAttribute" | "inventoryLocation" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -4503,6 +4504,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CustomerLimit: {
+      payload: Prisma.$CustomerLimitPayload<ExtArgs>
+      fields: Prisma.CustomerLimitFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerLimitFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerLimitPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerLimitFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerLimitPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerLimitFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerLimitPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerLimitFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerLimitPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerLimitFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerLimitPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerLimitCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerLimitPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerLimitCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CustomerLimitDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerLimitPayload>
+        }
+        update: {
+          args: Prisma.CustomerLimitUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerLimitPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerLimitDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerLimitUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CustomerLimitUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerLimitPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerLimitAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerLimit>
+        }
+        groupBy: {
+          args: Prisma.CustomerLimitGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerLimitGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerLimitCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerLimitCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -4932,11 +4999,7 @@ export const CustomerProfileScalarFieldEnum = {
   phone: 'phone',
   gstin: 'gstin',
   customerCode: 'customerCode',
-  perOrderMinMinor: 'perOrderMinMinor',
-  perOrderMaxMinor: 'perOrderMaxMinor',
-  monthlySpendCapMinor: 'monthlySpendCapMinor',
   requiresOrderApproval: 'requiresOrderApproval',
-  approvalThresholdMinor: 'approvalThresholdMinor',
   internalNotes: 'internalNotes',
   preferredCountry: 'preferredCountry',
   preferredCurrency: 'preferredCurrency',
@@ -5666,6 +5729,21 @@ export const CouponRedemptionScalarFieldEnum = {
 } as const
 
 export type CouponRedemptionScalarFieldEnum = (typeof CouponRedemptionScalarFieldEnum)[keyof typeof CouponRedemptionScalarFieldEnum]
+
+
+export const CustomerLimitScalarFieldEnum = {
+  customerProfileId: 'customerProfileId',
+  currencyCode: 'currencyCode',
+  perOrderMinMinor: 'perOrderMinMinor',
+  perOrderMaxMinor: 'perOrderMaxMinor',
+  monthlySpendCapMinor: 'monthlySpendCapMinor',
+  approvalThresholdMinor: 'approvalThresholdMinor',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  updatedById: 'updatedById'
+} as const
+
+export type CustomerLimitScalarFieldEnum = (typeof CustomerLimitScalarFieldEnum)[keyof typeof CustomerLimitScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -6470,6 +6548,15 @@ export const CouponRedemptionOrderByRelevanceFieldEnum = {
 export type CouponRedemptionOrderByRelevanceFieldEnum = (typeof CouponRedemptionOrderByRelevanceFieldEnum)[keyof typeof CouponRedemptionOrderByRelevanceFieldEnum]
 
 
+export const CustomerLimitOrderByRelevanceFieldEnum = {
+  customerProfileId: 'customerProfileId',
+  currencyCode: 'currencyCode',
+  updatedById: 'updatedById'
+} as const
+
+export type CustomerLimitOrderByRelevanceFieldEnum = (typeof CustomerLimitOrderByRelevanceFieldEnum)[keyof typeof CustomerLimitOrderByRelevanceFieldEnum]
+
+
 
 /**
  * Field references
@@ -6988,6 +7075,7 @@ export type GlobalOmitConfig = {
   couponCategory?: Prisma.CouponCategoryOmit
   couponMinimum?: Prisma.CouponMinimumOmit
   couponRedemption?: Prisma.CouponRedemptionOmit
+  customerLimit?: Prisma.CustomerLimitOmit
 }
 
 /* Types for Logging */

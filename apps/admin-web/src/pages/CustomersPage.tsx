@@ -280,10 +280,18 @@ export function CustomersPage(): React.JSX.Element {
       secondary: true,
       render: (row) =>
         row.limits.requiresOrderApproval ? (
+          // Thresholds are per currency now, so the list shows each market's
+          // rather than one number that would be true in only one of them.
           <Badge tone="warning">
-            {row.limits.approvalThresholdMinor === null
+            {row.limits.perCurrency.every((entry) => entry.approvalThresholdMinor === null)
               ? 'All orders'
-              : `Over ${minorToMajor(row.limits.approvalThresholdMinor)}`}
+              : row.limits.perCurrency
+                  .filter((entry) => entry.approvalThresholdMinor !== null)
+                  .map(
+                    (entry) =>
+                      `Over ${entry.currencyCode} ${minorToMajor(entry.approvalThresholdMinor ?? '0')}`,
+                  )
+                  .join(', ')}
           </Badge>
         ) : (
           <span className="text-ink-subtle">Not required</span>

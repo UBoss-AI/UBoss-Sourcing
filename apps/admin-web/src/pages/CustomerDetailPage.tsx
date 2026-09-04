@@ -11,12 +11,9 @@
  *   - Turning approvals on with a blank threshold means *every* order needs
  *     approval, and the form says so rather than leaving it to be discovered.
  */
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { z } from 'zod';
 import { useSession } from '@/auth/session-context';
 import { ConfirmDialog } from '@/components/Modal';
 import { useToast } from '@/components/toast-context';
@@ -31,7 +28,6 @@ import {
   PageHeader,
 } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
-import { applyApiErrors } from '@/lib/forms';
 import { formatDateTime, majorToMinor, minorToMajor } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
 import { customerStatusTone } from '@/lib/customers';
@@ -73,228 +69,334 @@ interface CustomerDetail {
   limits: CustomerLimits;
   addresses: CustomerAddress[];
 }
+interface CurrencyTermsDraft {
+  perOrderMin: string;
+  perOrderMax: string;
+  monthlyCap: string;
+  approvalThreshold: string;
+}
 
-/** Blank is allowed and means "no limit". Zero is not the same thing. */
-const optionalMoney = z.union([
-  z.string().trim().regex(/^\d+(\.\d{1,2})?$/, 'Enter an amount like 5000.00, or leave blank.'),
-  z.literal(''),
-]);
+const blankTerms = (): CurrencyTermsDraft => ({
+  perOrderMin: '',
+  perOrderMax: '',
+  monthlyCap: '',
+  approvalThreshold: '',
+});
 
-const limitsSchema = z
-  .object({
-    perOrderMin: optionalMoney,
-    perOrderMax: optionalMoney,
-    monthlyCap: optionalMoney,
-    requiresOrderApproval: z.boolean(),
-    approvalThreshold: optionalMoney,
-  })
-  .superRefine((values, ctx) => {
-    if (values.perOrderMin !== '' && values.perOrderMax !== '') {
-      const min = majorToMinor(values.perOrderMin);
-      const max = majorToMinor(values.perOrderMax);
-      if (min !== null && max !== null && BigInt(max) < BigInt(min)) {
-        // Otherwise no order value satisfies both and the customer is locked
-        // out with no explanation at checkout.
-        ctx.addIssue({
-          code: 'custom',
-          path: ['perOrderMax'],
-          message: 'The maximum cannot be below the minimum, or no order would be allowed at all.',
-        });
-      }
-    }
-  });
-
-type LimitsForm = z.output<typeof limitsSchema>;
-
+/**
+ * Ordering limits, one set of terms per currency.
+ *
+ * The amounts have to be per currency: a 5,000 figure means nothing until you
+ * know whether it counts rupees or dollars, and reading one market's number
+ * against another's cart is how a Rs 500 minimum silently becomes a $500 one.
+ *
+ * `requiresOrderApproval` sits outside the grid because it is a policy about
+ * the account, not an amount.
+ *
+ * One currency is edited at a time rather than showing every market's four
+ * fields at once - eight currencies would be thirty-two inputs on a screen
+ * where each one changes what a customer is allowed to spend.
+ */
 function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Element {
   const queryClient = useQueryClient();
   const toast = useToast();
   const { can } = useSession();
+
   const [formError, setFormError] = useState<string | null>(null);
+  const [approval, setApproval] = useState(customer.limits.requiresOrderApproval);
+  const [selected, setSelected] = useState<string>(
+    () => customer.limits.perCurrency[0]?.currencyCode ?? '',
+  );
 
   const toMajor = (minor: string | null): string => (minor === null ? '' : minorToMajor(minor));
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    watch,
-    setError,
-    formState: { errors, isDirty },
-  } = useForm<LimitsForm>({
-    resolver: zodResolver(limitsSchema),
-    defaultValues: {
-      perOrderMin: toMajor(customer.limits.perOrderMinMinor),
-      perOrderMax: toMajor(customer.limits.perOrderMaxMinor),
-      monthlyCap: toMajor(customer.limits.monthlySpendCapMinor),
-      requiresOrderApproval: customer.limits.requiresOrderApproval,
-      approvalThreshold: toMajor(customer.limits.approvalThresholdMinor),
-    },
+  /** Everything typed so far, keyed by currency, in major units. */
+  const [draft, setDraft] = useState<Record<string, CurrencyTermsDraft>>(() =>
+    Object.fromEntries(
+      customer.limits.perCurrency.map((row) => [
+        row.currencyCode,
+        {
+          perOrderMin: toMajor(row.perOrderMinMinor),
+          perOrderMax: toMajor(row.perOrderMaxMinor),
+          monthlyCap: toMajor(row.monthlySpendCapMinor),
+          approvalThreshold: toMajor(row.approvalThresholdMinor),
+        },
+      ]),
+    ),
+  );
+
+  const canWrite = can(Permission.CUSTOMER_LIMITS_WRITE);
+
+  // The currency list comes from the public config - the same list the
+  // storefront prices in, so staff cannot agree terms in a market that does
+  // not exist.
+  const config = useQuery({
+    queryKey: ['storefront-config'],
+    queryFn: () => api.get<{ localisation: { currencies: { code: string; name: string }[] } }>('/config'),
+    staleTime: 5 * 60_000,
   });
 
-  useEffect(() => {
-    reset({
-      perOrderMin: toMajor(customer.limits.perOrderMinMinor),
-      perOrderMax: toMajor(customer.limits.perOrderMaxMinor),
-      monthlyCap: toMajor(customer.limits.monthlySpendCapMinor),
-      requiresOrderApproval: customer.limits.requiresOrderApproval,
-      approvalThreshold: toMajor(customer.limits.approvalThresholdMinor),
-    });
-  }, [customer.limits, reset]);
+  const allCurrencies = config.data?.localisation.currencies ?? [];
+  const agreed = Object.keys(draft).sort();
+  const current = selected === '' ? undefined : draft[selected];
+
+  const setField = (field: keyof CurrencyTermsDraft, value: string): void => {
+    if (selected === '') return;
+    setDraft((previous) => ({
+      ...previous,
+      [selected]: { ...blankTerms(), ...previous[selected], [field]: value },
+    }));
+  };
+
+  const addCurrency = (code: string): void => {
+    if (code === '' || code in draft) return;
+    setDraft((previous) => ({ ...previous, [code]: blankTerms() }));
+    setSelected(code);
+    setFormError(null);
+  };
+
+  const removeCurrency = (code: string): void => {
+    setDraft((previous) =>
+      Object.fromEntries(Object.entries(previous).filter(([key]) => key !== code)),
+    );
+    setSelected((prior) => (prior === code ? '' : prior));
+  };
 
   const save = useMutation({
-    mutationFn: (values: LimitsForm) =>
-      api.patch(`/admin/customers/${customer.id}/limits`, {
-        // null, not "0" - an empty field means no limit, and zero would stop
-        // every order.
-        perOrderMinMinor: values.perOrderMin === '' ? null : majorToMinor(values.perOrderMin),
-        perOrderMaxMinor: values.perOrderMax === '' ? null : majorToMinor(values.perOrderMax),
-        monthlySpendCapMinor: values.monthlyCap === '' ? null : majorToMinor(values.monthlyCap),
-        requiresOrderApproval: values.requiresOrderApproval,
-        approvalThresholdMinor:
-          values.approvalThreshold === '' ? null : majorToMinor(values.approvalThreshold),
-      }),
-    onSuccess: async () => {
-      setFormError(null);
-      toast.success('Limits saved.');
-      await queryClient.invalidateQueries({ queryKey: ['customer', customer.id] });
-      await queryClient.invalidateQueries({ queryKey: ['customers'] });
+    mutationFn: () => {
+      const perCurrency: Record<string, unknown>[] = [];
+
+      for (const [code, terms] of Object.entries(draft)) {
+        const amount = (value: string): string | null =>
+          value.trim() === '' ? null : majorToMinor(value.trim());
+
+        const min = amount(terms.perOrderMin);
+        const max = amount(terms.perOrderMax);
+
+        if (min !== null && max !== null && BigInt(max) < BigInt(min)) {
+          throw new Error(`The maximum ${code} order value cannot be lower than the minimum.`);
+        }
+
+        perCurrency.push({
+          currencyCode: code,
+          perOrderMinMinor: min,
+          perOrderMaxMinor: max,
+          monthlySpendCapMinor: amount(terms.monthlyCap),
+          approvalThresholdMinor: amount(terms.approvalThreshold),
+        });
+      }
+
+      return api.patch(`/admin/customers/${customer.id}/limits`, {
+        requiresOrderApproval: approval,
+        perCurrency,
+      });
     },
-    onError: (error) => {
+    onSuccess: async () => {
+      toast.success('Limits saved.');
+      setFormError(null);
+      await queryClient.invalidateQueries({ queryKey: ['customer', customer.id] });
+    },
+    onError: (error: unknown) => {
       setFormError(
-        applyApiErrors(error, setError, [
-          'perOrderMin',
-          'perOrderMax',
-          'monthlyCap',
-          'approvalThreshold',
-        ]),
+        error instanceof ApiError || error instanceof Error
+          ? error.message
+          : 'Those limits could not be saved.',
       );
     },
   });
 
-  const canWrite = can(Permission.CUSTOMER_LIMITS_WRITE);
-  const requiresApproval = watch('requiresOrderApproval');
-  const threshold = watch('approvalThreshold');
-
   return (
     <Card
       title="Ordering limits"
-      description="Enforced at checkout. Leave a field blank for no limit."
+      description="Agreed terms per market. A currency with no terms is one this account cannot order in."
     >
-      <form
-        className="space-y-4 px-5 py-4"
-        onSubmit={(event) => {
-          event.preventDefault();
-          void handleSubmit((values) => save.mutateAsync(values))();
-        }}
-      >
-        {formError !== null && (
-          <div
-            role="alert"
-            className="rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-sm text-danger"
-          >
-            {formError}
-          </div>
-        )}
+      <div className="space-y-5 px-5 py-4">
+        <label className="flex items-start gap-2">
+          <input
+            type="checkbox"
+            checked={approval}
+            disabled={!canWrite}
+            onChange={(event) => {
+              setApproval(event.target.checked);
+            }}
+            className="mt-0.5"
+          />
+          <span className="text-sm text-ink">
+            Orders need approval
+            <span className="block text-xs text-ink-muted">
+              Applies to the whole account. The value that triggers it is set per currency below.
+            </span>
+          </span>
+        </label>
 
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Field label="Minimum per order" error={errors.perOrderMin?.message}>
-            {({ inputId, describedBy }) => (
-              <Input
-                id={inputId}
-                inputMode="decimal"
-                className="tabular"
-                placeholder="No minimum"
-                aria-describedby={describedBy}
-                invalid={errors.perOrderMin !== undefined}
-                disabled={!canWrite}
-                {...register('perOrderMin')}
-              />
+        <div className="border-t border-border pt-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
+              Terms in
+            </span>
+
+            {agreed.length === 0 && (
+              <span className="text-sm text-ink-muted">
+                None yet — this account cannot order in any currency.
+              </span>
             )}
-          </Field>
 
-          <Field label="Maximum per order" error={errors.perOrderMax?.message}>
-            {({ inputId, describedBy }) => (
-              <Input
-                id={inputId}
-                inputMode="decimal"
-                className="tabular"
-                placeholder="No maximum"
-                aria-describedby={describedBy}
-                invalid={errors.perOrderMax !== undefined}
-                disabled={!canWrite}
-                {...register('perOrderMax')}
-              />
-            )}
-          </Field>
-
-          <Field label="Monthly spend cap" error={errors.monthlyCap?.message}>
-            {({ inputId, describedBy }) => (
-              <Input
-                id={inputId}
-                inputMode="decimal"
-                className="tabular"
-                placeholder="No cap"
-                aria-describedby={describedBy}
-                invalid={errors.monthlyCap !== undefined}
-                disabled={!canWrite}
-                {...register('monthlyCap')}
-              />
-            )}
-          </Field>
-        </div>
-
-        <div className="space-y-3 border-t border-border pt-4">
-          <label className="flex items-start gap-2 text-sm text-ink">
-            <input
-              type="checkbox"
-              className="mt-0.5 h-4 w-4 rounded border-border-strong text-accent"
-              disabled={!canWrite}
-              {...register('requiresOrderApproval')}
-            />
-            <span>Orders from this customer need approval before they are confirmed</span>
-          </label>
-
-          {requiresApproval && (
-            <>
-              <Field
-                label="Approval threshold"
-                hint="Orders at or above this value need approval. Blank means every order does."
-                error={errors.approvalThreshold?.message}
+            {agreed.map((code) => (
+              <button
+                key={code}
+                type="button"
+                onClick={() => {
+                  setSelected(code);
+                }}
+                className={
+                  code === selected
+                    ? 'rounded-md bg-accent px-2.5 py-1 text-xs font-semibold text-white'
+                    : 'rounded-md border border-border-strong px-2.5 py-1 text-xs font-medium text-ink hover:border-accent'
+                }
               >
-                {({ inputId, describedBy }) => (
-                  <Input
-                    id={inputId}
-                    inputMode="decimal"
-                    className="tabular sm:w-56"
-                    placeholder="Every order"
-                    aria-describedby={describedBy}
-                    invalid={errors.approvalThreshold !== undefined}
-                    disabled={!canWrite}
-                    {...register('approvalThreshold')}
-                  />
-                )}
-              </Field>
+                {code}
+              </button>
+            ))}
 
-              {threshold === '' && (
-                <p role="status" className="text-xs text-warning">
-                  With no threshold, every order this customer places will wait for a Finance
-                  Approver.
-                </p>
+            {canWrite && (
+              <select
+                value=""
+                onChange={(event) => {
+                  addCurrency(event.target.value);
+                }}
+                aria-label="Add terms for a currency"
+                className="rounded-md border border-border-strong bg-surface px-2 py-1 text-xs text-ink"
+              >
+                <option value="">Add currency…</option>
+                {allCurrencies
+                  .filter((entry) => !(entry.code in draft))
+                  .map((entry) => (
+                    <option key={entry.code} value={entry.code}>
+                      {entry.code} — {entry.name}
+                    </option>
+                  ))}
+              </select>
+            )}
+          </div>
+
+          {current !== undefined && (
+            <div className="mt-4 space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label={`Minimum per order (${selected})`}>
+                  {({ inputId }) => (
+                    <Input
+                      id={inputId}
+                      inputMode="decimal"
+                      className="tabular"
+                      placeholder="No minimum"
+                      disabled={!canWrite}
+                      value={current.perOrderMin}
+                      onChange={(event) => {
+                        setField('perOrderMin', event.target.value);
+                      }}
+                    />
+                  )}
+                </Field>
+
+                <Field label={`Maximum per order (${selected})`}>
+                  {({ inputId }) => (
+                    <Input
+                      id={inputId}
+                      inputMode="decimal"
+                      className="tabular"
+                      placeholder="No maximum"
+                      disabled={!canWrite}
+                      value={current.perOrderMax}
+                      onChange={(event) => {
+                        setField('perOrderMax', event.target.value);
+                      }}
+                    />
+                  )}
+                </Field>
+
+                <Field
+                  label={`Monthly cap (${selected})`}
+                  hint="Counts only orders placed in this currency."
+                >
+                  {({ inputId, describedBy }) => (
+                    <Input
+                      id={inputId}
+                      aria-describedby={describedBy}
+                      inputMode="decimal"
+                      className="tabular"
+                      placeholder="No cap"
+                      disabled={!canWrite}
+                      value={current.monthlyCap}
+                      onChange={(event) => {
+                        setField('monthlyCap', event.target.value);
+                      }}
+                    />
+                  )}
+                </Field>
+
+                <Field
+                  label={`Approval above (${selected})`}
+                  hint={
+                    approval
+                      ? 'Blank means every order needs approval.'
+                      : 'Only used while approvals are on.'
+                  }
+                >
+                  {({ inputId, describedBy }) => (
+                    <Input
+                      id={inputId}
+                      aria-describedby={describedBy}
+                      inputMode="decimal"
+                      className="tabular"
+                      placeholder="Every order"
+                      disabled={!canWrite}
+                      value={current.approvalThreshold}
+                      onChange={(event) => {
+                        setField('approvalThreshold', event.target.value);
+                      }}
+                    />
+                  )}
+                </Field>
+              </div>
+
+              {canWrite && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    removeCurrency(selected);
+                  }}
+                  className="text-xs font-medium text-danger hover:underline"
+                >
+                  Remove {selected} terms — this account will not be able to order in it
+                </button>
               )}
-            </>
+            </div>
           )}
         </div>
 
+        {formError !== null && (
+          <p role="alert" className="text-sm font-medium text-danger">
+            {formError}
+          </p>
+        )}
+
         {canWrite && (
-          <Button type="submit" variant="primary" isLoading={save.isPending} disabled={!isDirty}>
+          <Button
+            type="button"
+            variant="primary"
+            isLoading={save.isPending}
+            onClick={() => {
+              save.mutate();
+            }}
+          >
             Save limits
           </Button>
         )}
-      </form>
+      </div>
     </Card>
   );
 }
+
 
 export function CustomerDetailPage(): React.JSX.Element {
   const { id } = useParams<{ id: string }>();

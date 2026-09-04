@@ -14,7 +14,7 @@ import type { Prisma } from '../../generated/prisma/client.js';
 import { env } from '../../config/env.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import { newId } from '../../infra/ids.js';
-import { prisma } from '../../infra/prisma.js';
+import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { normaliseEmail } from '../identity/auth.service.js';
 import { revokeAllUserSessions } from '../identity/session.service.js';
@@ -63,11 +63,25 @@ export interface CreateCustomerInput {
   sendInvitation?: boolean;
 }
 
+/**
+ * Purchasing limits as they arrive from the admin panel.
+ *
+ * The amounts are per currency: the same account can have different terms in
+ * each market it buys in, and a figure entered against one currency must never
+ * be read against another. `requiresOrderApproval` is the exception - whether
+ * an account needs sign-off is a policy about the account, not an amount.
+ */
 export interface PurchasingLimitsInput {
+  requiresOrderApproval?: boolean;
+  /** One entry per currency. Omitting a currency removes its terms. */
+  perCurrency?: CurrencyLimitInput[];
+}
+
+export interface CurrencyLimitInput {
+  currencyCode: string;
   perOrderMinMinor?: string | null;
   perOrderMaxMinor?: string | null;
   monthlySpendCapMinor?: string | null;
-  requiresOrderApproval?: boolean;
   approvalThresholdMinor?: string | null;
 }
 
@@ -82,45 +96,134 @@ function parseMinorOrNull(value: string | null | undefined, field: string): bigi
   return BigInt(value.trim());
 }
 
-interface LimitColumns {
+interface LimitRow {
+  currencyCode: string;
   perOrderMinMinor: bigint | null;
   perOrderMaxMinor: bigint | null;
   monthlySpendCapMinor: bigint | null;
-  requiresOrderApproval?: boolean;
   approvalThresholdMinor: bigint | null;
 }
 
-function limitsToData(limits: PurchasingLimitsInput | undefined): Partial<LimitColumns> {
-  if (limits === undefined) return {};
-
-  const perOrderMin = parseMinorOrNull(limits.perOrderMinMinor, 'limits.perOrderMinMinor');
-  const perOrderMax = parseMinorOrNull(limits.perOrderMaxMinor, 'limits.perOrderMaxMinor');
-
-  // Caught here as a field-level error rather than as a raw constraint
-  // violation from chk_customer_order_range_valid.
-  if (perOrderMin !== null && perOrderMax !== null && perOrderMax < perOrderMin) {
-    throw badRequest(
-      ErrorCode.VALIDATION_FAILED,
-      'The maximum order value cannot be lower than the minimum.',
-      [{ field: 'limits.perOrderMaxMinor', code: 'INVALID_RANGE' }],
-    );
-  }
-
+/** Wire shape for a customer's terms. Amounts are strings of minor units. */
+function limitsView(
+  requiresOrderApproval: boolean,
+  rows: readonly LimitRow[],
+): Record<string, unknown> {
   return {
-    perOrderMinMinor: perOrderMin,
-    perOrderMaxMinor: perOrderMax,
-    monthlySpendCapMinor: parseMinorOrNull(
-      limits.monthlySpendCapMinor,
-      'limits.monthlySpendCapMinor',
-    ),
-    ...(limits.requiresOrderApproval !== undefined
-      ? { requiresOrderApproval: limits.requiresOrderApproval }
-      : {}),
-    approvalThresholdMinor: parseMinorOrNull(
-      limits.approvalThresholdMinor,
-      'limits.approvalThresholdMinor',
-    ),
+    requiresOrderApproval,
+    perCurrency: [...rows]
+      .sort((a, b) => a.currencyCode.localeCompare(b.currencyCode))
+      .map((row) => ({
+        currencyCode: row.currencyCode,
+        perOrderMinMinor: row.perOrderMinMinor?.toString() ?? null,
+        perOrderMaxMinor: row.perOrderMaxMinor?.toString() ?? null,
+        monthlySpendCapMinor: row.monthlySpendCapMinor?.toString() ?? null,
+        approvalThresholdMinor: row.approvalThresholdMinor?.toString() ?? null,
+      })),
   };
+}
+
+/** The only limit the profile row still carries. */
+function approvalFlagData(limits: PurchasingLimitsInput | undefined): { requiresOrderApproval?: boolean } {
+  if (limits?.requiresOrderApproval === undefined) return {};
+  return { requiresOrderApproval: limits.requiresOrderApproval };
+}
+
+interface ParsedCurrencyLimit {
+  currencyCode: string;
+  perOrderMinMinor: bigint | null;
+  perOrderMaxMinor: bigint | null;
+  monthlySpendCapMinor: bigint | null;
+  approvalThresholdMinor: bigint | null;
+}
+
+/** Validate each currency's terms. Returns null when the caller sent none. */
+function parseCurrencyLimits(
+  limits: PurchasingLimitsInput | undefined,
+): ParsedCurrencyLimit[] | null {
+  if (limits?.perCurrency === undefined) return null;
+
+  const seen = new Set<string>();
+
+  return limits.perCurrency.map((entry) => {
+    const code = entry.currencyCode.trim().toUpperCase();
+
+    if (seen.has(code)) {
+      throw badRequest(ErrorCode.VALIDATION_FAILED, `${code} is listed more than once.`, [
+        { field: 'limits.perCurrency', code: 'DUPLICATE_CURRENCY' },
+      ]);
+    }
+    seen.add(code);
+
+    const field = `limits.perCurrency.${code}`;
+    const perOrderMin = parseMinorOrNull(entry.perOrderMinMinor, `${field}.perOrderMinMinor`);
+    const perOrderMax = parseMinorOrNull(entry.perOrderMaxMinor, `${field}.perOrderMaxMinor`);
+
+    if (perOrderMin !== null && perOrderMax !== null && perOrderMax < perOrderMin) {
+      throw badRequest(
+        ErrorCode.VALIDATION_FAILED,
+        `The maximum ${code} order value cannot be lower than the minimum.`,
+        [{ field: `${field}.perOrderMaxMinor`, code: 'INVALID_RANGE' }],
+      );
+    }
+
+    return {
+      currencyCode: code,
+      perOrderMinMinor: perOrderMin,
+      perOrderMaxMinor: perOrderMax,
+      monthlySpendCapMinor: parseMinorOrNull(
+        entry.monthlySpendCapMinor,
+        `${field}.monthlySpendCapMinor`,
+      ),
+      approvalThresholdMinor: parseMinorOrNull(
+        entry.approvalThresholdMinor,
+        `${field}.approvalThresholdMinor`,
+      ),
+    };
+  });
+}
+
+/**
+ * Replace a customer's per-currency terms.
+ *
+ * Currencies absent from `parsed` have their terms withdrawn, which is how
+ * staff stop an account buying in a market.
+ */
+async function writeCurrencyLimits(
+  tx: PrismaTransaction,
+  customerProfileId: string,
+  parsed: ParsedCurrencyLimit[] | null,
+  actorId: string | null,
+): Promise<void> {
+  if (parsed === null) return;
+
+  await tx.customerLimit.deleteMany({
+    where: {
+      customerProfileId,
+      currencyCode: { notIn: parsed.map((entry) => entry.currencyCode) },
+    },
+  });
+
+  for (const entry of parsed) {
+    const data = {
+      perOrderMinMinor: entry.perOrderMinMinor,
+      perOrderMaxMinor: entry.perOrderMaxMinor,
+      monthlySpendCapMinor: entry.monthlySpendCapMinor,
+      approvalThresholdMinor: entry.approvalThresholdMinor,
+      updatedById: actorId,
+    };
+
+    await tx.customerLimit.upsert({
+      where: {
+        customerProfileId_currencyCode: {
+          customerProfileId,
+          currencyCode: entry.currencyCode,
+        },
+      },
+      create: { customerProfileId, currencyCode: entry.currencyCode, ...data },
+      update: data,
+    });
+  }
 }
 
 function addressCreateData(address: AddressInput, customerProfileId: string): Prisma.AddressUncheckedCreateInput {
@@ -208,9 +311,11 @@ export async function createCustomer(
         internalNotes: input.internalNotes ?? null,
         invitedById: actor.userId,
         invitedAt: sendInvitation ? new Date() : null,
-        ...limitsToData(input.limits),
+        ...approvalFlagData(input.limits),
       },
     });
+
+    await writeCurrencyLimits(tx, profileId, parseCurrencyLimits(input.limits), actor.userId);
 
     if (input.addresses !== undefined && input.addresses.length > 0) {
       await tx.address.createMany({
@@ -337,13 +442,18 @@ export async function updatePurchasingLimits(
   actor: CustomerActor,
 ): Promise<void> {
   await prisma.$transaction(async (tx) => {
-    const existing = await tx.customerProfile.findUnique({ where: { id: customerProfileId } });
+    const existing = await tx.customerProfile.findUnique({
+      where: { id: customerProfileId },
+      include: { limits: true },
+    });
     if (existing === null) throw notFound('Customer');
 
     await tx.customerProfile.update({
       where: { id: customerProfileId },
-      data: limitsToData(limits),
+      data: approvalFlagData(limits),
     });
+
+    await writeCurrencyLimits(tx, customerProfileId, parseCurrencyLimits(limits), actor.userId);
 
     await recordAudit(
       {
@@ -354,10 +464,16 @@ export async function updatePurchasingLimits(
         actorUserId: actor.userId,
         actorEmail: actor.email,
         before: {
-          perOrderMinMinor: existing.perOrderMinMinor,
-          perOrderMaxMinor: existing.perOrderMaxMinor,
-          monthlySpendCapMinor: existing.monthlySpendCapMinor,
           requiresOrderApproval: existing.requiresOrderApproval,
+          // Every currency's terms, so "who raised this account's dollar cap"
+          // is answerable from the trail alone.
+          perCurrency: existing.limits.map((row) => ({
+            currencyCode: row.currencyCode,
+            perOrderMinMinor: row.perOrderMinMinor?.toString() ?? null,
+            perOrderMaxMinor: row.perOrderMaxMinor?.toString() ?? null,
+            monthlySpendCapMinor: row.monthlySpendCapMinor?.toString() ?? null,
+            approvalThresholdMinor: row.approvalThresholdMinor?.toString() ?? null,
+          })),
         },
         after: limits,
         ipAddress: actor.ipAddress ?? null,
@@ -696,6 +812,7 @@ export async function listCustomers(query: CustomerListQuery = {}): Promise<{
       take: limit,
       include: {
         user: { select: { id: true, email: true, status: true, lastLoginAt: true } },
+        limits: true,
         _count: { select: { orders: true, schedules: true, addresses: true } },
       },
     }),
@@ -719,13 +836,7 @@ export async function listCustomers(query: CustomerListQuery = {}): Promise<{
       orderCount: row._count.orders,
       scheduleCount: row._count.schedules,
       addressCount: row._count.addresses,
-      limits: {
-        perOrderMinMinor: row.perOrderMinMinor?.toString() ?? null,
-        perOrderMaxMinor: row.perOrderMaxMinor?.toString() ?? null,
-        monthlySpendCapMinor: row.monthlySpendCapMinor?.toString() ?? null,
-        requiresOrderApproval: row.requiresOrderApproval,
-        approvalThresholdMinor: row.approvalThresholdMinor?.toString() ?? null,
-      },
+      limits: limitsView(row.requiresOrderApproval, row.limits),
       createdAt: row.createdAt.toISOString(),
     })),
     pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
@@ -747,6 +858,7 @@ export async function getCustomer(customerProfileId: string): Promise<Record<str
         },
       },
       addresses: { where: { archivedAt: null }, orderBy: { createdAt: 'asc' } },
+      limits: true,
       _count: { select: { orders: true, schedules: true } },
     },
   });
@@ -772,13 +884,7 @@ export async function getCustomer(customerProfileId: string): Promise<Record<str
     invitedAt: profile.invitedAt?.toISOString() ?? null,
     activatedAt: profile.activatedAt?.toISOString() ?? null,
     lastLoginAt: profile.user.lastLoginAt?.toISOString() ?? null,
-    limits: {
-      perOrderMinMinor: profile.perOrderMinMinor?.toString() ?? null,
-      perOrderMaxMinor: profile.perOrderMaxMinor?.toString() ?? null,
-      monthlySpendCapMinor: profile.monthlySpendCapMinor?.toString() ?? null,
-      requiresOrderApproval: profile.requiresOrderApproval,
-      approvalThresholdMinor: profile.approvalThresholdMinor?.toString() ?? null,
-    },
+    limits: limitsView(profile.requiresOrderApproval, profile.limits),
     addresses: profile.addresses,
     orderCount: profile._count.orders,
     scheduleCount: profile._count.schedules,

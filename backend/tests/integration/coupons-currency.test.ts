@@ -18,6 +18,7 @@ import { prisma } from '../../src/infra/prisma.js';
 import { addItem, applyCoupon, resolveCart, toCartView } from '../../src/modules/cart/cart.service.js';
 import { createCoupon } from '../../src/modules/coupons/coupon.service.js';
 import { receiveStock } from '../../src/modules/inventory/inventory.service.js';
+import { monthToDateSpend } from '../../src/modules/customers/limits.service.js';
 import { setCustomerLocale } from '../../src/modules/settings/currency.service.js';
 
 let adminActor: { userId: string; email: string };
@@ -32,6 +33,7 @@ async function resetAll(): Promise<void> {
   await prisma.jobQueue.deleteMany({});
   await prisma.notificationDelivery.deleteMany({});
   await prisma.notificationOutbox.deleteMany({});
+  await prisma.customerLimit.deleteMany({});
   await prisma.couponRedemption.deleteMany({});
   await prisma.couponCategory.deleteMany({});
   await prisma.couponMinimum.deleteMany({});
@@ -243,13 +245,11 @@ describe('multi-currency pricing', () => {
   });
 
   it('refuses to price a limited account in a currency its limits were not set in', async () => {
-    // Purchasing limits are plain amounts entered in the base currency. A 500
-    // rupee minimum must never be read as a 500 dollar one, so an account
-    // carrying a money limit is held to the currency that limit was set in -
-    // blocked, rather than having the control silently dropped.
-    await prisma.customerProfile.update({
-      where: { id: customerProfileId },
-      data: { perOrderMinMinor: 50_000n },
+    // Terms agreed in rupees say nothing about dollars. An account with terms
+    // in one market and none in another is refused there, rather than having
+    // its credit control silently dropped because the shopper switched.
+    await prisma.customerLimit.create({
+      data: { customerProfileId, currencyCode: 'INR', perOrderMinMinor: 50_000n },
     });
 
     await addItem(customerProfileId, { productId: boltProductId, quantity: 2 });
@@ -262,9 +262,8 @@ describe('multi-currency pricing', () => {
   });
 
   it('applies those limits normally in their own currency', async () => {
-    await prisma.customerProfile.update({
-      where: { id: customerProfileId },
-      data: { perOrderMinMinor: 50_000n },
+    await prisma.customerLimit.create({
+      data: { customerProfileId, currencyCode: 'INR', perOrderMinMinor: 50_000n },
     });
 
     await addItem(customerProfileId, { productId: glueProductId, quantity: 2 });
@@ -503,6 +502,93 @@ describe('coupons', () => {
     await expect(activeCoupon({ name: 'Clash' })).rejects.toMatchObject({
       code: 'COUPON_CODE_ALREADY_EXISTS',
     });
+  });
+});
+
+describe('per-currency purchasing limits', () => {
+  const terms = async (currencyCode: string, data: Record<string, bigint>) =>
+    prisma.customerLimit.create({ data: { customerProfileId, currencyCode, ...data } });
+
+  it('holds an order to the terms agreed in its own currency', async () => {
+    // Same account, different floor in each market. The dollar cart must be
+    // judged against the dollar figure, never a conversion of the rupee one.
+    await terms('INR', { perOrderMinMinor: 50_000n });
+    await terms('USD', { perOrderMinMinor: 30_000n });
+
+    await setCustomerLocale(customerProfileId, { country: 'US' });
+    await addItem(customerProfileId, { productId: boltProductId, quantity: 2 });
+
+    const view = toCartView(await resolveCart(customerProfileId));
+
+    // 2 x USD 120.00 = 240.00, below the USD 300.00 floor.
+    expect(view.currency).toBe('USD');
+    expect(view.blockingIssues.map((issue) => issue.code)).toContain('ORDER_BELOW_MINIMUM_VALUE');
+  });
+
+  it('lets the same cart through when that currency terms allow it', async () => {
+    await terms('INR', { perOrderMinMinor: 50_000n });
+    await terms('USD', { perOrderMinMinor: 10_000n });
+
+    await setCustomerLocale(customerProfileId, { country: 'US' });
+    await addItem(customerProfileId, { productId: boltProductId, quantity: 2 });
+
+    const view = toCartView(await resolveCart(customerProfileId));
+
+    expect(view.blockingIssues).toEqual([]);
+    expect(view.checkoutReady).toBe(true);
+  });
+
+  it('refuses a market the account has no agreed terms in', async () => {
+    await terms('INR', { perOrderMaxMinor: 5_000_000n });
+
+    await setCustomerLocale(customerProfileId, { country: 'US' });
+    await addItem(customerProfileId, { productId: boltProductId, quantity: 2 });
+
+    const view = toCartView(await resolveCart(customerProfileId));
+
+    // Dropping the control because the shopper switched currency would be a
+    // credit limit that quietly stopped applying.
+    expect(view.checkoutReady).toBe(false);
+    expect(view.blockingIssues.map((issue) => issue.code)).toContain('CART_CURRENCY_MISMATCH');
+  });
+
+  it('leaves an account with no terms anywhere free to buy in any currency', async () => {
+    await setCustomerLocale(customerProfileId, { country: 'US' });
+    await addItem(customerProfileId, { productId: boltProductId, quantity: 2 });
+
+    const view = toCartView(await resolveCart(customerProfileId));
+
+    expect(view.blockingIssues).toEqual([]);
+    expect(view.checkoutReady).toBe(true);
+  });
+
+  it('counts a monthly cap only against orders in that currency', async () => {
+    await terms('INR', { monthlySpendCapMinor: 100_000n });
+    await terms('USD', { monthlySpendCapMinor: 100_000n });
+
+    // An order in rupees must not eat into the dollar budget: summing the two
+    // into one figure would be arithmetic across different units.
+    await prisma.order.create({
+      data: {
+        id: newId(),
+        orderNumber: 'UB-TEST-INR-1',
+        customerProfileId,
+        status: 'CONFIRMED',
+        currency: 'INR',
+        subtotalMinor: 90_000n,
+        taxMinor: 0n,
+        shippingMinor: 0n,
+        grandTotalMinor: 90_000n,
+        billingAddressJson: {},
+        shippingAddressJson: {},
+      },
+    });
+
+    const inr = await monthToDateSpend(customerProfileId, 'INR');
+    const usd = await monthToDateSpend(customerProfileId, 'USD');
+
+    expect(inr).toBe(90_000n);
+    expect(usd).toBe(0n);
   });
 });
 

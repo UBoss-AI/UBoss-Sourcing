@@ -324,6 +324,10 @@ const SHAPES: Readonly<Record<ExportTypeValue, ExportShape>> = Object.freeze({
       'status',
       'activatedAt',
       'orderCount',
+      // Limits are per currency, so each is reported with the currency it is
+      // counted in. A bare amount column would have meant nothing once the
+      // same account could have terms in two markets.
+      'limitsCurrency',
       'perOrderMaxMinor',
       'monthlySpendCapMinor',
     ],
@@ -335,6 +339,7 @@ const SHAPES: Readonly<Record<ExportTypeValue, ExportShape>> = Object.freeze({
           take: PAGE_SIZE,
           include: {
             user: { select: { email: true, status: true } },
+            limits: { orderBy: { currencyCode: 'asc' } },
             _count: { select: { orders: true } },
           },
         });
@@ -349,8 +354,9 @@ const SHAPES: Readonly<Record<ExportTypeValue, ExportShape>> = Object.freeze({
           profile.user.status,
           profile.activatedAt,
           profile._count.orders,
-          profile.perOrderMaxMinor,
-          profile.monthlySpendCapMinor,
+          profile.limits.map((row) => row.currencyCode).join(' '),
+          profile.limits.map((row) => row.perOrderMaxMinor?.toString() ?? '').join(' '),
+          profile.limits.map((row) => row.monthlySpendCapMinor?.toString() ?? '').join(' '),
           // `internalNotes` is deliberately excluded: staff commentary about a
           // customer has no place in an exported spreadsheet.
         ]);

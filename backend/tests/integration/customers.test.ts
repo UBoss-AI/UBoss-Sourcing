@@ -220,7 +220,7 @@ describe('creating a customer', () => {
         {
           email: 'buyer@acme.test',
           fullName: 'V',
-          limits: { perOrderMinMinor: '900000', perOrderMaxMinor: '100000' },
+          limits: { perCurrency: [{ currencyCode: 'INR', perOrderMinMinor: '900000', perOrderMaxMinor: '100000' }] },
         },
         actor,
       ),
@@ -230,7 +230,7 @@ describe('creating a customer', () => {
   it('rejects a non-integer money string', async () => {
     await expect(
       createCustomer(
-        { email: 'buyer@acme.test', fullName: 'V', limits: { perOrderMaxMinor: '5000.00' } },
+        { email: 'buyer@acme.test', fullName: 'V', limits: { perCurrency: [{ currencyCode: 'INR', perOrderMaxMinor: '5000.00' }] } },
         actor,
       ),
     ).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
@@ -456,9 +456,14 @@ describe('purchasing limits', () => {
         email: 'buyer@acme.test',
         fullName: 'V',
         limits: {
-          perOrderMinMinor: '50000',
-          perOrderMaxMinor: '5000000',
-          monthlySpendCapMinor: '20000000',
+          perCurrency: [
+            {
+              currencyCode: 'INR',
+              perOrderMinMinor: '50000',
+              perOrderMaxMinor: '5000000',
+              monthlySpendCapMinor: '20000000',
+            },
+          ],
         },
       },
       actor,
@@ -584,7 +589,7 @@ describe('monthly spend cap', () => {
 
   beforeEach(async () => {
     const created = await createCustomer(
-      { email: 'buyer@acme.test', fullName: 'V', limits: { monthlySpendCapMinor: '1000000' } },
+      { email: 'buyer@acme.test', fullName: 'V', limits: { perCurrency: [{ currencyCode: 'INR', monthlySpendCapMinor: '1000000' }] } },
       actor,
     );
     profileId = created.customerProfileId;
@@ -594,7 +599,7 @@ describe('monthly spend cap', () => {
     await placeOrder(profileId, 400_000n);
     await placeOrder(profileId, 300_000n);
 
-    expect(await monthToDateSpend(profileId)).toBe(700_000n);
+    expect(await monthToDateSpend(profileId, 'INR')).toBe(700_000n);
   });
 
   /** A cancelled order must not consume the customer's budget. */
@@ -603,7 +608,7 @@ describe('monthly spend cap', () => {
     await placeOrder(profileId, 900_000n, 'CANCELLED');
     await placeOrder(profileId, 900_000n, 'DRAFT');
 
-    expect(await monthToDateSpend(profileId)).toBe(400_000n);
+    expect(await monthToDateSpend(profileId, 'INR')).toBe(400_000n);
   });
 
   it('blocks an order that would breach the cap', async () => {
@@ -657,7 +662,11 @@ describe('monthly spend cap', () => {
 
   it('clamps the remaining budget at zero when the cap was lowered', async () => {
     await placeOrder(profileId, 900_000n);
-    await updatePurchasingLimits(profileId, { monthlySpendCapMinor: '500000' }, actor);
+    await updatePurchasingLimits(
+      profileId,
+      { perCurrency: [{ currencyCode: 'INR', monthlySpendCapMinor: '500000' }] },
+      actor,
+    );
 
     const summary = await getSpendSummary(profileId, 'INR');
     expect(summary.monthToDateMinor).toBe('900000');
@@ -690,7 +699,10 @@ describe('approval routing', () => {
       {
         email: 'buyer@acme.test',
         fullName: 'V',
-        limits: { requiresOrderApproval: true, approvalThresholdMinor: '1000000' },
+        limits: {
+          requiresOrderApproval: true,
+          perCurrency: [{ currencyCode: 'INR', approvalThresholdMinor: '1000000' }],
+        },
       },
       actor,
     );
@@ -740,16 +752,17 @@ describe('reads', () => {
       {
         email: 'a@acme.test',
         fullName: 'Alpha',
-        limits: { monthlySpendCapMinor: '100000000000000001' },
+        limits: { perCurrency: [{ currencyCode: 'INR', monthlySpendCapMinor: '100000000000000001' }] },
       },
       actor,
     );
 
     const customer = await getCustomer(created.customerProfileId);
-    const limits = customer['limits'] as Record<string, unknown>;
+    const limits = customer['limits'] as { perCurrency: Record<string, unknown>[] };
+    const inr = limits.perCurrency.find((row) => row['currencyCode'] === 'INR');
 
     // Beyond Number.MAX_SAFE_INTEGER: as a JS number this would already be wrong.
-    expect(limits['monthlySpendCapMinor']).toBe('100000000000000001');
-    expect(typeof limits['monthlySpendCapMinor']).toBe('string');
+    expect(inr?.['monthlySpendCapMinor']).toBe('100000000000000001');
+    expect(typeof inr?.['monthlySpendCapMinor']).toBe('string');
   });
 });
