@@ -179,7 +179,13 @@ export interface RequestOptions {
 }
 
 function buildUrl(path: string, query: RequestOptions['query']): string {
-  const url = new URL(`${BASE_URL}${path.startsWith('/') ? path : `/${path}`}`);
+  // The second argument is what lets BASE_URL be relative ("/api/v1"), which is
+  // how the app is served through an HTTPS tunnel: the API then sits on whatever
+  // origin the page was loaded from. An absolute BASE_URL ignores it.
+  const url = new URL(
+    `${BASE_URL}${path.startsWith('/') ? path : `/${path}`}`,
+    window.location.origin,
+  );
 
   if (query !== undefined) {
     for (const [key, value] of Object.entries(query)) {
