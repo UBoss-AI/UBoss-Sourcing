@@ -7,7 +7,9 @@
  * The heading never says "paid". It says the order was placed, and then states
  * the order's actual status as the backend reports it. On a payment-link order
  * that status is Pending payment, and pretending otherwise would be the single
- * most damaging thing this page could do.
+ * most damaging thing this page could do. The progress indicator obeys the
+ * same rule: its Payment step is a tick only when the order is settled, and a
+ * dashed "waiting" marker otherwise.
  *
  * The emailed payment token is never shown here, and the customer order API
  * carries no payment-link detail at all — the link exists only in the
@@ -17,45 +19,74 @@
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
-import { Badge, ErrorState, LoadingState } from '@/components/ui';
+import { CheckoutSteps } from '@/components/CheckoutSteps';
+import { confirmationSteps } from '@/lib/checkout-steps';
+import { GrandTotalRow, TotalRow } from '@/components/Totals';
+import { CheckIcon } from '@/components/icons';
+import { Badge, ButtonLink, ErrorState, LoadingState } from '@/components/ui';
 import { api } from '@/lib/api';
-import { formatDateTime, formatMoney, humanise } from '@/lib/format';
+import { formatDateTime, formatMoney } from '@/lib/format';
+import { orderStatusLabel, orderStatusTone } from '@/lib/order-status';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { OrderDetail } from '@/lib/types';
 
-/** What happens next, in the customer's terms, per order status. */
-function nextStepFor(order: OrderDetail): { title: string; body: string } {
+/**
+ * What happens next, in the customer's terms, per order status.
+ *
+ * `steps` is the sequence still ahead of them. Kept as a list rather than a
+ * paragraph because "what do I do now" is a question with an ordered answer,
+ * and a customer scanning for their own next move should not have to parse
+ * prose to find it.
+ */
+function nextStepFor(order: OrderDetail): { title: string; body: string; steps: string[] } {
   if (order.status === 'PENDING_APPROVAL') {
     return {
       title: 'Waiting for approval',
-      body: 'Your order has gone to your approver. Once they approve it, we will confirm it and arrange payment. You will get an email at each step.',
+      body: 'Your order has gone to your approver. You will get an email at each step.',
+      steps: [
+        'Your approver reviews the order.',
+        'Once approved, we confirm it and arrange payment.',
+        'We email you when it is confirmed, and again when it ships.',
+      ],
     };
   }
 
   if (order.status === 'PENDING_PAYMENT' && order.paymentMode === 'PAYMENT_LINK') {
     return {
       title: 'Payment link sent',
-      body: 'A secure payment link has been emailed to the address you chose. The order is confirmed once the payment goes through — you will get an email when that happens.',
+      body: 'A secure payment link has been emailed to the address you chose.',
+      steps: [
+        'Whoever received the link opens it and pays.',
+        'The order is confirmed once that payment goes through.',
+        'We email you when it is confirmed, and again when it ships.',
+      ],
     };
   }
 
   if (order.status === 'PENDING_PAYMENT') {
     return {
       title: 'Awaiting payment',
-      body: 'Your order is saved and waiting for payment. You can pay from the order page whenever you are ready.',
+      body: 'Your order is saved and waiting for payment.',
+      steps: [
+        'Pay from the order page whenever you are ready.',
+        'The order is confirmed once the payment is verified.',
+        'We email you when it is confirmed, and again when it ships.',
+      ],
     };
   }
 
   if (order.status === 'CONFIRMED') {
     return {
       title: 'Confirmed',
-      body: 'Payment has been received and your order is confirmed. We will let you know when it ships.',
+      body: 'Payment has been received and your order is confirmed.',
+      steps: ['We pick and pack your order.', 'We email you a tracking link when it ships.'],
     };
   }
 
   return {
-    title: humanise(order.status),
+    title: orderStatusLabel(order.status),
     body: 'We will email you as your order progresses.',
+    steps: [],
   };
 }
 
@@ -91,9 +122,17 @@ export function OrderConfirmationPage(): React.JSX.Element {
   const next = nextStepFor(order);
   const awaitingLinkPayment =
     order.status === 'PENDING_PAYMENT' && order.paymentMode === 'PAYMENT_LINK';
+  const isSettled = BigInt(order.totals.paid.minor) >= BigInt(order.totals.grandTotal.minor);
+  const canPayNow = order.status === 'PENDING_PAYMENT' && order.paymentMode !== 'PAYMENT_LINK';
 
   return (
-    <div className="mx-auto max-w-2xl py-8">
+    <div className="mx-auto max-w-2xl py-4">
+      {/* Payment is a tick only if the money has actually arrived. */}
+      <CheckoutSteps
+        states={confirmationSteps(isSettled)}
+        {...(isSettled ? {} : { notes: { payment: 'Not paid yet' } })}
+      />
+
       {wasReplayed && (
         <div
           role="status"
@@ -103,44 +142,70 @@ export function OrderConfirmationPage(): React.JSX.Element {
         </div>
       )}
 
-      <div className="rounded-lg border border-border bg-surface p-6 text-center">
+      <div className="rounded-lg border border-border bg-surface p-6 text-center shadow-card">
         <span
           aria-hidden="true"
           className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-success-soft text-success"
         >
-          <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="m5 13 4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          <CheckIcon className="h-6 w-6" />
         </span>
 
         {/* Deliberately "placed", never "paid". What is actually true about
             payment is stated below, from the order's own status. */}
-        <h1 className="mt-4 text-2xl font-semibold tracking-tight text-ink">
-          Your order has been placed
-        </h1>
-        <p className="mt-2 text-sm text-ink-muted">
-          Order <span className="font-mono font-medium text-ink">{order.orderNumber}</span> ·{' '}
-          {formatDateTime(order.placedAt ?? order.createdAt)}
+        <h1 className="mt-4 text-title-xl text-ink">Your order has been placed</h1>
+
+        {/*
+         * The reference, given the weight it earns.
+         *
+         * This is the one string a customer will be asked to quote — on the
+         * phone, in an email, to their own finance team — so it is set as a
+         * selectable chip in a monospace face rather than as another line of
+         * grey metadata they have to hunt for.
+         */}
+        <p className="mt-4 text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
+          Your order reference
+        </p>
+        <p className="mt-1.5 inline-block select-all rounded-md border border-border bg-surface-sunken px-4 py-2 font-mono text-title-sm text-ink">
+          {order.orderNumber}
+        </p>
+        <p className="mt-2 text-xs text-ink-muted">
+          Placed {formatDateTime(order.placedAt ?? order.createdAt)}
         </p>
 
         <div className="mt-4 flex justify-center">
-          <Badge
-            tone={
-              order.status === 'CONFIRMED'
-                ? 'success'
-                : order.status === 'PENDING_PAYMENT' || order.status === 'PENDING_APPROVAL'
-                  ? 'warning'
-                  : 'neutral'
-            }
-          >
-            {humanise(order.status)}
-          </Badge>
+          <Badge tone={orderStatusTone(order.status)}>{orderStatusLabel(order.status)}</Badge>
         </div>
       </div>
 
-      <div className="mt-4 rounded-lg border border-border bg-surface p-6">
-        <h2 className="text-base font-semibold text-ink">{next.title}</h2>
+      {/* --- What happens next ----------------------------------------------- */}
+      <div className="mt-4 rounded-lg border border-border bg-surface p-6 shadow-card">
+        <h2 className="text-title-sm text-ink">{next.title}</h2>
         <p className="mt-1.5 text-sm text-ink-muted">{next.body}</p>
+
+        {next.steps.length > 0 && (
+          <ol className="mt-4 space-y-3">
+            {next.steps.map((step, index) => (
+              <li key={step} className="flex gap-3 text-sm text-ink">
+                <span
+                  aria-hidden="true"
+                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-sunken text-xxs font-semibold text-ink-muted"
+                >
+                  {index + 1}
+                </span>
+                <span className="min-w-0 leading-relaxed">{step}</span>
+              </li>
+            ))}
+          </ol>
+        )}
+
+        {canPayNow && (
+          <div className="mt-5">
+            {/* Orange: this one really does take money. */}
+            <ButtonLink to={`/checkout/payment/${order.id}`} variant="action" size="lg">
+              Pay for this order
+            </ButtonLink>
+          </div>
+        )}
 
         {awaitingLinkPayment && (
           <div className="mt-4 rounded-md border border-border bg-surface-sunken p-4 text-sm">
@@ -159,12 +224,13 @@ export function OrderConfirmationPage(): React.JSX.Element {
         )}
       </div>
 
-      <div className="mt-4 rounded-lg border border-border bg-surface p-6">
-        <h2 className="text-base font-semibold text-ink">What you ordered</h2>
+      {/* --- What you ordered ------------------------------------------------- */}
+      <div className="mt-4 rounded-lg border border-border bg-surface p-6 shadow-card">
+        <h2 className="text-title-sm text-ink">What you ordered</h2>
 
-        <ul className="mt-3 divide-y divide-border text-sm">
+        <ul className="mt-3 divide-y divide-border-subtle text-sm">
           {order.items.map((item) => (
-            <li key={item.id} className="flex justify-between gap-4 py-2.5">
+            <li key={item.id} className="flex justify-between gap-4 py-3">
               <span className="min-w-0">
                 <span className="block text-ink">{item.name}</span>
                 <span className="text-xs text-ink-muted">
@@ -176,52 +242,49 @@ export function OrderConfirmationPage(): React.JSX.Element {
           ))}
         </ul>
 
-        <dl className="mt-3 space-y-1.5 border-t border-border pt-3 text-sm">
-          <div className="flex justify-between">
-            <dt className="text-ink-muted">Subtotal</dt>
-            <dd className="tabular text-ink">{formatMoney(order.totals.subtotal)}</dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-ink-muted">Tax</dt>
-            <dd className="tabular text-ink">{formatMoney(order.totals.tax)}</dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-ink-muted">Delivery</dt>
-            <dd className="tabular text-ink">{formatMoney(order.totals.shipping)}</dd>
-          </div>
-          <div className="flex justify-between border-t border-border pt-1.5 text-base font-semibold">
-            <dt>Total</dt>
-            <dd className="tabular">{formatMoney(order.totals.grandTotal)}</dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-ink-muted">Paid so far</dt>
-            <dd
-              className={`tabular ${
-                BigInt(order.totals.paid.minor) >= BigInt(order.totals.grandTotal.minor)
-                  ? 'text-success'
-                  : 'text-warning'
-              }`}
-            >
-              {formatMoney(order.totals.paid)}
-            </dd>
-          </div>
+        <dl className="mt-4 space-y-2.5 border-t border-border-subtle pt-4 text-sm">
+          <TotalRow label="Subtotal" value={formatMoney(order.totals.subtotal)} />
+          {order.totals.discount.minor !== '0' && (
+            <TotalRow
+              label="Discount"
+              tone="credit"
+              value={<>−{formatMoney(order.totals.discount)}</>}
+            />
+          )}
+          <TotalRow label="Tax" value={formatMoney(order.totals.tax)} />
+          <TotalRow label="Delivery" value={formatMoney(order.totals.shipping)} />
+          <GrandTotalRow label="Total" value={formatMoney(order.totals.grandTotal)} />
+          {/* Two figures, never one. What the order came to, and what has
+              actually been paid — collapsing them is how somebody comes to
+              believe they have paid for something they have not. */}
+          <TotalRow
+            label="Paid so far"
+            tone={isSettled ? 'settled' : 'outstanding'}
+            value={formatMoney(order.totals.paid)}
+          />
         </dl>
       </div>
 
-      <div className="mt-6 flex flex-wrap justify-center gap-2">
-        <Link
-          to={`/account/orders/${order.id}`}
-          className="inline-flex h-11 items-center rounded-md bg-brand px-5 text-sm font-medium text-white hover:bg-brand-hover"
-        >
+      {/* --- Where to go next -------------------------------------------------- */}
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+        <ButtonLink to={`/account/orders/${order.id}`} variant="primary" size="lg">
           Track this order
-        </Link>
-        <Link
-          to="/products"
-          className="inline-flex h-11 items-center rounded-md border border-border-strong bg-surface px-5 text-sm font-medium text-ink hover:bg-surface-sunken"
-        >
+        </ButtonLink>
+        <ButtonLink to="/account/orders" size="lg">
+          All your orders
+        </ButtonLink>
+        <ButtonLink to="/products" size="lg">
           Keep shopping
-        </Link>
+        </ButtonLink>
       </div>
+
+      <p className="mt-4 text-center text-xs text-ink-muted">
+        A copy of this confirmation is on its way to your email.{' '}
+        <Link to="/account/orders" className="font-medium text-brand hover:underline">
+          Your order history
+        </Link>{' '}
+        always has the latest status.
+      </p>
     </div>
   );
 }

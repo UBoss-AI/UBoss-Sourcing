@@ -14,7 +14,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 import { useStorefront } from '@/app/storefront-context';
 import { useToast } from '@/components/toast-context';
-import { Badge, Button, ErrorState, Field, Input, LoadingState } from '@/components/ui';
+import { Badge, Button, ErrorState, Field, Input, LoadingState, PageHeader } from '@/components/ui';
 import { ApiError, NetworkError, api } from '@/lib/api';
 import { formatDateTime, minorToMajor } from '@/lib/format';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
@@ -54,8 +54,8 @@ function LimitsPanel({ account }: { account: AccountResponse }): React.JSX.Eleme
   const { purchasingLimits: limits, spend } = account;
 
   return (
-    <section aria-labelledby="limits-heading" className="rounded-lg border border-border bg-surface p-5">
-      <h2 id="limits-heading" className="text-base font-semibold text-ink">
+    <section aria-labelledby="limits-heading" className="rounded-lg border border-border bg-surface p-5 shadow-card">
+      <h2 id="limits-heading" className="text-title-sm text-ink">
         Your purchasing limits
       </h2>
       <p className="mt-1 text-sm text-ink-muted">
@@ -150,8 +150,8 @@ function PasswordPanel(): React.JSX.Element {
   });
 
   return (
-    <section aria-labelledby="password-heading" className="rounded-lg border border-border bg-surface p-5">
-      <h2 id="password-heading" className="text-base font-semibold text-ink">
+    <section aria-labelledby="password-heading" className="rounded-lg border border-border bg-surface p-5 shadow-card">
+      <h2 id="password-heading" className="text-title-sm text-ink">
         Change your password
       </h2>
 
@@ -291,11 +291,14 @@ export function ProfilePage(): React.JSX.Element {
 
   return (
     <>
-      <h1 className="mb-6 text-2xl font-semibold tracking-tight text-ink">Your profile</h1>
+      <PageHeader
+        title="Your profile"
+        description="Your contact details and how we reach you about orders."
+      />
 
       <div className="space-y-6">
-        <section aria-labelledby="details-heading" className="rounded-lg border border-border bg-surface p-5">
-          <h2 id="details-heading" className="text-base font-semibold text-ink">
+        <section aria-labelledby="details-heading" className="rounded-lg border border-border bg-surface p-5 shadow-card">
+          <h2 id="details-heading" className="text-title-sm text-ink">
             Your details
           </h2>
 

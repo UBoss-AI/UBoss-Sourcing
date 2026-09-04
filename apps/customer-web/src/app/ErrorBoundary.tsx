@@ -57,7 +57,7 @@ export class ErrorBoundary extends Component<Props, State> {
             </button>
             <a
               href="/"
-              className="inline-flex h-10 items-center rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-ink hover:bg-surface-sunken"
+              className="inline-flex h-10 items-center rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-ink hover:bg-surface-hover"
             >
               Go to the home page
             </a>

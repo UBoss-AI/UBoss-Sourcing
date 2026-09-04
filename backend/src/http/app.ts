@@ -61,6 +61,8 @@ import {
   registerCustomerScheduleRoutes,
 } from './routes/schedules.js';
 import { registerPublicConfigRoutes } from './routes/config.public.js';
+import { registerAssistantRoutes } from './routes/assistant.public.js';
+import { registerAdminAssistantRoutes } from './routes/assistant.admin.js';
 import { registerAdminCouponRoutes } from './routes/coupons.admin.js';
 import { registerPublicCatalogRoutes } from './routes/catalog.public.js';
 import { registerHealthRoutes } from './routes/health.js';
@@ -358,6 +360,15 @@ export async function buildApp() {
   // before anybody signs in.
   await app.register(registerPublicConfigRoutes, { prefix: API_PREFIX });
   await app.register(registerPublicCatalogRoutes, { prefix: `${API_PREFIX}/catalog` });
+
+  // Also unauthenticated: the chat widget is for visitors who have not signed
+  // in. The endpoint is a proxy with every API parameter fixed server-side, so
+  // it cannot be driven as an open relay for the deployment's Anthropic key.
+  await app.register(registerAssistantRoutes, { prefix: `${API_PREFIX}/assistant` });
+
+  // The transcripts those conversations leave behind, and the contact details
+  // the visitor gave before starting one. Staff only, behind assistant_chat.read.
+  await app.register(registerAdminAssistantRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminCatalogRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminCustomerRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminInventoryRoutes, { prefix: `${API_PREFIX}/admin` });

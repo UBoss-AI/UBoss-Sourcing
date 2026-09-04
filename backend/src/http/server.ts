@@ -11,6 +11,7 @@ import { disconnectPrisma } from '../infra/prisma.js';
 import { queue } from '../infra/queue/index.js';
 import { assertCurrencyTableMatchesMoneyModule } from '../modules/settings/currency.service.js';
 import { buildApp } from './app.js';
+import { warmAssistant } from '../modules/assistant/assistant.service.js';
 
 const SHUTDOWN_TIMEOUT_MS = 15_000;
 
@@ -36,6 +37,11 @@ async function main(): Promise<void> {
     },
     'UBOSS API listening',
   );
+
+  // Builds the assistant's catalogue snapshot once, after the port is open, so
+  // the first visitor to open the chat panel does not wait for it. Awaited but
+  // never fatal — see warmAssistant.
+  await warmAssistant();
 
   let shuttingDown = false;
 

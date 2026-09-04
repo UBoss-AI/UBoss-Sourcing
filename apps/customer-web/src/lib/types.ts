@@ -49,6 +49,8 @@ export interface StorefrontConfig {
   features: {
     selfRegistration: boolean;
     recurringOrders: boolean;
+    /** Whether this deployment has the chat assistant configured. */
+    assistant: boolean;
   };
 }
 

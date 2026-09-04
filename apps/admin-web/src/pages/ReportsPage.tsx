@@ -1,12 +1,17 @@
 /**
  * Reports.
  *
- * The window lives in the URL so a report can be sent to someone as a link.
+ * The window lives in the URL so a report can be sent to someone as a link,
+ * and the dates it actually covers are printed on the page — "last 30 days"
+ * means something different depending on when it was opened, and a figure
+ * quoted out of a report has to be traceable to a period.
  *
  * The distinction the sales panel exists to make: **gross sales** is what was
  * ordered, **collected** is what the gateway actually confirmed, and **net
  * revenue** is collected minus refunds. Presenting only the first would report
  * unpaid orders as revenue, which is the most common way a dashboard lies.
+ * The four headline figures are one size; the four that break them down are a
+ * step smaller, because they are read second.
  *
  * Exports are asynchronous: `POST /admin/exports` queues a job, and the file
  * is fetched with a one-time token once it is ready. Nothing here blocks on a
@@ -19,10 +24,23 @@ import { useSession } from '@/auth/session-context';
 import { DataTable } from '@/components/DataTable';
 import type { Column } from '@/components/DataTable';
 import { useToast } from '@/components/toast-context';
-import { Badge, Button, Card, ErrorState, LoadingState, PageHeader, Select } from '@/components/ui';
+import {
+  Badge,
+  Button,
+  Card,
+  ErrorState,
+  LoadingState,
+  Metric,
+  PageHeader,
+  Select,
+  Toolbar,
+  ToolbarActions,
+  ToolbarField,
+} from '@/components/ui';
 import { ApiError, api, downloadFile } from '@/lib/api';
-import { formatDateTime, formatMoney, formatNumber, humanise, minorToMajor } from '@/lib/format';
+import { formatDate, formatDateTime, formatMoney, formatNumber, humanise, minorToMajor } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
+import type { BadgeTone } from '@/components/ui';
 import type { Money } from '@/lib/types';
 
 interface SalesReport {
@@ -77,14 +95,10 @@ const EXPORT_TYPES = [
   { value: 'PRODUCTS', label: 'Products' },
 ] as const;
 
-function Metric({ label, value, note }: { label: string; value: string; note?: string }): React.JSX.Element {
-  return (
-    <div className="rounded-lg border border-border bg-surface px-4 py-3.5">
-      <p className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">{label}</p>
-      <p className="mt-1.5 text-lg font-semibold tabular tracking-tight text-ink">{value}</p>
-      {note !== undefined && <p className="mt-0.5 text-xs text-ink-muted">{note}</p>}
-    </div>
-  );
+function exportTone(status: string): BadgeTone {
+  if (status === 'SUCCEEDED') return 'success';
+  if (status === 'FAILED' || status === 'DEAD') return 'danger';
+  return 'warning';
 }
 
 function ExportsPanel(): React.JSX.Element {
@@ -92,6 +106,8 @@ function ExportsPanel(): React.JSX.Element {
   const toast = useToast();
   const { can } = useSession();
   const [type, setType] = useState<string>('ORDERS');
+
+  const canCreate = can(Permission.EXPORT_CREATE);
 
   const query = useQuery({
     queryKey: ['exports'],
@@ -129,21 +145,27 @@ function ExportsPanel(): React.JSX.Element {
     },
   });
 
+  const isWorking = (job: ExportJob): boolean =>
+    job.status === 'PENDING' || job.status === 'RUNNING';
+
   const columns: Column<ExportJob>[] = [
-    { key: 'type', header: 'Export', render: (row) => humanise(row.type) },
+    {
+      key: 'type',
+      header: 'Export',
+      render: (row) => (
+        <div>
+          <p className="font-medium text-ink">{humanise(row.type)}</p>
+          {row.fileName !== null && (
+            <p className="truncate font-mono text-xxs text-ink-subtle">{row.fileName}</p>
+          )}
+        </div>
+      ),
+    },
     {
       key: 'status',
       header: 'Status',
       render: (row) => (
-        <Badge
-          tone={
-            row.status === 'SUCCEEDED'
-              ? 'success'
-              : row.status === 'FAILED' || row.status === 'DEAD'
-                ? 'danger'
-                : 'warning'
-          }
-        >
+        <Badge dot tone={exportTone(row.status)}>
           {humanise(row.status)}
         </Badge>
       ),
@@ -153,13 +175,15 @@ function ExportsPanel(): React.JSX.Element {
       header: 'Rows',
       align: 'right',
       secondary: true,
-      render: (row) => (row.rowCount == null ? '—' : formatNumber(row.rowCount)),
+      render: (row) =>
+        row.rowCount == null ? <span className="text-ink-subtle">—</span> : formatNumber(row.rowCount),
     },
     {
       key: 'created',
       header: 'Requested',
       secondary: true,
-      render: (row) => <span className="whitespace-nowrap">{formatDateTime(row.createdAt)}</span>,
+      nowrap: true,
+      render: (row) => <span className="text-ink-muted">{formatDateTime(row.createdAt)}</span>,
     },
     {
       key: 'actions',
@@ -169,14 +193,18 @@ function ExportsPanel(): React.JSX.Element {
         row.status === 'SUCCEEDED' ? (
           <Button
             size="sm"
-            variant="ghost"
-            isLoading={download.isPending}
+            // Scoped to the row being fetched, so one download does not put
+            // every other Download button into a spinner.
+            isLoading={download.isPending && download.variables.id === row.id}
             onClick={() => {
               download.mutate(row);
             }}
           >
             Download
+            <span className="sr-only"> the {humanise(row.type)} export</span>
           </Button>
+        ) : isWorking(row) ? (
+          <span className="text-xs text-ink-subtle">Still running…</span>
         ) : null,
     },
   ];
@@ -184,17 +212,17 @@ function ExportsPanel(): React.JSX.Element {
   return (
     <Card
       title="Exports"
-      description="Queued in the background. A large export does not hold up this page."
-      actions={
-        can(Permission.EXPORT_CREATE) ? (
-          <div className="flex gap-2">
+      description="CSV, generated in the background. A large export does not hold up this page, and the list refreshes itself while one is running."
+    >
+      {canCreate && (
+        <Toolbar>
+          <ToolbarField label="What to export">
             <Select
               value={type}
-              aria-label="Export type"
               onChange={(event) => {
                 setType(event.target.value);
               }}
-              className="h-8 py-0 text-xs"
+              className="w-52"
             >
               {EXPORT_TYPES.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -202,19 +230,26 @@ function ExportsPanel(): React.JSX.Element {
                 </option>
               ))}
             </Select>
-            <Button
-              size="sm"
-              isLoading={create.isPending}
-              onClick={() => {
-                create.mutate();
-              }}
-            >
-              Request export
-            </Button>
-          </div>
-        ) : undefined
-      }
-    >
+          </ToolbarField>
+
+          <Button
+            variant="primary"
+            isLoading={create.isPending}
+            onClick={() => {
+              create.mutate();
+            }}
+          >
+            Request export
+          </Button>
+
+          <ToolbarActions>
+            <p className="text-xs text-ink-muted">
+              An export covers everything, not the period chosen above.
+            </p>
+          </ToolbarActions>
+        </Toolbar>
+      )}
+
       <DataTable
         caption="Exports"
         columns={columns}
@@ -222,7 +257,17 @@ function ExportsPanel(): React.JSX.Element {
         rowKey={(row) => row.id}
         isLoading={query.isPending}
         error={query.isError ? query.error : undefined}
+        loadingLabel="Loading exports"
+        minWidth="46rem"
+        onRetry={() => {
+          void query.refetch();
+        }}
         emptyTitle="No exports yet"
+        emptyDescription={
+          canCreate
+            ? 'Request one above. It is queued, and the download appears here when it is ready.'
+            : 'Nothing has been exported.'
+        }
       />
     </Card>
   );
@@ -250,19 +295,38 @@ export function ReportsPage(): React.JSX.Element {
   });
 
   const currency = sales.data?.summary.currency ?? 'INR';
+  const reportWindow = sales.data?.summary.window;
 
-  const statusColumns: Column<OrdersReport['byStatus'][number]> = {
-    key: 'status',
-    header: 'Status',
-    render: (row) => <Badge>{humanise(row.status)}</Badge>,
-  };
+  const statusColumns: Column<OrdersReport['byStatus'][number]>[] = [
+    {
+      key: 'status',
+      header: 'Status',
+      render: (row) => <Badge dot>{humanise(row.status)}</Badge>,
+    },
+    {
+      key: 'count',
+      header: 'Orders',
+      align: 'right',
+      render: (row) => formatNumber(row.count),
+    },
+    {
+      key: 'value',
+      header: 'Value',
+      align: 'right',
+      nowrap: true,
+      render: (row) =>
+        formatMoney({ minor: row.value, formatted: minorToMajor(row.value), currency }),
+    },
+  ];
 
   const ageingColumns: Column<OrdersReport['fulfilmentAgeing'][number]>[] = [
-    { key: 'bucket', header: 'Waiting', render: (row) => row.bucket },
+    { key: 'bucket', header: 'Waiting', nowrap: true, render: (row) => row.bucket },
     { key: 'count', header: 'Orders', align: 'right', render: (row) => formatNumber(row.count) },
     {
       key: 'oldest',
       header: 'Oldest',
+      align: 'right',
+      nowrap: true,
       render: (row) =>
         row.oldestOrderNumber === null ? (
           <span className="text-ink-subtle">—</span>
@@ -280,29 +344,39 @@ export function ReportsPage(): React.JSX.Element {
       <PageHeader
         title="Reports"
         description="Ordered, collected and refunded — kept separate, because they are different numbers."
-        actions={
-          <label className="flex items-center gap-2 text-sm text-ink-muted">
-            <span className="sr-only sm:not-sr-only">Period</span>
-            <Select
-              value={String(days)}
-              onChange={(event) => {
-                setSearchParams({ days: event.target.value }, { replace: true });
-              }}
-              className="w-40"
-            >
-              {WINDOWS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
-          </label>
-        }
       />
 
       <div className="space-y-5">
-        <Card title="Sales">
-          {sales.isPending && <LoadingState />}
+        <Card
+          title="Sales"
+          // The dates the figures actually cover. "Last 30 days" is not a
+          // period a number can be quoted against six weeks later.
+          {...(reportWindow === undefined
+            ? {}
+            : { description: `${formatDate(reportWindow.from)} to ${formatDate(reportWindow.to)}` })}
+          actions={
+            <label className="flex items-center gap-2">
+              <span className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
+                Period
+              </span>
+              <Select
+                value={String(days)}
+                onChange={(event) => {
+                  setSearchParams({ days: event.target.value }, { replace: true });
+                }}
+                className="h-8 w-40 py-0 text-xs"
+              >
+                {WINDOWS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
+            </label>
+          }
+        >
+
+          {sales.isPending && <LoadingState label="Loading sales" />}
           {sales.isError && (
             <ErrorState
               error={sales.error}
@@ -313,64 +387,61 @@ export function ReportsPage(): React.JSX.Element {
           )}
 
           {sales.data !== undefined && (
-            <div className="grid gap-3 px-5 py-4 sm:grid-cols-2 xl:grid-cols-4">
-              <Metric
-                label="Orders"
-                value={formatNumber(sales.data.summary.orderCount)}
-                note={`Average ${formatMoney(sales.data.summary.averageOrderValue)}`}
-              />
-              <Metric
-                label="Gross sales"
-                value={formatMoney(sales.data.summary.grossSales)}
-                note="What was ordered, including tax and shipping"
-              />
-              <Metric
-                label="Collected"
-                value={formatMoney(sales.data.summary.collected)}
-                note="Confirmed by the gateway, not merely ordered"
-              />
-              <Metric
-                label="Net revenue"
-                value={formatMoney(sales.data.summary.netRevenue)}
-                note={`Collected less ${formatMoney(sales.data.summary.refunded)} refunded`}
-              />
-              <Metric label="Tax" value={formatMoney(sales.data.summary.tax)} />
-              <Metric label="Shipping" value={formatMoney(sales.data.summary.shipping)} />
-              <Metric label="Discounts" value={formatMoney(sales.data.summary.discount)} />
-              <Metric label="Refunded" value={formatMoney(sales.data.summary.refunded)} />
+            <div className="space-y-4 px-5 py-4">
+              {/* The four that get quoted. */}
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <Metric
+                  label="Orders"
+                  value={formatNumber(sales.data.summary.orderCount)}
+                  emphasis="primary"
+                  sub={`Average ${formatMoney(sales.data.summary.averageOrderValue)}`}
+                />
+                <Metric
+                  label="Gross sales"
+                  value={formatMoney(sales.data.summary.grossSales)}
+                  emphasis="primary"
+                  sub="Ordered, including tax and shipping"
+                />
+                <Metric
+                  label="Collected"
+                  value={formatMoney(sales.data.summary.collected)}
+                  emphasis="primary"
+                  sub="Confirmed by the gateway, not merely ordered"
+                />
+                <Metric
+                  label="Net revenue"
+                  value={formatMoney(sales.data.summary.netRevenue)}
+                  emphasis="primary"
+                  sub={`Collected less ${formatMoney(sales.data.summary.refunded)} refunded`}
+                />
+              </div>
+
+              {/* The four they break down into. Same cards, one step quieter. */}
+              <div className="grid gap-3 border-t border-border-subtle pt-4 sm:grid-cols-2 xl:grid-cols-4">
+                <Metric label="Tax" value={formatMoney(sales.data.summary.tax)} />
+                <Metric label="Shipping" value={formatMoney(sales.data.summary.shipping)} />
+                <Metric label="Discounts" value={formatMoney(sales.data.summary.discount)} />
+                <Metric label="Refunded" value={formatMoney(sales.data.summary.refunded)} />
+              </div>
             </div>
           )}
         </Card>
 
         <div className="grid gap-5 lg:grid-cols-2">
-          <Card title="Orders by status">
+          <Card title="Orders by status" description="Every order placed in the period.">
             <DataTable
               caption="Orders by status"
-              columns={[
-                statusColumns,
-                {
-                  key: 'count',
-                  header: 'Orders',
-                  align: 'right',
-                  render: (row) => formatNumber(row.count),
-                },
-                {
-                  key: 'value',
-                  header: 'Value',
-                  align: 'right',
-                  render: (row) =>
-                    formatMoney({
-                      minor: row.value,
-                      formatted: minorToMajor(row.value),
-                      currency,
-                    }),
-                },
-              ]}
+              columns={statusColumns}
               rows={orders.data?.byStatus}
               rowKey={(row) => row.status}
               isLoading={orders.isPending}
               error={orders.isError ? orders.error : undefined}
+              loadingLabel="Loading orders by status"
+              onRetry={() => {
+                void orders.refetch();
+              }}
               emptyTitle="No orders in this period"
+              emptyDescription="Widen the period to see more."
             />
           </Card>
 
@@ -384,7 +455,10 @@ export function ReportsPage(): React.JSX.Element {
               rows={orders.data?.fulfilmentAgeing}
               rowKey={(row) => row.bucket}
               isLoading={orders.isPending}
+              error={orders.isError ? orders.error : undefined}
+              loadingLabel="Loading fulfilment ageing"
               emptyTitle="Nothing waiting"
+              emptyDescription="No confirmed order is sitting unshipped."
             />
           </Card>
         </div>

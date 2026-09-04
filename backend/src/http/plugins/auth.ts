@@ -178,6 +178,25 @@ async function authenticate(
 export function requireAdmin(...permissions: PermissionKey[]) {
   return async function adminGuard(request: FastifyRequest, _reply: FastifyReply): Promise<void> {
     const auth = await authenticate(request, 'ADMIN');
+
+    /**
+     * An account still on its emailed temporary password can hold a session and
+     * nothing else. This is the control, not the screen the Admin Panel shows:
+     * that password travelled in plaintext and may have been read by anyone with
+     * access to the inbox, so it must not be able to touch an order, a price or
+     * another staff account even once.
+     *
+     * The three routes that stay reachable - `/me`, `/password/change` and
+     * `/logout` - use `requireAuthenticated` rather than this guard, which is
+     * exactly why they are not listed here as exceptions.
+     */
+    if (auth.mustChangePassword) {
+      throw forbidden(
+        ErrorCode.PASSWORD_CHANGE_REQUIRED,
+        'Set your own password before using the admin panel.',
+      );
+    }
+
     const held = new Set(auth.permissions);
 
     // All listed permissions are required, not any.

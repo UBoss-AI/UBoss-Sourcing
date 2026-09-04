@@ -44,6 +44,8 @@ export type UserMinAggregateOutputType = {
   status: $Enums.UserStatus | null
   emailVerifiedAt: Date | null
   phoneVerifiedAt: Date | null
+  mustChangePassword: boolean | null
+  temporaryPasswordExpiresAt: Date | null
   mfaSecretEnc: string | null
   mfaEnabledAt: Date | null
   lastLoginAt: Date | null
@@ -64,6 +66,8 @@ export type UserMaxAggregateOutputType = {
   status: $Enums.UserStatus | null
   emailVerifiedAt: Date | null
   phoneVerifiedAt: Date | null
+  mustChangePassword: boolean | null
+  temporaryPasswordExpiresAt: Date | null
   mfaSecretEnc: string | null
   mfaEnabledAt: Date | null
   lastLoginAt: Date | null
@@ -84,6 +88,8 @@ export type UserCountAggregateOutputType = {
   status: number
   emailVerifiedAt: number
   phoneVerifiedAt: number
+  mustChangePassword: number
+  temporaryPasswordExpiresAt: number
   mfaSecretEnc: number
   mfaEnabledAt: number
   lastLoginAt: number
@@ -114,6 +120,8 @@ export type UserMinAggregateInputType = {
   status?: true
   emailVerifiedAt?: true
   phoneVerifiedAt?: true
+  mustChangePassword?: true
+  temporaryPasswordExpiresAt?: true
   mfaSecretEnc?: true
   mfaEnabledAt?: true
   lastLoginAt?: true
@@ -134,6 +142,8 @@ export type UserMaxAggregateInputType = {
   status?: true
   emailVerifiedAt?: true
   phoneVerifiedAt?: true
+  mustChangePassword?: true
+  temporaryPasswordExpiresAt?: true
   mfaSecretEnc?: true
   mfaEnabledAt?: true
   lastLoginAt?: true
@@ -154,6 +164,8 @@ export type UserCountAggregateInputType = {
   status?: true
   emailVerifiedAt?: true
   phoneVerifiedAt?: true
+  mustChangePassword?: true
+  temporaryPasswordExpiresAt?: true
   mfaSecretEnc?: true
   mfaEnabledAt?: true
   lastLoginAt?: true
@@ -261,6 +273,8 @@ export type UserGroupByOutputType = {
   status: $Enums.UserStatus
   emailVerifiedAt: Date | null
   phoneVerifiedAt: Date | null
+  mustChangePassword: boolean
+  temporaryPasswordExpiresAt: Date | null
   mfaSecretEnc: string | null
   mfaEnabledAt: Date | null
   lastLoginAt: Date | null
@@ -304,6 +318,8 @@ export type UserWhereInput = {
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
   emailVerifiedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   phoneVerifiedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  mustChangePassword?: Prisma.BoolFilter<"User"> | boolean
+  temporaryPasswordExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   mfaSecretEnc?: Prisma.StringNullableFilter<"User"> | string | null
   mfaEnabledAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   lastLoginAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -329,6 +345,8 @@ export type UserOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   emailVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   phoneVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  mustChangePassword?: Prisma.SortOrder
+  temporaryPasswordExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   mfaSecretEnc?: Prisma.SortOrderInput | Prisma.SortOrder
   mfaEnabledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -358,6 +376,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
   emailVerifiedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   phoneVerifiedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  mustChangePassword?: Prisma.BoolFilter<"User"> | boolean
+  temporaryPasswordExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   mfaSecretEnc?: Prisma.StringNullableFilter<"User"> | string | null
   mfaEnabledAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   lastLoginAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -383,6 +403,8 @@ export type UserOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   emailVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   phoneVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  mustChangePassword?: Prisma.SortOrder
+  temporaryPasswordExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   mfaSecretEnc?: Prisma.SortOrderInput | Prisma.SortOrder
   mfaEnabledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -411,6 +433,8 @@ export type UserScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumUserStatusWithAggregatesFilter<"User"> | $Enums.UserStatus
   emailVerifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   phoneVerifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  mustChangePassword?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  temporaryPasswordExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   mfaSecretEnc?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   mfaEnabledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   lastLoginAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
@@ -431,6 +455,8 @@ export type UserCreateInput = {
   status?: $Enums.UserStatus
   emailVerifiedAt?: Date | string | null
   phoneVerifiedAt?: Date | string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
   lastLoginAt?: Date | string | null
@@ -456,6 +482,8 @@ export type UserUncheckedCreateInput = {
   status?: $Enums.UserStatus
   emailVerifiedAt?: Date | string | null
   phoneVerifiedAt?: Date | string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
   lastLoginAt?: Date | string | null
@@ -481,6 +509,8 @@ export type UserUpdateInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -506,6 +536,8 @@ export type UserUncheckedUpdateInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -531,6 +563,8 @@ export type UserCreateManyInput = {
   status?: $Enums.UserStatus
   emailVerifiedAt?: Date | string | null
   phoneVerifiedAt?: Date | string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
   lastLoginAt?: Date | string | null
@@ -551,6 +585,8 @@ export type UserUpdateManyMutationInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -571,6 +607,8 @@ export type UserUncheckedUpdateManyInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -597,6 +635,8 @@ export type UserCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   emailVerifiedAt?: Prisma.SortOrder
   phoneVerifiedAt?: Prisma.SortOrder
+  mustChangePassword?: Prisma.SortOrder
+  temporaryPasswordExpiresAt?: Prisma.SortOrder
   mfaSecretEnc?: Prisma.SortOrder
   mfaEnabledAt?: Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrder
@@ -621,6 +661,8 @@ export type UserMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   emailVerifiedAt?: Prisma.SortOrder
   phoneVerifiedAt?: Prisma.SortOrder
+  mustChangePassword?: Prisma.SortOrder
+  temporaryPasswordExpiresAt?: Prisma.SortOrder
   mfaSecretEnc?: Prisma.SortOrder
   mfaEnabledAt?: Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrder
@@ -641,6 +683,8 @@ export type UserMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   emailVerifiedAt?: Prisma.SortOrder
   phoneVerifiedAt?: Prisma.SortOrder
+  mustChangePassword?: Prisma.SortOrder
+  temporaryPasswordExpiresAt?: Prisma.SortOrder
   mfaSecretEnc?: Prisma.SortOrder
   mfaEnabledAt?: Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrder
@@ -683,6 +727,10 @@ export type EnumUserStatusFieldUpdateOperationsInput = {
 
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
 export type IntFieldUpdateOperationsInput = {
@@ -779,6 +827,8 @@ export type UserCreateWithoutRolesInput = {
   status?: $Enums.UserStatus
   emailVerifiedAt?: Date | string | null
   phoneVerifiedAt?: Date | string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
   lastLoginAt?: Date | string | null
@@ -803,6 +853,8 @@ export type UserUncheckedCreateWithoutRolesInput = {
   status?: $Enums.UserStatus
   emailVerifiedAt?: Date | string | null
   phoneVerifiedAt?: Date | string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
   lastLoginAt?: Date | string | null
@@ -843,6 +895,8 @@ export type UserUpdateWithoutRolesInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -867,6 +921,8 @@ export type UserUncheckedUpdateWithoutRolesInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -891,6 +947,8 @@ export type UserCreateWithoutSessionsInput = {
   status?: $Enums.UserStatus
   emailVerifiedAt?: Date | string | null
   phoneVerifiedAt?: Date | string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
   lastLoginAt?: Date | string | null
@@ -915,6 +973,8 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   status?: $Enums.UserStatus
   emailVerifiedAt?: Date | string | null
   phoneVerifiedAt?: Date | string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
   lastLoginAt?: Date | string | null
@@ -955,6 +1015,8 @@ export type UserUpdateWithoutSessionsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -979,6 +1041,8 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1003,6 +1067,8 @@ export type UserCreateWithoutAuthTokensInput = {
   status?: $Enums.UserStatus
   emailVerifiedAt?: Date | string | null
   phoneVerifiedAt?: Date | string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
   lastLoginAt?: Date | string | null
@@ -1027,6 +1093,8 @@ export type UserUncheckedCreateWithoutAuthTokensInput = {
   status?: $Enums.UserStatus
   emailVerifiedAt?: Date | string | null
   phoneVerifiedAt?: Date | string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
   lastLoginAt?: Date | string | null
@@ -1067,6 +1135,8 @@ export type UserUpdateWithoutAuthTokensInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1091,6 +1161,8 @@ export type UserUncheckedUpdateWithoutAuthTokensInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1115,6 +1187,8 @@ export type UserCreateWithoutCustomerProfileInput = {
   status?: $Enums.UserStatus
   emailVerifiedAt?: Date | string | null
   phoneVerifiedAt?: Date | string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
   lastLoginAt?: Date | string | null
@@ -1139,6 +1213,8 @@ export type UserUncheckedCreateWithoutCustomerProfileInput = {
   status?: $Enums.UserStatus
   emailVerifiedAt?: Date | string | null
   phoneVerifiedAt?: Date | string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
   lastLoginAt?: Date | string | null
@@ -1179,6 +1255,8 @@ export type UserUpdateWithoutCustomerProfileInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1203,6 +1281,8 @@ export type UserUncheckedUpdateWithoutCustomerProfileInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1227,6 +1307,8 @@ export type UserCreateWithoutAuditLogsInput = {
   status?: $Enums.UserStatus
   emailVerifiedAt?: Date | string | null
   phoneVerifiedAt?: Date | string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
   lastLoginAt?: Date | string | null
@@ -1251,6 +1333,8 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   status?: $Enums.UserStatus
   emailVerifiedAt?: Date | string | null
   phoneVerifiedAt?: Date | string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
   lastLoginAt?: Date | string | null
@@ -1291,6 +1375,8 @@ export type UserUpdateWithoutAuditLogsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1315,6 +1401,8 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1397,6 +1485,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   status?: boolean
   emailVerifiedAt?: boolean
   phoneVerifiedAt?: boolean
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: boolean
   mfaSecretEnc?: boolean
   mfaEnabledAt?: boolean
   lastLoginAt?: boolean
@@ -1425,6 +1515,8 @@ export type UserSelectScalar = {
   status?: boolean
   emailVerifiedAt?: boolean
   phoneVerifiedAt?: boolean
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: boolean
   mfaSecretEnc?: boolean
   mfaEnabledAt?: boolean
   lastLoginAt?: boolean
@@ -1435,7 +1527,7 @@ export type UserSelectScalar = {
   archivedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "email" | "emailNormalized" | "phone" | "passwordHash" | "status" | "emailVerifiedAt" | "phoneVerifiedAt" | "mfaSecretEnc" | "mfaEnabledAt" | "lastLoginAt" | "failedLoginCount" | "lockedUntil" | "createdAt" | "updatedAt" | "archivedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "email" | "emailNormalized" | "phone" | "passwordHash" | "status" | "emailVerifiedAt" | "phoneVerifiedAt" | "mustChangePassword" | "temporaryPasswordExpiresAt" | "mfaSecretEnc" | "mfaEnabledAt" | "lastLoginAt" | "failedLoginCount" | "lockedUntil" | "createdAt" | "updatedAt" | "archivedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   roles?: boolean | Prisma.User$rolesArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
@@ -1467,6 +1559,18 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     status: $Enums.UserStatus
     emailVerifiedAt: Date | null
     phoneVerifiedAt: Date | null
+    /**
+     * Set when the account was opened with a system-issued temporary password.
+     * While it is true the session may sign in and do exactly one thing: choose
+     * a real password. Every other admin route refuses it.
+     */
+    mustChangePassword: boolean
+    /**
+     * When that temporary password stops working. A password emailed in
+     * plaintext sits in an inbox forever otherwise; this is what stops it being
+     * a permanent key. Null once the holder has chosen their own.
+     */
+    temporaryPasswordExpiresAt: Date | null
     /**
      * TOTP secret, AES-256-GCM encrypted. Null until an admin enrols in MFA.
      */
@@ -1864,6 +1968,8 @@ export interface UserFieldRefs {
   readonly status: Prisma.FieldRef<"User", 'UserStatus'>
   readonly emailVerifiedAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly phoneVerifiedAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly mustChangePassword: Prisma.FieldRef<"User", 'Boolean'>
+  readonly temporaryPasswordExpiresAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly mfaSecretEnc: Prisma.FieldRef<"User", 'String'>
   readonly mfaEnabledAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly lastLoginAt: Prisma.FieldRef<"User", 'DateTime'>

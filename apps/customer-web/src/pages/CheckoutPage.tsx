@@ -18,19 +18,56 @@
  * The totals shown here are the server's, re-read with the chosen delivery
  * method. This page never adds tax or shipping itself — a second pricing
  * engine that eventually disagrees with the first is worse than no preview.
+ *
+ * The progress indicator at the top follows that same rule. It marks Address
+ * complete only once an address is actually selected, and it never touches the
+ * Payment step, because no money moves on this page.
  */
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
 import { AddressForm } from '@/components/AddressForm';
-import { Button, ErrorState, Field, LoadingState, Textarea } from '@/components/ui';
+import { CheckoutSteps } from '@/components/CheckoutSteps';
+import { checkoutSteps } from '@/lib/checkout-steps';
+import { GrandTotalRow, TotalRow } from '@/components/Totals';
+import { PageEmptyState } from '@/components/PageEmptyState';
+import { AlertIcon, CardIcon, CheckIcon, LinkIcon, ShieldIcon } from '@/components/icons';
+import { Button, ButtonLink, ErrorState, Field, LoadingState, Textarea } from '@/components/ui';
 import { ApiError, NetworkError, api, newIdempotencyKey } from '@/lib/api';
+import { cx } from '@/lib/cx';
 import { formatMoney, formatNumber } from '@/lib/format';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { Address, Cart, CheckoutResult } from '@/lib/types';
 
 type PaymentMode = 'ONLINE' | 'PAYMENT_LINK';
+
+/**
+ * The shared look of every choosable card on this page — an address, a way to
+ * pay. Selection is carried by three signals at once, because one is never
+ * enough: the ring, the radio, and the "Selected" tick in the corner. Someone
+ * who cannot separate the blue ring from the grey border can still see which
+ * card has the tick.
+ */
+function choiceCardClass(isSelected: boolean, size: 'md' | 'sm' = 'md'): string {
+  return cx(
+    'relative flex cursor-pointer gap-3 rounded-lg border transition-colors',
+    size === 'md' ? 'p-4' : 'p-3',
+    isSelected
+      ? 'border-brand bg-brand-soft ring-2 ring-brand ring-offset-1 ring-offset-surface'
+      : 'border-border bg-surface hover:border-brand/50 hover:bg-surface-hover',
+  );
+}
+
+/** The corner tick. Text as well as a glyph, so it survives a greyscale print. */
+function SelectedFlag(): React.JSX.Element {
+  return (
+    <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-brand px-2 py-0.5 text-xxs font-semibold text-white">
+      <CheckIcon className="h-3 w-3" />
+      Selected
+    </span>
+  );
+}
 
 function AddressCard({
   address,
@@ -42,31 +79,100 @@ function AddressCard({
   onSelect: () => void;
 }): React.JSX.Element {
   return (
-    <label
-      className={`flex cursor-pointer gap-3 rounded-lg border p-4 transition-colors ${
-        isSelected ? 'border-brand bg-brand-soft' : 'border-border bg-surface hover:border-brand/40'
-      }`}
-    >
+    <label className={choiceCardClass(isSelected)}>
       <input
         type="radio"
         name="shippingAddress"
-        className="mt-1 h-4 w-4 border-border-strong text-brand"
+        className="mt-1 h-4 w-4 shrink-0 border-border-strong text-brand"
         checked={isSelected}
         onChange={onSelect}
       />
-      <span className="min-w-0 text-sm">
+      <span className="min-w-0 pr-20 text-sm">
         {address.label !== null && (
-          <span className="block font-medium text-ink">{address.label}</span>
+          <span className="block text-title-xs text-ink">{address.label}</span>
         )}
         <span className="block font-medium text-ink">{address.contactName}</span>
-        <span className="mt-0.5 block text-ink-muted">
+        <span className="mt-1 block leading-relaxed text-ink-muted">
           {address.line1}
           {address.line2 !== null && `, ${address.line2}`}, {address.city}, {address.state}{' '}
           {address.postalCode}, {address.country}
         </span>
-        <span className="mt-0.5 block text-xs text-ink-subtle">{address.contactPhone}</span>
+        <span className="mt-1 block text-xs text-ink-subtle">{address.contactPhone}</span>
       </span>
+      {isSelected && <SelectedFlag />}
     </label>
+  );
+}
+
+/** One way to pay. Same card, an icon, and the same three selection signals. */
+function PaymentChoice({
+  isSelected,
+  onSelect,
+  icon,
+  title,
+  children,
+}: {
+  isSelected: boolean;
+  onSelect: () => void;
+  icon: React.JSX.Element;
+  title: string;
+  children: React.ReactNode;
+}): React.JSX.Element {
+  return (
+    <label className={choiceCardClass(isSelected)}>
+      <input
+        type="radio"
+        name="paymentMode"
+        className="mt-1 h-4 w-4 shrink-0 border-border-strong text-brand"
+        checked={isSelected}
+        onChange={onSelect}
+      />
+      <span
+        aria-hidden="true"
+        className={cx(
+          'flex h-9 w-9 shrink-0 items-center justify-center rounded-md',
+          isSelected ? 'bg-brand text-white' : 'bg-surface-sunken text-ink-muted',
+        )}
+      >
+        {icon}
+      </span>
+      <span className="min-w-0 pr-20 text-sm">
+        <span className="block text-title-xs text-ink">{title}</span>
+        <span className="mt-1 block leading-relaxed text-ink-muted">{children}</span>
+      </span>
+      {isSelected && <SelectedFlag />}
+    </label>
+  );
+}
+
+/** A panel on this page. One shape, so the three sections stack evenly. */
+function Section({
+  id,
+  title,
+  step,
+  children,
+}: {
+  id: string;
+  title: string;
+  /** The little numeral before the heading — the page's own running order. */
+  step: number;
+  children: React.ReactNode;
+}): React.JSX.Element {
+  return (
+    <section aria-labelledby={id} className="rounded-lg border border-border bg-surface p-5 shadow-card">
+      <div className="flex items-center gap-2.5">
+        <span
+          aria-hidden="true"
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-sunken text-xxs font-semibold text-ink-muted"
+        >
+          {step}
+        </span>
+        <h2 id={id} className="text-title-sm text-ink">
+          {title}
+        </h2>
+      </div>
+      {children}
+    </section>
   );
 }
 
@@ -194,16 +300,15 @@ export function CheckoutPage(): React.JSX.Element {
 
   if (currentCart.lines.length === 0) {
     return (
-      <div className="mx-auto max-w-lg py-16 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">Your cart is empty</h1>
-        <p className="mt-3 text-sm text-ink-muted">There is nothing to check out.</p>
-        <Link
-          to="/products"
-          className="mt-6 inline-flex h-12 items-center rounded-md bg-action px-6 text-base font-medium text-white hover:bg-action-hover"
-        >
-          Browse products
-        </Link>
-      </div>
+      <PageEmptyState
+        title="Your cart is empty"
+        description="There is nothing to check out."
+        action={
+          <ButtonLink to="/products" variant="primary" size="lg">
+            Browse products
+          </ButtonLink>
+        }
+      />
     );
   }
 
@@ -212,18 +317,22 @@ export function CheckoutPage(): React.JSX.Element {
 
   return (
     <>
-      <h1 className="mb-6 text-2xl font-semibold tracking-tight text-ink">Checkout</h1>
+      <CheckoutSteps states={checkoutSteps(shippingAddressId !== null)} />
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
+      <header className="mb-6">
+        <h1 className="text-title-xl text-ink">Checkout</h1>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted">
+          Confirm where this is going and how you would like to pay. Nothing is charged until the
+          next step.
+        </p>
+      </header>
+
+      <div className="grid gap-6 pb-4 lg:grid-cols-[1fr_22rem]">
         <div className="space-y-6">
           {/* --- Delivery address ------------------------------------------ */}
-          <section aria-labelledby="address-heading" className="rounded-lg border border-border bg-surface p-5">
-            <h2 id="address-heading" className="text-base font-semibold text-ink">
-              Delivery address
-            </h2>
-
+          <Section id="address-heading" step={1} title="Delivery address">
             {usableAddresses.length === 0 && !isAddingAddress && (
-              <div className="mt-3">
+              <div className="mt-4">
                 <p className="text-sm text-ink-muted">
                   You have no saved addresses yet. Add one to continue.
                 </p>
@@ -240,9 +349,9 @@ export function CheckoutPage(): React.JSX.Element {
             )}
 
             {usableAddresses.length > 0 && (
-              <fieldset className="mt-3">
+              <fieldset className="mt-4">
                 <legend className="sr-only">Choose a delivery address</legend>
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   {usableAddresses.map((address) => (
                     <AddressCard
                       key={address.id}
@@ -258,8 +367,8 @@ export function CheckoutPage(): React.JSX.Element {
             )}
 
             {isAddingAddress ? (
-              <div className="mt-4 border-t border-border pt-4">
-                <h3 className="mb-3 text-sm font-medium text-ink">New address</h3>
+              <div className="mt-4 border-t border-border-subtle pt-4">
+                <h3 className="mb-3 text-title-xs text-ink">New address</h3>
                 <AddressForm
                   onSaved={(addressId) => {
                     setShippingAddressId(addressId);
@@ -285,8 +394,8 @@ export function CheckoutPage(): React.JSX.Element {
             )}
 
             {usableAddresses.length > 0 && (
-              <div className="mt-4 border-t border-border pt-4">
-                <label className="flex items-center gap-2 text-sm text-ink">
+              <div className="mt-4 border-t border-border-subtle pt-4">
+                <label className="flex items-center gap-2.5 text-sm text-ink">
                   <input
                     type="checkbox"
                     className="h-4 w-4 rounded border-border-strong text-brand"
@@ -301,28 +410,27 @@ export function CheckoutPage(): React.JSX.Element {
 
                 {!billingSameAsShipping && (
                   <fieldset className="mt-3">
-                    <legend className="mb-2 text-sm font-medium text-ink">Billing address</legend>
+                    <legend className="mb-2 text-title-xs text-ink">Billing address</legend>
                     <div className="space-y-2">
                       {usableAddresses.map((address) => (
                         <label
                           key={address.id}
-                          className={`flex cursor-pointer gap-3 rounded-lg border p-3 text-sm ${
-                            address.id === billingAddressId
-                              ? 'border-brand bg-brand-soft'
-                              : 'border-border bg-surface'
-                          }`}
+                          className={choiceCardClass(address.id === billingAddressId, 'sm')}
                         >
                           <input
                             type="radio"
                             name="billingAddress"
-                            className="mt-0.5 h-4 w-4 border-border-strong text-brand"
+                            className="mt-0.5 h-4 w-4 shrink-0 border-border-strong text-brand"
                             checked={address.id === billingAddressId}
                             onChange={() => {
                               setBillingAddressId(address.id);
                             }}
                           />
-                          <span>
-                            {address.contactName} — {address.line1}, {address.city}
+                          <span className="min-w-0 text-sm text-ink">
+                            <span className="font-medium">{address.contactName}</span> —{' '}
+                            <span className="text-ink-muted">
+                              {address.line1}, {address.city}
+                            </span>
                           </span>
                         </label>
                       ))}
@@ -331,77 +439,44 @@ export function CheckoutPage(): React.JSX.Element {
                 )}
               </div>
             )}
-          </section>
+          </Section>
 
           {/* --- How to pay ------------------------------------------------- */}
-          <section aria-labelledby="payment-heading" className="rounded-lg border border-border bg-surface p-5">
-            <h2 id="payment-heading" className="text-base font-semibold text-ink">
-              How would you like to pay?
-            </h2>
-
-            <fieldset className="mt-3">
+          <Section id="payment-heading" step={2} title="How would you like to pay?">
+            <fieldset className="mt-4">
               <legend className="sr-only">Payment method</legend>
 
-              <div className="space-y-2">
-                <label
-                  className={`flex cursor-pointer gap-3 rounded-lg border p-4 ${
-                    paymentMode === 'ONLINE'
-                      ? 'border-brand bg-brand-soft'
-                      : 'border-border bg-surface hover:border-brand/40'
-                  }`}
+              <div className="space-y-2.5">
+                <PaymentChoice
+                  isSelected={paymentMode === 'ONLINE'}
+                  onSelect={() => {
+                    setPaymentMode('ONLINE');
+                  }}
+                  icon={<CardIcon className="h-5 w-5" />}
+                  title="Pay now"
                 >
-                  <input
-                    type="radio"
-                    name="paymentMode"
-                    className="mt-1 h-4 w-4 border-border-strong text-brand"
-                    checked={paymentMode === 'ONLINE'}
-                    onChange={() => {
-                      setPaymentMode('ONLINE');
-                    }}
-                  />
-                  <span className="text-sm">
-                    <span className="block font-medium text-ink">Pay now</span>
-                    <span className="mt-0.5 block text-ink-muted">
-                      You will be taken to our payment provider to complete the payment securely.
-                      Card details never touch this site.
-                    </span>
-                  </span>
-                </label>
+                  You will be taken to our payment provider to complete the payment securely.
+                  Card details never touch this site.
+                </PaymentChoice>
 
-                <label
-                  className={`flex cursor-pointer gap-3 rounded-lg border p-4 ${
-                    paymentMode === 'PAYMENT_LINK'
-                      ? 'border-brand bg-brand-soft'
-                      : 'border-border bg-surface hover:border-brand/40'
-                  }`}
+                <PaymentChoice
+                  isSelected={paymentMode === 'PAYMENT_LINK'}
+                  onSelect={() => {
+                    setPaymentMode('PAYMENT_LINK');
+                  }}
+                  icon={<LinkIcon className="h-5 w-5" />}
+                  title="Send a payment link"
                 >
-                  <input
-                    type="radio"
-                    name="paymentMode"
-                    className="mt-1 h-4 w-4 border-border-strong text-brand"
-                    checked={paymentMode === 'PAYMENT_LINK'}
-                    onChange={() => {
-                      setPaymentMode('PAYMENT_LINK');
-                    }}
-                  />
-                  <span className="text-sm">
-                    <span className="block font-medium text-ink">Send a payment link</span>
-                    <span className="mt-0.5 block text-ink-muted">
-                      Place the order now and have a secure payment link emailed for approval. The
-                      order waits at Pending payment until it is paid.
-                    </span>
-                  </span>
-                </label>
+                  Place the order now and have a secure payment link emailed for approval. The
+                  order waits at Pending payment until it is paid.
+                </PaymentChoice>
               </div>
             </fieldset>
-          </section>
+          </Section>
 
           {/* --- Note ------------------------------------------------------- */}
-          <section aria-labelledby="note-heading" className="rounded-lg border border-border bg-surface p-5">
-            <h2 id="note-heading" className="text-base font-semibold text-ink">
-              Anything we should know?
-            </h2>
-            <div className="mt-3">
+          <Section id="note-heading" step={3} title="Anything we should know?">
+            <div className="mt-4">
               <Field label="Note for this order" hint="Optional. Delivery instructions, a PO number, a site contact.">
                 {({ inputId, describedBy }) => (
                   <Textarea
@@ -417,17 +492,31 @@ export function CheckoutPage(): React.JSX.Element {
                 )}
               </Field>
             </div>
-          </section>
+          </Section>
+
+          <p className="text-sm">
+            <Link to="/cart" className="font-medium text-brand hover:underline">
+              ← Back to the cart
+            </Link>
+          </p>
         </div>
 
         {/* --- Review and place ---------------------------------------------- */}
-        <aside aria-labelledby="review-heading" className="lg:sticky lg:top-40 lg:self-start">
-          <div className="rounded-lg border border-border bg-surface p-5">
-            <h2 id="review-heading" className="text-base font-semibold text-ink">
-              Your order
-            </h2>
+        <aside aria-labelledby="review-heading" className="lg:sticky lg:top-28 lg:self-start">
+          <div className="rounded-lg border border-border bg-surface p-5 shadow-card">
+            <div className="flex items-baseline justify-between gap-3">
+              <h2 id="review-heading" className="text-title-sm text-ink">
+                Your order
+              </h2>
+              <Link to="/cart" className="text-xs font-medium text-brand hover:underline">
+                Edit
+              </Link>
+            </div>
 
-            <ul className="mt-3 max-h-56 space-y-2 overflow-y-auto text-sm">
+            {/* Compact on purpose: this is a check, not the cart again. The
+                list scrolls past four or five lines rather than pushing the
+                total — the one thing being reviewed — below the fold. */}
+            <ul className="mt-3 max-h-52 space-y-2 overflow-y-auto pr-1 text-sm">
               {currentCart.lines.map((line) => (
                 <li key={line.itemId} className="flex justify-between gap-3">
                   <span className="min-w-0 text-ink-muted">
@@ -439,31 +528,21 @@ export function CheckoutPage(): React.JSX.Element {
               ))}
             </ul>
 
-            <dl className="mt-4 space-y-2 border-t border-border pt-4 text-sm">
-              <div className="flex justify-between">
-                <dt className="text-ink-muted">Subtotal</dt>
-                <dd className="tabular text-ink">{formatMoney(currentCart.totals.subtotal)}</dd>
-              </div>
+            <dl className="mt-4 space-y-2.5 border-t border-border-subtle pt-4 text-sm">
+              <TotalRow label="Subtotal" value={formatMoney(currentCart.totals.subtotal)} />
               {currentCart.totals.discount.minor !== '0' && (
-                <div className="flex justify-between">
-                  <dt className="text-ink-muted">Discount</dt>
-                  <dd className="tabular text-success">
-                    −{formatMoney(currentCart.totals.discount)}
-                  </dd>
-                </div>
+                <TotalRow
+                  label="Discount"
+                  tone="credit"
+                  value={<>−{formatMoney(currentCart.totals.discount)}</>}
+                />
               )}
-              <div className="flex justify-between">
-                <dt className="text-ink-muted">Tax</dt>
-                <dd className="tabular text-ink">{formatMoney(currentCart.totals.tax)}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-ink-muted">Delivery</dt>
-                <dd className="tabular text-ink">{formatMoney(currentCart.totals.shipping)}</dd>
-              </div>
-              <div className="flex justify-between border-t border-border pt-2 text-base font-semibold">
-                <dt>Total</dt>
-                <dd className="tabular">{formatMoney(currentCart.totals.grandTotal)}</dd>
-              </div>
+              <TotalRow label="Tax" value={formatMoney(currentCart.totals.tax)} />
+              <TotalRow label="Delivery" value={formatMoney(currentCart.totals.shipping)} />
+              {/* Matches the cart's summary: the same figure gets the same
+                  treatment in both places, or the total looks like it changed
+                  on the way here. */}
+              <GrandTotalRow label="Total" value={formatMoney(currentCart.totals.grandTotal)} />
             </dl>
 
             {currentCart.requiresApproval && (
@@ -485,7 +564,7 @@ export function CheckoutPage(): React.JSX.Element {
                 className="mt-4 rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-xs"
               >
                 <p className="font-medium text-danger">Fix these before placing the order</p>
-                <ul className="mt-1 space-y-1 text-ink">
+                <ul className="mt-1 list-inside list-disc space-y-1 text-ink">
                   {currentCart.blockingIssues.map((issue) => (
                     <li key={`${issue.code}:${issue.message}`}>{issue.message}</li>
                   ))}
@@ -502,9 +581,10 @@ export function CheckoutPage(): React.JSX.Element {
             {submitError !== null && (
               <div
                 role="alert"
-                className="mt-4 rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-sm text-danger"
+                className="mt-4 flex gap-2.5 rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-sm text-danger"
               >
-                {submitError}
+                <AlertIcon className="mt-px h-4 w-4 shrink-0" />
+                <span>{submitError}</span>
               </div>
             )}
 
@@ -528,10 +608,22 @@ export function CheckoutPage(): React.JSX.Element {
               </p>
             )}
 
-            <p className="mt-3 text-center text-xxs text-ink-subtle">
-              Placing this order does not charge you yet. Payment is taken on the next step and is
-              only confirmed once our payment provider verifies it.
-            </p>
+            {/*
+             * Reassurance, limited to what this flow actually does.
+             *
+             * Two claims, both verifiable in the code above: nothing is
+             * charged by this button, and the payment itself is handled by the
+             * provider's own page. No trust badges, no "100% secure", no
+             * guarantee this software cannot keep.
+             */}
+            <div className="mt-4 flex gap-2.5 border-t border-border-subtle pt-4 text-xxs leading-relaxed text-ink-subtle">
+              <ShieldIcon className="mt-px h-4 w-4 shrink-0 text-ink-muted" />
+              <p>
+                Placing this order does not charge you yet. Payment is taken on the next step, on
+                our payment provider&rsquo;s own secure page, and is only confirmed once they
+                verify it.
+              </p>
+            </div>
           </div>
         </aside>
       </div>

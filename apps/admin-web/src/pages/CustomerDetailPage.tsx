@@ -8,27 +8,35 @@
  *     shifting. Never `value * 100`.
  *   - **Blank means no limit.** Zero would block every order, and the two must
  *     never be confused — so the fields send `null`, not `"0"`, when empty.
+ *     Every one of them says so in its placeholder rather than leaving an
+ *     empty box to be read as an unset zero.
  *   - Turning approvals on with a blank threshold means *every* order needs
  *     approval, and the form says so rather than leaving it to be discovered.
  */
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useSession } from '@/auth/session-context';
 import { ConfirmDialog } from '@/components/Modal';
 import { useToast } from '@/components/toast-context';
 import {
   Badge,
   Button,
+  Callout,
   Card,
+  CheckboxField,
+  DescriptionList,
+  EmptyState,
   ErrorState,
   Field,
   Input,
   LoadingState,
   PageHeader,
+  Select,
 } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
-import { formatDateTime, majorToMinor, minorToMajor } from '@/lib/format';
+import { cx } from '@/lib/cx';
+import { formatDateTime, humanise, majorToMinor, minorToMajor } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
 import { customerStatusTone } from '@/lib/customers';
 import type { CustomerLimits } from '@/lib/customers';
@@ -69,6 +77,7 @@ interface CustomerDetail {
   limits: CustomerLimits;
   addresses: CustomerAddress[];
 }
+
 interface CurrencyTermsDraft {
   perOrderMin: string;
   perOrderMax: string;
@@ -205,38 +214,33 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
     },
   });
 
+  const unusedCurrencies = allCurrencies.filter((entry) => !(entry.code in draft));
+
   return (
     <Card
       title="Ordering limits"
-      description="Agreed terms per market. A currency with no terms is one this account cannot order in."
+      description="Agreed terms per market. A currency with no terms is one this account cannot order in at all."
     >
       <div className="space-y-5 px-5 py-4">
-        <label className="flex items-start gap-2">
-          <input
-            type="checkbox"
-            checked={approval}
-            disabled={!canWrite}
-            onChange={(event) => {
-              setApproval(event.target.checked);
-            }}
-            className="mt-0.5"
-          />
-          <span className="text-sm text-ink">
-            Orders need approval
-            <span className="block text-xs text-ink-muted">
-              Applies to the whole account. The value that triggers it is set per currency below.
-            </span>
-          </span>
-        </label>
+        <CheckboxField
+          boxed
+          label="Orders need approval"
+          description="Applies to the whole account. The value that triggers it is set per currency below — leave that blank and every order needs approving."
+          checked={approval}
+          disabled={!canWrite}
+          onChange={(event) => {
+            setApproval(event.target.checked);
+          }}
+        />
 
-        <div className="border-t border-border pt-4">
+        <div className="border-t border-border-subtle pt-4">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
+            <span className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
               Terms in
             </span>
 
             {agreed.length === 0 && (
-              <span className="text-sm text-ink-muted">
+              <span className="text-sm text-warning">
                 None yet — this account cannot order in any currency.
               </span>
             )}
@@ -245,47 +249,50 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
               <button
                 key={code}
                 type="button"
+                // `aria-pressed`, because this is a toggle between which set of
+                // terms is on screen, not a navigation.
+                aria-pressed={code === selected}
                 onClick={() => {
                   setSelected(code);
                 }}
-                className={
+                className={cx(
+                  'h-8 rounded-md px-3 text-xs font-semibold transition-[background-color,border-color,color]',
                   code === selected
-                    ? 'rounded-md bg-accent px-2.5 py-1 text-xs font-semibold text-white'
-                    : 'rounded-md border border-border-strong px-2.5 py-1 text-xs font-medium text-ink hover:border-accent'
-                }
+                    ? 'bg-accent text-white shadow-card'
+                    : 'border border-border-strong bg-surface text-ink hover:border-border-hover hover:bg-surface-hover',
+                )}
               >
                 {code}
               </button>
             ))}
 
-            {canWrite && (
-              <select
+            {canWrite && unusedCurrencies.length > 0 && (
+              <Select
                 value=""
                 onChange={(event) => {
                   addCurrency(event.target.value);
                 }}
                 aria-label="Add terms for a currency"
-                className="rounded-md border border-border-strong bg-surface px-2 py-1 text-xs text-ink"
+                className="h-8 w-44 py-0 text-xs"
               >
                 <option value="">Add currency…</option>
-                {allCurrencies
-                  .filter((entry) => !(entry.code in draft))
-                  .map((entry) => (
-                    <option key={entry.code} value={entry.code}>
-                      {entry.code} — {entry.name}
-                    </option>
-                  ))}
-              </select>
+                {unusedCurrencies.map((entry) => (
+                  <option key={entry.code} value={entry.code}>
+                    {entry.code} — {entry.name}
+                  </option>
+                ))}
+              </Select>
             )}
           </div>
 
           {current !== undefined && (
             <div className="mt-4 space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label={`Minimum per order (${selected})`}>
-                  {({ inputId }) => (
+                <Field label={`Minimum per order (${selected})`} hint="Blank means no minimum.">
+                  {({ inputId, describedBy }) => (
                     <Input
                       id={inputId}
+                      aria-describedby={describedBy}
                       inputMode="decimal"
                       className="tabular"
                       placeholder="No minimum"
@@ -298,10 +305,11 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
                   )}
                 </Field>
 
-                <Field label={`Maximum per order (${selected})`}>
-                  {({ inputId }) => (
+                <Field label={`Maximum per order (${selected})`} hint="Blank means no maximum.">
+                  {({ inputId, describedBy }) => (
                     <Input
                       id={inputId}
+                      aria-describedby={describedBy}
                       inputMode="decimal"
                       className="tabular"
                       placeholder="No maximum"
@@ -316,7 +324,7 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
 
                 <Field
                   label={`Monthly cap (${selected})`}
-                  hint="Counts only orders placed in this currency."
+                  hint="Counts only orders placed in this currency. Blank means no cap."
                 >
                   {({ inputId, describedBy }) => (
                     <Input
@@ -339,7 +347,7 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
                   hint={
                     approval
                       ? 'Blank means every order needs approval.'
-                      : 'Only used while approvals are on.'
+                      : 'Only used while approvals are on, which they are not.'
                   }
                 >
                   {({ inputId, describedBy }) => (
@@ -360,43 +368,47 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
               </div>
 
               {canWrite && (
-                <button
-                  type="button"
+                // Quiet, and it says what it costs. Removing a market is not a
+                // red-button moment, but it is not a tidy-up either.
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-danger hover:bg-danger-soft hover:text-danger"
                   onClick={() => {
                     removeCurrency(selected);
                   }}
-                  className="text-xs font-medium text-danger hover:underline"
                 >
-                  Remove {selected} terms — this account will not be able to order in it
-                </button>
+                  Remove {selected} terms — this account will no longer be able to order in it
+                </Button>
               )}
             </div>
           )}
         </div>
 
         {formError !== null && (
-          <p role="alert" className="text-sm font-medium text-danger">
+          <Callout tone="danger" role="alert">
             {formError}
-          </p>
+          </Callout>
         )}
 
         {canWrite && (
-          <Button
-            type="button"
-            variant="primary"
-            isLoading={save.isPending}
-            onClick={() => {
-              save.mutate();
-            }}
-          >
-            Save limits
-          </Button>
+          <div className="border-t border-border-subtle pt-4">
+            <Button
+              type="button"
+              variant="primary"
+              isLoading={save.isPending}
+              onClick={() => {
+                save.mutate();
+              }}
+            >
+              Save limits
+            </Button>
+          </div>
         )}
       </div>
     </Card>
   );
 }
-
 
 export function CustomerDetailPage(): React.JSX.Element {
   const { id } = useParams<{ id: string }>();
@@ -439,96 +451,106 @@ export function CustomerDetailPage(): React.JSX.Element {
 
   if (query.isPending) {
     return (
-      <Card>
-        <LoadingState label="Loading the customer" />
-      </Card>
+      <>
+        <PageHeader title="Customer" back={{ to: '/customers', label: 'Back to customers' }} />
+        <Card>
+          <LoadingState label="Loading the customer" />
+        </Card>
+      </>
     );
   }
 
   if (query.isError) {
     return (
-      <Card>
-        <ErrorState
-          error={query.error}
-          onRetry={() => {
-            void query.refetch();
-          }}
-        />
-      </Card>
+      <>
+        <PageHeader title="Customer" back={{ to: '/customers', label: 'Back to customers' }} />
+        <Card>
+          <ErrorState
+            error={query.error}
+            onRetry={() => {
+              void query.refetch();
+            }}
+          />
+        </Card>
+      </>
     );
   }
 
   const customer = query.data.customer;
   const isActive = customer.status === 'ACTIVE';
+  const liveAddresses = customer.addresses.filter((address) => address.archivedAt === null);
 
   return (
     <>
       <PageHeader
         title={customer.fullName ?? customer.email}
+        back={{ to: '/customers', label: 'Back to customers' }}
         description={customer.organization ?? customer.email}
-        actions={
-          <Link
-            to="/customers"
-            className="inline-flex h-9 items-center rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-ink hover:bg-surface-sunken"
-          >
-            Back to customers
-          </Link>
+        meta={
+          <Badge dot tone={customerStatusTone(customer.status)}>
+            {humanise(customer.status)}
+          </Badge>
         }
       />
 
       <div className="grid gap-5 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-5">
           <Card title="Account">
-            <dl className="grid gap-x-6 gap-y-3 px-5 py-4 text-sm sm:grid-cols-2">
-              {[
-                ['Email', customer.email],
-                ['Contact', customer.fullName ?? '—'],
-                ['Organisation', customer.organization ?? '—'],
-                ['Department', customer.department ?? '—'],
-                ['Phone', customer.phone ?? '—'],
-                ['GSTIN', customer.gstin ?? '—'],
-                ['Customer code', customer.customerCode ?? '—'],
-                ['Invited', formatDateTime(customer.invitedAt)],
-                ['Activated', formatDateTime(customer.activatedAt)],
-                ['Last sign-in', formatDateTime(customer.lastLoginAt)],
-              ].map(([label, value]) => (
-                <div key={label}>
-                  <dt className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                    {label}
-                  </dt>
-                  <dd className="mt-0.5 text-ink">{value}</dd>
-                </div>
-              ))}
-            </dl>
+            <DescriptionList
+              className="px-5 py-4"
+              items={[
+                { label: 'Email', value: customer.email },
+                { label: 'Contact', value: customer.fullName ?? '—' },
+                { label: 'Organisation', value: customer.organization ?? '—' },
+                { label: 'Department', value: customer.department ?? '—' },
+                { label: 'Phone', value: customer.phone ?? '—' },
+                {
+                  label: 'GSTIN',
+                  value:
+                    customer.gstin === null ? '—' : <span className="font-mono">{customer.gstin}</span>,
+                },
+                {
+                  label: 'Customer code',
+                  value:
+                    customer.customerCode === null ? (
+                      '—'
+                    ) : (
+                      <span className="font-mono">{customer.customerCode}</span>
+                    ),
+                },
+                { label: 'Invited', value: formatDateTime(customer.invitedAt) },
+                { label: 'Activated', value: formatDateTime(customer.activatedAt) },
+                { label: 'Last sign-in', value: formatDateTime(customer.lastLoginAt) },
+              ]}
+            />
           </Card>
 
           <LimitsPanel customer={customer} />
 
           <Card title="Addresses" description="Used at checkout for billing and delivery.">
-            {customer.addresses.length === 0 ? (
-              <p className="px-5 py-6 text-center text-sm text-ink-muted">
-                No addresses yet. The customer can add one at checkout.
-              </p>
+            {liveAddresses.length === 0 ? (
+              <EmptyState
+                title="No addresses yet"
+                description="The customer adds one at checkout. Nothing here can add one for them."
+              />
             ) : (
-              <ul className="divide-y divide-border">
-                {customer.addresses
-                  .filter((address) => address.archivedAt === null)
-                  .map((address) => (
-                    <li key={address.id} className="px-5 py-3">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm font-medium text-ink">{address.contactName}</span>
-                        <Badge>{address.kind === 'BOTH' ? 'Billing & shipping' : address.kind}</Badge>
-                        {address.isDefaultShipping && <Badge tone="accent">Default shipping</Badge>}
-                        {address.isDefaultBilling && <Badge tone="accent">Default billing</Badge>}
-                      </div>
-                      <address className="mt-1 text-sm not-italic text-ink-muted">
-                        {address.line1}
-                        {address.line2 !== null && `, ${address.line2}`}, {address.city},{' '}
-                        {address.state} {address.postalCode}, {address.country}
-                        <span className="ml-2">{address.contactPhone}</span>
-                      </address>
-                    </li>
-                  ))}
+              <ul className="divide-y divide-border-subtle">
+                {liveAddresses.map((address) => (
+                  <li key={address.id} className="px-5 py-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-medium text-ink">{address.contactName}</span>
+                      <Badge>{address.kind === 'BOTH' ? 'Billing & shipping' : humanise(address.kind)}</Badge>
+                      {address.isDefaultShipping && <Badge tone="accent">Default shipping</Badge>}
+                      {address.isDefaultBilling && <Badge tone="accent">Default billing</Badge>}
+                    </div>
+                    <address className="mt-1 text-sm not-italic leading-relaxed text-ink-muted">
+                      {address.line1}
+                      {address.line2 !== null && `, ${address.line2}`}, {address.city},{' '}
+                      {address.state} {address.postalCode}, {address.country}
+                      <span className="ml-2 text-ink-subtle">{address.contactPhone}</span>
+                    </address>
+                  </li>
+                ))}
               </ul>
             )}
           </Card>
@@ -537,13 +559,15 @@ export function CustomerDetailPage(): React.JSX.Element {
         <div className="space-y-5">
           <Card title="Status">
             <div className="space-y-3 px-5 py-4">
-              <Badge tone={customerStatusTone(customer.status)}>{humaniseStatus(customer.status)}</Badge>
+              <Badge dot tone={customerStatusTone(customer.status)}>
+                {humanise(customer.status)}
+              </Badge>
 
               {customer.activatedAt === null && (
-                <p className="text-xs text-ink-muted">
+                <Callout tone="warning">
                   This account has not been activated. The customer sets their own password from the
                   invitation — nobody here can set it for them.
-                </p>
+                </Callout>
               )}
 
               {can(Permission.CUSTOMER_INVITE) && customer.activatedAt === null && (
@@ -559,17 +583,24 @@ export function CustomerDetailPage(): React.JSX.Element {
               )}
 
               {can(Permission.CUSTOMER_STATUS_WRITE) && (
-                <Button
-                  className="w-full"
-                  variant={isActive ? 'danger' : 'primary'}
-                  isLoading={setStatus.isPending}
-                  onClick={() => {
-                    if (isActive) setSuspending(true);
-                    else setStatus.mutate(true);
-                  }}
-                >
-                  {isActive ? 'Suspend customer' : 'Reactivate customer'}
-                </Button>
+                <div className="border-t border-border-subtle pt-3">
+                  <Button
+                    className="w-full"
+                    variant={isActive ? 'danger' : 'primary'}
+                    isLoading={setStatus.isPending}
+                    onClick={() => {
+                      if (isActive) setSuspending(true);
+                      else setStatus.mutate(true);
+                    }}
+                  >
+                    {isActive ? 'Suspend customer' : 'Reactivate customer'}
+                  </Button>
+                  <p className="mt-2 text-xxs leading-relaxed text-ink-muted">
+                    {isActive
+                      ? 'Stops them signing in and ordering. Existing orders and schedules are untouched.'
+                      : 'Lets them sign in and order again on the same terms as before.'}
+                  </p>
+                </div>
               )}
             </div>
           </Card>
@@ -579,16 +610,14 @@ export function CustomerDetailPage(): React.JSX.Element {
               {customer.consentAcceptedAt === null ? (
                 <p className="text-ink-muted">Not yet accepted.</p>
               ) : (
-                <p className="text-ink">
-                  Accepted {formatDateTime(customer.consentAcceptedAt)}
-                </p>
+                <p className="text-ink">Accepted {formatDateTime(customer.consentAcceptedAt)}</p>
               )}
             </div>
           </Card>
 
           {customer.internalNotes !== null && (
-            <Card title="Internal notes" description="Staff only.">
-              <p className="whitespace-pre-wrap px-5 py-4 text-sm text-ink">
+            <Card title="Internal notes" description="Staff only. The customer never sees this.">
+              <p className="whitespace-pre-wrap px-5 py-4 text-sm leading-relaxed text-ink">
                 {customer.internalNotes}
               </p>
             </Card>
@@ -612,8 +641,4 @@ export function CustomerDetailPage(): React.JSX.Element {
       />
     </>
   );
-}
-
-function humaniseStatus(status: string): string {
-  return status.charAt(0) + status.slice(1).toLowerCase();
 }

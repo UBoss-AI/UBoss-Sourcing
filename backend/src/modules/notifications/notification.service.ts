@@ -21,6 +21,8 @@ import { JobType, queue } from '../../infra/queue/index.js';
 /** Notification events. Each maps to a `notification_settings.eventKey` row. */
 export const NotificationEvent = {
   CUSTOMER_INVITATION: 'customer.invitation',
+  /// A new staff account and the temporary password that opens it once.
+  STAFF_TEMPORARY_PASSWORD: 'staff.temporary_password',
   USER_PASSWORD_RESET: 'user.password_reset',
   ORDER_SUBMITTED: 'order.submitted',
   ORDER_CONFIRMED: 'order.confirmed',
@@ -91,6 +93,21 @@ const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string
         'Hello {{recipientName}},\n\n' +
         'An account has been created for you on {{businessName}}.\n\n' +
         'Activate it here (the link expires on {{expiresAt}}):\n{{activationUrl}}\n\n' +
+        'If you were not expecting this, please contact {{supportEmail}}.\n',
+    },
+    [NotificationEvent.STAFF_TEMPORARY_PASSWORD]: {
+      subject: 'Your {{businessName}} staff account',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'A staff account has been created for you on {{businessName}}.\n\n' +
+        'Sign in here:\n{{signInUrl}}\n\n' +
+        '  Email:              {{email}}\n' +
+        '  Temporary password: {{temporaryPassword}}\n\n' +
+        'This password works once, to let you in. As soon as you sign in you will be asked to\n' +
+        'choose your own password, and from then on that is the one you use. Until you do,\n' +
+        'the account can do nothing else.\n\n' +
+        'The temporary password stops working on {{expiresAt}}. If it lapses, ask whoever set\n' +
+        'the account up to issue a new one.\n\n' +
         'If you were not expecting this, please contact {{supportEmail}}.\n',
     },
     [NotificationEvent.USER_PASSWORD_RESET]: {

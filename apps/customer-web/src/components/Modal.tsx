@@ -10,9 +10,10 @@
  * `showModal()` also makes the rest of the page inert, so a screen reader
  * cannot wander out of the dialog either.
  */
-import { useEffect, useRef } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { Button } from './ui';
+import { cx } from '@/lib/cx';
 
 interface ModalProps {
   isOpen: boolean;
@@ -35,6 +36,12 @@ export function Modal({
   size = 'md',
 }: ModalProps): React.JSX.Element {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  // Generated, not the literal "modal-title" this used to hardcode. Two
+  // dialogs mounted at once — a confirm raised from inside a form dialog, which
+  // this app does — put the same id in the document twice, and `aria-labelledby`
+  // then resolves to whichever the browser found first.
+  const titleId = useId();
+  const descriptionId = `${titleId}-description`;
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -62,18 +69,35 @@ export function Modal({
   }, [onClose]);
 
   return (
+    // `shadow-overlay`, the top of the elevation ladder: a dialog is the only
+    // thing in this app that sits in front of everything else, and giving it
+    // the same `shadow-popover` as an account menu said otherwise.
+    //
+    // The backdrop is tinted navy rather than neutral ink and carries a slight
+    // blur, so the page behind reads as *set aside* rather than as merely
+    // darkened. Both entrance animations are stripped by the reduced-motion
+    // block in index.css.
     <dialog
       ref={dialogRef}
-      aria-labelledby="modal-title"
-      className={`w-full ${size === 'lg' ? 'max-w-3xl' : 'max-w-lg'} rounded-lg border border-border bg-surface p-0 text-ink shadow-popover backdrop:bg-ink/40`}
+      aria-labelledby={titleId}
+      {...(description === undefined ? {} : { 'aria-describedby': descriptionId })}
+      className={cx(
+        'w-full p-0',
+        size === 'lg' ? 'max-w-3xl' : 'max-w-lg',
+        'rounded-lg border border-border bg-surface text-ink shadow-overlay',
+        'backdrop:bg-navy/50 backdrop:backdrop-blur-sm',
+        'open:animate-dialog-in backdrop:animate-fade-in',
+      )}
     >
-      <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-3.5">
-        <div>
-          <h2 id="modal-title" className="text-sm font-semibold text-ink">
+      <div className="flex items-start justify-between gap-4 border-b border-border-subtle px-6 py-5">
+        <div className="min-w-0">
+          <h2 id={titleId} className="text-title-sm text-ink">
             {title}
           </h2>
           {description !== undefined && (
-            <p className="mt-0.5 text-xs text-ink-muted">{description}</p>
+            <p id={descriptionId} className="mt-1 text-sm leading-relaxed text-ink-muted">
+              {description}
+            </p>
           )}
         </div>
         <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close">
@@ -81,10 +105,10 @@ export function Modal({
         </Button>
       </div>
 
-      <div className="max-h-[70vh] overflow-y-auto px-5 py-4">{children}</div>
+      <div className="max-h-[70vh] overflow-y-auto px-6 py-5">{children}</div>
 
       {footer !== undefined && (
-        <div className="flex justify-end gap-2 border-t border-border bg-surface-sunken px-5 py-3">
+        <div className="flex flex-wrap justify-end gap-2 border-t border-border-subtle bg-surface-sunken px-6 py-4">
           {footer}
         </div>
       )}

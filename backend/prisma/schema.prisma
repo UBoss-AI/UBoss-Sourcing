@@ -59,6 +59,15 @@ model User {
   emailVerifiedAt DateTime? @db.DateTime(3)
   phoneVerifiedAt DateTime? @db.DateTime(3)
 
+  /// Set when the account was opened with a system-issued temporary password.
+  /// While it is true the session may sign in and do exactly one thing: choose
+  /// a real password. Every other admin route refuses it.
+  mustChangePassword Boolean @default(false)
+  /// When that temporary password stops working. A password emailed in
+  /// plaintext sits in an inbox forever otherwise; this is what stops it being
+  /// a permanent key. Null once the holder has chosen their own.
+  temporaryPasswordExpiresAt DateTime? @db.DateTime(3)
+
   /// TOTP secret, AES-256-GCM encrypted. Null until an admin enrols in MFA.
   mfaSecretEnc  String?   @db.Text
   mfaEnabledAt  DateTime? @db.DateTime(3)
@@ -738,6 +747,8 @@ model CustomerProfile {
 
   couponRedemptions CouponRedemption[]
   limits            CustomerLimit[]
+
+  assistantConversations AssistantConversation[]
 
   @@index([organization], map: "ix_customer_organization")
   @@index([createdAt], map: "ix_customer_created")
@@ -2266,4 +2277,88 @@ model CustomerLimit {
   @@id([customerProfileId, currencyCode])
   @@index([currencyCode], map: "ix_customer_limit_currency")
   @@map("customer_limits")
+}
+
+// ===========================================================================
+// STOREFRONT ASSISTANT
+//
+// The chat widget asks a visitor for a name, a mobile number and an email
+// before it will answer anything, and every conversation is kept: an enquiry
+// about a 22G safety cannula from a hospital buyer is a sales lead, and a lead
+// that exists only in the visitor's browser is a lead nobody follows up.
+//
+// Two things this deliberately does NOT do:
+//   * It does not create a User or a CustomerProfile. A visitor who typed
+//     three fields into a chat panel has not registered, has set no password
+//     and has agreed to nothing. `customerProfileId` is filled in only when
+//     the address already belongs to a customer, so staff can see the
+//     enquiry came from an existing account without one being invented.
+//   * It does not trust the browser with the transcript. The widget holds a
+//     conversation id and an opaque token; the turns themselves live here, so
+//     what an administrator reads is what the model was actually sent and what
+//     it actually answered.
+// ===========================================================================
+
+model AssistantConversation {
+  id String @id @db.Char(26)
+
+  /// What the visitor typed. Contact details, captured as given - never
+  /// treated as verified, because nothing here is confirmed by an email or an
+  /// OTP.
+  visitorName  String @db.VarChar(120)
+  visitorPhone String @db.VarChar(32)
+  visitorEmail String @db.VarChar(320)
+  /// Lowercased/trimmed, for grouping repeat enquiries from one address.
+  /// Not unique: the same buyer may come back with a different question.
+  visitorEmailNormalized String @db.VarChar(320)
+
+  /// SHA-256 of the token the widget holds. The raw value is returned once, to
+  /// the browser that started the conversation, and never stored - so a
+  /// database dump carries nothing that could be used to append to or read a
+  /// stranger's conversation.
+  sessionTokenHash String @db.Char(64)
+
+  /// Set at capture time when the email already belongs to a customer. Null
+  /// means "not a registered address", not "not a customer".
+  customerProfileId String? @db.Char(26)
+
+  /// Denormalised so the enquiry list can be ordered and read without loading
+  /// every transcript.
+  messageCount  Int       @default(0)
+  lastMessageAt DateTime? @db.DateTime(3)
+
+  ipAddress String? @db.VarChar(45)
+  userAgent String? @db.VarChar(512)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  customerProfile CustomerProfile? @relation(fields: [customerProfileId], references: [id], onDelete: SetNull)
+
+  messages AssistantMessage[]
+
+  @@index([createdAt], map: "ix_assistant_conversation_created")
+  @@index([visitorEmailNormalized, createdAt], map: "ix_assistant_conversation_email")
+  @@index([customerProfileId], map: "ix_assistant_conversation_customer")
+  @@map("assistant_conversations")
+}
+
+enum AssistantMessageRole {
+  VISITOR
+  ASSISTANT
+}
+
+model AssistantMessage {
+  id             String @id @db.Char(26)
+  conversationId String @db.Char(26)
+
+  role    AssistantMessageRole
+  content String               @db.Text
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  conversation AssistantConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt], map: "ix_assistant_message_conversation")
+  @@map("assistant_messages")
 }

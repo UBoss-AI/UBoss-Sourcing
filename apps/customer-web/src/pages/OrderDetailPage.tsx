@@ -18,9 +18,12 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
 import { useToast } from '@/components/toast-context';
-import { Badge, Button, ErrorState, Field, LoadingState, Textarea } from '@/components/ui';
+import { Badge, Button, ButtonLink, ErrorState, Field, LoadingState, Textarea } from '@/components/ui';
 import { Modal } from '@/components/Modal';
+import { GrandTotalRow, TotalRow } from '@/components/Totals';
+import { CheckIcon, DotIcon, RepeatIcon } from '@/components/icons';
 import { ApiError, api } from '@/lib/api';
+import { cx } from '@/lib/cx';
 import { formatDateTime, formatMoney, formatNumber } from '@/lib/format';
 import { orderStatusExplanation, orderStatusLabel, orderStatusTone } from '@/lib/order-status';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
@@ -166,49 +169,73 @@ export function OrderDetailPage(): React.JSX.Element {
         </ol>
       </nav>
 
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="font-mono text-2xl font-semibold tracking-tight text-ink">
-            {order.orderNumber}
-          </h1>
-          <p className="mt-1 text-sm text-ink-muted">
+      {/* Same silhouette as `PageHeader`, with a monospace title: an order
+          number is a reference to be read back digit by digit, and a
+          proportional face makes 1 and l the same glyph. */}
+      <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="font-mono text-title-xl text-ink">{order.orderNumber}</h1>
+          <p className="mt-2 text-sm text-ink-muted">
             Placed {formatDateTime(order.placedAt ?? order.createdAt)}
-            {order.source === 'RECURRING' && ' · from a repeat purchase'}
           </p>
         </div>
 
-        <Badge tone={orderStatusTone(order.status)}>{orderStatusLabel(order.status)}</Badge>
-      </div>
+        <div className="flex shrink-0 flex-wrap items-center gap-1.5">
+          {order.source === 'RECURRING' && (
+            <Badge tone="operational">
+              <RepeatIcon className="h-3 w-3" />
+              From a repeat purchase
+            </Badge>
+          )}
+          <Badge tone={orderStatusTone(order.status)}>{orderStatusLabel(order.status)}</Badge>
+        </div>
+      </header>
 
-      {explanation !== null && (
+      {/*
+       * Status, then the one action that status implies, in one panel.
+       *
+       * They were two stacked blocks with a gap between them, which read as
+       * two unrelated announcements — a sentence about waiting for payment,
+       * and separately, an orange button.
+       */}
+      {(explanation !== null || canPayNow) && (
         <div
           role="status"
-          className="mb-6 rounded-lg border border-border bg-surface p-4 text-sm text-ink"
+          className="mb-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 rounded-lg border border-border bg-surface p-4 shadow-card"
         >
-          {explanation}
-        </div>
-      )}
+          {explanation !== null && (
+            <p className="min-w-0 max-w-prose text-sm text-ink">{explanation}</p>
+          )}
 
-      {canPayNow && (
-        <div className="mb-6">
-          <Link
-            to={`/checkout/payment/${order.id}`}
-            className="inline-flex h-12 items-center rounded-md bg-action px-6 text-base font-medium text-white hover:bg-action-hover"
-          >
-            Pay for this order
-          </Link>
+          {canPayNow && (
+            /* Orange: this one really does take money. */
+            <ButtonLink
+              to={`/checkout/payment/${order.id}`}
+              variant="action"
+              size="lg"
+              className="shrink-0"
+            >
+              Pay for this order
+            </ButtonLink>
+          )}
         </div>
       )}
 
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-6">
           {/* --- Items ------------------------------------------------------ */}
-          <section aria-labelledby="items-heading" className="rounded-lg border border-border bg-surface">
-            <h2 id="items-heading" className="border-b border-border px-5 py-4 text-base font-semibold text-ink">
+          <section
+            aria-labelledby="items-heading"
+            className="rounded-lg border border-border bg-surface shadow-card"
+          >
+            <h2
+              id="items-heading"
+              className="border-b border-border-subtle px-5 py-4 text-title-sm text-ink"
+            >
               Items
             </h2>
 
-            <ul className="divide-y divide-border">
+            <ul className="divide-y divide-border-subtle">
               {order.items.map((item) => (
                 <li key={item.id} className="flex gap-4 px-5 py-4">
                   {item.imageUrl === null ? (
@@ -231,7 +258,7 @@ export function OrderDetailPage(): React.JSX.Element {
                     <div className="min-w-0">
                       {/* A snapshot from when the order was placed, not a live
                           catalogue lookup. */}
-                      <p className="text-sm font-medium text-ink">{item.name}</p>
+                      <p className="text-title-xs text-ink">{item.name}</p>
                       {item.variantName !== null && (
                         <p className="text-xs text-ink-muted">{item.variantName}</p>
                       )}
@@ -239,7 +266,9 @@ export function OrderDetailPage(): React.JSX.Element {
                     </div>
 
                     <div className="text-right">
-                      <p className="text-sm tabular text-ink">{formatMoney(item.lineTotal)}</p>
+                      <p className="text-sm font-semibold tabular text-ink">
+                        {formatMoney(item.lineTotal)}
+                      </p>
                       <p className="text-xs text-ink-muted">
                         {formatNumber(item.quantity)} × {formatMoney(item.unitPrice)}
                       </p>
@@ -252,68 +281,104 @@ export function OrderDetailPage(): React.JSX.Element {
               ))}
             </ul>
 
-            <dl className="space-y-1.5 border-t border-border px-5 py-4 text-sm">
-              <div className="flex justify-between">
-                <dt className="text-ink-muted">Subtotal</dt>
-                <dd className="tabular text-ink">{formatMoney(order.totals.subtotal)}</dd>
-              </div>
+            {/* The same breakdown component as the cart, checkout and
+                confirmation, so a figure keeps its treatment all the way
+                through the flow. */}
+            <dl className="space-y-2.5 border-t border-border-subtle px-5 py-4 text-sm">
+              <TotalRow label="Subtotal" value={formatMoney(order.totals.subtotal)} />
               {order.totals.discount.minor !== '0' && (
-                <div className="flex justify-between">
-                  <dt className="text-ink-muted">Discount</dt>
-                  <dd className="tabular text-success">−{formatMoney(order.totals.discount)}</dd>
-                </div>
+                <TotalRow
+                  label="Discount"
+                  tone="credit"
+                  value={<>−{formatMoney(order.totals.discount)}</>}
+                />
               )}
-              <div className="flex justify-between">
-                <dt className="text-ink-muted">Tax</dt>
-                <dd className="tabular text-ink">{formatMoney(order.totals.tax)}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-ink-muted">Delivery</dt>
-                <dd className="tabular text-ink">{formatMoney(order.totals.shipping)}</dd>
-              </div>
-              <div className="flex justify-between border-t border-border pt-1.5 text-base font-semibold">
-                <dt>Total</dt>
-                <dd className="tabular">{formatMoney(order.totals.grandTotal)}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-ink-muted">Paid</dt>
-                <dd className={`tabular ${isSettled ? 'text-success' : 'text-warning'}`}>
-                  {formatMoney(order.totals.paid)}
-                </dd>
-              </div>
+              <TotalRow label="Tax" value={formatMoney(order.totals.tax)} />
+              <TotalRow label="Delivery" value={formatMoney(order.totals.shipping)} />
+              <GrandTotalRow label="Total" value={formatMoney(order.totals.grandTotal)} />
+              <TotalRow
+                label="Paid"
+                tone={isSettled ? 'settled' : 'outstanding'}
+                value={formatMoney(order.totals.paid)}
+              />
               {order.totals.refunded.minor !== '0' && (
-                <div className="flex justify-between">
-                  <dt className="text-ink-muted">Refunded</dt>
-                  <dd className="tabular text-ink">{formatMoney(order.totals.refunded)}</dd>
-                </div>
+                <TotalRow label="Refunded" value={formatMoney(order.totals.refunded)} />
               )}
             </dl>
           </section>
 
           {/* --- Progress --------------------------------------------------- */}
-          <section aria-labelledby="progress-heading" className="rounded-lg border border-border bg-surface">
-            <h2 id="progress-heading" className="border-b border-border px-5 py-4 text-base font-semibold text-ink">
+          <section
+            aria-labelledby="progress-heading"
+            className="rounded-lg border border-border bg-surface shadow-card"
+          >
+            <h2
+              id="progress-heading"
+              className="border-b border-border-subtle px-5 py-4 text-title-sm text-ink"
+            >
               Progress
             </h2>
 
-            <ol className="divide-y divide-border">
-              {order.timeline.map((entry, index) => (
-                <li key={`${entry.at}:${String(index)}`} className="flex flex-wrap gap-x-3 gap-y-1 px-5 py-3">
-                  <span className="whitespace-nowrap text-xs text-ink-subtle">
-                    {formatDateTime(entry.at)}
-                  </span>
-                  <span className="text-sm text-ink">{orderStatusLabel(entry.to)}</span>
-                  {entry.reason !== null && (
-                    <span className="w-full text-xs text-ink-muted">{entry.reason}</span>
-                  )}
-                </li>
-              ))}
+            {/*
+             * A timeline, drawn as one.
+             *
+             * This was a divided list of rows, which said "here are some
+             * events" rather than "here is where your order has got to". The
+             * rail and the markers turn the same data into a shape you can
+             * read at a glance: everything behind you is ticked, the most
+             * recent entry — the order's current state — is the filled dot at
+             * the bottom, and nothing beyond it is drawn, because the backend
+             * has not told us what comes next and this page will not guess.
+             */}
+            <ol className="px-5 py-4">
+              {order.timeline.map((entry, index) => {
+                const isLatest = index === order.timeline.length - 1;
+
+                return (
+                  <li key={`${entry.at}:${String(index)}`} className="flex gap-3.5">
+                    <div className="flex flex-col items-center">
+                      <span
+                        aria-hidden="true"
+                        className={cx(
+                          'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2',
+                          isLatest
+                            ? 'border-brand bg-surface text-brand'
+                            : 'border-brand bg-brand text-white',
+                        )}
+                      >
+                        {isLatest ? (
+                          <DotIcon className="h-3 w-3" />
+                        ) : (
+                          <CheckIcon className="h-3.5 w-3.5" />
+                        )}
+                      </span>
+                      {!isLatest && <span aria-hidden="true" className="w-0.5 flex-1 bg-border" />}
+                    </div>
+
+                    <div className={cx('min-w-0', isLatest ? 'pb-0' : 'pb-5')}>
+                      <p
+                        className={cx(
+                          'text-sm',
+                          isLatest ? 'font-semibold text-ink' : 'text-ink',
+                        )}
+                      >
+                        {orderStatusLabel(entry.to)}
+                        {isLatest && <span className="sr-only"> — current status</span>}
+                      </p>
+                      <p className="mt-0.5 text-xs text-ink-subtle">{formatDateTime(entry.at)}</p>
+                      {entry.reason !== null && (
+                        <p className="mt-1 text-xs text-ink-muted">{entry.reason}</p>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
             </ol>
           </section>
 
           {/* --- Delivery ---------------------------------------------------- */}
-          <section aria-labelledby="delivery-heading" className="rounded-lg border border-border bg-surface p-5">
-            <h2 id="delivery-heading" className="text-base font-semibold text-ink">
+          <section aria-labelledby="delivery-heading" className="rounded-lg border border-border bg-surface p-5 shadow-card">
+            <h2 id="delivery-heading" className="text-title-sm text-ink">
               Delivery
             </h2>
 
@@ -375,9 +440,9 @@ export function OrderDetailPage(): React.JSX.Element {
         </div>
 
         {/* --- Actions --------------------------------------------------------- */}
-        <aside className="space-y-4 lg:sticky lg:top-40 lg:self-start">
-          <div className="rounded-lg border border-border bg-surface p-5">
-            <h2 className="text-base font-semibold text-ink">Need something?</h2>
+        <aside className="space-y-4 lg:sticky lg:top-28 lg:self-start">
+          <div className="rounded-lg border border-border bg-surface p-5 shadow-card">
+            <h2 className="text-title-sm text-ink">Need something?</h2>
 
             <div className="mt-3 space-y-2">
               <Button
@@ -415,7 +480,7 @@ export function OrderDetailPage(): React.JSX.Element {
           </div>
 
           {order.cancelReason !== null && (
-            <div className="rounded-lg border border-border bg-surface p-5">
+            <div className="rounded-lg border border-border bg-surface p-5 shadow-card">
               <h2 className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
                 Cancellation reason
               </h2>
@@ -424,7 +489,7 @@ export function OrderDetailPage(): React.JSX.Element {
           )}
 
           {business.supportEmail !== null && (
-            <div className="rounded-lg border border-border bg-surface p-5 text-sm">
+            <div className="rounded-lg border border-border bg-surface p-5 text-sm shadow-card">
               <h2 className="font-medium text-ink">Something wrong?</h2>
               <p className="mt-1 text-ink-muted">
                 Email{' '}

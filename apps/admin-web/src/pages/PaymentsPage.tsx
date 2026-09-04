@@ -14,6 +14,12 @@
  *   - **A refund carries an idempotency key.** Generated once per attempt, so a
  *     double-click, a retry or a flaky connection cannot refund twice.
  *
+ * The status vocabulary is the gateway's, and it has seven values that fall
+ * into three outcomes: settled, still in flight, and finished without money.
+ * The filter groups them that way and the badges colour them that way, because
+ * "EXPIRED" and "CANCELLED" mean the same thing to the person working the
+ * queue even though they mean different things to Razorpay.
+ *
  * Webhook health is on this page rather than hidden in settings because a
  * rejected signature means payments are silently not being recorded, and the
  * person who needs to know is looking at this screen.
@@ -26,11 +32,25 @@ import { DataTable, Pager } from '@/components/DataTable';
 import type { Column } from '@/components/DataTable';
 import { Modal } from '@/components/Modal';
 import { useToast } from '@/components/toast-context';
-import { Badge, Button, Card, Field, Input, PageHeader, Select, Textarea } from '@/components/ui';
-import type { BadgeTone } from '@/components/ui';
+import {
+  Badge,
+  Button,
+  Callout,
+  Card,
+  Field,
+  Input,
+  PageHeader,
+  Select,
+  SummaryTiles,
+  Textarea,
+  Toolbar,
+  ToolbarActions,
+  ToolbarField,
+} from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { newIdempotencyKey } from '@/lib/forms';
 import { formatDateTime, formatMoney, formatNumber, humanise, majorToMinor, minorToMajor } from '@/lib/format';
+import { paymentStatusTone } from '@/lib/orders';
 import { Permission } from '@/lib/permissions';
 import type { Pagination } from '@/lib/types';
 
@@ -77,12 +97,19 @@ interface RefundQuote {
   currency: string;
 }
 
-function paymentTone(status: string): BadgeTone {
-  if (status === 'CAPTURED') return 'success';
-  if (status === 'FAILED' || status === 'CANCELLED' || status === 'EXPIRED') return 'danger';
-  if (status === 'AUTHORIZED' || status === 'PENDING' || status === 'CREATED') return 'warning';
-  return 'neutral';
-}
+/**
+ * The three outcomes, and which gateway statuses belong to each.
+ *
+ * `IN_FLIGHT` is amber rather than neutral on purpose: a transaction sitting
+ * in CREATED, PENDING or AUTHORIZED is money the gateway may believe it has
+ * and this system does not, which is the reconciliation queue and not a
+ * resting state.
+ */
+const STATUS_GROUPS = [
+  { label: 'Settled', statuses: ['CAPTURED'] },
+  { label: 'Still in flight', statuses: ['CREATED', 'PENDING', 'AUTHORIZED'] },
+  { label: 'Ended without payment', statuses: ['FAILED', 'CANCELLED', 'EXPIRED'] },
+] as const;
 
 function money(minor: string, currency: string): string {
   return formatMoney({ minor, formatted: minorToMajor(minor), currency });
@@ -170,64 +197,60 @@ function RefundDialog({
     >
       <div className="space-y-4">
         {error !== null && (
-          <p
-            role="alert"
-            className="rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-sm text-danger"
-          >
+          <Callout tone="danger" role="alert">
             {error}
-          </p>
+          </Callout>
         )}
 
         {quote.data !== undefined && (
-          <dl className="grid grid-cols-3 gap-px rounded-md border border-border bg-border text-center">
-            {(
-              [
-                ['Captured', quote.data.capturedMinor],
-                ['Already refunded', quote.data.alreadyRefundedMinor],
-                ['Refundable now', quote.data.maxRefundableMinor],
-              ] satisfies [string, string][]
-            ).map(([label, value]) => (
-              <div key={label} className="bg-surface px-3 py-2">
-                <dt className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                  {label}
-                </dt>
-                <dd className="mt-0.5 text-sm font-semibold tabular text-ink">
-                  {money(value, quote.data.currency)}
-                </dd>
-              </div>
-            ))}
-          </dl>
+          <SummaryTiles
+            items={[
+              { label: 'Captured', value: money(quote.data.capturedMinor, quote.data.currency) },
+              {
+                label: 'Already refunded',
+                value: money(quote.data.alreadyRefundedMinor, quote.data.currency),
+              },
+              {
+                label: 'Refundable now',
+                value: money(quote.data.maxRefundableMinor, quote.data.currency),
+                tone: 'success',
+              },
+            ]}
+          />
         )}
 
-        <Field
-          label={`Refund amount (${payment.currency})`}
-          hint={`At most ${money(maxMinor, quote.data?.currency ?? payment.currency)}.`}
-          error={isOverMax ? 'That is more than is refundable on this order.' : undefined}
-          required
-        >
-          {({ inputId, describedBy }) => (
-            <Input
-              id={inputId}
-              inputMode="decimal"
-              className="tabular"
-              value={amount}
-              aria-describedby={describedBy}
-              invalid={isOverMax}
-              onChange={(event) => {
-                setAmount(event.target.value);
-              }}
-            />
-          )}
-        </Field>
+        <div className="space-y-2">
+          <Field
+            label={`Refund amount (${payment.currency})`}
+            hint={`At most ${money(maxMinor, quote.data?.currency ?? payment.currency)}.`}
+            error={isOverMax ? 'That is more than is refundable on this order.' : undefined}
+            required
+          >
+            {({ inputId, describedBy }) => (
+              <Input
+                id={inputId}
+                inputMode="decimal"
+                className="tabular"
+                value={amount}
+                aria-describedby={describedBy}
+                invalid={isOverMax}
+                onChange={(event) => {
+                  setAmount(event.target.value);
+                }}
+              />
+            )}
+          </Field>
 
-        <Button
-          size="sm"
-          onClick={() => {
-            setAmount(minorToMajor(maxMinor));
-          }}
-        >
-          Refund the full amount
-        </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => {
+              setAmount(minorToMajor(maxMinor));
+            }}
+          >
+            Use the full refundable amount
+          </Button>
+        </div>
 
         <Field
           label="Reason"
@@ -261,26 +284,44 @@ function WebhookHealthPanel(): React.JSX.Element {
     {
       key: 'received',
       header: 'Received',
-      render: (row) => <span className="whitespace-nowrap">{formatDateTime(row.receivedAt)}</span>,
+      nowrap: true,
+      render: (row) => <span className="text-ink-muted">{formatDateTime(row.receivedAt)}</span>,
     },
-    { key: 'event', header: 'Event', render: (row) => <span className="font-mono text-xxs">{row.eventType}</span> },
+    {
+      key: 'event',
+      header: 'Event',
+      render: (row) => <span className="font-mono text-xxs">{row.eventType}</span>,
+    },
     {
       key: 'signature',
       header: 'Signature',
       render: (row) =>
         row.signatureVerified ? (
-          <Badge tone="success">Verified</Badge>
+          <Badge dot tone="success">
+            Verified
+          </Badge>
         ) : (
           // An unverified signature is the serious one: something sent a
           // payment event this system could not prove came from the gateway.
-          <Badge tone="danger">Rejected</Badge>
+          <Badge dot tone="danger">
+            Rejected
+          </Badge>
         ),
     },
     {
       key: 'processing',
       header: 'Processing',
       render: (row) => (
-        <Badge tone={row.processingStatus === 'PROCESSED' ? 'success' : row.processingStatus === 'FAILED' ? 'danger' : 'neutral'}>
+        <Badge
+          dot
+          tone={
+            row.processingStatus === 'PROCESSED'
+              ? 'success'
+              : row.processingStatus === 'FAILED'
+                ? 'danger'
+                : 'neutral'
+          }
+        >
           {humanise(row.processingStatus)}
         </Badge>
       ),
@@ -295,21 +336,35 @@ function WebhookHealthPanel(): React.JSX.Element {
 
   const rejected = query.data?.recent.filter((event) => !event.signatureVerified).length ?? 0;
 
+  // The server's own tally, whatever shape it is in. Rendered rather than
+  // discarded: it counts every delivery, where the table below is only the
+  // most recent handful.
+  const summary = Object.entries(query.data?.summary ?? {});
+
   return (
     <Card
       title="Webhook health"
-      description="A gateway event only counts once its signature verifies."
+      description="A gateway event only counts once its signature verifies. Nothing from a rejected delivery is ever applied."
     >
-      {rejected > 0 && (
-        <p
-          role="alert"
-          className="mx-4 mt-4 rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-sm text-danger"
-        >
-          {formatNumber(rejected)} recent delivery
-          {rejected === 1 ? '' : 'ies'} failed signature verification. Either the webhook secret
-          here does not match the one in the gateway dashboard, or something else is posting to the
-          endpoint. Nothing from a rejected delivery has been applied.
-        </p>
+      {(rejected > 0 || summary.length > 0) && (
+        <div className="space-y-3 px-4 pt-4">
+          {rejected > 0 && (
+            <Callout tone="danger" role="alert" title="Deliveries are failing signature verification">
+              {formatNumber(rejected)} of the recent deliveries below could not be proved to have
+              come from the gateway. Either the webhook secret here does not match the one in the
+              gateway dashboard, or something else is posting to the endpoint.
+            </Callout>
+          )}
+
+          {summary.length > 0 && (
+            <SummaryTiles
+              items={summary.map(([key, value]) => ({
+                label: humanise(key),
+                value: formatNumber(value),
+              }))}
+            />
+          )}
+        </div>
       )}
 
       <DataTable
@@ -319,6 +374,14 @@ function WebhookHealthPanel(): React.JSX.Element {
         rowKey={(row) => row.id}
         isLoading={query.isPending}
         error={query.isError ? query.error : undefined}
+        loadingLabel="Loading webhook deliveries"
+        minWidth="52rem"
+        rowClassName={(row) =>
+          row.signatureVerified ? undefined : 'bg-danger-soft/60 hover:bg-danger-soft'
+        }
+        onRetry={() => {
+          void query.refetch();
+        }}
         emptyTitle="No webhook deliveries yet"
         emptyDescription="Once the gateway is configured with this system's webhook URL, deliveries appear here."
       />
@@ -364,11 +427,13 @@ export function PaymentsPage(): React.JSX.Element {
   });
 
   const canRefund = can(Permission.REFUND_CREATE);
+  const hasFilters = status !== '' || orderId !== '';
 
   const columns: Column<PaymentRow>[] = [
     {
       key: 'order',
       header: 'Order',
+      nowrap: true,
       render: (row) => (
         <Link
           to={`/orders/${row.orderId}`}
@@ -382,10 +447,12 @@ export function PaymentsPage(): React.JSX.Element {
       key: 'status',
       header: 'Status',
       render: (row) => (
-        <div>
-          <Badge tone={paymentTone(row.status)}>{humanise(row.status)}</Badge>
+        <div className="min-w-32">
+          <Badge dot tone={paymentStatusTone(row.status)}>
+            {humanise(row.status)}
+          </Badge>
           {row.failureMessage !== null && (
-            <p className="mt-0.5 text-xxs text-danger">{row.failureMessage}</p>
+            <p className="mt-1 text-xxs leading-relaxed text-danger">{row.failureMessage}</p>
           )}
         </div>
       ),
@@ -394,14 +461,24 @@ export function PaymentsPage(): React.JSX.Element {
       key: 'amount',
       header: 'Amount',
       align: 'right',
+      nowrap: true,
       render: (row) => money(row.amountMinor, row.currency),
     },
     {
       key: 'captured',
       header: 'Captured',
       align: 'right',
+      nowrap: true,
       render: (row) => (
-        <span className={row.capturedMinor === '0' ? 'text-ink-subtle' : 'text-success'}>
+        <span
+          className={
+            row.capturedMinor === '0'
+              ? 'text-ink-subtle'
+              : BigInt(row.capturedMinor) >= BigInt(row.amountMinor)
+                ? 'font-medium text-success'
+                : 'font-medium text-warning'
+          }
+        >
           {money(row.capturedMinor, row.currency)}
         </span>
       ),
@@ -412,11 +489,16 @@ export function PaymentsPage(): React.JSX.Element {
       secondary: true,
       render: (row) => (
         <div>
-          <p className="text-ink">{humanise(row.provider)}</p>
-          <p className="text-xxs text-ink-subtle">
-            {row.mode}
-            {row.method !== null && ` · ${row.method}`}
+          <p className="flex items-center gap-1.5 text-ink">
+            {humanise(row.provider)}
+            {/* LIVE and TEST must never be confusable on a money screen. */}
+            {row.mode === 'LIVE' ? (
+              <Badge tone="danger">Live</Badge>
+            ) : (
+              <Badge tone="neutral">Test</Badge>
+            )}
           </p>
+          {row.method !== null && <p className="text-xxs text-ink-subtle">{row.method}</p>}
         </div>
       ),
     },
@@ -424,7 +506,9 @@ export function PaymentsPage(): React.JSX.Element {
       key: 'when',
       header: 'When',
       secondary: true,
-      render: (row) => <span className="whitespace-nowrap">{formatDateTime(row.createdAt)}</span>,
+      tertiary: true,
+      nowrap: true,
+      render: (row) => <span className="text-ink-muted">{formatDateTime(row.createdAt)}</span>,
     },
     {
       key: 'actions',
@@ -435,12 +519,15 @@ export function PaymentsPage(): React.JSX.Element {
           <Button
             size="sm"
             variant="ghost"
-            isLoading={reconcile.isPending}
+            // Scoped to the row being reconciled. Keyed off the mutation alone,
+            // every Reconcile button on the page spins at once.
+            isLoading={reconcile.isPending && reconcile.variables.id === row.id}
             onClick={() => {
               reconcile.mutate(row);
             }}
           >
             Reconcile
+            <span className="sr-only"> {row.orderNumber} with the gateway</span>
           </Button>
           {canRefund && row.capturedMinor !== '0' && (
             <Button
@@ -451,6 +538,7 @@ export function PaymentsPage(): React.JSX.Element {
               }}
             >
               Refund
+              <span className="sr-only"> {row.orderNumber}</span>
             </Button>
           )}
         </div>
@@ -462,16 +550,13 @@ export function PaymentsPage(): React.JSX.Element {
     <>
       <PageHeader
         title="Payments"
-        description="What the gateway confirmed. This screen reports money; it never moves it."
+        description="What the gateway confirmed. This screen reports money and issues refunds; nothing here marks an order paid by hand."
       />
 
       <div className="space-y-5">
         <Card>
-          <div className="flex flex-wrap items-end gap-3 border-b border-border px-4 py-3">
-            <label>
-              <span className="mb-1 block text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                Status
-              </span>
+          <Toolbar>
+            <ToolbarField label="Status">
               <Select
                 value={status}
                 onChange={(event) => {
@@ -483,33 +568,56 @@ export function PaymentsPage(): React.JSX.Element {
                     return next;
                   });
                 }}
-                className="w-44"
+                className="w-52"
               >
                 <option value="">Any status</option>
-                {['CREATED', 'PENDING', 'AUTHORIZED', 'CAPTURED', 'FAILED', 'CANCELLED', 'EXPIRED'].map(
-                  (value) => (
-                    <option key={value} value={value}>
-                      {humanise(value)}
-                    </option>
-                  ),
-                )}
+                {STATUS_GROUPS.map((group) => (
+                  <optgroup key={group.label} label={group.label}>
+                    {group.statuses.map((value) => (
+                      <option key={value} value={value}>
+                        {humanise(value)}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
               </Select>
-            </label>
+            </ToolbarField>
 
             {orderId !== '' && (
-              <Button
-                onClick={() => {
-                  setSearchParams((current) => {
-                    const next = new URLSearchParams(current);
-                    next.delete('orderId');
-                    return next;
-                  });
-                }}
-              >
-                Clear order filter
-              </Button>
+              <div className="flex h-10 items-center">
+                <span className="inline-flex h-8 items-center gap-2 rounded-md border border-accent bg-accent-soft px-3 text-xs font-medium text-accent">
+                  Filtered to one order
+                  <button
+                    type="button"
+                    aria-label="Clear the order filter"
+                    className="text-accent hover:text-accent-hover"
+                    onClick={() => {
+                      setSearchParams((current) => {
+                        const next = new URLSearchParams(current);
+                        next.delete('orderId');
+                        next.delete('page');
+                        return next;
+                      });
+                    }}
+                  >
+                    ×
+                  </button>
+                </span>
+              </div>
             )}
-          </div>
+
+            {hasFilters && (
+              <ToolbarActions>
+                <Button
+                  onClick={() => {
+                    setSearchParams({});
+                  }}
+                >
+                  Clear filters
+                </Button>
+              </ToolbarActions>
+            )}
+          </Toolbar>
 
           <DataTable
             caption="Payments"
@@ -517,12 +625,30 @@ export function PaymentsPage(): React.JSX.Element {
             rows={query.data?.payments}
             rowKey={(row) => row.id}
             isLoading={query.isPending}
+            isRefreshing={query.isFetching && !query.isPending}
             error={query.isError ? query.error : undefined}
+            loadingLabel="Loading payments"
+            minWidth="64rem"
             onRetry={() => {
               void query.refetch();
             }}
-            emptyTitle="No payments yet"
-            emptyDescription="A payment appears once a customer starts one. Nothing here is entered by hand."
+            emptyTitle={hasFilters ? 'Nothing matches these filters' : 'No payments yet'}
+            emptyDescription={
+              hasFilters
+                ? 'Try another status, or clear the filters.'
+                : 'A payment appears once a customer starts one. Nothing here is entered by hand.'
+            }
+            emptyAction={
+              hasFilters ? (
+                <Button
+                  onClick={() => {
+                    setSearchParams({});
+                  }}
+                >
+                  Clear filters
+                </Button>
+              ) : undefined
+            }
           />
 
           {query.data !== undefined && (

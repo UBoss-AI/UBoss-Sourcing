@@ -15,17 +15,30 @@
  *      before someone else archived a category is caught here rather than
  *      applied blindly.
  *
+ * Steps two and three appear only once the step before them is done, so the
+ * page is never showing a control that cannot yet do anything.
+ *
  * A preview can be confirmed once. Double-clicking Confirm is refused by the
  * server, not merely by a disabled button.
  */
 import { useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { DataTable } from '@/components/DataTable';
 import type { Column } from '@/components/DataTable';
 import { useToast } from '@/components/toast-context';
-import { Badge, Button, Card, ErrorState, PageHeader } from '@/components/ui';
+import {
+  Badge,
+  Button,
+  Callout,
+  Card,
+  CheckboxField,
+  ErrorState,
+  LinkButton,
+  PageHeader,
+  SummaryTiles,
+} from '@/components/ui';
 import type { BadgeTone } from '@/components/ui';
+import { cx } from '@/lib/cx';
 import { ApiError, api, downloadFile } from '@/lib/api';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import type { ImportJob, ImportRowError } from '@/lib/types';
@@ -44,29 +57,45 @@ function jobTone(status: ImportJob['status']): BadgeTone {
   return 'neutral';
 }
 
+/**
+ * One step of the wizard.
+ *
+ * The number is the whole of the affordance — a numbered circle that fills in
+ * green when the step is behind you. No progress bar, because three steps do
+ * not need one and a bar would imply a percentage nothing here can honestly
+ * report.
+ */
 function StepHeading({
   step,
   title,
+  description,
   done,
 }: {
   step: number;
   title: string;
+  description?: string;
   done?: boolean;
 }): React.JSX.Element {
   return (
-    <div className="flex items-center gap-2.5">
+    <div className="flex gap-3">
       <span
         aria-hidden="true"
-        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xxs font-bold ${
-          done === true ? 'bg-success text-white' : 'bg-accent-soft text-accent'
-        }`}
+        className={cx(
+          'flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold',
+          done === true ? 'bg-success text-white' : 'bg-accent-soft text-accent',
+        )}
       >
         {done === true ? '✓' : step}
       </span>
-      <h2 className="text-sm font-semibold text-ink">
-        <span className="sr-only">Step {step}: </span>
-        {title}
-      </h2>
+      <div className="min-w-0">
+        <h2 className="text-title-xs text-ink">
+          <span className="sr-only">Step {step}: </span>
+          {title}
+        </h2>
+        {description !== undefined && (
+          <p className="mt-1 max-w-prose text-sm leading-relaxed text-ink-muted">{description}</p>
+        )}
+      </div>
     </div>
   );
 }
@@ -134,19 +163,24 @@ export function ProductImportPage(): React.JSX.Element {
       key: 'row',
       header: 'Row',
       align: 'right',
-      width: '4rem',
-      render: (row) => <span className="tabular font-medium">{row.rowNumber}</span>,
+      width: '5rem',
+      render: (row) => <span className="font-medium">{row.rowNumber}</span>,
     },
     {
       key: 'field',
       header: 'Column',
+      nowrap: true,
       render: (row) => <span className="font-mono text-xxs">{row.field ?? '—'}</span>,
     },
     { key: 'message', header: 'Problem', render: (row) => row.message },
   ];
 
   const historyColumns: Column<ImportJob>[] = [
-    { key: 'file', header: 'File', render: (row) => row.fileName },
+    {
+      key: 'file',
+      header: 'File',
+      render: (row) => <span className="font-mono text-xs text-ink">{row.fileName}</span>,
+    },
     {
       key: 'kind',
       header: 'Kind',
@@ -155,12 +189,17 @@ export function ProductImportPage(): React.JSX.Element {
     {
       key: 'status',
       header: 'Result',
-      render: (row) => <Badge tone={jobTone(row.status)}>{row.status}</Badge>,
+      render: (row) => (
+        <Badge dot tone={jobTone(row.status)}>
+          {row.status}
+        </Badge>
+      ),
     },
     {
       key: 'rows',
       header: 'Rows',
       align: 'right',
+      nowrap: true,
       render: (row) =>
         row.isDryRun
           ? `${formatNumber(row.validRows)} valid / ${formatNumber(row.errorRows)} errors`
@@ -170,7 +209,8 @@ export function ProductImportPage(): React.JSX.Element {
       key: 'when',
       header: 'When',
       secondary: true,
-      render: (row) => formatDateTime(row.createdAt),
+      nowrap: true,
+      render: (row) => <span className="text-ink-muted">{formatDateTime(row.createdAt)}</span>,
     },
   ];
 
@@ -183,106 +223,104 @@ export function ProductImportPage(): React.JSX.Element {
     <>
       <PageHeader
         title="Bulk product import"
-        description="Upload a spreadsheet to create and update products. Nothing changes until you confirm."
-        actions={
-          <Link
-            to="/products"
-            className="inline-flex h-9 items-center rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-ink hover:bg-surface-sunken"
-          >
-            Back to products
-          </Link>
-        }
+        back={{ to: '/products', label: 'Back to products' }}
+        description="Upload a spreadsheet to create and update products. Nothing changes until you confirm — and import never deletes and never publishes."
       />
 
       <div className="space-y-5">
         {/* --- Step 1 ------------------------------------------------------ */}
         <Card>
-          <div className="space-y-3 px-5 py-4">
-            <StepHeading step={1} title="Start from the template" />
-            <p className="text-sm text-ink-muted">
-              CSV only (UTF-8). Every spreadsheet exports it — in Excel, choose{' '}
-              <em>Save As → CSV UTF-8</em>. An .xlsx file is refused rather than mis-read.
-            </p>
+          <div className="space-y-4 px-5 py-4">
+            <StepHeading
+              step={1}
+              title="Start from the template"
+              description="CSV only (UTF-8). Every spreadsheet exports it — in Excel, choose Save As → CSV UTF-8. An .xlsx file is refused rather than mis-read."
+            />
 
-            <Button
-              onClick={() => {
-                void downloadFile(
-                  '/admin/products/import/template',
-                  'uboss-product-import-template.csv',
-                ).catch(() => {
-                  toast.error('The template could not be downloaded.');
-                });
-              }}
-            >
-              Download the CSV template
-            </Button>
+            <div className="pl-10">
+              <Button
+                onClick={() => {
+                  void downloadFile(
+                    '/admin/products/import/template',
+                    'uboss-product-import-template.csv',
+                  ).catch(() => {
+                    toast.error('The template could not be downloaded.');
+                  });
+                }}
+              >
+                Download the CSV template
+              </Button>
 
-            {columns.data !== undefined && (
-              <details className="mt-2">
-                <summary className="cursor-pointer text-sm font-medium text-accent">
-                  What each column means
-                </summary>
-                <dl className="mt-2 divide-y divide-border rounded-md border border-border">
-                  {columns.data.columns.map((column) => (
-                    <div key={column.key} className="flex flex-wrap gap-x-3 gap-y-1 px-3 py-2">
-                      <dt className="w-40 shrink-0 font-mono text-xs text-ink">
-                        {column.key}
-                        {column.required && (
-                          <span className="ml-1 text-danger" title="Required">
-                            *
-                          </span>
-                        )}
-                      </dt>
-                      <dd className="flex-1 text-xs text-ink-muted">
-                        {column.help}{' '}
-                        <span className="text-ink-subtle">e.g. {column.example}</span>
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-              </details>
-            )}
+              {columns.data !== undefined && (
+                <details className="mt-3">
+                  <summary className="cursor-pointer text-sm font-medium text-accent hover:underline">
+                    What each column means
+                  </summary>
+                  <dl className="mt-2 divide-y divide-border-subtle overflow-hidden rounded-md border border-border">
+                    {columns.data.columns.map((column) => (
+                      <div key={column.key} className="flex flex-wrap gap-x-3 gap-y-1 px-3 py-2">
+                        <dt className="w-40 shrink-0 font-mono text-xs text-ink">
+                          {column.key}
+                          {column.required && (
+                            <>
+                              <span className="ml-1 text-danger" aria-hidden="true">
+                                *
+                              </span>
+                              <span className="sr-only"> (required)</span>
+                            </>
+                          )}
+                        </dt>
+                        <dd className="flex-1 text-xs leading-relaxed text-ink-muted">
+                          {column.help}{' '}
+                          <span className="text-ink-subtle">e.g. {column.example}</span>
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </details>
+              )}
+            </div>
           </div>
         </Card>
 
         {/* --- Step 2 ------------------------------------------------------ */}
         <Card>
-          <div className="space-y-3 px-5 py-4">
-            <StepHeading step={2} title="Upload to preview" done={preview !== null} />
-            <p className="text-sm text-ink-muted">
-              The upload validates every row and writes nothing. A SKU that already exists is an
-              update; a new one is a create. Import never deletes and never publishes.
-            </p>
-
-            <input
-              ref={fileRef}
-              type="file"
-              accept=".csv,text/csv"
-              className="sr-only"
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (file !== undefined) upload.mutate(file);
-                event.target.value = '';
-              }}
+          <div className="space-y-4 px-5 py-4">
+            <StepHeading
+              step={2}
+              title="Upload to preview"
+              done={preview !== null}
+              description="The upload validates every row and writes nothing. A SKU that already exists is an update; a new one is a create."
             />
-            <Button
-              variant="primary"
-              isLoading={upload.isPending}
-              onClick={() => {
-                fileRef.current?.click();
-              }}
-            >
-              Choose a CSV file
-            </Button>
 
-            {uploadError !== null && (
-              <p
-                role="alert"
-                className="rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-sm text-danger"
+            <div className="space-y-3 pl-10">
+              <input
+                ref={fileRef}
+                type="file"
+                accept=".csv,text/csv"
+                className="sr-only"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file !== undefined) upload.mutate(file);
+                  event.target.value = '';
+                }}
+              />
+              <Button
+                variant="primary"
+                isLoading={upload.isPending}
+                onClick={() => {
+                  fileRef.current?.click();
+                }}
               >
-                {uploadError}
-              </p>
-            )}
+                {preview === null ? 'Choose a CSV file' : 'Choose a different file'}
+              </Button>
+
+              {uploadError !== null && (
+                <Callout tone="danger" role="alert">
+                  {uploadError}
+                </Callout>
+              )}
+            </div>
           </div>
         </Card>
 
@@ -291,54 +329,49 @@ export function ProductImportPage(): React.JSX.Element {
           <Card
             title={`Preview — ${preview.fileName}`}
             description="Nothing has been written yet."
+            tone={hasFatalError ? 'danger' : 'default'}
           >
             <div className="px-5 py-4">
               {hasFatalError ? (
-                <p
-                  role="alert"
-                  className="rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-sm text-danger"
-                >
+                <Callout tone="danger" role="alert" title="The file could not be read">
                   {preview.errorMessage}
-                </p>
+                </Callout>
               ) : (
                 <>
-                  <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    {[
-                      ['Rows read', formatNumber(preview.totalRows)],
-                      ['Will create', formatNumber(preview.result?.creates ?? 0)],
-                      ['Will update', formatNumber(preview.result?.updates ?? 0)],
-                      ['Rows with errors', formatNumber(preview.errorRows)],
-                    ].map(([label, value]) => (
-                      <div
-                        key={label}
-                        className="rounded-md border border-border bg-surface-sunken px-3 py-2.5"
-                      >
-                        <dt className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                          {label}
-                        </dt>
-                        <dd className="mt-0.5 text-lg font-semibold tabular text-ink">{value}</dd>
-                      </div>
-                    ))}
-                  </dl>
+                  <SummaryTiles
+                    items={[
+                      { label: 'Rows read', value: formatNumber(preview.totalRows) },
+                      {
+                        label: 'Will create',
+                        value: formatNumber(preview.result?.creates ?? 0),
+                        tone: 'success',
+                      },
+                      { label: 'Will update', value: formatNumber(preview.result?.updates ?? 0) },
+                      {
+                        label: 'Rows with errors',
+                        value: formatNumber(preview.errorRows),
+                        tone: preview.errorRows > 0 ? 'danger' : 'default',
+                      },
+                    ]}
+                  />
 
                   {hasRowErrors && (
                     <div className="mt-4">
-                      <h3 className="mb-2 text-sm font-semibold text-ink">
-                        Rows that will not import
-                      </h3>
-                      <div className="rounded-md border border-border">
+                      <h3 className="mb-2 text-title-xs text-ink">Rows that will not import</h3>
+                      <div className="overflow-hidden rounded-md border border-border">
                         <DataTable
                           caption="Row errors"
                           columns={errorColumns}
                           rows={preview.rowErrors}
                           rowKey={(row) => `${String(row.rowNumber)}:${row.field ?? ''}:${row.code}`}
+                          minWidth="34rem"
                         />
                       </div>
                       {preview.pagination.truncated && (
-                        <p className="mt-2 text-xs text-warning">
+                        <Callout tone="warning" className="mt-2">
                           Only the first {formatNumber(preview.pagination.limit)} errors are listed.
-                          With this many, the file's shape is more likely wrong than its rows.
-                        </p>
+                          With this many, the file&rsquo;s shape is more likely wrong than its rows.
+                        </Callout>
                       )}
                     </div>
                   )}
@@ -351,96 +384,90 @@ export function ProductImportPage(): React.JSX.Element {
         {/* --- Step 3 ------------------------------------------------------ */}
         {preview !== null && !hasFatalError && (
           <Card>
-            <div className="space-y-3 px-5 py-4">
-              <StepHeading step={3} title="Confirm the import" done={applied !== null} />
+            <div className="space-y-4 px-5 py-4">
+              <StepHeading
+                step={3}
+                title="Confirm the import"
+                done={applied !== null}
+                {...(applied === null
+                  ? {
+                      description:
+                        'This is the step that changes the catalogue. The file is re-checked first, so anything that changed since the preview is caught here.',
+                    }
+                  : {})}
+              />
 
-              {applied === null ? (
-                <>
-                  <p className="text-sm text-ink-muted">
-                    This is the step that changes the catalogue. The file is re-checked first, so
-                    anything that changed since the preview is caught here.
-                  </p>
-
-                  {hasRowErrors && (
-                    <label className="flex items-start gap-2 rounded-md border border-warning/30 bg-warning-soft px-3 py-2.5 text-sm">
-                      <input
-                        type="checkbox"
+              <div className="space-y-3 pl-10">
+                {applied === null ? (
+                  <>
+                    {hasRowErrors && (
+                      <CheckboxField
+                        boxed
+                        tone="warning"
                         checked={skipInvalidRows}
                         onChange={(event) => {
                           setSkipInvalidRows(event.target.checked);
                         }}
-                        className="mt-0.5 h-4 w-4 rounded border-border-strong text-accent"
+                        label={`Import the ${formatNumber(preview.validRows)} valid row${preview.validRows === 1 ? '' : 's'} and skip the ${formatNumber(preview.errorRows)} with errors.`}
+                        description="Leave this unticked to fix the file and upload it again instead — which is usually the right answer."
                       />
-                      <span className="text-ink">
-                        Import the {formatNumber(preview.validRows)} valid row
-                        {preview.validRows === 1 ? '' : 's'} and skip the{' '}
-                        {formatNumber(preview.errorRows)} with errors.
-                        <span className="mt-0.5 block text-xs text-ink-muted">
-                          Leave this unticked to fix the file and upload it again instead.
-                        </span>
-                      </span>
-                    </label>
-                  )}
+                    )}
 
-                  {confirmError !== null && (
-                    <p
-                      role="alert"
-                      className="rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-sm text-danger"
+                    {confirmError !== null && (
+                      <Callout tone="danger" role="alert">
+                        {confirmError}
+                      </Callout>
+                    )}
+
+                    <Button
+                      variant="primary"
+                      disabled={!canConfirm}
+                      isLoading={confirm.isPending}
+                      onClick={() => {
+                        confirm.mutate(preview);
+                      }}
                     >
-                      {confirmError}
-                    </p>
-                  )}
+                      {hasRowErrors && skipInvalidRows
+                        ? `Import ${formatNumber(preview.validRows)} valid rows`
+                        : `Import ${formatNumber(preview.validRows)} rows`}
+                    </Button>
 
-                  <Button
-                    variant="primary"
-                    disabled={!canConfirm}
-                    isLoading={confirm.isPending}
-                    onClick={() => {
-                      confirm.mutate(preview);
-                    }}
+                    {preview.validRows === 0 && (
+                      <p className="text-xs text-ink-muted">
+                        There is nothing to import — every row has an error.
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <Callout
+                    tone="success"
+                    role="status"
+                    title={`Imported ${formatNumber(applied.createdRows)} new product${applied.createdRows === 1 ? '' : 's'} and updated ${formatNumber(applied.updatedRows)}.`}
                   >
-                    {hasRowErrors && skipInvalidRows
-                      ? `Import ${formatNumber(preview.validRows)} valid rows`
-                      : `Import ${formatNumber(preview.validRows)} rows`}
-                  </Button>
-
-                  {preview.validRows === 0 && (
-                    <p className="text-xs text-ink-muted">
-                      There is nothing to import — every row has an error.
-                    </p>
-                  )}
-                </>
-              ) : (
-                <div className="rounded-md border border-success/30 bg-success-soft px-4 py-3">
-                  <p className="text-sm font-medium text-success">
-                    Imported {formatNumber(applied.createdRows)} new product
-                    {applied.createdRows === 1 ? '' : 's'} and updated{' '}
-                    {formatNumber(applied.updatedRows)}.
-                  </p>
-                  {applied.errorRows > 0 && (
-                    <p className="mt-1 text-xs text-ink-muted">
-                      {formatNumber(applied.errorRows)} row
-                      {applied.errorRows === 1 ? ' was' : 's were'} skipped.
-                    </p>
-                  )}
-                  <p className="mt-2 text-xs text-ink-muted">
-                    Imported products are not published. Publish them individually when they are
-                    ready for customers.
-                  </p>
-                  <Link
-                    to="/products"
-                    className="mt-3 inline-flex h-8 items-center rounded-md bg-accent px-3 text-xs font-medium text-white hover:bg-accent-hover"
-                  >
-                    Review the products
-                  </Link>
-                </div>
-              )}
+                    <div className="space-y-2">
+                      {applied.errorRows > 0 && (
+                        <p>
+                          {formatNumber(applied.errorRows)} row
+                          {applied.errorRows === 1 ? ' was' : 's were'} skipped.
+                        </p>
+                      )}
+                      <p>
+                        Imported products are not published. Publish them individually when they are
+                        ready for customers.
+                      </p>
+                      <LinkButton to="/products" size="sm" variant="primary">
+                        Review the products
+                      </LinkButton>
+                    </div>
+                  </Callout>
+                )}
+              </div>
             </div>
           </Card>
         )}
 
         {/* --- History ----------------------------------------------------- */}
-        <Card title="Recent imports">
+        <Card title="Recent imports" description="The last ten, previews included.">
           {history.isError ? (
             <ErrorState
               error={history.error}
@@ -455,7 +482,10 @@ export function ProductImportPage(): React.JSX.Element {
               rows={history.data?.jobs}
               rowKey={(row) => row.id}
               isLoading={history.isPending}
+              loadingLabel="Loading recent imports"
+              minWidth="48rem"
               emptyTitle="No imports yet"
+              emptyDescription="Uploads and confirmed imports both appear here."
             />
           )}
         </Card>

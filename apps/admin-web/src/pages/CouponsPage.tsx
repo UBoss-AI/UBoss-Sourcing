@@ -11,6 +11,11 @@
  * coupon simply does not apply in, and the form says so rather than filling in
  * a converted guess.
  *
+ * The editor is grouped rather than run as one column of twenty inputs:
+ * identity, what it takes off, who it applies to, when it runs, how often. The
+ * category picker only appears once the scope calls for it, because on the
+ * common setting — all products — it is a list of choices that do nothing.
+ *
  * Nothing on this screen deletes a coupon. Redemptions reference it so an
  * order stays explicable years later; archiving retires it and keeps the trail.
  */
@@ -20,7 +25,21 @@ import { useSession } from '@/auth/session-context';
 import { ConfirmDialog, Modal } from '@/components/Modal';
 import { DataTable, type Column } from '@/components/DataTable';
 import { useToast } from '@/components/toast-context';
-import { Badge, Button, Card, Field, Input, PageHeader, Select, Textarea } from '@/components/ui';
+import {
+  Badge,
+  Button,
+  Callout,
+  Card,
+  CheckboxField,
+  Field,
+  FieldGroup,
+  Input,
+  MultiSelect,
+  PageHeader,
+  Select,
+  Textarea,
+} from '@/components/ui';
+import type { BadgeTone } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { formatDate, majorToMinor, minorToMajor } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
@@ -96,10 +115,16 @@ const EMPTY_DRAFT: Draft = {
   minimums: {},
 };
 
-const STATUS_TONE: Record<Coupon['status'], 'success' | 'neutral' | 'warning'> = {
+const STATUS_TONE: Record<Coupon['status'], BadgeTone> = {
   ACTIVE: 'success',
   DRAFT: 'neutral',
   DISABLED: 'warning',
+};
+
+const STATUS_LABEL: Record<Coupon['status'], string> = {
+  ACTIVE: 'Active',
+  DRAFT: 'Draft',
+  DISABLED: 'Disabled',
 };
 
 /** Flattens the category tree for a multi-select, keeping the depth indent. */
@@ -108,7 +133,7 @@ function flattenCategories(
   depth = 0,
 ): { id: string; label: string }[] {
   return nodes.flatMap((node) => [
-    { id: node.id, label: `${'  '.repeat(depth)}${node.name}` },
+    { id: node.id, label: `${'  '.repeat(depth)}${node.name}` },
     ...flattenCategories(node.children, depth + 1),
   ]);
 }
@@ -283,12 +308,18 @@ export function CouponsPage(): React.JSX.Element {
     });
   };
 
+  const newCouponButton = (
+    <Button variant="primary" onClick={openCreate}>
+      New coupon
+    </Button>
+  );
+
   const columns: Column<Coupon>[] = [
     {
       key: 'code',
       header: 'Code',
       render: (row) => (
-        <div>
+        <div className="min-w-40">
           <p className="font-mono text-sm font-semibold text-ink">{row.code}</p>
           <p className="text-xs text-ink-muted">{row.name}</p>
         </div>
@@ -298,7 +329,8 @@ export function CouponsPage(): React.JSX.Element {
       key: 'discount',
       header: 'Discount',
       align: 'right',
-      render: (row) => <span className="tabular">{row.discountPercent}%</span>,
+      nowrap: true,
+      render: (row) => <span className="font-medium text-ink">{row.discountPercent}%</span>,
     },
     {
       key: 'scope',
@@ -312,12 +344,13 @@ export function CouponsPage(): React.JSX.Element {
     {
       key: 'minimums',
       header: 'Qualifies above',
+      align: 'right',
       secondary: true,
       render: (row) => (
         <div className="space-y-0.5">
           {row.minimums.map((entry) => (
-            <p key={entry.currencyCode} className="text-xs tabular text-ink-muted">
-              {entry.currencyCode}{' '}
+            <p key={entry.currencyCode} className="whitespace-nowrap text-xs text-ink-muted">
+              <span className="text-ink-subtle">{entry.currencyCode}</span>{' '}
               {minorToMajor(entry.minOrderMinor, exponentFor(entry.currencyCode))}
             </p>
           ))}
@@ -328,6 +361,8 @@ export function CouponsPage(): React.JSX.Element {
       key: 'window',
       header: 'Live',
       secondary: true,
+      tertiary: true,
+      nowrap: true,
       render: (row) =>
         row.validFrom === null && row.validUntil === null ? (
           <span className="text-xs text-ink-muted">Always</span>
@@ -343,7 +378,7 @@ export function CouponsPage(): React.JSX.Element {
       header: 'Used',
       align: 'right',
       render: (row) => (
-        <span className="tabular text-ink-muted">
+        <span className="text-ink-muted">
           {row.usageCount}
           {row.usageLimit === null ? '' : ` / ${String(row.usageLimit)}`}
         </span>
@@ -354,37 +389,47 @@ export function CouponsPage(): React.JSX.Element {
       header: 'Status',
       render: (row) => (
         <div className="flex flex-wrap items-center gap-1">
-          <Badge tone={STATUS_TONE[row.status]}>{row.status}</Badge>
+          {row.archivedAt === null ? (
+            <Badge dot tone={STATUS_TONE[row.status]}>
+              {STATUS_LABEL[row.status]}
+            </Badge>
+          ) : (
+            <Badge dot tone="danger">
+              Archived
+            </Badge>
+          )}
           {!row.isPubliclyListed && <Badge tone="neutral">Code only</Badge>}
         </div>
       ),
     },
     {
       key: 'actions',
-      header: '',
+      header: <span className="sr-only">Actions</span>,
       align: 'right',
       render: (row) =>
         canWrite ? (
-          <div className="flex justify-end gap-3">
-            <button
-              type="button"
+          <div className="flex justify-end gap-1">
+            <Button
+              size="sm"
+              variant="ghost"
               onClick={() => {
                 openEdit(row);
               }}
-              className="text-sm font-medium text-accent hover:underline"
             >
               Edit
-            </button>
+              <span className="sr-only"> {row.code}</span>
+            </Button>
             {can(Permission.COUPON_ARCHIVE) && row.archivedAt === null && (
-              <button
-                type="button"
+              <Button
+                size="sm"
+                variant="ghost"
                 onClick={() => {
                   setArchiving(row);
                 }}
-                className="text-sm font-medium text-ink-muted hover:underline"
               >
                 Archive
-              </button>
+                <span className="sr-only"> {row.code}</span>
+              </Button>
             )}
           </div>
         ) : null,
@@ -392,25 +437,30 @@ export function CouponsPage(): React.JSX.Element {
   ];
 
   return (
-    <div className="space-y-6">
+    <>
       <PageHeader
         title="Coupons"
-        description="Percentage discounts, optionally limited to categories, that unlock at a cart value you set per currency."
-        actions={canWrite ? <Button onClick={openCreate}>New coupon</Button> : undefined}
+        description="Percentage discounts, optionally limited to categories, that unlock at a cart value set per currency."
+        actions={canWrite ? newCouponButton : undefined}
       />
 
       <Card>
         <DataTable
           caption="Coupons"
           columns={columns}
-          rows={coupons.data?.coupons ?? []}
+          rows={coupons.data?.coupons}
           rowKey={(row) => row.id}
-          isLoading={coupons.isLoading}
-          error={coupons.error}
-          onRetry={() => void coupons.refetch()}
+          isLoading={coupons.isPending}
+          isRefreshing={coupons.isFetching && !coupons.isPending}
+          error={coupons.isError ? coupons.error : undefined}
+          loadingLabel="Loading coupons"
+          minWidth="68rem"
+          onRetry={() => {
+            void coupons.refetch();
+          }}
           emptyTitle="No coupons yet"
           emptyDescription="Create one to offer a discount on the storefront."
-          {...(canWrite ? { emptyAction: <Button onClick={openCreate}>New coupon</Button> } : {})}
+          {...(canWrite ? { emptyAction: newCouponButton } : {})}
         />
       </Card>
 
@@ -423,160 +473,179 @@ export function CouponsPage(): React.JSX.Element {
         title={editing === null ? 'New coupon' : `Edit ${editing.code}`}
         description="The code is what a customer types. Everything else decides when it applies."
         footer={
-          <div className="flex items-center justify-end gap-2">
+          <>
             <Button
-              variant="secondary"
               onClick={() => {
                 setIsOpen(false);
               }}
+              disabled={save.isPending}
             >
               Cancel
             </Button>
-            <Button onClick={submit} disabled={save.isPending}>
-              {save.isPending ? 'Saving…' : 'Save coupon'}
+            <Button variant="primary" onClick={submit} isLoading={save.isPending}>
+              {editing === null ? 'Create coupon' : 'Save coupon'}
             </Button>
-          </div>
+          </>
         }
       >
-        <div className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Code" required hint="Generated for you. Change it if you would rather.">
-              {({ inputId, describedBy }) => (
-                <Input
-                  id={inputId}
-                  aria-describedby={describedBy}
-                  value={draft.code}
-                  onChange={(event) => {
-                    setDraft({ ...draft, code: event.target.value.toUpperCase() });
-                  }}
-                  className="font-mono uppercase"
-                />
-              )}
-            </Field>
-
-            <Field label="Internal name" required hint="Shown here, never to a customer.">
-              {({ inputId, describedBy }) => (
-                <Input
-                  id={inputId}
-                  aria-describedby={describedBy}
-                  value={draft.name}
-                  onChange={(event) => {
-                    setDraft({ ...draft, name: event.target.value });
-                  }}
-                />
-              )}
-            </Field>
-          </div>
-
-          <Field
-            label="Customer-facing description"
-            hint="Appears beside the code in the storefront's coupon list."
-          >
-            {({ inputId, describedBy }) => (
-              <Textarea
-                id={inputId}
-                aria-describedby={describedBy}
-                rows={2}
-                value={draft.description}
-                onChange={(event) => {
-                  setDraft({ ...draft, description: event.target.value });
-                }}
-              />
-            )}
-          </Field>
-
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Field label="Discount %" required>
-              {({ inputId }) => (
-                <Input
-                  id={inputId}
-                  inputMode="decimal"
-                  value={draft.discountPercent}
-                  onChange={(event) => {
-                    setDraft({ ...draft, discountPercent: event.target.value });
-                  }}
-                />
-              )}
-            </Field>
-
-            <Field label="Status">
-              {({ inputId }) => (
-                <Select
-                  id={inputId}
-                  value={draft.status}
-                  onChange={(event) => {
-                    setDraft({ ...draft, status: event.target.value as Draft['status'] });
-                  }}
-                >
-                  <option value="DRAFT">Draft — never matches</option>
-                  <option value="ACTIVE">Active</option>
-                  <option value="DISABLED">Disabled</option>
-                </Select>
-              )}
-            </Field>
-
-            <Field label="Applies to">
-              {({ inputId }) => (
-                <Select
-                  id={inputId}
-                  value={draft.scope}
-                  onChange={(event) => {
-                    setDraft({ ...draft, scope: event.target.value as Draft['scope'] });
-                  }}
-                >
-                  <option value="ALL_PRODUCTS">All products</option>
-                  <option value="CATEGORIES">Chosen categories</option>
-                </Select>
-              )}
-            </Field>
-          </div>
-
-          {draft.scope === 'CATEGORIES' && (
-            <Field
-              label="Categories"
-              required
-              hint="Products in these categories, and everything beneath them, get the discount."
-            >
-              {({ inputId, describedBy }) => (
-                <select
-                  id={inputId}
-                  aria-describedby={describedBy}
-                  multiple
-                  size={Math.min(8, Math.max(3, categoryOptions.length))}
-                  value={draft.categoryIds}
-                  onChange={(event) => {
-                    setDraft({
-                      ...draft,
-                      categoryIds: [...event.target.selectedOptions].map((option) => option.value),
-                    });
-                  }}
-                  className="block w-full rounded-md border border-border-strong bg-surface px-3 py-2 text-sm text-ink"
-                >
-                  {categoryOptions.map((option) => (
-                    <option key={option.id} value={option.id}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </Field>
+        <div className="space-y-6">
+          {formError !== null && (
+            <Callout tone="danger" role="alert">
+              {formError}
+            </Callout>
           )}
 
-          <fieldset className="rounded-md border border-border p-3">
-            <legend className="px-1 text-sm font-medium text-ink">Qualifying cart value</legend>
-            <p className="mb-3 text-xs text-ink-muted">
-              Set per currency, because a threshold converted between currencies would move with the
-              exchange rate. Leave one blank and the coupon does not apply in that market at all.
-            </p>
+          <FieldGroup legend="Identity">
+            <div className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label="Code" required hint="Generated for you. Change it if you would rather.">
+                  {({ inputId, describedBy }) => (
+                    <Input
+                      id={inputId}
+                      aria-describedby={describedBy}
+                      value={draft.code}
+                      onChange={(event) => {
+                        setDraft({ ...draft, code: event.target.value.toUpperCase() });
+                      }}
+                      className="font-mono uppercase"
+                    />
+                  )}
+                </Field>
 
+                <Field label="Internal name" required hint="Shown here, never to a customer.">
+                  {({ inputId, describedBy }) => (
+                    <Input
+                      id={inputId}
+                      aria-describedby={describedBy}
+                      value={draft.name}
+                      onChange={(event) => {
+                        setDraft({ ...draft, name: event.target.value });
+                      }}
+                    />
+                  )}
+                </Field>
+              </div>
+
+              <Field
+                label="Customer-facing description"
+                hint="Appears beside the code in the storefront's coupon list."
+              >
+                {({ inputId, describedBy }) => (
+                  <Textarea
+                    id={inputId}
+                    aria-describedby={describedBy}
+                    rows={2}
+                    value={draft.description}
+                    onChange={(event) => {
+                      setDraft({ ...draft, description: event.target.value });
+                    }}
+                  />
+                )}
+              </Field>
+            </div>
+          </FieldGroup>
+
+          <FieldGroup
+            legend="What it takes off, and where"
+            hint="A draft coupon never matches, whatever else is set here."
+            className="border-t border-border-subtle pt-5"
+          >
+            <div className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-3">
+                <Field label="Discount %" required>
+                  {({ inputId }) => (
+                    <Input
+                      id={inputId}
+                      inputMode="decimal"
+                      className="tabular"
+                      value={draft.discountPercent}
+                      onChange={(event) => {
+                        setDraft({ ...draft, discountPercent: event.target.value });
+                      }}
+                    />
+                  )}
+                </Field>
+
+                <Field label="Status">
+                  {({ inputId }) => (
+                    <Select
+                      id={inputId}
+                      value={draft.status}
+                      onChange={(event) => {
+                        setDraft({ ...draft, status: event.target.value as Draft['status'] });
+                      }}
+                    >
+                      <option value="DRAFT">Draft — never matches</option>
+                      <option value="ACTIVE">Active</option>
+                      <option value="DISABLED">Disabled</option>
+                    </Select>
+                  )}
+                </Field>
+
+                <Field label="Applies to">
+                  {({ inputId }) => (
+                    <Select
+                      id={inputId}
+                      value={draft.scope}
+                      onChange={(event) => {
+                        setDraft({ ...draft, scope: event.target.value as Draft['scope'] });
+                      }}
+                    >
+                      <option value="ALL_PRODUCTS">All products</option>
+                      <option value="CATEGORIES">Chosen categories</option>
+                    </Select>
+                  )}
+                </Field>
+              </div>
+
+              {/* Only asked for once the answer above makes it a question. */}
+              {draft.scope === 'CATEGORIES' && (
+                <Field
+                  label="Categories"
+                  required
+                  hint="Products in these categories, and everything beneath them, get the discount. Hold Ctrl (or Cmd) to choose more than one."
+                >
+                  {({ inputId, describedBy }) => (
+                    <MultiSelect
+                      id={inputId}
+                      aria-describedby={describedBy}
+                      size={Math.min(8, Math.max(3, categoryOptions.length))}
+                      value={draft.categoryIds}
+                      invalid={draft.categoryIds.length === 0}
+                      onChange={(event) => {
+                        setDraft({
+                          ...draft,
+                          categoryIds: [...event.target.selectedOptions].map((option) => option.value),
+                        });
+                      }}
+                    >
+                      {categoryOptions.map((option) => (
+                        <option key={option.id} value={option.id}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </MultiSelect>
+                  )}
+                </Field>
+              )}
+            </div>
+          </FieldGroup>
+
+          <FieldGroup
+            legend="Qualifying cart value"
+            hint="Set per currency, because a threshold converted between currencies would move with the exchange rate. Leave one blank and the coupon does not apply in that market at all — at least one is required."
+            className="border-t border-border-subtle pt-5"
+          >
             <div className="grid gap-3 sm:grid-cols-2">
               {currencies.map((currency) => (
                 <label key={currency.code} className="flex items-center gap-2">
-                  <span className="w-20 shrink-0 text-xs font-medium text-ink-muted">
+                  <span className="w-24 shrink-0 text-xs font-medium text-ink-muted">
                     {currency.code}
+                    <span className="ml-1 text-ink-subtle">{currency.symbol}</span>
                   </span>
                   <Input
                     inputMode="decimal"
+                    className="tabular"
                     placeholder="Not offered"
                     value={draft.minimums[currency.code]?.amount ?? ''}
                     onChange={(event) => {
@@ -592,86 +661,84 @@ export function CouponsPage(): React.JSX.Element {
                 </label>
               ))}
             </div>
-          </fieldset>
+          </FieldGroup>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Starts" hint="Blank means immediately.">
-              {({ inputId }) => (
-                <Input
-                  id={inputId}
-                  type="date"
-                  value={draft.validFrom}
-                  onChange={(event) => {
-                    setDraft({ ...draft, validFrom: event.target.value });
-                  }}
-                />
-              )}
-            </Field>
+          <FieldGroup
+            legend="When it runs, and how often"
+            className="border-t border-border-subtle pt-5"
+          >
+            <div className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label="Starts" hint="Blank means immediately.">
+                  {({ inputId, describedBy }) => (
+                    <Input
+                      id={inputId}
+                      type="date"
+                      aria-describedby={describedBy}
+                      value={draft.validFrom}
+                      onChange={(event) => {
+                        setDraft({ ...draft, validFrom: event.target.value });
+                      }}
+                    />
+                  )}
+                </Field>
 
-            <Field label="Ends" hint="Blank means open-ended.">
-              {({ inputId }) => (
-                <Input
-                  id={inputId}
-                  type="date"
-                  value={draft.validUntil}
-                  onChange={(event) => {
-                    setDraft({ ...draft, validUntil: event.target.value });
-                  }}
-                />
-              )}
-            </Field>
-          </div>
+                <Field label="Ends" hint="Blank means open-ended.">
+                  {({ inputId, describedBy }) => (
+                    <Input
+                      id={inputId}
+                      type="date"
+                      aria-describedby={describedBy}
+                      value={draft.validUntil}
+                      onChange={(event) => {
+                        setDraft({ ...draft, validUntil: event.target.value });
+                      }}
+                    />
+                  )}
+                </Field>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Total uses" hint="Blank means unlimited.">
-              {({ inputId }) => (
-                <Input
-                  id={inputId}
-                  inputMode="numeric"
-                  value={draft.usageLimit}
-                  onChange={(event) => {
-                    setDraft({ ...draft, usageLimit: event.target.value });
-                  }}
-                />
-              )}
-            </Field>
+                <Field label="Total uses" hint="Blank means unlimited.">
+                  {({ inputId, describedBy }) => (
+                    <Input
+                      id={inputId}
+                      inputMode="numeric"
+                      className="tabular"
+                      aria-describedby={describedBy}
+                      value={draft.usageLimit}
+                      onChange={(event) => {
+                        setDraft({ ...draft, usageLimit: event.target.value });
+                      }}
+                    />
+                  )}
+                </Field>
 
-            <Field label="Uses per customer" hint="Blank means unlimited.">
-              {({ inputId }) => (
-                <Input
-                  id={inputId}
-                  inputMode="numeric"
-                  value={draft.perCustomerLimit}
-                  onChange={(event) => {
-                    setDraft({ ...draft, perCustomerLimit: event.target.value });
-                  }}
-                />
-              )}
-            </Field>
-          </div>
+                <Field label="Uses per customer" hint="Blank means unlimited.">
+                  {({ inputId, describedBy }) => (
+                    <Input
+                      id={inputId}
+                      inputMode="numeric"
+                      className="tabular"
+                      aria-describedby={describedBy}
+                      value={draft.perCustomerLimit}
+                      onChange={(event) => {
+                        setDraft({ ...draft, perCustomerLimit: event.target.value });
+                      }}
+                    />
+                  )}
+                </Field>
+              </div>
 
-          <label className="flex items-start gap-2">
-            <input
-              type="checkbox"
-              checked={draft.isPubliclyListed}
-              onChange={(event) => {
-                setDraft({ ...draft, isPubliclyListed: event.target.checked });
-              }}
-              className="mt-0.5"
-            />
-            <span className="text-sm text-ink">
-              Advertise on the cart
-              <span className="block text-xs text-ink-muted">
-                Off makes it code-only: it still works when typed, it is just not listed.
-              </span>
-            </span>
-          </label>
-
-          {formError !== null && (
-            <p role="alert" className="text-sm font-medium text-danger">
-              {formError}
-            </p>
-          )}
+              <CheckboxField
+                boxed
+                label="Advertise on the cart"
+                description="Off makes it code-only: it still works when typed, it is just not listed."
+                checked={draft.isPubliclyListed}
+                onChange={(event) => {
+                  setDraft({ ...draft, isPubliclyListed: event.target.checked });
+                }}
+              />
+            </div>
+          </FieldGroup>
         </div>
       </Modal>
 
@@ -689,6 +756,6 @@ export function CouponsPage(): React.JSX.Element {
         isDangerous
         isWorking={archive.isPending}
       />
-    </div>
+    </>
   );
 }

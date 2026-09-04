@@ -18,10 +18,22 @@ import { DataTable, Pager } from '@/components/DataTable';
 import type { Column } from '@/components/DataTable';
 import { Modal } from '@/components/Modal';
 import { useToast } from '@/components/toast-context';
-import { Badge, Button, Card, Field, PageHeader, Select, Textarea } from '@/components/ui';
+import {
+  Badge,
+  Button,
+  Callout,
+  Card,
+  Field,
+  PageHeader,
+  Select,
+  Textarea,
+  Toolbar,
+  ToolbarActions,
+  ToolbarField,
+} from '@/components/ui';
 import type { BadgeTone } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
-import { formatDateTime, formatNumber, humanise } from '@/lib/format';
+import { formatDateTime, formatNumber, formatRelative, humanise } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
 import type { Pagination } from '@/lib/types';
 
@@ -50,8 +62,13 @@ interface ScheduleRow {
   customer: { id: string; fullName: string | null; organization: string | null } | null;
 }
 
+/**
+ * An active schedule is `operational`, not `success`: it is not reporting that
+ * something went well, it is reporting that a standing arrangement is in
+ * force. That keeps green for "finished, and it worked".
+ */
 function scheduleTone(status: string): BadgeTone {
-  if (status === 'ACTIVE') return 'success';
+  if (status === 'ACTIVE') return 'operational';
   if (status === 'PAUSED') return 'warning';
   if (status === 'CANCELLED' || status === 'FAILED') return 'danger';
   if (status === 'COMPLETED') return 'neutral';
@@ -117,7 +134,7 @@ function ActionDialog({
     pause: 'It stops producing orders and keeps its place. Resume puts it back on schedule.',
     resume: 'It starts producing orders again from its next scheduled run.',
     cancel:
-      'This is final. Orders it has already produced are unaffected, but the schedule cannot be restarted — the customer would have to create a new one.',
+      'Orders it has already produced are unaffected, but the schedule cannot be restarted — the customer would have to create a new one.',
   };
 
   return (
@@ -131,7 +148,7 @@ function ActionDialog({
             Keep as is
           </Button>
           <Button
-            variant={action === 'cancel' ? 'danger' : 'primary'}
+            variant={action === 'cancel' ? 'danger' : action === 'resume' ? 'operational' : 'primary'}
             disabled={action === 'cancel' && reason.trim() === ''}
             isLoading={mutation.isPending}
             onClick={() => {
@@ -144,15 +161,21 @@ function ActionDialog({
       }
     >
       <div className="space-y-4 text-sm">
-        <p className="text-ink-muted">{bodies[action]}</p>
+        {/* Cancelling is the only one of the three that cannot be undone, so it
+            is the only one that gets a coloured warning. Wrapping all three in
+            red would make the colour mean nothing. */}
+        {action === 'cancel' ? (
+          <Callout tone="danger" title="This is final.">
+            {bodies.cancel}
+          </Callout>
+        ) : (
+          <p className="text-ink-muted">{bodies[action]}</p>
+        )}
 
         {error !== null && (
-          <p
-            role="alert"
-            className="rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-danger"
-          >
+          <Callout tone="danger" role="alert">
             {error}
-          </p>
+          </Callout>
         )}
 
         {action !== 'resume' && (
@@ -210,7 +233,7 @@ export function RecurringPage(): React.JSX.Element {
       key: 'schedule',
       header: 'Schedule',
       render: (row) => (
-        <div>
+        <div className="min-w-48">
           <p className="font-medium text-ink">{row.name}</p>
           {/* The server's own description of the recurrence - not rebuilt here. */}
           <p className="text-xxs text-ink-subtle">{row.summary}</p>
@@ -222,9 +245,9 @@ export function RecurringPage(): React.JSX.Element {
       header: 'Customer',
       render: (row) =>
         row.customer === null ? (
-          '—'
+          <span className="text-ink-subtle">—</span>
         ) : (
-          <div>
+          <div className="min-w-36">
             <Link
               to={`/customers/${row.customer.id}`}
               className="text-ink hover:text-accent hover:underline"
@@ -232,7 +255,7 @@ export function RecurringPage(): React.JSX.Element {
               {row.customer.fullName ?? 'Customer'}
             </Link>
             {row.customer.organization !== null && (
-              <p className="text-xxs text-ink-subtle">{row.customer.organization}</p>
+              <p className="truncate text-xxs text-ink-subtle">{row.customer.organization}</p>
             )}
           </div>
         ),
@@ -241,15 +264,17 @@ export function RecurringPage(): React.JSX.Element {
       key: 'status',
       header: 'Status',
       render: (row) => (
-        <div>
-          <Badge tone={scheduleTone(row.status)}>{humanise(row.status)}</Badge>
+        <div className="min-w-32">
+          <Badge dot tone={scheduleTone(row.status)}>
+            {humanise(row.status)}
+          </Badge>
           {row.failureCount > 0 && (
-            <p className="mt-0.5 text-xxs text-warning">
+            <p className="mt-1 text-xxs font-medium text-warning">
               {formatNumber(row.failureCount)} of {formatNumber(row.maxFailures)} failures
             </p>
           )}
           {row.pausedReason !== null && (
-            <p className="mt-0.5 text-xxs text-ink-subtle">{row.pausedReason}</p>
+            <p className="mt-1 text-xxs leading-relaxed text-ink-subtle">{row.pausedReason}</p>
           )}
         </div>
       ),
@@ -257,15 +282,18 @@ export function RecurringPage(): React.JSX.Element {
     {
       key: 'next',
       header: 'Next run',
+      nowrap: true,
       render: (row) =>
         row.nextRunAt === null ? (
           <span className="text-ink-subtle">Not scheduled</span>
         ) : (
           <div>
-            <p className="whitespace-nowrap text-ink">{formatDateTime(row.nextRunAt)}</p>
+            <p className="text-ink">{formatRelative(row.nextRunAt)}</p>
             {/* The schedule runs on the customer's wall clock, so the zone
                 matters when the reader is somewhere else. */}
-            <p className="text-xxs text-ink-subtle">{row.timezone}</p>
+            <p className="text-xxs text-ink-subtle">
+              {formatDateTime(row.nextRunAt)} · {row.timezone}
+            </p>
           </div>
         ),
     },
@@ -277,7 +305,7 @@ export function RecurringPage(): React.JSX.Element {
         <div>
           <Badge>{humanise(row.paymentMode)}</Badge>
           {row.paymentMode === 'MANDATE' && !row.hasMandate && (
-            <p className="mt-0.5 text-xxs text-danger">No mandate on file</p>
+            <p className="mt-1 text-xxs font-medium text-danger">No mandate on file</p>
           )}
         </div>
       ),
@@ -287,6 +315,7 @@ export function RecurringPage(): React.JSX.Element {
       header: 'Runs',
       align: 'right',
       secondary: true,
+      tertiary: true,
       render: (row) =>
         row.maxOccurrences === null
           ? formatNumber(row.occurrenceCount)
@@ -308,6 +337,7 @@ export function RecurringPage(): React.JSX.Element {
                 }}
               >
                 Pause
+                <span className="sr-only"> {row.name}</span>
               </Button>
             )}
             {row.status === 'PAUSED' && (
@@ -319,6 +349,7 @@ export function RecurringPage(): React.JSX.Element {
                 }}
               >
                 Resume
+                <span className="sr-only"> {row.name}</span>
               </Button>
             )}
             {row.status !== 'CANCELLED' && (
@@ -330,6 +361,7 @@ export function RecurringPage(): React.JSX.Element {
                 }}
               >
                 Cancel
+                <span className="sr-only"> {row.name}</span>
               </Button>
             )}
           </div>
@@ -341,15 +373,12 @@ export function RecurringPage(): React.JSX.Element {
     <>
       <PageHeader
         title="Recurring orders"
-        description="Schedules that place orders on their own. Times are the customer's local wall clock."
+        description="Schedules that place orders on their own. Times are the customer's local wall clock, not yours."
       />
 
       <Card>
-        <div className="flex flex-wrap items-end gap-3 border-b border-border px-4 py-3">
-          <label>
-            <span className="mb-1 block text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-              Status
-            </span>
+        <Toolbar>
+          <ToolbarField label="Status">
             <Select
               value={status}
               onChange={(event) => {
@@ -370,8 +399,20 @@ export function RecurringPage(): React.JSX.Element {
                 </option>
               ))}
             </Select>
-          </label>
-        </div>
+          </ToolbarField>
+
+          {status !== '' && (
+            <ToolbarActions>
+              <Button
+                onClick={() => {
+                  setSearchParams({});
+                }}
+              >
+                Clear filter
+              </Button>
+            </ToolbarActions>
+          )}
+        </Toolbar>
 
         <DataTable
           caption="Recurring schedules"
@@ -379,12 +420,31 @@ export function RecurringPage(): React.JSX.Element {
           rows={query.data?.schedules}
           rowKey={(row) => row.id}
           isLoading={query.isPending}
+          isRefreshing={query.isFetching && !query.isPending}
           error={query.isError ? query.error : undefined}
+          loadingLabel="Loading schedules"
+          minWidth="66rem"
+          // A schedule the worker has given up on is the one that needs a
+          // person. It says FAILED in words as well.
+          rowClassName={(row) =>
+            row.status === 'FAILED' ? 'bg-danger-soft/60 hover:bg-danger-soft' : undefined
+          }
           onRetry={() => {
             void query.refetch();
           }}
-          emptyTitle="No recurring schedules"
+          emptyTitle={status === '' ? 'No recurring schedules' : 'Nothing with this status'}
           emptyDescription="Customers create these from their account. Staff can pause, resume or cancel them here."
+          emptyAction={
+            status === '' ? undefined : (
+              <Button
+                onClick={() => {
+                  setSearchParams({});
+                }}
+              >
+                Clear filter
+              </Button>
+            )
+          }
         />
 
         {query.data !== undefined && (

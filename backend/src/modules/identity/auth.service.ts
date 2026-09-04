@@ -39,6 +39,11 @@ export interface AuthenticatedUser {
   permissions: PermissionKey[];
   customerProfileId: string | null;
   mfaEnabled: boolean;
+  /**
+   * Signed in on a system-issued temporary password. The session is real, but
+   * `requireAdmin` refuses every route until a password of their own is set.
+   */
+  mustChangePassword: boolean;
 }
 
 export interface LoginResult {
@@ -133,6 +138,22 @@ export async function login(input: LoginInput): Promise<LoginResult> {
     throw unauthorized(ErrorCode.INVALID_CREDENTIALS, 'Email or password is incorrect.');
   }
 
+  // Checked AFTER the password, on purpose. Disclosing "that temporary password
+  // has expired" to somebody who does not know it would confirm the account
+  // exists and that it has never been used - two things worth knowing to an
+  // attacker and to nobody else.
+  if (
+    user.mustChangePassword &&
+    user.temporaryPasswordExpiresAt !== null &&
+    user.temporaryPasswordExpiresAt.getTime() <= Date.now()
+  ) {
+    await recordFailedAttempt(emailNormalized, input, 'temporary_password_expired');
+    throw unauthorized(
+      ErrorCode.TEMPORARY_PASSWORD_EXPIRED,
+      'This temporary password has expired. Ask whoever set the account up to issue a new one.',
+    );
+  }
+
   // Transparent upgrade when the cost policy has been raised since sign-up.
   if (needsRehash(user.passwordHash)) {
     await prisma.user.update({
@@ -186,6 +207,7 @@ export async function login(input: LoginInput): Promise<LoginResult> {
       permissions: [...permissionsForRoles(roleKeys)],
       customerProfileId: user.customerProfile?.id ?? null,
       mfaEnabled: user.mfaEnabledAt !== null,
+      mustChangePassword: user.mustChangePassword,
     },
     session,
   };
@@ -269,6 +291,7 @@ export async function loadAuthenticatedUser(
     permissions: [...permissionsForRoles(roleKeys)],
     customerProfileId: user.customerProfile?.id ?? null,
     mfaEnabled: user.mfaEnabledAt !== null,
+    mustChangePassword: user.mustChangePassword,
   };
 }
 
@@ -289,7 +312,7 @@ export interface ChangePasswordInput {
 export async function changePassword(input: ChangePasswordInput): Promise<void> {
   const user = await prisma.user.findUnique({
     where: { id: input.userId },
-    select: { id: true, email: true, type: true, passwordHash: true },
+    select: { id: true, email: true, type: true, passwordHash: true, mustChangePassword: true },
   });
 
   if (user === null || user.passwordHash === null) {
@@ -310,7 +333,13 @@ export async function changePassword(input: ChangePasswordInput): Promise<void> 
 
   await prisma.user.update({
     where: { id: user.id },
-    data: { passwordHash: await hashPassword(input.newPassword) },
+    data: {
+      passwordHash: await hashPassword(input.newPassword),
+      // Whatever this account was before, it now has a password of its own.
+      // Clearing both is what lifts the block in `requireAdmin`.
+      mustChangePassword: false,
+      temporaryPasswordExpiresAt: null,
+    },
   });
 
   const revoked = await revokeAllUserSessions(user.id, 'password_changed');
@@ -322,7 +351,7 @@ export async function changePassword(input: ChangePasswordInput): Promise<void> 
     actorType: user.type,
     actorUserId: user.id,
     actorEmail: user.email,
-    after: { sessionsRevoked: revoked },
+    after: { sessionsRevoked: revoked, wasTemporaryPassword: user.mustChangePassword },
     ipAddress: input.ipAddress ?? null,
     correlationId: input.correlationId ?? null,
   });

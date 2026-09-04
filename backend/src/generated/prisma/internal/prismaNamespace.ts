@@ -458,7 +458,9 @@ export const ModelName = {
   CouponCategory: 'CouponCategory',
   CouponMinimum: 'CouponMinimum',
   CouponRedemption: 'CouponRedemption',
-  CustomerLimit: 'CustomerLimit'
+  CustomerLimit: 'CustomerLimit',
+  AssistantConversation: 'AssistantConversation',
+  AssistantMessage: 'AssistantMessage'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -474,7 +476,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productMedia" | "productAttribute" | "inventoryLocation" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productMedia" | "productAttribute" | "inventoryLocation" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -4570,6 +4572,138 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    AssistantConversation: {
+      payload: Prisma.$AssistantConversationPayload<ExtArgs>
+      fields: Prisma.AssistantConversationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AssistantConversationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssistantConversationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AssistantConversationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssistantConversationPayload>
+        }
+        findFirst: {
+          args: Prisma.AssistantConversationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssistantConversationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AssistantConversationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssistantConversationPayload>
+        }
+        findMany: {
+          args: Prisma.AssistantConversationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssistantConversationPayload>[]
+        }
+        create: {
+          args: Prisma.AssistantConversationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssistantConversationPayload>
+        }
+        createMany: {
+          args: Prisma.AssistantConversationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.AssistantConversationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssistantConversationPayload>
+        }
+        update: {
+          args: Prisma.AssistantConversationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssistantConversationPayload>
+        }
+        deleteMany: {
+          args: Prisma.AssistantConversationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AssistantConversationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.AssistantConversationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssistantConversationPayload>
+        }
+        aggregate: {
+          args: Prisma.AssistantConversationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAssistantConversation>
+        }
+        groupBy: {
+          args: Prisma.AssistantConversationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AssistantConversationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AssistantConversationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AssistantConversationCountAggregateOutputType> | number
+        }
+      }
+    }
+    AssistantMessage: {
+      payload: Prisma.$AssistantMessagePayload<ExtArgs>
+      fields: Prisma.AssistantMessageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AssistantMessageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssistantMessagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AssistantMessageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssistantMessagePayload>
+        }
+        findFirst: {
+          args: Prisma.AssistantMessageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssistantMessagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AssistantMessageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssistantMessagePayload>
+        }
+        findMany: {
+          args: Prisma.AssistantMessageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssistantMessagePayload>[]
+        }
+        create: {
+          args: Prisma.AssistantMessageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssistantMessagePayload>
+        }
+        createMany: {
+          args: Prisma.AssistantMessageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.AssistantMessageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssistantMessagePayload>
+        }
+        update: {
+          args: Prisma.AssistantMessageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssistantMessagePayload>
+        }
+        deleteMany: {
+          args: Prisma.AssistantMessageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AssistantMessageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.AssistantMessageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssistantMessagePayload>
+        }
+        aggregate: {
+          args: Prisma.AssistantMessageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAssistantMessage>
+        }
+        groupBy: {
+          args: Prisma.AssistantMessageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AssistantMessageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AssistantMessageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AssistantMessageCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -4619,6 +4753,8 @@ export const UserScalarFieldEnum = {
   status: 'status',
   emailVerifiedAt: 'emailVerifiedAt',
   phoneVerifiedAt: 'phoneVerifiedAt',
+  mustChangePassword: 'mustChangePassword',
+  temporaryPasswordExpiresAt: 'temporaryPasswordExpiresAt',
   mfaSecretEnc: 'mfaSecretEnc',
   mfaEnabledAt: 'mfaEnabledAt',
   lastLoginAt: 'lastLoginAt',
@@ -5746,6 +5882,36 @@ export const CustomerLimitScalarFieldEnum = {
 export type CustomerLimitScalarFieldEnum = (typeof CustomerLimitScalarFieldEnum)[keyof typeof CustomerLimitScalarFieldEnum]
 
 
+export const AssistantConversationScalarFieldEnum = {
+  id: 'id',
+  visitorName: 'visitorName',
+  visitorPhone: 'visitorPhone',
+  visitorEmail: 'visitorEmail',
+  visitorEmailNormalized: 'visitorEmailNormalized',
+  sessionTokenHash: 'sessionTokenHash',
+  customerProfileId: 'customerProfileId',
+  messageCount: 'messageCount',
+  lastMessageAt: 'lastMessageAt',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssistantConversationScalarFieldEnum = (typeof AssistantConversationScalarFieldEnum)[keyof typeof AssistantConversationScalarFieldEnum]
+
+
+export const AssistantMessageScalarFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  role: 'role',
+  content: 'content',
+  createdAt: 'createdAt'
+} as const
+
+export type AssistantMessageScalarFieldEnum = (typeof AssistantMessageScalarFieldEnum)[keyof typeof AssistantMessageScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -6557,6 +6723,30 @@ export const CustomerLimitOrderByRelevanceFieldEnum = {
 export type CustomerLimitOrderByRelevanceFieldEnum = (typeof CustomerLimitOrderByRelevanceFieldEnum)[keyof typeof CustomerLimitOrderByRelevanceFieldEnum]
 
 
+export const AssistantConversationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  visitorName: 'visitorName',
+  visitorPhone: 'visitorPhone',
+  visitorEmail: 'visitorEmail',
+  visitorEmailNormalized: 'visitorEmailNormalized',
+  sessionTokenHash: 'sessionTokenHash',
+  customerProfileId: 'customerProfileId',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent'
+} as const
+
+export type AssistantConversationOrderByRelevanceFieldEnum = (typeof AssistantConversationOrderByRelevanceFieldEnum)[keyof typeof AssistantConversationOrderByRelevanceFieldEnum]
+
+
+export const AssistantMessageOrderByRelevanceFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  content: 'content'
+} as const
+
+export type AssistantMessageOrderByRelevanceFieldEnum = (typeof AssistantMessageOrderByRelevanceFieldEnum)[keyof typeof AssistantMessageOrderByRelevanceFieldEnum]
+
+
 
 /**
  * Field references
@@ -6592,16 +6782,16 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
 
 
 /**
- * Reference to a field of type 'Int'
+ * Reference to a field of type 'Boolean'
  */
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
 /**
- * Reference to a field of type 'Boolean'
+ * Reference to a field of type 'Int'
  */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
     
 
 
@@ -6858,6 +7048,13 @@ export type EnumCouponStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
 
 
 /**
+ * Reference to a field of type 'AssistantMessageRole'
+ */
+export type EnumAssistantMessageRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssistantMessageRole'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -7076,6 +7273,8 @@ export type GlobalOmitConfig = {
   couponMinimum?: Prisma.CouponMinimumOmit
   couponRedemption?: Prisma.CouponRedemptionOmit
   customerLimit?: Prisma.CustomerLimitOmit
+  assistantConversation?: Prisma.AssistantConversationOmit
+  assistantMessage?: Prisma.AssistantMessageOmit
 }
 
 /* Types for Logging */

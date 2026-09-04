@@ -366,3 +366,13 @@ export type CouponRedemption = Prisma.CouponRedemptionModel
  *  * sign-off is a policy about the account, not an amount.
  */
 export type CustomerLimit = Prisma.CustomerLimitModel
+/**
+ * Model AssistantConversation
+ * 
+ */
+export type AssistantConversation = Prisma.AssistantConversationModel
+/**
+ * Model AssistantMessage
+ * 
+ */
+export type AssistantMessage = Prisma.AssistantMessageModel

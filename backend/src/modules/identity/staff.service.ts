@@ -20,13 +20,14 @@ import {
   roleDefinition,
   type PermissionKey,
 } from '../../domain/permissions.js';
-import { hashPassword } from '../../infra/crypto.js';
+import { env } from '../../config/env.js';
+import { generateTemporaryPassword, hashPassword } from '../../infra/crypto.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { normaliseEmail } from './auth.service.js';
 import { revokeAllUserSessions } from './session.service.js';
-import { buildTokenUrl, issueToken } from './token.service.js';
+
 import {
   NotificationEvent,
   dispatchPendingNotifications,
@@ -64,6 +65,14 @@ export async function listStaff(): Promise<Record<string, unknown>[]> {
       // Resolved so the UI can show effective access, not just role names.
       permissions: [...permissionsForRoles(roleKeys)],
       mfaEnabled: user.mfaEnabledAt !== null,
+      // Still on the emailed temporary password, so the panel can show the
+      // account as pending and offer to send a new one.
+      mustChangePassword: user.mustChangePassword,
+      /// Never signed in and has no password of its own - either still holding
+      /// a temporary one or invited under the old link flow. Drives the
+      /// "Resend password" action, which the API gates on the same rule.
+      owesAPassword: owesAPassword(user),
+      temporaryPasswordExpiresAt: user.temporaryPasswordExpiresAt?.toISOString() ?? null,
       lastLoginAt: user.lastLoginAt?.toISOString() ?? null,
       lockedUntil: user.lockedUntil?.toISOString() ?? null,
       archivedAt: user.archivedAt?.toISOString() ?? null,
@@ -99,18 +108,21 @@ export async function assignableRoles(
 export interface CreateStaffInput {
   email: string;
   roleKeys: string[];
-  /**
-   * Optional. Omitted, the account is created pending and an invitation is
-   * emailed - the same path customers use, so no administrator ever types
-   * another person's password.
-   */
-  temporaryPassword?: string | null;
 }
+
+/**
+ * How long an emailed temporary password stays usable.
+ *
+ * Shorter than the invitation link it replaces (7 days), because a password is
+ * a standing credential sitting in an inbox rather than a single-use link. Long
+ * enough that somebody added on a Friday can still get in on Monday.
+ */
+const TEMPORARY_PASSWORD_TTL_HOURS = 72;
 
 export async function createStaff(
   input: CreateStaffInput,
   actor: StaffActor,
-): Promise<{ userId: string; invitationSent: boolean }> {
+): Promise<{ userId: string; temporaryPasswordExpiresAt: Date }> {
   const emailNormalized = normaliseEmail(input.email);
 
   const existing = await prisma.user.findUnique({
@@ -160,7 +172,16 @@ export async function createStaff(
   }
 
   const userId = newId();
-  const sendInvitation = input.temporaryPassword === null || input.temporaryPassword === undefined;
+
+  // Generated here, never accepted from the administrator creating the account.
+  // The rule the invitation link used to enforce still holds: nobody chooses
+  // another person's password. The difference is only that this one is usable
+  // once, immediately, instead of being a link.
+  const temporaryPassword = generateTemporaryPassword();
+  const passwordHash = await hashPassword(temporaryPassword);
+  const temporaryPasswordExpiresAt = new Date(
+    Date.now() + TEMPORARY_PASSWORD_TTL_HOURS * 3_600_000,
+  );
 
   await prisma.$transaction(async (tx) => {
     await tx.user.create({
@@ -169,38 +190,40 @@ export async function createStaff(
         type: 'ADMIN',
         email: input.email.trim(),
         emailNormalized,
-        passwordHash:
-          input.temporaryPassword === null || input.temporaryPassword === undefined
-            ? null
-            : await hashPassword(input.temporaryPassword),
-        status: sendInvitation ? 'PENDING_INVITATION' : 'ACTIVE',
-        emailVerifiedAt: sendInvitation ? null : new Date(),
+        passwordHash,
+        // ACTIVE, because the temporary password has to actually sign in. What
+        // stops it being a usable account is `mustChangePassword`, which every
+        // admin route refuses until a real password is set.
+        status: 'ACTIVE',
+        emailVerifiedAt: new Date(),
+        mustChangePassword: true,
+        temporaryPasswordExpiresAt,
         roles: {
           create: roles.map((role) => ({ roleId: role.id, assignedById: actor.userId })),
         },
       },
     });
 
-    if (sendInvitation) {
-      const invitation = await issueToken(userId, 'INVITATION', actor.userId, tx);
-
-      await enqueueNotification(
-        {
-          eventKey: NotificationEvent.CUSTOMER_INVITATION,
-          recipientEmail: input.email.trim(),
-          variables: {
-            // Staff activate on the ADMIN origin, not the storefront.
-            activationUrl: buildTokenUrl('INVITATION', invitation.token, 'ADMIN'),
-            expiresAt: invitation.expiresAt.toISOString(),
-          },
-          dedupeKey: `staff_invitation:${userId}:${invitation.expiresAt.getTime()}`,
-          relatedType: 'user',
-          relatedId: userId,
-          correlationId: actor.correlationId ?? null,
+    // Inside the transaction, so a rolled-back account cannot leave a live
+    // password sitting in somebody's inbox.
+    await enqueueNotification(
+      {
+        eventKey: NotificationEvent.STAFF_TEMPORARY_PASSWORD,
+        recipientEmail: input.email.trim(),
+        variables: {
+          email: input.email.trim(),
+          temporaryPassword,
+          // Staff sign in on the ADMIN origin, not the storefront.
+          signInUrl: `${env.ADMIN_WEB_PUBLIC_URL.replace(/\/$/, '')}/login`,
+          expiresAt: temporaryPasswordExpiresAt.toISOString(),
         },
-        tx,
-      );
-    }
+        dedupeKey: `staff_temp_password:${userId}:${String(temporaryPasswordExpiresAt.getTime())}`,
+        relatedType: 'user',
+        relatedId: userId,
+        correlationId: actor.correlationId ?? null,
+      },
+      tx,
+    );
 
     await recordAudit(
       {
@@ -210,7 +233,14 @@ export async function createStaff(
         actorType: 'ADMIN',
         actorUserId: actor.userId,
         actorEmail: actor.email,
-        after: { email: input.email, roles: input.roleKeys, invitationSent: sendInvitation },
+        // The password itself is deliberately absent. An audit row an operator
+        // can read is not a place to put a live credential.
+        after: {
+          email: input.email,
+          roles: input.roleKeys,
+          temporaryPasswordSent: true,
+          temporaryPasswordExpiresAt: temporaryPasswordExpiresAt.toISOString(),
+        },
         ipAddress: actor.ipAddress ?? null,
         correlationId: actor.correlationId ?? null,
       },
@@ -218,9 +248,141 @@ export async function createStaff(
     );
   });
 
-  if (sendInvitation) await dispatchPendingNotifications();
+  await dispatchPendingNotifications();
 
-  return { userId, invitationSent: sendInvitation };
+  // The password is not returned. It exists in exactly two places: the hash in
+  // the database and the one email that was just queued.
+  return { userId, temporaryPasswordExpiresAt };
+}
+
+/**
+ * Whether a staff account may be handed a temporary password.
+ *
+ * The question is only ever "does this person already have a password of their
+ * own?" - and two quite different rows answer no. One is an account still
+ * holding the temporary password we emailed. The other is an account created
+ * before this flow existed, invited by link and never activated, which has no
+ * password at all. Both have never been signed into, and issuing a credential
+ * to either takes nothing away from anybody.
+ *
+ * An account that HAS its own password is refused, whatever its status: from
+ * that point the way back in is the reset its holder starts themselves, not a
+ * credential a colleague can mint.
+ */
+function owesAPassword(user: { passwordHash: string | null; mustChangePassword: boolean }): boolean {
+  return user.passwordHash === null || user.mustChangePassword;
+}
+
+/**
+ * Issue a fresh temporary password for a staff account that never signed in.
+ *
+ * The email went to spam, the 72 hours lapsed, or the account predates this
+ * flow entirely and is still waiting on an invitation link that nobody clicked.
+ */
+export async function reissueTemporaryPassword(
+  targetUserId: string,
+  actor: StaffActor,
+): Promise<{ temporaryPasswordExpiresAt: Date }> {
+  const target = await prisma.user.findUnique({
+    where: { id: targetUserId },
+    include: { roles: { include: { role: true } } },
+  });
+
+  if (target === null || target.type !== 'ADMIN') throw notFound('Staff account');
+
+  if (!owesAPassword(target)) {
+    throw conflict(
+      ErrorCode.CONFLICT,
+      'This account already has a password of its own. Ask the holder to use "Forgot your password" instead.',
+      [{ field: 'userId', code: 'PASSWORD_ALREADY_SET' }],
+    );
+  }
+
+  // Same authority check as re-roling them: handing a new credential to an
+  // account more privileged than yours is the same escalation.
+  const held = new Set(actor.permissions);
+  for (const assignment of target.roles) {
+    if (!canGrantRole(held, assignment.role.key)) {
+      throw forbidden(
+        ErrorCode.PERMISSION_DENIED,
+        'You cannot issue a password for an account whose roles include permissions you do not hold.',
+      );
+    }
+  }
+
+  const temporaryPassword = generateTemporaryPassword();
+  const passwordHash = await hashPassword(temporaryPassword);
+  const temporaryPasswordExpiresAt = new Date(
+    Date.now() + TEMPORARY_PASSWORD_TTL_HOURS * 3_600_000,
+  );
+
+  await prisma.$transaction(async (tx) => {
+    await tx.user.update({
+      where: { id: targetUserId },
+      data: {
+        passwordHash,
+        // An account invited under the old link flow is still
+        // PENDING_INVITATION and would be refused at sign-in. Handing it a
+        // password is what activates it; the block that keeps it harmless
+        // until a real password is set is mustChangePassword, not the status.
+        status: 'ACTIVE',
+        emailVerifiedAt: target.emailVerifiedAt ?? new Date(),
+        mustChangePassword: true,
+        temporaryPasswordExpiresAt,
+        failedLoginCount: 0,
+        lockedUntil: null,
+      },
+    });
+
+    // Any invitation link still outstanding for this account is now a second
+    // way in to the same account. One credential at a time.
+    await tx.authToken.updateMany({
+      where: { userId: targetUserId, type: 'INVITATION', consumedAt: null },
+      data: { consumedAt: new Date() },
+    });
+
+    await enqueueNotification(
+      {
+        eventKey: NotificationEvent.STAFF_TEMPORARY_PASSWORD,
+        recipientEmail: target.email,
+        variables: {
+          email: target.email,
+          temporaryPassword,
+          signInUrl: `${env.ADMIN_WEB_PUBLIC_URL.replace(/\/$/, '')}/login`,
+          expiresAt: temporaryPasswordExpiresAt.toISOString(),
+        },
+        dedupeKey: `staff_temp_password:${targetUserId}:${String(temporaryPasswordExpiresAt.getTime())}`,
+        relatedType: 'user',
+        relatedId: targetUserId,
+        correlationId: actor.correlationId ?? null,
+      },
+      tx,
+    );
+
+    await recordAudit(
+      {
+        action: AuditAction.USER_PASSWORD_CHANGED,
+        resourceType: 'user',
+        resourceId: targetUserId,
+        actorType: 'ADMIN',
+        actorUserId: actor.userId,
+        actorEmail: actor.email,
+        after: {
+          via: 'temporary_password_reissued',
+          temporaryPasswordExpiresAt: temporaryPasswordExpiresAt.toISOString(),
+        },
+        ipAddress: actor.ipAddress ?? null,
+        correlationId: actor.correlationId ?? null,
+      },
+      tx,
+    );
+  });
+
+  // The old temporary password is gone; any session opened with it must go too.
+  await revokeAllUserSessions(targetUserId, 'temporary_password_reissued');
+  await dispatchPendingNotifications();
+
+  return { temporaryPasswordExpiresAt };
 }
 
 /**

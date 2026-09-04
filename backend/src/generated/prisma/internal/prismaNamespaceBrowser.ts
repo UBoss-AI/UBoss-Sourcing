@@ -112,7 +112,9 @@ export const ModelName = {
   CouponCategory: 'CouponCategory',
   CouponMinimum: 'CouponMinimum',
   CouponRedemption: 'CouponRedemption',
-  CustomerLimit: 'CustomerLimit'
+  CustomerLimit: 'CustomerLimit',
+  AssistantConversation: 'AssistantConversation',
+  AssistantMessage: 'AssistantMessage'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -141,6 +143,8 @@ export const UserScalarFieldEnum = {
   status: 'status',
   emailVerifiedAt: 'emailVerifiedAt',
   phoneVerifiedAt: 'phoneVerifiedAt',
+  mustChangePassword: 'mustChangePassword',
+  temporaryPasswordExpiresAt: 'temporaryPasswordExpiresAt',
   mfaSecretEnc: 'mfaSecretEnc',
   mfaEnabledAt: 'mfaEnabledAt',
   lastLoginAt: 'lastLoginAt',
@@ -1268,6 +1272,36 @@ export const CustomerLimitScalarFieldEnum = {
 export type CustomerLimitScalarFieldEnum = (typeof CustomerLimitScalarFieldEnum)[keyof typeof CustomerLimitScalarFieldEnum]
 
 
+export const AssistantConversationScalarFieldEnum = {
+  id: 'id',
+  visitorName: 'visitorName',
+  visitorPhone: 'visitorPhone',
+  visitorEmail: 'visitorEmail',
+  visitorEmailNormalized: 'visitorEmailNormalized',
+  sessionTokenHash: 'sessionTokenHash',
+  customerProfileId: 'customerProfileId',
+  messageCount: 'messageCount',
+  lastMessageAt: 'lastMessageAt',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AssistantConversationScalarFieldEnum = (typeof AssistantConversationScalarFieldEnum)[keyof typeof AssistantConversationScalarFieldEnum]
+
+
+export const AssistantMessageScalarFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  role: 'role',
+  content: 'content',
+  createdAt: 'createdAt'
+} as const
+
+export type AssistantMessageScalarFieldEnum = (typeof AssistantMessageScalarFieldEnum)[keyof typeof AssistantMessageScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -2077,4 +2111,28 @@ export const CustomerLimitOrderByRelevanceFieldEnum = {
 } as const
 
 export type CustomerLimitOrderByRelevanceFieldEnum = (typeof CustomerLimitOrderByRelevanceFieldEnum)[keyof typeof CustomerLimitOrderByRelevanceFieldEnum]
+
+
+export const AssistantConversationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  visitorName: 'visitorName',
+  visitorPhone: 'visitorPhone',
+  visitorEmail: 'visitorEmail',
+  visitorEmailNormalized: 'visitorEmailNormalized',
+  sessionTokenHash: 'sessionTokenHash',
+  customerProfileId: 'customerProfileId',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent'
+} as const
+
+export type AssistantConversationOrderByRelevanceFieldEnum = (typeof AssistantConversationOrderByRelevanceFieldEnum)[keyof typeof AssistantConversationOrderByRelevanceFieldEnum]
+
+
+export const AssistantMessageOrderByRelevanceFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  content: 'content'
+} as const
+
+export type AssistantMessageOrderByRelevanceFieldEnum = (typeof AssistantMessageOrderByRelevanceFieldEnum)[keyof typeof AssistantMessageOrderByRelevanceFieldEnum]
 

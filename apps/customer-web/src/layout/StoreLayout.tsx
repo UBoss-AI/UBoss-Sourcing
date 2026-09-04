@@ -13,12 +13,20 @@
  *     never reloads and a screen reader would otherwise never learn the page
  *     changed.
  */
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { ServiceBanner } from '@/app/ServiceBanner';
+import { useStorefront } from '@/app/storefront-context';
 import { CountryPicker } from '@/components/CountryPicker';
 import { Footer } from './Footer';
 import { Header } from './Header';
+
+/*
+ * Split out of the main bundle. The widget is chrome, not content: the
+ * catalogue must render before a chat button costs anybody a byte, and a
+ * deployment with no AI key never loads this chunk at all.
+ */
+const ChatWidget = lazy(async () => import('@/components/ChatWidget'));
 
 /** True while the browser reports no connectivity. */
 function useOnlineStatus(): boolean {
@@ -62,6 +70,7 @@ export function StoreLayout(): React.JSX.Element {
   const isOnline = useOnlineStatus();
   const location = useLocation();
   const mainRef = useRef<HTMLElement>(null);
+  const { features } = useStorefront();
 
   // A single-page app does not reload, so focus stays where it was and a
   // screen reader never learns the page changed. Moving focus to the main
@@ -98,6 +107,16 @@ export function StoreLayout(): React.JSX.Element {
       </main>
 
       <Footer />
+
+      {/* After the footer in the DOM so it comes last in the tab order — a
+          floating button is the least important thing on the page and must not
+          sit between the content and the footer links. `position: fixed` puts
+          it bottom-right regardless. */}
+      {features.assistant && (
+        <Suspense fallback={null}>
+          <ChatWidget />
+        </Suspense>
+      )}
     </div>
   );
 }

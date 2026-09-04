@@ -10,7 +10,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { useSession } from '@/auth/session-context';
 import { Button, Field, Input, Spinner } from '@/components/ui';
@@ -146,6 +146,12 @@ export function LoginPage(): React.JSX.Element {
           <Button type="submit" variant="primary" className="w-full" isLoading={isSubmitting}>
             Sign in
           </Button>
+
+          <p className="text-center text-sm">
+            <Link to="/forgot-password" className="font-medium text-accent hover:underline">
+              Forgot your password?
+            </Link>
+          </p>
         </form>
       </div>
     </div>

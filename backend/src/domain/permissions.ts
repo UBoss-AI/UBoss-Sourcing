@@ -58,6 +58,11 @@ export const Permission = {
   CUSTOMER_INVITE: 'customer.invite',
   CUSTOMER_LIMITS_WRITE: 'customer.limits.write',
   CUSTOMER_STATUS_WRITE: 'customer.status.write',
+  /// Chat enquiries from the storefront widget: the visitor's name, mobile
+  /// number and email, and the transcript. Separate from customer.read because
+  /// these people are leads, not accounts, and reading a stranger's
+  /// conversation is a distinct thing to be trusted with.
+  ASSISTANT_CHAT_READ: 'assistant_chat.read',
 
   // --- Orders ---
   ORDER_READ: 'order.read',
@@ -180,6 +185,9 @@ export const ROLE_DEFINITIONS: readonly RoleDefinition[] = Object.freeze([
       Permission.PRODUCT_READ,
       Permission.INVENTORY_READ,
       Permission.CUSTOMER_READ,
+      // Enquiries from the chat widget are unqualified leads, and following
+      // one up is order work.
+      Permission.ASSISTANT_CHAT_READ,
       Permission.ORDER_READ,
       Permission.ORDER_FULFIL,
       Permission.ORDER_CANCEL,
@@ -201,6 +209,7 @@ export const ROLE_DEFINITIONS: readonly RoleDefinition[] = Object.freeze([
       Permission.PRODUCT_READ,
       Permission.CUSTOMER_READ,
       Permission.CUSTOMER_LIMITS_WRITE,
+      Permission.ASSISTANT_CHAT_READ,
       Permission.ORDER_READ,
       Permission.ORDER_APPROVE,
       Permission.ORDER_CANCEL,

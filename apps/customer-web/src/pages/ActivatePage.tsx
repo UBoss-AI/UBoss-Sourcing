@@ -26,7 +26,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
 import { useSession } from '@/auth/session-context';
 import { useStorefront } from '@/app/storefront-context';
-import { Button, Field, Input } from '@/components/ui';
+import { Button, ButtonLink, Field, Input } from '@/components/ui';
 import { ApiError, NetworkError, api } from '@/lib/api';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 
@@ -135,14 +135,14 @@ function Failure({
         )}
         <Link
           to="/login"
-          className="inline-flex h-10 items-center rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-ink hover:bg-surface-sunken"
+          className="inline-flex h-10 items-center rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-ink hover:bg-surface-hover"
         >
           Go to sign in
         </Link>
         {business.supportEmail !== null && (
           <a
             href={`mailto:${business.supportEmail}?subject=Account%20activation`}
-            className="inline-flex h-10 items-center rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-ink hover:bg-surface-sunken"
+            className="inline-flex h-10 items-center rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-ink hover:bg-surface-hover"
           >
             Contact support
           </a>
@@ -212,12 +212,9 @@ export function ActivatePage(): React.JSX.Element {
           </p>
           <div className="mt-6 flex justify-center gap-2">
             {outcome === 'signed-in' ? (
-              <Link
-                to="/products"
-                className="inline-flex h-10 items-center rounded-md bg-action px-5 text-sm font-medium text-white hover:bg-action-hover"
-              >
+              <ButtonLink to="/products" variant="primary">
                 Browse products
-              </Link>
+              </ButtonLink>
             ) : (
               <Link
                 to="/login"

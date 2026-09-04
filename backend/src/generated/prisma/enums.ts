@@ -346,3 +346,11 @@ export const CouponStatus = {
 } as const
 
 export type CouponStatus = (typeof CouponStatus)[keyof typeof CouponStatus]
+
+
+export const AssistantMessageRole = {
+  VISITOR: 'VISITOR',
+  ASSISTANT: 'ASSISTANT'
+} as const
+
+export type AssistantMessageRole = (typeof AssistantMessageRole)[keyof typeof AssistantMessageRole]

@@ -19,6 +19,15 @@
  *     page must not re-sort what it receives.
  *   - **An unknown category is an empty result, not a 404.** The backend
  *     already decided that — a category may simply have nothing published.
+ *   - **What is filtering the list is stated above the list.** Every applied
+ *     filter is a chip that removes itself, so a customer looking at four
+ *     results does not have to go hunting through a sidebar — or, on a phone,
+ *     open a drawer — to find out why there are only four. The chips write to
+ *     the same URL parameters as the controls; there is one source of truth
+ *     and it is the address bar.
+ *   - **The filter controls exist once.** `FilterFields` is rendered in the
+ *     desktop sidebar and inside the mobile dialog. Two copies of a price
+ *     validator is how the two quietly stop agreeing.
  */
 import { useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
@@ -26,9 +35,10 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
 import { useLocale } from '@/app/locale-context';
 import { ProductCard, ProductCardSkeleton } from '@/components/ProductCard';
+import { Modal } from '@/components/Modal';
 import { Button, ErrorState, Field, Input, Select } from '@/components/ui';
 import { api } from '@/lib/api';
-import { majorToMinor, minorToMajor } from '@/lib/format';
+import { currencySymbol, formatNumber, majorToMinor, minorToMajor } from '@/lib/format';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { CategoryNode, ProductListResponse } from '@/lib/types';
 
@@ -42,22 +52,31 @@ const SORT_OPTIONS = [
 
 const PAGE_SIZE = 24;
 
+/** One applied filter, and the one thing it can do: take itself off. */
+interface AppliedFilter {
+  key: string;
+  label: string;
+  remove: () => void;
+}
+
 /**
- * The filter panel.
+ * The filter controls themselves, with no chrome of their own.
+ *
+ * Rendered inside the desktop sidebar card and inside the mobile dialog, which
+ * supply their own heading and Clear all — so this owns the controls and
+ * nothing about where they sit.
  *
  * Price is a real `<form>`: typing a value and pressing Enter applies it. A
  * price box that only reacts to a blur or a separate button is a trap on a
  * phone keyboard, where "done" is the natural action.
  */
-function Filters({
+function FilterFields({
   searchParams,
   setParam,
-  clearAll,
   currency,
 }: {
   searchParams: URLSearchParams;
   setParam: (updates: Record<string, string | null>) => void;
-  clearAll: () => void;
   currency: string;
 }): React.JSX.Element {
   const minMinor = searchParams.get('minPrice');
@@ -68,15 +87,14 @@ function Filters({
   const [maxText, setMaxText] = useState(maxMinor === null ? '' : minorToMajor(maxMinor));
   const [priceError, setPriceError] = useState<string | null>(null);
 
-  // Keep the boxes in step with the URL, so Back or Clear resets them too.
+  // Keep the boxes in step with the URL, so Back, Clear all or a removed chip
+  // resets them too.
   useEffect(() => {
     setMinText(minMinor === null ? '' : minorToMajor(minMinor));
     setMaxText(maxMinor === null ? '' : minorToMajor(maxMinor));
   }, [minMinor, maxMinor]);
 
   const recurringOnly = searchParams.get('recurringOnly') === 'true';
-  const hasFilters =
-    minMinor !== null || maxMinor !== null || recurringOnly || searchParams.get('q') !== null;
 
   const applyPrice = (): void => {
     setPriceError(null);
@@ -99,94 +117,147 @@ function Filters({
   };
 
   return (
-    <aside aria-labelledby="filters-heading" className="lg:sticky lg:top-40">
-      <div className="rounded-lg border border-border bg-surface p-4">
-        <div className="flex items-center justify-between gap-2">
-          <h2 id="filters-heading" className="text-sm font-semibold text-ink">
-            Filters
-          </h2>
-          {hasFilters && (
-            <Button size="sm" variant="ghost" onClick={clearAll}>
-              Clear all
-            </Button>
+    <div className="divide-y divide-border-subtle">
+      <form
+        className="pb-4"
+        onSubmit={(event) => {
+          event.preventDefault();
+          applyPrice();
+        }}
+      >
+        <fieldset>
+          {/* The currency is in the legend rather than in each box: it applies
+              to both, and repeating it twice in a 16rem column is noise. */}
+          <legend className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
+            Price ({currencySymbol(currency).trim()} {currency})
+          </legend>
+
+          <div className="mt-2.5 flex items-start gap-2">
+            <Field label="Lowest">
+              {({ inputId }) => (
+                <Input
+                  id={inputId}
+                  inputMode="decimal"
+                  placeholder="Any"
+                  className="tabular"
+                  value={minText}
+                  onChange={(event) => {
+                    setMinText(event.target.value);
+                  }}
+                />
+              )}
+            </Field>
+            <Field label="Highest">
+              {({ inputId }) => (
+                <Input
+                  id={inputId}
+                  inputMode="decimal"
+                  placeholder="Any"
+                  className="tabular"
+                  value={maxText}
+                  onChange={(event) => {
+                    setMaxText(event.target.value);
+                  }}
+                />
+              )}
+            </Field>
+          </div>
+
+          {priceError !== null && (
+            <p role="alert" className="mt-2 text-xs font-medium text-danger">
+              {priceError}
+            </p>
           )}
-        </div>
 
-        <form
-          className="mt-4 space-y-3"
-          onSubmit={(event) => {
-            event.preventDefault();
-            applyPrice();
-          }}
-        >
-          <fieldset>
-            <legend className="text-xs font-semibold uppercase tracking-wider text-ink-subtle">
-              Price ({currency})
-            </legend>
+          <Button type="submit" size="sm" className="mt-3" fullWidth>
+            Apply price
+          </Button>
+        </fieldset>
+      </form>
 
-            <div className="mt-2 flex items-end gap-2">
-              <Field label="Lowest">
-                {({ inputId }) => (
-                  <Input
-                    id={inputId}
-                    inputMode="decimal"
-                    placeholder="Any"
-                    className="tabular"
-                    value={minText}
-                    onChange={(event) => {
-                      setMinText(event.target.value);
-                    }}
-                  />
-                )}
-              </Field>
-              <Field label="Highest">
-                {({ inputId }) => (
-                  <Input
-                    id={inputId}
-                    inputMode="decimal"
-                    placeholder="Any"
-                    className="tabular"
-                    value={maxText}
-                    onChange={(event) => {
-                      setMaxText(event.target.value);
-                    }}
-                  />
-                )}
-              </Field>
-            </div>
+      <div className="pt-4">
+        <p className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
+          Purchasing
+        </p>
 
-            {priceError !== null && (
-              <p role="alert" className="mt-1.5 text-xs font-medium text-danger">
-                {priceError}
-              </p>
-            )}
-
-            <Button type="submit" size="sm" className="mt-2" fullWidth>
-              Apply price
-            </Button>
-          </fieldset>
-        </form>
-
-        <div className="mt-4 border-t border-border pt-4">
-          <label className="flex items-start gap-2.5 text-sm text-ink">
-            <input
-              type="checkbox"
-              className="mt-0.5 h-4 w-4 rounded border-border-strong text-brand"
-              checked={recurringOnly}
-              onChange={(event) => {
-                setParam({ recurringOnly: event.target.checked ? 'true' : null });
-              }}
-            />
-            <span>
-              Repeat purchase only
-              <span className="mt-0.5 block text-xs text-ink-muted">
-                Products that can be put on a schedule.
-              </span>
+        {/* A whole tappable row rather than a bare checkbox and a caption
+            beside it: on a phone the label is the target, and the explanation
+            of what "repeat purchase" means has to travel with it. */}
+        <label className="mt-2.5 flex cursor-pointer items-start gap-2.5 rounded-md p-2 -mx-2 text-sm text-ink transition-colors hover:bg-surface-hover">
+          <input
+            type="checkbox"
+            className="mt-0.5 h-4 w-4 shrink-0 rounded border-border-strong text-brand"
+            checked={recurringOnly}
+            onChange={(event) => {
+              setParam({ recurringOnly: event.target.checked ? 'true' : null });
+            }}
+          />
+          <span>
+            <span className="font-medium">Repeat purchase only</span>
+            <span className="mt-0.5 block text-xs leading-relaxed text-ink-muted">
+              Products that can be put on a schedule.
             </span>
-          </label>
-        </div>
+          </span>
+        </label>
       </div>
-    </aside>
+    </div>
+  );
+}
+
+/**
+ * The applied-filter chips.
+ *
+ * Each one names the filter in the shopper's own terms and removes exactly the
+ * URL parameters it represents. Clear all sits at the end of the same row, so
+ * "take one off" and "start again" are the same gesture at two scales.
+ */
+function AppliedFilters({
+  applied,
+  clearAll,
+}: {
+  applied: AppliedFilter[];
+  clearAll: () => void;
+}): React.JSX.Element | null {
+  if (applied.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="text-xs font-medium text-ink-muted">Filtered by</span>
+
+      <ul className="flex flex-wrap items-center gap-1.5">
+        {applied.map((filter) => (
+          <li key={filter.key}>
+            <button
+              type="button"
+              onClick={filter.remove}
+              aria-label={`Remove filter: ${filter.label}`}
+              className="inline-flex items-center gap-1.5 rounded-full border border-brand/25 bg-brand-soft
+                         py-1 pl-2.5 pr-2 text-xs font-medium text-brand transition-colors
+                         hover:border-brand/40 hover:bg-brand-soft-hover"
+            >
+              {filter.label}
+              {/* Decoration: the button's accessible name already says what
+                  pressing it does. */}
+              <svg
+                viewBox="0 0 16 16"
+                aria-hidden="true"
+                className="h-3 w-3"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              >
+                <path d="m4 4 8 8M12 4l-8 8" />
+              </svg>
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      <Button size="sm" variant="ghost" onClick={clearAll}>
+        Clear all
+      </Button>
+    </div>
   );
 }
 
@@ -194,6 +265,9 @@ export function CatalogPage(): React.JSX.Element {
   const { slug } = useParams<{ slug: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const { business } = useStorefront();
+
+  // Mobile only. Desktop keeps the sidebar, so this never opens there.
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
 
   const page = Number(searchParams.get('page') ?? '1');
   const sort = searchParams.get('sort') ?? 'newest';
@@ -275,6 +349,11 @@ export function CatalogPage(): React.JSX.Element {
   const heading =
     q !== '' ? `Results for “${q}”` : (categoryName ?? (category === null ? 'All products' : 'Category'));
 
+  // What kind of listing this is, above the title. A search result and a
+  // department are not the same thing arrived at the same way, and the
+  // eyebrow is cheaper than saying so in the heading.
+  const eyebrow = q !== '' ? 'Search' : categoryName === null ? 'Catalogue' : 'Category';
+
   useDocumentMeta(
     {
       title: heading,
@@ -291,8 +370,91 @@ export function CatalogPage(): React.JSX.Element {
     business.displayName,
   );
 
-  const total = products.data?.pagination.total ?? 0;
-  const totalPages = products.data?.pagination.totalPages ?? 0;
+  const pagination = products.data?.pagination;
+  const total = pagination?.total ?? 0;
+  const totalPages = pagination?.totalPages ?? 0;
+
+  /*
+   * The applied filters, in the order they read.
+   *
+   * Only the ones a chip can actually take off. The search term is the
+   * customer's intent rather than a filter — `clearAll` keeps it, so offering
+   * a chip that claimed to remove it would be a lie — and the category is
+   * already stated by the breadcrumb and the heading.
+   */
+  const applied: AppliedFilter[] = [];
+
+  if (minPrice !== null || maxPrice !== null) {
+    const symbol = currencySymbol(currency);
+    const low = minPrice === null ? null : `${symbol}${minorToMajor(minPrice)}`;
+    const high = maxPrice === null ? null : `${symbol}${minorToMajor(maxPrice)}`;
+
+    applied.push({
+      key: 'price',
+      label:
+        low !== null && high !== null
+          ? `${low} – ${high}`
+          : low !== null
+            ? `From ${low}`
+            : `Up to ${high ?? ''}`,
+      remove: () => {
+        setParam({ minPrice: null, maxPrice: null });
+      },
+    });
+  }
+
+  if (recurringOnly) {
+    applied.push({
+      key: 'recurringOnly',
+      label: 'Repeat purchase only',
+      remove: () => {
+        setParam({ recurringOnly: null });
+      },
+    });
+  }
+
+  /*
+   * The result count, as a sentence.
+   *
+   * A range ("25–48 of 312") rather than a bare total once the list is paged:
+   * on page 3 of a filtered catalogue, "312 products" is the least useful true
+   * thing this line could say. Both numbers come from the server's own
+   * pagination block, so nothing here is estimated.
+   */
+  const countLabel = ((): string => {
+    if (products.isPending) return 'Loading…';
+    if (total === 0) return 'No products';
+
+    const noun = `product${total === 1 ? '' : 's'}`;
+
+    if (pagination === undefined || pagination.totalPages <= 1) {
+      return `${formatNumber(total)} ${noun}`;
+    }
+
+    const first = (pagination.page - 1) * pagination.limit + 1;
+    const last = Math.min(pagination.page * pagination.limit, total);
+
+    return `Showing ${formatNumber(first)}–${formatNumber(last)} of ${formatNumber(total)} ${noun}`;
+  })();
+
+  const sortControl = (
+    <label className="flex items-center gap-2 text-sm text-ink-muted">
+      <span className="whitespace-nowrap">Sort by</span>
+      <Select
+        value={sort}
+        onChange={(event) => {
+          setParam({ sort: event.target.value });
+        }}
+        className="w-44 sm:w-48"
+      >
+        {SORT_OPTIONS.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </Select>
+    </label>
+  );
 
   return (
     <>
@@ -320,48 +482,139 @@ export function CatalogPage(): React.JSX.Element {
         </ol>
       </nav>
 
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-ink">{heading}</h1>
-          {/* aria-live, so a screen reader hears the count change when a
-              filter is applied rather than being left to go and look. */}
-          <p className="mt-1 text-sm text-ink-muted" aria-live="polite">
-            {products.isPending
-              ? 'Loading…'
-              : `${String(total)} product${total === 1 ? '' : 's'}`}
-          </p>
-        </div>
+      <header className="mb-5">
+        <p className="text-xxs font-semibold uppercase tracking-[0.14em] text-ink-subtle">
+          {eyebrow}
+        </p>
+        <h1 className="mt-1.5 text-title-xl text-ink">{heading}</h1>
+        {/* aria-live, so a screen reader hears the count change when a filter
+            is applied rather than being left to go and look. */}
+        <p className="mt-1.5 text-sm text-ink-muted" aria-live="polite">
+          {countLabel}
+        </p>
+      </header>
 
-        <label className="flex items-center gap-2 text-sm text-ink-muted">
-          <span className="whitespace-nowrap">Sort by</span>
-          <Select
-            value={sort}
-            onChange={(event) => {
-              setParam({ sort: event.target.value });
-            }}
-            className="w-48"
-          >
-            {SORT_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </Select>
-        </label>
+      {/*
+       * The toolbar.
+       *
+       * One strip carrying everything that changes the shape of the list:
+       * the mobile filters trigger, the applied chips, and the sort. Its own
+       * surface, so it reads as controls rather than as the first row of the
+       * results — which is what a bare sort dropdown floating above a grid
+       * always looked like.
+       */}
+      <div className="mb-5 rounded-lg border border-border bg-surface px-4 py-3 shadow-card">
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
+            {/* Desktop keeps the sidebar; this is the phone's way in. The
+                count on the button is what tells someone with the drawer shut
+                that the list is filtered at all. */}
+            <Button
+              className="lg:hidden"
+              onClick={() => {
+                setIsFilterDrawerOpen(true);
+              }}
+              aria-haspopup="dialog"
+              aria-expanded={isFilterDrawerOpen}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                strokeLinecap="round"
+              >
+                <path d="M4 6h16M7 12h10M10 18h4" />
+              </svg>
+              Filters
+              {applied.length > 0 && (
+                <span className="ml-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1.5 text-xxs font-semibold text-white">
+                  {applied.length}
+                </span>
+              )}
+            </Button>
+
+            {/* Chips are useful at every width, so they are not inside the
+                drawer: the whole point is to be readable without opening it. */}
+            <AppliedFilters applied={applied} clearAll={clearAll} />
+          </div>
+
+          <div className="ml-auto shrink-0">{sortControl}</div>
+        </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[16rem_1fr]">
-        {/* The price filter is labelled and applied in the shopper's own
-            currency, not the business's: it runs against the amounts that
-            are actually on screen. */}
-        <Filters
-          searchParams={searchParams}
-          setParam={setParam}
-          clearAll={clearAll}
-          currency={currency}
-        />
+      {/* Mounted only while open, so the controls exist once at a time and the
+          price boxes always open reading the current URL. */}
+      {isFilterDrawerOpen && (
+        <Modal
+          isOpen
+          onClose={() => {
+            setIsFilterDrawerOpen(false);
+          }}
+          title="Filters"
+          description="Changes apply straight away."
+          footer={
+            <>
+              {applied.length > 0 && (
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    clearAll();
+                  }}
+                >
+                  Clear all
+                </Button>
+              )}
+              <Button
+                variant="primary"
+                onClick={() => {
+                  setIsFilterDrawerOpen(false);
+                }}
+              >
+                {products.isPending
+                  ? 'Show results'
+                  : `Show ${formatNumber(total)} product${total === 1 ? '' : 's'}`}
+              </Button>
+            </>
+          }
+        >
+          <FilterFields searchParams={searchParams} setParam={setParam} currency={currency} />
+        </Modal>
+      )}
 
-        <div>
+      <div className="grid gap-6 lg:grid-cols-[16rem_1fr]">
+        {/* Desktop keeps the sidebar: on a wide screen the filters are cheap
+            to show and expensive to hide, and a sticky column means they stay
+            reachable however far down the grid you are.
+
+            The price filter is labelled and applied in the shopper's own
+            currency, not the business's: it runs against the amounts that are
+            actually on screen. */}
+        <aside
+          aria-labelledby="filters-heading"
+          className="hidden lg:block lg:sticky lg:top-40 lg:self-start"
+        >
+          <div className="rounded-lg border border-border bg-surface shadow-card">
+            <div className="flex items-center justify-between gap-2 border-b border-border-subtle px-4 py-3">
+              <h2 id="filters-heading" className="text-title-xs text-ink">
+                Filters
+              </h2>
+              {applied.length > 0 && (
+                <Button size="sm" variant="ghost" onClick={clearAll}>
+                  Clear all
+                </Button>
+              )}
+            </div>
+
+            <div className="px-4 py-4">
+              <FilterFields searchParams={searchParams} setParam={setParam} currency={currency} />
+            </div>
+          </div>
+        </aside>
+
+        <div className="min-w-0">
           {products.isError && (
             <ErrorState
               error={products.error}
@@ -382,22 +635,28 @@ export function CatalogPage(): React.JSX.Element {
           )}
 
           {products.data !== undefined && products.data.products.length === 0 && (
-            <div className="rounded-lg border border-border bg-surface px-6 py-16 text-center">
-              <p className="text-base font-medium text-ink">
+            <div className="rounded-lg border border-border bg-surface px-6 py-16 text-center shadow-card">
+              <p className="text-title-sm text-ink">
                 {q === '' ? 'Nothing here yet' : `Nothing matches “${q}”`}
               </p>
-              <p className="mx-auto mt-1.5 max-w-md text-sm text-ink-muted">
+              <p className="mx-auto mt-1.5 max-w-md text-sm leading-relaxed text-ink-muted">
                 {q === ''
                   ? 'Products appear here as soon as they are published.'
                   : 'Try a shorter search, check the spelling, or clear the filters.'}
               </p>
-              <div className="mt-5 flex justify-center gap-2">
-                <Button variant="primary" onClick={clearAll}>
-                  Clear filters
-                </Button>
+              <div className="mt-5 flex flex-wrap justify-center gap-2">
+                {/* Only offered when it would do something. On a search page
+                    with no filters set, `clearAll` keeps the search term and
+                    removes nothing — a button that visibly changes nothing
+                    reads as broken. */}
+                {applied.length > 0 && (
+                  <Button variant="primary" onClick={clearAll}>
+                    Clear filters
+                  </Button>
+                )}
                 <Link
                   to="/products"
-                  className="inline-flex h-10 items-center rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-ink hover:bg-surface-sunken"
+                  className="inline-flex h-10 items-center rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-ink shadow-card hover:bg-surface-hover"
                 >
                   Browse everything
                 </Link>

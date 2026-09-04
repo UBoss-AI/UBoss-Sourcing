@@ -260,7 +260,17 @@ export async function completePasswordReset(
 
   await prisma.user.update({
     where: { id: consumed.userId },
-    data: { passwordHash, failedLoginCount: 0, lockedUntil: null },
+    data: {
+      passwordHash,
+      failedLoginCount: 0,
+      lockedUntil: null,
+      // A reset link IS the holder choosing their own password, so it settles
+      // the debt a temporary password left behind. Without this, a member of
+      // staff who never signed in and went straight to "Forgot password" would
+      // set a password and still be met by the change-password wall.
+      mustChangePassword: false,
+      temporaryPasswordExpiresAt: null,
+    },
   });
 
   // Whoever forced the reset must not keep a live session.

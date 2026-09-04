@@ -115,6 +115,35 @@ const OPERATIONS: Readonly<Record<string, OperationDoc>> = Object.freeze({
     requestBody: ref('AcceptInvitationRequest'),
   },
 
+  'POST /api/v1/admin/staff': {
+    summary: 'Create a staff account',
+    description:
+      'The system generates a temporary password and emails it; there is no password field on ' +
+      'this request, so no administrator ever chooses or learns another person\'s. The account ' +
+      'is created ACTIVE but can do nothing except set a real password, and the temporary one ' +
+      'lapses after 72 hours.',
+    tags: ['Auth (Admin)'],
+    auth: 'admin',
+    permission: 'staff.write + role.assign',
+    requestBody: ref('CreateStaffRequest'),
+    responses: { '201': ok(ref('CreateStaffResponse')) },
+  },
+  'POST /api/v1/admin/staff/:id/temporary-password': {
+    summary: 'Email a fresh temporary password',
+    description:
+      'For an account that never signed in - the mail went astray, or the 72 hours lapsed. ' +
+      'Supersedes the previous password and revokes any session opened with it. Refused with ' +
+      '409 once the holder has chosen their own; from then on the route back in is the reset ' +
+      'they start themselves.',
+    tags: ['Auth (Admin)'],
+    auth: 'admin',
+    permission: 'staff.write + role.assign',
+    responses: {
+      '200': ok(ref('CreateStaffResponse')),
+      '409': ok(ref('ErrorEnvelope'), 'The account already has a password of its own'),
+    },
+  },
+
   // --- Public catalog ---
   'GET /api/v1/catalog/products': {
     summary: 'List published products',
@@ -460,6 +489,32 @@ const SCHEMAS: Readonly<Record<string, unknown>> = Object.freeze({
       },
       customerProfileId: { type: 'string', nullable: true },
       mfaEnabled: { type: 'boolean' },
+      mustChangePassword: {
+        type: 'boolean',
+        description:
+          'Signed in on the temporary password emailed when the account was created. While ' +
+          'true every admin route answers 403 PASSWORD_CHANGE_REQUIRED; only /me, ' +
+          '/password/change and /logout are reachable.',
+      },
+    },
+  },
+
+  CreateStaffRequest: {
+    type: 'object',
+    required: ['email', 'roleKeys'],
+    description: 'No password field, deliberately. See the operation description.',
+    properties: {
+      email: { type: 'string', format: 'email' },
+      roleKeys: { type: 'array', items: { type: 'string' }, minItems: 1, maxItems: 6 },
+    },
+  },
+
+  CreateStaffResponse: {
+    type: 'object',
+    properties: {
+      userId: { type: 'string' },
+      temporaryPasswordSent: { type: 'boolean', const: true },
+      temporaryPasswordExpiresAt: { type: 'string', format: 'date-time' },
     },
   },
 

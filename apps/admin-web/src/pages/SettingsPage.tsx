@@ -1,12 +1,14 @@
 /**
  * Settings.
  *
- * Three panels, and each has a rule worth knowing before touching it:
+ * Three panels, and each has a rule worth knowing before touching it. All
+ * three rules are printed on the screen rather than left in this comment,
+ * because they are the sort of thing people discover by being refused:
  *
  *   - **Currency is effectively permanent.** The server refuses to change it
  *     once any order exists, because every stored amount is minor units *of
  *     that currency* and changing the label would silently reprice history.
- *     The field says so rather than letting someone find out by being refused.
+ *     It is shown as a fact, not as a field.
  *   - **Exactly one tax class is the default.** Marking a new one default
  *     clears the old one; the server does that in one transaction so there is
  *     never a moment with none.
@@ -27,16 +29,19 @@ import { useToast } from '@/components/toast-context';
 import {
   Badge,
   Button,
+  Callout,
   Card,
+  CheckboxField,
   ErrorState,
   Field,
+  FieldGroup,
   Input,
   LoadingState,
   PageHeader,
 } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { applyApiErrors, nullIfBlank } from '@/lib/forms';
-import { formatNumber } from '@/lib/format';
+import { formatNumber, humanise } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
 
 interface BusinessProfile {
@@ -183,7 +188,7 @@ function BusinessPanel(): React.JSX.Element {
   if (query.isPending) {
     return (
       <Card title="Business profile">
-        <LoadingState />
+        <LoadingState label="Loading the business profile" />
       </Card>
     );
   }
@@ -202,138 +207,184 @@ function BusinessPanel(): React.JSX.Element {
   }
 
   return (
-    <Card title="Business profile" description="Appears on invoices, emails and the customer site.">
+    <Card
+      title="Business profile"
+      description="Appears on invoices, emails and the customer site."
+    >
       <form
-        className="space-y-4 px-5 py-4"
         onSubmit={(event) => {
           event.preventDefault();
           void handleSubmit((values) => save.mutateAsync(values))();
         }}
       >
-        {formError !== null && (
-          <div
-            role="alert"
-            className="rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-sm text-danger"
+        <div className="space-y-6 px-5 py-4">
+          {formError !== null && (
+            <Callout tone="danger" role="alert">
+              {formError}
+            </Callout>
+          )}
+
+          {!canWrite && (
+            <Callout tone="neutral">
+              You can read these settings but not change them. The fields are shown as they stand.
+            </Callout>
+          )}
+
+          <FieldGroup legend="Identity" hint="How the business names itself to customers and on paper.">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field
+                label="Legal name"
+                hint="The registered entity, used on invoices."
+                error={errors.legalName?.message}
+                required
+              >
+                {({ inputId, describedBy }) => (
+                  <Input
+                    id={inputId}
+                    aria-describedby={describedBy}
+                    invalid={errors.legalName !== undefined}
+                    disabled={!canWrite}
+                    {...register('legalName')}
+                  />
+                )}
+              </Field>
+
+              <Field
+                label="Display name"
+                hint="What customers see on the storefront and in emails."
+                error={errors.displayName?.message}
+                required
+              >
+                {({ inputId, describedBy }) => (
+                  <Input
+                    id={inputId}
+                    aria-describedby={describedBy}
+                    invalid={errors.displayName !== undefined}
+                    disabled={!canWrite}
+                    {...register('displayName')}
+                  />
+                )}
+              </Field>
+
+              <Field label="GSTIN" error={errors.gstin?.message}>
+                {({ inputId, describedBy }) => (
+                  <Input
+                    id={inputId}
+                    className="font-mono"
+                    aria-describedby={describedBy}
+                    disabled={!canWrite}
+                    {...register('gstin')}
+                  />
+                )}
+              </Field>
+
+              <Field
+                label="Timezone"
+                hint="IANA name, e.g. Asia/Kolkata. Recurring schedules run on this clock."
+                error={errors.timezone?.message}
+              >
+                {({ inputId, describedBy }) => (
+                  <Input
+                    id={inputId}
+                    aria-describedby={describedBy}
+                    disabled={!canWrite}
+                    {...register('timezone')}
+                  />
+                )}
+              </Field>
+            </div>
+          </FieldGroup>
+
+          <FieldGroup
+            legend="Support contact"
+            hint="Where customers are told to write when something goes wrong."
+            className="border-t border-border-subtle pt-5"
           >
-            {formError}
-          </div>
-        )}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Support email" error={errors.supportEmail?.message} required>
+                {({ inputId, describedBy }) => (
+                  <Input
+                    id={inputId}
+                    type="email"
+                    aria-describedby={describedBy}
+                    invalid={errors.supportEmail !== undefined}
+                    disabled={!canWrite}
+                    {...register('supportEmail')}
+                  />
+                )}
+              </Field>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Legal name" error={errors.legalName?.message} required>
-            {({ inputId, describedBy }) => (
-              <Input
-                id={inputId}
-                aria-describedby={describedBy}
-                invalid={errors.legalName !== undefined}
-                disabled={!canWrite}
-                {...register('legalName')}
-              />
-            )}
-          </Field>
+              <Field label="Support phone" error={errors.supportPhone?.message}>
+                {({ inputId, describedBy }) => (
+                  <Input
+                    id={inputId}
+                    type="tel"
+                    aria-describedby={describedBy}
+                    disabled={!canWrite}
+                    {...register('supportPhone')}
+                  />
+                )}
+              </Field>
+            </div>
+          </FieldGroup>
 
-          <Field label="Display name" error={errors.displayName?.message} required>
-            {({ inputId, describedBy }) => (
-              <Input
-                id={inputId}
-                aria-describedby={describedBy}
-                invalid={errors.displayName !== undefined}
-                disabled={!canWrite}
-                {...register('displayName')}
-              />
-            )}
-          </Field>
-
-          <Field label="Support email" error={errors.supportEmail?.message} required>
-            {({ inputId, describedBy }) => (
-              <Input
-                id={inputId}
-                type="email"
-                aria-describedby={describedBy}
-                invalid={errors.supportEmail !== undefined}
-                disabled={!canWrite}
-                {...register('supportEmail')}
-              />
-            )}
-          </Field>
-
-          <Field label="Support phone" error={errors.supportPhone?.message}>
-            {({ inputId, describedBy }) => (
-              <Input
-                id={inputId}
-                type="tel"
-                aria-describedby={describedBy}
-                disabled={!canWrite}
-                {...register('supportPhone')}
-              />
-            )}
-          </Field>
-
-          <Field label="GSTIN" error={errors.gstin?.message}>
-            {({ inputId, describedBy }) => (
-              <Input
-                id={inputId}
-                className="font-mono"
-                aria-describedby={describedBy}
-                disabled={!canWrite}
-                {...register('gstin')}
-              />
-            )}
-          </Field>
-
-          <Field
-            label="Timezone"
-            hint="IANA name, e.g. Asia/Kolkata. Recurring schedules run on this clock."
-            error={errors.timezone?.message}
+          <FieldGroup
+            legend="Numbering and currency"
+            hint="Prefixes apply to numbers issued from now on. Numbers already assigned keep the prefix they were issued with."
+            className="border-t border-border-subtle pt-5"
           >
-            {({ inputId, describedBy }) => (
-              <Input
-                id={inputId}
-                aria-describedby={describedBy}
-                disabled={!canWrite}
-                {...register('timezone')}
-              />
-            )}
-          </Field>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Order number prefix" error={errors.orderPrefix?.message}>
+                {({ inputId, describedBy }) => (
+                  <Input
+                    id={inputId}
+                    className="font-mono"
+                    aria-describedby={describedBy}
+                    disabled={!canWrite}
+                    {...register('orderPrefix')}
+                  />
+                )}
+              </Field>
 
-          <Field label="Order number prefix" error={errors.orderPrefix?.message}>
-            {({ inputId, describedBy }) => (
-              <Input
-                id={inputId}
-                className="font-mono"
-                aria-describedby={describedBy}
-                disabled={!canWrite}
-                {...register('orderPrefix')}
-              />
-            )}
-          </Field>
+              <Field label="Invoice number prefix" error={errors.invoicePrefix?.message}>
+                {({ inputId, describedBy }) => (
+                  <Input
+                    id={inputId}
+                    className="font-mono"
+                    aria-describedby={describedBy}
+                    disabled={!canWrite}
+                    {...register('invoicePrefix')}
+                  />
+                )}
+              </Field>
+            </div>
 
-          <Field label="Invoice number prefix" error={errors.invoicePrefix?.message}>
-            {({ inputId, describedBy }) => (
-              <Input
-                id={inputId}
-                className="font-mono"
-                aria-describedby={describedBy}
-                disabled={!canWrite}
-                {...register('invoicePrefix')}
-              />
-            )}
-          </Field>
-        </div>
-
-        <div className="rounded-md border border-border bg-surface-sunken px-3 py-2.5">
-          <p className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">Currency</p>
-          <p className="mt-0.5 text-sm font-medium text-ink">{query.data.business.currency}</p>
-          <p className="mt-1 text-xs text-ink-muted">
-            Fixed once any order exists. Every stored amount is minor units of this currency, so
-            changing the label would silently reprice all of history.
-          </p>
+            {/* Not a field, because it is not editable. Presenting it as a
+                disabled input would invite people to try. */}
+            <div className="mt-4 rounded-md border border-border bg-surface-sunken px-3 py-2.5">
+              <p className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
+                Currency
+              </p>
+              <p className="mt-0.5 text-sm font-semibold text-ink">{query.data.business.currency}</p>
+              <p className="mt-1 max-w-prose text-xs leading-relaxed text-ink-muted">
+                Fixed once any order exists. Every stored amount is minor units of this currency, so
+                changing the label would silently reprice all of history.
+              </p>
+            </div>
+          </FieldGroup>
         </div>
 
         {canWrite && (
-          <Button type="submit" variant="primary" isLoading={save.isPending} disabled={!isDirty}>
-            Save profile
-          </Button>
+          <div className="flex flex-wrap items-center gap-3 border-t border-border-subtle bg-surface-sunken px-5 py-3">
+            <Button type="submit" variant="primary" isLoading={save.isPending} disabled={!isDirty}>
+              Save profile
+            </Button>
+            {isDirty && (
+              <p role="status" className="text-xs font-medium text-warning">
+                You have unsaved changes.
+              </p>
+            )}
+          </div>
         )}
       </form>
     </Card>
@@ -403,15 +454,19 @@ function TaxClassDialog({
   };
 
   const isInclusive = watch('isInclusive');
+  const isDefault = watch('isDefault');
 
   return (
     <Modal
       isOpen
       onClose={onClose}
       title={editing === null ? 'New tax class' : `Edit ${editing.name}`}
+      description="Every product carries exactly one tax class."
       footer={
         <>
-          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={onClose} disabled={mutation.isPending}>
+            Cancel
+          </Button>
           <Button variant="primary" isLoading={mutation.isPending} onClick={submit}>
             {editing === null ? 'Create tax class' : 'Save changes'}
           </Button>
@@ -419,19 +474,16 @@ function TaxClassDialog({
       }
     >
       <form
-        className="space-y-4"
+        className="space-y-5"
         onSubmit={(event) => {
           event.preventDefault();
           submit();
         }}
       >
         {formError !== null && (
-          <div
-            role="alert"
-            className="rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-sm text-danger"
-          >
+          <Callout tone="danger" role="alert">
             {formError}
-          </div>
+          </Callout>
         )}
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -472,40 +524,33 @@ function TaxClassDialog({
           )}
         </Field>
 
-        <div className="space-y-2">
-          <label className="flex items-start gap-2 text-sm text-ink">
-            <input
-              type="checkbox"
-              className="mt-0.5 h-4 w-4 rounded border-border-strong text-accent"
-              {...register('isInclusive')}
-            />
-            <span>
-              Prices already include this tax
-              <span className="mt-0.5 block text-xs text-ink-muted">
-                {isInclusive
-                  ? 'The tax is extracted from the listed price.'
-                  : 'The tax is added on top of the listed price.'}
-              </span>
-            </span>
-          </label>
+        <div className="space-y-2 border-t border-border-subtle pt-4">
+          <CheckboxField
+            label="Prices already include this tax"
+            description={
+              isInclusive
+                ? 'The tax is extracted from the listed price — the customer pays exactly what is shown.'
+                : 'The tax is added on top of the listed price — the customer pays more than is shown.'
+            }
+            {...register('isInclusive')}
+          />
 
-          <label className="flex items-center gap-2 text-sm text-ink">
-            <input
-              type="checkbox"
-              className="h-4 w-4 rounded border-border-strong text-accent"
-              {...register('isDefault')}
-            />
-            Use as the default for new products
-          </label>
+          <CheckboxField
+            label="Use as the default for new products"
+            {...(isDefault && editing?.isDefault !== true
+              ? {
+                  description:
+                    'Exactly one tax class is the default, so whichever one holds it now will lose it.',
+                }
+              : {})}
+            {...register('isDefault')}
+          />
 
-          <label className="flex items-center gap-2 text-sm text-ink">
-            <input
-              type="checkbox"
-              className="h-4 w-4 rounded border-border-strong text-accent"
-              {...register('isActive')}
-            />
-            Active
-          </label>
+          <CheckboxField
+            label="Active"
+            description="An inactive class cannot be chosen for new products. Products already on it are unaffected."
+            {...register('isActive')}
+          />
         </div>
       </form>
     </Modal>
@@ -528,35 +573,52 @@ function TaxClassesPanel(): React.JSX.Element {
       key: 'name',
       header: 'Tax class',
       render: (row) => (
-        <div>
-          <p className="font-medium text-ink">{row.name}</p>
+        <div className="min-w-40">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="font-medium text-ink">{row.name}</p>
+            {row.isDefault && <Badge tone="accent">Default</Badge>}
+          </div>
           <p className="font-mono text-xxs text-ink-subtle">{row.code}</p>
         </div>
       ),
     },
-    { key: 'rate', header: 'Rate', align: 'right', render: (row) => `${row.ratePercent}%` },
+    {
+      key: 'rate',
+      header: 'Rate',
+      align: 'right',
+      nowrap: true,
+      render: (row) => <span className="font-medium text-ink">{row.ratePercent}%</span>,
+    },
     {
       key: 'inclusive',
       header: 'Applied',
       render: (row) => <Badge>{row.isInclusive ? 'Included in price' : 'Added to price'}</Badge>,
     },
     {
-      key: 'default',
-      header: 'Default',
-      render: (row) => (row.isDefault ? <Badge tone="accent">Default</Badge> : null),
-    },
-    {
       key: 'products',
       header: 'Products',
       align: 'right',
       secondary: true,
-      render: (row) => formatNumber(row.productCount),
+      render: (row) =>
+        row.productCount === 0 ? (
+          <span className="text-ink-subtle">0</span>
+        ) : (
+          formatNumber(row.productCount)
+        ),
     },
     {
       key: 'status',
       header: 'Status',
       render: (row) =>
-        row.isActive ? <Badge tone="success">Active</Badge> : <Badge tone="warning">Inactive</Badge>,
+        row.isActive ? (
+          <Badge dot tone="success">
+            Active
+          </Badge>
+        ) : (
+          <Badge dot tone="warning">
+            Inactive
+          </Badge>
+        ),
     },
     {
       key: 'actions',
@@ -572,6 +634,7 @@ function TaxClassesPanel(): React.JSX.Element {
             }}
           >
             Edit
+            <span className="sr-only"> {row.name}</span>
           </Button>
         ) : null,
     },
@@ -581,7 +644,7 @@ function TaxClassesPanel(): React.JSX.Element {
     <>
       <Card
         title="Tax classes"
-        description="Exactly one is the default. Every product carries one."
+        description="Exactly one is the default, and every product carries one. Changing a rate applies to new orders — orders already placed keep the tax they were charged."
         actions={
           canWrite ? (
             <Button
@@ -602,7 +665,13 @@ function TaxClassesPanel(): React.JSX.Element {
           rowKey={(row) => row.id}
           isLoading={query.isPending}
           error={query.isError ? query.error : undefined}
+          loadingLabel="Loading tax classes"
+          minWidth="48rem"
+          onRetry={() => {
+            void query.refetch();
+          }}
           emptyTitle="No tax classes"
+          emptyDescription="A product cannot be saved without one, so at least one is needed before the catalogue opens."
         />
       </Card>
 
@@ -660,8 +729,11 @@ function FeatureFlagsPanel(): React.JSX.Element {
 
   return (
     <>
-      <Card title="Feature flags" description="Turn parts of the system on and off.">
-        {query.isPending && <LoadingState />}
+      <Card
+        title="Feature flags"
+        description="Whole parts of the system, on or off. Turning one on is immediate and harmless; turning one off can stop work that is already in flight, so it asks what that would cost first."
+      >
+        {query.isPending && <LoadingState label="Loading feature flags" />}
         {query.isError && (
           <ErrorState
             error={query.error}
@@ -674,30 +746,47 @@ function FeatureFlagsPanel(): React.JSX.Element {
         {query.data !== undefined && (
           <ul className="divide-y divide-border">
             {query.data.flags.map((flag) => (
-              <li key={flag.key} className="flex flex-wrap items-center gap-3 px-5 py-3">
+              <li key={flag.key} className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3.5">
                 <div className="min-w-56 flex-1">
-                  <p className="text-sm font-medium text-ink">
-                    {flag.key
-                      .split('_')
-                      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                      .join(' ')}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-sm font-medium text-ink">{humanise(flag.key)}</p>
+                    {flag.enabled ? (
+                      <Badge dot tone="success">
+                        On
+                      </Badge>
+                    ) : (
+                      <Badge dot tone="neutral">
+                        Off
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="mt-0.5 max-w-prose text-xs leading-relaxed text-ink-muted">
+                    {flag.description}
                   </p>
-                  <p className="text-xs text-ink-muted">{flag.description}</p>
                 </div>
-
-                {flag.enabled ? <Badge tone="success">On</Badge> : <Badge>Off</Badge>}
 
                 {canWrite && (
                   <Button
                     size="sm"
+                    // Turning something on has no downstream victims, so it is
+                    // the plain primary. Turning it off is the one that needs
+                    // a moment's thought, and it goes through a confirmation
+                    // that has read the impact first.
+                    variant={flag.enabled ? 'secondary' : 'primary'}
                     onClick={() => {
-                      // Turning something on has no downstream victims; turning
-                      // it off can stop work that is already in flight.
                       if (flag.enabled) setDisabling(flag);
                       else toggle.mutate({ key: flag.key, enabled: true });
                     }}
+                    // Only the "turn on" path spins here; "turn off" hands over
+                    // to the confirmation dialog, which does its own waiting.
+                    isLoading={
+                      toggle.isPending &&
+                      toggle.variables.key === flag.key &&
+                      toggle.variables.enabled
+                    }
                   >
                     {flag.enabled ? 'Turn off' : 'Turn on'}
+                    <span className="sr-only"> {humanise(flag.key)}</span>
                   </Button>
                 )}
               </li>
@@ -714,22 +803,21 @@ function FeatureFlagsPanel(): React.JSX.Element {
         onConfirm={() => {
           if (disabling !== null) toggle.mutate({ key: disabling.key, enabled: false });
         }}
-        title={`Turn off ${disabling?.key ?? 'this feature'}?`}
+        title={`Turn off ${disabling === null ? 'this feature' : humanise(disabling.key)}?`}
         confirmLabel="Turn it off"
         isDangerous
         isWorking={toggle.isPending}
         body={
-          <div className="space-y-2">
+          <div className="space-y-3">
             <p>{disabling?.description}</p>
 
             {impact.isPending && <p className="text-ink-subtle">Checking what this affects…</p>}
 
             {consequence !== null &&
               (consequence.count > 0 ? (
-                <div className="rounded-md border border-warning/30 bg-warning-soft px-3 py-2.5">
-                  <p className="font-medium text-warning">Turning this off will:</p>
-                  <p className="mt-1 text-ink">{consequence.message}</p>
-                </div>
+                <Callout tone="warning" title="Turning this off will:">
+                  {consequence.message}
+                </Callout>
               ) : (
                 <p className="text-ink-muted">{consequence.message}</p>
               ))}
@@ -743,7 +831,10 @@ function FeatureFlagsPanel(): React.JSX.Element {
 export function SettingsPage(): React.JSX.Element {
   return (
     <>
-      <PageHeader title="Settings" description="Business identity, tax, and what the system does." />
+      <PageHeader
+        title="Settings"
+        description="Business identity, tax, and what the system does. Three panels, each with a rule the server enforces whatever this screen shows."
+      />
 
       <div className="space-y-5">
         <BusinessPanel />

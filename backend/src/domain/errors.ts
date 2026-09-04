@@ -50,6 +50,12 @@ export const ErrorCode = {
   TOKEN_ALREADY_USED: 'TOKEN_ALREADY_USED',
   INVITATION_ALREADY_ACCEPTED: 'INVITATION_ALREADY_ACCEPTED',
   SELF_REGISTRATION_DISABLED: 'SELF_REGISTRATION_DISABLED',
+  /// The emailed temporary password has lapsed. Distinct from bad credentials
+  /// because the fix is different: somebody has to issue a new one.
+  TEMPORARY_PASSWORD_EXPIRED: 'TEMPORARY_PASSWORD_EXPIRED',
+  /// Signed in on a temporary password, so the only thing this session may do
+  /// is set a real one. The Admin Panel turns this into the change screen.
+  PASSWORD_CHANGE_REQUIRED: 'PASSWORD_CHANGE_REQUIRED',
 
   // --- Catalog ---
   SKU_ALREADY_EXISTS: 'SKU_ALREADY_EXISTS',

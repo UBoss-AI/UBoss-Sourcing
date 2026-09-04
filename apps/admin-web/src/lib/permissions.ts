@@ -39,6 +39,7 @@ export const Permission = {
   CUSTOMER_INVITE: 'customer.invite',
   CUSTOMER_LIMITS_WRITE: 'customer.limits.write',
   CUSTOMER_STATUS_WRITE: 'customer.status.write',
+  ASSISTANT_CHAT_READ: 'assistant_chat.read',
 
   ORDER_READ: 'order.read',
   ORDER_APPROVE: 'order.approve',

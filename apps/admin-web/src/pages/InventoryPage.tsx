@@ -10,6 +10,11 @@
  * Showing only one of them is how oversell arguments start, so both are always
  * visible with the reservation between them.
  *
+ * The stock column exists because "available: 0" in a column of numbers is not
+ * a signal — it is a digit. Out of stock and low are named in words, given
+ * their own colour, and an out-of-stock row carries a tinted ground so it can
+ * be found without reading the page.
+ *
  * Receiving and adjusting are separate actions on purpose. A receipt is stock
  * arriving and takes a reference; an adjustment is a correction and takes a
  * reason. The ledger keeps them apart, and so does this screen — an
@@ -26,7 +31,22 @@ import { DataTable, Pager } from '@/components/DataTable';
 import type { Column } from '@/components/DataTable';
 import { Modal } from '@/components/Modal';
 import { useToast } from '@/components/toast-context';
-import { Badge, Button, Card, Field, Input, Textarea, PageHeader, Select } from '@/components/ui';
+import {
+  Badge,
+  Button,
+  Callout,
+  Card,
+  Field,
+  Input,
+  PageHeader,
+  Select,
+  SummaryTiles,
+  Textarea,
+  Toolbar,
+  ToolbarActions,
+  ToolbarField,
+  ToolbarToggle,
+} from '@/components/ui';
 import { api } from '@/lib/api';
 import { applyApiErrors, nullIfBlank } from '@/lib/forms';
 import { formatDateTime, formatMoney, formatNumber, humanise } from '@/lib/format';
@@ -78,6 +98,20 @@ function movementTone(type: string): BadgeTone {
   if (type === 'ADJUSTMENT') return 'warning';
   if (type === 'SHIPMENT' || type === 'DAMAGE') return 'danger';
   return 'neutral';
+}
+
+/**
+ * The three states a stock line can be in, in the order they matter.
+ *
+ * `isLowStock` is the server's judgement against the product's own reorder
+ * threshold, so it is not recomputed here. Nothing available is its own state
+ * and a worse one: low means order more soon, none means the storefront is
+ * already turning customers away.
+ */
+function stockState(row: InventoryRow): { label: string; tone: BadgeTone } {
+  if (row.availableQty <= 0) return { label: 'Out of stock', tone: 'danger' };
+  if (row.isLowStock) return { label: 'Low', tone: 'warning' };
+  return { label: 'In stock', tone: 'success' };
 }
 
 // ---------------------------------------------------------------------------
@@ -211,30 +245,22 @@ function StockMovementDialog({
         }}
       >
         {formError !== null && (
-          <div
-            role="alert"
-            className="rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-sm text-danger"
-          >
+          <Callout tone="danger" role="alert">
             {formError}
-          </div>
+          </Callout>
         )}
 
-        <dl className="grid grid-cols-3 gap-px rounded-md border border-border bg-border text-center">
-          {[
-            ['On hand', row.onHandQty],
-            ['Reserved', row.reservedQty],
-            ['Available', row.availableQty],
-          ].map(([label, value]) => (
-            <div key={String(label)} className="bg-surface px-3 py-2">
-              <dt className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                {label}
-              </dt>
-              <dd className="mt-0.5 text-sm font-semibold tabular text-ink">
-                {formatNumber(Number(value))}
-              </dd>
-            </div>
-          ))}
-        </dl>
+        <SummaryTiles
+          items={[
+            { label: 'On hand', value: formatNumber(row.onHandQty) },
+            { label: 'Reserved', value: formatNumber(row.reservedQty) },
+            {
+              label: 'Available',
+              value: formatNumber(row.availableQty),
+              tone: row.availableQty <= 0 ? 'danger' : row.isLowStock ? 'warning' : 'default',
+            },
+          ]}
+        />
 
         {locations.length > 1 && (
           <Field label="Location">
@@ -298,7 +324,7 @@ function StockMovementDialog({
           <>
             <Field
               label="Change"
-              hint="Negative to remove stock, positive to add it. Use a receipt for deliveries."
+              hint="Negative to remove stock, positive to add it. Use a receipt for deliveries — the ledger keeps corrections and arrivals apart."
               error={adjustForm.formState.errors.quantityDelta?.message}
               required
             >
@@ -314,17 +340,18 @@ function StockMovementDialog({
               )}
             </Field>
 
-            <p className="text-sm text-ink-muted">
+            {/* The consequence, read before the button rather than after it. */}
+            <Callout tone={projected < 0 ? 'danger' : 'neutral'}>
               On hand would become{' '}
               <span className={projected < 0 ? 'font-semibold text-danger' : 'font-semibold text-ink'}>
                 {formatNumber(projected)}
               </span>
               {projected < 0 && ' — the server will refuse a negative balance.'}
-            </p>
+            </Callout>
 
             <Field
               label="Reason"
-              hint="Recorded in the ledger against your name. Be specific."
+              hint="Recorded in the ledger against your name, permanently. Be specific."
               error={adjustForm.formState.errors.reason?.message}
               required
             >
@@ -415,12 +442,17 @@ export function InventoryPage(): React.JSX.Element {
   const canReceive = can(Permission.INVENTORY_RECEIVE);
   const canAdjust = can(Permission.INVENTORY_ADJUST);
 
+  // Only meaningful while the filter is on, because only then is the total the
+  // count of low-stock lines. Inventing a figure from the current page would
+  // be a number that changes when you turn the page.
+  const lowStockTotal = lowStockOnly ? inventory.data?.pagination.total : undefined;
+
   const stockColumns: Column<InventoryRow>[] = [
     {
       key: 'product',
       header: 'Product',
       render: (row) => (
-        <div>
+        <div className="min-w-48">
           <p className="font-medium text-ink">
             {row.productName}
             {row.variantName !== null && (
@@ -432,12 +464,30 @@ export function InventoryPage(): React.JSX.Element {
       ),
     },
     {
+      key: 'stock',
+      header: 'Stock',
+      render: (row) => {
+        const state = stockState(row);
+        return (
+          <Badge dot tone={state.tone}>
+            {state.label}
+          </Badge>
+        );
+      },
+    },
+    {
       key: 'location',
       header: 'Location',
       secondary: true,
-      render: (row) => row.location.name,
+      nowrap: true,
+      render: (row) => <span className="text-ink-muted">{row.location.name}</span>,
     },
-    { key: 'onHand', header: 'On hand', align: 'right', render: (row) => formatNumber(row.onHandQty) },
+    {
+      key: 'onHand',
+      header: 'On hand',
+      align: 'right',
+      render: (row) => formatNumber(row.onHandQty),
+    },
     {
       key: 'reserved',
       header: 'Reserved',
@@ -472,18 +522,15 @@ export function InventoryPage(): React.JSX.Element {
       header: 'Reorder at',
       align: 'right',
       secondary: true,
-      render: (row) =>
-        row.isLowStock ? (
-          <Badge tone="warning">at {formatNumber(row.reorderThreshold)}</Badge>
-        ) : (
-          formatNumber(row.reorderThreshold)
-        ),
+      tertiary: true,
+      render: (row) => <span className="text-ink-muted">{formatNumber(row.reorderThreshold)}</span>,
     },
     {
       key: 'valuation',
       header: 'Value',
       align: 'right',
       secondary: true,
+      nowrap: true,
       render: (row) => formatMoney(row.valuation),
     },
     {
@@ -501,6 +548,7 @@ export function InventoryPage(): React.JSX.Element {
               }}
             >
               Receive
+              <span className="sr-only"> stock for {row.sku}</span>
             </Button>
           )}
           {canAdjust && (
@@ -512,6 +560,7 @@ export function InventoryPage(): React.JSX.Element {
               }}
             >
               Adjust
+              <span className="sr-only"> stock for {row.sku}</span>
             </Button>
           )}
         </div>
@@ -523,18 +572,23 @@ export function InventoryPage(): React.JSX.Element {
     {
       key: 'when',
       header: 'When',
-      render: (row) => <span className="whitespace-nowrap">{formatDateTime(row.createdAt)}</span>,
+      nowrap: true,
+      render: (row) => <span className="text-ink-muted">{formatDateTime(row.createdAt)}</span>,
     },
     {
       key: 'type',
       header: 'Type',
-      render: (row) => <Badge tone={movementTone(row.type)}>{humanise(row.type)}</Badge>,
+      render: (row) => (
+        <Badge dot tone={movementTone(row.type)}>
+          {humanise(row.type)}
+        </Badge>
+      ),
     },
     {
       key: 'product',
       header: 'Product',
       render: (row) => (
-        <div>
+        <div className="min-w-40">
           <p className="text-ink">{row.product.name}</p>
           <p className="font-mono text-xxs text-ink-subtle">{row.product.sku}</p>
         </div>
@@ -567,7 +621,10 @@ export function InventoryPage(): React.JSX.Element {
       key: 'actor',
       header: 'By',
       secondary: true,
-      render: (row) => row.actorEmail ?? humanise(row.actorType),
+      tertiary: true,
+      render: (row) => (
+        <span className="text-ink-muted">{row.actorEmail ?? humanise(row.actorType)}</span>
+      ),
     },
   ];
 
@@ -575,16 +632,13 @@ export function InventoryPage(): React.JSX.Element {
     <>
       <PageHeader
         title="Inventory"
-        description="On hand is what exists. Available is what a customer can buy."
+        description="On hand is what exists. Available is what a customer can buy — on hand less whatever carts and unpaid orders have already reserved."
       />
 
       <div className="space-y-5">
         <Card>
-          <div className="flex flex-wrap items-end gap-3 border-b border-border px-4 py-3">
-            <label className="min-w-56 flex-1">
-              <span className="mb-1 block text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                Search
-              </span>
+          <Toolbar>
+            <ToolbarField label="Search" grow>
               <Input
                 type="search"
                 value={searchText}
@@ -593,26 +647,31 @@ export function InventoryPage(): React.JSX.Element {
                   setSearchText(event.target.value);
                 }}
               />
-            </label>
+            </ToolbarField>
 
-            <label className="flex items-center gap-2 pb-2 text-sm text-ink">
-              <input
-                type="checkbox"
-                checked={lowStockOnly}
-                onChange={(event) => {
-                  setSearchParams((current) => {
-                    const next = new URLSearchParams(current);
-                    if (event.target.checked) next.set('lowStockOnly', 'true');
-                    else next.delete('lowStockOnly');
-                    next.delete('page');
-                    return next;
-                  });
-                }}
-                className="h-4 w-4 rounded border-border-strong text-accent"
-              />
-              Low stock only
-            </label>
-          </div>
+            <ToolbarToggle
+              label="Needs reordering only"
+              checked={lowStockOnly}
+              onChange={(checked) => {
+                setSearchParams((current) => {
+                  const next = new URLSearchParams(current);
+                  if (checked) next.set('lowStockOnly', 'true');
+                  else next.delete('lowStockOnly');
+                  next.delete('page');
+                  return next;
+                });
+              }}
+            />
+
+            {lowStockTotal !== undefined && lowStockTotal > 0 && (
+              <ToolbarActions>
+                <p className="text-xs font-medium text-warning">
+                  {formatNumber(lowStockTotal)} line{lowStockTotal === 1 ? '' : 's'} at or below the
+                  reorder point
+                </p>
+              </ToolbarActions>
+            )}
+          </Toolbar>
 
           <DataTable
             caption="Stock levels"
@@ -620,11 +679,20 @@ export function InventoryPage(): React.JSX.Element {
             rows={inventory.data?.inventory}
             rowKey={(row) => row.balanceId}
             isLoading={inventory.isPending}
+            isRefreshing={inventory.isFetching && !inventory.isPending}
             error={inventory.isError ? inventory.error : undefined}
+            loadingLabel="Loading stock levels"
+            minWidth="70rem"
+            // Nothing available is the state that costs a sale today. The row
+            // says so in words as well - the tint is the second signal, not
+            // the only one.
+            rowClassName={(row) =>
+              row.availableQty <= 0 ? 'bg-danger-soft/60 hover:bg-danger-soft' : undefined
+            }
             onRetry={() => {
               void inventory.refetch();
             }}
-            emptyTitle={lowStockOnly ? 'Nothing is running low' : 'No stock records yet'}
+            emptyTitle={lowStockOnly ? 'Nothing needs reordering' : 'No stock records yet'}
             emptyDescription={
               lowStockOnly
                 ? 'Every tracked product is above its reorder threshold.'
@@ -651,7 +719,7 @@ export function InventoryPage(): React.JSX.Element {
 
         <Card
           title="Movement ledger"
-          description="Every change to stock, with who made it and why. Append-only."
+          description="Every change to stock, with who made it and why. Append-only — the twenty-five most recent."
         >
           <DataTable
             caption="Stock movements"
@@ -660,7 +728,13 @@ export function InventoryPage(): React.JSX.Element {
             rowKey={(row) => row.id}
             isLoading={movements.isPending}
             error={movements.isError ? movements.error : undefined}
+            loadingLabel="Loading the ledger"
+            minWidth="60rem"
+            onRetry={() => {
+              void movements.refetch();
+            }}
             emptyTitle="No movements yet"
+            emptyDescription="Receipts, adjustments and shipments all land here as they happen."
           />
         </Card>
       </div>

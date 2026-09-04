@@ -1,20 +1,54 @@
 /**
  * Order queue.
  *
+ * Two status columns, kept apart on purpose. **Fulfilment** is where the order
+ * is in the state machine; **payment** is whether the money arrived. They move
+ * independently — a CONFIRMED order can be unpaid, a PENDING_PAYMENT one can
+ * be part paid — and collapsing them into a single "status" is how unpaid
+ * orders get shipped.
+ *
  * Money columns show the grand total and, separately, what has actually been
- * paid. They are not the same number until a verified payment says so, and an
- * order queue that shows only the total is how unpaid orders get shipped.
+ * paid. They are not the same number until a verified payment says so.
  */
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { DataTable, Pager } from '@/components/DataTable';
 import type { Column } from '@/components/DataTable';
-import { Badge, Card, Input, PageHeader, Select } from '@/components/ui';
+import {
+  Badge,
+  Button,
+  Card,
+  Input,
+  PageHeader,
+  Select,
+  Toolbar,
+  ToolbarActions,
+  ToolbarField,
+} from '@/components/ui';
+import type { BadgeTone } from '@/components/ui';
 import { api } from '@/lib/api';
 import { formatDateTime, formatMoney, formatNumber, humanise } from '@/lib/format';
 import { ORDER_STATUSES, orderStatusTone } from '@/lib/orders';
-import type { OrderListItem, OrderListResponse } from '@/lib/orders';
+import type { OrderListItem, OrderListResponse, OrderTotals } from '@/lib/orders';
+
+/**
+ * Where the money is, in one word.
+ *
+ * Derived from the two amounts already in the row rather than from a new
+ * field: the backend's truth about payment is the totals, and a second
+ * opinion computed here could only ever disagree with it.
+ */
+function paymentState(totals: OrderTotals): { label: string; tone: BadgeTone } {
+  const paid = BigInt(totals.paid.minor);
+  const due = BigInt(totals.grandTotal.minor);
+  const refunded = BigInt(totals.refunded.minor);
+
+  if (refunded > 0n) return { label: refunded >= paid ? 'Refunded' : 'Part refunded', tone: 'danger' };
+  if (paid <= 0n) return { label: 'Unpaid', tone: 'neutral' };
+  if (paid >= due) return { label: 'Paid', tone: 'success' };
+  return { label: 'Part paid', tone: 'warning' };
+}
 
 export function OrdersPage(): React.JSX.Element {
   const navigate = useNavigate();
@@ -26,6 +60,8 @@ export function OrdersPage(): React.JSX.Element {
   const q = searchParams.get('q') ?? '';
 
   const [searchText, setSearchText] = useState(q);
+
+  const hasFilters = status !== '' || source !== '' || q !== '';
 
   useEffect(() => {
     setSearchText(q);
@@ -80,6 +116,7 @@ export function OrdersPage(): React.JSX.Element {
     {
       key: 'order',
       header: 'Order',
+      nowrap: true,
       render: (row) => (
         <div>
           <Link
@@ -99,37 +136,59 @@ export function OrdersPage(): React.JSX.Element {
       key: 'customer',
       header: 'Customer',
       render: (row) => (
-        <div>
+        <div className="min-w-40">
           <p className="text-ink">{row.customer?.fullName ?? '—'}</p>
           {row.customer?.organization !== null && row.customer?.organization !== undefined && (
-            <p className="text-xxs text-ink-subtle">{row.customer.organization}</p>
+            <p className="truncate text-xxs text-ink-subtle">{row.customer.organization}</p>
           )}
         </div>
       ),
     },
     {
       key: 'status',
-      header: 'Status',
-      render: (row) => <Badge tone={orderStatusTone(row.status)}>{humanise(row.status)}</Badge>,
+      header: 'Fulfilment',
+      render: (row) => (
+        <Badge dot tone={orderStatusTone(row.status)}>
+          {humanise(row.status)}
+        </Badge>
+      ),
+    },
+    {
+      key: 'payment',
+      header: 'Payment',
+      render: (row) => {
+        const state = paymentState(row.totals);
+        return (
+          <Badge dot tone={state.tone}>
+            {state.label}
+          </Badge>
+        );
+      },
     },
     {
       key: 'total',
       header: 'Total',
       align: 'right',
+      nowrap: true,
       render: (row) => formatMoney(row.totals.grandTotal),
     },
     {
       key: 'paid',
       header: 'Paid',
       align: 'right',
+      nowrap: true,
       render: (row) => {
-        const isSettled = BigInt(row.totals.paid.minor) >= BigInt(row.totals.grandTotal.minor);
-        const isUnpaid = row.totals.paid.minor === '0';
+        const paid = BigInt(row.totals.paid.minor);
+        const due = BigInt(row.totals.grandTotal.minor);
 
         return (
           <span
             className={
-              isSettled ? 'text-success' : isUnpaid ? 'text-ink-subtle' : 'font-medium text-warning'
+              paid >= due
+                ? 'text-success'
+                : paid <= 0n
+                  ? 'text-ink-subtle'
+                  : 'font-medium text-warning'
             }
           >
             {formatMoney(row.totals.paid)}
@@ -141,22 +200,23 @@ export function OrdersPage(): React.JSX.Element {
       key: 'placed',
       header: 'Placed',
       secondary: true,
+      nowrap: true,
       render: (row) => (
-        <span className="whitespace-nowrap">{formatDateTime(row.placedAt ?? row.createdAt)}</span>
+        <span className="text-ink-muted">{formatDateTime(row.placedAt ?? row.createdAt)}</span>
       ),
     },
   ];
 
   return (
     <>
-      <PageHeader title="Orders" description="Total is what was ordered. Paid is what actually arrived." />
+      <PageHeader
+        title="Orders"
+        description="Fulfilment and payment are separate columns because they move separately. Total is what was ordered; paid is what actually arrived."
+      />
 
       <Card>
-        <div className="flex flex-wrap items-end gap-3 border-b border-border px-4 py-3">
-          <label className="min-w-56 flex-1">
-            <span className="mb-1 block text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-              Search
-            </span>
+        <Toolbar>
+          <ToolbarField label="Search" grow>
             <Input
               type="search"
               value={searchText}
@@ -165,12 +225,9 @@ export function OrdersPage(): React.JSX.Element {
                 setSearchText(event.target.value);
               }}
             />
-          </label>
+          </ToolbarField>
 
-          <label>
-            <span className="mb-1 block text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-              Status
-            </span>
+          <ToolbarField label="Fulfilment status">
             <Select
               value={status}
               onChange={(event) => {
@@ -185,12 +242,9 @@ export function OrdersPage(): React.JSX.Element {
                 </option>
               ))}
             </Select>
-          </label>
+          </ToolbarField>
 
-          <label>
-            <span className="mb-1 block text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-              Source
-            </span>
+          <ToolbarField label="Source">
             <Select
               value={source}
               onChange={(event) => {
@@ -203,8 +257,20 @@ export function OrdersPage(): React.JSX.Element {
               <option value="RECURRING">Recurring</option>
               <option value="ADMIN">Created by staff</option>
             </Select>
-          </label>
-        </div>
+          </ToolbarField>
+
+          {hasFilters && (
+            <ToolbarActions>
+              <Button
+                onClick={() => {
+                  setSearchParams({});
+                }}
+              >
+                Clear filters
+              </Button>
+            </ToolbarActions>
+          )}
+        </Toolbar>
 
         <DataTable
           caption="Orders"
@@ -212,14 +278,33 @@ export function OrdersPage(): React.JSX.Element {
           rows={query.data?.orders}
           rowKey={(row) => row.id}
           isLoading={query.isPending}
+          isRefreshing={query.isFetching && !query.isPending}
           error={query.isError ? query.error : undefined}
+          loadingLabel="Loading orders"
+          minWidth="64rem"
           onRetry={() => {
             void query.refetch();
           }}
           onRowClick={(row) => {
             void navigate(`/orders/${row.id}`);
           }}
-          emptyTitle={status === '' && q === '' ? 'No orders yet' : 'Nothing matches these filters'}
+          emptyTitle={hasFilters ? 'Nothing matches these filters' : 'No orders yet'}
+          emptyDescription={
+            hasFilters
+              ? 'Widen the search, or clear the filters to see the whole queue.'
+              : 'Orders appear here as customers place them.'
+          }
+          emptyAction={
+            hasFilters ? (
+              <Button
+                onClick={() => {
+                  setSearchParams({});
+                }}
+              >
+                Clear filters
+              </Button>
+            ) : undefined
+          }
         />
 
         {query.data !== undefined && (

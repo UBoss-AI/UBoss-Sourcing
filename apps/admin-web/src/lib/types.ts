@@ -80,7 +80,17 @@ export interface DashboardResponse {
     byStatus: { status: string; count: number }[];
     upcoming: UpcomingOccurrence[];
     failedOccurrences: number;
-    needsAttention: { scheduleId: string; name: string; reason: string }[];
+    // Widened to what the endpoint actually sends. `reason` is the schedule's
+    // `pausedReason`, which is null for a schedule that failed rather than one
+    // somebody paused — so it has to be nullable here or the dashboard renders
+    // the string "null" at people.
+    needsAttention: {
+      scheduleId: string;
+      name: string;
+      customerName: string | null;
+      failureCount: number;
+      reason: string | null;
+    }[];
   };
   alerts: {
     failedNotifications: number;

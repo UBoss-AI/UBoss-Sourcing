@@ -15,6 +15,12 @@ export interface AdminUser {
   roles: string[];
   permissions: string[];
   mfaEnabled: boolean;
+  /**
+   * Signed in on the temporary password that was emailed when the account was
+   * created. The backend refuses every admin route while this is true, so the
+   * panel shows the change-password screen and nothing else.
+   */
+  mustChangePassword: boolean;
 }
 
 export interface SessionState {

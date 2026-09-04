@@ -18,7 +18,9 @@ import { Suspense } from 'react';
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { RequireAuth, RequirePermission } from '@/auth/guards';
 import { AppShell } from '@/layout/AppShell';
+import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage';
 import { LoginPage } from '@/pages/LoginPage';
+import { ResetPasswordPage } from '@/pages/ResetPasswordPage';
 import { RouteFallback } from './RouteFallback';
 import { Permission } from '@/lib/permissions';
 import type { PermissionKey } from '@/lib/permissions';
@@ -54,7 +56,11 @@ function lazyRoute(
 }
 
 export const router = createBrowserRouter([
+  // The screens that work while signed out. Password recovery has to live here
+  // by definition: somebody who cannot sign in cannot pass RequireAuth.
   { path: '/login', element: <LoginPage /> },
+  { path: '/forgot-password', element: <ForgotPasswordPage /> },
+  { path: '/reset-password', element: <ResetPasswordPage /> },
   {
     path: '/',
     element: (
@@ -132,6 +138,12 @@ export const router = createBrowserRouter([
         path: 'customers/:id',
         ...lazyRoute(() => import('@/pages/CustomerDetailPage').then((m) => m.CustomerDetailPage), [
           Permission.CUSTOMER_READ,
+        ]),
+      },
+      {
+        path: 'chat-enquiries',
+        ...lazyRoute(() => import('@/pages/ChatEnquiriesPage').then((m) => m.ChatEnquiriesPage), [
+          Permission.ASSISTANT_CHAT_READ,
         ]),
       },
       {

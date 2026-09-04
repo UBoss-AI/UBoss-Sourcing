@@ -147,6 +147,39 @@ meant signing into one silently signed you out of the other.
 These are **development seeds**. Delete them before the system goes live —
 `backend/docs/RUNBOOK.md` has the procedure.
 
+### Adding a member of staff
+
+A Business Owner creates the account from **Staff**. There is no password field
+on that form: the system generates a one-time password, emails it, and nobody —
+including the person who created the account — ever sees it.
+
+What the new member of staff gets is an email with their address and that
+password. Signing in with it works, and then does exactly one thing: it puts
+them on a *Choose your password* screen. Until they finish, **every admin route
+answers 403** — the block is `mustChangePassword` in `plugins/auth.ts`, not the
+screen, so it holds for an API client too.
+
+The temporary password lapses after **72 hours**, because unlike the activation
+link it replaces it sits in an inbox rather than being single-use. If it goes
+astray or expires, **Staff → Resend password** issues a new one and kills the
+old; that button disappears once the holder has a password of their own, at
+which point the way back in is the reset they start themselves.
+
+Once they have a password of their own and forget it, **Forgot your password?**
+on the admin sign-in page emails them a reset link. That link lasts an hour —
+short, because unlike a temporary password it needs no second factor at all —
+is single use, and revokes every session when spent. It is also the only way
+back in at that point: **Resend password** disappears from Staff as soon as an
+account has its own password, so a colleague cannot mint a credential for
+somebody who already has one.
+
+Both directions answer identically for an address with no account. A form that
+said "no such staff account" would be a way to find out who works here.
+
+For any of this to leave the machine, `EMAIL_DRIVER` must be `smtp`. On `log`
+the email is printed to the worker terminal instead — fine for development, and
+where you will find the password or the link while testing.
+
 ### Other commands worth knowing
 
 ```bash
@@ -271,7 +304,7 @@ in those words.
 Each project gates on the same checks:
 
 ```bash
-cd backend           && npm run verify   # typecheck, lint, 552 tests against a real MariaDB
+cd backend           && npm run verify   # typecheck, lint, 569 tests against a real MariaDB
 cd apps/admin-web    && npm run verify   # typecheck, lint, build
 cd apps/customer-web && npm run verify   # typecheck, lint, 56 tests, build
 ```

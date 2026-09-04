@@ -172,6 +172,34 @@ export function orderStatusTone(status: string): BadgeTone {
 }
 
 /**
+ * Payment status colour.
+ *
+ * The three pending-ish states are amber rather than neutral on purpose: a
+ * transaction sitting in CREATED, PENDING or AUTHORIZED is money the gateway
+ * may believe it has and this system does not, which is the reconciliation
+ * queue and not a resting state.
+ *
+ * Shared by the payments queue and the order detail panel, which used to hold
+ * two different opinions — the detail page painted a FAILED payment amber.
+ */
+export function paymentStatusTone(status: string): BadgeTone {
+  switch (status) {
+    case 'CAPTURED':
+      return 'success';
+    case 'FAILED':
+    case 'CANCELLED':
+    case 'EXPIRED':
+      return 'danger';
+    case 'CREATED':
+    case 'PENDING':
+    case 'AUTHORIZED':
+      return 'warning';
+    default:
+      return 'neutral';
+  }
+}
+
+/**
  * What a transition means, in the words an administrator would use.
  *
  * The button says the action ("Mark as shipped"), not the target state

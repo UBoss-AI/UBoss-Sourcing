@@ -23,6 +23,7 @@ backend.
 | Inventory ledger (`inventory_movements`) | MariaDB | Balances can be replayed from it; without it, stock is guesswork. |
 | Audit log | MariaDB | Compliance and dispute evidence. |
 | Customers, addresses, schedules | MariaDB | Re-invitation possible but disruptive. |
+| Chat enquiries (`assistant_conversations`) | MariaDB | Sales leads and the questions they asked. Recoverable only if the visitor comes back. |
 | Catalog + product media | MariaDB + object storage | Re-creatable from source, slowly. |
 | Export files | Object storage | Regenerable. **Contains personal data** — see §6. |
 | Queue and outbox rows | MariaDB | In-flight notifications and jobs. |
@@ -204,6 +205,7 @@ order whose amount does not match** — a mismatch is alerted to Finance instead
 | Idempotency records | Expire after 24h; `purgeExpiredIdempotencyRecords()` clears them. |
 | Payment events | Retained. They are dispute evidence. Retention period is `<APPROVE>`. |
 | Audit log | Retained. Retention period is `<APPROVE>`; see §7 for the access rule. |
+| Chat enquiries | Retained, with no automatic purge. Each row holds a name, a mobile number, an email address and the transcript — all typed by a visitor into the storefront chat widget and none of it verified. Readable by any role holding `assistant_chat.read`. Retention period is `<APPROVE>`. |
 | Customer deletion / anonymisation | **Not implemented.** Requires a business decision on what "delete" means for an account with orders — SOP §17 requires an approved policy first. |
 
 Backups contain personal data. Encrypt them at rest and restrict access to the

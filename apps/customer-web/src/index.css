@@ -3,42 +3,131 @@
 @tailwind utilities;
 
 /*
- * Design tokens.
+ * UBOSS design tokens — storefront.
  *
- * Raw RGB channels so Tailwind's `<alpha-value>` syntax works — `bg-brand/10`
- * needs the channels, not a finished colour.
+ * This block is deliberately identical to the one in apps/admin-web. One
+ * brand, two densities: the storefront is the more spacious of the pair and
+ * the panel the denser, and that difference lives in the *primitives*
+ * (padding, type step, radius), never in the palette. When a colour has to
+ * change it changes in both files or it has not really changed.
  *
- * `brand` and `action` are deliberately different hues. If Add to Cart looks
- * like every link in the header, people stop seeing either one.
+ * Raw RGB channels rather than finished colours, so Tailwind's `<alpha-value>`
+ * syntax works — `bg-brand/10` needs the channels.
  */
 @layer base {
   :root {
+    /* ===================================================================
+     * Palette
+     * =================================================================== */
+
+    /* --- Navy: chrome. The header band, the hero, the admin sidebar. ---
+       Deep navy rather than near-black: a true black band above a white
+       catalogue reads as a rendering mistake, not as a decision. */
+    --navy: 16 42 67;
+    --navy-hover: 24 58 90;
+
+    /* --- Primary blue: navigation and general primary actions --------- */
+    --brand: 29 78 216;
+    --brand-hover: 30 64 175;
+    --brand-soft: 239 246 255;
+    --brand-soft-hover: 219 234 254;
+
+    /* --- Action orange: the buy path, and nothing else -----------------
+       Two values, because one orange cannot do both jobs and stay legible:
+
+         `action`        #EA580C, the brand's Action Orange. Non-text uses —
+                         emphasis borders, tinted conversion panels, and the
+                         cart count, which sits on it in ink (5.02:1).
+         `action-strong` #C2410C, the fill under a *white* CTA label, where
+                         #EA580C would land at 3.56:1 and fail AA.
+
+       Never a default button colour. Add to Cart, Checkout, Place Order. */
+    --action: 234 88 12;
+    --action-strong: 194 65 12;
+    --action-strong-hover: 154 52 18;
+    --action-soft: 255 247 237;
+    --action-soft-hover: 255 237 213;
+
+    /* --- Teal: repeat purchases and positive process cues -------------
+       A third hue, so a recurring capability never has to borrow the buy
+       path's orange or the navigation blue. */
+    --operational: 15 118 110;
+    --operational-hover: 17 94 89;
+    --operational-soft: 240 253 250;
+
+    /* --- Status -------------------------------------------------------
+       Each has a `-hover` that goes *darker*. Filled status buttons used to
+       lighten on hover, which quietly walked white label text down towards
+       failing AA at the exact moment the pointer was on it. */
+    --success: 21 128 61;
+    --success-hover: 22 101 52;
+    --success-soft: 240 253 244;
+    --warning: 161 98 7;
+    --warning-hover: 133 77 14;
+    --warning-soft: 254 252 232;
+    --danger: 185 28 28;
+    --danger-hover: 153 27 27;
+    --danger-soft: 254 242 242;
+
+    /* ===================================================================
+     * Surfaces
+     * =================================================================== */
     --surface: 255 255 255;
-    --surface-sunken: 246 248 251;
-    --surface-inverse: 15 23 42;
+    --surface-raised: 255 255 255;
+    --surface-sunken: 248 250 252;
+    /* The hover ground for a row, a menu item, a quiet button. One step below
+       `surface-sunken`, so a hovered row inside a sunken panel still moves. */
+    --surface-hover: 241 245 249;
+    --surface-inverse: 16 42 67;
+    --surface-inverse-hover: 24 58 90;
+
+    /* ===================================================================
+     * Borders
+     * =================================================================== */
+    /* The standard hairline: panel edges, table rules, dividers. */
     --border: 226 232 240;
+    /* One step lighter, for a rule *inside* an already-bordered card. Using
+       the same weight for the card edge and its internal header rule is what
+       makes a page of cards read as a stack of boxes. */
+    --border-subtle: 241 245 249;
     /* A control boundary needs 3:1 to be perceivable (WCAG 1.4.11). The
        lighter slate this replaced sat at 1.48:1, which made every input
        border effectively invisible to a low-vision customer. */
     --border-strong: 132 144 161;
+    /* The hover boundary for an idle control: darker, and still not the focus
+       ring, so hovering an input is felt without being announced. */
+    --border-hover: 100 116 139;
+
+    /* ===================================================================
+     * Text
+     * =================================================================== */
     --ink: 15 23 42;
     --ink-muted: 71 85 105;
-    /* Chosen to clear 4.5:1 on both the card and the page grounds, not
-       picked for looks: this carries SKUs, timestamps and helper text, which
-       are informational however quiet they look. */
-    --ink-subtle: 99 115 138;
+    /* Clears 4.5:1 on both the card and the page grounds (4.76:1 and 4.55:1),
+       not picked for looks: this carries SKUs, timestamps and helper text,
+       which are informational however quiet they look. */
+    --ink-subtle: 100 116 139;
     --ink-inverse: 248 250 252;
-    --brand: 30 58 138;
-    --brand-hover: 30 64 175;
-    --brand-soft: 239 246 255;
-    --action: 194 65 12;
-    --action-hover: 154 52 18;
-    --danger: 185 28 28;
-    --danger-soft: 254 242 242;
-    --success: 21 128 61;
-    --success-soft: 240 253 244;
-    --warning: 161 98 7;
-    --warning-soft: 254 252 232;
+
+    /* ===================================================================
+     * Focus
+     *
+     * Its own token rather than an alias in the config, so a future decision
+     * to make the ring a non-brand colour is one line here.
+     * =================================================================== */
+    --ring: 29 78 216;
+
+    /* ===================================================================
+     * Motion
+     *
+     * One curve and two durations for the whole UI. Wired into Tailwind as
+     * the *default* transition timing (see tailwind.config.js), so every
+     * existing `transition-colors` in the app picks this up without a single
+     * class attribute changing.
+     * =================================================================== */
+    --ease-ui: cubic-bezier(0.2, 0, 0.13, 1);
+    --dur-fast: 120ms;
+    --dur-base: 200ms;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -48,7 +137,10 @@
 
     *,
     *::before,
-    *::after {
+    *::after,
+    /* ::backdrop is not covered by the universal selector, and the dialog
+       backdrop now carries its own fade. */
+    ::backdrop {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
@@ -57,11 +149,27 @@
 
   html {
     scroll-behavior: smooth;
+    /* An anchored heading clears the sticky header instead of hiding under it. */
+    scroll-padding-top: 5rem;
   }
 
   body {
     @apply bg-surface-sunken text-ink antialiased;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /*
+   * Headings carry their own optical tightening.
+   *
+   * Inter tracks loose at display sizes. Correcting it here rather than at
+   * each `text-2xl` call site means a heading is tight because it is a
+   * heading, not because someone remembered.
+   */
+  h1,
+  h2,
+  h3 {
+    @apply tracking-tight;
+    text-wrap: balance;
   }
 
   /*
@@ -72,7 +180,7 @@
    * most common way a storefront becomes unbuyable without a mouse.
    */
   :focus-visible {
-    @apply outline-none ring-2 ring-brand ring-offset-2 ring-offset-surface;
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-surface;
   }
 
   /* Prices and quantities line up down a column. */
@@ -90,6 +198,54 @@
     @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50
            focus:rounded-md focus:bg-brand focus:px-4 focus:py-2 focus:text-sm
            focus:font-medium focus:text-white;
+  }
+
+  /*
+   * Focus ring for the navy header.
+   *
+   * The global ring is brand blue offset against white, which all but
+   * disappears on a navy band. Keyboard users must not lose the ring just
+   * because the chrome went dark, so inside `.on-navy` it becomes white with a
+   * navy offset. Same ring, same trigger — only the two colours change.
+   */
+  .on-navy :focus-visible {
+    @apply ring-white ring-offset-surface-inverse;
+  }
+
+  /*
+   * …and back again, for a white panel that hangs off a navy one.
+   *
+   * The account menu is a white popover anchored inside the navy header. It
+   * inherits `.on-navy`, where a white ring on a white surface is no ring at
+   * all, so the panel opts back out.
+   */
+  .on-navy .on-light :focus-visible {
+    @apply ring-ring ring-offset-surface;
+  }
+
+  /*
+   * Our own select arrow.
+   *
+   * Left native, a `<select>` is a different width, weight and colour on every
+   * operating system, which is exactly what makes one filter row look
+   * hand-assembled next to the `<input>` beside it. The chevron is inlined as
+   * a data URI so it costs no request, and it is stroked in `--ink-muted` so
+   * it sits at the same weight as the placeholder text.
+   *
+   * `padding-right` comes from the `pr-9` on the control itself — 2.25rem,
+   * which clears the 1rem glyph inset 0.75rem from the edge.
+   */
+  .select-chevron {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23475569' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem 1rem;
+  }
+
+  /* A disabled control's arrow dims with the rest of it. */
+  .select-chevron:disabled {
+    opacity: 0.6;
   }
 
   /* A placeholder block while content loads. Sized by the caller. */

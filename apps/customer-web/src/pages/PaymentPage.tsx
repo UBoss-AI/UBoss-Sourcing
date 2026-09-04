@@ -14,13 +14,24 @@
  * with the same idempotency key, so a customer who fails once, closes the
  * sheet, and tries again ends up with one order and one payment — never two
  * orders.
+ *
+ * Every visible state on this page is derived from `phase`, and `phase` moves
+ * to `paid` in exactly one place: the effect that reads the backend's verdict.
+ * The status strip, the progress indicator and the heading all read from it,
+ * so there is no second path by which the UI could claim a payment the server
+ * has not confirmed.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
-import { Badge, Button, ErrorState, LoadingState, Spinner } from '@/components/ui';
+import { CheckoutSteps } from '@/components/CheckoutSteps';
+import { paymentSteps } from '@/lib/checkout-steps';
+import { AlertIcon, CheckIcon, ClockIcon, ShieldIcon } from '@/components/icons';
+import { Badge, Button, ButtonLink, ErrorState, LoadingState, Spinner } from '@/components/ui';
+import type { BadgeTone } from '@/components/ui';
 import { ApiError, NetworkError, api, newIdempotencyKey } from '@/lib/api';
+import { cx } from '@/lib/cx';
 import { formatMoney } from '@/lib/format';
 import { openRazorpayCheckout } from '@/lib/razorpay';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
@@ -43,6 +54,66 @@ type Phase =
   | 'paid'
   /** The provider or the customer ended it without payment. */
   | 'unpaid';
+
+/**
+ * The one-line state of this payment, as a chip beside the amount.
+ *
+ * Five distinct things can be true, and a customer who refreshes, or comes
+ * back to the tab, needs to know which one without reading a paragraph.
+ * `paid` is the only entry that says anything has succeeded, and only the
+ * backend can put the page into it.
+ */
+const PHASE_CHIP: Record<Phase, { tone: BadgeTone; label: string }> = {
+  idle: { tone: 'warning', label: 'Payment pending' },
+  opening: { tone: 'brand', label: 'Opening payment window' },
+  'in-provider': { tone: 'brand', label: 'Action needed in the payment window' },
+  processing: { tone: 'brand', label: 'Processing' },
+  paid: { tone: 'success', label: 'Paid' },
+  // "Not paid", not "Payment not completed": the panel below already carries
+  // that sentence, and a chip repeating it word for word reads as two separate
+  // failures rather than one.
+  unpaid: { tone: 'danger', label: 'Not paid' },
+};
+
+/**
+ * A status panel. Icon, heading, body — the same shape whatever is being
+ * reported, so the page does not reflow into a different layout each time the
+ * payment changes state.
+ */
+function StatusPanel({
+  tone,
+  icon,
+  title,
+  children,
+  role = 'status',
+}: {
+  tone: 'brand' | 'warning' | 'danger' | 'success';
+  icon: React.JSX.Element;
+  title: string;
+  children: React.ReactNode;
+  role?: 'status' | 'alert';
+}): React.JSX.Element {
+  const tones = {
+    brand: 'border-brand/30 bg-brand-soft text-brand',
+    warning: 'border-warning/30 bg-warning-soft text-warning',
+    danger: 'border-danger/30 bg-danger-soft text-danger',
+    success: 'border-success/30 bg-success-soft text-success',
+  } as const;
+
+  return (
+    <div
+      role={role}
+      {...(role === 'status' ? { 'aria-live': 'polite' as const } : {})}
+      className={cx('flex items-start gap-3 rounded-md border px-4 py-3.5', tones[tone])}
+    >
+      <span className="mt-0.5 shrink-0">{icon}</span>
+      <div className="min-w-0 text-sm">
+        <p className="font-medium">{title}</p>
+        <div className="mt-1 text-ink">{children}</div>
+      </div>
+    </div>
+  );
+}
 
 export function PaymentPage(): React.JSX.Element {
   const { orderId } = useParams<{ orderId: string }>();
@@ -197,35 +268,51 @@ export function PaymentPage(): React.JSX.Element {
 
   if (alreadyPaid || phase === 'paid') {
     return (
-      <div className="mx-auto max-w-lg py-12 text-center">
-        <div className="rounded-lg border border-success/30 bg-success-soft p-8">
-          <h1 className="text-xl font-semibold text-success">Payment confirmed</h1>
+      <div className="mx-auto max-w-2xl py-4">
+        <CheckoutSteps states={paymentSteps(true)} />
+
+        <div className="rounded-lg border border-success/30 bg-success-soft p-8 text-center shadow-card">
+          <span
+            aria-hidden="true"
+            className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-success text-white"
+          >
+            <CheckIcon className="h-6 w-6" />
+          </span>
+
+          {/* Said only here, and only because the backend has said it first. */}
+          <h1 className="mt-4 text-title-lg text-success">Payment confirmed</h1>
           <p className="mt-2 text-sm text-ink">
-            Order {currentOrder.orderNumber} is paid. We have emailed your confirmation.
+            Order{' '}
+            <span className="font-mono font-medium">{currentOrder.orderNumber}</span> is paid. We
+            have emailed your confirmation.
           </p>
+
           <div className="mt-6 flex flex-wrap justify-center gap-2">
-            <Link
-              to={`/account/orders/${currentOrder.id}`}
-              className="inline-flex h-11 items-center rounded-md bg-brand px-5 text-sm font-medium text-white hover:bg-brand-hover"
-            >
+            <ButtonLink to={`/account/orders/${currentOrder.id}`} variant="primary" size="lg">
               View your order
-            </Link>
-            <Link
-              to="/products"
-              className="inline-flex h-11 items-center rounded-md border border-border-strong bg-surface px-5 text-sm font-medium text-ink hover:bg-surface-sunken"
-            >
+            </ButtonLink>
+            <ButtonLink to="/products" size="lg">
               Keep shopping
-            </Link>
+            </ButtonLink>
           </div>
+
+          <p className="mt-4 text-xs text-ink-muted">
+            <Link to="/account/orders" className="font-medium text-brand hover:underline">
+              All your orders
+            </Link>
+          </p>
         </div>
       </div>
     );
   }
 
   const pollTimedOut = phase === 'processing' && pollSeconds >= MAX_POLL_SECONDS;
+  const chip = PHASE_CHIP[phase];
 
   return (
-    <div className="mx-auto max-w-lg py-8">
+    <div className="mx-auto max-w-2xl py-4">
+      <CheckoutSteps states={paymentSteps(false)} />
+
       {wasReplayed && (
         <div
           role="status"
@@ -235,57 +322,72 @@ export function PaymentPage(): React.JSX.Element {
         </div>
       )}
 
-      <div className="rounded-lg border border-border bg-surface p-6">
-        <h1 className="text-xl font-semibold tracking-tight text-ink">Pay for your order</h1>
-        <p className="mt-1.5 text-sm text-ink-muted">
-          Order {currentOrder.orderNumber} · placed just now
-        </p>
+      <div className="rounded-lg border border-border bg-surface p-6 shadow-card">
+        <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+          <div className="min-w-0">
+            <h1 className="text-title-lg text-ink">Pay for your order</h1>
+            <p className="mt-1 text-sm text-ink-muted">
+              Order{' '}
+              <span className="font-mono font-medium text-ink">{currentOrder.orderNumber}</span> ·
+              placed just now
+            </p>
+          </div>
+
+          {/* The state of the payment itself, always on screen, never ahead of
+              the backend. `idle` says pending, not "ready" — nothing has been
+              paid and the chip should not imply otherwise. */}
+          <Badge tone={chip.tone}>{chip.label}</Badge>
+        </div>
 
         <div className="mt-5 flex items-baseline justify-between border-y border-border py-4">
           <span className="text-sm text-ink-muted">Amount due</span>
-          <span className="text-2xl font-semibold tabular text-ink">{formatMoney(outstanding)}</span>
+          <span className="text-title-lg tabular text-ink">{formatMoney(outstanding)}</span>
         </div>
 
         {/* --- Processing -------------------------------------------------- */}
         {phase === 'processing' && (
-          <div className="mt-6" role="status" aria-live="polite">
-            <div className="flex items-start gap-3 rounded-md border border-brand/30 bg-brand-soft px-4 py-3.5">
-              <Spinner className="mt-0.5 h-5 w-5 text-brand" />
-              <div className="text-sm">
-                <p className="font-medium text-brand">Confirming your payment</p>
-                <p className="mt-1 text-ink">
-                  Your bank has accepted it. We are waiting for our payment provider to confirm,
-                  which usually takes a few seconds. Please do not close this page or pay again.
-                </p>
-              </div>
-            </div>
+          <div className="mt-6 space-y-3">
+            <StatusPanel
+              tone="brand"
+              icon={<Spinner className="h-5 w-5" />}
+              title="Confirming your payment"
+            >
+              Your bank has accepted it. We are waiting for our payment provider to confirm,
+              which usually takes a few seconds. Please do not close this page or pay again.
+            </StatusPanel>
 
             {pollTimedOut && (
-              <div className="mt-3 rounded-md border border-warning/30 bg-warning-soft px-4 py-3 text-sm">
-                <p className="font-medium text-warning">This is taking longer than usual</p>
-                <p className="mt-1 text-ink">
+              <StatusPanel
+                tone="warning"
+                icon={<ClockIcon className="h-5 w-5" />}
+                title="This is taking longer than usual"
+              >
+                <p>
                   Your payment has not been lost. It will be confirmed automatically, and you will
                   get an email when it is. You can safely leave this page and check your order.
                 </p>
                 <Link
                   to={`/account/orders/${currentOrder.id}`}
-                  className="mt-2 inline-block font-semibold text-ink underline underline-offset-2"
+                  className="mt-2 inline-block font-semibold underline underline-offset-2"
                 >
                   View the order
                 </Link>
-              </div>
+              </StatusPanel>
             )}
           </div>
         )}
 
         {/* --- Not paid ----------------------------------------------------- */}
         {phase === 'unpaid' && message !== null && (
-          <div
-            role="alert"
-            className="mt-6 rounded-md border border-warning/30 bg-warning-soft px-4 py-3 text-sm"
-          >
-            <p className="font-medium text-warning">Payment not completed</p>
-            <p className="mt-1 text-ink">{message}</p>
+          <div className="mt-6">
+            <StatusPanel
+              tone="warning"
+              role="alert"
+              icon={<AlertIcon className="h-5 w-5" />}
+              title="Payment not completed"
+            >
+              {message}
+            </StatusPanel>
           </div>
         )}
 
@@ -310,40 +412,56 @@ export function PaymentPage(): React.JSX.Element {
               Retrying uses this same order — it will never create a second one.
             </p>
 
-            <Link
-              to={`/account/orders/${currentOrder.id}`}
-              className="inline-flex h-10 w-full items-center justify-center rounded-md border border-border-strong bg-surface text-sm font-medium text-ink hover:bg-surface-sunken"
-            >
+            <ButtonLink to={`/account/orders/${currentOrder.id}`} fullWidth>
               Pay later — view the order
-            </Link>
+            </ButtonLink>
           </div>
         )}
 
+        {/* --- Requires action in the provider's window ---------------------- */}
         {(phase === 'opening' || phase === 'in-provider') && (
-          <div className="mt-6 flex items-center justify-center gap-2 py-4 text-sm text-ink-muted">
-            <Spinner />
-            <span role="status">
-              {phase === 'opening' ? 'Opening the secure payment window…' : 'Waiting for you to finish paying…'}
-            </span>
+          <div className="mt-6">
+            <StatusPanel
+              tone="brand"
+              icon={<Spinner className="h-5 w-5" />}
+              title={
+                phase === 'opening'
+                  ? 'Opening the secure payment window'
+                  : 'Finish paying in the payment window'
+              }
+            >
+              {phase === 'opening'
+                ? 'One moment — we are asking our payment provider for a secure session for this order.'
+                : 'The payment window is open. Complete the payment there and this page will pick it up. Nothing is charged until you finish.'}
+            </StatusPanel>
           </div>
         )}
 
-        <p className="mt-6 border-t border-border pt-4 text-xs text-ink-subtle">
-          Card details are entered on our payment provider&rsquo;s own secure page and never reach
-          this site. We only ever learn that a payment succeeded, never how it was made.
-        </p>
+        <div className="mt-6 flex gap-2.5 border-t border-border pt-4 text-xs leading-relaxed text-ink-subtle">
+          <ShieldIcon className="mt-px h-4 w-4 shrink-0 text-ink-muted" />
+          <p>
+            Card details are entered on our payment provider&rsquo;s own secure page and never reach
+            this site. We only ever learn that a payment succeeded, never how it was made.
+          </p>
+        </div>
       </div>
 
-      <div className="mt-4 text-center">
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm">
         <button
           type="button"
           onClick={() => {
             void navigate('/cart');
           }}
-          className="text-sm text-ink-muted underline underline-offset-2 hover:text-ink"
+          className="text-ink-muted underline underline-offset-2 hover:text-ink"
         >
           Back to the cart
         </button>
+        <Link
+          to="/account/orders"
+          className="text-ink-muted underline underline-offset-2 hover:text-ink"
+        >
+          All your orders
+        </Link>
       </div>
 
       {currentOrder.status === 'PENDING_APPROVAL' && (

@@ -14,7 +14,17 @@ import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { DataTable, Pager } from '@/components/DataTable';
 import type { Column } from '@/components/DataTable';
-import { Badge, Card, Input, PageHeader, Select } from '@/components/ui';
+import {
+  Badge,
+  Button,
+  Card,
+  Input,
+  PageHeader,
+  Select,
+  Toolbar,
+  ToolbarActions,
+  ToolbarField,
+} from '@/components/ui';
 import { api } from '@/lib/api';
 import { formatDateTime, humanise } from '@/lib/format';
 import type { Pagination } from '@/lib/types';
@@ -34,6 +44,29 @@ interface AuditEntry {
   createdAt: string;
 }
 
+const RESOURCE_TYPES = [
+  'user',
+  'product',
+  'category',
+  'order',
+  'payment',
+  'customer_profile',
+  'recurring_schedule',
+  'payment_provider_connection',
+  'import_job',
+] as const;
+
+function JsonBlock({ label, value }: { label: string; value: unknown }): React.JSX.Element {
+  return (
+    <div>
+      <p className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">{label}</p>
+      <pre className="mt-1 max-h-64 max-w-md overflow-auto rounded border border-border bg-surface-sunken p-2 font-mono text-xxs leading-relaxed text-ink">
+        {JSON.stringify(value, null, 2)}
+      </pre>
+    </div>
+  );
+}
+
 function DetailToggle({ entry }: { entry: AuditEntry }): React.JSX.Element {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -43,39 +76,21 @@ function DetailToggle({ entry }: { entry: AuditEntry }): React.JSX.Element {
 
   return (
     <div>
-      <button
-        type="button"
+      <Button
+        size="sm"
+        variant="ghost"
         aria-expanded={isOpen}
         onClick={() => {
           setIsOpen((open) => !open);
         }}
-        className="text-xs font-medium text-accent underline underline-offset-2"
       >
         {isOpen ? 'Hide detail' : 'Show detail'}
-      </button>
+      </Button>
 
       {isOpen && (
-        <div className="mt-1.5 space-y-1.5">
-          {entry.before !== null && (
-            <div>
-              <p className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                Before
-              </p>
-              <pre className="mt-0.5 max-w-md overflow-x-auto rounded bg-surface-sunken p-2 font-mono text-xxs text-ink">
-                {JSON.stringify(entry.before, null, 2)}
-              </pre>
-            </div>
-          )}
-          {entry.after !== null && (
-            <div>
-              <p className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                After
-              </p>
-              <pre className="mt-0.5 max-w-md overflow-x-auto rounded bg-surface-sunken p-2 font-mono text-xxs text-ink">
-                {JSON.stringify(entry.after, null, 2)}
-              </pre>
-            </div>
-          )}
+        <div className="mt-2 space-y-2">
+          {entry.before !== null && <JsonBlock label="Before" value={entry.before} />}
+          {entry.after !== null && <JsonBlock label="After" value={entry.after} />}
         </div>
       )}
     </div>
@@ -89,6 +104,8 @@ export function AuditPage(): React.JSX.Element {
   const action = searchParams.get('action') ?? '';
   const actorEmail = searchParams.get('actorEmail') ?? '';
   const resourceType = searchParams.get('resourceType') ?? '';
+
+  const hasFilters = action !== '' || actorEmail !== '' || resourceType !== '';
 
   const query = useQuery({
     queryKey: ['audit', { page, action, actorEmail, resourceType }],
@@ -118,22 +135,26 @@ export function AuditPage(): React.JSX.Element {
     {
       key: 'when',
       header: 'When',
-      render: (row) => <span className="whitespace-nowrap">{formatDateTime(row.createdAt)}</span>,
+      nowrap: true,
+      render: (row) => <span className="text-ink-muted">{formatDateTime(row.createdAt)}</span>,
     },
     {
       key: 'action',
       header: 'Action',
-      render: (row) => <span className="font-mono text-xxs text-ink">{row.action}</span>,
+      nowrap: true,
+      render: (row) => <span className="font-mono text-xxs font-medium text-ink">{row.action}</span>,
     },
     {
       key: 'actor',
       header: 'By',
       render: (row) => (
-        <div>
+        <div className="min-w-36">
           <p className="text-ink">
             {row.actorEmail ?? (row.actorType === 'SYSTEM' ? 'The system' : humanise(row.actorType))}
           </p>
-          {row.ipAddress !== null && <p className="text-xxs text-ink-subtle">{row.ipAddress}</p>}
+          {row.ipAddress !== null && (
+            <p className="font-mono text-xxs text-ink-subtle">{row.ipAddress}</p>
+          )}
         </div>
       ),
     },
@@ -145,7 +166,7 @@ export function AuditPage(): React.JSX.Element {
         <div>
           <Badge>{humanise(row.resourceType)}</Badge>
           {row.resourceId !== null && (
-            <p className="mt-0.5 font-mono text-xxs text-ink-subtle">{row.resourceId}</p>
+            <p className="mt-1 font-mono text-xxs text-ink-subtle">{row.resourceId}</p>
           )}
         </div>
       ),
@@ -155,6 +176,7 @@ export function AuditPage(): React.JSX.Element {
       key: 'correlation',
       header: 'Reference',
       secondary: true,
+      tertiary: true,
       render: (row) =>
         row.correlationId === null ? (
           <span className="text-ink-subtle">—</span>
@@ -170,30 +192,31 @@ export function AuditPage(): React.JSX.Element {
     <>
       <PageHeader
         title="Audit log"
-        description="Who changed what, when, and from where. Append-only — nothing here can be edited."
+        description="Who changed what, when, and from where. Append-only — nothing on this screen can edit or remove an entry."
       />
 
       <Card>
-        <div className="flex flex-wrap items-end gap-3 border-b border-border px-4 py-3">
-          <label className="min-w-48 flex-1">
-            <span className="mb-1 block text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-              Action
-            </span>
+        <Toolbar>
+          <ToolbarField label="Action" grow>
             <Input
               type="search"
               defaultValue={action}
               placeholder="e.g. product.updated"
               className="font-mono"
+              // Applied when the field is left or Enter is pressed, rather than
+              // on every keystroke: this filter is an exact match, and
+              // re-querying at "p", "pr", "pro" is three wasted round trips
+              // that all return nothing.
               onBlur={(event) => {
                 setParam('action', event.target.value.trim());
               }}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') setParam('action', event.currentTarget.value.trim());
+              }}
             />
-          </label>
+          </ToolbarField>
 
-          <label className="min-w-48 flex-1">
-            <span className="mb-1 block text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-              Actor email
-            </span>
+          <ToolbarField label="Actor email" grow>
             <Input
               type="search"
               defaultValue={actorEmail}
@@ -201,51 +224,75 @@ export function AuditPage(): React.JSX.Element {
               onBlur={(event) => {
                 setParam('actorEmail', event.target.value.trim());
               }}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') setParam('actorEmail', event.currentTarget.value.trim());
+              }}
             />
-          </label>
+          </ToolbarField>
 
-          <label>
-            <span className="mb-1 block text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-              Resource
-            </span>
+          <ToolbarField label="Resource">
             <Select
               value={resourceType}
               onChange={(event) => {
                 setParam('resourceType', event.target.value);
               }}
-              className="w-44"
+              className="w-52"
             >
               <option value="">Any resource</option>
-              {[
-                'user',
-                'product',
-                'category',
-                'order',
-                'payment',
-                'customer_profile',
-                'recurring_schedule',
-                'payment_provider_connection',
-                'import_job',
-              ].map((value) => (
+              {RESOURCE_TYPES.map((value) => (
                 <option key={value} value={value}>
                   {humanise(value)}
                 </option>
               ))}
             </Select>
-          </label>
-        </div>
+          </ToolbarField>
+
+          {hasFilters && (
+            <ToolbarActions>
+              <Button
+                onClick={() => {
+                  setSearchParams({});
+                }}
+              >
+                Clear filters
+              </Button>
+            </ToolbarActions>
+          )}
+        </Toolbar>
 
         <DataTable
           caption="Audit log"
           columns={columns}
+          // A `key` on the table would reset the open/closed detail toggles on
+          // every page change; leaving it off keeps them, which is what you
+          // want when you are comparing two entries.
           rows={query.data?.entries}
           rowKey={(row) => row.id}
           isLoading={query.isPending}
+          isRefreshing={query.isFetching && !query.isPending}
           error={query.isError ? query.error : undefined}
+          loadingLabel="Loading the audit log"
+          minWidth="68rem"
           onRetry={() => {
             void query.refetch();
           }}
-          emptyTitle="Nothing matches these filters"
+          emptyTitle={hasFilters ? 'Nothing matches these filters' : 'The log is empty'}
+          emptyDescription={
+            hasFilters
+              ? 'Action and actor are exact matches, so a partial name finds nothing.'
+              : 'Entries appear here as soon as anything is changed.'
+          }
+          emptyAction={
+            hasFilters ? (
+              <Button
+                onClick={() => {
+                  setSearchParams({});
+                }}
+              >
+                Clear filters
+              </Button>
+            ) : undefined
+          }
         />
 
         {query.data !== undefined && (

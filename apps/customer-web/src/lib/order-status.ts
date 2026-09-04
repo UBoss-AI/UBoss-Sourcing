@@ -85,9 +85,16 @@ export function orderStatusExplanation(status: string, paymentMode: string | nul
   }
 }
 
-/** Schedule status presentation. */
+/**
+ * Schedule status presentation.
+ *
+ * An active schedule is `operational`, not `success`: it is not reporting that
+ * something went well, it is reporting that a standing arrangement is in
+ * force. Teal is the app's colour for that, and it keeps green meaning
+ * "finished, and it worked".
+ */
 export function scheduleStatusTone(status: string): BadgeTone {
-  if (status === 'ACTIVE') return 'success';
+  if (status === 'ACTIVE') return 'operational';
   if (status === 'PAUSED') return 'warning';
   if (status === 'CANCELLED' || status === 'FAILED') return 'danger';
   return 'neutral';

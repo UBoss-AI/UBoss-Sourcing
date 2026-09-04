@@ -139,16 +139,20 @@ export function ScheduleDetailPage(): React.JSX.Element {
         </ol>
       </nav>
 
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-ink">{schedule.name}</h1>
-          <p className="mt-1 text-sm text-ink-muted">{schedule.summary}</p>
+      {/* The same silhouette as `PageHeader`, with the status chip in the
+          actions slot — one header shape across the whole account section. */}
+      <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-title-xl text-ink">{schedule.name}</h1>
+          <p className="mt-2 text-sm text-ink-muted">{schedule.summary}</p>
         </div>
 
-        <Badge tone={scheduleStatusTone(schedule.status)}>
-          {scheduleStatusLabel(schedule.status)}
-        </Badge>
-      </div>
+        <div className="flex shrink-0 flex-wrap items-center gap-1.5">
+          <Badge tone={scheduleStatusTone(schedule.status)}>
+            {scheduleStatusLabel(schedule.status)}
+          </Badge>
+        </div>
+      </header>
 
       {schedule.pausedReason !== null && schedule.status === 'PAUSED' && (
         <div
@@ -165,8 +169,8 @@ export function ScheduleDetailPage(): React.JSX.Element {
           className="mb-6 rounded-lg border border-warning/30 bg-warning-soft px-4 py-3 text-sm"
         >
           <p className="font-medium text-warning">
-            {formatNumber(schedule.failureCount)} recent delivery
-            {schedule.failureCount === 1 ? '' : 'ies'} could not be placed
+            {formatNumber(schedule.failureCount)} recent deliver
+            {schedule.failureCount === 1 ? 'y' : 'ies'} could not be placed
           </p>
           <p className="mt-1 text-ink">
             Usually a stock or payment problem. After{' '}
@@ -179,8 +183,8 @@ export function ScheduleDetailPage(): React.JSX.Element {
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-6">
           {/* --- The schedule ------------------------------------------------ */}
-          <section aria-labelledby="cadence-heading" className="rounded-lg border border-border bg-surface p-5">
-            <h2 id="cadence-heading" className="text-base font-semibold text-ink">
+          <section aria-labelledby="cadence-heading" className="rounded-lg border border-border bg-surface p-5 shadow-card">
+            <h2 id="cadence-heading" className="text-title-sm text-ink">
               Schedule
             </h2>
 
@@ -258,8 +262,8 @@ export function ScheduleDetailPage(): React.JSX.Element {
 
           {/* --- Items ------------------------------------------------------- */}
           {schedule.items !== undefined && schedule.items.length > 0 && (
-            <section aria-labelledby="items-heading" className="rounded-lg border border-border bg-surface p-5">
-              <h2 id="items-heading" className="text-base font-semibold text-ink">
+            <section aria-labelledby="items-heading" className="rounded-lg border border-border bg-surface p-5 shadow-card">
+              <h2 id="items-heading" className="text-title-sm text-ink">
                 What is delivered
               </h2>
 
@@ -286,7 +290,7 @@ export function ScheduleDetailPage(): React.JSX.Element {
 
           {/* --- History ------------------------------------------------------ */}
           {schedule.occurrences !== undefined && schedule.occurrences.length > 0 && (
-            <section aria-labelledby="history-heading" className="rounded-lg border border-border bg-surface">
+            <section aria-labelledby="history-heading" className="rounded-lg border border-border bg-surface shadow-card">
               <h2
                 id="history-heading"
                 className="border-b border-border px-5 py-4 text-base font-semibold text-ink"
@@ -333,9 +337,9 @@ export function ScheduleDetailPage(): React.JSX.Element {
         </div>
 
         {/* --- Actions --------------------------------------------------------- */}
-        <aside className="lg:sticky lg:top-40 lg:self-start">
-          <div className="rounded-lg border border-border bg-surface p-5">
-            <h2 className="text-base font-semibold text-ink">Manage</h2>
+        <aside className="lg:sticky lg:top-28 lg:self-start">
+          <div className="rounded-lg border border-border bg-surface p-5 shadow-card">
+            <h2 className="text-title-sm text-ink">Manage</h2>
 
             <div className="mt-3 space-y-2">
               {schedule.status === 'ACTIVE' && (

@@ -3,36 +3,149 @@
 @tailwind utilities;
 
 /*
- * Design tokens.
+ * UBOSS design tokens — admin panel.
  *
- * Defined as raw RGB channels so Tailwind's `<alpha-value>` syntax works -
- * `bg-accent/10` needs the channels, not a finished colour.
+ * This block is deliberately identical to the one in apps/customer-web. One
+ * brand, two densities: the panel is the denser of the pair and the storefront
+ * the more spacious, and that difference lives in the *primitives* (padding,
+ * type step, radius), never in the palette. When a colour has to change it
+ * changes in both files or it has not really changed.
+ *
+ * Raw RGB channels rather than finished colours, so Tailwind's `<alpha-value>`
+ * syntax works — `bg-brand/10` needs the channels.
+ *
+ * Note on `accent`: this panel was built calling the primary blue `accent`,
+ * and ninety class attributes still say `bg-accent`. Rather than rename them,
+ * `accent*` is mapped onto the `--brand*` tokens in tailwind.config.js. There
+ * is one value; there are two names for it, and `brand` is the one to reach
+ * for in new code.
  */
 @layer base {
   :root {
+    /* ===================================================================
+     * Palette
+     * =================================================================== */
+
+    /* --- Navy: chrome. The sidebar here, the header band on the store. ---
+       Holding it apart from the white data surface is most of what makes a
+       dense table scannable. */
+    --navy: 16 42 67;
+    --navy-hover: 24 58 90;
+
+    /* --- Primary blue: navigation and general primary actions ---------
+       Also addressable as `accent` throughout this app. */
+    --brand: 29 78 216;
+    --brand-hover: 30 64 175;
+    --brand-soft: 239 246 255;
+    --brand-soft-hover: 219 234 254;
+
+    /* --- Action orange: the highest-emphasis action on a screen --------
+       Part of the shared brand system, so the token exists here too and the
+       two apps stay one palette. It is used sparingly in the panel: the
+       storefront spends it on the buy path, and an admin panel has nothing to
+       convert. Reach for it only where a screen has exactly one irreversible
+       forward step and `primary` is already spoken for.
+
+         `action`        #EA580C, the accent. Non-text uses — emphasis
+                         borders and tinted panels.
+         `action-strong` #C2410C, the fill under a *white* label, where
+                         #EA580C would land at 3.56:1 and fail AA. */
+    --action: 234 88 12;
+    --action-strong: 194 65 12;
+    --action-strong-hover: 154 52 18;
+    --action-soft: 255 247 237;
+    --action-soft-hover: 255 237 213;
+
+    /* --- Teal: recurring schedules and positive process cues ----------
+       A third hue, so a standing arrangement never has to borrow the blue
+       every other primary action already uses. */
+    --operational: 15 118 110;
+    --operational-hover: 17 94 89;
+    --operational-soft: 240 253 250;
+
+    /* --- Status -------------------------------------------------------
+       Each has a `-hover` that goes *darker*. Filled status buttons used to
+       lighten on hover, which quietly walked white label text down towards
+       failing AA at the exact moment the pointer was on it. */
+    --success: 21 128 61;
+    --success-hover: 22 101 52;
+    --success-soft: 240 253 244;
+    --warning: 161 98 7;
+    --warning-hover: 133 77 14;
+    --warning-soft: 254 252 232;
+    --danger: 185 28 28;
+    --danger-hover: 153 27 27;
+    --danger-soft: 254 242 242;
+
+    /* ===================================================================
+     * Surfaces
+     * =================================================================== */
     --surface: 255 255 255;
     --surface-raised: 255 255 255;
     --surface-sunken: 248 250 252;
+    /* The hover ground for a table row, a menu item, a quiet button. One step
+       below `surface-sunken`, so a hovered row inside a sunken panel — which
+       in this app is most rows — still visibly moves. */
+    --surface-hover: 241 245 249;
+    --surface-inverse: 16 42 67;
+    --surface-inverse-hover: 24 58 90;
+
+    /* ===================================================================
+     * Borders
+     * =================================================================== */
+    /* The standard hairline: panel edges, table rules, dividers. */
     --border: 226 232 240;
-    --border-strong: 203 213 225;
+    /* One step lighter, for a rule *inside* an already-bordered card. Using
+       the same weight for the card edge and its internal header rule is what
+       makes a page of cards read as a stack of boxes. */
+    --border-subtle: 241 245 249;
+    /* A control boundary needs 3:1 to be perceivable (WCAG 1.4.11). The
+       #CBD5E1 this replaced sat at 1.48:1 on white, which made every input
+       and pager button border effectively invisible to a low-vision user. */
+    --border-strong: 132 144 161;
+    /* The hover boundary for an idle control: darker, and still not the focus
+       ring, so hovering an input is felt without being announced. */
+    --border-hover: 100 116 139;
+
+    /* ===================================================================
+     * Text
+     * =================================================================== */
     --ink: 15 23 42;
     --ink-muted: 71 85 105;
-    --ink-subtle: 148 163 184;
-    --accent: 30 64 175;
-    --accent-hover: 30 58 138;
-    --accent-soft: 239 246 255;
-    --danger: 185 28 28;
-    --danger-soft: 254 242 242;
-    --success: 21 128 61;
-    --success-soft: 240 253 244;
-    --warning: 161 98 7;
-    --warning-soft: 254 252 232;
+    /* Clears 4.5:1 on both the card and page grounds (4.76:1 and 4.55:1).
+       The #94A3B8 this replaced sat at 2.9:1, and it carries every table
+       column header, SKU and timestamp in the panel — informational text,
+       however quiet it looks. */
+    --ink-subtle: 100 116 139;
+    --ink-inverse: 248 250 252;
+
+    /* ===================================================================
+     * Focus
+     *
+     * Its own token rather than an alias in the config, so a future decision
+     * to make the ring a non-brand colour is one line here.
+     * =================================================================== */
+    --ring: 29 78 216;
+
+    /* ===================================================================
+     * Motion
+     *
+     * One curve and two durations for the whole UI. Wired into Tailwind as
+     * the *default* transition timing (see tailwind.config.js), so every
+     * existing `transition-colors` in the panel picks this up without a
+     * single class attribute changing.
+     * =================================================================== */
+    --ease-ui: cubic-bezier(0.2, 0, 0.13, 1);
+    --dur-fast: 120ms;
+    --dur-base: 200ms;
   }
 
   html {
     /* An admin panel is a tool. Motion is a distraction unless it carries
        meaning, and it costs people who are sensitive to it. */
     scroll-behavior: smooth;
+    /* An anchored heading clears the sticky top bar instead of hiding under it. */
+    scroll-padding-top: 5rem;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -42,7 +155,10 @@
 
     *,
     *::before,
-    *::after {
+    *::after,
+    /* ::backdrop is not covered by the universal selector, and the dialog
+       backdrop now carries its own fade. */
+    ::backdrop {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
@@ -55,6 +171,20 @@
   }
 
   /*
+   * Headings carry their own optical tightening.
+   *
+   * Inter tracks loose at display sizes. Correcting it here rather than at
+   * each `text-xl` call site means a heading is tight because it is a
+   * heading, not because someone remembered.
+   */
+  h1,
+  h2,
+  h3 {
+    @apply tracking-tight;
+    text-wrap: balance;
+  }
+
+  /*
    * One visible focus ring for everything.
    *
    * `:focus-visible` rather than `:focus` so a mouse click does not leave a
@@ -63,7 +193,7 @@
    * unusable without a mouse.
    */
   :focus-visible {
-    @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-surface;
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-surface;
   }
 
   /* Tabular numerals keep money columns aligned down the page. */
@@ -79,7 +209,58 @@
    */
   .skip-link {
     @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50
-           focus:rounded-md focus:bg-accent focus:px-4 focus:py-2 focus:text-sm
+           focus:rounded-md focus:bg-brand focus:px-4 focus:py-2 focus:text-sm
            focus:font-medium focus:text-white;
+  }
+
+  /*
+   * Focus ring for the navy sidebar.
+   *
+   * The global ring is brand blue offset against white, which all but
+   * disappears on navy. A keyboard user must not lose the ring just because
+   * the chrome went dark, so inside `.on-navy` it becomes white with a navy
+   * offset. Same ring, same trigger — only the two colours change.
+   */
+  .on-navy :focus-visible {
+    @apply ring-white ring-offset-surface-inverse;
+  }
+
+  /*
+   * …and back again, for a white panel that hangs off a navy one. Kept in
+   * step with the storefront so the two apps have one focus contract.
+   */
+  .on-navy .on-light :focus-visible {
+    @apply ring-ring ring-offset-surface;
+  }
+
+  /*
+   * Our own select arrow.
+   *
+   * Left native, a `<select>` is a different width, weight and colour on every
+   * operating system, which is exactly what makes one filter bar look
+   * hand-assembled — and this panel's filter bars are an input, two selects
+   * and a button in a row. The chevron is inlined as a data URI so it costs no
+   * request, and it is stroked in `--ink-muted` so it sits at the same weight
+   * as the placeholder text.
+   *
+   * `padding-right` comes from the `pr-9` on the control itself — 2.25rem,
+   * which clears the 1rem glyph inset 0.75rem from the edge.
+   */
+  .select-chevron {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23475569' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem 1rem;
+  }
+
+  /* A disabled control's arrow dims with the rest of it. */
+  .select-chevron:disabled {
+    opacity: 0.6;
+  }
+
+  /* A placeholder block while content loads. Sized by the caller. */
+  .skeleton {
+    @apply animate-pulse rounded bg-border;
   }
 }

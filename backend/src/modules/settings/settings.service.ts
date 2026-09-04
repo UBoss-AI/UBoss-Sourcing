@@ -16,6 +16,7 @@ import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.j
 import { parseRateToScaled } from '../../domain/money.js';
 import { newId } from '../../infra/ids.js';
 import { env } from '../../config/env.js';
+import { isAssistantConfigured } from '../assistant/assistant.service.js';
 import { prisma } from '../../infra/prisma.js';
 import { stripHtml } from '../../infra/sanitize.js';
 import { isValidTimeZone } from '../../domain/recurrence.js';
@@ -748,6 +749,11 @@ export async function getStorefrontConfig(): Promise<Record<string, unknown>> {
     features: {
       selfRegistration: env.FEATURE_CUSTOMER_SELF_REGISTRATION,
       recurringOrders: env.FEATURE_RECURRING_ORDERS,
+      // Whether this deployment has an Anthropic key configured. The
+      // storefront mounts the chat widget only when this is true, so a
+      // deployment that has not set one shows no chat button at all rather
+      // than a button that 404s.
+      assistant: isAssistantConfigured(),
     },
   };
 }

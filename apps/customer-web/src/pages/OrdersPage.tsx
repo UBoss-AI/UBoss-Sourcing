@@ -5,16 +5,46 @@
  * been paid. On a payment-link order those differ for as long as it takes the
  * approver to act, and collapsing them into a single "total" is how a customer
  * comes to believe they have paid for something they have not.
+ *
+ * An order that came from a repeat purchase says so in teal, the app's colour
+ * for a standing arrangement. It is a label, not an alarm — the row is not
+ * tinted, only the chip.
  */
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
-import { Badge, ErrorState, LoadingState } from '@/components/ui';
+import { PageEmptyState } from '@/components/PageEmptyState';
+import { ChevronRightIcon, RepeatIcon } from '@/components/icons';
+import { Badge, ButtonLink, ErrorState, LoadingState, PageHeader } from '@/components/ui';
 import { api } from '@/lib/api';
 import { formatDateTime, formatMoney, formatNumber } from '@/lib/format';
 import { orderStatusLabel, orderStatusTone } from '@/lib/order-status';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { OrderListItem, Pagination } from '@/lib/types';
+
+/** One figure in the row's footer. Same shape for total, paid and refunded. */
+function Figure({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone?: 'settled' | 'outstanding';
+}): React.JSX.Element {
+  return (
+    <div>
+      <dt className="text-xxs uppercase tracking-wider text-ink-subtle">{label}</dt>
+      <dd
+        className={`tabular font-medium ${
+          tone === 'settled' ? 'text-success' : tone === 'outstanding' ? 'text-warning' : 'text-ink'
+        }`}
+      >
+        {value}
+      </dd>
+    </div>
+  );
+}
 
 export function OrdersPage(): React.JSX.Element {
   const { business } = useStorefront();
@@ -46,24 +76,24 @@ export function OrdersPage(): React.JSX.Element {
 
   if (orders.length === 0) {
     return (
-      <div className="mx-auto max-w-lg py-16 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">No orders yet</h1>
-        <p className="mt-3 text-sm text-ink-muted">
-          Once you place an order it will appear here, with its progress and delivery details.
-        </p>
-        <Link
-          to="/products"
-          className="mt-6 inline-flex h-12 items-center rounded-md bg-action px-6 text-base font-medium text-white hover:bg-action-hover"
-        >
-          Browse products
-        </Link>
-      </div>
+      <PageEmptyState
+        title="No orders yet"
+        description="Once you place an order it will appear here, with its progress and delivery details."
+        action={
+          <ButtonLink to="/products" variant="primary" size="lg">
+            Browse products
+          </ButtonLink>
+        }
+      />
     );
   }
 
   return (
     <>
-      <h1 className="mb-6 text-2xl font-semibold tracking-tight text-ink">Your orders</h1>
+      <PageHeader
+        title="Your orders"
+        description={`${formatNumber(orders.length)} order${orders.length === 1 ? '' : 's'}, newest first.`}
+      />
 
       <ul className="space-y-3">
         {orders.map((order) => {
@@ -74,45 +104,50 @@ export function OrdersPage(): React.JSX.Element {
             <li key={order.id}>
               <Link
                 to={`/account/orders/${order.id}`}
-                className="block rounded-lg border border-border bg-surface p-4 transition-shadow hover:shadow-lift"
+                className="group block rounded-lg border border-border bg-surface p-4 shadow-card transition-[box-shadow,border-color] hover:border-border-hover hover:shadow-card-hover"
               >
                 <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
-                  <div>
-                    <p className="font-mono text-sm font-medium text-ink">{order.orderNumber}</p>
-                    <p className="mt-0.5 text-xs text-ink-muted">
+                  <div className="min-w-0">
+                    <p className="flex items-center gap-1.5 font-mono text-title-xs text-ink">
+                      {order.orderNumber}
+                      <ChevronRightIcon className="h-4 w-4 text-ink-subtle transition-transform group-hover:translate-x-0.5" />
+                    </p>
+                    <p className="mt-1 text-xs text-ink-muted">
                       {formatDateTime(order.placedAt ?? order.createdAt)} ·{' '}
-                      {formatNumber(order.itemCount)} item{order.itemCount === 1 ? '' : 's'}
-                      {order.source === 'RECURRING' && ' · repeat purchase'}
+                      {/*
+                       * "products", not "items". The API's `itemCount` is
+                       * `_count.items` — the number of order *lines*, not the
+                       * number of units — so an order of 56 boxes across two
+                       * products was being announced here as "2 items", which
+                       * the cart had just called 56.
+                       */}
+                      {formatNumber(order.itemCount)} product
+                      {order.itemCount === 1 ? '' : 's'}
                     </p>
                   </div>
 
-                  <Badge tone={orderStatusTone(order.status)}>
-                    {orderStatusLabel(order.status)}
-                  </Badge>
+                  <div className="flex shrink-0 flex-wrap items-center gap-1.5">
+                    {order.source === 'RECURRING' && (
+                      <Badge tone="operational">
+                        <RepeatIcon className="h-3 w-3" />
+                        Repeat purchase
+                      </Badge>
+                    )}
+                    <Badge tone={orderStatusTone(order.status)}>
+                      {orderStatusLabel(order.status)}
+                    </Badge>
+                  </div>
                 </div>
 
-                <dl className="mt-3 flex flex-wrap gap-x-8 gap-y-1 border-t border-border pt-3 text-sm">
-                  <div>
-                    <dt className="text-xxs uppercase tracking-wider text-ink-subtle">Total</dt>
-                    <dd className="tabular font-medium text-ink">
-                      {formatMoney(order.totals.grandTotal)}
-                    </dd>
-                  </div>
-
-                  <div>
-                    <dt className="text-xxs uppercase tracking-wider text-ink-subtle">Paid</dt>
-                    <dd className={`tabular font-medium ${isSettled ? 'text-success' : 'text-warning'}`}>
-                      {formatMoney(order.totals.paid)}
-                    </dd>
-                  </div>
-
+                <dl className="mt-3 flex flex-wrap gap-x-8 gap-y-1 border-t border-border-subtle pt-3 text-sm">
+                  <Figure label="Total" value={formatMoney(order.totals.grandTotal)} />
+                  <Figure
+                    label="Paid"
+                    value={formatMoney(order.totals.paid)}
+                    tone={isSettled ? 'settled' : 'outstanding'}
+                  />
                   {order.totals.refunded.minor !== '0' && (
-                    <div>
-                      <dt className="text-xxs uppercase tracking-wider text-ink-subtle">Refunded</dt>
-                      <dd className="tabular font-medium text-ink">
-                        {formatMoney(order.totals.refunded)}
-                      </dd>
-                    </div>
+                    <Figure label="Refunded" value={formatMoney(order.totals.refunded)} />
                   )}
                 </dl>
               </Link>

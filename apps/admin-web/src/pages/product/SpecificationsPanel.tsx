@@ -26,7 +26,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 import { useSession } from '@/auth/session-context';
 import { useToast } from '@/components/toast-context';
-import { Button, Card, Input } from '@/components/ui';
+import { Button, Callout, Card, Checkbox, EmptyState, Input } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { Permission } from '@/lib/permissions';
 
@@ -177,26 +177,26 @@ export function SpecificationsPanel({
     >
       <div className="px-5 py-4">
         {formError !== null && (
-          <p
-            role="alert"
-            className="mb-3 rounded-md border border-danger/30 bg-danger-soft px-3 py-2 text-sm text-danger"
-          >
+          <Callout tone="danger" role="alert" className="mb-3">
             {formError}
-          </p>
+          </Callout>
         )}
 
         {typeof rowErrors?.root?.message === 'string' && (
-          <p role="alert" className="mb-3 text-sm text-danger">
+          <Callout tone="danger" role="alert" className="mb-3">
             {rowErrors.root.message}
-          </p>
+          </Callout>
         )}
 
         {rows.fields.length === 0 ? (
-          <p className="py-4 text-center text-sm text-ink-muted">
-            {canEdit
-              ? 'No specifications yet. Add rows like Material, Finish or Thread — customers see them on the product page.'
-              : 'No specifications have been added.'}
-          </p>
+          <EmptyState
+            title="No specifications yet"
+            description={
+              canEdit
+                ? 'Add rows like Material, Finish or Thread — customers see them on the product page, in this order.'
+                : 'None have been added for this product.'
+            }
+          />
         ) : (
           <ul className="space-y-2">
             {rows.fields.map((field, index) => {
@@ -246,12 +246,8 @@ export function SpecificationsPanel({
 
                   {canEdit && (
                     <div className="flex items-start gap-2">
-                      <label className="flex items-center gap-1.5 whitespace-nowrap pt-2 text-sm text-ink">
-                        <input
-                          type="checkbox"
-                          className="h-4 w-4 rounded border-border-strong text-accent"
-                          {...register(`rows.${index}.isFilterable`)}
-                        />
+                      <label className="flex h-10 cursor-pointer items-center gap-1.5 whitespace-nowrap text-sm text-ink">
+                        <Checkbox {...register(`rows.${index}.isFilterable`)} />
                         Filterable
                       </label>
 

@@ -35,10 +35,14 @@ export const FALLBACK_CONFIG: StorefrontConfig = {
     baseCurrency: 'INR',
   },
   features: {
-    // Both default to off. A capability that fails open is a capability that
+    // All default to off. A capability that fails open is a capability that
     // shows a customer a feature the backend will then refuse.
     selfRegistration: false,
     recurringOrders: false,
+    // Off until the real config says otherwise: a chat button that appears
+    // before we know the deployment has a key is a button that opens onto a
+    // 404.
+    assistant: false,
   },
 };
 

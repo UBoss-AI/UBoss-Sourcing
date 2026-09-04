@@ -4,7 +4,9 @@
  * The tree is rendered flat with an indent, not as nested `<ul>`s, because the
  * useful operations here are comparative - "which of these is out of order",
  * "which has no products" - and a flat list with a depth indent reads left to
- * right in one pass.
+ * right in one pass. It is a real `<table>` for the same reason every other
+ * list in this panel is: the product count and the status belong in columns
+ * that line up down the page, and a nested list cannot give them one.
  *
  * Archiving is the delicate part. A category with children or products cannot
  * simply disappear: the backend refuses, and this screen surfaces that refusal
@@ -17,16 +19,17 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 import { useSession } from '@/auth/session-context';
 import { ConfirmDialog, Modal } from '@/components/Modal';
+import { DataTable } from '@/components/DataTable';
+import type { Column } from '@/components/DataTable';
 import { useToast } from '@/components/toast-context';
 import {
   Badge,
   Button,
+  Callout,
   Card,
-  EmptyState,
-  ErrorState,
+  CheckboxField,
   Field,
   Input,
-  LoadingState,
   PageHeader,
   Select,
   Textarea,
@@ -152,62 +155,69 @@ function CategoryEditor({
       }
     >
       <form
-        className="space-y-4"
+        className="space-y-5"
         onSubmit={(event) => {
           event.preventDefault();
           void handleSubmit((values) => mutation.mutateAsync(values))();
         }}
       >
         {formError !== null && (
-          <div
-            role="alert"
-            className="rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-sm text-danger"
-          >
+          <Callout tone="danger" role="alert">
             {formError}
-          </div>
+          </Callout>
         )}
 
-        <Field label="Name" error={errors.name?.message} required>
-          {({ inputId, describedBy }) => (
-            <Input
-              id={inputId}
-              aria-describedby={describedBy}
-              invalid={errors.name !== undefined}
-              {...register('name')}
-            />
-          )}
-        </Field>
+        <div className="space-y-4">
+          <Field label="Name" error={errors.name?.message} required>
+            {({ inputId, describedBy }) => (
+              <Input
+                id={inputId}
+                aria-describedby={describedBy}
+                invalid={errors.name !== undefined}
+                {...register('name')}
+              />
+            )}
+          </Field>
 
-        <Field
-          label="Slug"
-          hint="The URL segment customers see. Leave blank to generate it from the name."
-          error={errors.slug?.message}
-        >
-          {({ inputId, describedBy }) => (
-            <Input
-              id={inputId}
-              aria-describedby={describedBy}
-              invalid={errors.slug !== undefined}
-              {...register('slug')}
-            />
-          )}
-        </Field>
+          <Field
+            label="Slug"
+            hint="The URL segment customers see. Leave blank to generate it from the name."
+            error={errors.slug?.message}
+          >
+            {({ inputId, describedBy }) => (
+              <Input
+                id={inputId}
+                className="font-mono"
+                aria-describedby={describedBy}
+                invalid={errors.slug !== undefined}
+                {...register('slug')}
+              />
+            )}
+          </Field>
+        </div>
 
-        <Field label="Parent category" error={errors.parentId?.message}>
-          {({ inputId, describedBy }) => (
-            <Select id={inputId} aria-describedby={describedBy} {...register('parentId')}>
-              <option value="">No parent (top level)</option>
-              {options.map((node) => (
-                <option key={node.id} value={node.id}>
-                  {'— '.repeat(node.depth)}
-                  {node.name}
-                </option>
-              ))}
-            </Select>
-          )}
-        </Field>
+        {/* Where it sits in the tree, and in what order — one decision, so one
+            group. Separated from the identity fields above because moving a
+            category is a different kind of edit from renaming one. */}
+        <div className="space-y-4 border-t border-border-subtle pt-4">
+          <Field
+            label="Parent category"
+            hint="A category cannot be moved beneath itself, so its own branch is not offered."
+            error={errors.parentId?.message}
+          >
+            {({ inputId, describedBy }) => (
+              <Select id={inputId} aria-describedby={describedBy} {...register('parentId')}>
+                <option value="">No parent (top level)</option>
+                {options.map((node) => (
+                  <option key={node.id} value={node.id}>
+                    {'— '.repeat(node.depth)}
+                    {node.name}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
 
-        <div className="grid gap-4 sm:grid-cols-2">
           <Field
             label="Sort order"
             hint="Lower numbers come first among siblings."
@@ -218,29 +228,27 @@ function CategoryEditor({
                 id={inputId}
                 type="number"
                 min={0}
+                className="tabular sm:w-40"
                 aria-describedby={describedBy}
                 {...register('sortOrder')}
               />
             )}
           </Field>
 
-          <div className="flex items-end pb-2">
-            <label className="flex items-center gap-2 text-sm text-ink">
-              <input
-                type="checkbox"
-                className="h-4 w-4 rounded border-border-strong text-accent"
-                {...register('isActive')}
-              />
-              Active
-            </label>
-          </div>
+          <CheckboxField
+            label="Active"
+            description="An inactive category is hidden from the customer site. Products in it keep their category."
+            {...register('isActive')}
+          />
         </div>
 
-        <Field label="Description" error={errors.description?.message}>
-          {({ inputId, describedBy }) => (
-            <Textarea id={inputId} aria-describedby={describedBy} {...register('description')} />
-          )}
-        </Field>
+        <div className="border-t border-border-subtle pt-4">
+          <Field label="Description" error={errors.description?.message}>
+            {({ inputId, describedBy }) => (
+              <Textarea id={inputId} aria-describedby={describedBy} {...register('description')} />
+            )}
+          </Field>
+        </div>
       </form>
     </Modal>
   );
@@ -276,112 +284,141 @@ export function CategoriesPage(): React.JSX.Element {
     },
   });
 
-  const rows = query.data === undefined ? [] : flatten(query.data.categories);
+  const rows = query.data === undefined ? undefined : flatten(query.data.categories);
   const canWrite = can(Permission.CATEGORY_WRITE);
   const canArchive = can(Permission.CATEGORY_ARCHIVE);
+
+  const newCategoryButton = (
+    <Button
+      variant="primary"
+      onClick={() => {
+        setEditorFor(null);
+      }}
+    >
+      New category
+    </Button>
+  );
+
+  const columns: Column<CategoryNode>[] = [
+    {
+      key: 'name',
+      header: 'Category',
+      render: (node) => (
+        // The indent is inline because Tailwind cannot generate a class from a
+        // runtime value. The elbow is the depth cue: at four levels an indent
+        // alone stops reading as hierarchy and starts reading as a wobble.
+        <div className="flex items-center" style={{ paddingLeft: `${String(node.depth * 1.25)}rem` }}>
+          {node.depth > 0 && (
+            <span
+              aria-hidden="true"
+              className="mr-2 h-3.5 w-3 shrink-0 rounded-bl-sm border-b border-l border-border"
+            />
+          )}
+          <div className="min-w-0">
+            <p className="font-medium text-ink">{node.name}</p>
+            <p className="truncate font-mono text-xxs text-ink-subtle">/{node.slug}</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'products',
+      header: 'Products',
+      align: 'right',
+      render: (node) =>
+        (node.productCount ?? 0) === 0 ? (
+          <span className="text-ink-subtle">0</span>
+        ) : (
+          formatNumber(node.productCount ?? 0)
+        ),
+    },
+    {
+      key: 'order',
+      header: 'Sort',
+      align: 'right',
+      secondary: true,
+      render: (node) => <span className="text-ink-muted">{formatNumber(node.sortOrder)}</span>,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (node) =>
+        node.archivedAt !== null && node.archivedAt !== undefined ? (
+          <Badge dot tone="danger">
+            Archived
+          </Badge>
+        ) : node.isActive ? (
+          <Badge dot tone="success">
+            Active
+          </Badge>
+        ) : (
+          <Badge dot tone="warning">
+            Inactive
+          </Badge>
+        ),
+    },
+    {
+      key: 'actions',
+      header: <span className="sr-only">Actions</span>,
+      align: 'right',
+      render: (node) => (
+        <div className="flex justify-end gap-1">
+          {canWrite && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                setEditorFor(node);
+              }}
+            >
+              Edit
+              <span className="sr-only"> {node.name}</span>
+            </Button>
+          )}
+          {canArchive && (node.archivedAt === null || node.archivedAt === undefined) && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                setArchiveError(null);
+                setArchiving(node);
+              }}
+            >
+              Archive
+              <span className="sr-only"> {node.name}</span>
+            </Button>
+          )}
+        </div>
+      ),
+    },
+  ];
 
   return (
     <>
       <PageHeader
         title="Categories"
-        description="The tree customers browse. Order here is the order they see."
-        actions={
-          canWrite ? (
-            <Button
-              variant="primary"
-              onClick={() => {
-                setEditorFor(null);
-              }}
-            >
-              New category
-            </Button>
-          ) : undefined
-        }
+        description="The tree customers browse. Order here is the order they see, and a category has to be active before anything in it can reach the storefront."
+        actions={canWrite ? newCategoryButton : undefined}
       />
 
       <Card>
-        {query.isError && (
-          <ErrorState
-            error={query.error}
-            onRetry={() => {
-              void query.refetch();
-            }}
-          />
-        )}
-
-        {query.isPending && <LoadingState label="Loading categories" />}
-
-        {query.data !== undefined && rows.length === 0 && (
-          <EmptyState
-            title="No categories yet"
-            description="Every product needs a category, so this is the first thing to set up."
-            action={
-              canWrite ? (
-                <Button
-                  variant="primary"
-                  onClick={() => {
-                    setEditorFor(null);
-                  }}
-                >
-                  New category
-                </Button>
-              ) : undefined
-            }
-          />
-        )}
-
-        {rows.length > 0 && (
-          <ul className="divide-y divide-border">
-            {rows.map((node) => (
-              <li
-                key={node.id}
-                className="flex flex-wrap items-center gap-x-3 gap-y-1.5 px-4 py-2.5"
-                // Indent by depth. The padding is inline because Tailwind
-                // cannot generate a class from a runtime value.
-                style={{ paddingLeft: `${String(1 + node.depth * 1.5)}rem` }}
-              >
-                <span className="font-medium text-ink">{node.name}</span>
-                <span className="font-mono text-xxs text-ink-subtle">/{node.slug}</span>
-
-                {!node.isActive && <Badge tone="warning">Inactive</Badge>}
-                {node.archivedAt !== null && node.archivedAt !== undefined && (
-                  <Badge tone="danger">Archived</Badge>
-                )}
-
-                <span className="text-xs text-ink-muted">
-                  {formatNumber(node.productCount ?? 0)} product
-                  {(node.productCount ?? 0) === 1 ? '' : 's'}
-                </span>
-
-                <span className="flex-1" />
-
-                {canWrite && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => {
-                      setEditorFor(node);
-                    }}
-                  >
-                    Edit
-                  </Button>
-                )}
-                {canArchive && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => {
-                      setArchiveError(null);
-                      setArchiving(node);
-                    }}
-                  >
-                    Archive
-                  </Button>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
+        <DataTable
+          caption="Categories"
+          columns={columns}
+          rows={rows}
+          rowKey={(node) => node.id}
+          isLoading={query.isPending}
+          isRefreshing={query.isFetching && !query.isPending}
+          error={query.isError ? query.error : undefined}
+          loadingLabel="Loading categories"
+          minWidth="44rem"
+          onRetry={() => {
+            void query.refetch();
+          }}
+          emptyTitle="No categories yet"
+          emptyDescription="Every product needs a category, so this is the first thing to set up."
+          emptyAction={canWrite ? newCategoryButton : undefined}
+        />
       </Card>
 
       {editorFor !== undefined && (
@@ -409,15 +446,22 @@ export function CategoriesPage(): React.JSX.Element {
         isDangerous
         isWorking={archiveMutation.isPending}
         body={
-          <div className="space-y-2">
+          <div className="space-y-3">
             <p>
               An archived category disappears from the customer site. Products already in it keep
               their history and are not deleted.
             </p>
+            {archiving !== null && (archiving.productCount ?? 0) > 0 && (
+              <Callout tone="warning">
+                {formatNumber(archiving.productCount ?? 0)} product
+                {(archiving.productCount ?? 0) === 1 ? '' : 's'} sit in this category. The server
+                refuses to archive a category that still has products or child categories.
+              </Callout>
+            )}
             {archiveError !== null && (
-              <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 font-medium text-danger">
+              <Callout tone="danger" role="alert">
                 {archiveError}
-              </p>
+              </Callout>
             )}
           </div>
         }

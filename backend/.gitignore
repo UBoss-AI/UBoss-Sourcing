@@ -9,3 +9,6 @@ coverage/
 .tmp/
 openapi.json
 .DS_Store
+
+# Local DB dumps taken before destructive one-off scripts. Never committed.
+.backups/

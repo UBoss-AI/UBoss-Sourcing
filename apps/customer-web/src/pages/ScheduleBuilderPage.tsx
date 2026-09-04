@@ -21,12 +21,13 @@
  * form does not pre-tick it.
  */
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
 import { AddressForm } from '@/components/AddressForm';
 import { QuantityInput } from '@/components/QuantityInput';
-import { Badge, Button, ErrorState, Field, Input, LoadingState, Select } from '@/components/ui';
+import { Badge, Button, ButtonLink, ErrorState, Field, Input, LoadingState, Select } from '@/components/ui';
+import { PageEmptyState } from '@/components/PageEmptyState';
 import { ApiError, NetworkError, api } from '@/lib/api';
 import { formatMoney, formatNumber } from '@/lib/format';
 import { clampToRules } from '@/lib/quantity-rules';
@@ -278,20 +279,15 @@ export function ScheduleBuilderPage(): React.JSX.Element {
 
   if (!features.recurringOrders) {
     return (
-      <div className="mx-auto max-w-lg py-16 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">
-          Repeat purchases are not available
-        </h1>
-        <p className="mt-3 text-sm text-ink-muted">
-          This option is switched off at the moment. You can still order normally.
-        </p>
-        <Link
-          to="/products"
-          className="mt-6 inline-flex h-11 items-center rounded-md bg-brand px-5 text-sm font-medium text-white hover:bg-brand-hover"
-        >
-          Browse products
-        </Link>
-      </div>
+      <PageEmptyState
+        title="Repeat purchases are not available"
+        description="This option is switched off at the moment. You can still order normally."
+        action={
+          <ButtonLink to="/products" variant="primary" size="lg">
+            Browse products
+          </ButtonLink>
+        }
+      />
     );
   }
 
@@ -312,22 +308,19 @@ export function ScheduleBuilderPage(): React.JSX.Element {
 
   if (items.length === 0) {
     return (
-      <div className="mx-auto max-w-lg py-16 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">
-          Nothing to repeat yet
-        </h1>
-        <p className="mt-3 text-sm text-ink-muted">
-          {fromCart
+      <PageEmptyState
+        title="Nothing to repeat yet"
+        description={
+          fromCart
             ? 'None of the items in your cart can be set up as a repeat purchase. Look for the “Repeat purchase” label on a product.'
-            : 'This product cannot be set up as a repeat purchase.'}
-        </p>
-        <Link
-          to="/products"
-          className="mt-6 inline-flex h-11 items-center rounded-md bg-brand px-5 text-sm font-medium text-white hover:bg-brand-hover"
-        >
-          Browse products
-        </Link>
-      </div>
+            : 'This product cannot be set up as a repeat purchase.'
+        }
+        action={
+          <ButtonLink to="/products" variant="primary" size="lg">
+            Browse products
+          </ButtonLink>
+        }
+      />
     );
   }
 
@@ -356,19 +349,19 @@ export function ScheduleBuilderPage(): React.JSX.Element {
 
   return (
     <>
-      <h1 className="mb-1 text-2xl font-semibold tracking-tight text-ink">
-        Set up a repeat purchase
-      </h1>
-      <p className="mb-6 text-sm text-ink-muted">
-        We will place the order for you on the schedule you choose. You can pause or cancel it at
-        any time.
-      </p>
+      <header className="mb-6">
+        <h1 className="text-title-xl text-ink">Set up a repeat purchase</h1>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted">
+          We will place the order for you on the schedule you choose. You can pause or cancel it at
+          any time.
+        </p>
+      </header>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
         <div className="space-y-6">
           {/* --- What ------------------------------------------------------- */}
-          <section aria-labelledby="items-heading" className="rounded-lg border border-border bg-surface p-5">
-            <h2 id="items-heading" className="text-base font-semibold text-ink">
+          <section aria-labelledby="items-heading" className="rounded-lg border border-border bg-surface p-5 shadow-card">
+            <h2 id="items-heading" className="text-title-sm text-ink">
               What to send
             </h2>
 
@@ -413,8 +406,8 @@ export function ScheduleBuilderPage(): React.JSX.Element {
           </section>
 
           {/* --- How often --------------------------------------------------- */}
-          <section aria-labelledby="cadence-heading" className="rounded-lg border border-border bg-surface p-5">
-            <h2 id="cadence-heading" className="text-base font-semibold text-ink">
+          <section aria-labelledby="cadence-heading" className="rounded-lg border border-border bg-surface p-5 shadow-card">
+            <h2 id="cadence-heading" className="text-title-sm text-ink">
               How often
             </h2>
 
@@ -618,8 +611,8 @@ export function ScheduleBuilderPage(): React.JSX.Element {
           </section>
 
           {/* --- Where -------------------------------------------------------- */}
-          <section aria-labelledby="delivery-heading" className="rounded-lg border border-border bg-surface p-5">
-            <h2 id="delivery-heading" className="text-base font-semibold text-ink">
+          <section aria-labelledby="delivery-heading" className="rounded-lg border border-border bg-surface p-5 shadow-card">
+            <h2 id="delivery-heading" className="text-title-sm text-ink">
               Where to deliver
             </h2>
 
@@ -683,8 +676,8 @@ export function ScheduleBuilderPage(): React.JSX.Element {
           </section>
 
           {/* --- How to pay ---------------------------------------------------- */}
-          <section aria-labelledby="pay-heading" className="rounded-lg border border-border bg-surface p-5">
-            <h2 id="pay-heading" className="text-base font-semibold text-ink">
+          <section aria-labelledby="pay-heading" className="rounded-lg border border-border bg-surface p-5 shadow-card">
+            <h2 id="pay-heading" className="text-title-sm text-ink">
               How each delivery is paid
             </h2>
 
@@ -791,9 +784,9 @@ export function ScheduleBuilderPage(): React.JSX.Element {
         </div>
 
         {/* --- Summary and consent --------------------------------------------- */}
-        <aside aria-labelledby="summary-heading" className="lg:sticky lg:top-40 lg:self-start">
-          <div className="rounded-lg border border-border bg-surface p-5">
-            <h2 id="summary-heading" className="text-base font-semibold text-ink">
+        <aside aria-labelledby="summary-heading" className="lg:sticky lg:top-28 lg:self-start">
+          <div className="rounded-lg border border-border bg-surface p-5 shadow-card">
+            <h2 id="summary-heading" className="text-title-sm text-ink">
               Your schedule
             </h2>
 

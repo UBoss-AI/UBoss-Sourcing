@@ -21,7 +21,7 @@ import { DataTable } from '@/components/DataTable';
 import type { Column } from '@/components/DataTable';
 import { ConfirmDialog, Modal } from '@/components/Modal';
 import { useToast } from '@/components/toast-context';
-import { Badge, Button, Card, Field, Input } from '@/components/ui';
+import { Badge, Button, Callout, Card, Field, Input } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { applyApiErrors } from '@/lib/forms';
 import { formatNumber, majorToMinor, minorToMajor } from '@/lib/format';
@@ -134,12 +134,9 @@ function VariantEditor({
         }}
       >
         {formError !== null && (
-          <div
-            role="alert"
-            className="rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-sm text-danger"
-          >
+          <Callout tone="danger" role="alert">
             {formError}
-          </div>
+          </Callout>
         )}
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -227,11 +224,18 @@ function VariantEditor({
                     </p>
                   )}
                 </div>
+                {/* 40px, so it sits on the same baseline as the two inputs
+                    beside it rather than floating above them. */}
                 <Button
                   size="md"
                   variant="ghost"
                   aria-label={`Remove option ${String(index + 1)}`}
                   disabled={options.fields.length === 1}
+                  title={
+                    options.fields.length === 1
+                      ? 'A variant needs at least one option.'
+                      : undefined
+                  }
                   onClick={() => {
                     options.remove(index);
                   }}
@@ -315,6 +319,7 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
       key: 'price',
       header: 'Price',
       align: 'right',
+      nowrap: true,
       render: (row) =>
         row.priceMinor === null ? (
           <span className="text-ink-muted">Inherits</span>
@@ -326,18 +331,34 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
       key: 'available',
       header: 'Available',
       align: 'right',
-      render: (row) => formatNumber(row.availableQty),
+      render: (row) => (
+        // A variant nobody can buy is worth spotting from the product page,
+        // not only from Inventory.
+        <span
+          className={
+            row.availableQty <= 0 ? 'font-semibold text-danger' : 'font-medium text-ink'
+          }
+        >
+          {formatNumber(row.availableQty)}
+        </span>
+      ),
     },
     {
       key: 'status',
       header: 'Status',
       render: (row) =>
         row.archivedAt !== null ? (
-          <Badge tone="danger">Archived</Badge>
+          <Badge dot tone="danger">
+            Archived
+          </Badge>
         ) : row.isActive ? (
-          <Badge tone="success">Active</Badge>
+          <Badge dot tone="success">
+            Active
+          </Badge>
         ) : (
-          <Badge tone="warning">Inactive</Badge>
+          <Badge dot tone="warning">
+            Inactive
+          </Badge>
         ),
     },
     {
@@ -395,6 +416,11 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
           rowKey={(row) => row.id}
           isLoading={query.isPending}
           error={query.isError ? query.error : undefined}
+          loadingLabel="Loading variants"
+          minWidth="52rem"
+          onRetry={() => {
+            void query.refetch();
+          }}
           emptyTitle="No variants"
           emptyDescription="This product is sold as a single item. Adding a variant switches it into variant mode."
         />

@@ -23,7 +23,20 @@ import { DataTable, Pager } from '@/components/DataTable';
 import type { Column } from '@/components/DataTable';
 import { Modal } from '@/components/Modal';
 import { useToast } from '@/components/toast-context';
-import { Badge, Button, Card, Field, Input, PageHeader, Select } from '@/components/ui';
+import {
+  Badge,
+  Button,
+  Callout,
+  Card,
+  CheckboxField,
+  Field,
+  Input,
+  PageHeader,
+  Select,
+  Toolbar,
+  ToolbarActions,
+  ToolbarField,
+} from '@/components/ui';
 import { api } from '@/lib/api';
 import { applyApiErrors, nullIfBlank } from '@/lib/forms';
 import { formatDateTime, formatNumber, humanise, minorToMajor } from '@/lib/format';
@@ -112,19 +125,16 @@ function NewCustomerDialog({ onClose }: { onClose: () => void }): React.JSX.Elem
       }
     >
       <form
-        className="space-y-4"
+        className="space-y-5"
         onSubmit={(event) => {
           event.preventDefault();
           submit();
         }}
       >
         {formError !== null && (
-          <div
-            role="alert"
-            className="rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-sm text-danger"
-          >
+          <Callout tone="danger" role="alert">
             {formError}
-          </div>
+          </Callout>
         )}
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -176,19 +186,14 @@ function NewCustomerDialog({ onClose }: { onClose: () => void }): React.JSX.Elem
           </Field>
         </div>
 
-        <label className="flex items-start gap-2 text-sm text-ink">
-          <input
-            type="checkbox"
-            className="mt-0.5 h-4 w-4 rounded border-border-strong text-accent"
+        <div className="border-t border-border-subtle pt-4">
+          <CheckboxField
+            boxed
+            label="Send an invitation now"
+            description="The customer sets their own password from the link. Nobody here types it for them, and until they accept it the account cannot sign in."
             {...register('sendInvitation')}
           />
-          <span>
-            Send an invitation now
-            <span className="mt-0.5 block text-xs text-ink-muted">
-              The customer sets their own password from the link. Nobody here types it for them.
-            </span>
-          </span>
-        </label>
+        </div>
       </form>
     </Modal>
   );
@@ -204,6 +209,8 @@ export function CustomersPage(): React.JSX.Element {
   const q = searchParams.get('q') ?? '';
   const [searchText, setSearchText] = useState(q);
   const [isCreating, setIsCreating] = useState(false);
+
+  const hasFilters = status !== '' || q !== '';
 
   useEffect(() => {
     setSearchText(q);
@@ -243,19 +250,30 @@ export function CustomersPage(): React.JSX.Element {
       }),
   });
 
+  const newCustomerButton = (
+    <Button
+      variant="primary"
+      onClick={() => {
+        setIsCreating(true);
+      }}
+    >
+      New customer
+    </Button>
+  );
+
   const columns: Column<CustomerListItem>[] = [
     {
       key: 'customer',
       header: 'Customer',
       render: (row) => (
-        <div>
+        <div className="min-w-48">
           <Link
             to={`/customers/${row.id}`}
             className="font-medium text-ink hover:text-accent hover:underline"
           >
             {row.fullName ?? row.email}
           </Link>
-          <p className="text-xxs text-ink-subtle">{row.email}</p>
+          <p className="truncate text-xxs text-ink-subtle">{row.email}</p>
         </div>
       ),
     },
@@ -263,8 +281,8 @@ export function CustomersPage(): React.JSX.Element {
       key: 'organization',
       header: 'Organisation',
       render: (row) => (
-        <div>
-          <p className="text-ink">{row.organization ?? '—'}</p>
+        <div className="min-w-36">
+          <p className="text-ink">{row.organization ?? <span className="text-ink-subtle">—</span>}</p>
           {row.department !== null && <p className="text-xxs text-ink-subtle">{row.department}</p>}
         </div>
       ),
@@ -272,7 +290,11 @@ export function CustomersPage(): React.JSX.Element {
     {
       key: 'status',
       header: 'Status',
-      render: (row) => <Badge tone={customerStatusTone(row.status)}>{humanise(row.status)}</Badge>,
+      render: (row) => (
+        <Badge dot tone={customerStatusTone(row.status)}>
+          {humanise(row.status)}
+        </Badge>
+      ),
     },
     {
       key: 'approval',
@@ -297,16 +319,28 @@ export function CustomersPage(): React.JSX.Element {
           <span className="text-ink-subtle">Not required</span>
         ),
     },
-    { key: 'orders', header: 'Orders', align: 'right', render: (row) => formatNumber(row.orderCount) },
+    {
+      key: 'orders',
+      header: 'Orders',
+      align: 'right',
+      render: (row) =>
+        row.orderCount === 0 ? (
+          <span className="text-ink-subtle">0</span>
+        ) : (
+          formatNumber(row.orderCount)
+        ),
+    },
     {
       key: 'lastLogin',
       header: 'Last sign-in',
       secondary: true,
+      tertiary: true,
+      nowrap: true,
       render: (row) =>
         row.lastLoginAt === null ? (
           <span className="text-ink-subtle">Never</span>
         ) : (
-          <span className="whitespace-nowrap">{formatDateTime(row.lastLoginAt)}</span>
+          <span className="text-ink-muted">{formatDateTime(row.lastLoginAt)}</span>
         ),
     },
   ];
@@ -315,27 +349,13 @@ export function CustomersPage(): React.JSX.Element {
     <>
       <PageHeader
         title="Customers"
-        description="Business accounts. Created here, activated by invitation."
-        actions={
-          can(Permission.CUSTOMER_WRITE) ? (
-            <Button
-              variant="primary"
-              onClick={() => {
-                setIsCreating(true);
-              }}
-            >
-              New customer
-            </Button>
-          ) : undefined
-        }
+        description="Business accounts. Created here, activated by the invitation the customer accepts — nobody self-registers."
+        actions={can(Permission.CUSTOMER_WRITE) ? newCustomerButton : undefined}
       />
 
       <Card>
-        <div className="flex flex-wrap items-end gap-3 border-b border-border px-4 py-3">
-          <label className="min-w-56 flex-1">
-            <span className="mb-1 block text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-              Search
-            </span>
+        <Toolbar>
+          <ToolbarField label="Search" grow>
             <Input
               type="search"
               value={searchText}
@@ -344,12 +364,9 @@ export function CustomersPage(): React.JSX.Element {
                 setSearchText(event.target.value);
               }}
             />
-          </label>
+          </ToolbarField>
 
-          <label>
-            <span className="mb-1 block text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-              Status
-            </span>
+          <ToolbarField label="Status">
             <Select
               value={status}
               onChange={(event) => {
@@ -368,8 +385,20 @@ export function CustomersPage(): React.JSX.Element {
               <option value="INVITED">Invited</option>
               <option value="SUSPENDED">Suspended</option>
             </Select>
-          </label>
-        </div>
+          </ToolbarField>
+
+          {hasFilters && (
+            <ToolbarActions>
+              <Button
+                onClick={() => {
+                  setSearchParams({});
+                }}
+              >
+                Clear filters
+              </Button>
+            </ToolbarActions>
+          )}
+        </Toolbar>
 
         <DataTable
           caption="Customers"
@@ -377,15 +406,35 @@ export function CustomersPage(): React.JSX.Element {
           rows={query.data?.customers}
           rowKey={(row) => row.id}
           isLoading={query.isPending}
+          isRefreshing={query.isFetching && !query.isPending}
           error={query.isError ? query.error : undefined}
+          loadingLabel="Loading customers"
+          minWidth="62rem"
           onRetry={() => {
             void query.refetch();
           }}
           onRowClick={(row) => {
             void navigate(`/customers/${row.id}`);
           }}
-          emptyTitle="No customers yet"
-          emptyDescription="Create an account and send an invitation; the customer sets their own password."
+          emptyTitle={hasFilters ? 'Nothing matches these filters' : 'No customers yet'}
+          emptyDescription={
+            hasFilters
+              ? 'Try a different search, or clear the filters.'
+              : 'Create an account and send an invitation; the customer sets their own password.'
+          }
+          emptyAction={
+            hasFilters ? (
+              <Button
+                onClick={() => {
+                  setSearchParams({});
+                }}
+              >
+                Clear filters
+              </Button>
+            ) : can(Permission.CUSTOMER_WRITE) ? (
+              newCustomerButton
+            ) : undefined
+          }
         />
 
         {query.data !== undefined && (

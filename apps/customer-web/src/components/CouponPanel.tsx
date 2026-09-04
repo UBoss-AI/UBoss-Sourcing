@@ -19,6 +19,7 @@ import { ApiError, api } from '@/lib/api';
 import { formatMoney } from '@/lib/format';
 import type { Cart } from '@/lib/types';
 import { Button } from '@/components/ui';
+import { AlertIcon, CheckIcon } from '@/components/icons';
 
 export function CouponPanel({ cart }: { cart: Cart }): React.JSX.Element {
   const queryClient = useQueryClient();
@@ -59,47 +60,60 @@ export function CouponPanel({ cart }: { cart: Cart }): React.JSX.Element {
   const offers = cart.availableCoupons;
 
   return (
-    <section aria-labelledby="coupon-heading" className="mt-4 border-t border-border pt-4">
-      <h3 id="coupon-heading" className="text-sm font-semibold text-ink">
+    <section aria-labelledby="coupon-heading" className="mt-5 border-t border-border-subtle pt-4">
+      <h3 id="coupon-heading" className="text-title-xs text-ink">
         Coupons
       </h3>
 
       {applied !== null && applied.rejection === null && (
-        <div className="mt-2 flex items-start justify-between gap-2 rounded-md bg-success-soft p-2.5">
-          <div className="min-w-0">
+        // A working coupon is a small win, and it should look like one: a tick,
+        // the saving in money rather than only in percent, and the code itself
+        // in the monospace face it was typed in.
+        <div className="mt-2.5 flex items-start gap-2.5 rounded-md border border-success/30 bg-success-soft p-3">
+          <CheckIcon className="mt-px h-4 w-4 shrink-0 text-success" />
+
+          <div className="min-w-0 flex-1">
             <p className="text-sm font-medium text-success">
-              {applied.code} applied — {applied.discountPercent}% off
+              <span className="font-mono">{applied.code}</span> applied —{' '}
+              {applied.discountPercent}% off
             </p>
-            <p className="text-xs text-ink-muted">
+            <p className="mt-0.5 text-xs text-ink-muted">
               You save {formatMoney(applied.discount)}
               {applied.description === null ? '' : ` · ${applied.description}`}
             </p>
           </div>
+
           <button
             type="button"
             onClick={() => {
               remove.mutate();
             }}
             disabled={remove.isPending}
-            className="shrink-0 text-xs font-medium text-ink-muted underline hover:text-ink"
+            className="shrink-0 rounded text-xs font-medium text-ink-muted underline underline-offset-2 hover:text-ink"
           >
-            Remove
+            Remove<span className="sr-only"> coupon {applied.code}</span>
           </button>
         </div>
       )}
 
       {applied !== null && applied.rejection !== null && (
-        <div className="mt-2 flex items-start justify-between gap-2 rounded-md bg-warning-soft p-2.5">
-          <p className="min-w-0 text-xs text-warning">{applied.rejection.message}</p>
+        <div
+          role="status"
+          className="mt-2.5 flex items-start gap-2.5 rounded-md border border-warning/30 bg-warning-soft p-3"
+        >
+          <AlertIcon className="mt-px h-4 w-4 shrink-0 text-warning" />
+          {/* The server's own reason. A coupon that stopped qualifying stays
+              visible with its explanation rather than vanishing. */}
+          <p className="min-w-0 flex-1 text-xs text-warning">{applied.rejection.message}</p>
           <button
             type="button"
             onClick={() => {
               remove.mutate();
             }}
             disabled={remove.isPending}
-            className="shrink-0 text-xs font-medium text-ink-muted underline hover:text-ink"
+            className="shrink-0 rounded text-xs font-medium text-ink-muted underline underline-offset-2 hover:text-ink"
           >
-            Remove
+            Remove<span className="sr-only"> coupon {applied.code}</span>
           </button>
         </div>
       )}
@@ -111,7 +125,7 @@ export function CouponPanel({ cart }: { cart: Cart }): React.JSX.Element {
           if (code.trim() !== '') apply.mutate(code.trim());
         }}
       >
-        <label className="flex-1">
+        <label className="min-w-0 flex-1">
           <span className="sr-only">Coupon code</span>
           <input
             value={code}
@@ -122,7 +136,7 @@ export function CouponPanel({ cart }: { cart: Cart }): React.JSX.Element {
             placeholder="Enter coupon code"
             autoComplete="off"
             spellCheck={false}
-            className="block w-full rounded-md border border-border-strong bg-surface px-3 py-2 text-sm uppercase text-ink placeholder:normal-case placeholder:text-ink-subtle"
+            className="block h-10 w-full rounded-md border border-border-strong bg-surface px-3 font-mono text-sm uppercase text-ink placeholder:font-sans placeholder:normal-case placeholder:text-ink-subtle"
           />
         </label>
         <Button type="submit" variant="secondary" disabled={apply.isPending || code.trim() === ''}>
@@ -152,16 +166,23 @@ export function CouponPanel({ cart }: { cart: Cart }): React.JSX.Element {
           </button>
 
           {showOffers && (
-            <ul className="mt-2 space-y-2">
+            <ul className="mt-2.5 space-y-2">
               {offers.map((offer) => (
                 <li
                   key={offer.code}
-                  className="rounded-md border border-dashed border-border-strong p-2.5"
+                  // A dashed edge, the way a paper voucher is perforated. It
+                  // also keeps an offer visibly distinct from the applied
+                  // coupon's solid panel above.
+                  className={`rounded-md border border-dashed p-3 ${
+                    offer.eligibleNow
+                      ? 'border-border-strong bg-surface'
+                      : 'border-border bg-surface-sunken'
+                  }`}
                 >
-                  <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="font-mono text-sm font-semibold text-ink">{offer.code}</p>
-                      <p className="text-xs text-ink-muted">
+                      <p className="mt-0.5 text-xs text-ink-muted">
                         {offer.discountPercent}% off
                         {offer.minOrder.minor === '0'
                           ? ''
@@ -174,18 +195,22 @@ export function CouponPanel({ cart }: { cart: Cart }): React.JSX.Element {
 
                     {offer.eligibleNow ? (
                       <Button
+                        size="sm"
                         variant="secondary"
+                        className="shrink-0"
                         onClick={() => {
                           apply.mutate(offer.code);
                         }}
                         disabled={apply.isPending}
                       >
                         Apply
+                        <span className="sr-only"> coupon {offer.code}</span>
                       </Button>
                     ) : (
                       // Shown rather than hidden: knowing a coupon exists just
                       // above the threshold is the reason to add one more item.
-                      <span className="shrink-0 text-xxs font-medium uppercase tracking-wide text-ink-subtle">
+                      // The server decided this, not the panel.
+                      <span className="shrink-0 rounded-full bg-surface px-2 py-0.5 text-xxs font-semibold uppercase tracking-wide text-ink-subtle ring-1 ring-inset ring-border">
                         Not yet
                       </span>
                     )}

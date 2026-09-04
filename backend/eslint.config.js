@@ -46,6 +46,7 @@ export default tseslint.config(
     files: [
       'tests/**/*.ts',
       'src/seed/**/*.ts',
+      'scripts/**/*.ts',
       'src/http/openapi-export.ts',
       '**/*.test.ts',
     ],

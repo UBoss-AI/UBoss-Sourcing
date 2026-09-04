@@ -178,6 +178,9 @@ export function authRoutes(kind: UserKind) {
           permissions: result.user.permissions,
           customerProfileId: result.user.customerProfileId,
           mfaEnabled: result.user.mfaEnabled,
+          // The Admin Panel reads this to send a first-time signer-in straight
+          // to the change-password screen instead of the dashboard.
+          mustChangePassword: result.user.mustChangePassword,
         },
         // Returned for non-browser clients. Browsers should rely on the cookie.
         accessToken: result.session.accessToken,
@@ -235,6 +238,7 @@ export function authRoutes(kind: UserKind) {
         permissions: auth.permissions,
         customerProfileId: auth.customerProfileId,
         mfaEnabled: auth.mfaEnabled,
+        mustChangePassword: auth.mustChangePassword,
       });
     });
 

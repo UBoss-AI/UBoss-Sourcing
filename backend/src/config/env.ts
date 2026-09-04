@@ -119,6 +119,40 @@ const envSchema = z
     FEATURE_ORDER_APPROVALS: booleanFromString.default(false),
     FEATURE_RECURRING_ORDERS: booleanFromString.default(true),
 
+    // --- Storefront assistant ---
+    //
+    // The key stays here, server-side. The browser never sees it: the widget
+    // talks to /api/v1/assistant/chat and this process talks to the provider.
+    // Set no key at all and the whole feature is off — the config
+    // endpoint reports it as unavailable and the storefront never mounts the
+    // widget, so an unconfigured deployment shows no broken chat button.
+    ASSISTANT_ENABLED: booleanFromString.default(true),
+    // Leave blank to use whichever provider has a key configured. Set it
+    // explicitly only when both keys are present and the choice matters.
+    ASSISTANT_PROVIDER: z.enum(['', 'gemini', 'anthropic']).default(''),
+
+    // Google AI Studio -> https://aistudio.google.com/apikey
+    GEMINI_API_KEY: z.string().default(''),
+    // Stable, generally available, 1M-token input window, and the cheapest
+    // tier that answers this workload well. Reasoning is switched off in the
+    // provider — see provider.gemini.ts for why that matters here.
+    GEMINI_MODEL: z.string().min(1).default('gemini-2.5-flash'),
+
+    // Anthropic Console -> https://console.anthropic.com/ -> API keys
+    ANTHROPIC_API_KEY: z.string().default(''),
+    ANTHROPIC_MODEL: z.string().min(1).default('claude-opus-5'),
+
+    // Shared by whichever provider is in use.
+    //
+    // Deliberately small. This is a storefront answer, not an essay, and the
+    // cap is the last line of defence on per-reply cost. The prompt asks for
+    // about sixty words; 400 tokens is roughly three times that, so a normal
+    // reply finishes well inside it and only a runaway one is cut off.
+    ASSISTANT_MAX_TOKENS: intFromString(256, 8192).default(400),
+    /** Messages one visitor may send in a single conversation before it resets. */
+    ASSISTANT_MAX_TURNS: intFromString(2, 100).default(20),
+    ASSISTANT_RATE_LIMIT_PER_5MIN: intFromString(1, 1000).default(20),
+
     // --- Rate limits ---
     RATE_LIMIT_GLOBAL_PER_MINUTE: intFromString(10, 100_000).default(300),
     RATE_LIMIT_LOGIN_PER_15MIN: intFromString(1, 1000).default(10),

@@ -13,12 +13,17 @@
  *   3. **Publication is the only thing that reaches customers.** Saving a
  *      draft, adding an image or editing a price changes nothing a customer
  *      sees until the product is published.
+ *
+ * The Visibility panel lists the three preconditions as a readiness check, but
+ * it does not gate the button: the server remains the authority on whether a
+ * product may be published, and its refusal is shown verbatim. The list is
+ * there so somebody can see *why* before being told, not instead of being told.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
 import { useSession } from '@/auth/session-context';
 import { ConfirmDialog } from '@/components/Modal';
@@ -29,7 +34,10 @@ import { CurrencyPricesPanel } from '@/pages/product/CurrencyPricesPanel';
 import {
   Badge,
   Button,
+  Callout,
   Card,
+  CheckboxField,
+  EmptyState,
   ErrorState,
   Field,
   Input,
@@ -42,6 +50,7 @@ import { ApiError, api } from '@/lib/api';
 import { applyApiErrors, nullIfBlank } from '@/lib/forms';
 import { formatDateTime, majorToMinor, minorToMajor } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
+import type { BadgeTone } from '@/components/ui';
 import type { CategoryNode } from '@/lib/types';
 
 interface TaxClass {
@@ -189,6 +198,13 @@ function flatten(nodes: CategoryNode[], into: CategoryNode[] = []): CategoryNode
   return into;
 }
 
+/** The same three labels and tones the product list uses, so they match. */
+const CATALOGUE_STATUS: Record<ProductDetail['status'], { label: string; tone: BadgeTone }> = {
+  ACTIVE: { label: 'Active', tone: 'success' },
+  DRAFT: { label: 'Draft', tone: 'neutral' },
+  INACTIVE: { label: 'Inactive', tone: 'warning' },
+};
+
 // ---------------------------------------------------------------------------
 
 function MediaPanel({ product }: { product: ProductDetail }): React.JSX.Element {
@@ -264,18 +280,16 @@ function MediaPanel({ product }: { product: ProductDetail }): React.JSX.Element 
     >
       <div className="px-5 py-4">
         {uploadError !== null && (
-          <p
-            role="alert"
-            className="mb-3 rounded-md border border-danger/30 bg-danger-soft px-3 py-2 text-sm text-danger"
-          >
+          <Callout tone="danger" role="alert" className="mb-3">
             {uploadError}
-          </p>
+          </Callout>
         )}
 
         {product.media.length === 0 ? (
-          <p className="py-4 text-center text-sm text-ink-muted">
-            No images yet. This product cannot be published until it has one.
-          </p>
+          <EmptyState
+            title="No images yet"
+            description="A product cannot be published without at least one. The first image is what customers see in listings."
+          />
         ) : (
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {product.media.map((item) => (
@@ -283,7 +297,7 @@ function MediaPanel({ product }: { product: ProductDetail }): React.JSX.Element 
                 <img
                   src={item.url}
                   alt={item.altText ?? product.name}
-                  className="aspect-square w-full rounded-md border border-border object-cover"
+                  className="aspect-square w-full rounded-md border border-border bg-surface-sunken object-cover"
                 />
                 {item.isPrimary && (
                   <span className="absolute left-1.5 top-1.5">
@@ -291,15 +305,20 @@ function MediaPanel({ product }: { product: ProductDetail }): React.JSX.Element 
                   </span>
                 )}
                 {canUpload && (
+                  // Visible by default below `lg` and revealed on hover above
+                  // it. A hover-only control is unreachable on a touch screen,
+                  // and this panel is used from a phone on a warehouse floor.
                   <Button
                     size="sm"
                     variant="danger"
-                    className="absolute right-1.5 top-1.5 opacity-0 transition-opacity focus:opacity-100 group-hover:opacity-100"
+                    className="absolute right-1.5 top-1.5 transition-opacity lg:opacity-0 lg:focus:opacity-100 lg:group-hover:opacity-100"
+                    isLoading={remove.isPending && remove.variables === item.mediaId}
                     onClick={() => {
                       remove.mutate(item.mediaId);
                     }}
                   >
                     Remove
+                    <span className="sr-only"> this image</span>
                   </Button>
                 )}
               </li>
@@ -508,22 +527,28 @@ export function ProductDetailPage(): React.JSX.Element {
 
   if (!isNew && productQuery.isPending) {
     return (
-      <Card>
-        <LoadingState label="Loading the product" />
-      </Card>
+      <>
+        <PageHeader title="Product" back={{ to: '/products', label: 'Back to products' }} />
+        <Card>
+          <LoadingState label="Loading the product" />
+        </Card>
+      </>
     );
   }
 
   if (!isNew && productQuery.isError) {
     return (
-      <Card>
-        <ErrorState
-          error={productQuery.error}
-          onRetry={() => {
-            void productQuery.refetch();
-          }}
-        />
-      </Card>
+      <>
+        <PageHeader title="Product" back={{ to: '/products', label: 'Back to products' }} />
+        <Card>
+          <ErrorState
+            error={productQuery.error}
+            onRetry={() => {
+              void productQuery.refetch();
+            }}
+          />
+        </Card>
+      </>
     );
   }
 
@@ -539,25 +564,51 @@ export function ProductDetailPage(): React.JSX.Element {
     <>
       <PageHeader
         title={isNew ? 'New product' : (product?.name ?? 'Product')}
+        back={{ to: '/products', label: 'Back to products' }}
         description={
           isNew
             ? 'Create the product first, then add images and publish it.'
             : `SKU ${product?.sku ?? ''} · last edited ${formatDateTime(product?.updatedAt)}`
         }
+        // The two states that decide whether a customer can see this, beside
+        // the name. They are the answer to the question people open this page
+        // asking, and they used to be a scroll away in the sidebar.
+        meta={
+          isNew || product === undefined ? undefined : (
+            <>
+              <Badge dot tone={CATALOGUE_STATUS[product.status].tone}>
+                {CATALOGUE_STATUS[product.status].label}
+              </Badge>
+              {product.isPublished ? (
+                <Badge dot tone="success">
+                  Live on the storefront
+                </Badge>
+              ) : (
+                <Badge dot tone="neutral">
+                  Not published
+                </Badge>
+              )}
+              {product.archivedAt !== null && (
+                <Badge dot tone="danger">
+                  Archived
+                </Badge>
+              )}
+            </>
+          )
+        }
         actions={
-          <>
-            <Link
-              to="/products"
-              className="inline-flex h-9 items-center rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-ink hover:bg-surface-sunken"
-            >
-              Back to products
-            </Link>
-            {canWrite && (
+          canWrite ? (
+            <>
+              {isDirty && (
+                <span role="status" className="text-xs font-medium text-warning">
+                  Unsaved changes
+                </span>
+              )}
               <Button variant="primary" isLoading={save.isPending} onClick={submit}>
                 {isNew ? 'Create product' : 'Save changes'}
               </Button>
-            )}
-          </>
+            </>
+          ) : undefined
         }
       />
 
@@ -572,12 +623,9 @@ export function ProductDetailPage(): React.JSX.Element {
               }}
             >
               {formError !== null && (
-                <div
-                  role="alert"
-                  className="rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-sm text-danger"
-                >
+                <Callout tone="danger" role="alert">
                   {formError}
-                </div>
+                </Callout>
               )}
 
               <div className="grid gap-4 sm:grid-cols-2">
@@ -743,7 +791,7 @@ export function ProductDetailPage(): React.JSX.Element {
 
           <Card
             title="Ordering rules"
-            description="Enforced on every cart change and again at checkout."
+            description="Enforced on every cart change and again at checkout, so a customer cannot get round them by editing the cart."
           >
             <div className="grid gap-4 px-5 py-4 sm:grid-cols-3">
               <Field label="Minimum quantity" error={errors.minOrderQty?.message}>
@@ -821,25 +869,19 @@ export function ProductDetailPage(): React.JSX.Element {
                 )}
               </Field>
 
-              <div className="flex flex-col justify-end gap-2 pb-2">
-                <label className="flex items-center gap-2 text-sm text-ink">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-border-strong text-accent"
-                    disabled={!canWrite}
-                    {...register('isStockTracked')}
-                  />
-                  Track stock
-                </label>
-                <label className="flex items-center gap-2 text-sm text-ink">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-border-strong text-accent"
-                    disabled={!canWrite}
-                    {...register('isRecurringEligible')}
-                  />
-                  Available for recurring orders
-                </label>
+              <div className="flex flex-col justify-end gap-2 pb-1 sm:col-span-3">
+                <CheckboxField
+                  label="Track stock"
+                  description="Off means the product is always orderable and Inventory ignores it."
+                  disabled={!canWrite}
+                  {...register('isStockTracked')}
+                />
+                <CheckboxField
+                  label="Available for recurring orders"
+                  description="Customers can put it on a standing schedule."
+                  disabled={!canWrite}
+                  {...register('isRecurringEligible')}
+                />
               </div>
             </div>
           </Card>
@@ -887,15 +929,19 @@ export function ProductDetailPage(): React.JSX.Element {
                     </div>
                   </div>
 
-                  <div className="border-t border-border pt-4">
+                  <div className="border-t border-border-subtle pt-4">
                     <p className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
                       Customer website
                     </p>
-                    <div className="mt-1.5 flex items-center gap-2">
+                    <div className="mt-1.5 flex flex-wrap items-center gap-2">
                       {product?.isPublished === true ? (
-                        <Badge tone="success">Published</Badge>
+                        <Badge dot tone="success">
+                          Published
+                        </Badge>
                       ) : (
-                        <Badge tone="neutral">Not published</Badge>
+                        <Badge dot tone="neutral">
+                          Not published
+                        </Badge>
                       )}
                       {product?.publishedAt !== null && product?.publishedAt !== undefined && (
                         <span className="text-xs text-ink-muted">
@@ -904,17 +950,48 @@ export function ProductDetailPage(): React.JSX.Element {
                       )}
                     </div>
 
-                    <p className="mt-2 text-xs text-ink-muted">
-                      A product reaches customers only when it is both Active and Published.
+                    <p className="mt-2 text-xs leading-relaxed text-ink-muted">
+                      A product reaches customers only when it is <strong>both</strong> Active in the
+                      catalogue and Published here.
                     </p>
 
+                    {/* Advisory, not a gate. The button stays enabled and the
+                        server's own refusal is still what decides — this list
+                        just lets somebody see the reason before being told it. */}
+                    {product !== undefined && !product.isPublished && (
+                      <div className="mt-3 rounded-md border border-border bg-surface-sunken p-3">
+                        <p className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
+                          The server checks
+                        </p>
+                        <ul className="mt-1.5 space-y-1">
+                          {(
+                            [
+                              ['At least one image', product.media.length > 0],
+                              ['A price above zero', product.basePriceMinor !== '0'],
+                              ['An active category', product.category?.isActive === true],
+                            ] satisfies [string, boolean][]
+                          ).map(([label, ok]) => (
+                            <li key={label} className="flex items-start gap-1.5 text-xs">
+                              <span
+                                aria-hidden="true"
+                                className={ok ? 'font-bold text-success' : 'font-bold text-warning'}
+                              >
+                                {ok ? '✓' : '!'}
+                              </span>
+                              <span className={ok ? 'text-ink-muted' : 'font-medium text-ink'}>
+                                {label}
+                                <span className="sr-only">{ok ? ' — met' : ' — not yet met'}</span>
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
                     {publishError !== null && (
-                      <p
-                        role="alert"
-                        className="mt-2 rounded-md bg-danger-soft px-3 py-2 text-xs font-medium text-danger"
-                      >
+                      <Callout tone="danger" role="alert" className="mt-3">
                         {publishError}
-                      </p>
+                      </Callout>
                     )}
 
                     {canPublish && (
@@ -929,18 +1006,28 @@ export function ProductDetailPage(): React.JSX.Element {
                         {product?.isPublished === true ? 'Unpublish' : 'Publish'}
                       </Button>
                     )}
+
+                    {canPublish && product?.isPublished === true && (
+                      <p className="mt-2 text-xxs leading-relaxed text-ink-muted">
+                        Unpublishing removes it from the storefront immediately. Orders that already
+                        include it are unaffected.
+                      </p>
+                    )}
                   </div>
                 </>
               )}
             </div>
           </Card>
 
-          {!isNew && can(Permission.PRODUCT_ARCHIVE) && (
-            <Card title="Archive">
+          {/* Its own tinted panel, at the bottom of the column, so the one
+              irreversible action on this page cannot be reached by momentum
+              from the ones above it. */}
+          {!isNew && can(Permission.PRODUCT_ARCHIVE) && product?.archivedAt === null && (
+            <Card title="Archive" tone="danger">
               <div className="px-5 py-4">
-                <p className="text-xs text-ink-muted">
-                  Archiving removes the product from the catalogue. Existing orders keep it, so
-                  history stays readable.
+                <p className="text-xs leading-relaxed text-ink-muted">
+                  Archiving removes the product from the catalogue and the storefront. Existing
+                  orders keep it, so history stays readable.
                 </p>
                 <Button
                   variant="danger"
@@ -953,12 +1040,6 @@ export function ProductDetailPage(): React.JSX.Element {
                 </Button>
               </div>
             </Card>
-          )}
-
-          {isDirty && (
-            <p role="status" className="text-xs text-warning">
-              You have unsaved changes.
-            </p>
           )}
         </div>
       </div>

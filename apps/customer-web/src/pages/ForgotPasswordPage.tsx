@@ -61,7 +61,7 @@ export function ForgotPasswordPage(): React.JSX.Element {
           </p>
           <Link
             to="/login"
-            className="mt-6 inline-flex h-10 items-center rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-ink hover:bg-surface-sunken"
+            className="mt-6 inline-flex h-10 items-center rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-ink hover:bg-surface-hover"
           >
             Back to sign in
           </Link>

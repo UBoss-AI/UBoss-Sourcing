@@ -3,7 +3,9 @@
  *
  * The gateway panel is the most consequential screen in this application: it
  * is where real money starts moving. The server enforces a three-step order
- * and this page makes it visible rather than papering over it.
+ * and this page makes it visible rather than papering over it — the steps are
+ * printed on the panel, not just described in this comment, because the person
+ * who needs them is looking at the screen and not at the source.
  *
  *   1. **Save.** Credentials are encrypted server-side. Saving always clears
  *      any previous test result and deactivates the connection.
@@ -18,7 +20,8 @@
  *
  * **TEST and LIVE are never blurred.** A `rzp_live_` key filed under TEST, or
  * the reverse, is rejected at save. LIVE mode is called out in plain language
- * every time it appears, because the difference is real money.
+ * and given its own red edge every time it appears, because the difference is
+ * real money.
  */
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -33,14 +36,19 @@ import { useToast } from '@/components/toast-context';
 import {
   Badge,
   Button,
+  Callout,
   Card,
+  DescriptionList,
+  EmptyState,
   ErrorState,
   Field,
   Input,
   LoadingState,
+  NoAccessState,
   PageHeader,
   Select,
 } from '@/components/ui';
+import { cx } from '@/lib/cx';
 import { ApiError, api } from '@/lib/api';
 import { applyApiErrors } from '@/lib/forms';
 import { formatDateTime, humanise } from '@/lib/format';
@@ -166,7 +174,9 @@ function ConnectionDialog({
       description="Saving always deactivates the connection until it passes a test."
       footer={
         <>
-          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={onClose} disabled={save.isPending}>
+            Cancel
+          </Button>
           <Button variant="primary" isLoading={save.isPending} onClick={submit}>
             Save credentials
           </Button>
@@ -174,19 +184,16 @@ function ConnectionDialog({
       }
     >
       <form
-        className="space-y-4"
+        className="space-y-5"
         onSubmit={(event) => {
           event.preventDefault();
           submit();
         }}
       >
         {formError !== null && (
-          <div
-            role="alert"
-            className="rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-sm text-danger"
-          >
+          <Callout tone="danger" role="alert">
             {formError}
-          </div>
+          </Callout>
         )}
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -210,85 +217,258 @@ function ConnectionDialog({
         </div>
 
         {mode === 'LIVE' && (
-          <div
-            role="alert"
-            className="rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-sm"
-          >
-            <p className="font-semibold text-danger">These are live credentials.</p>
-            <p className="mt-0.5 text-ink">
-              Once this connection is activated, customer checkouts charge real cards and refunds
-              move real money. Use Test mode for anything that is not production.
-            </p>
-          </div>
+          <Callout tone="danger" role="alert" title="These are live credentials.">
+            Once this connection is activated, customer checkouts charge real cards and refunds move
+            real money. Use Test mode for anything that is not production.
+          </Callout>
         )}
 
-        <Field
-          label="Name"
-          hint="How this connection is listed here, e.g. “Razorpay sandbox”."
-          error={errors.label?.message}
-          required
-        >
-          {({ inputId, describedBy }) => (
-            <Input
-              id={inputId}
-              aria-describedby={describedBy}
-              invalid={errors.label !== undefined}
-              {...register('label')}
-            />
-          )}
-        </Field>
+        <div className="space-y-4 border-t border-border-subtle pt-4">
+          <Field
+            label="Name"
+            hint="How this connection is listed here, e.g. “Razorpay sandbox”."
+            error={errors.label?.message}
+            required
+          >
+            {({ inputId, describedBy }) => (
+              <Input
+                id={inputId}
+                aria-describedby={describedBy}
+                invalid={errors.label !== undefined}
+                {...register('label')}
+              />
+            )}
+          </Field>
 
-        <Field label="Key ID" error={errors.keyId?.message} required>
-          {({ inputId, describedBy }) => (
-            <Input
-              id={inputId}
-              className="font-mono"
-              autoComplete="off"
-              placeholder="rzp_test_…"
-              aria-describedby={describedBy}
-              invalid={errors.keyId !== undefined}
-              {...register('keyId')}
-            />
-          )}
-        </Field>
+          <Field label="Key ID" error={errors.keyId?.message} required>
+            {({ inputId, describedBy }) => (
+              <Input
+                id={inputId}
+                className="font-mono"
+                autoComplete="off"
+                placeholder="rzp_test_…"
+                aria-describedby={describedBy}
+                invalid={errors.keyId !== undefined}
+                {...register('keyId')}
+              />
+            )}
+          </Field>
 
-        <Field
-          label="Key secret"
-          hint="Encrypted before storage and never sent back to this screen."
-          error={errors.keySecret?.message}
-          required
-        >
-          {({ inputId, describedBy }) => (
-            <Input
-              id={inputId}
-              type="password"
-              className="font-mono"
-              autoComplete="off"
-              aria-describedby={describedBy}
-              invalid={errors.keySecret !== undefined}
-              {...register('keySecret')}
-            />
-          )}
-        </Field>
+          <Field
+            label="Key secret"
+            hint="Encrypted before storage and never sent back to this screen."
+            error={errors.keySecret?.message}
+            required
+          >
+            {({ inputId, describedBy }) => (
+              <Input
+                id={inputId}
+                type="password"
+                className="font-mono"
+                autoComplete="off"
+                aria-describedby={describedBy}
+                invalid={errors.keySecret !== undefined}
+                {...register('keySecret')}
+              />
+            )}
+          </Field>
 
-        <Field
-          label="Webhook secret"
-          hint="From the gateway dashboard. Without it, no incoming payment event can be verified — and an unverified event is never applied."
-          error={errors.webhookSecret?.message}
-        >
-          {({ inputId, describedBy }) => (
-            <Input
-              id={inputId}
-              type="password"
-              className="font-mono"
-              autoComplete="off"
-              aria-describedby={describedBy}
-              {...register('webhookSecret')}
-            />
-          )}
-        </Field>
+          <Field
+            label="Webhook secret"
+            hint="From the gateway dashboard. Without it, no incoming payment event can be verified — and an unverified event is never applied, so no order would ever be confirmed by a payment."
+            error={errors.webhookSecret?.message}
+          >
+            {({ inputId, describedBy }) => (
+              <Input
+                id={inputId}
+                type="password"
+                className="font-mono"
+                autoComplete="off"
+                aria-describedby={describedBy}
+                {...register('webhookSecret')}
+              />
+            )}
+          </Field>
+        </div>
       </form>
     </Modal>
+  );
+}
+
+/** The order the server enforces, printed where it is needed. */
+function GatewaySteps(): React.JSX.Element {
+  const steps = [
+    { title: 'Save', detail: 'Credentials are encrypted server-side, and the connection is switched off.' },
+    { title: 'Test', detail: 'The gateway is asked whether the saved credentials work. Only this records a result.' },
+    { title: 'Activate', detail: 'Refused unless the last test passed. Any other active gateway is switched off.' },
+  ];
+
+  return (
+    <ol className="grid gap-3 border-b border-border-subtle bg-surface-sunken px-5 py-4 sm:grid-cols-3">
+      {steps.map((step, index) => (
+        <li key={step.title} className="flex gap-2.5">
+          <span
+            aria-hidden="true"
+            className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-soft text-xxs font-bold text-accent"
+          >
+            {index + 1}
+          </span>
+          <span className="min-w-0">
+            <span className="block text-xs font-semibold text-ink">{step.title}</span>
+            <span className="mt-0.5 block text-xxs leading-relaxed text-ink-muted">
+              {step.detail}
+            </span>
+          </span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function ConnectionRow({
+  connection,
+  canWrite,
+  isTesting,
+  onTest,
+  onDeactivate,
+  onActivate,
+  onReplace,
+}: {
+  connection: Connection;
+  canWrite: boolean;
+  isTesting: boolean;
+  onTest: () => void;
+  onDeactivate: () => void;
+  onActivate: () => void;
+  onReplace: () => void;
+}): React.JSX.Element {
+  const canActivate = connection.lastTestStatus === 'OK';
+  const isLive = connection.mode === 'LIVE';
+
+  return (
+    <li
+      className={cx(
+        'border-l-4 px-5 py-4',
+        // A live gateway that is switched on is the one thing on this page
+        // that can charge a real card. It gets a red edge; everything else
+        // gets a plain one, so the marker keeps its meaning.
+        isLive && connection.isActive
+          ? 'border-l-danger bg-danger-soft/40'
+          : isLive
+            ? 'border-l-danger/40'
+            : 'border-l-transparent',
+      )}
+    >
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm font-medium text-ink">{connection.label}</span>
+        <Badge>{humanise(connection.provider)}</Badge>
+        {isLive ? (
+          <Badge dot tone="danger">
+            Live — real money
+          </Badge>
+        ) : (
+          <Badge dot tone="accent">
+            Test — no real money
+          </Badge>
+        )}
+        {connection.isActive ? (
+          <Badge dot tone="success">
+            Active
+          </Badge>
+        ) : (
+          <Badge dot tone="neutral">
+            Inactive
+          </Badge>
+        )}
+      </div>
+
+      <DescriptionList
+        className="mt-3"
+        columns={3}
+        items={[
+          { label: 'Key', value: <span className="font-mono">{connection.credentialsMask}</span> },
+          {
+            label: 'Webhook secret',
+            value: connection.hasWebhookSecret ? (
+              'Stored'
+            ) : (
+              <span className="font-medium text-warning">Missing</span>
+            ),
+          },
+          {
+            label: 'Last test',
+            value:
+              connection.lastTestStatus === null ? (
+                <span className="text-ink-muted">Never tested</span>
+              ) : (
+                <span
+                  className={
+                    connection.lastTestStatus === 'OK'
+                      ? 'font-medium text-success'
+                      : 'font-medium text-danger'
+                  }
+                >
+                  {connection.lastTestStatus} · {formatDateTime(connection.lastTestedAt)}
+                </span>
+              ),
+          },
+        ]}
+      />
+
+      {connection.lastTestMessage !== null && (
+        <p
+          className={cx(
+            'mt-2 text-xs leading-relaxed',
+            connection.lastTestStatus === 'OK' ? 'text-ink-muted' : 'text-danger',
+          )}
+        >
+          {connection.lastTestMessage}
+        </p>
+      )}
+
+      {!connection.hasWebhookSecret && (
+        <Callout tone="warning" className="mt-3">
+          Without a webhook secret, no incoming payment event can be verified — so no order will
+          ever be confirmed by a payment.
+        </Callout>
+      )}
+
+      {canWrite && (
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <Button size="sm" isLoading={isTesting} onClick={onTest}>
+            Test connection
+          </Button>
+
+          {connection.isActive ? (
+            <Button size="sm" variant="secondary" onClick={onDeactivate}>
+              Deactivate
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              // Turning on a LIVE gateway is the irreversible-feeling step on
+              // this page, so it is the one button here that is red.
+              variant={isLive ? 'danger' : 'primary'}
+              disabled={!canActivate}
+              title={canActivate ? undefined : 'Run a successful test first.'}
+              onClick={onActivate}
+            >
+              {isLive ? 'Activate live payments' : 'Activate'}
+            </Button>
+          )}
+
+          <Button size="sm" variant="ghost" onClick={onReplace}>
+            Replace credentials
+          </Button>
+
+          {!connection.isActive && !canActivate && (
+            <p className="text-xs text-ink-muted">
+              Activation needs a passing test — enforced by the server, not just by this button.
+            </p>
+          )}
+        </div>
+      )}
+    </li>
   );
 }
 
@@ -335,15 +515,17 @@ function GatewayPanel(): React.JSX.Element {
   });
 
   const canWrite = can(Permission.PAYMENT_GATEWAY_WRITE);
+  const connections = query.data?.connections;
 
   return (
     <>
       <Card
         title="Payment gateway"
-        description="Save, test, then activate. Exactly one connection is active at a time."
+        description="Exactly one connection is active at a time. Customers cannot pay until one is connected, tested and activated."
         actions={
           canWrite ? (
             <Button
+              variant="primary"
               size="sm"
               onClick={() => {
                 setDialogFor(null);
@@ -354,7 +536,9 @@ function GatewayPanel(): React.JSX.Element {
           ) : undefined
         }
       >
-        {query.isPending && <LoadingState />}
+        {canWrite && <GatewaySteps />}
+
+        {query.isPending && <LoadingState label="Loading gateway connections" />}
         {query.isError && (
           <ErrorState
             error={query.error}
@@ -364,139 +548,47 @@ function GatewayPanel(): React.JSX.Element {
           />
         )}
 
-        {query.data?.connections.length === 0 && (
-          <div className="px-5 py-10 text-center">
-            <p className="text-sm font-medium text-ink">No gateway connected</p>
-            <p className="mx-auto mt-1 max-w-md text-sm text-ink-muted">
-              Customers cannot pay until one is connected, tested and activated. Start in Test mode —
-              no real money can move on a test key.
-            </p>
-          </div>
+        {connections !== undefined && connections.length === 0 && (
+          <EmptyState
+            title="No gateway connected"
+            description="Start in Test mode — no real money can move on a test key, and the same three steps apply."
+            action={
+              canWrite ? (
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    setDialogFor(null);
+                  }}
+                >
+                  Add credentials
+                </Button>
+              ) : undefined
+            }
+          />
         )}
 
-        {query.data !== undefined && query.data.connections.length > 0 && (
+        {connections !== undefined && connections.length > 0 && (
           <ul className="divide-y divide-border">
-            {query.data.connections.map((connection) => {
-              const canActivate = connection.lastTestStatus === 'OK';
-
-              return (
-                <li key={connection.id} className="px-5 py-4">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-medium text-ink">{connection.label}</span>
-                    <Badge>{humanise(connection.provider)}</Badge>
-                    {connection.mode === 'LIVE' ? (
-                      <Badge tone="danger">Live — real money</Badge>
-                    ) : (
-                      <Badge tone="accent">Test — no real money</Badge>
-                    )}
-                    {connection.isActive ? (
-                      <Badge tone="success">Active</Badge>
-                    ) : (
-                      <Badge>Inactive</Badge>
-                    )}
-                  </div>
-
-                  <dl className="mt-2 grid gap-x-6 gap-y-1 text-xs sm:grid-cols-3">
-                    <div>
-                      <dt className="text-ink-subtle">Key</dt>
-                      <dd className="font-mono text-ink">{connection.credentialsMask}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-ink-subtle">Webhook secret</dt>
-                      <dd className={connection.hasWebhookSecret ? 'text-ink' : 'text-warning'}>
-                        {connection.hasWebhookSecret ? 'Stored' : 'Missing'}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-ink-subtle">Last test</dt>
-                      <dd
-                        className={
-                          connection.lastTestStatus === 'OK'
-                            ? 'text-success'
-                            : connection.lastTestStatus === null
-                              ? 'text-ink-muted'
-                              : 'text-danger'
-                        }
-                      >
-                        {connection.lastTestStatus === null
-                          ? 'Never tested'
-                          : `${connection.lastTestStatus} · ${formatDateTime(connection.lastTestedAt)}`}
-                      </dd>
-                    </div>
-                  </dl>
-
-                  {connection.lastTestMessage !== null && (
-                    <p
-                      className={`mt-1.5 text-xs ${connection.lastTestStatus === 'OK' ? 'text-ink-muted' : 'text-danger'}`}
-                    >
-                      {connection.lastTestMessage}
-                    </p>
-                  )}
-
-                  {!connection.hasWebhookSecret && (
-                    <p className="mt-1.5 text-xs text-warning">
-                      Without a webhook secret, no incoming payment event can be verified — so no
-                      order will ever be confirmed by a payment.
-                    </p>
-                  )}
-
-                  {canWrite && (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <Button
-                        size="sm"
-                        isLoading={test.isPending}
-                        onClick={() => {
-                          test.mutate(connection);
-                        }}
-                      >
-                        Test connection
-                      </Button>
-
-                      {connection.isActive ? (
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => {
-                            setStatus.mutate({ connection, active: false });
-                          }}
-                        >
-                          Deactivate
-                        </Button>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="primary"
-                          disabled={!canActivate}
-                          title={canActivate ? undefined : 'Run a successful test first.'}
-                          onClick={() => {
-                            setActivating(connection);
-                          }}
-                        >
-                          Activate
-                        </Button>
-                      )}
-
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => {
-                          setDialogFor(connection);
-                        }}
-                      >
-                        Replace credentials
-                      </Button>
-                    </div>
-                  )}
-
-                  {canWrite && !connection.isActive && !canActivate && (
-                    <p className="mt-1.5 text-xs text-ink-muted">
-                      Activation needs a passing test. That is enforced by the server, not just by
-                      this button.
-                    </p>
-                  )}
-                </li>
-              );
-            })}
+            {connections.map((connection) => (
+              <ConnectionRow
+                key={connection.id}
+                connection={connection}
+                canWrite={canWrite}
+                isTesting={test.isPending && test.variables.id === connection.id}
+                onTest={() => {
+                  test.mutate(connection);
+                }}
+                onDeactivate={() => {
+                  setStatus.mutate({ connection, active: false });
+                }}
+                onActivate={() => {
+                  setActivating(connection);
+                }}
+                onReplace={() => {
+                  setDialogFor(connection);
+                }}
+              />
+            ))}
           </ul>
         )}
       </Card>
@@ -529,9 +621,9 @@ function GatewayPanel(): React.JSX.Element {
         body={
           activating?.mode === 'LIVE' ? (
             <div className="space-y-2">
-              <p className="font-medium text-danger">
-                From this moment, customer checkouts charge real cards and refunds move real money.
-              </p>
+              <Callout tone="danger" title="Real cards, from this moment.">
+                Customer checkouts will charge real cards and refunds will move real money.
+              </Callout>
               <p>Any other active gateway is switched off — only one can be live at a time.</p>
             </div>
           ) : (
@@ -554,33 +646,44 @@ function ConnectorsPanel(): React.JSX.Element {
     queryFn: () => api.get<{ connectors: Connector[] }>('/admin/integrations'),
   });
 
-
   const columns: Column<Connector>[] = [
-    { key: 'name', header: 'Connector', render: (row) => row.name },
+    {
+      key: 'name',
+      header: 'Connector',
+      render: (row) => <span className="font-medium text-ink">{row.name}</span>,
+    },
     { key: 'kind', header: 'Type', render: (row) => <Badge>{humanise(row.kind)}</Badge> },
     {
       key: 'status',
       header: 'Status',
       render: (row) =>
-        row.isActive ? <Badge tone="success">Active</Badge> : <Badge>Inactive</Badge>,
+        row.isActive ? (
+          <Badge dot tone="success">
+            Active
+          </Badge>
+        ) : (
+          <Badge dot tone="neutral">
+            Inactive
+          </Badge>
+        ),
     },
     {
       key: 'sync',
       header: 'Last sync',
+      nowrap: true,
       render: (row) =>
         row.lastSyncAt === null ? (
           <span className="text-ink-subtle">Never</span>
         ) : (
-          `${humanise(row.lastSyncStatus ?? 'UNKNOWN')} · ${formatDateTime(row.lastSyncAt)}`
+          <span className="text-ink-muted">
+            {humanise(row.lastSyncStatus ?? 'UNKNOWN')} · {formatDateTime(row.lastSyncAt)}
+          </span>
         ),
     },
   ];
 
   return (
-    <Card
-      title="Other integrations"
-      description="Accounting, shipping and ERP connectors."
-    >
+    <Card title="Other integrations" description="Accounting, shipping and ERP connectors.">
       <DataTable
         caption="Connectors"
         columns={columns}
@@ -588,6 +691,11 @@ function ConnectorsPanel(): React.JSX.Element {
         rowKey={(row) => row.id}
         isLoading={query.isPending}
         error={query.isError ? query.error : undefined}
+        loadingLabel="Loading connectors"
+        minWidth="42rem"
+        onRetry={() => {
+          void query.refetch();
+        }}
         emptyTitle="No connectors configured"
         emptyDescription="Nothing is syncing to an external system."
       />
@@ -609,12 +717,20 @@ export function IntegrationsPage(): React.JSX.Element {
     <>
       <PageHeader
         title="Integrations"
-        description="Payment gateway credentials and third-party connectors."
+        description="Payment gateway credentials and third-party connectors. Secrets are encrypted before storage and never sent back to this screen."
       />
 
       <div className="space-y-5">
         {showsGateway && <GatewayPanel />}
         {showsConnectors && <ConnectorsPanel />}
+
+        {/* Reachable only if the route guard and these two checks ever fall out
+            of step. Better an honest panel than a blank page. */}
+        {!showsGateway && !showsConnectors && (
+          <Card>
+            <NoAccessState />
+          </Card>
+        )}
       </div>
     </>
   );

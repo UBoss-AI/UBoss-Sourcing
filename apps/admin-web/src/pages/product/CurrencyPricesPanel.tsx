@@ -15,7 +15,7 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/toast-context';
-import { Badge, Button, Card, Input } from '@/components/ui';
+import { Badge, Button, Callout, Card, Input, LoadingState } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { majorToMinor, minorToMajor } from '@/lib/format';
 
@@ -148,19 +148,25 @@ export function CurrencyPricesPanel({
       description="A real price per market, never a conversion. Leave one blank and the product is not sold there."
       actions={
         canWrite ? (
-          <Button onClick={submit} disabled={save.isPending || prices.isLoading}>
-            {save.isPending ? 'Saving…' : 'Save prices'}
+          <Button
+            size="sm"
+            variant="primary"
+            onClick={submit}
+            isLoading={save.isPending}
+            disabled={prices.isLoading}
+          >
+            Save prices
           </Button>
         ) : undefined
       }
     >
       <div className="px-5 py-4">
         {prices.isLoading ? (
-          <p className="text-sm text-ink-muted">Loading prices…</p>
+          <LoadingState label="Loading prices" />
         ) : (
           <>
             <div className="mb-3 flex items-center gap-2">
-              <Badge tone={soldIn === 0 ? 'warning' : 'neutral'}>
+              <Badge dot tone={soldIn === 0 ? 'warning' : 'success'}>
                 Sold in {soldIn} of {rows.length} currencies
               </Badge>
             </div>
@@ -168,23 +174,26 @@ export function CurrencyPricesPanel({
             <div className="overflow-x-auto">
               <table className="w-full min-w-[32rem] text-sm">
                 <caption className="sr-only">Prices by currency</caption>
-                <thead>
-                  <tr className="border-b border-border text-left text-xxs uppercase tracking-wide text-ink-muted">
-                    <th scope="col" className="pb-2 pr-3 font-medium">
+                {/* The same header treatment as every other table in the
+                    panel: a tinted band with a heavier rule under it, so this
+                    one does not read as a different kind of thing. */}
+                <thead className="bg-surface-sunken">
+                  <tr className="border-b border-border-strong/40 text-left text-xxs font-semibold uppercase tracking-wider text-ink-muted">
+                    <th scope="col" className="px-3 py-2.5">
                       Currency
                     </th>
-                    <th scope="col" className="pb-2 pr-3 font-medium">
+                    <th scope="col" className="px-3 py-2.5">
                       Price
                     </th>
-                    <th scope="col" className="pb-2 font-medium">
+                    <th scope="col" className="px-3 py-2.5">
                       Compare-at
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((row) => (
-                    <tr key={row.currency.code} className="border-b border-border last:border-0">
-                      <th scope="row" className="py-2 pr-3 text-left font-normal">
+                    <tr key={row.currency.code} className="border-b border-border-subtle last:border-0">
+                      <th scope="row" className="px-3 py-2 text-left font-normal">
                         <span className="font-medium text-ink">{row.currency.code}</span>
                         <span className="ml-2 text-xs text-ink-muted">{row.currency.name}</span>
                         {row.currency.isBase && (
@@ -193,7 +202,7 @@ export function CurrencyPricesPanel({
                           </span>
                         )}
                       </th>
-                      <td className="py-2 pr-3">
+                      <td className="px-3 py-2">
                         <Input
                           inputMode="decimal"
                           className="tabular"
@@ -212,7 +221,7 @@ export function CurrencyPricesPanel({
                           }}
                         />
                       </td>
-                      <td className="py-2">
+                      <td className="px-3 py-2">
                         <Input
                           inputMode="decimal"
                           className="tabular"
@@ -238,9 +247,9 @@ export function CurrencyPricesPanel({
             </div>
 
             {error !== null && (
-              <p role="alert" className="mt-3 text-sm font-medium text-danger">
+              <Callout tone="danger" role="alert" className="mt-3">
                 {error}
-              </p>
+              </Callout>
             )}
           </>
         )}

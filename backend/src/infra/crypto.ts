@@ -101,6 +101,40 @@ export function sha256Hex(value: string): string {
   return createHash('sha256').update(value, 'utf8').digest('hex');
 }
 
+/**
+ * Alphabet for temporary passwords.
+ *
+ * Deliberately 32 characters, and deliberately missing `I`, `O`, `0`, `1`: this
+ * string is read off a screen and retyped by hand, and those four are where
+ * that goes wrong. 32 divides 256 exactly, so masking a random byte with 0x1f
+ * selects uniformly - no modulo bias, and no rejection loop.
+ */
+const TEMPORARY_PASSWORD_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+/**
+ * A system-issued temporary password for a new staff account.
+ *
+ * Four groups of four, hyphenated: 20 characters, of which 16 carry 5 bits each
+ * — 80 bits of entropy, far past anything worth guessing, while still being
+ * something a person can copy out of an email without a mistake.
+ *
+ * Generated here rather than accepted from the administrator creating the
+ * account, so that nobody — including them — ever chooses another person's
+ * password. It is returned once, goes into exactly one email, and only its
+ * Argon2id hash is stored.
+ */
+export function generateTemporaryPassword(): string {
+  const bytes = randomBytes(16);
+  const characters = Array.from(bytes, (byte) => TEMPORARY_PASSWORD_ALPHABET[byte & 0x1f]);
+
+  return [
+    characters.slice(0, 4).join(''),
+    characters.slice(4, 8).join(''),
+    characters.slice(8, 12).join(''),
+    characters.slice(12, 16).join(''),
+  ].join('-');
+}
+
 /** Hash of a canonical request body, for idempotency-key body comparison. */
 export function hashRequestBody(body: unknown): string {
   return sha256Hex(canonicalJson(body));

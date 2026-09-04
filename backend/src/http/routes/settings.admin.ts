@@ -17,6 +17,7 @@ import {
   assignableRoles,
   createStaff,
   listStaff,
+  reissueTemporaryPassword,
   setStaffRoles,
   setStaffStatus,
 } from '../../modules/identity/staff.service.js';
@@ -310,19 +311,48 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
       config: { rateLimit: { max: 20, timeWindow: '15 minutes' } },
     },
     async (request, reply) => {
+      // No password field, deliberately. The system generates the temporary one
+      // and emails it; an administrator never chooses another person's password
+      // and never learns it.
       const body = z
         .object({
           email: z.string().trim().max(320).email(),
           roleKeys: z.array(z.string().max(64)).min(1).max(6),
-          // Omitted, the account is created pending and an invitation is
-          // emailed - the same path customers use, so no administrator types
-          // another person's password.
-          temporaryPassword: z.string().min(12).max(128).nullable().optional(),
         })
         .parse(request.body);
 
       const created = await createStaff(body, staffActorFrom(request));
-      return reply.status(201).send(created);
+
+      return reply.status(201).send({
+        userId: created.userId,
+        temporaryPasswordSent: true,
+        temporaryPasswordExpiresAt: created.temporaryPasswordExpiresAt.toISOString(),
+      });
+    },
+  );
+
+  /**
+   * Issue a fresh temporary password.
+   *
+   * For the account that never got in - mail in a spam folder, or the 72 hours
+   * lapsed. Refused once the holder has a password of their own; from then on
+   * the way back in is the reset they start themselves.
+   */
+  app.post(
+    '/staff/:id/temporary-password',
+    {
+      preHandler: requireAdmin(Permission.STAFF_WRITE, Permission.ROLE_ASSIGN),
+      config: { rateLimit: { max: 10, timeWindow: '15 minutes' } },
+    },
+    async (request, reply) => {
+      const { id } = z.object({ id: z.string().length(26) }).parse(request.params);
+
+      const result = await reissueTemporaryPassword(id, staffActorFrom(request));
+
+      return reply.status(200).send({
+        temporaryPasswordSent: true,
+        temporaryPasswordExpiresAt: result.temporaryPasswordExpiresAt.toISOString(),
+      });
     },
   );
 

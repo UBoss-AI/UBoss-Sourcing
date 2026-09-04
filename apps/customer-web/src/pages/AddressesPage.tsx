@@ -10,7 +10,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
 import { AddressForm } from '@/components/AddressForm';
 import { useToast } from '@/components/toast-context';
-import { Badge, Button, ErrorState, LoadingState } from '@/components/ui';
+import { Badge, Button, EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { Address } from '@/lib/types';
@@ -59,27 +59,28 @@ export function AddressesPage(): React.JSX.Element {
 
   return (
     <>
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-ink">Addresses</h1>
-          <p className="mt-1 text-sm text-ink-muted">Used at checkout for delivery and billing.</p>
-        </div>
-
-        {editing === undefined && (
-          <Button
-            variant="primary"
-            onClick={() => {
-              setEditing(null);
-            }}
-          >
-            Add an address
-          </Button>
-        )}
-      </div>
+      <PageHeader
+        title="Addresses"
+        description="Used at checkout for delivery and billing."
+        {...(editing === undefined
+          ? {
+              actions: (
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    setEditing(null);
+                  }}
+                >
+                  Add an address
+                </Button>
+              ),
+            }
+          : {})}
+      />
 
       {editing !== undefined && (
-        <div className="mb-6 rounded-lg border border-border bg-surface p-5">
-          <h2 className="mb-4 text-base font-semibold text-ink">
+        <div className="mb-6 rounded-lg border border-border bg-surface p-5 shadow-card">
+          <h2 className="mb-4 text-title-sm text-ink">
             {editing === null ? 'New address' : 'Edit address'}
           </h2>
           <AddressForm
@@ -96,20 +97,20 @@ export function AddressesPage(): React.JSX.Element {
       )}
 
       {addresses.length === 0 ? (
-        <div className="rounded-lg border border-border bg-surface px-6 py-14 text-center">
-          <p className="text-base font-medium text-ink">No addresses saved</p>
-          <p className="mx-auto mt-1.5 max-w-md text-sm text-ink-muted">
-            Add one here, or at checkout when you place your first order.
-          </p>
+        <div className="rounded-lg border border-border bg-surface shadow-card">
+          <EmptyState
+            title="No addresses saved"
+            description="Add one here, or at checkout when you place your first order."
+          />
         </div>
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2">
           {addresses.map((address) => (
-            <li key={address.id} className="rounded-lg border border-border bg-surface p-4">
+            <li key={address.id} className="rounded-lg border border-border bg-surface p-4 shadow-card">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="min-w-0">
                   {address.label !== null && (
-                    <p className="text-sm font-medium text-ink">{address.label}</p>
+                    <p className="text-title-xs text-ink">{address.label}</p>
                   )}
                   <p className="text-sm text-ink">{address.contactName}</p>
                 </div>

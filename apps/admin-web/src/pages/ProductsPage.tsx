@@ -5,11 +5,16 @@
  * often sends to a colleague ("these three are still drafts"), and state held
  * in a component cannot be sent.
  *
- * The two status columns are deliberately separate. **Active** is a catalogue
- * decision; **Published** is a visibility decision, and the backend requires
- * both before a customer can see a product. Collapsing them into one "Live"
- * column would hide the most common confusion on this screen - an ACTIVE
- * product that nobody can find because it was never published.
+ * The two status columns are deliberately separate. **Catalogue** is a
+ * catalogue decision (draft, active, inactive); **storefront** is a visibility
+ * decision, and the backend requires both before a customer can see a product.
+ * Collapsing them into one "Live" column would hide the most common confusion
+ * on this screen - an ACTIVE product that nobody can find because it was never
+ * published.
+ *
+ * The two supporting columns are there for the same reason: publication needs
+ * at least one image, so a product with none can be spotted before somebody
+ * tries to publish it and is refused.
  */
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -17,7 +22,20 @@ import { useQuery } from '@tanstack/react-query';
 import { useSession } from '@/auth/session-context';
 import { DataTable, Pager } from '@/components/DataTable';
 import type { Column } from '@/components/DataTable';
-import { Badge, Button, Card, Input, PageHeader, Select } from '@/components/ui';
+import {
+  Badge,
+  Button,
+  Card,
+  Input,
+  LinkButton,
+  PageHeader,
+  Select,
+  Toolbar,
+  ToolbarActions,
+  ToolbarField,
+  ToolbarToggle,
+} from '@/components/ui';
+import type { BadgeTone } from '@/components/ui';
 import { api } from '@/lib/api';
 import { formatMoney, formatNumber } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
@@ -31,6 +49,12 @@ function flatten(nodes: CategoryNode[], into: CategoryNode[] = []): CategoryNode
   return into;
 }
 
+const CATALOGUE_STATUS: Record<ProductListItem['status'], { label: string; tone: BadgeTone }> = {
+  ACTIVE: { label: 'Active', tone: 'success' },
+  DRAFT: { label: 'Draft', tone: 'neutral' },
+  INACTIVE: { label: 'Inactive', tone: 'warning' },
+};
+
 export function ProductsPage(): React.JSX.Element {
   const { can } = useSession();
   const navigate = useNavigate();
@@ -42,6 +66,9 @@ export function ProductsPage(): React.JSX.Element {
   const categoryId = searchParams.get('categoryId') ?? '';
   const includeArchived = searchParams.get('includeArchived') === 'true';
   const q = searchParams.get('q') ?? '';
+
+  const hasFilters =
+    status !== '' || published !== '' || categoryId !== '' || includeArchived || q !== '';
 
   // Local mirror of the search box so typing stays responsive, debounced into
   // the URL. Writing every keystroke to the URL floods the history stack.
@@ -110,13 +137,18 @@ export function ProductsPage(): React.JSX.Element {
       key: 'name',
       header: 'Product',
       render: (row) => (
-        <div>
-          <Link
-            to={`/products/${row.id}`}
-            className="font-medium text-ink hover:text-accent hover:underline"
-          >
-            {row.name}
-          </Link>
+        <div className="min-w-48">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <Link
+              to={`/products/${row.id}`}
+              className="font-medium text-ink hover:text-accent hover:underline"
+            >
+              {row.name}
+            </Link>
+            {/* Archived rows only appear when the filter asks for them, and
+                without this they are indistinguishable from live ones. */}
+            {row.archivedAt !== null && <Badge tone="danger">Archived</Badge>}
+          </div>
           <p className="font-mono text-xxs text-ink-subtle">{row.sku}</p>
         </div>
       ),
@@ -125,26 +157,39 @@ export function ProductsPage(): React.JSX.Element {
       key: 'category',
       header: 'Category',
       secondary: true,
-      render: (row) => row.category?.name ?? '—',
+      render: (row) => row.category?.name ?? <span className="text-ink-subtle">—</span>,
     },
-    { key: 'price', header: 'Price', align: 'right', render: (row) => formatMoney(row.price) },
+    {
+      key: 'price',
+      header: 'Price',
+      align: 'right',
+      nowrap: true,
+      render: (row) => formatMoney(row.price),
+    },
     {
       key: 'status',
-      header: 'Status',
-      render: (row) => (
-        <Badge tone={row.status === 'ACTIVE' ? 'success' : row.status === 'DRAFT' ? 'neutral' : 'warning'}>
-          {row.status === 'ACTIVE' ? 'Active' : row.status === 'DRAFT' ? 'Draft' : 'Inactive'}
-        </Badge>
-      ),
+      header: 'Catalogue',
+      render: (row) => {
+        const state = CATALOGUE_STATUS[row.status];
+        return (
+          <Badge dot tone={state.tone}>
+            {state.label}
+          </Badge>
+        );
+      },
     },
     {
       key: 'published',
-      header: 'Published',
+      header: 'Storefront',
       render: (row) =>
         row.isPublished ? (
-          <Badge tone="success">Live</Badge>
+          <Badge dot tone="success">
+            Live
+          </Badge>
         ) : (
-          <Badge tone="neutral">Not published</Badge>
+          <Badge dot tone="neutral">
+            Not published
+          </Badge>
         ),
     },
     {
@@ -152,18 +197,24 @@ export function ProductsPage(): React.JSX.Element {
       header: 'Variants',
       align: 'right',
       secondary: true,
-      render: (row) => (row.variantCount > 0 ? formatNumber(row.variantCount) : '—'),
+      render: (row) =>
+        row.variantCount > 0 ? (
+          formatNumber(row.variantCount)
+        ) : (
+          <span className="text-ink-subtle">—</span>
+        ),
     },
     {
       key: 'media',
       header: 'Images',
       align: 'right',
       secondary: true,
+      tertiary: true,
       render: (row) =>
         row.mediaCount === 0 ? (
           // Publication requires at least one image, so a zero here explains
           // why a product cannot go live before anyone tries.
-          <span className="text-warning">0</span>
+          <Badge tone="warning">None</Badge>
         ) : (
           formatNumber(row.mediaCount)
         ),
@@ -174,35 +225,24 @@ export function ProductsPage(): React.JSX.Element {
     <>
       <PageHeader
         title="Products"
-        description="Everything in the catalogue, published or not."
+        description="A product reaches customers only when it is both Active in the catalogue and published to the storefront."
         actions={
           <>
             {can(Permission.PRODUCT_IMPORT) && (
-              <Link
-                to="/products/import"
-                className="inline-flex h-9 items-center rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-ink hover:bg-surface-sunken"
-              >
-                Bulk import
-              </Link>
+              <LinkButton to="/products/import">Bulk import</LinkButton>
             )}
             {can(Permission.PRODUCT_WRITE) && (
-              <Link
-                to="/products/new"
-                className="inline-flex h-9 items-center rounded-md bg-accent px-4 text-sm font-medium text-white hover:bg-accent-hover"
-              >
+              <LinkButton to="/products/new" variant="primary">
                 New product
-              </Link>
+              </LinkButton>
             )}
           </>
         }
       />
 
       <Card>
-        <div className="flex flex-wrap items-end gap-3 border-b border-border px-4 py-3">
-          <label className="flex-1 min-w-56">
-            <span className="mb-1 block text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-              Search
-            </span>
+        <Toolbar>
+          <ToolbarField label="Search" grow>
             <Input
               type="search"
               value={searchText}
@@ -211,12 +251,9 @@ export function ProductsPage(): React.JSX.Element {
                 setSearchText(event.target.value);
               }}
             />
-          </label>
+          </ToolbarField>
 
-          <label>
-            <span className="mb-1 block text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-              Category
-            </span>
+          <ToolbarField label="Category">
             <Select
               value={categoryId}
               onChange={(event) => {
@@ -232,12 +269,9 @@ export function ProductsPage(): React.JSX.Element {
                 </option>
               ))}
             </Select>
-          </label>
+          </ToolbarField>
 
-          <label>
-            <span className="mb-1 block text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-              Status
-            </span>
+          <ToolbarField label="Catalogue">
             <Select
               value={status}
               onChange={(event) => {
@@ -250,12 +284,9 @@ export function ProductsPage(): React.JSX.Element {
               <option value="ACTIVE">Active</option>
               <option value="INACTIVE">Inactive</option>
             </Select>
-          </label>
+          </ToolbarField>
 
-          <label>
-            <span className="mb-1 block text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-              Visibility
-            </span>
+          <ToolbarField label="Storefront">
             <Select
               value={published}
               onChange={(event) => {
@@ -267,49 +298,18 @@ export function ProductsPage(): React.JSX.Element {
               <option value="true">Published</option>
               <option value="false">Not published</option>
             </Select>
-          </label>
+          </ToolbarField>
 
-          <label className="flex items-center gap-2 pb-2 text-sm text-ink">
-            <input
-              type="checkbox"
-              checked={includeArchived}
-              onChange={(event) => {
-                setParam('includeArchived', event.target.checked ? 'true' : '');
-              }}
-              className="h-4 w-4 rounded border-border-strong text-accent"
-            />
-            Include archived
-          </label>
-        </div>
+          <ToolbarToggle
+            label="Include archived"
+            checked={includeArchived}
+            onChange={(checked) => {
+              setParam('includeArchived', checked ? 'true' : '');
+            }}
+          />
 
-        <DataTable
-          caption="Products"
-          columns={columns}
-          rows={query.data?.products}
-          rowKey={(row) => row.id}
-          isLoading={query.isPending}
-          error={query.isError ? query.error : undefined}
-          onRetry={() => {
-            void query.refetch();
-          }}
-          onRowClick={(row) => {
-            void navigate(`/products/${row.id}`);
-          }}
-          emptyTitle={q === '' ? 'No products yet' : `Nothing matches “${q}”`}
-          emptyDescription={
-            q === ''
-              ? 'Add products one at a time, or import a spreadsheet.'
-              : 'Try a different search, or clear the filters.'
-          }
-          emptyAction={
-            q === '' && can(Permission.PRODUCT_WRITE) ? (
-              <Link
-                to="/products/new"
-                className="inline-flex h-9 items-center rounded-md bg-accent px-4 text-sm font-medium text-white hover:bg-accent-hover"
-              >
-                New product
-              </Link>
-            ) : (
+          {hasFilters && (
+            <ToolbarActions>
               <Button
                 onClick={() => {
                   setSearchParams({});
@@ -317,7 +317,46 @@ export function ProductsPage(): React.JSX.Element {
               >
                 Clear filters
               </Button>
-            )
+            </ToolbarActions>
+          )}
+        </Toolbar>
+
+        <DataTable
+          caption="Products"
+          columns={columns}
+          rows={query.data?.products}
+          rowKey={(row) => row.id}
+          isLoading={query.isPending}
+          isRefreshing={query.isFetching && !query.isPending}
+          error={query.isError ? query.error : undefined}
+          loadingLabel="Loading products"
+          minWidth="60rem"
+          onRetry={() => {
+            void query.refetch();
+          }}
+          onRowClick={(row) => {
+            void navigate(`/products/${row.id}`);
+          }}
+          emptyTitle={hasFilters ? 'Nothing matches these filters' : 'No products yet'}
+          emptyDescription={
+            hasFilters
+              ? 'Try a different search, or clear the filters.'
+              : 'Add products one at a time, or import a spreadsheet.'
+          }
+          emptyAction={
+            hasFilters ? (
+              <Button
+                onClick={() => {
+                  setSearchParams({});
+                }}
+              >
+                Clear filters
+              </Button>
+            ) : can(Permission.PRODUCT_WRITE) ? (
+              <LinkButton to="/products/new" variant="primary">
+                New product
+              </LinkButton>
+            ) : undefined
           }
         />
 

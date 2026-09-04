@@ -49,7 +49,14 @@ describe('GET /api/v1/config', () => {
       'timezone',
     ]);
 
-    expect(Object.keys(body.features).sort()).toEqual(['recurringOrders', 'selfRegistration']);
+    expect(Object.keys(body.features).sort()).toEqual([
+      // Whether this deployment has an AI key configured. A boolean, never the
+      // key or the model name: the storefront only needs to know whether to
+      // mount the chat widget.
+      'assistant',
+      'recurringOrders',
+      'selfRegistration',
+    ]);
 
     // The storefront asks a first-time shopper where they are before it can
     // price anything, so both lists are public. They carry no internal data:

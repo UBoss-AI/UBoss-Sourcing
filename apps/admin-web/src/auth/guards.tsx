@@ -11,6 +11,7 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { useSession } from './session-context';
+import { ChangePasswordPage } from '@/pages/ChangePasswordPage';
 import { Spinner } from '@/components/ui';
 import type { PermissionKey } from '@/lib/permissions';
 
@@ -31,6 +32,19 @@ export function RequireAuth({ children }: { children: ReactNode }): React.JSX.El
 
   if (user === null) {
     return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
+  }
+
+  /**
+   * Signed in on the emailed temporary password. Every admin route would answer
+   * PASSWORD_CHANGE_REQUIRED, so the panel is replaced wholesale rather than
+   * rendered into a wall of failures.
+   *
+   * Rendered in place, not redirected to: a route could be navigated away from,
+   * and this must not be skippable. The backend refuses either way - this only
+   * decides whether the person is shown something useful.
+   */
+  if (user.mustChangePassword) {
+    return <ChangePasswordPage />;
   }
 
   return <>{children}</>;

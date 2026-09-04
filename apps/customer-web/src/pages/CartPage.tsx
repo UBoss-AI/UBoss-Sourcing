@@ -19,6 +19,11 @@
  *
  * Double-click protection is per line: an in-flight change disables that
  * line's controls, so a customer hammering "+" queues one change, not six.
+ *
+ * The one number this file *derives* is whether the tax figure is already
+ * inside the subtotal, and it derives it from `line.taxInclusive` — a flag the
+ * server sends — purely to label the row. On an inclusive cart the column does
+ * not add up unless somebody says so, and "somebody" was previously nobody.
  */
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -27,8 +32,13 @@ import { useStorefront } from '@/app/storefront-context';
 import { useToast } from '@/components/toast-context';
 import { QuantityInput } from '@/components/QuantityInput';
 import { CouponPanel } from '@/components/CouponPanel';
+import { CheckoutSteps } from '@/components/CheckoutSteps';
+import { CART_STEPS } from '@/lib/checkout-steps';
+import { GrandTotalRow, TotalRow } from '@/components/Totals';
+import { PageEmptyState } from '@/components/PageEmptyState';
+import { AlertIcon, TrashIcon } from '@/components/icons';
 import { clampToRules } from '@/lib/quantity-rules';
-import { Badge, Button, ErrorState, LoadingState } from '@/components/ui';
+import { Badge, Button, ButtonLink, ErrorState, LoadingState } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { formatMoney, formatNumber } from '@/lib/format';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
@@ -63,7 +73,7 @@ function IssueNotice({
   return (
     <div
       role="alert"
-      className={`mt-2 rounded-md border px-3 py-2 text-xs ${
+      className={`mt-3 flex gap-2.5 rounded-md border px-3 py-2.5 text-xs ${
         isFatal
           ? 'border-danger/30 bg-danger-soft text-danger'
           : isNotice
@@ -71,17 +81,23 @@ function IssueNotice({
             : 'border-warning/30 bg-warning-soft text-warning'
       }`}
     >
-      <p className="font-medium">{issue.message}</p>
+      {/* The glyph is the second signal. A tinted panel alone is a colour, and
+          a colour alone is not a message. */}
+      <AlertIcon className="mt-px h-4 w-4 shrink-0" />
 
-      {onCorrect !== undefined && correctionLabel !== undefined && (
-        <button
-          type="button"
-          onClick={onCorrect}
-          className="mt-1.5 font-semibold text-ink underline underline-offset-2"
-        >
-          {correctionLabel}
-        </button>
-      )}
+      <div className="min-w-0">
+        <p className="font-medium">{issue.message}</p>
+
+        {onCorrect !== undefined && correctionLabel !== undefined && (
+          <button
+            type="button"
+            onClick={onCorrect}
+            className="mt-1.5 font-semibold text-ink underline underline-offset-2 hover:no-underline"
+          >
+            {correctionLabel}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -136,21 +152,34 @@ function LineRow({
   };
 
   return (
-    <li className="flex gap-4 py-5">
-      <Link to={`/product/${line.slug}`} className="shrink-0">
+    <li
+      className={`flex gap-4 py-6 transition-opacity first:pt-5 last:pb-5 sm:gap-5 ${
+        isBusy ? 'opacity-60' : ''
+      }`}
+    >
+      {/*
+       * The image is the line's anchor, so it is the largest thing in the row
+       * and it is a link — a customer checking "is this the right bolt?" goes
+       * back to the product, and the picture is what they reach for.
+       */}
+      <Link
+        to={`/product/${line.slug}`}
+        className="group shrink-0"
+        aria-label={`View ${line.name}`}
+      >
         {line.imageUrl === null ? (
           <span
             aria-hidden="true"
-            className="block h-20 w-20 rounded-md border border-border bg-surface-sunken"
+            className="block h-20 w-20 rounded-lg border border-border bg-surface-sunken sm:h-24 sm:w-24"
           />
         ) : (
           <img
             src={line.imageUrl}
             alt=""
-            width={80}
-            height={80}
+            width={96}
+            height={96}
             loading="lazy"
-            className="h-20 w-20 rounded-md border border-border bg-surface object-contain p-1.5"
+            className="h-20 w-20 rounded-lg border border-border bg-surface object-contain p-2 transition-colors group-hover:border-border-hover sm:h-24 sm:w-24"
           />
         )}
       </Link>
@@ -158,26 +187,37 @@ function LineRow({
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
           <div className="min-w-0">
-            <h3 className="text-sm font-medium text-ink">
+            {/* One step up from the body text around it. The product name is
+                the thing being scanned down the column; at 14px regular it was
+                the same weight as its own SKU. */}
+            <h3 className="text-title-xs text-ink">
               <Link to={`/product/${line.slug}`} className="hover:text-brand hover:underline">
                 {line.name}
               </Link>
             </h3>
-            <p className="mt-0.5 font-mono text-xxs text-ink-subtle">{line.sku}</p>
+            <p className="mt-1 font-mono text-xxs text-ink-subtle">{line.sku}</p>
           </div>
 
           <p className="shrink-0 text-right">
-            <span className="block text-sm font-semibold tabular text-ink">
+            <span className="block text-title-sm tabular text-ink">
               {formatMoney(line.lineTotal)}
             </span>
-            <span className="block text-xxs text-ink-muted">
+            <span className="mt-0.5 block text-xxs text-ink-muted">
               {formatMoney(line.unitPrice)} each
               {line.taxInclusive ? ' (tax included)' : ` + ${line.taxRatePercent}% tax`}
             </span>
           </p>
         </div>
 
-        <div className="mt-3 flex flex-wrap items-end gap-4">
+        {line.isRecurringEligible && (
+          <p className="mt-2">
+            {/* Teal, and stated as a capability rather than as a warning: this
+                is the B2B feature the account section is built around. */}
+            <Badge tone="operational">Repeat purchase available</Badge>
+          </p>
+        )}
+
+        <div className="mt-3 flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
           <QuantityInput
             value={line.quantity}
             onChange={onQuantityChange}
@@ -186,11 +226,24 @@ function LineRow({
             disabled={isBusy}
           />
 
-          <Button size="sm" variant="ghost" disabled={isBusy} onClick={onRemove}>
+          {/*
+           * Remove is deliberately visible rather than revealed on hover —
+           * there is no hover on a phone, and a control that only exists for
+           * mouse users is a control half the customers do not have. It stays
+           * quiet until approached, and turns red then: destructive, but not
+           * shouting from across the row.
+           */}
+          <Button
+            size="sm"
+            variant="ghost"
+            disabled={isBusy}
+            onClick={onRemove}
+            className="hover:bg-danger-soft hover:text-danger"
+          >
+            <TrashIcon className="h-4 w-4" />
             Remove
+            <span className="sr-only"> {line.name} from your cart</span>
           </Button>
-
-          {line.isRecurringEligible && <Badge tone="brand">Repeat purchase available</Badge>}
         </div>
 
         {line.issues.map((issue) => {
@@ -306,27 +359,48 @@ export function CartPage(): React.JSX.Element {
 
   if (cart.lines.length === 0) {
     return (
-      <div className="mx-auto max-w-lg py-16 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">Your cart is empty</h1>
-        <p className="mt-3 text-sm text-ink-muted">
-          Everything you add stays here until you check out.
-        </p>
-        <Link
-          to="/products"
-          className="mt-6 inline-flex h-12 items-center rounded-md bg-action px-6 text-base font-medium text-white hover:bg-action-hover"
-        >
-          Browse products
-        </Link>
-      </div>
+      <>
+        <CheckoutSteps states={CART_STEPS} />
+        <PageEmptyState
+          title="Your cart is empty"
+          description="Everything you add stays here until you check out."
+          /* Blue, not orange. Browsing is navigation; the orange belongs to
+             Add to Cart, Checkout and Place Order and nowhere else. */
+          action={
+            <ButtonLink to="/products" variant="primary" size="lg">
+              Browse products
+            </ButtonLink>
+          }
+        />
+      </>
     );
   }
 
+  /*
+   * Whether the tax figure is already inside the subtotal.
+   *
+   * Read off the lines the server sent, not computed from the money: an
+   * inclusive cart's column reads Subtotal + Tax + Delivery and then a total
+   * that is *less* than their sum, because the tax was extracted from the
+   * prices rather than added to them. That is correct, and it looks like an
+   * arithmetic bug until the row says so.
+   */
+  const inclusiveLines = cart.lines.filter((line) => line.taxInclusive).length;
+  const taxHint =
+    inclusiveLines === cart.lines.length
+      ? '· already in the prices above'
+      : inclusiveLines > 0
+        ? '· partly in the prices above'
+        : '· added to the subtotal';
+
   return (
     <>
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-ink">Your cart</h1>
-          <p className="mt-1 text-sm text-ink-muted" aria-live="polite">
+      <CheckoutSteps states={CART_STEPS} />
+
+      <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-title-xl text-ink">Your cart</h1>
+          <p className="mt-2 text-sm text-ink-muted" aria-live="polite">
             {formatNumber(cart.itemCount)} item{cart.itemCount === 1 ? '' : 's'} across{' '}
             {cart.lines.length} product{cart.lines.length === 1 ? '' : 's'}
           </p>
@@ -334,6 +408,7 @@ export function CartPage(): React.JSX.Element {
 
         <Button
           variant="ghost"
+          className="shrink-0"
           isLoading={clearCart.isPending}
           onClick={() => {
             clearCart.mutate();
@@ -341,20 +416,23 @@ export function CartPage(): React.JSX.Element {
         >
           Empty the cart
         </Button>
-      </div>
+      </header>
 
       {actionError !== null && (
         <div
           role="alert"
-          className="mb-5 rounded-md border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger"
+          className="mb-5 flex gap-2.5 rounded-md border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger"
         >
+          <AlertIcon className="mt-px h-4 w-4 shrink-0" />
           {actionError}
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
-        <div className="rounded-lg border border-border bg-surface px-5">
-          <ul className="divide-y divide-border">
+      {/* The bottom padding clears the sticky bar below `lg`, so the last
+          line of the summary is never parked underneath it. */}
+      <div className="grid gap-6 pb-24 lg:grid-cols-[1fr_22rem] lg:pb-0">
+        <div className="rounded-lg border border-border bg-surface px-5 shadow-card">
+          <ul className="divide-y divide-border-subtle">
             {cart.lines.map((line) => (
               <LineRow
                 key={line.itemId}
@@ -371,52 +449,55 @@ export function CartPage(): React.JSX.Element {
           </ul>
         </div>
 
-        <aside aria-labelledby="summary-heading" className="lg:sticky lg:top-40 lg:self-start">
-          <div className="rounded-lg border border-border bg-surface p-5">
-            <h2 id="summary-heading" className="text-base font-semibold text-ink">
+        {/*
+         * Sticky from `lg`, offset to clear the sticky header. Below that it
+         * is an ordinary block under the lines: a summary pinned to a short
+         * phone viewport is a summary covering the thing it summarises.
+         */}
+        <aside aria-labelledby="summary-heading" className="lg:sticky lg:top-28 lg:self-start">
+          <div className="rounded-lg border border-border bg-surface p-5 shadow-card">
+            <h2 id="summary-heading" className="text-title-sm text-ink">
               Order summary
             </h2>
 
-            <dl className="mt-4 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <dt className="text-ink-muted">Subtotal</dt>
-                <dd className="tabular text-ink">{formatMoney(cart.totals.subtotal)}</dd>
-              </div>
+            <dl className="mt-4 space-y-2.5 text-sm">
+              <TotalRow
+                label="Subtotal"
+                hint={`· ${formatNumber(cart.itemCount)} item${cart.itemCount === 1 ? '' : 's'}`}
+                value={formatMoney(cart.totals.subtotal)}
+              />
 
               {cart.totals.discount.minor !== '0' && (
-                <div className="flex justify-between">
-                  <dt className="text-ink-muted">Discount</dt>
-                  <dd className="tabular text-success">−{formatMoney(cart.totals.discount)}</dd>
-                </div>
+                <TotalRow
+                  label="Discount"
+                  tone="credit"
+                  value={<>−{formatMoney(cart.totals.discount)}</>}
+                />
               )}
 
-              <div className="flex justify-between">
-                <dt className="text-ink-muted">Tax</dt>
-                <dd className="tabular text-ink">{formatMoney(cart.totals.tax)}</dd>
-              </div>
+              <TotalRow label="Tax" hint={taxHint} value={formatMoney(cart.totals.tax)} />
 
-              <div className="flex justify-between">
-                <dt className="text-ink-muted">Delivery</dt>
-                <dd className="tabular text-ink">
-                  {cart.totals.shipping.minor === '0' ? (
-                    <span className="text-ink-muted">Calculated at checkout</span>
+              <TotalRow
+                label="Delivery"
+                value={
+                  cart.totals.shipping.minor === '0' ? (
+                    <span className="text-xs font-normal text-ink-muted">
+                      Calculated at checkout
+                    </span>
                   ) : (
                     formatMoney(cart.totals.shipping)
-                  )}
-                </dd>
-              </div>
+                  )
+                }
+              />
 
-              <div className="flex justify-between border-t border-border pt-2 text-base font-semibold">
-                <dt>Estimated total</dt>
-                <dd className="tabular">{formatMoney(cart.totals.grandTotal)}</dd>
-              </div>
+              <GrandTotalRow
+                label="Estimated total"
+                value={formatMoney(cart.totals.grandTotal)}
+                // Every figure above comes from the server. Saying so sets the
+                // right expectation for the final breakdown at checkout.
+                note="Confirmed at checkout once delivery is chosen."
+              />
             </dl>
-
-            {/* Every figure above comes from the server. Saying so sets the
-                right expectation for the final breakdown at checkout. */}
-            <p className="mt-2 text-xxs text-ink-subtle">
-              Confirmed at checkout once delivery is chosen.
-            </p>
 
             <CouponPanel cart={cart} />
 
@@ -439,7 +520,7 @@ export function CartPage(): React.JSX.Element {
                 className="mt-4 rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-xs"
               >
                 <p className="font-medium text-danger">Before you can check out</p>
-                <ul className="mt-1 space-y-1 text-ink">
+                <ul className="mt-1 list-inside list-disc space-y-1 text-ink">
                   {cart.blockingIssues.map((issue) => (
                     <li key={`${issue.code}:${issue.message}`}>{issue.message}</li>
                   ))}
@@ -468,14 +549,38 @@ export function CartPage(): React.JSX.Element {
               </p>
             )}
 
-            <Link
-              to="/products"
-              className="mt-2 inline-flex h-10 w-full items-center justify-center rounded-md border border-border-strong bg-surface text-sm font-medium text-ink hover:bg-surface-sunken"
-            >
+            <ButtonLink to="/products" fullWidth className="mt-2">
               Continue shopping
-            </Link>
+            </ButtonLink>
           </div>
         </aside>
+      </div>
+
+      {/*
+       * The phone-sized checkout bar.
+       *
+       * Below `lg` the summary sits under a column of lines that can be a
+       * screen and a half long, and the CTA goes with it. This keeps one
+       * reachable, without repeating the total — the figure lives in exactly
+       * one place on the page, so there is nothing to fall out of step.
+       */}
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-surface/95 px-4 py-3 shadow-overlay backdrop-blur lg:hidden">
+        <div className="mx-auto flex max-w-content items-center gap-3">
+          <p className="min-w-0 flex-1 text-xs text-ink-muted">
+            {formatNumber(cart.itemCount)} item{cart.itemCount === 1 ? '' : 's'} ready
+          </p>
+          <Button
+            variant="action"
+            size="lg"
+            className="shrink-0"
+            disabled={!cart.checkoutReady}
+            onClick={() => {
+              void navigate('/checkout');
+            }}
+          >
+            Checkout
+          </Button>
+        </div>
       </div>
     </>
   );
