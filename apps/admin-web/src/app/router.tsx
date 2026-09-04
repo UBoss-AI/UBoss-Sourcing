@@ -174,4 +174,9 @@ export const router = createBrowserRouter([
       { path: '*', element: <Navigate to="/" replace /> },
     ],
   },
-]);
+], {
+  // Vite sets BASE_URL from `base` in vite.config.ts: "/" normally, and
+  // "/admin/" when this panel is served under a path - which is how both
+  // apps share one hostname through a single tunnel.
+  basename: import.meta.env.BASE_URL,
+});
