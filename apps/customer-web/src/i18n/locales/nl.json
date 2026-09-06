@@ -260,6 +260,7 @@
   "checkout.chooseADeliveryAddressTo": "Kies een afleveradres om verder te gaan.",
   "checkout.payWith": "Betalen met",
   "checkout.cardsUpiAndMore": "Kaarten, UPI, internetbankieren en wallets.",
+  "checkout.cardsNetbankingAndWallets": "Kaarten, internetbankieren en wallets.",
   "checkout.cardsAndWallets": "Kaarten en wallets.",
   "checkout.openCheckoutOn": "Afrekenen openen op",
   "checkout.allMethods": "Alle methoden",

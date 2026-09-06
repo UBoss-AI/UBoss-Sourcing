@@ -303,7 +303,7 @@
   "integrations.addCredentials": "Dodaj dane uwierzytelniające",
   "integrations.customerCheckoutsWillChargeReal": "W procesie realizacji transakcji przez klientów dokonywane będą obciążenia rzeczywistych kart, a zwroty będą realizowane w postaci rzeczywistych środków pieniężnych.",
   "integrations.otherGatewaysOnLive": "Pozostałe bramki z kluczami produkcyjnymi pozostają aktywne — klienci wybierają spośród nich podczas składania zamówienia. Każda bramka nadal korzystająca z kluczy testowych zostaje wyłączona.",
-  "integrations.thisIsA": "Jest to",
+  "integrations.thisIsATestConnection": "To jest połączenie testowe. Przy kluczu testowym nie mogą przepływać prawdziwe pieniądze.",
   "integrations.otherGatewaysOnTest": "Pozostałe bramki z kluczami testowymi pozostają aktywne — klienci wybierają spośród nich podczas składania zamówienia. Każda bramka z kluczami produkcyjnymi zostaje wyłączona.",
   "integrations.never": "Nigdy",
   "orderDetail.reason": "Powód",

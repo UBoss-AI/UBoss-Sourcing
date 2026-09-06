@@ -303,7 +303,7 @@
   "integrations.addCredentials": "Aggiungere le credenziali",
   "integrations.customerCheckoutsWillChargeReal": "Al momento del pagamento, l'importo verrà addebitato sulle carte reali e i rimborsi avverranno tramite denaro reale.",
   "integrations.otherGatewaysOnLive": "Gli altri gateway con chiavi live restano attivi: i clienti scelgono tra di essi al momento del pagamento. Qualsiasi gateway ancora con chiavi di test viene disattivato.",
-  "integrations.thisIsA": "Questo è un",
+  "integrations.thisIsATestConnection": "Questa è una connessione di test. Con una chiave di test non può muoversi denaro reale.",
   "integrations.otherGatewaysOnTest": "Gli altri gateway con chiavi di test restano attivi: i clienti scelgono tra di essi al momento del pagamento. Qualsiasi gateway con chiavi live viene disattivato.",
   "integrations.never": "Mai",
   "orderDetail.reason": "Motivo",

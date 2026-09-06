@@ -303,7 +303,7 @@
   "integrations.addCredentials": "Añada sus credenciales",
   "integrations.customerCheckoutsWillChargeReal": "En los procesos de pago de los clientes se cobrará en tarjetas reales y los reembolsos se realizarán en dinero real.",
   "integrations.otherGatewaysOnLive": "Las demás pasarelas con claves reales siguen activas: los clientes eligen entre ellas al finalizar la compra. Cualquier pasarela que aún use claves de prueba se desactiva.",
-  "integrations.thisIsA": "Esto es un",
+  "integrations.thisIsATestConnection": "Esta es una conexión de prueba. Con una clave de prueba no puede moverse dinero real.",
   "integrations.otherGatewaysOnTest": "Las demás pasarelas con claves de prueba siguen activas: los clientes eligen entre ellas al finalizar la compra. Cualquier pasarela con claves reales se desactiva.",
   "integrations.never": "Nunca",
   "orderDetail.reason": "Motivo",

@@ -303,7 +303,7 @@
   "integrations.addCredentials": "Inloggegevens toevoegen",
   "integrations.customerCheckoutsWillChargeReal": "Bij het afrekenen wordt het bedrag in rekening gebracht op echte creditcards en bij terugbetalingen wordt echt geld overgemaakt.",
   "integrations.otherGatewaysOnLive": "Andere gateways met live-sleutels blijven actief — klanten kiezen bij het afrekenen tussen deze gateways. Elke gateway die nog testsleutels gebruikt, wordt uitgeschakeld.",
-  "integrations.thisIsA": "Dit is een",
+  "integrations.thisIsATestConnection": "Dit is een testverbinding. Met een testsleutel kan er geen echt geld worden overgemaakt.",
   "integrations.otherGatewaysOnTest": "Andere gateways met testsleutels blijven actief — klanten kiezen bij het afrekenen tussen deze gateways. Elke gateway met live-sleutels wordt uitgeschakeld.",
   "integrations.never": "Nooit",
   "orderDetail.reason": "Reden",

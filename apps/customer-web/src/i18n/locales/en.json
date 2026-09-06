@@ -260,6 +260,7 @@
   "checkout.chooseADeliveryAddressTo": "Choose a delivery address to continue.",
   "checkout.payWith": "Pay with",
   "checkout.cardsUpiAndMore": "Cards, UPI, netbanking and wallets.",
+  "checkout.cardsNetbankingAndWallets": "Cards, netbanking and wallets.",
   "checkout.cardsAndWallets": "Cards and wallets.",
   "checkout.openCheckoutOn": "Open checkout on",
   "checkout.allMethods": "All methods",

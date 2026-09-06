@@ -260,6 +260,7 @@
   "checkout.chooseADeliveryAddressTo": "Επιλέξτε μια διεύθυνση παράδοσης για να συνεχίσετε.",
   "checkout.payWith": "Πληρωμή με",
   "checkout.cardsUpiAndMore": "Κάρτες, UPI, ηλεκτρονική τραπεζική και πορτοφόλια.",
+  "checkout.cardsNetbankingAndWallets": "Κάρτες, ηλεκτρονική τραπεζική και πορτοφόλια.",
   "checkout.cardsAndWallets": "Κάρτες και πορτοφόλια.",
   "checkout.openCheckoutOn": "Άνοιγμα πληρωμής σε",
   "checkout.allMethods": "Όλες οι μέθοδοι",

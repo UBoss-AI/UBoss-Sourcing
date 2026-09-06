@@ -303,7 +303,7 @@
   "integrations.addCredentials": "Ajouter des identifiants",
   "integrations.customerCheckoutsWillChargeReal": "Lors du paiement, le montant sera débité de cartes bancaires réelles et les remboursements seront effectués en argent réel.",
   "integrations.otherGatewaysOnLive": "Les autres passerelles utilisant des clés de production restent actives : les clients choisissent entre elles lors du paiement. Toute passerelle encore en clés de test est désactivée.",
-  "integrations.thisIsA": "Il s'agit d'un",
+  "integrations.thisIsATestConnection": "Il s’agit d’une connexion de test. Aucun argent réel ne peut circuler avec une clé de test.",
   "integrations.otherGatewaysOnTest": "Les autres passerelles utilisant des clés de test restent actives : les clients choisissent entre elles lors du paiement. Toute passerelle en clés de production est désactivée.",
   "integrations.never": "Jamais",
   "orderDetail.reason": "Motif",

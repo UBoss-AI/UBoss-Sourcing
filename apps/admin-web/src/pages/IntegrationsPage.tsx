@@ -710,10 +710,17 @@ function GatewayPanel(): React.JSX.Element {
             </div>
           ) : (
             <div className="space-y-2">
-              <p>
-                {t('integrations.thisIsA')}
-                <strong>test</strong> connection. No real money can move on a test key.
-              </p>
+              {/*
+                One sentence, one key. It used to be `{t('…thisIsA')}` followed
+                by `<strong>test</strong> connection. No real money can move on
+                a test key.` — which rendered as "This is atest connection",
+                because JSX drops the whitespace between an expression and the
+                element on the next line, and left the second half in English
+                in all seven other languages. Splitting a sentence around
+                inline markup cannot survive translation anyway: the emphasised
+                word does not sit in the same place in German or Greek.
+              */}
+              <p>{t('integrations.thisIsATestConnection')}</p>
               <p>{t('integrations.otherGatewaysOnTest')}</p>
             </div>
           )

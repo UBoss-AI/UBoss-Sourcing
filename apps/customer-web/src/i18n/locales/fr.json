@@ -265,6 +265,7 @@
   "checkout.chooseADeliveryAddressTo": "Veuillez choisir une adresse de livraison pour continuer.",
   "checkout.payWith": "Payer avec",
   "checkout.cardsUpiAndMore": "Cartes, UPI, virement bancaire et portefeuilles.",
+  "checkout.cardsNetbankingAndWallets": "Cartes, virement bancaire et portefeuilles.",
   "checkout.cardsAndWallets": "Cartes et portefeuilles.",
   "checkout.openCheckoutOn": "Ouvrir le paiement sur",
   "checkout.allMethods": "Tous les moyens",

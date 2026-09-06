@@ -588,10 +588,22 @@ export function CheckoutPage(): React.JSX.Element {
                             />
                             <span className="min-w-0 pr-16 text-sm">
                               <span className="block text-title-xs text-ink">{entry.label}</span>
+                              {/*
+                                UPI is named here only when this account
+                                actually has it, for the same reason the
+                                instrument choice below is: it is the one
+                                instrument a customer might pick the gateway
+                                *for*, and the line under a radio button is
+                                read as a reason to choose it. The account this
+                                was found on has UPI switched off, and this
+                                line went on advertising it.
+                              */}
                               <span className="mt-0.5 block text-xs leading-relaxed text-ink-muted">
-                                {entry.provider === 'RAZORPAY'
-                                  ? t('checkout.cardsUpiAndMore')
-                                  : t('checkout.cardsAndWallets')}
+                                {entry.provider !== 'RAZORPAY'
+                                  ? t('checkout.cardsAndWallets')
+                                  : entry.methods.includes('UPI')
+                                    ? t('checkout.cardsUpiAndMore')
+                                    : t('checkout.cardsNetbankingAndWallets')}
                               </span>
                             </span>
                             {gateway === entry.provider && <SelectedFlag />}

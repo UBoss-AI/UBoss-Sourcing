@@ -265,6 +265,7 @@
   "checkout.chooseADeliveryAddressTo": "Seleccione una dirección de entrega para continuar.",
   "checkout.payWith": "Pagar con",
   "checkout.cardsUpiAndMore": "Tarjetas, UPI, banca en línea y monederos.",
+  "checkout.cardsNetbankingAndWallets": "Tarjetas, banca en línea y monederos.",
   "checkout.cardsAndWallets": "Tarjetas y monederos.",
   "checkout.openCheckoutOn": "Abrir el pago en",
   "checkout.allMethods": "Todos los métodos",

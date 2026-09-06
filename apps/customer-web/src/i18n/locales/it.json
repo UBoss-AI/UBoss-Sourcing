@@ -265,6 +265,7 @@
   "checkout.chooseADeliveryAddressTo": "Selezioni un indirizzo di consegna per proseguire.",
   "checkout.payWith": "Paga con",
   "checkout.cardsUpiAndMore": "Carte, UPI, bonifico online e wallet.",
+  "checkout.cardsNetbankingAndWallets": "Carte, bonifico online e wallet.",
   "checkout.cardsAndWallets": "Carte e wallet.",
   "checkout.openCheckoutOn": "Apri il pagamento su",
   "checkout.allMethods": "Tutti i metodi",

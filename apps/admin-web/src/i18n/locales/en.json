@@ -303,7 +303,7 @@
   "integrations.addCredentials": "Add credentials",
   "integrations.customerCheckoutsWillChargeReal": "Customer checkouts will charge real cards and refunds will move real money.",
   "integrations.otherGatewaysOnLive": "Other gateways on live keys stay active — customers choose between them at checkout. Any gateway still on test keys is switched off.",
-  "integrations.thisIsA": "This is a",
+  "integrations.thisIsATestConnection": "This is a test connection. No real money can move on a test key.",
   "integrations.otherGatewaysOnTest": "Other gateways on test keys stay active — customers choose between them at checkout. Any gateway on live keys is switched off.",
   "integrations.never": "Never",
   "orderDetail.reason": "Reason",

@@ -303,7 +303,7 @@
   "integrations.addCredentials": "Anmeldedaten hinzufügen",
   "integrations.customerCheckoutsWillChargeReal": "Beim Bezahlvorgang werden echte Kreditkarten belastet, und bei Rückerstattungen wird echtes Geld überwiesen.",
   "integrations.otherGatewaysOnLive": "Andere Gateways mit Live-Schlüsseln bleiben aktiv – Kunden wählen beim Checkout zwischen ihnen. Jedes Gateway, das noch Testschlüssel verwendet, wird deaktiviert.",
-  "integrations.thisIsA": "Dies ist ein",
+  "integrations.thisIsATestConnection": "Dies ist eine Testverbindung. Mit einem Testschlüssel kann kein echtes Geld bewegt werden.",
   "integrations.otherGatewaysOnTest": "Andere Gateways mit Testschlüsseln bleiben aktiv – Kunden wählen beim Checkout zwischen ihnen. Jedes Gateway mit Live-Schlüsseln wird deaktiviert.",
   "integrations.never": "Niemals",
   "orderDetail.reason": "Grund",
