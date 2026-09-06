@@ -41,12 +41,16 @@ import { clampToRules } from '@/lib/quantity-rules';
 import { Badge, Button, ButtonLink, ErrorState, LoadingState } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { formatMoney, formatNumber } from '@/lib/format';
+import { useI18n } from '@/i18n/i18n-context';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { Cart, CartIssue, CartLine, PurchaseRules } from '@/lib/types';
 
 /** The cart's rules, widened back to what the quantity control expects. */
 function toPurchaseRules(line: CartLine): PurchaseRules {
-  return { ...line.purchaseRules, isRecurringEligible: line.isRecurringEligible };
+  return {
+    ...line.purchaseRules,
+    isRecurringEligible: line.isRecurringEligible,
+  };
 }
 
 /**
@@ -113,6 +117,8 @@ function LineRow({
   onRemove: () => void;
   isBusy: boolean;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const rules = toPurchaseRules(line);
   const available = typeof line.availableQty === 'number' ? line.availableQty : null;
 
@@ -213,7 +219,7 @@ function LineRow({
           <p className="mt-2">
             {/* Teal, and stated as a capability rather than as a warning: this
                 is the B2B feature the account section is built around. */}
-            <Badge tone="operational">Repeat purchase available</Badge>
+            <Badge tone="operational">{t('cart.repeatPurchaseAvailable')}</Badge>
           </p>
         )}
 
@@ -222,7 +228,7 @@ function LineRow({
             value={line.quantity}
             onChange={onQuantityChange}
             rules={rules}
-            label="Quantity"
+            label={t('cart.quantity')}
             disabled={isBusy}
           />
 
@@ -241,7 +247,7 @@ function LineRow({
             className="hover:bg-danger-soft hover:text-danger"
           >
             <TrashIcon className="h-4 w-4" />
-            Remove
+            {t('cart.remove')}
             <span className="sr-only"> {line.name} from your cart</span>
           </Button>
         </div>
@@ -270,6 +276,7 @@ function LineRow({
 }
 
 export function CartPage(): React.JSX.Element {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const toast = useToast();
@@ -280,7 +287,7 @@ export function CartPage(): React.JSX.Element {
   const [busyItemId, setBusyItemId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
-  useDocumentMeta({ title: 'Your cart', noIndex: true }, business.displayName);
+  useDocumentMeta({ title: t('cart.pageTitle'), noIndex: true }, business.displayName);
 
   const query = useQuery({
     queryKey: ['cart'],
@@ -301,9 +308,7 @@ export function CartPage(): React.JSX.Element {
     },
     onSuccess: applyCart,
     onError: (error) => {
-      setActionError(
-        error instanceof ApiError ? error.message : 'That change could not be saved.',
-      );
+      setActionError(error instanceof ApiError ? error.message : t('cart.changeNotSaved'));
       // The local view may now disagree with the server, so re-read rather
       // than leaving a quantity on screen that was never accepted.
       void queryClient.invalidateQueries({ queryKey: ['cart'] });
@@ -320,10 +325,10 @@ export function CartPage(): React.JSX.Element {
     },
     onSuccess: (result) => {
       applyCart(result);
-      toast.success('Removed from your cart.');
+      toast.success(t('cart.removedToast'));
     },
     onError: (error) => {
-      setActionError(error instanceof ApiError ? error.message : 'That item could not be removed.');
+      setActionError(error instanceof ApiError ? error.message : t('cart.itemNotRemoved'));
       void queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
     onSettled: () => {
@@ -335,14 +340,14 @@ export function CartPage(): React.JSX.Element {
     mutationFn: () => api.delete<{ cart: Cart }>('/cart'),
     onSuccess: (result) => {
       applyCart(result);
-      toast.success('Cart emptied.');
+      toast.success(t('cart.emptiedToast'));
     },
     onError: () => {
-      setActionError('The cart could not be emptied.');
+      setActionError(t('cart.notEmptied'));
     },
   });
 
-  if (query.isPending) return <LoadingState label="Loading your cart" />;
+  if (query.isPending) return <LoadingState label={t('cart.loading')} />;
 
   if (query.isError) {
     return (
@@ -362,13 +367,13 @@ export function CartPage(): React.JSX.Element {
       <>
         <CheckoutSteps states={CART_STEPS} />
         <PageEmptyState
-          title="Your cart is empty"
-          description="Everything you add stays here until you check out."
+          title={t('cart.emptyTitle')}
+          description={t('cart.emptyBody')}
           /* Blue, not orange. Browsing is navigation; the orange belongs to
              Add to Cart, Checkout and Place Order and nowhere else. */
           action={
             <ButtonLink to="/products" variant="primary" size="lg">
-              Browse products
+              {t('cart.browseProducts')}
             </ButtonLink>
           }
         />
@@ -399,10 +404,12 @@ export function CartPage(): React.JSX.Element {
 
       <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <h1 className="text-title-xl text-ink">Your cart</h1>
+          <h1 className="text-title-xl text-ink">{t('cart.pageTitle')}</h1>
           <p className="mt-2 text-sm text-ink-muted" aria-live="polite">
-            {formatNumber(cart.itemCount)} item{cart.itemCount === 1 ? '' : 's'} across{' '}
-            {cart.lines.length} product{cart.lines.length === 1 ? '' : 's'}
+            {t('cart.itemsAcrossProducts', {
+              items: t('cart.itemCount', { count: cart.itemCount }),
+              products: t('cart.productCount', { count: cart.lines.length }),
+            })}
           </p>
         </div>
 
@@ -414,7 +421,7 @@ export function CartPage(): React.JSX.Element {
             clearCart.mutate();
           }}
         >
-          Empty the cart
+          {t('cart.emptyTheCart')}
         </Button>
       </header>
 
@@ -457,32 +464,32 @@ export function CartPage(): React.JSX.Element {
         <aside aria-labelledby="summary-heading" className="lg:sticky lg:top-28 lg:self-start">
           <div className="rounded-lg border border-border bg-surface p-5 shadow-card">
             <h2 id="summary-heading" className="text-title-sm text-ink">
-              Order summary
+              {t('cart.summary')}
             </h2>
 
             <dl className="mt-4 space-y-2.5 text-sm">
               <TotalRow
-                label="Subtotal"
-                hint={`· ${formatNumber(cart.itemCount)} item${cart.itemCount === 1 ? '' : 's'}`}
+                label={t('cart.subtotal')}
+                hint={`· ${t('cart.itemCount', { count: cart.itemCount })}`}
                 value={formatMoney(cart.totals.subtotal)}
               />
 
               {cart.totals.discount.minor !== '0' && (
                 <TotalRow
-                  label="Discount"
+                  label={t('cart.discount')}
                   tone="credit"
                   value={<>−{formatMoney(cart.totals.discount)}</>}
                 />
               )}
 
-              <TotalRow label="Tax" hint={taxHint} value={formatMoney(cart.totals.tax)} />
+              <TotalRow label={t('cart.tax')} hint={taxHint} value={formatMoney(cart.totals.tax)} />
 
               <TotalRow
-                label="Delivery"
+                label={t('cart.delivery')}
                 value={
                   cart.totals.shipping.minor === '0' ? (
                     <span className="text-xs font-normal text-ink-muted">
-                      Calculated at checkout
+                      {t('cart.deliveryAtCheckout')}
                     </span>
                   ) : (
                     formatMoney(cart.totals.shipping)
@@ -491,7 +498,7 @@ export function CartPage(): React.JSX.Element {
               />
 
               <GrandTotalRow
-                label="Estimated total"
+                label={t('cart.estimatedTotal')}
                 value={formatMoney(cart.totals.grandTotal)}
                 // Every figure above comes from the server. Saying so sets the
                 // right expectation for the final breakdown at checkout.
@@ -506,11 +513,8 @@ export function CartPage(): React.JSX.Element {
                 role="status"
                 className="mt-4 rounded-md border border-warning/30 bg-warning-soft px-3 py-2.5 text-xs text-ink"
               >
-                <p className="font-medium text-warning">This order will need approval</p>
-                <p className="mt-0.5">
-                  {cart.approvalReason ??
-                    'It will go to your approver before it is confirmed. You can still place it now.'}
-                </p>
+                <p className="font-medium text-warning">{t('cart.needsApproval')}</p>
+                <p className="mt-0.5">{cart.approvalReason ?? t('cart.needsApprovalBody')}</p>
               </div>
             )}
 
@@ -519,7 +523,7 @@ export function CartPage(): React.JSX.Element {
                 role="alert"
                 className="mt-4 rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-xs"
               >
-                <p className="font-medium text-danger">Before you can check out</p>
+                <p className="font-medium text-danger">{t('cart.blockingHeading')}</p>
                 <ul className="mt-1 list-inside list-disc space-y-1 text-ink">
                   {cart.blockingIssues.map((issue) => (
                     <li key={`${issue.code}:${issue.message}`}>{issue.message}</li>
@@ -540,17 +544,15 @@ export function CartPage(): React.JSX.Element {
                 void navigate('/checkout');
               }}
             >
-              Proceed to checkout
+              {t('cart.proceedToCheckout')}
             </Button>
 
             {!cart.checkoutReady && cart.blockingIssues.length === 0 && (
-              <p className="mt-2 text-center text-xs text-ink-muted">
-                Fix the items flagged above to continue.
-              </p>
+              <p className="mt-2 text-center text-xs text-ink-muted">{t('cart.fixFlagged')}</p>
             )}
 
             <ButtonLink to="/products" fullWidth className="mt-2">
-              Continue shopping
+              {t('cart.continueShopping')}
             </ButtonLink>
           </div>
         </aside>
@@ -567,7 +569,7 @@ export function CartPage(): React.JSX.Element {
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-surface/95 px-4 py-3 shadow-overlay backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-content items-center gap-3">
           <p className="min-w-0 flex-1 text-xs text-ink-muted">
-            {formatNumber(cart.itemCount)} item{cart.itemCount === 1 ? '' : 's'} ready
+            {t('cart.itemsReady', { count: cart.itemCount })}
           </p>
           <Button
             variant="action"
@@ -578,7 +580,7 @@ export function CartPage(): React.JSX.Element {
               void navigate('/checkout');
             }}
           >
-            Checkout
+            {t('cart.checkout')}
           </Button>
         </div>
       </div>

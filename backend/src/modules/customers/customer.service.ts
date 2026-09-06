@@ -383,6 +383,14 @@ export interface UpdateCustomerInput {
   department?: string | null;
   phone?: string | null;
   gstin?: string | null;
+  /**
+   * The EU VAT identification number.
+   *
+   * Changing it invalidates whatever VIES last said: the new number has not
+   * been checked, and carrying the old verdict forward would zero-rate a
+   * supply on the strength of a different company's registration.
+   */
+  vatNumber?: string | null;
   customerCode?: string | null;
   internalNotes?: string | null;
 }
@@ -402,6 +410,22 @@ export async function updateCustomer(
     if (input.department !== undefined) data.department = input.department;
     if (input.phone !== undefined) data.phone = input.phone;
     if (input.gstin !== undefined) data.gstin = input.gstin;
+
+    if (input.vatNumber !== undefined) {
+      const next = input.vatNumber === null ? null : input.vatNumber.trim().toUpperCase();
+      data.vatNumber = next;
+
+      // A number that has changed has not been checked. Clearing the verdict
+      // rather than keeping it is what stops the next order being zero-rated
+      // against the previous holder's confirmation - the caller re-checks, and
+      // until it does, "unverified" means the tax gets charged.
+      if (next !== existing.vatNumber) {
+        data.vatNumberValid = null;
+        data.vatNumberCheckedAt = null;
+        data.vatNumberReference = null;
+      }
+    }
+
     if (input.customerCode !== undefined) data.customerCode = input.customerCode;
     if (input.internalNotes !== undefined) data.internalNotes = input.internalNotes;
 
@@ -875,13 +899,30 @@ export async function getCustomer(customerProfileId: string): Promise<Record<str
     department: profile.department,
     phone: profile.phone,
     gstin: profile.gstin,
+    // The EU VAT number and what VIES made of it. Three states, and the panel
+    // shows three different things: confirmed, refused, and never asked -
+    // because only the first zero-rates a cross-border supply, and the third
+    // is a job somebody still has to do.
+    vatNumber: profile.vatNumber,
+    vatNumberValid: profile.vatNumberValid,
+    vatNumberCheckedAt: profile.vatNumberCheckedAt?.toISOString() ?? null,
+    /// The Art. 31 Reg. 904/2010 consultation reference: the seller's evidence
+    /// that they relied on an official answer when they zero-rated a supply.
+    vatNumberReference: profile.vatNumberReference,
     customerCode: profile.customerCode,
     // Internal notes are admin-only; this function is never called from a
     // customer-facing route.
     internalNotes: profile.internalNotes,
     consentAcceptedAt: profile.consentAcceptedAt?.toISOString() ?? null,
     consentVersion: profile.consentVersion,
+    // Whether the address has been proved. Only self-registration can leave
+    // this null on an account that already has a password, and the panel needs
+    // it to know that a PENDING_APPROVAL row is not yet ready to approve.
+    emailVerifiedAt: profile.user.emailVerifiedAt?.toISOString() ?? null,
+    // Null on both counts means nobody invited them - they signed themselves up.
     invitedAt: profile.invitedAt?.toISOString() ?? null,
+    selfRegistered: profile.invitedById === null && profile.invitedAt === null,
+    preferredCountry: profile.preferredCountry,
     activatedAt: profile.activatedAt?.toISOString() ?? null,
     lastLoginAt: profile.user.lastLoginAt?.toISOString() ?? null,
     limits: limitsView(profile.requiresOrderApproval, profile.limits),

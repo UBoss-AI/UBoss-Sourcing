@@ -222,7 +222,7 @@ export class RazorpayAdapter implements PaymentProvider {
 
     return {
       providerOrderId: order.id,
-      checkoutPayload: this.buildCheckoutPayload(order.id, input),
+      checkoutPayload: await this.buildCheckoutPayload(order.id, input),
       status: PAYMENT_STATUS_MAP[order.status] ?? 'CREATED',
       amountMinor: BigInt(order.amount),
       currency: order.currency,
@@ -235,12 +235,16 @@ export class RazorpayAdapter implements PaymentProvider {
    * `key` is the PUBLISHABLE key id; the secret never leaves this process.
    * Deriving the payload rather than storing it keeps a replayed retry
    * byte-identical to the original without a second API call.
+   *
+   * The signature is a promise only because the interface is shared with
+   * Stripe, whose payload cannot be derived. Nothing here awaits, so a replay
+   * still costs no network round trip.
    */
   buildCheckoutPayload(
     providerOrderId: string,
     input: Omit<CreatePaymentInput, 'idempotencyKey'>,
-  ): Record<string, string | number> {
-    return {
+  ): Promise<Record<string, string | number>> {
+    return Promise.resolve({
       key: this.credentials.keyId,
       order_id: providerOrderId,
       amount: Number(input.amountMinor),
@@ -250,7 +254,12 @@ export class RazorpayAdapter implements PaymentProvider {
       prefill_email: input.customerEmail ?? '',
       prefill_name: input.customerName ?? '',
       prefill_contact: input.customerPhone ?? '',
-    };
+      // Razorpay's own key for pre-selecting an instrument. Flat rather than
+      // nested because the payload crosses the wire as Record<string, string |
+      // number>; the browser module turns it into Checkout's `prefill.method`.
+      // Empty means "offer everything", which is Razorpay's default.
+      prefill_method: input.methodHint === 'UPI' ? 'upi' : '',
+    });
   }
 
   async fetchPaymentStatus(providerOrderId: string): Promise<PaymentStatusResult> {

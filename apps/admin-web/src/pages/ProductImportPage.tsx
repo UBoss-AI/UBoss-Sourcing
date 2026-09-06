@@ -42,6 +42,7 @@ import { cx } from '@/lib/cx';
 import { ApiError, api, downloadFile } from '@/lib/api';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import type { ImportJob, ImportRowError } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 interface ColumnSpec {
   key: string;
@@ -101,6 +102,8 @@ function StepHeading({
 }
 
 export function ProductImportPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const queryClient = useQueryClient();
   const toast = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -118,7 +121,8 @@ export function ProductImportPage(): React.JSX.Element {
 
   const history = useQuery({
     queryKey: ['import-jobs'],
-    queryFn: () => api.get<{ jobs: ImportJob[] }>('/admin/products/import', { query: { limit: 10 } }),
+    queryFn: () =>
+      api.get<{ jobs: ImportJob[] }>('/admin/products/import', { query: { limit: 10 } }),
   });
 
   const upload = useMutation({
@@ -154,7 +158,9 @@ export function ProductImportPage(): React.JSX.Element {
       await queryClient.invalidateQueries({ queryKey: ['import-jobs'] });
     },
     onError: (error) => {
-      setConfirmError(error instanceof ApiError ? error.message : 'The import could not be applied.');
+      setConfirmError(
+        error instanceof ApiError ? error.message : 'The import could not be applied.',
+      );
     },
   });
 
@@ -217,14 +223,17 @@ export function ProductImportPage(): React.JSX.Element {
   const hasFatalError = preview !== null && preview.errorMessage !== null;
   const hasRowErrors = preview !== null && preview.errorRows > 0;
   const canConfirm =
-    preview !== null && !hasFatalError && preview.validRows > 0 && (!hasRowErrors || skipInvalidRows);
+    preview !== null &&
+    !hasFatalError &&
+    preview.validRows > 0 &&
+    (!hasRowErrors || skipInvalidRows);
 
   return (
     <>
       <PageHeader
-        title="Bulk product import"
+        title={t('productImport.bulkProductImport')}
         back={{ to: '/products', label: 'Back to products' }}
-        description="Upload a spreadsheet to create and update products. Nothing changes until you confirm — and import never deletes and never publishes."
+        description={t('productImport.uploadASpreadsheetToCreate')}
       />
 
       <div className="space-y-5">
@@ -233,8 +242,8 @@ export function ProductImportPage(): React.JSX.Element {
           <div className="space-y-4 px-5 py-4">
             <StepHeading
               step={1}
-              title="Start from the template"
-              description="CSV only (UTF-8). Every spreadsheet exports it — in Excel, choose Save As → CSV UTF-8. An .xlsx file is refused rather than mis-read."
+              title={t('productImport.startFromTheTemplate')}
+              description={t('productImport.csvOnlyUtf8Every')}
             />
 
             <div className="pl-10">
@@ -248,13 +257,13 @@ export function ProductImportPage(): React.JSX.Element {
                   });
                 }}
               >
-                Download the CSV template
+                {t('productImport.downloadTheCsvTemplate')}
               </Button>
 
               {columns.data !== undefined && (
                 <details className="mt-3">
                   <summary className="cursor-pointer text-sm font-medium text-accent hover:underline">
-                    What each column means
+                    {t('productImport.whatEachColumnMeans')}
                   </summary>
                   <dl className="mt-2 divide-y divide-border-subtle overflow-hidden rounded-md border border-border">
                     {columns.data.columns.map((column) => (
@@ -288,9 +297,9 @@ export function ProductImportPage(): React.JSX.Element {
           <div className="space-y-4 px-5 py-4">
             <StepHeading
               step={2}
-              title="Upload to preview"
+              title={t('productImport.uploadToPreview')}
               done={preview !== null}
-              description="The upload validates every row and writes nothing. A SKU that already exists is an update; a new one is a create."
+              description={t('productImport.theUploadValidatesEveryRow')}
             />
 
             <div className="space-y-3 pl-10">
@@ -328,12 +337,12 @@ export function ProductImportPage(): React.JSX.Element {
         {preview !== null && (
           <Card
             title={`Preview — ${preview.fileName}`}
-            description="Nothing has been written yet."
+            description={t('productImport.nothingHasBeenWrittenYet')}
             tone={hasFatalError ? 'danger' : 'default'}
           >
             <div className="px-5 py-4">
               {hasFatalError ? (
-                <Callout tone="danger" role="alert" title="The file could not be read">
+                <Callout tone="danger" role="alert" title={t('productImport.theFileCouldNotBe')}>
                   {preview.errorMessage}
                 </Callout>
               ) : (
@@ -363,7 +372,9 @@ export function ProductImportPage(): React.JSX.Element {
                           caption="Row errors"
                           columns={errorColumns}
                           rows={preview.rowErrors}
-                          rowKey={(row) => `${String(row.rowNumber)}:${row.field ?? ''}:${row.code}`}
+                          rowKey={(row) =>
+                            `${String(row.rowNumber)}:${row.field ?? ''}:${row.code}`
+                          }
                           minWidth="34rem"
                         />
                       </div>
@@ -387,7 +398,7 @@ export function ProductImportPage(): React.JSX.Element {
             <div className="space-y-4 px-5 py-4">
               <StepHeading
                 step={3}
-                title="Confirm the import"
+                title={t('productImport.confirmTheImport')}
                 done={applied !== null}
                 {...(applied === null
                   ? {
@@ -409,7 +420,7 @@ export function ProductImportPage(): React.JSX.Element {
                           setSkipInvalidRows(event.target.checked);
                         }}
                         label={`Import the ${formatNumber(preview.validRows)} valid row${preview.validRows === 1 ? '' : 's'} and skip the ${formatNumber(preview.errorRows)} with errors.`}
-                        description="Leave this unticked to fix the file and upload it again instead — which is usually the right answer."
+                        description={t('productImport.leaveThisUntickedToFix')}
                       />
                     )}
 
@@ -451,12 +462,9 @@ export function ProductImportPage(): React.JSX.Element {
                           {applied.errorRows === 1 ? ' was' : 's were'} skipped.
                         </p>
                       )}
-                      <p>
-                        Imported products are not published. Publish them individually when they are
-                        ready for customers.
-                      </p>
+                      <p>{t('productImport.importedProductsAreNotPublished')}</p>
                       <LinkButton to="/products" size="sm" variant="primary">
-                        Review the products
+                        {t('productImport.reviewTheProducts')}
                       </LinkButton>
                     </div>
                   </Callout>
@@ -467,7 +475,10 @@ export function ProductImportPage(): React.JSX.Element {
         )}
 
         {/* --- History ----------------------------------------------------- */}
-        <Card title="Recent imports" description="The last ten, previews included.">
+        <Card
+          title={t('productImport.recentImports')}
+          description={t('productImport.theLastTenPreviewsIncluded')}
+        >
           {history.isError ? (
             <ErrorState
               error={history.error}

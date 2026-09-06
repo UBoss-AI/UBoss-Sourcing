@@ -23,6 +23,15 @@ interface OperationDoc {
   permission?: string;
   idempotent?: boolean;
   requestBody?: unknown;
+  /**
+   * True where the endpoint accepts the body but does not need it.
+   *
+   * Documented rather than assumed: a generated client that believes a body is
+   * required will send `{}` where sending nothing was the intended call, and
+   * for the payment session those are not the same request — one accepts the
+   * gateway recorded on the order, the other is a client that has opinions.
+   */
+  optionalBody?: boolean;
   responses?: Record<string, unknown>;
 }
 
@@ -107,12 +116,70 @@ const OPERATIONS: Readonly<Record<string, OperationDoc>> = Object.freeze({
     auth: 'customer',
     responses: { '200': ok(ref('AuthenticatedUser')) },
   },
+  'POST /api/v1/admin/auth/session/location': {
+    summary: 'Record where this admin session was opened from',
+    description:
+      "The position the browser's Geolocation API reported, posted once immediately after a " +
+      'sign-in. Until it arrives, every admin route answers 403 LOCATION_REQUIRED - only /me, ' +
+      '/logout, /language, /password/change and this route are reachable, so a session that ' +
+      'refuses is a session that can do nothing. The coordinates are evidence for a person to ' +
+      'read and never an authorisation input: nothing decides access from where they point, ' +
+      'only from whether they were given. Recording one rings the console bell for staff ' +
+      'holding staff.read, naming the place and the account. A deployment served over plain ' +
+      'HTTP has no Geolocation API to satisfy this with and must set ' +
+      'FEATURE_ADMIN_LOGIN_LOCATION=false, which turns the requirement off everywhere.',
+    tags: ['Auth (Admin)'],
+    auth: 'admin',
+    requestBody: ref('SessionLocationRequest'),
+    responses: { '200': ok(ref('SessionLocationResponse')) },
+  },
   'POST /api/v1/auth/invitations/accept': {
     summary: 'Activate an invited account',
     description: 'Single use. Sets the password and records consent in one transaction.',
     tags: ['Auth (Customer)'],
     auth: 'token',
     requestBody: ref('AcceptInvitationRequest'),
+  },
+  'POST /api/v1/auth/register': {
+    summary: 'Open an account from the storefront',
+    description:
+      'Available only where FEATURE_CUSTOMER_SELF_REGISTRATION is on; otherwise 403 ' +
+      'SELF_REGISTRATION_DISABLED. Answers 202 with an identical body whether an account was ' +
+      'created or the address was already registered - a sign-up form that says "that email is ' +
+      'taken" is an account-enumeration oracle, and for a B2B supplier the enumerated set is a ' +
+      'customer list. A duplicate is told in the mailbox instead: the address itself receives a ' +
+      '"you already have an account" mail with a reset link. No session is issued; the account ' +
+      'cannot sign in until the emailed confirmation link is opened, and where ' +
+      'CUSTOMER_SELF_REGISTRATION_REQUIRES_APPROVAL is on (the default) not until a member of ' +
+      'staff approves it either. `requiresApproval` in the response is that deployment-level ' +
+      'flag, never a fact about the account.',
+    tags: ['Auth (Customer)'],
+    auth: 'none',
+    requestBody: ref('RegisterRequest'),
+    responses: {
+      '202': ok(ref('RegisterResponse')),
+      '403': ok(ref('ErrorEnvelope'), 'Self-registration is off for this deployment'),
+    },
+  },
+  'POST /api/v1/auth/verify-email': {
+    summary: 'Confirm a self-registered email address',
+    description:
+      'Single use, 48-hour link. `status` is ACTIVE when the account can sign in immediately, ' +
+      'or PENDING_APPROVAL when it now waits for a member of staff - the storefront signs the ' +
+      'shopper in on the first and must not attempt it on the second.',
+    tags: ['Auth (Customer)'],
+    auth: 'token',
+    requestBody: ref('VerifyEmailRequest'),
+    responses: { '200': ok(ref('VerifyEmailResponse')) },
+  },
+  'POST /api/v1/auth/verify-email/resend': {
+    summary: 'Send the confirmation link again',
+    description:
+      'Uniform 202 whether or not the address exists or is already confirmed, for the same ' +
+      'reason /auth/password/forgot is. A new link supersedes the outstanding one.',
+    tags: ['Auth (Customer)'],
+    auth: 'none',
+    requestBody: ref('ResendVerificationRequest'),
   },
 
   'POST /api/v1/admin/staff': {
@@ -278,11 +345,26 @@ const OPERATIONS: Readonly<Record<string, OperationDoc>> = Object.freeze({
   // --- Payments ---
   'POST /api/v1/payments/orders/:orderId/session': {
     summary: 'Start a payment for an order',
-    description: 'Returns the provider checkout payload. Contains no secret.',
+    description:
+      'Returns the provider checkout payload. Contains no secret. The body is optional: with ' +
+      'no gateway named, the one the customer chose at checkout is read from the order, and ' +
+      'the configured default is used if they chose none. The amount is always the order’s.',
     tags: ['Payments'],
     auth: 'customer',
     idempotent: true,
+    requestBody: ref('PaymentSessionRequest'),
+    optionalBody: true,
     responses: { '201': ok(ref('PaymentSessionResponse')) },
+  },
+  'GET /api/v1/payments/gateways': {
+    summary: 'Gateways the storefront may offer, and which to preselect',
+    description:
+      'Derived from what the operator has connected, so a gateway with no credentials never ' +
+      'appears. `currencies` is the restriction to filter on — a gateway offered for money it ' +
+      'cannot settle declines only after the customer has chosen it. Carries no secret.',
+    tags: ['Payments'],
+    auth: 'customer',
+    responses: { '200': ok(ref('PaymentGatewaysResponse')) },
   },
   'GET /api/v1/payments/orders/:orderId/status': {
     summary: 'Poll payment status after returning from the provider',
@@ -357,6 +439,22 @@ const OPERATIONS: Readonly<Record<string, OperationDoc>> = Object.freeze({
     auth: 'admin',
     permission: 'customer.limits.write',
   },
+  'POST /api/v1/admin/customers/:id/approve': {
+    summary: 'Let a self-registered account in',
+    description:
+      'Moves a PENDING_APPROVAL account to ACTIVE and emails the holder that they can sign in. ' +
+      'Refused with 409 EMAIL_NOT_VERIFIED while the confirmation link is unopened: approving ' +
+      'then would hand a live account to whoever typed the address rather than to whoever owns ' +
+      'it, which is the one thing the link exists to prevent. Distinct from PATCH /status, ' +
+      'which suspends and restores an account already agreed to.',
+    tags: ['Customers (Admin)'],
+    auth: 'admin',
+    permission: 'customer.status.write',
+    responses: {
+      '200': ok(ref('ApproveCustomerResponse')),
+      '409': ok(ref('ErrorEnvelope'), 'Already active, never self-registered, or unconfirmed'),
+    },
+  },
   'GET /api/v1/account/profile': {
     summary: 'The signed-in customer profile and spend summary',
     tags: ['Account'],
@@ -371,6 +469,30 @@ const OPERATIONS: Readonly<Record<string, OperationDoc>> = Object.freeze({
     auth: 'admin',
     permission: 'report.read',
   },
+  // --- Console notifications ---
+  'GET /api/v1/admin/notifications': {
+    summary: 'The console bell feed',
+    description:
+      'Personal to the caller: rows carry the permission needed to see them, and read state is ' +
+      'per member of staff. No permission is declared on the route for that reason - two people ' +
+      'calling it get different rows.',
+    tags: ['Reports'],
+    auth: 'admin',
+    responses: { '200': ok(ref('AdminNotificationFeed')) },
+  },
+  'POST /api/v1/admin/notifications/read': {
+    summary: 'Mark notifications read',
+    description: 'Idempotent, and only for the caller. Ids the caller cannot see are ignored.',
+    tags: ['Reports'],
+    auth: 'admin',
+    requestBody: ref('MarkNotificationsReadRequest'),
+  },
+  'POST /api/v1/admin/notifications/read-all': {
+    summary: 'Mark the whole visible feed read',
+    tags: ['Reports'],
+    auth: 'admin',
+  },
+
   'POST /api/v1/admin/exports': {
     summary: 'Request an asynchronous export',
     description: 'Returns a job id. Poll `/admin/exports/:id` for the download token.',
@@ -383,6 +505,321 @@ const OPERATIONS: Readonly<Record<string, OperationDoc>> = Object.freeze({
     description: 'Hashed, expiring, requester-scoped token. Works without a session.',
     tags: ['Reports'],
     auth: 'token',
+  },
+
+  // --- EU VAT and invoicing ---
+  'GET /api/v1/admin/vat-rates': {
+    summary: 'VAT rate periods, with the member states flagged',
+    description:
+      'Each row carries the date it starts, and `inForce` says which one a sale today would ' +
+      'use. `seller.euVatActive` is false until the business profile names a `vatCountry`, ' +
+      'and while it is false every order is taxed at its tax class’s own flat rate.',
+    tags: ['VAT'],
+    auth: 'admin',
+    permission: 'settings.read',
+  },
+  'POST /api/v1/admin/vat-rates': {
+    summary: 'Add a VAT rate period',
+    description:
+      'Rates are added, never edited. A member state that changes its rate gets a new period ' +
+      'with a later start date, so every invoice already raised keeps the rate it was raised ' +
+      'at. Re-using a start date for the same country and band is a conflict, not an update.',
+    tags: ['VAT'],
+    auth: 'admin',
+    permission: 'settings.write',
+    requestBody: json({
+      type: 'object',
+      required: ['countryCode', 'category', 'ratePercent'],
+      properties: {
+        countryCode: { type: 'string', minLength: 2, maxLength: 2, example: 'DE' },
+        category: {
+          type: 'string',
+          enum: ['STANDARD', 'REDUCED', 'SUPER_REDUCED', 'ZERO', 'EXEMPT'],
+        },
+        // A string all the way to the Decimal column: a tax rate must never
+        // pass through binary floating point.
+        ratePercent: { type: 'string', example: '19' },
+        label: { type: 'string', maxLength: 128, nullable: true },
+        validFrom: { type: 'string', format: 'date' },
+        validTo: { type: 'string', format: 'date', nullable: true },
+      },
+    }),
+  },
+  'PATCH /api/v1/admin/vat-rates/:id': {
+    summary: 'Close a VAT rate period',
+    description:
+      'Sets the date a rate stopped applying. The percentage itself cannot be changed - every ' +
+      'invoice raised while it was in force states it.',
+    tags: ['VAT'],
+    auth: 'admin',
+    permission: 'settings.write',
+    requestBody: json({
+      type: 'object',
+      required: ['validTo'],
+      properties: { validTo: { type: 'string', format: 'date', nullable: true } },
+    }),
+  },
+  'POST /api/v1/admin/customers/:id/vat-number/check': {
+    summary: 'Check this customer’s VAT number against VIES',
+    description:
+      'Skips the cache. Three outcomes, not two: `isValid` true, false, or null with an ' +
+      '`unavailableReason` when the member state could not be reached - a timeout is not a ' +
+      '"no". Only a confirmed number zero-rates a cross-border supply; unverified is taxed. ' +
+      'The `consultationNumber` is the Art. 31 Reg. 904/2010 evidence that the seller relied ' +
+      'on an official answer.',
+    tags: ['VAT'],
+    auth: 'admin',
+    permission: 'customer.write',
+  },
+  'GET /api/v1/admin/orders/:id/invoice': {
+    summary: 'The invoice for an order',
+    description: 'Null when none has been raised.',
+    tags: ['Invoicing'],
+    auth: 'admin',
+    permission: 'invoice.read',
+  },
+  'POST /api/v1/admin/orders/:id/invoice': {
+    summary: 'Raise the invoice for an order',
+    description:
+      'Idempotent by order: asking twice returns the invoice that exists. Two numbers against ' +
+      'one supply is a real problem to unpick once both are in a VAT return. Refused for an ' +
+      'order that was never supplied - a draft or a cancellation has nothing to invoice.',
+    tags: ['Invoicing'],
+    auth: 'admin',
+    permission: 'invoice.issue',
+  },
+  'GET /api/v1/admin/invoices/:id': {
+    summary: 'One invoice or credit note',
+    tags: ['Invoicing'],
+    auth: 'admin',
+    permission: 'invoice.read',
+  },
+  'POST /api/v1/admin/invoices/:id/credit': {
+    summary: 'Reverse an invoice with a credit note',
+    description:
+      'The only correction an invoice sequence permits. There is no edit and no delete: a gap ' +
+      'in the numbering reads to a tax inspector as a destroyed document, so the original ' +
+      'stands and a second document of equal and opposite value is issued against it.',
+    tags: ['Invoicing'],
+    auth: 'admin',
+    permission: 'invoice.issue',
+  },
+  'GET /api/v1/admin/invoices/:id/ubl': {
+    summary: 'The invoice as EN 16931 UBL',
+    description:
+      'Peppol BIS Billing 3.0 syntax - the bytes an access point, the Italian SdI or Chorus ' +
+      'Pro expects to be handed. Served as an attachment because it is a document to file or ' +
+      'forward. Transporting it is a separate step this software does not perform.',
+    tags: ['Invoicing'],
+    auth: 'admin',
+    permission: 'invoice.read',
+  },
+  'GET /api/v1/admin/invoices/:id/en16931-check': {
+    summary: 'What a receiver’s validator would object to',
+    description:
+      'The EN 16931 business rules that can be checked from our own data, named by rule so ' +
+      'the answer can be looked up. Run before sending rather than after being rejected: ' +
+      'every issue it reports is a missing value somebody can go and fill in.',
+    tags: ['Invoicing'],
+    auth: 'admin',
+    permission: 'invoice.read',
+  },
+  'GET /api/v1/orders/:id/invoice': {
+    summary: 'The customer’s own invoice',
+    description: 'Scoped to the signed-in customer’s orders. Null when none has been raised.',
+    tags: ['Orders (Customer)'],
+    auth: 'customer',
+  },
+
+  // --- Product safety (GPSR) ---
+  'GET /api/v1/admin/economic-operators': {
+    summary: 'Manufacturers, importers and EU responsible persons',
+    description:
+      'The companies named on listings under Regulation (EU) 2023/988. Kept apart from the ' +
+      'catalogue because one manufacturer supplies dozens of lines and its registered address ' +
+      'changes as a company detail, not as a catalogue edit.',
+    tags: ['Product safety'],
+    auth: 'admin',
+    permission: 'product.read',
+  },
+  'POST /api/v1/admin/economic-operators': {
+    summary: 'Add an economic operator',
+    tags: ['Product safety'],
+    auth: 'admin',
+    permission: 'product.write',
+    requestBody: json({
+      type: 'object',
+      required: ['role', 'legalName', 'address', 'countryCode', 'email'],
+      properties: {
+        role: { type: 'string', enum: ['MANUFACTURER', 'EU_RESPONSIBLE_PERSON', 'IMPORTER'] },
+        legalName: { type: 'string', maxLength: 255 },
+        tradeName: { type: 'string', maxLength: 255, nullable: true },
+        address: { type: 'object' },
+        countryCode: { type: 'string', minLength: 2, maxLength: 2 },
+        // Art. 19(a) calls this the "electronic address" and does not make it
+        // optional: a manufacturer a buyer cannot write to has not been named.
+        email: { type: 'string', format: 'email' },
+        phone: { type: 'string', maxLength: 32, nullable: true },
+        website: { type: 'string', format: 'uri', nullable: true },
+        isActive: { type: 'boolean' },
+      },
+    }),
+  },
+  'PATCH /api/v1/admin/economic-operators/:id': {
+    summary: 'Update an economic operator',
+    tags: ['Product safety'],
+    auth: 'admin',
+    permission: 'product.write',
+  },
+  'DELETE /api/v1/admin/economic-operators/:id': {
+    summary: 'Retire an economic operator',
+    description:
+      'Refused while any product still names it, with the count. A listing whose manufacturer ' +
+      'row vanished would be offering a product with nobody named, which is the exact state ' +
+      'GPSR Art. 19 forbids.',
+    tags: ['Product safety'],
+    auth: 'admin',
+    permission: 'product.write',
+  },
+  'GET /api/v1/admin/products/:id/safety': {
+    summary: 'The GPSR Art. 19 checklist for one product',
+    description:
+      'The same assessment publication runs, returned whether or not enforcement is on. ' +
+      'The "enforced" flag says whether these gaps currently block anything, which is what ' +
+      'lets an operator cost the work before switching enforcement on. Missing warning ' +
+      'translations never block: a warning in the base language still publishes.',
+    tags: ['Product safety'],
+    auth: 'admin',
+    permission: 'product.read',
+  },
+  'GET /api/v1/admin/products/:id/device': {
+    summary: 'The MDR checklist for one product, and its device record',
+    description:
+      'Regulation (EU) 2017/745, for the part of it a catalogue holds: the class, the ' +
+      'identifiers, the intended purpose and the declaration a buyer can open. Most of a ' +
+      'catalogue is not a device, and the answer then is "notADevice" rather than a pass - ' +
+      'a product this regulation never reaches has not satisfied anything.',
+    tags: ['Product safety'],
+    auth: 'admin',
+    permission: 'product.read',
+  },
+  'PUT /api/v1/admin/products/:id/device': {
+    summary: 'Mark a product as a medical device, or update its record',
+    description:
+      'An upsert: whether a device row already exists is not something a caller should have ' +
+      'to know before it can save. The class decides whether a notified body number is ' +
+      'required, so a sterile or measuring device declared as plain Class I is refused.',
+    tags: ['Product safety'],
+    auth: 'admin',
+    permission: 'product.write',
+  },
+  'DELETE /api/v1/admin/products/:id/device': {
+    summary: 'Stop treating a product as a medical device',
+    description:
+      'Deletes the record: class, identifiers and intended purpose go with it, and the ' +
+      'storefront stops showing them. Not an archive, because a device record that is no ' +
+      'longer true is not history worth keeping on a listing.',
+    tags: ['Product safety'],
+    auth: 'admin',
+    permission: 'product.write',
+  },
+  'GET /api/v1/admin/settings/processors': {
+    summary: 'Who this deployment actually shares data with',
+    description:
+      'Derived from the environment, not from a maintained list. GDPR Art. 30(1)(d) asks for ' +
+      'the categories of recipient and Arts. 44-49 for a transfer mechanism for anyone outside ' +
+      'the EEA; a register kept in a document cannot notice that somebody set an AI key last ' +
+      'Tuesday. Inactive recipients are reported too, so the output can be diffed against the ' +
+      'register. It knows only about integrations this codebase makes itself — a logging ' +
+      'proxy, a managed database or a backup target are recipients it cannot see.',
+    tags: ['Settings'],
+    auth: 'admin',
+    permission: 'settings.read',
+  },
+
+  // --- Data protection ---
+  //
+  // The subject side needs no permission: the session already proves the
+  // person asking is the person being asked about, which is the identity check
+  // Art. 12(6) is concerned with.
+  'GET /api/v1/account/data-requests': {
+    summary: 'The signed-in customer’s data subject requests',
+    description:
+      'Includes a live download token for a completed export, so a page reload does not lose ' +
+      'the link. Null once the window has closed.',
+    tags: ['Account'],
+    auth: 'customer',
+  },
+  'POST /api/v1/account/data-requests': {
+    summary: 'Exercise a data subject right',
+    description:
+      'EXPORT (GDPR Art. 15 and 20) is fulfilled automatically and answers 202. ERASURE ' +
+      '(Art. 17) is queued for a decision by staff, because Art. 17(3) has exemptions that ' +
+      'need a person to weigh. One open request of each type at a time - a second does not ' +
+      'restart the one-month clock in Art. 12(3).',
+    tags: ['Account'],
+    auth: 'customer',
+    requestBody: json({
+      type: 'object',
+      required: ['type'],
+      properties: {
+        type: { type: 'string', enum: ['EXPORT', 'ERASURE'] },
+        note: { type: 'string', maxLength: 1024, nullable: true },
+      },
+    }),
+  },
+  'GET /api/v1/my-data/download/:token': {
+    summary: 'Download a personal data bundle',
+    description:
+      'Hashed, expiring, subject-scoped token, so the link in the email works without a ' +
+      'session. Served as an attachment: the file is every personal fact held about one ' +
+      'person, and must never render inline in the API’s own origin.',
+    tags: ['Account'],
+    auth: 'token',
+  },
+  'GET /api/v1/admin/data-requests': {
+    summary: 'The data subject request queue',
+    description: 'Ordered by deadline, not arrival - the queue exists to stop Art. 12(3) breaches.',
+    tags: ['Data protection'],
+    auth: 'admin',
+    permission: 'data_request.read',
+  },
+  'GET /api/v1/admin/data-requests/:requestId': {
+    summary: 'One data subject request, with its erasure blockers',
+    description:
+      'Recomputes what stands in the way of a pending erasure - unpaid orders, open returns - ' +
+      'so the decision is made against the position now rather than when the row was written.',
+    tags: ['Data protection'],
+    auth: 'admin',
+    permission: 'data_request.read',
+  },
+  'POST /api/v1/admin/data-requests/:requestId/approve': {
+    summary: 'Approve a data subject request',
+    description:
+      'Answers 202: the work is queued, because an erasure rewrites rows across a dozen ' +
+      'tables and must not depend on the browser staying connected.',
+    tags: ['Data protection'],
+    auth: 'admin',
+    permission: 'data_request.action',
+    requestBody: json({
+      type: 'object',
+      properties: { note: { type: 'string', maxLength: 1024, nullable: true } },
+    }),
+  },
+  'POST /api/v1/admin/data-requests/:requestId/reject': {
+    summary: 'Refuse a data subject request',
+    description:
+      'The reason is required. Art. 12(4) obliges the controller to tell the subject why and ' +
+      'that they may complain to a supervisory authority, so a refusal with an empty reason ' +
+      'is one that cannot lawfully be sent.',
+    tags: ['Data protection'],
+    auth: 'admin',
+    permission: 'data_request.action',
+    requestBody: json({
+      type: 'object',
+      required: ['note'],
+      properties: { note: { type: 'string', minLength: 1, maxLength: 1024 } },
+    }),
   },
 });
 
@@ -496,6 +933,91 @@ const SCHEMAS: Readonly<Record<string, unknown>> = Object.freeze({
           'true every admin route answers 403 PASSWORD_CHANGE_REQUIRED; only /me, ' +
           '/password/change and /logout are reachable.',
       },
+      locationRequired: {
+        type: 'boolean',
+        description:
+          'This surface asks a signer-in where they are. True for the Admin Panel unless the ' +
+          'deployment sets FEATURE_ADMIN_LOGIN_LOCATION=false; always false for a customer.',
+      },
+      locationGranted: {
+        type: 'boolean',
+        description:
+          'The browser has told this session where it is. False on every fresh sign-in, and ' +
+          'while it is false alongside locationRequired every admin route answers 403 ' +
+          'LOCATION_REQUIRED. Carried forward across a token refresh, so it is asked once per ' +
+          'sign-in and not once per hour.',
+      },
+    },
+  },
+
+  SessionLocationRequest: {
+    type: 'object',
+    required: ['latitude', 'longitude'],
+    properties: {
+      latitude: { type: 'number', format: 'double', minimum: -90, maximum: 90 },
+      longitude: { type: 'number', format: 'double', minimum: -180, maximum: 180 },
+      accuracyM: {
+        type: 'number',
+        nullable: true,
+        description:
+          'The radius the device claimed, in metres. Recorded and shown beside the place so a ' +
+          'coarse wifi fix is not read as a precise one.',
+      },
+    },
+  },
+
+  SessionLocationResponse: {
+    type: 'object',
+    properties: {
+      locationGranted: { type: 'boolean' },
+      place: {
+        type: 'string',
+        description:
+          'The reverse-geocoded place, or the coordinates when no geocoder answered. The lookup ' +
+          'is best-effort - a firewalled or disabled geocoder never blocks a sign-in.',
+      },
+      recordedAt: { type: 'string', format: 'date-time' },
+    },
+  },
+
+  AdminNotificationFeed: {
+    type: 'object',
+    description:
+      'The bell. `unreadCount` counts the whole visible feed, not the page returned, so a ' +
+      'badge never promises more rows than the panel can show.',
+    properties: {
+      items: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            kind: {
+              type: 'string',
+              description:
+                'Dotted event kind, e.g. order.placed. The panel maps this to a phrase in ' +
+                "the reader's own language - no prose is stored on the row.",
+            },
+            variables: {
+              type: 'object',
+              additionalProperties: true,
+              description: 'The values that fill the phrase. Primitives only.',
+            },
+            linkPath: { type: 'string', nullable: true },
+            isRead: { type: 'boolean', description: 'For the caller, not for everyone.' },
+            createdAt: { type: 'string', format: 'date-time' },
+          },
+        },
+      },
+      unreadCount: { type: 'integer' },
+    },
+  },
+
+  MarkNotificationsReadRequest: {
+    type: 'object',
+    required: ['notificationIds'],
+    properties: {
+      notificationIds: { type: 'array', items: { type: 'string' }, minItems: 1, maxItems: 50 },
     },
   },
 
@@ -526,6 +1048,73 @@ const SCHEMAS: Readonly<Record<string, unknown>> = Object.freeze({
       password: { type: 'string', minLength: 12 },
       acceptedTerms: { type: 'boolean' },
       consentVersion: { type: 'string', default: 'v1' },
+    },
+  },
+
+  RegisterRequest: {
+    type: 'object',
+    required: ['fullName', 'email', 'phone', 'country', 'password', 'acceptedTerms'],
+    properties: {
+      fullName: { type: 'string', maxLength: 255 },
+      email: { type: 'string', format: 'email', maxLength: 320 },
+      phone: {
+        type: 'string',
+        maxLength: 32,
+        description:
+          'Mobile number as typed. Punctuation is stripped before storage; a leading + is kept.',
+      },
+      country: {
+        type: 'string',
+        minLength: 2,
+        maxLength: 2,
+        description:
+          'ISO-3166-1 alpha-2, and it must be a country this deployment has active. It decides ' +
+          'which market price list the account is quoted from, so it is not merely an address ' +
+          'field.',
+      },
+      password: { type: 'string', minLength: 12, maxLength: 128 },
+      organization: { type: 'string', maxLength: 255, nullable: true },
+      acceptedTerms: { type: 'boolean' },
+      consentVersion: { type: 'string', default: 'v1' },
+      language: { type: 'string', nullable: true, description: 'BCP-47 primary subtag.' },
+    },
+  },
+  RegisterResponse: {
+    type: 'object',
+    properties: {
+      registered: { type: 'boolean' },
+      requiresApproval: {
+        type: 'boolean',
+        description:
+          'Whether confirmed accounts on this deployment wait for staff. A property of the ' +
+          'deployment, not of this request - it is identical for a duplicate address.',
+      },
+      message: { type: 'string' },
+    },
+  },
+  VerifyEmailRequest: {
+    type: 'object',
+    required: ['token'],
+    properties: { token: { type: 'string' } },
+  },
+  VerifyEmailResponse: {
+    type: 'object',
+    properties: {
+      verified: { type: 'boolean' },
+      email: { type: 'string', format: 'email' },
+      status: { type: 'string', enum: ['ACTIVE', 'PENDING_APPROVAL'] },
+    },
+  },
+  ResendVerificationRequest: {
+    type: 'object',
+    required: ['email'],
+    properties: { email: { type: 'string', format: 'email' } },
+  },
+  ApproveCustomerResponse: {
+    type: 'object',
+    properties: {
+      approved: { type: 'boolean' },
+      email: { type: 'string', format: 'email' },
     },
   },
 
@@ -672,6 +1261,23 @@ const SCHEMAS: Readonly<Record<string, unknown>> = Object.freeze({
       billingAddressId: { type: 'string' },
       shippingMethodCode: { type: 'string', nullable: true },
       paymentMode: { type: 'string', enum: ['ONLINE', 'PAYMENT_LINK'], default: 'ONLINE' },
+      preferredPaymentProvider: {
+        type: 'string',
+        enum: ['RAZORPAY', 'STRIPE'],
+        description:
+          'The gateway the customer chose, where the storefront offered a choice. Recorded on ' +
+          'the order so the payment page can be reloaded without losing it. A preference, not a ' +
+          'routing instruction: the gateway that actually takes the payment is resolved from ' +
+          'what the operator has connected. Omit to accept the configured default.',
+      },
+      preferredPaymentMethod: {
+        type: 'string',
+        enum: ['ANY', 'UPI'],
+        description:
+          'Which instruments to open the gateway sheet on. Honoured by Razorpay and ignored by ' +
+          'gateways that have no such instrument; the sheet still offers everything the gateway ' +
+          'supports.',
+      },
       customerNote: { type: 'string', nullable: true },
     },
   },
@@ -718,6 +1324,52 @@ const SCHEMAS: Readonly<Record<string, unknown>> = Object.freeze({
     properties: {
       to: { type: 'string' },
       reason: { type: 'string', description: 'Required for cancellations and rejections.' },
+    },
+  },
+
+  PaymentSessionRequest: {
+    type: 'object',
+    description:
+      'Optional. Overrides the gateway recorded on the order — for offering a different one ' +
+      'after a decline. Naming a gateway the operator has not connected is not an error: the ' +
+      'payment falls back to one that is, and the response says which.',
+    properties: {
+      provider: { type: 'string', enum: ['RAZORPAY', 'STRIPE'] },
+      method: { type: 'string', enum: ['ANY', 'UPI'] },
+    },
+  },
+
+  PaymentGatewaysResponse: {
+    type: 'object',
+    properties: {
+      gateways: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            provider: { type: 'string', enum: ['RAZORPAY', 'STRIPE'] },
+            label: { type: 'string' },
+            methods: {
+              type: 'array',
+              items: { type: 'string', enum: ['ANY', 'UPI'] },
+              description: 'Instruments worth naming separately. `ANY` is the gateway’s own set.',
+            },
+            currencies: {
+              type: 'array',
+              nullable: true,
+              items: { type: 'string' },
+              description:
+                'ISO-4217 codes this gateway may be offered for. Null means no restriction.',
+            },
+          },
+        },
+      },
+      defaultProvider: {
+        type: 'string',
+        enum: ['RAZORPAY', 'STRIPE'],
+        nullable: true,
+        description: 'Preselect this. Null when nothing is connected.',
+      },
     },
   },
 
@@ -906,7 +1558,12 @@ export function buildOpenApiDocument(routes: RouteRecord[]): Record<string, unkn
       security,
       ...(parameters.length > 0 ? { parameters } : {}),
       ...(doc.requestBody !== undefined
-        ? { requestBody: { required: true, ...(json(doc.requestBody) as object) } }
+        ? {
+            requestBody: {
+              required: doc.optionalBody !== true,
+              ...(json(doc.requestBody) as object),
+            },
+          }
         : {}),
       responses: {
         ...(doc.responses ?? { '200': { description: 'Success' } }),
@@ -993,7 +1650,7 @@ export function buildOpenApiDocument(routes: RouteRecord[]): Record<string, unkn
     components: {
       schemas: SCHEMAS,
       securitySchemes: {
-        cookieAuth: { type: 'apiKey', in: 'cookie', name: 'uboss_at' },
+        cookieAuth: { type: 'apiKey', in: 'cookie', name: 'uboss_shop_at' },
         bearerAuth: { type: 'http', scheme: 'bearer' },
       },
     },

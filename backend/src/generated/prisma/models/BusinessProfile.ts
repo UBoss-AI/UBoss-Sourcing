@@ -32,6 +32,10 @@ export type BusinessProfileMinAggregateOutputType = {
   supportEmail: string | null
   supportPhone: string | null
   gstin: string | null
+  gpsrEnforced: boolean | null
+  mdrEnforced: boolean | null
+  vatNumber: string | null
+  vatCountry: string | null
   currency: string | null
   timezone: string | null
   invoicePrefix: string | null
@@ -49,6 +53,10 @@ export type BusinessProfileMaxAggregateOutputType = {
   supportEmail: string | null
   supportPhone: string | null
   gstin: string | null
+  gpsrEnforced: boolean | null
+  mdrEnforced: boolean | null
+  vatNumber: string | null
+  vatCountry: string | null
   currency: string | null
   timezone: string | null
   invoicePrefix: string | null
@@ -66,6 +74,10 @@ export type BusinessProfileCountAggregateOutputType = {
   supportEmail: number
   supportPhone: number
   gstin: number
+  gpsrEnforced: number
+  mdrEnforced: number
+  vatNumber: number
+  vatCountry: number
   addressJson: number
   currency: number
   timezone: number
@@ -87,6 +99,10 @@ export type BusinessProfileMinAggregateInputType = {
   supportEmail?: true
   supportPhone?: true
   gstin?: true
+  gpsrEnforced?: true
+  mdrEnforced?: true
+  vatNumber?: true
+  vatCountry?: true
   currency?: true
   timezone?: true
   invoicePrefix?: true
@@ -104,6 +120,10 @@ export type BusinessProfileMaxAggregateInputType = {
   supportEmail?: true
   supportPhone?: true
   gstin?: true
+  gpsrEnforced?: true
+  mdrEnforced?: true
+  vatNumber?: true
+  vatCountry?: true
   currency?: true
   timezone?: true
   invoicePrefix?: true
@@ -121,6 +141,10 @@ export type BusinessProfileCountAggregateInputType = {
   supportEmail?: true
   supportPhone?: true
   gstin?: true
+  gpsrEnforced?: true
+  mdrEnforced?: true
+  vatNumber?: true
+  vatCountry?: true
   addressJson?: true
   currency?: true
   timezone?: true
@@ -213,6 +237,10 @@ export type BusinessProfileGroupByOutputType = {
   supportEmail: string
   supportPhone: string | null
   gstin: string | null
+  gpsrEnforced: boolean
+  mdrEnforced: boolean
+  vatNumber: string | null
+  vatCountry: string | null
   addressJson: runtime.JsonValue | null
   currency: string
   timezone: string
@@ -253,6 +281,10 @@ export type BusinessProfileWhereInput = {
   supportEmail?: Prisma.StringFilter<"BusinessProfile"> | string
   supportPhone?: Prisma.StringNullableFilter<"BusinessProfile"> | string | null
   gstin?: Prisma.StringNullableFilter<"BusinessProfile"> | string | null
+  gpsrEnforced?: Prisma.BoolFilter<"BusinessProfile"> | boolean
+  mdrEnforced?: Prisma.BoolFilter<"BusinessProfile"> | boolean
+  vatNumber?: Prisma.StringNullableFilter<"BusinessProfile"> | string | null
+  vatCountry?: Prisma.StringNullableFilter<"BusinessProfile"> | string | null
   addressJson?: Prisma.JsonNullableFilter<"BusinessProfile">
   currency?: Prisma.StringFilter<"BusinessProfile"> | string
   timezone?: Prisma.StringFilter<"BusinessProfile"> | string
@@ -273,6 +305,10 @@ export type BusinessProfileOrderByWithRelationInput = {
   supportEmail?: Prisma.SortOrder
   supportPhone?: Prisma.SortOrderInput | Prisma.SortOrder
   gstin?: Prisma.SortOrderInput | Prisma.SortOrder
+  gpsrEnforced?: Prisma.SortOrder
+  mdrEnforced?: Prisma.SortOrder
+  vatNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  vatCountry?: Prisma.SortOrderInput | Prisma.SortOrder
   addressJson?: Prisma.SortOrderInput | Prisma.SortOrder
   currency?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
@@ -297,6 +333,10 @@ export type BusinessProfileWhereUniqueInput = Prisma.AtLeast<{
   supportEmail?: Prisma.StringFilter<"BusinessProfile"> | string
   supportPhone?: Prisma.StringNullableFilter<"BusinessProfile"> | string | null
   gstin?: Prisma.StringNullableFilter<"BusinessProfile"> | string | null
+  gpsrEnforced?: Prisma.BoolFilter<"BusinessProfile"> | boolean
+  mdrEnforced?: Prisma.BoolFilter<"BusinessProfile"> | boolean
+  vatNumber?: Prisma.StringNullableFilter<"BusinessProfile"> | string | null
+  vatCountry?: Prisma.StringNullableFilter<"BusinessProfile"> | string | null
   addressJson?: Prisma.JsonNullableFilter<"BusinessProfile">
   currency?: Prisma.StringFilter<"BusinessProfile"> | string
   timezone?: Prisma.StringFilter<"BusinessProfile"> | string
@@ -317,6 +357,10 @@ export type BusinessProfileOrderByWithAggregationInput = {
   supportEmail?: Prisma.SortOrder
   supportPhone?: Prisma.SortOrderInput | Prisma.SortOrder
   gstin?: Prisma.SortOrderInput | Prisma.SortOrder
+  gpsrEnforced?: Prisma.SortOrder
+  mdrEnforced?: Prisma.SortOrder
+  vatNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  vatCountry?: Prisma.SortOrderInput | Prisma.SortOrder
   addressJson?: Prisma.SortOrderInput | Prisma.SortOrder
   currency?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
@@ -342,6 +386,10 @@ export type BusinessProfileScalarWhereWithAggregatesInput = {
   supportEmail?: Prisma.StringWithAggregatesFilter<"BusinessProfile"> | string
   supportPhone?: Prisma.StringNullableWithAggregatesFilter<"BusinessProfile"> | string | null
   gstin?: Prisma.StringNullableWithAggregatesFilter<"BusinessProfile"> | string | null
+  gpsrEnforced?: Prisma.BoolWithAggregatesFilter<"BusinessProfile"> | boolean
+  mdrEnforced?: Prisma.BoolWithAggregatesFilter<"BusinessProfile"> | boolean
+  vatNumber?: Prisma.StringNullableWithAggregatesFilter<"BusinessProfile"> | string | null
+  vatCountry?: Prisma.StringNullableWithAggregatesFilter<"BusinessProfile"> | string | null
   addressJson?: Prisma.JsonNullableWithAggregatesFilter<"BusinessProfile">
   currency?: Prisma.StringWithAggregatesFilter<"BusinessProfile"> | string
   timezone?: Prisma.StringWithAggregatesFilter<"BusinessProfile"> | string
@@ -360,6 +408,10 @@ export type BusinessProfileCreateInput = {
   supportEmail: string
   supportPhone?: string | null
   gstin?: string | null
+  gpsrEnforced?: boolean
+  mdrEnforced?: boolean
+  vatNumber?: string | null
+  vatCountry?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   currency: string
   timezone: string
@@ -380,6 +432,10 @@ export type BusinessProfileUncheckedCreateInput = {
   supportEmail: string
   supportPhone?: string | null
   gstin?: string | null
+  gpsrEnforced?: boolean
+  mdrEnforced?: boolean
+  vatNumber?: string | null
+  vatCountry?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   currency: string
   timezone: string
@@ -398,6 +454,10 @@ export type BusinessProfileUpdateInput = {
   supportEmail?: Prisma.StringFieldUpdateOperationsInput | string
   supportPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpsrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mdrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -418,6 +478,10 @@ export type BusinessProfileUncheckedUpdateInput = {
   supportEmail?: Prisma.StringFieldUpdateOperationsInput | string
   supportPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpsrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mdrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -437,6 +501,10 @@ export type BusinessProfileCreateManyInput = {
   supportEmail: string
   supportPhone?: string | null
   gstin?: string | null
+  gpsrEnforced?: boolean
+  mdrEnforced?: boolean
+  vatNumber?: string | null
+  vatCountry?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   currency: string
   timezone: string
@@ -455,6 +523,10 @@ export type BusinessProfileUpdateManyMutationInput = {
   supportEmail?: Prisma.StringFieldUpdateOperationsInput | string
   supportPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpsrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mdrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -474,6 +546,10 @@ export type BusinessProfileUncheckedUpdateManyInput = {
   supportEmail?: Prisma.StringFieldUpdateOperationsInput | string
   supportPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpsrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mdrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -499,6 +575,10 @@ export type BusinessProfileCountOrderByAggregateInput = {
   supportEmail?: Prisma.SortOrder
   supportPhone?: Prisma.SortOrder
   gstin?: Prisma.SortOrder
+  gpsrEnforced?: Prisma.SortOrder
+  mdrEnforced?: Prisma.SortOrder
+  vatNumber?: Prisma.SortOrder
+  vatCountry?: Prisma.SortOrder
   addressJson?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
@@ -518,6 +598,10 @@ export type BusinessProfileMaxOrderByAggregateInput = {
   supportEmail?: Prisma.SortOrder
   supportPhone?: Prisma.SortOrder
   gstin?: Prisma.SortOrder
+  gpsrEnforced?: Prisma.SortOrder
+  mdrEnforced?: Prisma.SortOrder
+  vatNumber?: Prisma.SortOrder
+  vatCountry?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
   invoicePrefix?: Prisma.SortOrder
@@ -535,6 +619,10 @@ export type BusinessProfileMinOrderByAggregateInput = {
   supportEmail?: Prisma.SortOrder
   supportPhone?: Prisma.SortOrder
   gstin?: Prisma.SortOrder
+  gpsrEnforced?: Prisma.SortOrder
+  mdrEnforced?: Prisma.SortOrder
+  vatNumber?: Prisma.SortOrder
+  vatCountry?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
   invoicePrefix?: Prisma.SortOrder
@@ -603,6 +691,10 @@ export type BusinessProfileCreateWithoutLogoMediaInput = {
   supportEmail: string
   supportPhone?: string | null
   gstin?: string | null
+  gpsrEnforced?: boolean
+  mdrEnforced?: boolean
+  vatNumber?: string | null
+  vatCountry?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   currency: string
   timezone: string
@@ -621,6 +713,10 @@ export type BusinessProfileUncheckedCreateWithoutLogoMediaInput = {
   supportEmail: string
   supportPhone?: string | null
   gstin?: string | null
+  gpsrEnforced?: boolean
+  mdrEnforced?: boolean
+  vatNumber?: string | null
+  vatCountry?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   currency: string
   timezone: string
@@ -669,6 +765,10 @@ export type BusinessProfileScalarWhereInput = {
   supportEmail?: Prisma.StringFilter<"BusinessProfile"> | string
   supportPhone?: Prisma.StringNullableFilter<"BusinessProfile"> | string | null
   gstin?: Prisma.StringNullableFilter<"BusinessProfile"> | string | null
+  gpsrEnforced?: Prisma.BoolFilter<"BusinessProfile"> | boolean
+  mdrEnforced?: Prisma.BoolFilter<"BusinessProfile"> | boolean
+  vatNumber?: Prisma.StringNullableFilter<"BusinessProfile"> | string | null
+  vatCountry?: Prisma.StringNullableFilter<"BusinessProfile"> | string | null
   addressJson?: Prisma.JsonNullableFilter<"BusinessProfile">
   currency?: Prisma.StringFilter<"BusinessProfile"> | string
   timezone?: Prisma.StringFilter<"BusinessProfile"> | string
@@ -687,6 +787,10 @@ export type BusinessProfileCreateManyLogoMediaInput = {
   supportEmail: string
   supportPhone?: string | null
   gstin?: string | null
+  gpsrEnforced?: boolean
+  mdrEnforced?: boolean
+  vatNumber?: string | null
+  vatCountry?: string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   currency: string
   timezone: string
@@ -705,6 +809,10 @@ export type BusinessProfileUpdateWithoutLogoMediaInput = {
   supportEmail?: Prisma.StringFieldUpdateOperationsInput | string
   supportPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpsrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mdrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -723,6 +831,10 @@ export type BusinessProfileUncheckedUpdateWithoutLogoMediaInput = {
   supportEmail?: Prisma.StringFieldUpdateOperationsInput | string
   supportPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpsrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mdrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -741,6 +853,10 @@ export type BusinessProfileUncheckedUpdateManyWithoutLogoMediaInput = {
   supportEmail?: Prisma.StringFieldUpdateOperationsInput | string
   supportPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpsrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mdrEnforced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -762,6 +878,10 @@ export type BusinessProfileSelect<ExtArgs extends runtime.Types.Extensions.Inter
   supportEmail?: boolean
   supportPhone?: boolean
   gstin?: boolean
+  gpsrEnforced?: boolean
+  mdrEnforced?: boolean
+  vatNumber?: boolean
+  vatCountry?: boolean
   addressJson?: boolean
   currency?: boolean
   timezone?: boolean
@@ -784,6 +904,10 @@ export type BusinessProfileSelectScalar = {
   supportEmail?: boolean
   supportPhone?: boolean
   gstin?: boolean
+  gpsrEnforced?: boolean
+  mdrEnforced?: boolean
+  vatNumber?: boolean
+  vatCountry?: boolean
   addressJson?: boolean
   currency?: boolean
   timezone?: boolean
@@ -795,7 +919,7 @@ export type BusinessProfileSelectScalar = {
   updatedById?: boolean
 }
 
-export type BusinessProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "legalName" | "displayName" | "logoMediaId" | "supportEmail" | "supportPhone" | "gstin" | "addressJson" | "currency" | "timezone" | "invoicePrefix" | "orderPrefix" | "policyLinksJson" | "createdAt" | "updatedAt" | "updatedById", ExtArgs["result"]["businessProfile"]>
+export type BusinessProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "legalName" | "displayName" | "logoMediaId" | "supportEmail" | "supportPhone" | "gstin" | "gpsrEnforced" | "mdrEnforced" | "vatNumber" | "vatCountry" | "addressJson" | "currency" | "timezone" | "invoicePrefix" | "orderPrefix" | "policyLinksJson" | "createdAt" | "updatedAt" | "updatedById", ExtArgs["result"]["businessProfile"]>
 export type BusinessProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   logoMedia?: boolean | Prisma.BusinessProfile$logoMediaArgs<ExtArgs>
 }
@@ -816,6 +940,43 @@ export type $BusinessProfilePayload<ExtArgs extends runtime.Types.Extensions.Int
     supportEmail: string
     supportPhone: string | null
     gstin: string | null
+    /**
+     * Whether product listings must satisfy GPSR Art. 19 before they publish.
+     * 
+     * Off by default, because a deployment selling only outside the Union has
+     * no such obligation and turning it on would block every existing listing
+     * on a rule that does not apply to it.
+     * 
+     * Turn it on to sell into the EU. The publish validator then refuses a
+     * product with no manufacturer, no identifier or no safety warning - and,
+     * where the manufacturer is established outside the Union, no responsible
+     * person inside it. Until then the same checks still run and are reported
+     * as warnings, so the gap is visible before it is enforced.
+     */
+    gpsrEnforced: boolean
+    /**
+     * Whether a product marked as a medical device must carry its MDR
+     * identification before it publishes.
+     * 
+     * Off by default and separate from `gpsrEnforced`, because the two are
+     * different obligations with different scopes: GPSR covers every consumer
+     * product, MDR covers devices only. A shop selling gloves alongside
+     * bandages may well need one and not the other.
+     */
+    mdrEnforced: boolean
+    /**
+     * The seller's EU VAT identification number, e.g. "NL123456789B01".
+     * Art. 226(3) requires it on every invoice; its presence is also what
+     * switches EU VAT resolution on for this deployment.
+     */
+    vatNumber: string | null
+    /**
+     * The member state the business is established in for VAT. Decides which
+     * supplies are domestic, which are intra-Community, and which are exports.
+     * Null in a deployment that is not in the EU, and VAT resolution then never
+     * runs - the flat tax-class rate applies, as it always did.
+     */
+    vatCountry: string | null
     /**
      * Registered/invoice address. Shape validated by Zod at the API boundary.
      */
@@ -1208,6 +1369,10 @@ export interface BusinessProfileFieldRefs {
   readonly supportEmail: Prisma.FieldRef<"BusinessProfile", 'String'>
   readonly supportPhone: Prisma.FieldRef<"BusinessProfile", 'String'>
   readonly gstin: Prisma.FieldRef<"BusinessProfile", 'String'>
+  readonly gpsrEnforced: Prisma.FieldRef<"BusinessProfile", 'Boolean'>
+  readonly mdrEnforced: Prisma.FieldRef<"BusinessProfile", 'Boolean'>
+  readonly vatNumber: Prisma.FieldRef<"BusinessProfile", 'String'>
+  readonly vatCountry: Prisma.FieldRef<"BusinessProfile", 'String'>
   readonly addressJson: Prisma.FieldRef<"BusinessProfile", 'Json'>
   readonly currency: Prisma.FieldRef<"BusinessProfile", 'String'>
   readonly timezone: Prisma.FieldRef<"BusinessProfile", 'String'>

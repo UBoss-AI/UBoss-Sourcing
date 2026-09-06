@@ -97,6 +97,30 @@ export type TaxClass = Prisma.TaxClassModel
  */
 export type ShippingMethod = Prisma.ShippingMethodModel
 /**
+ * Model CurrencyRateSync
+ * Keeping converted prices current, without ever converting at read time.
+ * 
+ * One row. The refresh job reads it, re-converts every price still flagged
+ * `isAutoConverted`, and writes the results as ordinary price rows - so the
+ * figure a shopper is quoted is still a stored one, and still the figure they
+ * are charged. The rate is used at write time and never at display time; that
+ * distinction is the reason this is a scheduled job and not a formula.
+ */
+export type CurrencyRateSync = Prisma.CurrencyRateSyncModel
+/**
+ * Model CatalogTranslationSync
+ * Machine-translating the catalogue itself.
+ * 
+ * The interface catalogues ship with the product and are translated once, in
+ * the repository. A shop's *own* products cannot be: every deployment sells
+ * something different, and twenty products across seven languages is a
+ * hundred and forty pieces of copy nobody will type. So the key lives here,
+ * encrypted, and the panel does the work.
+ * 
+ * One row, like `CurrencyRateSync`.
+ */
+export type CatalogTranslationSync = Prisma.CatalogTranslationSyncModel
+/**
  * Model FeatureFlag
  * 
  */
@@ -292,6 +316,16 @@ export type NotificationOutbox = Prisma.NotificationOutboxModel
  */
 export type NotificationDelivery = Prisma.NotificationDeliveryModel
 /**
+ * Model AdminNotification
+ * 
+ */
+export type AdminNotification = Prisma.AdminNotificationModel
+/**
+ * Model AdminNotificationRead
+ * 
+ */
+export type AdminNotificationRead = Prisma.AdminNotificationReadModel
+/**
  * Model JobQueue
  * 
  */
@@ -376,3 +410,81 @@ export type AssistantConversation = Prisma.AssistantConversationModel
  * 
  */
 export type AssistantMessage = Prisma.AssistantMessageModel
+/**
+ * Model ProductTranslation
+ * A product's name and copy in one language.
+ * 
+ * A side table rather than name_pl, name_el … columns on `products`: a new
+ * language is a row here, not a migration, and "no translation yet" is the
+ * absence of a row rather than a column full of NULLs. The catalogue falls
+ * back to the base row on `products` for anything missing, exactly as the
+ * interface falls back to English for a missing key.
+ * 
+ * Deliberately not here: `slug` and `sku`. The slug is one URL for all
+ * languages - this is an ordering system reached by link, not a public SEO
+ * site - and a SKU is an identifier, not prose.
+ */
+export type ProductTranslation = Prisma.ProductTranslationModel
+/**
+ * Model CategoryTranslation
+ * A category's name and copy in one language. Same shape and same reasoning
+ * as ProductTranslation.
+ */
+export type CategoryTranslation = Prisma.CategoryTranslationModel
+/**
+ * Model DataRequest
+ * 
+ */
+export type DataRequest = Prisma.DataRequestModel
+/**
+ * Model VatRate
+ * One rate band, in one country, for a period of time.
+ * 
+ * Dated rather than a single current value, because a rate change is not an
+ * edit. Germany dropped its standard rate to 16% for six months in 2020, and
+ * an invoice raised in that window is still correct at 16% forever. Repricing
+ * history because a rate moved would falsify every document already issued.
+ */
+export type VatRate = Prisma.VatRateModel
+/**
+ * Model VatNumberCheck
+ * A VAT number that has been checked, and what the check said.
+ * 
+ * Cached, because VIES is federated - each member state answers for its own
+ * numbers - and is regularly slow or simply down for one country. A checkout
+ * must not fail because Italy's node is having an afternoon, so a recent
+ * answer is reused and a missing one degrades to "unverified" rather than to
+ * an error.
+ * 
+ * The consultation number matters more than it looks. Art. 31 of Regulation
+ * 904/2010 lets a seller rely on a VIES answer, and the reference VIES
+ * returns is the proof they relied on it. Without it, a zero-rated supply to
+ * a customer whose number is later found invalid becomes the seller's tax
+ * bill.
+ */
+export type VatNumberCheck = Prisma.VatNumberCheckModel
+/**
+ * Model Invoice
+ * 
+ */
+export type Invoice = Prisma.InvoiceModel
+/**
+ * Model EconomicOperator
+ * A company named on a product listing under Union product law.
+ * 
+ * Deliberately not merged into a generic "supplier" concept. A supplier is a
+ * commercial relationship; this is a legal identity that appears on a public
+ * page and that a market surveillance authority writes to. The two change for
+ * different reasons and at different times.
+ */
+export type EconomicOperator = Prisma.EconomicOperatorModel
+/**
+ * Model ProductDeviceInfo
+ * The MDR facts that belong on a listing.
+ * 
+ * One row per product, and only for products that are devices. The presence
+ * of the row IS the "this is a medical device" flag - a boolean on `products`
+ * saying so, with the data somewhere else, is one more thing that can
+ * disagree with itself.
+ */
+export type ProductDeviceInfo = Prisma.ProductDeviceInfoModel

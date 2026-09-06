@@ -34,6 +34,14 @@ export const ErrorCode = {
   ACCOUNT_LOCKED: 'ACCOUNT_LOCKED',
   ACCOUNT_DEACTIVATED: 'ACCOUNT_DEACTIVATED',
   ACCOUNT_NOT_ACTIVATED: 'ACCOUNT_NOT_ACTIVATED',
+  /// Self-registered, email confirmed, and waiting for a member of staff to
+  /// let them in. Distinct from ACCOUNT_NOT_ACTIVATED because there is nothing
+  /// the person can do about it - no link to open, no password to choose - and
+  /// telling them to check their email would send them hunting for nothing.
+  ACCOUNT_PENDING_APPROVAL: 'ACCOUNT_PENDING_APPROVAL',
+  /// Self-registered and the confirmation link has not been opened yet. The fix
+  /// is sitting in their inbox, so the storefront offers to send another.
+  EMAIL_NOT_VERIFIED: 'EMAIL_NOT_VERIFIED',
   SESSION_EXPIRED: 'SESSION_EXPIRED',
   REFRESH_TOKEN_REUSED: 'REFRESH_TOKEN_REUSED',
   MFA_REQUIRED: 'MFA_REQUIRED',
@@ -56,6 +64,10 @@ export const ErrorCode = {
   /// Signed in on a temporary password, so the only thing this session may do
   /// is set a real one. The Admin Panel turns this into the change screen.
   PASSWORD_CHANGE_REQUIRED: 'PASSWORD_CHANGE_REQUIRED',
+  /// Signed in, but the session has not yet said where it is. Every admin route
+  /// answers this until the browser's position is posted; the Admin Panel turns
+  /// it into the screen that asks for location access.
+  LOCATION_REQUIRED: 'LOCATION_REQUIRED',
 
   // --- Catalog ---
   SKU_ALREADY_EXISTS: 'SKU_ALREADY_EXISTS',
@@ -152,6 +164,20 @@ export const ErrorCode = {
   IMPORT_FILE_INVALID: 'IMPORT_FILE_INVALID',
   IMPORT_DRY_RUN_REQUIRED: 'IMPORT_DRY_RUN_REQUIRED',
   EXPORT_NOT_READY: 'EXPORT_NOT_READY',
+
+  // --- Data protection ---
+  /// One open request of this kind already exists. Art. 12(3) runs from the
+  /// first one, so a second does not restart the clock and is not a new
+  /// request - the storefront is told to wait for the one already in flight.
+  DATA_REQUEST_ALREADY_OPEN: 'DATA_REQUEST_ALREADY_OPEN',
+  /// The bundle is still building, or its download window has closed.
+  DATA_REQUEST_NOT_READY: 'DATA_REQUEST_NOT_READY',
+  /// A decision was attempted on a request that is no longer pending.
+  DATA_REQUEST_ALREADY_DECIDED: 'DATA_REQUEST_ALREADY_DECIDED',
+  /// Art. 17(3)(b)/(e): erasure refused because something else legally
+  /// requires the data - unpaid orders, an open return, a live schedule. The
+  /// detail names what, so the answer to the subject can too.
+  ERASURE_BLOCKED_BY_OBLIGATION: 'ERASURE_BLOCKED_BY_OBLIGATION',
 } as const;
 
 export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];

@@ -21,6 +21,18 @@ import { JobType, queue } from '../../infra/queue/index.js';
 /** Notification events. Each maps to a `notification_settings.eventKey` row. */
 export const NotificationEvent = {
   CUSTOMER_INVITATION: 'customer.invitation',
+  /// Confirm the address somebody typed into the storefront's own sign-up form.
+  /// Not the invitation above: nobody vouched for this address, so the link is
+  /// what turns a typed string into a mailbox we know answers.
+  CUSTOMER_EMAIL_VERIFICATION: 'customer.email_verification',
+  /// Sent when a sign-up names an address that already has an account. It goes
+  /// to the address itself and never back to whoever filled the form in, so the
+  /// form cannot be used to find out who is registered here.
+  CUSTOMER_REGISTRATION_DUPLICATE: 'customer.registration_duplicate',
+  /// The confirmed account is now waiting on a member of staff.
+  CUSTOMER_REGISTRATION_PENDING: 'customer.registration_pending',
+  /// Staff let them in; the account can sign in from now on.
+  CUSTOMER_REGISTRATION_APPROVED: 'customer.registration_approved',
   /// A new staff account and the temporary password that opens it once.
   STAFF_TEMPORARY_PASSWORD: 'staff.temporary_password',
   USER_PASSWORD_RESET: 'user.password_reset',
@@ -36,6 +48,15 @@ export const NotificationEvent = {
   SCHEDULE_FAILED: 'schedule.failed',
   SCHEDULE_PAUSED: 'schedule.paused',
   INVENTORY_LOW_STOCK: 'inventory.low_stock',
+  /// The Art. 15 copy is built and waiting. Says when the link stops working,
+  /// because the window is short on purpose.
+  DATA_REQUEST_READY: 'data_request.ready',
+  /// The Art. 17 erasure is done, and what survived it. Sent to the address
+  /// that asked, moments before that address stops existing.
+  DATA_REQUEST_ERASED: 'data_request.erased',
+  /// A refusal, carrying the reason. Art. 12(4) requires both this and the
+  /// reminder that the subject may complain to a supervisory authority.
+  DATA_REQUEST_REJECTED: 'data_request.rejected',
 } as const;
 
 export type NotificationEventKey = (typeof NotificationEvent)[keyof typeof NotificationEvent];
@@ -95,6 +116,45 @@ const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string
         'Activate it here (the link expires on {{expiresAt}}):\n{{activationUrl}}\n\n' +
         'If you were not expecting this, please contact {{supportEmail}}.\n',
     },
+    [NotificationEvent.CUSTOMER_EMAIL_VERIFICATION]: {
+      subject: 'Confirm your email address for {{businessName}}',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Someone - we hope you - created a {{businessName}} account with this address.\n\n' +
+        'Confirm it here (the link expires on {{expiresAt}}):\n{{verificationUrl}}\n\n' +
+        'Until the address is confirmed the account cannot be used, so if this was not\n' +
+        'you there is nothing to do: ignore this email and the account stays shut.\n\n' +
+        'Questions? Write to {{supportEmail}}.\n',
+    },
+    [NotificationEvent.CUSTOMER_REGISTRATION_DUPLICATE]: {
+      subject: 'You already have a {{businessName}} account',
+      body:
+        'Hello,\n\n' +
+        'Somebody just tried to create a {{businessName}} account with this address, and\n' +
+        'one already exists. No second account was made and nothing has changed.\n\n' +
+        'If that was you, sign in here instead:\n{{signInUrl}}\n\n' +
+        'If you cannot remember the password, reset it here:\n{{resetUrl}}\n\n' +
+        'If it was not you, ignore this email. Whoever filled the form in was not told\n' +
+        'that this address is registered, and they have no access to the account.\n',
+    },
+    [NotificationEvent.CUSTOMER_REGISTRATION_PENDING]: {
+      subject: 'Your {{businessName}} account is being reviewed',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Thank you - your email address is confirmed.\n\n' +
+        'Because we price and set terms per customer, a colleague reviews every new\n' +
+        'account before it can order. You will get an email as soon as yours is open,\n' +
+        'and there is nothing else for you to do in the meantime.\n\n' +
+        'Questions? Write to {{supportEmail}}.\n',
+    },
+    [NotificationEvent.CUSTOMER_REGISTRATION_APPROVED]: {
+      subject: 'Your {{businessName}} account is open',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Your account is approved. Sign in with the password you chose when you\n' +
+        'registered:\n{{signInUrl}}\n\n' +
+        'Questions? Write to {{supportEmail}}.\n',
+    },
     [NotificationEvent.STAFF_TEMPORARY_PASSWORD]: {
       subject: 'Your {{businessName}} staff account',
       body:
@@ -140,6 +200,39 @@ const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string
         'Pay securely here (this link is single-use and expires on {{expiresAt}}):\n' +
         '{{paymentUrl}}\n\n' +
         'Do not forward this email; the link authorises a payment.\n',
+    },
+    [NotificationEvent.DATA_REQUEST_READY]: {
+      subject: 'Your copy of the data we hold about you is ready',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'You asked for a copy of the personal data {{businessName}} holds about you. It is ' +
+        'ready to download from your account:\n\n' +
+        '{{accountUrl}}\n\n' +
+        'The link stops working {{hours}} hours from now ({{expiresAt}}). It is kept short ' +
+        'because the file contains everything we hold about you; ask again at any time and a ' +
+        'fresh copy will be prepared.\n\n' +
+        'If you did not ask for this, tell us at {{supportEmail}} straight away.\n',
+    },
+    [NotificationEvent.DATA_REQUEST_ERASED]: {
+      subject: 'Your data has been erased',
+      body:
+        'Hello,\n\n' +
+        'You asked {{businessName}} to erase the personal data we hold about you. That is ' +
+        'now done.\n\n' +
+        '{{summary}}\n\n' +
+        'This is the last message we will send to this address; it is no longer linked to ' +
+        'any account here.\n',
+    },
+    [NotificationEvent.DATA_REQUEST_REJECTED]: {
+      subject: 'About your data request',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'We have reviewed your {{requestType}} request and are not able to action it. The ' +
+        'reason is:\n\n' +
+        '{{reason}}\n\n' +
+        'If you disagree, reply to {{supportEmail}} and we will look at it again. You also ' +
+        'have the right to complain to your national data protection authority, and to seek ' +
+        'a judicial remedy.\n',
     },
     [NotificationEvent.INVENTORY_LOW_STOCK]: {
       subject: 'Low stock: {{sku}}',

@@ -153,6 +153,14 @@ export const PaymentProviderKind = {
 export type PaymentProviderKind = (typeof PaymentProviderKind)[keyof typeof PaymentProviderKind]
 
 
+export const PaymentMethodPreference = {
+  ANY: 'ANY',
+  UPI: 'UPI'
+} as const
+
+export type PaymentMethodPreference = (typeof PaymentMethodPreference)[keyof typeof PaymentMethodPreference]
+
+
 export const PaymentMode = {
   TEST: 'TEST',
   LIVE: 'LIVE'
@@ -354,3 +362,66 @@ export const AssistantMessageRole = {
 } as const
 
 export type AssistantMessageRole = (typeof AssistantMessageRole)[keyof typeof AssistantMessageRole]
+
+
+export const DataRequestType = {
+  EXPORT: 'EXPORT',
+  ERASURE: 'ERASURE'
+} as const
+
+export type DataRequestType = (typeof DataRequestType)[keyof typeof DataRequestType]
+
+
+export const DataRequestStatus = {
+  PENDING: 'PENDING',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  REJECTED: 'REJECTED',
+  FAILED: 'FAILED'
+} as const
+
+export type DataRequestStatus = (typeof DataRequestStatus)[keyof typeof DataRequestStatus]
+
+
+export const VatCategory = {
+  STANDARD: 'STANDARD',
+  REDUCED: 'REDUCED',
+  SUPER_REDUCED: 'SUPER_REDUCED',
+  ZERO: 'ZERO',
+  EXEMPT: 'EXEMPT'
+} as const
+
+export type VatCategory = (typeof VatCategory)[keyof typeof VatCategory]
+
+
+export const TaxTreatment = {
+  FLAT_RATE: 'FLAT_RATE',
+  DOMESTIC: 'DOMESTIC',
+  INTRA_EU_REVERSE_CHARGE: 'INTRA_EU_REVERSE_CHARGE',
+  INTRA_EU_B2C: 'INTRA_EU_B2C',
+  EXPORT: 'EXPORT'
+} as const
+
+export type TaxTreatment = (typeof TaxTreatment)[keyof typeof TaxTreatment]
+
+
+export const EconomicOperatorRole = {
+  MANUFACTURER: 'MANUFACTURER',
+  EU_RESPONSIBLE_PERSON: 'EU_RESPONSIBLE_PERSON',
+  IMPORTER: 'IMPORTER'
+} as const
+
+export type EconomicOperatorRole = (typeof EconomicOperatorRole)[keyof typeof EconomicOperatorRole]
+
+
+export const DeviceClass = {
+  CLASS_I: 'CLASS_I',
+  CLASS_I_STERILE: 'CLASS_I_STERILE',
+  CLASS_I_MEASURING: 'CLASS_I_MEASURING',
+  CLASS_I_REUSABLE_SURGICAL: 'CLASS_I_REUSABLE_SURGICAL',
+  CLASS_IIA: 'CLASS_IIA',
+  CLASS_IIB: 'CLASS_IIB',
+  CLASS_III: 'CLASS_III'
+} as const
+
+export type DeviceClass = (typeof DeviceClass)[keyof typeof DeviceClass]

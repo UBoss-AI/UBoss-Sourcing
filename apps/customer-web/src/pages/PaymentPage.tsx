@@ -33,9 +33,11 @@ import type { BadgeTone } from '@/components/ui';
 import { ApiError, NetworkError, api, newIdempotencyKey } from '@/lib/api';
 import { cx } from '@/lib/cx';
 import { formatMoney } from '@/lib/format';
-import { openRazorpayCheckout } from '@/lib/razorpay';
+import { openRazorpayCheckout, type CheckoutOutcome } from '@/lib/razorpay';
+import { StripePaymentDialog } from '@/components/StripePaymentDialog';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { OrderDetail, PaymentSession, PaymentStatus } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 /** How long to keep asking the backend before offering a way out. */
 const MAX_POLL_SECONDS = 90;
@@ -66,7 +68,10 @@ type Phase =
 const PHASE_CHIP: Record<Phase, { tone: BadgeTone; label: string }> = {
   idle: { tone: 'warning', label: 'Payment pending' },
   opening: { tone: 'brand', label: 'Opening payment window' },
-  'in-provider': { tone: 'brand', label: 'Action needed in the payment window' },
+  'in-provider': {
+    tone: 'brand',
+    label: 'Action needed in the payment window',
+  },
   processing: { tone: 'brand', label: 'Processing' },
   paid: { tone: 'success', label: 'Paid' },
   // "Not paid", not "Payment not completed": the panel below already carries
@@ -116,6 +121,8 @@ function StatusPanel({
 }
 
 export function PaymentPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -124,8 +131,18 @@ export function PaymentPage(): React.JSX.Element {
   const [phase, setPhase] = useState<Phase>('idle');
   const [message, setMessage] = useState<string | null>(null);
   const [pollSeconds, setPollSeconds] = useState(0);
+  /**
+   * The live Stripe session, when that is the gateway.
+   *
+   * Razorpay's sheet is a promise this page awaits; Stripe's form is an
+   * element that has to be mounted, so it is held here and rendered. Both
+   * report back through `handleOutcome`, and nothing downstream of that knows
+   * which provider it was.
+   */
+  const [stripeSession, setStripeSession] = useState<PaymentSession | null>(null);
 
-  const wasReplayed = (location.state as { replayed?: boolean } | null)?.replayed === true;
+  const replayState = location.state as { replayed?: boolean } | null;
+  const wasReplayed = replayState?.replayed === true;
 
   useDocumentMeta({ title: 'Payment', noIndex: true }, business.displayName);
 
@@ -182,6 +199,29 @@ export function PaymentPage(): React.JSX.Element {
     };
   }, [phase]);
 
+  /**
+   * Coming back from a payment method that left the page.
+   *
+   * iDEAL, Bancontact and a full-page 3-D Secure challenge all navigate away,
+   * so the customer returns to a freshly mounted page that would otherwise
+   * show them the Pay button again while their payment was in flight.
+   *
+   * Stripe appends `payment_intent` and `redirect_status` to the return URL.
+   * Neither is read: they come through the customer's own browser, which is
+   * not a trusted reporter of whether money moved. The marker's only job is to
+   * put this page back into the wait it was in before the redirect - the
+   * answer still comes from the backend.
+   */
+  useEffect(() => {
+    if (new URLSearchParams(location.search).get('stripe_return') !== '1') return;
+
+    setPhase('processing');
+
+    // Drop the marker and Stripe's parameters, so the address bar is clean and
+    // a later refresh is an ordinary visit to the order.
+    void navigate(location.pathname, { replace: true, state: replayState });
+  }, [location.pathname, location.search, replayState, navigate]);
+
   // The backend's verdict is the only thing that moves this to "paid".
   useEffect(() => {
     if (phase !== 'processing' || status.data === undefined) return;
@@ -192,16 +232,52 @@ export function PaymentPage(): React.JSX.Element {
     }
   }, [phase, status.data]);
 
+  /**
+   * What to do once the provider's UI has closed, whichever provider it was.
+   *
+   * `submitted` deliberately does not mean paid - it means the customer is
+   * finished and the backend has yet to say what happened.
+   */
+  const handleOutcome = useCallback((outcome: CheckoutOutcome): void => {
+    setStripeSession(null);
+
+    if (outcome.kind === 'dismissed') {
+      setPhase('unpaid');
+      setMessage('You closed the payment window. Your order is saved and still awaiting payment.');
+      return;
+    }
+
+    if (outcome.kind === 'failed') {
+      setPhase('unpaid');
+      setMessage(outcome.message);
+      return;
+    }
+
+    setPhase('processing');
+  }, []);
+
   const startPayment = useCallback(async (): Promise<void> => {
     setMessage(null);
     setPhase('opening');
 
     try {
+      // No gateway is named here on purpose. The customer's pick is on the
+      // order, so the server reads it back for us — which is what makes a
+      // reload of this page, or a return to it hours later, open the same
+      // sheet rather than the default.
       const session = await api.post<PaymentSession>(
         `/payments/orders/${String(orderId)}/session`,
         undefined,
         { idempotencyKey },
       );
+
+      if (session.provider === 'STRIPE') {
+        // Mounted rather than awaited. The dialog calls back with the same
+        // outcome the Razorpay sheet resolves to.
+        setStripeSession(session);
+        setPhase('in-provider');
+        return;
+      }
 
       if (session.provider !== 'RAZORPAY') {
         setPhase('unpaid');
@@ -213,23 +289,7 @@ export function PaymentPage(): React.JSX.Element {
 
       setPhase('in-provider');
 
-      const outcome = await openRazorpayCheckout(session.checkoutPayload);
-
-      if (outcome.kind === 'dismissed') {
-        setPhase('unpaid');
-        setMessage('You closed the payment window. Your order is saved and still awaiting payment.');
-        return;
-      }
-
-      if (outcome.kind === 'failed') {
-        setPhase('unpaid');
-        setMessage(outcome.message);
-        return;
-      }
-
-      // Submitted — which is a claim, not a confirmation. Now we ask the
-      // backend, and keep asking until its webhook has been verified.
-      setPhase('processing');
+      handleOutcome(await openRazorpayCheckout(session.checkoutPayload));
     } catch (error) {
       setPhase('unpaid');
 
@@ -239,12 +299,14 @@ export function PaymentPage(): React.JSX.Element {
       }
 
       setMessage(
-        error instanceof ApiError ? error.message : 'The payment could not be started. Please try again.',
+        error instanceof ApiError
+          ? error.message
+          : 'The payment could not be started. Please try again.',
       );
     }
-  }, [orderId, idempotencyKey]);
+  }, [orderId, idempotencyKey, handleOutcome]);
 
-  if (order.isPending) return <LoadingState label="Loading your order" />;
+  if (order.isPending) return <LoadingState label={t('payment.loadingYourOrder')} />;
 
   if (order.isError) {
     return (
@@ -280,25 +342,24 @@ export function PaymentPage(): React.JSX.Element {
           </span>
 
           {/* Said only here, and only because the backend has said it first. */}
-          <h1 className="mt-4 text-title-lg text-success">Payment confirmed</h1>
+          <h1 className="mt-4 text-title-lg text-success">{t('payment.paymentConfirmed')}</h1>
           <p className="mt-2 text-sm text-ink">
-            Order{' '}
-            <span className="font-mono font-medium">{currentOrder.orderNumber}</span> is paid. We
-            have emailed your confirmation.
+            Order <span className="font-mono font-medium">{currentOrder.orderNumber}</span> is paid.
+            We have emailed your confirmation.
           </p>
 
           <div className="mt-6 flex flex-wrap justify-center gap-2">
             <ButtonLink to={`/account/orders/${currentOrder.id}`} variant="primary" size="lg">
-              View your order
+              {t('payment.viewYourOrder')}
             </ButtonLink>
             <ButtonLink to="/products" size="lg">
-              Keep shopping
+              {t('payment.keepShopping')}
             </ButtonLink>
           </div>
 
           <p className="mt-4 text-xs text-ink-muted">
             <Link to="/account/orders" className="font-medium text-brand hover:underline">
-              All your orders
+              {t('payment.allYourOrders')}
             </Link>
           </p>
         </div>
@@ -318,14 +379,14 @@ export function PaymentPage(): React.JSX.Element {
           role="status"
           className="mb-5 rounded-md border border-brand/30 bg-brand-soft px-4 py-3 text-sm text-brand"
         >
-          This order was already placed — we have not created a second one.
+          {t('payment.thisOrderWasAlreadyPlaced')}
         </div>
       )}
 
       <div className="rounded-lg border border-border bg-surface p-6 shadow-card">
         <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
           <div className="min-w-0">
-            <h1 className="text-title-lg text-ink">Pay for your order</h1>
+            <h1 className="text-title-lg text-ink">{t('payment.payForYourOrder')}</h1>
             <p className="mt-1 text-sm text-ink-muted">
               Order{' '}
               <span className="font-mono font-medium text-ink">{currentOrder.orderNumber}</span> ·
@@ -340,7 +401,7 @@ export function PaymentPage(): React.JSX.Element {
         </div>
 
         <div className="mt-5 flex items-baseline justify-between border-y border-border py-4">
-          <span className="text-sm text-ink-muted">Amount due</span>
+          <span className="text-sm text-ink-muted">{t('payment.amountDue')}</span>
           <span className="text-title-lg tabular text-ink">{formatMoney(outstanding)}</span>
         </div>
 
@@ -350,27 +411,23 @@ export function PaymentPage(): React.JSX.Element {
             <StatusPanel
               tone="brand"
               icon={<Spinner className="h-5 w-5" />}
-              title="Confirming your payment"
+              title={t('payment.confirmingYourPayment')}
             >
-              Your bank has accepted it. We are waiting for our payment provider to confirm,
-              which usually takes a few seconds. Please do not close this page or pay again.
+              {t('payment.yourBankHasAcceptedIt')}
             </StatusPanel>
 
             {pollTimedOut && (
               <StatusPanel
                 tone="warning"
                 icon={<ClockIcon className="h-5 w-5" />}
-                title="This is taking longer than usual"
+                title={t('payment.thisIsTakingLongerThan')}
               >
-                <p>
-                  Your payment has not been lost. It will be confirmed automatically, and you will
-                  get an email when it is. You can safely leave this page and check your order.
-                </p>
+                <p>{t('payment.yourPaymentHasNotBeen')}</p>
                 <Link
                   to={`/account/orders/${currentOrder.id}`}
                   className="mt-2 inline-block font-semibold underline underline-offset-2"
                 >
-                  View the order
+                  {t('payment.viewTheOrder')}
                 </Link>
               </StatusPanel>
             )}
@@ -384,7 +441,7 @@ export function PaymentPage(): React.JSX.Element {
               tone="warning"
               role="alert"
               icon={<AlertIcon className="h-5 w-5" />}
-              title="Payment not completed"
+              title={t('payment.paymentNotCompleted')}
             >
               {message}
             </StatusPanel>
@@ -409,11 +466,11 @@ export function PaymentPage(): React.JSX.Element {
                 there is no way to end up with two orders. Saying so removes
                 the main reason a customer would hesitate. */}
             <p className="text-center text-xs text-ink-muted">
-              Retrying uses this same order — it will never create a second one.
+              {t('payment.retryingUsesThisSameOrder')}
             </p>
 
             <ButtonLink to={`/account/orders/${currentOrder.id}`} fullWidth>
-              Pay later — view the order
+              {t('payment.payLaterViewTheOrder')}
             </ButtonLink>
           </div>
         )}
@@ -454,22 +511,29 @@ export function PaymentPage(): React.JSX.Element {
           }}
           className="text-ink-muted underline underline-offset-2 hover:text-ink"
         >
-          Back to the cart
+          {t('payment.backToTheCart')}
         </button>
         <Link
           to="/account/orders"
           className="text-ink-muted underline underline-offset-2 hover:text-ink"
         >
-          All your orders
+          {t('payment.allYourOrders')}
         </Link>
       </div>
 
+      {stripeSession !== null && (
+        <StripePaymentDialog
+          payload={stripeSession.checkoutPayload}
+          amount={stripeSession.amount}
+          orderNumber={currentOrder.orderNumber}
+          onOutcome={handleOutcome}
+        />
+      )}
+
       {currentOrder.status === 'PENDING_APPROVAL' && (
         <div className="mt-4 rounded-md border border-warning/30 bg-warning-soft px-4 py-3 text-sm">
-          <Badge tone="warning">Awaiting approval</Badge>
-          <p className="mt-1.5 text-ink">
-            This order is with your approver. Payment opens once it is approved.
-          </p>
+          <Badge tone="warning">{t('payment.awaitingApproval')}</Badge>
+          <p className="mt-1.5 text-ink">{t('payment.thisOrderIsWithYour')}</p>
         </div>
       )}
     </div>

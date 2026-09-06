@@ -53,6 +53,7 @@ import { formatDateTime, formatMoney, formatNumber, humanise } from '@/lib/forma
 import { Permission } from '@/lib/permissions';
 import type { BadgeTone } from '@/components/ui';
 import type { Money, Pagination } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 interface InventoryRow {
   balanceId: string;
@@ -134,6 +135,15 @@ const adjustmentSchema = z.object({
   locationId: z.string(),
 });
 
+/**
+ * Input and output are different types here, because both quantities are
+ * coerced. A number input hands back a string - or an empty string while the
+ * box is being cleared - and the schema turns that into a number. `useForm` is
+ * told both, so `handleSubmit` gives the mutation the parsed value while
+ * `watch` and `register` type the raw one honestly.
+ */
+type ReceiptFormInput = z.input<typeof receiptSchema>;
+type AdjustmentFormInput = z.input<typeof adjustmentSchema>;
 type ReceiptForm = z.output<typeof receiptSchema>;
 type AdjustmentForm = z.output<typeof adjustmentSchema>;
 
@@ -148,16 +158,18 @@ function StockMovementDialog({
   locations: Location[];
   onClose: () => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const queryClient = useQueryClient();
   const toast = useToast();
   const [formError, setFormError] = useState<string | null>(null);
 
-  const receiptForm = useForm<ReceiptForm>({
+  const receiptForm = useForm<ReceiptFormInput, unknown, ReceiptForm>({
     resolver: zodResolver(receiptSchema),
     defaultValues: { quantity: 1, reference: '', note: '', locationId: row.location.id },
   });
 
-  const adjustForm = useForm<AdjustmentForm>({
+  const adjustForm = useForm<AdjustmentFormInput, unknown, AdjustmentForm>({
     resolver: zodResolver(adjustmentSchema),
     defaultValues: { quantityDelta: 0, reason: '', locationId: row.location.id },
   });
@@ -215,9 +227,12 @@ function StockMovementDialog({
     else void adjustForm.handleSubmit((values) => adjust.mutateAsync(values))();
   };
 
-  const delta = adjustForm.watch('quantityDelta');
-  // The delta is a coerced number, but an empty input yields NaN, and NaN
-  // renders as "NaN" in the projection line.
+  // What `watch` returns is the raw field value, not the schema's output: a
+  // number input hands back a STRING, and an empty box hands back ''. This used
+  // to read `Number.isFinite(delta)` against that string, which is always
+  // false - so the projection line silently sat at the current quantity however
+  // much was typed. Converting first is what makes it move.
+  const delta = Number(adjustForm.watch('quantityDelta'));
   const projected = row.onHandQty + (Number.isFinite(delta) ? delta : 0);
 
   return (
@@ -229,7 +244,7 @@ function StockMovementDialog({
       footer={
         <>
           <Button onClick={onClose} disabled={isPending}>
-            Cancel
+            {t('inventory.cancel')}
           </Button>
           <Button variant="primary" isLoading={isPending} onClick={submit}>
             {isReceipt ? 'Receive stock' : 'Apply adjustment'}
@@ -263,11 +278,13 @@ function StockMovementDialog({
         />
 
         {locations.length > 1 && (
-          <Field label="Location">
+          <Field label={t('inventory.location')}>
             {({ inputId }) => (
               <Select
                 id={inputId}
-                {...(isReceipt ? receiptForm.register('locationId') : adjustForm.register('locationId'))}
+                {...(isReceipt
+                  ? receiptForm.register('locationId')
+                  : adjustForm.register('locationId'))}
               >
                 {locations.map((location) => (
                   <option key={location.id} value={location.id}>
@@ -282,7 +299,7 @@ function StockMovementDialog({
         {isReceipt ? (
           <>
             <Field
-              label="Quantity received"
+              label={t('inventory.quantityReceived')}
               error={receiptForm.formState.errors.quantity?.message}
               required
             >
@@ -300,8 +317,8 @@ function StockMovementDialog({
             </Field>
 
             <Field
-              label="Reference"
-              hint="Purchase order, delivery note or invoice number."
+              label={t('inventory.reference')}
+              hint={t('inventory.purchaseOrderDeliveryNoteOr')}
               error={receiptForm.formState.errors.reference?.message}
             >
               {({ inputId, describedBy }) => (
@@ -314,17 +331,22 @@ function StockMovementDialog({
               )}
             </Field>
 
-            <Field label="Note" error={receiptForm.formState.errors.note?.message}>
+            <Field label={t('inventory.note')} error={receiptForm.formState.errors.note?.message}>
               {({ inputId, describedBy }) => (
-                <Textarea id={inputId} rows={2} aria-describedby={describedBy} {...receiptForm.register('note')} />
+                <Textarea
+                  id={inputId}
+                  rows={2}
+                  aria-describedby={describedBy}
+                  {...receiptForm.register('note')}
+                />
               )}
             </Field>
           </>
         ) : (
           <>
             <Field
-              label="Change"
-              hint="Negative to remove stock, positive to add it. Use a receipt for deliveries — the ledger keeps corrections and arrivals apart."
+              label={t('inventory.change')}
+              hint={t('inventory.negativeToRemoveStockPositive')}
               error={adjustForm.formState.errors.quantityDelta?.message}
               required
             >
@@ -343,15 +365,17 @@ function StockMovementDialog({
             {/* The consequence, read before the button rather than after it. */}
             <Callout tone={projected < 0 ? 'danger' : 'neutral'}>
               On hand would become{' '}
-              <span className={projected < 0 ? 'font-semibold text-danger' : 'font-semibold text-ink'}>
+              <span
+                className={projected < 0 ? 'font-semibold text-danger' : 'font-semibold text-ink'}
+              >
                 {formatNumber(projected)}
               </span>
               {projected < 0 && ' — the server will refuse a negative balance.'}
             </Callout>
 
             <Field
-              label="Reason"
-              hint="Recorded in the ledger against your name, permanently. Be specific."
+              label={t('inventory.reason')}
+              hint={t('inventory.recordedInTheLedgerAgainst')}
               error={adjustForm.formState.errors.reason?.message}
               required
             >
@@ -359,7 +383,7 @@ function StockMovementDialog({
                 <Textarea
                   id={inputId}
                   rows={2}
-                  placeholder="Damaged in transit"
+                  placeholder={t('inventory.damagedInTransit')}
                   aria-describedby={describedBy}
                   invalid={adjustForm.formState.errors.reason !== undefined}
                   {...adjustForm.register('reason')}
@@ -376,6 +400,8 @@ function StockMovementDialog({
 // ---------------------------------------------------------------------------
 
 export function InventoryPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const { can } = useSession();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -535,7 +561,7 @@ export function InventoryPage(): React.JSX.Element {
     },
     {
       key: 'actions',
-      header: <span className="sr-only">Actions</span>,
+      header: <span className="sr-only">{t('inventory.actions')}</span>,
       align: 'right',
       render: (row) => (
         <div className="flex justify-end gap-1">
@@ -547,7 +573,7 @@ export function InventoryPage(): React.JSX.Element {
                 setDialog({ mode: 'receive', row });
               }}
             >
-              Receive
+              {t('inventory.receive')}
               <span className="sr-only"> stock for {row.sku}</span>
             </Button>
           )}
@@ -559,7 +585,7 @@ export function InventoryPage(): React.JSX.Element {
                 setDialog({ mode: 'adjust', row });
               }}
             >
-              Adjust
+              {t('inventory.adjust')}
               <span className="sr-only"> stock for {row.sku}</span>
             </Button>
           )}
@@ -599,7 +625,11 @@ export function InventoryPage(): React.JSX.Element {
       header: 'Change',
       align: 'right',
       render: (row) => (
-        <span className={row.quantityDelta < 0 ? 'font-semibold text-danger' : 'font-semibold text-success'}>
+        <span
+          className={
+            row.quantityDelta < 0 ? 'font-semibold text-danger' : 'font-semibold text-success'
+          }
+        >
           {row.quantityDelta > 0 ? '+' : ''}
           {formatNumber(row.quantityDelta)}
         </span>
@@ -631,18 +661,18 @@ export function InventoryPage(): React.JSX.Element {
   return (
     <>
       <PageHeader
-        title="Inventory"
-        description="On hand is what exists. Available is what a customer can buy — on hand less whatever carts and unpaid orders have already reserved."
+        title={t('inventory.inventory')}
+        description={t('inventory.onHandIsWhatExists')}
       />
 
       <div className="space-y-5">
         <Card>
           <Toolbar>
-            <ToolbarField label="Search" grow>
+            <ToolbarField label={t('inventory.search')} grow>
               <Input
                 type="search"
                 value={searchText}
-                placeholder="Product name or SKU"
+                placeholder={t('inventory.productNameOrSku')}
                 onChange={(event) => {
                   setSearchText(event.target.value);
                 }}
@@ -650,7 +680,7 @@ export function InventoryPage(): React.JSX.Element {
             </ToolbarField>
 
             <ToolbarToggle
-              label="Needs reordering only"
+              label={t('inventory.needsReorderingOnly')}
               checked={lowStockOnly}
               onChange={(checked) => {
                 setSearchParams((current) => {
@@ -718,8 +748,8 @@ export function InventoryPage(): React.JSX.Element {
         </Card>
 
         <Card
-          title="Movement ledger"
-          description="Every change to stock, with who made it and why. Append-only — the twenty-five most recent."
+          title={t('inventory.movementLedger')}
+          description={t('inventory.everyChangeToStockWith')}
         >
           <DataTable
             caption="Stock movements"

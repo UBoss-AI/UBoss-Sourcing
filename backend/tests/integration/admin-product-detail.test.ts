@@ -12,6 +12,7 @@
  * caught by either side's type checker, which is why it is asserted here.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { signInAdmin } from '../support/admin-session.js';
 import { buildApp } from '../../src/http/app.js';
 import { Role } from '../../src/domain/permissions.js';
 import { hashPassword } from '../../src/infra/crypto.js';
@@ -53,8 +54,34 @@ beforeAll(async () => {
   });
 
   // --- a product with one image ---------------------------------------------
-  const taxClass = await prisma.taxClass.findFirstOrThrow({ where: { isActive: true } });
-  const category = await prisma.category.findFirstOrThrow({ where: { archivedAt: null } });
+  //
+  // Its own tax class and category, rather than whichever rows happen to be in
+  // the database. Files in this suite share one MariaDB and several of them
+  // truncate the catalogue in their own setup, so "find the first active tax
+  // class" quietly depends on which file ran last - and fails the day somebody
+  // adds a file that cleans up after itself.
+  const taxClass = await prisma.taxClass.upsert({
+    where: { code: 'DETAIL-TEST' },
+    update: { isActive: true },
+    create: {
+      id: newId(),
+      code: 'DETAIL-TEST',
+      name: 'Detail shape test',
+      ratePercent: '18.000000',
+      isActive: true,
+    },
+  });
+
+  const category = await prisma.category.upsert({
+    where: { slug: 'detail-shape-test' },
+    update: { isActive: true, archivedAt: null },
+    create: {
+      id: newId(),
+      name: 'Detail shape test',
+      slug: 'detail-shape-test',
+      isActive: true,
+    },
+  });
 
   productId = newId();
   mediaId = newId();
@@ -92,19 +119,12 @@ beforeAll(async () => {
     },
   });
 
-  const login = await app.inject({
-    method: 'POST',
-    url: '/api/v1/admin/auth/login',
-    // A distinct IP so a neighbouring test cannot spend this file's login budget.
-    headers: { 'x-forwarded-for': '203.0.113.91' },
-    payload: { email: EMAIL, password: PASSWORD },
-  });
-
-  expect(login.statusCode, login.body).toBe(200);
-
-  cookies = (login.cookies as { name: string; value: string }[])
-    .map((cookie) => `${cookie.name}=${cookie.value}`)
-    .join('; ');
+  // A distinct IP so a neighbouring test cannot spend this file's login budget.
+  ({ cookies } = await signInAdmin(app, {
+    email: EMAIL,
+    password: PASSWORD,
+    ip: '203.0.113.91',
+  }));
 });
 
 afterAll(async () => {

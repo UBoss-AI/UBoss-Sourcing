@@ -38,9 +38,29 @@ import { ApiError, NetworkError, api, newIdempotencyKey } from '@/lib/api';
 import { cx } from '@/lib/cx';
 import { formatMoney, formatNumber } from '@/lib/format';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
-import type { Address, Cart, CheckoutResult } from '@/lib/types';
+import type {
+  Address,
+  Cart,
+  CheckoutResult,
+  PaymentGateways,
+  PaymentMethodHint,
+  PaymentProviderKind,
+} from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 type PaymentMode = 'ONLINE' | 'PAYMENT_LINK';
+
+/**
+ * Whether a gateway may be offered for the money in the cart.
+ *
+ * A gateway that cannot settle the cart's currency is worse than absent: the
+ * customer picks it, reaches the sheet, and is declined for a reason nothing
+ * on this page explained. `currencies: null` means the gateway itself imposes
+ * no limit, which is Stripe.
+ */
+function gatewayHandles(currencies: string[] | null, currency: string): boolean {
+  return currencies === null || currencies.includes(currency);
+}
 
 /**
  * The shared look of every choosable card on this page — an address, a way to
@@ -61,10 +81,12 @@ function choiceCardClass(isSelected: boolean, size: 'md' | 'sm' = 'md'): string 
 
 /** The corner tick. Text as well as a glyph, so it survives a greyscale print. */
 function SelectedFlag(): React.JSX.Element {
+  const { t } = useI18n();
+
   return (
     <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-brand px-2 py-0.5 text-xxs font-semibold text-white">
       <CheckIcon className="h-3 w-3" />
-      Selected
+      {t('checkout.selected')}
     </span>
   );
 }
@@ -159,7 +181,10 @@ function Section({
   children: React.ReactNode;
 }): React.JSX.Element {
   return (
-    <section aria-labelledby={id} className="rounded-lg border border-border bg-surface p-5 shadow-card">
+    <section
+      aria-labelledby={id}
+      className="rounded-lg border border-border bg-surface p-5 shadow-card"
+    >
       <div className="flex items-center gap-2.5">
         <span
           aria-hidden="true"
@@ -177,6 +202,8 @@ function Section({
 }
 
 export function CheckoutPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { business } = useStorefront();
@@ -185,6 +212,12 @@ export function CheckoutPage(): React.JSX.Element {
   const [billingSameAsShipping, setBillingSameAsShipping] = useState(true);
   const [billingAddressId, setBillingAddressId] = useState<string | null>(null);
   const [paymentMode, setPaymentMode] = useState<PaymentMode>('ONLINE');
+  /**
+   * The gateway and instrument the customer picked, or null while the offer
+   * list is still loading and the default is not yet known.
+   */
+  const [gateway, setGateway] = useState<PaymentProviderKind | null>(null);
+  const [methodHint, setMethodHint] = useState<PaymentMethodHint>('ANY');
   const [customerNote, setCustomerNote] = useState('');
   const [isAddingAddress, setIsAddingAddress] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -211,9 +244,60 @@ export function CheckoutPage(): React.JSX.Element {
     queryFn: () => api.get<{ cart: Cart }>('/cart'),
   });
 
+  const gateways = useQuery({
+    queryKey: ['payment-gateways'],
+    queryFn: () => api.get<PaymentGateways>('/payments/gateways'),
+  });
+
   const usableAddresses = useMemo(
     () => (addresses.data?.addresses ?? []).filter((address) => address.archivedAt === null),
     [addresses.data],
+  );
+
+  const cartCurrency = cart.data?.cart.currency ?? null;
+
+  /**
+   * The gateways that can actually take this cart's money.
+   *
+   * Filtered here rather than on the server because the currency belongs to
+   * the cart, and the gateway list is cached across carts.
+   */
+  const offeredGateways = useMemo(() => {
+    if (cartCurrency === null) return [];
+
+    return (gateways.data?.gateways ?? []).filter((entry) =>
+      gatewayHandles(entry.currencies, cartCurrency),
+    );
+  }, [gateways.data, cartCurrency]);
+
+  /**
+   * Settle on a gateway once the offer is known, and re-settle if the cart's
+   * currency later rules the chosen one out.
+   *
+   * The server's default wins when it is on offer; otherwise the first that
+   * is. A single gateway is still "chosen" rather than special-cased, so what
+   * gets sent to the payment page does not depend on how many there happen to
+   * be.
+   */
+  useEffect(() => {
+    if (offeredGateways.length === 0) return;
+    if (gateway !== null && offeredGateways.some((entry) => entry.provider === gateway)) return;
+
+    const preferred =
+      offeredGateways.find((entry) => entry.provider === gateways.data?.defaultProvider) ??
+      offeredGateways[0];
+
+    setGateway(preferred?.provider ?? null);
+    setMethodHint('ANY');
+  }, [offeredGateways, gateway, gateways.data]);
+
+  /** Instruments the chosen gateway can be asked for, beyond its own default. */
+  const extraMethods = useMemo(
+    () =>
+      (offeredGateways.find((entry) => entry.provider === gateway)?.methods ?? []).filter(
+        (method) => method !== 'ANY',
+      ),
+    [offeredGateways, gateway],
   );
 
   // Preselect the customer's default so the common case is zero clicks.
@@ -232,10 +316,13 @@ export function CheckoutPage(): React.JSX.Element {
         '/cart/checkout',
         {
           shippingAddressId,
-          ...(billingSameAsShipping || billingAddressId === null
-            ? {}
-            : { billingAddressId }),
+          ...(billingSameAsShipping || billingAddressId === null ? {} : { billingAddressId }),
           paymentMode,
+          // Recorded on the order, so a reload of the payment page — or coming
+          // back to it later — offers the same gateway rather than the default.
+          ...(paymentMode === 'ONLINE' && gateway !== null
+            ? { preferredPaymentProvider: gateway, preferredPaymentMethod: methodHint }
+            : {}),
           customerNote: customerNote.trim() === '' ? null : customerNote.trim(),
         },
         { idempotencyKey },
@@ -248,7 +335,10 @@ export function CheckoutPage(): React.JSX.Element {
       await queryClient.invalidateQueries({ queryKey: ['orders'] });
 
       // Payment happens on its own page, which owns the provider handshake and
-      // the wait for a verified result. Nothing about payment is decided here.
+      // the wait for a verified result. Nothing about payment is decided here:
+      // the gateway pick went to the server with the order, so the payment
+      // page reads it back from there rather than being handed it — which is
+      // what makes a reload of that page keep the customer's choice.
       if (result.paymentMode === 'ONLINE' && !result.requiresApproval) {
         void navigate(`/checkout/payment/${result.orderId}`, {
           replace: true,
@@ -274,7 +364,9 @@ export function CheckoutPage(): React.JSX.Element {
       }
 
       setSubmitError(
-        error instanceof ApiError ? error.message : 'Your order could not be placed. Please try again.',
+        error instanceof ApiError
+          ? error.message
+          : 'Your order could not be placed. Please try again.',
       );
 
       // A rejection usually means the cart changed underneath — re-read it so
@@ -283,7 +375,8 @@ export function CheckoutPage(): React.JSX.Element {
     },
   });
 
-  if (cart.isPending || addresses.isPending) return <LoadingState label="Preparing your checkout" />;
+  if (cart.isPending || addresses.isPending)
+    return <LoadingState label={t('checkout.preparingYourCheckout')} />;
 
   if (cart.isError) {
     return (
@@ -301,41 +394,37 @@ export function CheckoutPage(): React.JSX.Element {
   if (currentCart.lines.length === 0) {
     return (
       <PageEmptyState
-        title="Your cart is empty"
-        description="There is nothing to check out."
+        title={t('checkout.yourCartIsEmpty')}
+        description={t('checkout.thereIsNothingToCheck')}
         action={
           <ButtonLink to="/products" variant="primary" size="lg">
-            Browse products
+            {t('checkout.browseProducts')}
           </ButtonLink>
         }
       />
     );
   }
 
-  const canSubmit =
-    currentCart.checkoutReady && shippingAddressId !== null && !submit.isPending;
+  const canSubmit = currentCart.checkoutReady && shippingAddressId !== null && !submit.isPending;
 
   return (
     <>
       <CheckoutSteps states={checkoutSteps(shippingAddressId !== null)} />
 
       <header className="mb-6">
-        <h1 className="text-title-xl text-ink">Checkout</h1>
+        <h1 className="text-title-xl text-ink">{t('checkout.checkout')}</h1>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted">
-          Confirm where this is going and how you would like to pay. Nothing is charged until the
-          next step.
+          {t('checkout.confirmWhereThisIsGoing')}
         </p>
       </header>
 
       <div className="grid gap-6 pb-4 lg:grid-cols-[1fr_22rem]">
         <div className="space-y-6">
           {/* --- Delivery address ------------------------------------------ */}
-          <Section id="address-heading" step={1} title="Delivery address">
+          <Section id="address-heading" step={1} title={t('checkout.deliveryAddress')}>
             {usableAddresses.length === 0 && !isAddingAddress && (
               <div className="mt-4">
-                <p className="text-sm text-ink-muted">
-                  You have no saved addresses yet. Add one to continue.
-                </p>
+                <p className="text-sm text-ink-muted">{t('checkout.youHaveNoSavedAddresses')}</p>
                 <Button
                   variant="primary"
                   className="mt-3"
@@ -343,14 +432,14 @@ export function CheckoutPage(): React.JSX.Element {
                     setIsAddingAddress(true);
                   }}
                 >
-                  Add an address
+                  {t('checkout.addAnAddress')}
                 </Button>
               </div>
             )}
 
             {usableAddresses.length > 0 && (
               <fieldset className="mt-4">
-                <legend className="sr-only">Choose a delivery address</legend>
+                <legend className="sr-only">{t('checkout.chooseADeliveryAddress')}</legend>
                 <div className="space-y-2.5">
                   {usableAddresses.map((address) => (
                     <AddressCard
@@ -368,7 +457,7 @@ export function CheckoutPage(): React.JSX.Element {
 
             {isAddingAddress ? (
               <div className="mt-4 border-t border-border-subtle pt-4">
-                <h3 className="mb-3 text-title-xs text-ink">New address</h3>
+                <h3 className="mb-3 text-title-xs text-ink">{t('checkout.newAddress')}</h3>
                 <AddressForm
                   onSaved={(addressId) => {
                     setShippingAddressId(addressId);
@@ -388,7 +477,7 @@ export function CheckoutPage(): React.JSX.Element {
                     setIsAddingAddress(true);
                   }}
                 >
-                  Add a different address
+                  {t('checkout.addADifferentAddress')}
                 </Button>
               )
             )}
@@ -405,12 +494,14 @@ export function CheckoutPage(): React.JSX.Element {
                       if (event.target.checked) setBillingAddressId(null);
                     }}
                   />
-                  Bill to the same address
+                  {t('checkout.billToTheSameAddress')}
                 </label>
 
                 {!billingSameAsShipping && (
                   <fieldset className="mt-3">
-                    <legend className="mb-2 text-title-xs text-ink">Billing address</legend>
+                    <legend className="mb-2 text-title-xs text-ink">
+                      {t('checkout.billingAddress')}
+                    </legend>
                     <div className="space-y-2">
                       {usableAddresses.map((address) => (
                         <label
@@ -442,9 +533,9 @@ export function CheckoutPage(): React.JSX.Element {
           </Section>
 
           {/* --- How to pay ------------------------------------------------- */}
-          <Section id="payment-heading" step={2} title="How would you like to pay?">
+          <Section id="payment-heading" step={2} title={t('checkout.howWouldYouLikeTo')}>
             <fieldset className="mt-4">
-              <legend className="sr-only">Payment method</legend>
+              <legend className="sr-only">{t('checkout.paymentMethod')}</legend>
 
               <div className="space-y-2.5">
                 <PaymentChoice
@@ -453,11 +544,106 @@ export function CheckoutPage(): React.JSX.Element {
                     setPaymentMode('ONLINE');
                   }}
                   icon={<CardIcon className="h-5 w-5" />}
-                  title="Pay now"
+                  title={t('checkout.payNow')}
                 >
-                  You will be taken to our payment provider to complete the payment securely.
-                  Card details never touch this site.
+                  {t('checkout.youWillBeTakenTo')}
                 </PaymentChoice>
+
+                {/*
+                  The gateway, and what it should open on.
+
+                  Nested under "Pay now" because that is the only mode it
+                  applies to — a payment link is sent, not opened, and the
+                  gateway behind it is the operator's business. Hidden entirely
+                  when there is nothing to choose between: one connected
+                  gateway with no named instrument is not a decision, and a
+                  radio group of one only asks the customer to confirm
+                  something they were never given a say in.
+                */}
+                {paymentMode === 'ONLINE' &&
+                  (offeredGateways.length > 1 || extraMethods.length > 0) && (
+                    <fieldset className="ml-4 border-l border-border pl-4 sm:ml-6 sm:pl-5">
+                      <legend className="text-xs font-medium text-ink-muted">
+                        {t('checkout.payWith')}
+                      </legend>
+
+                      <div className="mt-2.5 space-y-2">
+                        {offeredGateways.map((entry) => (
+                          <label
+                            key={entry.provider}
+                            className={choiceCardClass(gateway === entry.provider, 'sm')}
+                          >
+                            <input
+                              type="radio"
+                              name="paymentGateway"
+                              className="mt-0.5 h-4 w-4 shrink-0 border-border-strong text-brand"
+                              checked={gateway === entry.provider}
+                              onChange={() => {
+                                setGateway(entry.provider);
+                                // The instrument belonged to the gateway being
+                                // left behind. Carrying "UPI" onto Stripe would
+                                // promise something Stripe cannot settle.
+                                setMethodHint('ANY');
+                              }}
+                            />
+                            <span className="min-w-0 pr-16 text-sm">
+                              <span className="block text-title-xs text-ink">{entry.label}</span>
+                              <span className="mt-0.5 block text-xs leading-relaxed text-ink-muted">
+                                {entry.provider === 'RAZORPAY'
+                                  ? t('checkout.cardsUpiAndMore')
+                                  : t('checkout.cardsAndWallets')}
+                              </span>
+                            </span>
+                            {gateway === entry.provider && <SelectedFlag />}
+                          </label>
+                        ))}
+                      </div>
+
+                      {/*
+                        Instruments the chosen gateway can be opened on. Only
+                        UPI is named today, and only Razorpay offers it — so
+                        this appears exactly when Razorpay is the pick.
+                      */}
+                      {extraMethods.length > 0 && (
+                        <div className="mt-3">
+                          <span className="text-xs font-medium text-ink-muted">
+                            {t('checkout.openCheckoutOn')}
+                          </span>
+
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {(['ANY', ...extraMethods] as PaymentMethodHint[]).map((method) => (
+                              <label
+                                key={method}
+                                className={cx(
+                                  'flex cursor-pointer items-center gap-2 rounded-md border px-3 py-1.5 text-xs transition-colors',
+                                  methodHint === method
+                                    ? 'border-brand bg-brand-soft text-ink ring-1 ring-brand'
+                                    : 'border-border bg-surface text-ink-muted hover:border-brand/50',
+                                )}
+                              >
+                                <input
+                                  type="radio"
+                                  name="paymentMethodHint"
+                                  className="h-3.5 w-3.5 border-border-strong text-brand"
+                                  checked={methodHint === method}
+                                  onChange={() => {
+                                    setMethodHint(method);
+                                  }}
+                                />
+                                {method === 'ANY' ? t('checkout.allMethods') : t('checkout.upi')}
+                              </label>
+                            ))}
+                          </div>
+
+                          {methodHint === 'UPI' && (
+                            <p className="mt-2 text-xs leading-relaxed text-ink-muted">
+                              {t('checkout.upiOpensOnTheUpiTab')}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </fieldset>
+                  )}
 
                 <PaymentChoice
                   isSelected={paymentMode === 'PAYMENT_LINK'}
@@ -465,19 +651,21 @@ export function CheckoutPage(): React.JSX.Element {
                     setPaymentMode('PAYMENT_LINK');
                   }}
                   icon={<LinkIcon className="h-5 w-5" />}
-                  title="Send a payment link"
+                  title={t('checkout.sendAPaymentLink')}
                 >
-                  Place the order now and have a secure payment link emailed for approval. The
-                  order waits at Pending payment until it is paid.
+                  {t('checkout.placeTheOrderNowAnd')}
                 </PaymentChoice>
               </div>
             </fieldset>
           </Section>
 
           {/* --- Note ------------------------------------------------------- */}
-          <Section id="note-heading" step={3} title="Anything we should know?">
+          <Section id="note-heading" step={3} title={t('checkout.anythingWeShouldKnow')}>
             <div className="mt-4">
-              <Field label="Note for this order" hint="Optional. Delivery instructions, a PO number, a site contact.">
+              <Field
+                label={t('checkout.noteForThisOrder')}
+                hint={t('checkout.optionalDeliveryInstructionsAPo')}
+              >
                 {({ inputId, describedBy }) => (
                   <Textarea
                     id={inputId}
@@ -506,10 +694,10 @@ export function CheckoutPage(): React.JSX.Element {
           <div className="rounded-lg border border-border bg-surface p-5 shadow-card">
             <div className="flex items-baseline justify-between gap-3">
               <h2 id="review-heading" className="text-title-sm text-ink">
-                Your order
+                {t('checkout.yourOrder')}
               </h2>
               <Link to="/cart" className="text-xs font-medium text-brand hover:underline">
-                Edit
+                {t('checkout.edit')}
               </Link>
             </div>
 
@@ -529,20 +717,29 @@ export function CheckoutPage(): React.JSX.Element {
             </ul>
 
             <dl className="mt-4 space-y-2.5 border-t border-border-subtle pt-4 text-sm">
-              <TotalRow label="Subtotal" value={formatMoney(currentCart.totals.subtotal)} />
+              <TotalRow
+                label={t('checkout.subtotal')}
+                value={formatMoney(currentCart.totals.subtotal)}
+              />
               {currentCart.totals.discount.minor !== '0' && (
                 <TotalRow
-                  label="Discount"
+                  label={t('checkout.discount')}
                   tone="credit"
                   value={<>−{formatMoney(currentCart.totals.discount)}</>}
                 />
               )}
-              <TotalRow label="Tax" value={formatMoney(currentCart.totals.tax)} />
-              <TotalRow label="Delivery" value={formatMoney(currentCart.totals.shipping)} />
+              <TotalRow label={t('checkout.tax')} value={formatMoney(currentCart.totals.tax)} />
+              <TotalRow
+                label={t('checkout.delivery')}
+                value={formatMoney(currentCart.totals.shipping)}
+              />
               {/* Matches the cart's summary: the same figure gets the same
                   treatment in both places, or the total looks like it changed
                   on the way here. */}
-              <GrandTotalRow label="Total" value={formatMoney(currentCart.totals.grandTotal)} />
+              <GrandTotalRow
+                label={t('checkout.total')}
+                value={formatMoney(currentCart.totals.grandTotal)}
+              />
             </dl>
 
             {currentCart.requiresApproval && (
@@ -550,7 +747,7 @@ export function CheckoutPage(): React.JSX.Element {
                 role="status"
                 className="mt-4 rounded-md border border-warning/30 bg-warning-soft px-3 py-2.5 text-xs text-ink"
               >
-                <p className="font-medium text-warning">This order needs approval</p>
+                <p className="font-medium text-warning">{t('checkout.thisOrderNeedsApproval')}</p>
                 <p className="mt-0.5">
                   {currentCart.approvalReason ??
                     'It goes to your approver before it is confirmed. You will be told when it is.'}
@@ -563,7 +760,7 @@ export function CheckoutPage(): React.JSX.Element {
                 role="alert"
                 className="mt-4 rounded-md border border-danger/30 bg-danger-soft px-3 py-2.5 text-xs"
               >
-                <p className="font-medium text-danger">Fix these before placing the order</p>
+                <p className="font-medium text-danger">{t('checkout.fixTheseBeforePlacingThe')}</p>
                 <ul className="mt-1 list-inside list-disc space-y-1 text-ink">
                   {currentCart.blockingIssues.map((issue) => (
                     <li key={`${issue.code}:${issue.message}`}>{issue.message}</li>
@@ -573,7 +770,7 @@ export function CheckoutPage(): React.JSX.Element {
                   to="/cart"
                   className="mt-2 inline-block font-semibold text-ink underline underline-offset-2"
                 >
-                  Back to the cart
+                  {t('checkout.backToTheCart')}
                 </Link>
               </div>
             )}
@@ -604,7 +801,7 @@ export function CheckoutPage(): React.JSX.Element {
 
             {shippingAddressId === null && (
               <p className="mt-2 text-center text-xs text-ink-muted">
-                Choose a delivery address to continue.
+                {t('checkout.chooseADeliveryAddressTo')}
               </p>
             )}
 
@@ -620,8 +817,8 @@ export function CheckoutPage(): React.JSX.Element {
               <ShieldIcon className="mt-px h-4 w-4 shrink-0 text-ink-muted" />
               <p>
                 Placing this order does not charge you yet. Payment is taken on the next step, on
-                our payment provider&rsquo;s own secure page, and is only confirmed once they
-                verify it.
+                our payment provider&rsquo;s own secure page, and is only confirmed once they verify
+                it.
               </p>
             </div>
           </div>

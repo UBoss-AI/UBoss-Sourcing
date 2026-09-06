@@ -507,8 +507,11 @@ export async function generateExport(exportJobId: string): Promise<{ rowCount: n
   const fileName = `${job.type.toLowerCase()}-${new Date().toISOString().slice(0, 10)}.csv`;
 
   // Stored through the same driver as product media, so an S3 deployment gets
-  // durable exports without touching this code.
-  const stored = await storage.put(buffer, 'text/csv', 'csv');
+  // durable exports without touching this code - but under the private prefix,
+  // which the static media route is not mounted over. This file holds customer
+  // names, addresses and order values; the expiring token below is meant to be
+  // the way in, not a second way in.
+  const stored = await storage.put(buffer, 'text/csv', 'csv', 'private');
 
   const { token, tokenHash } = generateToken(32);
 

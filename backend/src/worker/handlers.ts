@@ -26,6 +26,15 @@ import { expirePaymentLinks } from '../modules/payments/payment-link.service.js'
 import { runSync } from '../modules/integrations/connector.service.js';
 import { generateExport, markExportFailed } from '../modules/reports/export.service.js';
 import {
+  fulfilRequest,
+  purgeExpiredBundles,
+} from '../modules/privacy/data-request.service.js';
+import { runRetentionSweeps } from '../modules/privacy/retention.service.js';
+import {
+  getFxRateSettings,
+  refreshConvertedPrices,
+} from '../modules/settings/fx-rate.service.js';
+import {
   claimDueSchedules,
   runOccurrence,
   sendUpcomingReminders,
@@ -247,6 +256,42 @@ const generateExportJob: JobHandler = async (payload) => {
 };
 
 /**
+ * Answer a data subject request.
+ *
+ * Both branches - build the Art. 15 bundle, or carry out an approved Art. 17
+ * erasure - are too heavy for a request handler and must survive the browser
+ * going away. `fulfilRequest` records its own failure on the request row
+ * before rethrowing, so a retry that never succeeds still leaves a member of
+ * staff something to look at rather than a request stuck at IN_PROGRESS.
+ */
+const fulfilDataRequest: JobHandler = async (payload) => {
+  const dataRequestId = requireString(payload, 'dataRequestId');
+  await fulfilRequest(dataRequestId);
+  logger.info({ dataRequestId }, 'data subject request answered');
+};
+
+/**
+ * Delete personal data that has outlived its retention window.
+ *
+ * Batched: a deployment switching retention on for the first time has years of
+ * backlog, and one statement deleting a million rows would lock the tables for
+ * everyone. `moreToDo` says a sweep hit its ceiling, and the next maintenance
+ * beat picks up where this one stopped.
+ */
+const retentionSweep: JobHandler = async () => {
+  const result = await runRetentionSweeps();
+
+  const purgedBundles = await purgeExpiredBundles();
+  if (purgedBundles > 0) {
+    logger.info({ purgedBundles }, 'purged expired personal-data bundles');
+  }
+
+  if (result.moreToDo) {
+    logger.info({ removed: result.removed }, 'retention backlog remains; continuing next beat');
+  }
+};
+
+/**
  * Run a scheduled connector sync.
  *
  * Always a real import, never a dry run: a scheduled sync exists to apply
@@ -273,6 +318,33 @@ const integrationSync: JobHandler = async (payload) => {
 };
 
 /**
+ * Keep rate-maintained prices current.
+ *
+ * Enqueued daily. The whole run is a no-op unless staff turned it on, which is
+ * checked here rather than at enqueue time so switching it off takes effect on
+ * the next run instead of waiting for a job already in the queue to drain.
+ *
+ * A failure inside is reported on the settings screen and not rethrown: a rate
+ * feed being unreachable is a normal condition, and retrying it five times
+ * within the hour would not make it reachable. Tomorrow's run is the retry.
+ */
+const fxRateRefresh: JobHandler = async () => {
+  const settings = await getFxRateSettings();
+
+  if (!settings.isEnabled) {
+    logger.debug('exchange rate refresh is switched off; nothing to do');
+    return;
+  }
+
+  const result = await refreshConvertedPrices('schedule', null);
+
+  logger.info(
+    { status: result.status, updated: result.updated, message: result.message },
+    'scheduled exchange rate refresh finished',
+  );
+};
+
+/**
  * The handler registry.
  *
  * A job type with no handler is marked dead rather than retried: retrying a
@@ -287,6 +359,9 @@ export const HANDLERS: Readonly<Record<string, JobHandler>> = Object.freeze({
   [JobType.PAYMENT_LINK_EXPIRE]: expireLinks,
   [JobType.EXPORT_GENERATE]: generateExportJob,
   [JobType.INTEGRATION_SYNC]: integrationSync,
+  [JobType.FX_RATE_REFRESH]: fxRateRefresh,
+  [JobType.DATA_REQUEST_FULFIL]: fulfilDataRequest,
+  [JobType.RETENTION_SWEEP]: retentionSweep,
 });
 
 export function handlerFor(jobType: string): JobHandler | undefined {

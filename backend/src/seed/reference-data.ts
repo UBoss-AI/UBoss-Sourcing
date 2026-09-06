@@ -14,6 +14,7 @@
 import { currencyExponent } from '../domain/money.js';
 import { prisma } from '../infra/prisma.js';
 import { backfillBaseCurrencyPrices } from '../modules/catalog/price.service.js';
+import { EU_COUNTRY_SEEDS, seedVatReference } from './vat-reference.js';
 
 interface CurrencySeed {
   code: string;
@@ -30,6 +31,20 @@ const CURRENCIES: readonly CurrencySeed[] = [
   { code: 'GBP', name: 'Pound Sterling', symbol: '£', sortOrder: 40 },
   { code: 'AED', name: 'UAE Dirham', symbol: 'AED', sortOrder: 50 },
   { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$', sortOrder: 60 },
+  // The seven EU member states outside the euro, seeded together.
+  //
+  // Selling into the EU means selling into all twenty-seven, and a Swedish
+  // hospital quoted in euro because SEK was missing from this list is not a
+  // rounding problem - it is a price the buyer cannot reconcile against their
+  // own budget. Each of these must also appear in domain/money.ts
+  // CURRENCY_EXPONENT, which refuses to boot if the two disagree.
+  { code: 'PLN', name: 'Polish Złoty', symbol: 'zł', sortOrder: 65 },
+  { code: 'BGN', name: 'Bulgarian Lev', symbol: 'лв', sortOrder: 66 },
+  { code: 'CZK', name: 'Czech Koruna', symbol: 'Kč', sortOrder: 67 },
+  { code: 'DKK', name: 'Danish Krone', symbol: 'kr', sortOrder: 68 },
+  { code: 'HUF', name: 'Hungarian Forint', symbol: 'Ft', sortOrder: 69 },
+  { code: 'RON', name: 'Romanian Leu', symbol: 'lei', sortOrder: 70 },
+  { code: 'SEK', name: 'Swedish Krona', symbol: 'kr', sortOrder: 71 },
   { code: 'JPY', name: 'Japanese Yen', symbol: '¥', sortOrder: 70 },
   { code: 'KRW', name: 'South Korean Won', symbol: '₩', sortOrder: 80 },
 ];
@@ -46,24 +61,19 @@ interface CountrySeed {
  * The markets this deployment quotes in. Sort order puts the home market first;
  * everything else is alphabetical by name.
  */
-const COUNTRIES: readonly CountrySeed[] = [
+/** Markets outside the EU VAT area. The twenty-seven come from the VAT seed. */
+const NON_EU_COUNTRIES: readonly CountrySeed[] = [
   { code: 'IN', name: 'India', currencyCode: 'INR', phonePrefix: '+91', sortOrder: 1 },
 
   { code: 'AE', name: 'United Arab Emirates', currencyCode: 'AED', phonePrefix: '+971' },
-  { code: 'AT', name: 'Austria', currencyCode: 'EUR', phonePrefix: '+43' },
   { code: 'AU', name: 'Australia', currencyCode: 'USD', phonePrefix: '+61' },
-  { code: 'BE', name: 'Belgium', currencyCode: 'EUR', phonePrefix: '+32' },
   { code: 'CA', name: 'Canada', currencyCode: 'USD', phonePrefix: '+1' },
-  { code: 'DE', name: 'Germany', currencyCode: 'EUR', phonePrefix: '+49' },
-  { code: 'ES', name: 'Spain', currencyCode: 'EUR', phonePrefix: '+34' },
-  { code: 'FR', name: 'France', currencyCode: 'EUR', phonePrefix: '+33' },
+  { code: 'CH', name: 'Switzerland', currencyCode: 'EUR', phonePrefix: '+41' },
   { code: 'GB', name: 'United Kingdom', currencyCode: 'GBP', phonePrefix: '+44' },
-  { code: 'IE', name: 'Ireland', currencyCode: 'EUR', phonePrefix: '+353' },
-  { code: 'IT', name: 'Italy', currencyCode: 'EUR', phonePrefix: '+39' },
   { code: 'JP', name: 'Japan', currencyCode: 'JPY', phonePrefix: '+81' },
   { code: 'KR', name: 'South Korea', currencyCode: 'KRW', phonePrefix: '+82' },
   { code: 'MY', name: 'Malaysia', currencyCode: 'SGD', phonePrefix: '+60' },
-  { code: 'NL', name: 'Netherlands', currencyCode: 'EUR', phonePrefix: '+31' },
+  { code: 'NO', name: 'Norway', currencyCode: 'EUR', phonePrefix: '+47' },
   { code: 'NZ', name: 'New Zealand', currencyCode: 'USD', phonePrefix: '+64' },
   { code: 'OM', name: 'Oman', currencyCode: 'AED', phonePrefix: '+968' },
   { code: 'QA', name: 'Qatar', currencyCode: 'AED', phonePrefix: '+974' },
@@ -72,10 +82,26 @@ const COUNTRIES: readonly CountrySeed[] = [
   { code: 'US', name: 'United States', currencyCode: 'USD', phonePrefix: '+1' },
 ];
 
+/**
+ * Every market, sorted with the home market first and the rest by name.
+ *
+ * The EU-27 are taken from `vat-reference.ts` rather than listed again here.
+ * Two lists of member states is one list too many: the day they disagree, a
+ * country is sellable with no VAT rate behind it, and pricing refuses the sale
+ * for a reason nobody can find.
+ */
+const COUNTRIES: readonly CountrySeed[] = [
+  ...NON_EU_COUNTRIES,
+  // The member states carry no sortOrder of their own - they are alphabetical
+  // among the rest, behind the home market.
+  ...EU_COUNTRY_SEEDS.map((state): CountrySeed => ({ ...state })),
+].sort((a, b) => (a.sortOrder ?? 100) - (b.sortOrder ?? 100) || a.name.localeCompare(b.name));
+
 export async function seedReferenceData(): Promise<{
   currencies: number;
   countries: number;
   backfilledPrices: number;
+  vatRates: number;
 }> {
   for (const currency of CURRENCIES) {
     // Throws if money.ts does not know this code, which is the point: a
@@ -125,6 +151,15 @@ export async function seedReferenceData(): Promise<{
     });
   }
 
+  // Flags the twenty-seven and seeds their standard and reduced rates. Runs
+  // after the countries exist, because it only sets `isEuVat` on rows the
+  // loop above has already created.
+  //
+  // The rates it writes are a starting point and NOT a live feed - see the
+  // warning at the top of vat-reference.ts. A deployment must verify them
+  // before it invoices anything.
+  const vat = await seedVatReference();
+
   const base = CURRENCIES.find((currency) => currency.isBase === true)?.code ?? 'INR';
   const backfilledPrices = await backfillBaseCurrencyPrices(base);
 
@@ -132,5 +167,6 @@ export async function seedReferenceData(): Promise<{
     currencies: CURRENCIES.length,
     countries: COUNTRIES.length,
     backfilledPrices,
+    vatRates: vat.ratesCreated,
   };
 }

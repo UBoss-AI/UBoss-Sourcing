@@ -38,9 +38,16 @@ import { ProductCard, ProductCardSkeleton } from '@/components/ProductCard';
 import { Modal } from '@/components/Modal';
 import { Button, ErrorState, Field, Input, Select } from '@/components/ui';
 import { api } from '@/lib/api';
-import { currencySymbol, formatNumber, majorToMinor, minorToMajor } from '@/lib/format';
+import {
+  currencySymbol,
+  formatMoney,
+  formatNumber,
+  majorToMinor,
+  minorToMajor,
+} from '@/lib/format';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
-import type { CategoryNode, ProductListResponse } from '@/lib/types';
+import type { CatalogFilterFacets, CategoryNode, ProductListResponse } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 const SORT_OPTIONS = [
   { value: 'newest', label: 'Newest first' },
@@ -60,6 +67,157 @@ interface AppliedFilter {
 }
 
 /**
+ * How many values a facet shows before it offers to unfold.
+ *
+ * A sidebar is 16rem wide and there may be four facets in it. A brand list
+ * forty long, opened by default, pushes every other filter off the screen.
+ */
+const FACET_VALUES_SHOWN = 6;
+
+/** How recently added, as a filter. */
+const ADDED_WITHIN_OPTIONS = [7, 30, 90] as const;
+
+/** One ticked facet value, in the form the API and the URL both carry. */
+function attrToken(name: string, value: string): string {
+  return `${name}:${value}`;
+}
+
+/**
+ * The ticked facet values, grouped by attribute name.
+ *
+ * Only the first colon separates: a value may contain one of its own ("Ratio:
+ * 1:2"), and splitting on every colon would quietly corrupt it. A token
+ * without a name is skipped rather than shown as a nameless chip — it can only
+ * come from an edited URL, and the backend ignores it too.
+ */
+function parseAttrTokens(tokens: string[]): Map<string, string[]> {
+  const byName = new Map<string, string[]>();
+
+  for (const token of tokens) {
+    const separator = token.indexOf(':');
+    if (separator <= 0) continue;
+
+    const name = token.slice(0, separator);
+    const value = token.slice(separator + 1);
+    if (value === '') continue;
+
+    byName.set(name, [...(byName.get(name) ?? []), value]);
+  }
+
+  return byName;
+}
+
+/**
+ * A tick box whose whole row is the target.
+ *
+ * On a phone the label is what a thumb actually hits, and an explanation of
+ * what the filter means has to travel with it rather than sit beside it as a
+ * caption that scrolls away on its own.
+ */
+function ToggleRow({
+  checked,
+  onChange,
+  label,
+  hint,
+  count,
+}: {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  label: string;
+  hint?: string;
+  count?: number;
+}): React.JSX.Element {
+  return (
+    <label className="flex cursor-pointer items-start gap-2.5 rounded-md p-2 -mx-2 text-sm text-ink transition-colors hover:bg-surface-hover">
+      <input
+        type="checkbox"
+        className="mt-0.5 h-4 w-4 shrink-0 rounded border-border-strong text-brand"
+        checked={checked}
+        onChange={(event) => {
+          onChange(event.target.checked);
+        }}
+      />
+      <span className="min-w-0 flex-1">
+        <span className="flex items-baseline justify-between gap-2">
+          <span className="font-medium">{label}</span>
+          {/* How many products carry this value, under the other filters
+              already applied. A zero is shown rather than hidden: a value that
+              vanishes the moment the panel is used reads as a fault. */}
+          {count !== undefined && (
+            <span className="shrink-0 text-xs tabular text-ink-subtle">{formatNumber(count)}</span>
+          )}
+        </span>
+        {hint !== undefined && (
+          <span className="mt-0.5 block text-xs leading-relaxed text-ink-muted">{hint}</span>
+        )}
+      </span>
+    </label>
+  );
+}
+
+/**
+ * One attribute facet — a heading and its values.
+ *
+ * Which facets exist is the administrator's choice, taken per product by
+ * marking an attribute filterable, so nothing about Brand or Finish is written
+ * into this page. It renders whatever the catalogue says it has.
+ */
+function FacetGroup({
+  name,
+  values,
+  selected,
+  onToggle,
+}: {
+  name: string;
+  values: { value: string; count: number }[];
+  selected: string[];
+  onToggle: (value: string, checked: boolean) => void;
+}): React.JSX.Element {
+  const { t } = useI18n();
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // A ticked value always shows, however far down the list it sits. Otherwise
+  // a filter that is doing something is invisible until the group is unfolded.
+  const visible = isExpanded
+    ? values
+    : values.filter((entry, index) => index < FACET_VALUES_SHOWN || selected.includes(entry.value));
+
+  const hidden = values.length - visible.length;
+
+  return (
+    <div className="pt-4">
+      <p className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">{name}</p>
+
+      <div className="mt-2.5">
+        {visible.map((entry) => (
+          <ToggleRow
+            key={entry.value}
+            checked={selected.includes(entry.value)}
+            onChange={(checked) => {
+              onToggle(entry.value, checked);
+            }}
+            label={entry.value}
+            count={entry.count}
+          />
+        ))}
+      </div>
+
+      {(hidden > 0 || isExpanded) && (
+        <button
+          type="button"
+          onClick={() => {
+            setIsExpanded(!isExpanded);
+          }}
+          className="mt-1 text-xs font-medium text-brand hover:underline"
+        >
+          {isExpanded ? t('catalog.showFewer') : t('catalog.showAll', { count: values.length })}
+        </button>
+      )}
+    </div>
+  );
+}
+
+/**
  * The filter controls themselves, with no chrome of their own.
  *
  * Rendered inside the desktop sidebar card and inside the mobile dialog, which
@@ -68,17 +226,23 @@ interface AppliedFilter {
  *
  * Price is a real `<form>`: typing a value and pressing Enter applies it. A
  * price box that only reacts to a blur or a separate button is a trap on a
- * phone keyboard, where "done" is the natural action.
+ * phone keyboard, where "done" is the natural action. Everything else applies
+ * on the spot — two boxes needing confirmation and eight controls not needing
+ * it is a panel a shopper stops trusting.
  */
 function FilterFields({
   searchParams,
   setParam,
   currency,
+  facets,
 }: {
   searchParams: URLSearchParams;
-  setParam: (updates: Record<string, string | null>) => void;
+  setParam: (updates: Record<string, string | string[] | null>) => void;
   currency: string;
+  facets: CatalogFilterFacets | undefined;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const minMinor = searchParams.get('minPrice');
   const maxMinor = searchParams.get('maxPrice');
 
@@ -95,6 +259,12 @@ function FilterFields({
   }, [minMinor, maxMinor]);
 
   const recurringOnly = searchParams.get('recurringOnly') === 'true';
+  const inStockOnly = searchParams.get('inStock') === 'true';
+  const onSaleOnly = searchParams.get('onSale') === 'true';
+  const addedWithin = searchParams.get('added') ?? '';
+
+  const attrTokens = searchParams.getAll('attr');
+  const selectedAttrs = parseAttrTokens(attrTokens);
 
   const applyPrice = (): void => {
     setPriceError(null);
@@ -116,6 +286,16 @@ function FilterFields({
     setParam({ minPrice: min, maxPrice: max });
   };
 
+  const toggleAttr = (name: string, value: string, checked: boolean): void => {
+    const token = attrToken(name, value);
+
+    setParam({
+      attr: checked ? [...attrTokens, token] : attrTokens.filter((existing) => existing !== token),
+    });
+  };
+
+  const range = facets?.priceRange;
+
   return (
     <div className="divide-y divide-border-subtle">
       <form
@@ -133,12 +313,12 @@ function FilterFields({
           </legend>
 
           <div className="mt-2.5 flex items-start gap-2">
-            <Field label="Lowest">
+            <Field label={t('catalog.lowest')}>
               {({ inputId }) => (
                 <Input
                   id={inputId}
                   inputMode="decimal"
-                  placeholder="Any"
+                  placeholder={t('catalog.any')}
                   className="tabular"
                   value={minText}
                   onChange={(event) => {
@@ -147,12 +327,12 @@ function FilterFields({
                 />
               )}
             </Field>
-            <Field label="Highest">
+            <Field label={t('catalog.highest')}>
               {({ inputId }) => (
                 <Input
                   id={inputId}
                   inputMode="decimal"
-                  placeholder="Any"
+                  placeholder={t('catalog.any')}
                   className="tabular"
                   value={maxText}
                   onChange={(event) => {
@@ -163,6 +343,18 @@ function FilterFields({
             </Field>
           </div>
 
+          {/* What this catalogue actually holds, so the boxes are not a guess.
+              It ignores the price filter itself — a range that narrowed to
+              whatever was last typed would tell the shopper nothing. */}
+          {range?.min != null && range.max != null && (
+            <p className="mt-2 text-xs text-ink-muted">
+              {t('catalog.priceRangeHint', {
+                min: formatMoney(range.min),
+                max: formatMoney(range.max),
+              })}
+            </p>
+          )}
+
           {priceError !== null && (
             <p role="alert" className="mt-2 text-xs font-medium text-danger">
               {priceError}
@@ -170,36 +362,86 @@ function FilterFields({
           )}
 
           <Button type="submit" size="sm" className="mt-3" fullWidth>
-            Apply price
+            {t('catalog.applyPrice')}
           </Button>
         </fieldset>
       </form>
 
+      {/* One plainly worded group, not three headings in shop language.
+          "Availability", "Offers" and "Purchasing" are what a merchandiser
+          calls these; "Show only" is what everybody else calls them, and each
+          row says in ordinary words what ticking it does.
+
+          A whole tappable row rather than a bare checkbox with a caption
+          beside it: on a phone the label is the target, and the sentence
+          explaining the filter has to travel with it. */}
       <div className="pt-4">
         <p className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-          Purchasing
+          {t('catalog.showOnly')}
         </p>
 
-        {/* A whole tappable row rather than a bare checkbox and a caption
-            beside it: on a phone the label is the target, and the explanation
-            of what "repeat purchase" means has to travel with it. */}
-        <label className="mt-2.5 flex cursor-pointer items-start gap-2.5 rounded-md p-2 -mx-2 text-sm text-ink transition-colors hover:bg-surface-hover">
-          <input
-            type="checkbox"
-            className="mt-0.5 h-4 w-4 shrink-0 rounded border-border-strong text-brand"
-            checked={recurringOnly}
-            onChange={(event) => {
-              setParam({ recurringOnly: event.target.checked ? 'true' : null });
+        <div className="mt-2.5">
+          <ToggleRow
+            checked={inStockOnly}
+            onChange={(checked) => {
+              setParam({ inStock: checked ? 'true' : null });
             }}
+            label={t('catalog.inStock')}
+            hint={t('catalog.inStockHint')}
           />
-          <span>
-            <span className="font-medium">Repeat purchase only</span>
-            <span className="mt-0.5 block text-xs leading-relaxed text-ink-muted">
-              Products that can be put on a schedule.
-            </span>
-          </span>
-        </label>
+          <ToggleRow
+            checked={onSaleOnly}
+            onChange={(checked) => {
+              setParam({ onSale: checked ? 'true' : null });
+            }}
+            label={t('catalog.onOffer')}
+            hint={t('catalog.onOfferHint')}
+          />
+          <ToggleRow
+            checked={recurringOnly}
+            onChange={(checked) => {
+              setParam({ recurringOnly: checked ? 'true' : null });
+            }}
+            label={t('catalog.repeatPurchaseOnly')}
+            hint={t('catalog.productsThatCanBePut')}
+          />
+        </div>
       </div>
+
+      <div className="pt-4">
+        <Field label={t('catalog.whenItWasAdded')}>
+          {({ inputId }) => (
+            <Select
+              id={inputId}
+              value={addedWithin}
+              onChange={(event) => {
+                setParam({ added: event.target.value === '' ? null : event.target.value });
+              }}
+            >
+              <option value="">{t('catalog.anyTime')}</option>
+              {ADDED_WITHIN_OPTIONS.map((days) => (
+                <option key={days} value={String(days)}>
+                  {t('catalog.lastDays', { days })}
+                </option>
+              ))}
+            </Select>
+          )}
+        </Field>
+      </div>
+
+      {/* Whatever this catalogue says it can be filtered by. Nothing is
+          rendered while that is unknown, rather than a row of empty groups. */}
+      {facets?.attributes.map((facet) => (
+        <FacetGroup
+          key={facet.name}
+          name={facet.name}
+          values={facet.values}
+          selected={selectedAttrs.get(facet.name) ?? []}
+          onToggle={(value, checked) => {
+            toggleAttr(facet.name, value, checked);
+          }}
+        />
+      ))}
     </div>
   );
 }
@@ -218,11 +460,13 @@ function AppliedFilters({
   applied: AppliedFilter[];
   clearAll: () => void;
 }): React.JSX.Element | null {
+  const { t } = useI18n();
+
   if (applied.length === 0) return null;
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="text-xs font-medium text-ink-muted">Filtered by</span>
+      <span className="text-xs font-medium text-ink-muted">{t('catalog.filteredBy')}</span>
 
       <ul className="flex flex-wrap items-center gap-1.5">
         {applied.map((filter) => (
@@ -255,13 +499,15 @@ function AppliedFilters({
       </ul>
 
       <Button size="sm" variant="ghost" onClick={clearAll}>
-        Clear all
+        {t('catalog.clearAll')}
       </Button>
     </div>
   );
 }
 
 export function CatalogPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const { slug } = useParams<{ slug: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const { business } = useStorefront();
@@ -275,16 +521,29 @@ export function CatalogPage(): React.JSX.Element {
   const minPrice = searchParams.get('minPrice');
   const maxPrice = searchParams.get('maxPrice');
   const recurringOnly = searchParams.get('recurringOnly') === 'true';
+  const inStockOnly = searchParams.get('inStock') === 'true';
+  const onSaleOnly = searchParams.get('onSale') === 'true';
+  const addedWithin = searchParams.get('added');
+  const attrTokens = searchParams.getAll('attr');
 
   // The category comes from the path on /category/:slug and is absent
   // elsewhere. One source, so the two cannot disagree.
   const category = slug ?? null;
 
-  const setParam = (updates: Record<string, string | null>): void => {
+  const setParam = (updates: Record<string, string | string[] | null>): void => {
     setSearchParams((current) => {
       const next = new URLSearchParams(current);
 
       for (const [key, value] of Object.entries(updates)) {
+        // An array replaces every occurrence of the key: a facet with three
+        // values ticked is three `attr=` parameters, and an empty array is the
+        // facet being cleared.
+        if (Array.isArray(value)) {
+          next.delete(key);
+          for (const entry of value) next.append(key, entry);
+          continue;
+        }
+
         if (value === null || value === '') next.delete(key);
         else next.set(key, value);
       }
@@ -316,14 +575,30 @@ export function CatalogPage(): React.JSX.Element {
   });
 
   const { currency } = useLocale();
+  const { language } = useI18n();
 
   const products = useQuery({
     // `currency` is part of the key: the same filters in another market are a
     // different result set, because a product priced only in INR is simply not
-    // in the USD grid.
+    // in the USD grid. `language` is part of it for a smaller reason - the
+    // names come back translated, so a cached English grid would be wrong.
     queryKey: [
       'products',
-      { page, sort, q, category, minPrice, maxPrice, recurringOnly, currency },
+      {
+        page,
+        sort,
+        q,
+        category,
+        minPrice,
+        maxPrice,
+        recurringOnly,
+        inStockOnly,
+        onSaleOnly,
+        addedWithin,
+        attrTokens,
+        currency,
+        language,
+      },
     ],
     queryFn: () =>
       api.get<ProductListResponse>('/catalog/products', {
@@ -332,11 +607,16 @@ export function CatalogPage(): React.JSX.Element {
           limit: PAGE_SIZE,
           sort,
           currency,
+          language,
           q: q === '' ? undefined : q,
           category: category ?? undefined,
           minPrice: minPrice ?? undefined,
           maxPrice: maxPrice ?? undefined,
           recurringOnly: recurringOnly ? 'true' : undefined,
+          inStockOnly: inStockOnly ? 'true' : undefined,
+          onSaleOnly: onSaleOnly ? 'true' : undefined,
+          addedWithinDays: addedWithin ?? undefined,
+          attr: attrTokens,
         },
       }),
     // Keeps the previous page on screen while the next one loads, so paging
@@ -344,10 +624,61 @@ export function CatalogPage(): React.JSX.Element {
     placeholderData: keepPreviousData,
   });
 
+  /*
+   * What this catalogue can be filtered by.
+   *
+   * A separate request from the grid, because the answer is different: the
+   * grid is one page of products, this is every filter that would do something
+   * to the whole result. Which attributes are offered is the administrator's
+   * decision — an attribute becomes a facet when they mark it filterable — so
+   * the panel asks rather than hard-coding names that would be wrong for the
+   * next business to install this.
+   *
+   * The ticked facet values are deliberately absent from both the key and the
+   * request: the counts are taken with the attribute filters left off, so
+   * ticking a brand must not make the list of brands reload and shuffle under
+   * the cursor.
+   */
+  const facets = useQuery({
+    queryKey: [
+      'catalog-filters',
+      {
+        q,
+        category,
+        minPrice,
+        maxPrice,
+        recurringOnly,
+        inStockOnly,
+        onSaleOnly,
+        addedWithin,
+        currency,
+      },
+    ],
+    queryFn: () =>
+      api.get<CatalogFilterFacets>('/catalog/filters', {
+        query: {
+          currency,
+          q: q === '' ? undefined : q,
+          category: category ?? undefined,
+          minPrice: minPrice ?? undefined,
+          maxPrice: maxPrice ?? undefined,
+          recurringOnly: recurringOnly ? 'true' : undefined,
+          inStockOnly: inStockOnly ? 'true' : undefined,
+          onSaleOnly: onSaleOnly ? 'true' : undefined,
+          addedWithinDays: addedWithin ?? undefined,
+        },
+      }),
+    // The panel keeps the filters it already has while the next counts load.
+    // A sidebar that empties itself on every tick is unusable.
+    placeholderData: keepPreviousData,
+  });
+
   const categoryName = categoryDetail.data?.category.name ?? null;
 
   const heading =
-    q !== '' ? `Results for “${q}”` : (categoryName ?? (category === null ? 'All products' : 'Category'));
+    q !== ''
+      ? `Results for “${q}”`
+      : (categoryName ?? (category === null ? 'All products' : 'Category'));
 
   // What kind of listing this is, above the title. A search result and a
   // department are not the same thing arrived at the same way, and the
@@ -403,12 +734,58 @@ export function CatalogPage(): React.JSX.Element {
     });
   }
 
+  if (inStockOnly) {
+    applied.push({
+      key: 'inStock',
+      label: t('catalog.inStock'),
+      remove: () => {
+        setParam({ inStock: null });
+      },
+    });
+  }
+
+  if (onSaleOnly) {
+    applied.push({
+      key: 'onSale',
+      label: t('catalog.onOffer'),
+      remove: () => {
+        setParam({ onSale: null });
+      },
+    });
+  }
+
+  if (addedWithin !== null) {
+    applied.push({
+      key: 'added',
+      label: t('catalog.addedInTheLastDays', { days: addedWithin }),
+      remove: () => {
+        setParam({ added: null });
+      },
+    });
+  }
+
   if (recurringOnly) {
     applied.push({
       key: 'recurringOnly',
-      label: 'Repeat purchase only',
+      label: t('catalog.repeatPurchaseOnly'),
       remove: () => {
         setParam({ recurringOnly: null });
+      },
+    });
+  }
+
+  // One chip per ticked facet value, not one per attribute: "Brand: Acme" and
+  // "Brand: Bosch" are two separate things to have changed your mind about,
+  // and a single chip that removed both would take away more than it says.
+  for (const token of attrTokens) {
+    const separator = token.indexOf(':');
+    if (separator <= 0) continue;
+
+    applied.push({
+      key: `attr:${token}`,
+      label: `${token.slice(0, separator)}: ${token.slice(separator + 1)}`,
+      remove: () => {
+        setParam({ attr: attrTokens.filter((existing) => existing !== token) });
       },
     });
   }
@@ -439,7 +816,7 @@ export function CatalogPage(): React.JSX.Element {
 
   const sortControl = (
     <label className="flex items-center gap-2 text-sm text-ink-muted">
-      <span className="whitespace-nowrap">Sort by</span>
+      <span className="whitespace-nowrap">{t('catalog.sortBy')}</span>
       <Select
         value={sort}
         onChange={(event) => {
@@ -458,17 +835,17 @@ export function CatalogPage(): React.JSX.Element {
 
   return (
     <>
-      <nav aria-label="Breadcrumb" className="mb-4 text-sm">
+      <nav aria-label={t('catalog.breadcrumb')} className="mb-4 text-sm">
         <ol className="flex flex-wrap items-center gap-1.5 text-ink-muted">
           <li>
             <Link to="/" className="hover:text-brand hover:underline">
-              Home
+              {t('catalog.home')}
             </Link>
           </li>
           <li aria-hidden="true">/</li>
           <li>
             <Link to="/products" className="hover:text-brand hover:underline">
-              Products
+              {t('catalog.products')}
             </Link>
           </li>
           {categoryName !== null && (
@@ -553,8 +930,8 @@ export function CatalogPage(): React.JSX.Element {
           onClose={() => {
             setIsFilterDrawerOpen(false);
           }}
-          title="Filters"
-          description="Changes apply straight away."
+          title={t('catalog.filters')}
+          description={t('catalog.changesApplyStraightAway')}
           footer={
             <>
               {applied.length > 0 && (
@@ -564,7 +941,7 @@ export function CatalogPage(): React.JSX.Element {
                     clearAll();
                   }}
                 >
-                  Clear all
+                  {t('catalog.clearAll')}
                 </Button>
               )}
               <Button
@@ -580,7 +957,12 @@ export function CatalogPage(): React.JSX.Element {
             </>
           }
         >
-          <FilterFields searchParams={searchParams} setParam={setParam} currency={currency} />
+          <FilterFields
+            searchParams={searchParams}
+            setParam={setParam}
+            currency={currency}
+            facets={facets.data}
+          />
         </Modal>
       )}
 
@@ -599,17 +981,22 @@ export function CatalogPage(): React.JSX.Element {
           <div className="rounded-lg border border-border bg-surface shadow-card">
             <div className="flex items-center justify-between gap-2 border-b border-border-subtle px-4 py-3">
               <h2 id="filters-heading" className="text-title-xs text-ink">
-                Filters
+                {t('catalog.filters')}
               </h2>
               {applied.length > 0 && (
                 <Button size="sm" variant="ghost" onClick={clearAll}>
-                  Clear all
+                  {t('catalog.clearAll')}
                 </Button>
               )}
             </div>
 
             <div className="px-4 py-4">
-              <FilterFields searchParams={searchParams} setParam={setParam} currency={currency} />
+              <FilterFields
+                searchParams={searchParams}
+                setParam={setParam}
+                currency={currency}
+                facets={facets.data}
+              />
             </div>
           </div>
         </aside>
@@ -651,14 +1038,14 @@ export function CatalogPage(): React.JSX.Element {
                     reads as broken. */}
                 {applied.length > 0 && (
                   <Button variant="primary" onClick={clearAll}>
-                    Clear filters
+                    {t('catalog.clearFilters')}
                   </Button>
                 )}
                 <Link
                   to="/products"
                   className="inline-flex h-10 items-center rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-ink shadow-card hover:bg-surface-hover"
                 >
-                  Browse everything
+                  {t('catalog.browseEverything')}
                 </Link>
               </div>
             </div>
@@ -676,7 +1063,7 @@ export function CatalogPage(): React.JSX.Element {
 
               {totalPages > 1 && (
                 <nav
-                  aria-label="Pagination"
+                  aria-label={t('catalog.pagination')}
                   className="mt-8 flex items-center justify-between gap-3 border-t border-border pt-5"
                 >
                   <Button
@@ -689,7 +1076,7 @@ export function CatalogPage(): React.JSX.Element {
                       });
                     }}
                   >
-                    Previous
+                    {t('catalog.previous')}
                   </Button>
 
                   <p className="text-sm text-ink-muted" aria-live="polite">
@@ -706,7 +1093,7 @@ export function CatalogPage(): React.JSX.Element {
                       });
                     }}
                   >
-                    Next
+                    {t('catalog.next')}
                   </Button>
                 </nav>
               )}

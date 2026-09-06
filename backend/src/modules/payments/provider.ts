@@ -17,6 +17,20 @@
 export type ProviderKind = 'RAZORPAY' | 'STRIPE';
 export type ProviderMode = 'TEST' | 'LIVE';
 
+/**
+ * A narrowing of which instruments the provider's sheet should offer.
+ *
+ * `ANY` is the provider's own default set. `UPI` is a request, not a promise:
+ * an adapter whose gateway has no such instrument ignores it rather than
+ * failing, because a customer preference must never be able to break a
+ * checkout. Only Razorpay honours `UPI` today.
+ *
+ * It is deliberately *not* a payment-method record. Nothing here is settled
+ * money — what the customer actually paid with is read back from the provider
+ * in `PaymentStatusResult.method`, which is a fact rather than a preference.
+ */
+export type PaymentMethodHint = 'ANY' | 'UPI';
+
 /** Normalised payment states. Provider vocabularies map onto these. */
 export type NormalisedPaymentStatus =
   | 'CREATED'
@@ -43,6 +57,14 @@ export interface CreatePaymentInput {
   customerEmail: string | null;
   customerName: string | null;
   customerPhone: string | null;
+  /**
+   * Which instruments to offer, where the gateway can be told.
+   *
+   * Part of the payload the browser opens, so it has to be part of the input
+   * `buildCheckoutPayload` replays — a retry that dropped it would reopen the
+   * same payment with a different sheet.
+   */
+  methodHint?: PaymentMethodHint;
   /** Idempotency key passed through where the provider supports one. */
   idempotencyKey: string;
 }
@@ -121,16 +143,18 @@ export interface PaymentProvider {
    * Rebuild the browser payload for a payment that already exists.
    *
    * Needed to replay an idempotent retry. Without it, answering "you already
-   * started this payment" would mean either asking the provider to create a
-   * second order, or storing the payload — and the payload contains only
-   * public values that can be derived, so neither is warranted.
+   * started this payment" would mean asking the provider to create a second
+   * order for one checkout attempt.
    *
-   * Must be pure: no network call, no new provider-side state.
+   * The rule is that it must create NO new provider-side state. Razorpay's
+   * payload is derivable and needs no call at all; Stripe's carries a client
+   * secret only Stripe knows, so that adapter re-reads the intent. A read is
+   * within the rule - a second create never is.
    */
   buildCheckoutPayload(
     providerOrderId: string,
     input: Omit<CreatePaymentInput, 'idempotencyKey'>,
-  ): Record<string, string | number>;
+  ): Promise<Record<string, string | number>>;
 
   /**
    * Re-query a payment.

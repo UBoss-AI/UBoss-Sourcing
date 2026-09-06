@@ -39,6 +39,7 @@ export type CountryMinAggregateOutputType = {
   name: string | null
   currencyCode: string | null
   phonePrefix: string | null
+  isEuVat: boolean | null
   isActive: boolean | null
   sortOrder: number | null
   createdAt: Date | null
@@ -50,6 +51,7 @@ export type CountryMaxAggregateOutputType = {
   name: string | null
   currencyCode: string | null
   phonePrefix: string | null
+  isEuVat: boolean | null
   isActive: boolean | null
   sortOrder: number | null
   createdAt: Date | null
@@ -61,6 +63,7 @@ export type CountryCountAggregateOutputType = {
   name: number
   currencyCode: number
   phonePrefix: number
+  isEuVat: number
   isActive: number
   sortOrder: number
   createdAt: number
@@ -82,6 +85,7 @@ export type CountryMinAggregateInputType = {
   name?: true
   currencyCode?: true
   phonePrefix?: true
+  isEuVat?: true
   isActive?: true
   sortOrder?: true
   createdAt?: true
@@ -93,6 +97,7 @@ export type CountryMaxAggregateInputType = {
   name?: true
   currencyCode?: true
   phonePrefix?: true
+  isEuVat?: true
   isActive?: true
   sortOrder?: true
   createdAt?: true
@@ -104,6 +109,7 @@ export type CountryCountAggregateInputType = {
   name?: true
   currencyCode?: true
   phonePrefix?: true
+  isEuVat?: true
   isActive?: true
   sortOrder?: true
   createdAt?: true
@@ -202,6 +208,7 @@ export type CountryGroupByOutputType = {
   name: string
   currencyCode: string
   phonePrefix: string | null
+  isEuVat: boolean
   isActive: boolean
   sortOrder: number
   createdAt: Date
@@ -236,6 +243,7 @@ export type CountryWhereInput = {
   name?: Prisma.StringFilter<"Country"> | string
   currencyCode?: Prisma.StringFilter<"Country"> | string
   phonePrefix?: Prisma.StringNullableFilter<"Country"> | string | null
+  isEuVat?: Prisma.BoolFilter<"Country"> | boolean
   isActive?: Prisma.BoolFilter<"Country"> | boolean
   sortOrder?: Prisma.IntFilter<"Country"> | number
   createdAt?: Prisma.DateTimeFilter<"Country"> | Date | string
@@ -248,6 +256,7 @@ export type CountryOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
   phonePrefix?: Prisma.SortOrderInput | Prisma.SortOrder
+  isEuVat?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -264,6 +273,7 @@ export type CountryWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"Country"> | string
   currencyCode?: Prisma.StringFilter<"Country"> | string
   phonePrefix?: Prisma.StringNullableFilter<"Country"> | string | null
+  isEuVat?: Prisma.BoolFilter<"Country"> | boolean
   isActive?: Prisma.BoolFilter<"Country"> | boolean
   sortOrder?: Prisma.IntFilter<"Country"> | number
   createdAt?: Prisma.DateTimeFilter<"Country"> | Date | string
@@ -276,6 +286,7 @@ export type CountryOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
   phonePrefix?: Prisma.SortOrderInput | Prisma.SortOrder
+  isEuVat?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -295,6 +306,7 @@ export type CountryScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Country"> | string
   currencyCode?: Prisma.StringWithAggregatesFilter<"Country"> | string
   phonePrefix?: Prisma.StringNullableWithAggregatesFilter<"Country"> | string | null
+  isEuVat?: Prisma.BoolWithAggregatesFilter<"Country"> | boolean
   isActive?: Prisma.BoolWithAggregatesFilter<"Country"> | boolean
   sortOrder?: Prisma.IntWithAggregatesFilter<"Country"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Country"> | Date | string
@@ -305,6 +317,7 @@ export type CountryCreateInput = {
   code: string
   name: string
   phonePrefix?: string | null
+  isEuVat?: boolean
   isActive?: boolean
   sortOrder?: number
   createdAt?: Date | string
@@ -317,6 +330,7 @@ export type CountryUncheckedCreateInput = {
   name: string
   currencyCode: string
   phonePrefix?: string | null
+  isEuVat?: boolean
   isActive?: boolean
   sortOrder?: number
   createdAt?: Date | string
@@ -327,6 +341,7 @@ export type CountryUpdateInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phonePrefix?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isEuVat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -339,6 +354,7 @@ export type CountryUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
   phonePrefix?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isEuVat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -350,6 +366,7 @@ export type CountryCreateManyInput = {
   name: string
   currencyCode: string
   phonePrefix?: string | null
+  isEuVat?: boolean
   isActive?: boolean
   sortOrder?: number
   createdAt?: Date | string
@@ -360,6 +377,7 @@ export type CountryUpdateManyMutationInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phonePrefix?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isEuVat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -371,6 +389,7 @@ export type CountryUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
   phonePrefix?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isEuVat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -398,6 +417,7 @@ export type CountryCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
   phonePrefix?: Prisma.SortOrder
+  isEuVat?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -413,6 +433,7 @@ export type CountryMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
   phonePrefix?: Prisma.SortOrder
+  isEuVat?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -424,6 +445,7 @@ export type CountryMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
   phonePrefix?: Prisma.SortOrder
+  isEuVat?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -480,6 +502,7 @@ export type CountryCreateWithoutCurrencyInput = {
   code: string
   name: string
   phonePrefix?: string | null
+  isEuVat?: boolean
   isActive?: boolean
   sortOrder?: number
   createdAt?: Date | string
@@ -490,6 +513,7 @@ export type CountryUncheckedCreateWithoutCurrencyInput = {
   code: string
   name: string
   phonePrefix?: string | null
+  isEuVat?: boolean
   isActive?: boolean
   sortOrder?: number
   createdAt?: Date | string
@@ -530,6 +554,7 @@ export type CountryScalarWhereInput = {
   name?: Prisma.StringFilter<"Country"> | string
   currencyCode?: Prisma.StringFilter<"Country"> | string
   phonePrefix?: Prisma.StringNullableFilter<"Country"> | string | null
+  isEuVat?: Prisma.BoolFilter<"Country"> | boolean
   isActive?: Prisma.BoolFilter<"Country"> | boolean
   sortOrder?: Prisma.IntFilter<"Country"> | number
   createdAt?: Prisma.DateTimeFilter<"Country"> | Date | string
@@ -540,6 +565,7 @@ export type CountryCreateManyCurrencyInput = {
   code: string
   name: string
   phonePrefix?: string | null
+  isEuVat?: boolean
   isActive?: boolean
   sortOrder?: number
   createdAt?: Date | string
@@ -550,6 +576,7 @@ export type CountryUpdateWithoutCurrencyInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phonePrefix?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isEuVat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -560,6 +587,7 @@ export type CountryUncheckedUpdateWithoutCurrencyInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phonePrefix?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isEuVat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -570,6 +598,7 @@ export type CountryUncheckedUpdateManyWithoutCurrencyInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phonePrefix?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isEuVat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -583,6 +612,7 @@ export type CountrySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   name?: boolean
   currencyCode?: boolean
   phonePrefix?: boolean
+  isEuVat?: boolean
   isActive?: boolean
   sortOrder?: boolean
   createdAt?: boolean
@@ -597,13 +627,14 @@ export type CountrySelectScalar = {
   name?: boolean
   currencyCode?: boolean
   phonePrefix?: boolean
+  isEuVat?: boolean
   isActive?: boolean
   sortOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type CountryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"code" | "name" | "currencyCode" | "phonePrefix" | "isActive" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["country"]>
+export type CountryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"code" | "name" | "currencyCode" | "phonePrefix" | "isEuVat" | "isActive" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["country"]>
 export type CountryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   currency?: boolean | Prisma.CurrencyDefaultArgs<ExtArgs>
 }
@@ -628,6 +659,15 @@ export type $CountryPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
      * E.164 dialling prefix, e.g. "+91". Display only.
      */
     phonePrefix: string | null
+    /**
+     * Whether this country is inside the EU VAT area. Not the same as EU
+     * membership, which is why it is a stored flag rather than a hard-coded
+     * list: the Canary Islands and Ceuta are Spain but outside it, Livigno is
+     * Italy but outside it, Monaco is not the EU but is treated as France for
+     * VAT, and Northern Ireland is a third case again. A deployment that gets
+     * one of these wrong should be able to fix it in a row, not a release.
+     */
+    isEuVat: boolean
     isActive: boolean
     sortOrder: number
     createdAt: Date
@@ -1006,6 +1046,7 @@ export interface CountryFieldRefs {
   readonly name: Prisma.FieldRef<"Country", 'String'>
   readonly currencyCode: Prisma.FieldRef<"Country", 'String'>
   readonly phonePrefix: Prisma.FieldRef<"Country", 'String'>
+  readonly isEuVat: Prisma.FieldRef<"Country", 'Boolean'>
   readonly isActive: Prisma.FieldRef<"Country", 'Boolean'>
   readonly sortOrder: Prisma.FieldRef<"Country", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Country", 'DateTime'>

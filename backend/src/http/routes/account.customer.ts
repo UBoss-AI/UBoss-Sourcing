@@ -19,6 +19,11 @@ import {
 } from '../../modules/customers/customer.service.js';
 import { getSpendSummary } from '../../modules/customers/limits.service.js';
 import {
+  createDataRequest,
+  downloadBundle,
+  listRequestsForSubject,
+} from '../../modules/privacy/data-request.service.js';
+import {
   getCustomerLocale,
   resolveCurrencyFor,
   setCustomerLocale,
@@ -68,6 +73,22 @@ const profileUpdateSchema = z.object({
   department: z.string().max(128).nullable().optional(),
   phone: z.string().max(32).nullable().optional(),
   gstin: z.string().max(32).nullable().optional(),
+  // Their own EU VAT registration. Safe to let a customer edit: an unverified
+  // or wrong number costs them the reverse charge, it does not cost the seller
+  // the tax - see resolveTaxTreatment.
+  vatNumber: z.string().max(32).nullable().optional(),
+});
+
+/**
+ * A data subject request.
+ *
+ * The note is the subject's own words. It is stored and shown to staff, and it
+ * is never read as an instruction - a request asking for something the law
+ * does not grant is still only a request.
+ */
+const dataRequestSchema = z.object({
+  type: z.enum(['EXPORT', 'ERASURE']),
+  note: z.string().max(1024).nullable().optional(),
 });
 
 export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<void> {
@@ -111,6 +132,12 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
         department: profile.department,
         phone: profile.phone,
         gstin: profile.gstin,
+        vatNumber: profile.vatNumber,
+        // Null means "not checked", which is not the same as invalid and is
+        // shown differently: one is a problem with the number, the other is a
+        // step nobody has taken yet.
+        vatNumberValid: profile.vatNumberValid,
+        vatNumberCheckedAt: profile.vatNumberCheckedAt?.toISOString() ?? null,
         // `internalNotes` and `customerCode` are omitted: internal notes are
         // written by staff about the customer and are not theirs to read.
         consentAcceptedAt: profile.consentAcceptedAt?.toISOString() ?? null,
@@ -225,8 +252,90 @@ export function registerCustomerAccountRoutes(app: FastifyInstance): Promise<voi
     return reply.status(200).send({ locale });
   });
 
+  // --- Data subject rights ------------------------------------------------
+  //
+  // Both routes derive the subject from the session, like everything else in
+  // this file. That is also the identity check Art. 12(6) asks for: the person
+  // asking is signed in as the person being asked about, which is a stronger
+  // proof than the copy of a passport a paper process would collect.
+
+  /**
+   * What has been asked for, and where each one stands.
+   *
+   * Carries the live download token for a finished export, so a page reload
+   * does not lose the link. Once the window closes the field is null rather
+   * than a token the download route would refuse.
+   */
+  app.get('/data-requests', { preHandler: requireCustomer }, async (request, reply) => {
+    const auth = currentUser(request);
+    const requests = await listRequestsForSubject(auth.id);
+    return reply.status(200).send({ requests });
+  });
+
+  /**
+   * Exercise a right.
+   *
+   * Rate-limited hard. Building a bundle reads most of the database for one
+   * account, and the service refuses a second open request of the same type
+   * anyway - this is the cheaper of the two refusals.
+   */
+  app.post(
+    '/data-requests',
+    {
+      preHandler: requireCustomer,
+      config: { rateLimit: { max: 5, timeWindow: '1 hour' } },
+    },
+    async (request, reply) => {
+      const auth = currentUser(request);
+      const body = dataRequestSchema.parse(request.body);
+
+      const created = await createDataRequest({
+        userId: auth.id,
+        email: auth.email,
+        type: body.type,
+        note: body.note ?? null,
+        ipAddress: request.ip,
+        userAgent: request.headers['user-agent'] ?? null,
+        correlationId: request.correlationId,
+      });
+
+      return reply.status(202).send(created);
+    },
+  );
+
   app.get('/config', (_request, reply) =>
     reply.status(200).send({ selfRegistrationEnabled: selfRegistrationEnabled() }),
+  );
+
+  return Promise.resolve();
+}
+
+/**
+ * The download itself.
+ *
+ * Outside the account tree and outside the session, exactly like the admin
+ * export download next door: the hashed, expiring token IS the authorisation,
+ * so the link in the email works from a mail client that carries no cookie.
+ */
+export function registerDataBundleDownloadRoute(app: FastifyInstance): Promise<void> {
+  app.get(
+    '/download/:token',
+    { config: { rateLimit: { max: 20, timeWindow: '15 minutes' } } },
+    async (request, reply) => {
+      const { token } = z.object({ token: z.string().min(16).max(512) }).parse(request.params);
+      const file = await downloadBundle(token);
+
+      return reply
+        .header('Content-Type', 'application/json; charset=utf-8')
+        // `attachment`, never inline: this is somebody's whole record, and a
+        // JSON document rendered in the API's own origin is a gift to anyone
+        // who can get a link into a browser.
+        .header('Content-Disposition', `attachment; filename="${file.fileName}"`)
+        .header('X-Content-Type-Options', 'nosniff')
+        .header('Cache-Control', 'no-store')
+        .status(200)
+        .send(file.content);
+    },
   );
 
   return Promise.resolve();

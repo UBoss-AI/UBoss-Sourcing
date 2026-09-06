@@ -26,10 +26,12 @@ import {
 } from '../notifications/notification.service.js';
 import { transitionOrder } from '../orders/order.service.js';
 import { RazorpayAdapter } from './razorpay.adapter.js';
+import { StripeAdapter } from './stripe.adapter.js';
 import {
   PaymentProviderError,
   modeForCredential,
   type CreatePaymentResult,
+  type PaymentMethodHint,
   type PaymentProvider,
   type ProviderCredentials,
   type ProviderKind,
@@ -54,12 +56,25 @@ export interface LoadedProvider {
  * database) and falls back to environment credentials for local development.
  * With neither, it throws PAYMENT_PROVIDER_NOT_CONFIGURED - there is no
  * simulated-success branch, and none should be added.
+ *
+ * `preferred` is the customer's choice at checkout, and is exactly that: a
+ * preference. A gateway the operator has not connected cannot be conjured up
+ * by asking for it, so an unavailable preference falls back to whatever is
+ * configured rather than failing the checkout. The caller is told which
+ * gateway it actually got, in `kind`.
  */
-export async function loadActiveProvider(): Promise<LoadedProvider> {
-  const connection = await prisma.paymentProviderConnection.findFirst({
-    where: { isActive: true },
-    orderBy: { updatedAt: 'desc' },
-  });
+export async function loadActiveProvider(preferred?: ProviderKind): Promise<LoadedProvider> {
+  const connection =
+    (preferred === undefined
+      ? null
+      : await prisma.paymentProviderConnection.findFirst({
+          where: { isActive: true, provider: preferred },
+          orderBy: { updatedAt: 'desc' },
+        })) ??
+    (await prisma.paymentProviderConnection.findFirst({
+      where: { isActive: true },
+      orderBy: { updatedAt: 'desc' },
+    }));
 
   if (connection !== null) {
     const decrypted = decryptSecret(connection.credentialsEnc, credentialAad(connection.id));
@@ -79,16 +94,14 @@ export async function loadActiveProvider(): Promise<LoadedProvider> {
 
   // Development fallback. The env guard in config/env.ts already refuses a
   // live key outside production, so this path cannot silently go live.
-  if (env.RAZORPAY_KEY_ID.length > 0 && env.RAZORPAY_KEY_SECRET.length > 0) {
-    const bootstrapped = await ensureBootstrapConnection();
+  const fromEnv = envCredentials(preferred);
+
+  if (fromEnv !== null) {
+    const bootstrapped = await ensureBootstrapConnection(fromEnv.kind, fromEnv.credentials);
     return {
-      provider: buildProvider('RAZORPAY', {
-        keyId: env.RAZORPAY_KEY_ID,
-        keySecret: env.RAZORPAY_KEY_SECRET,
-        webhookSecret: env.RAZORPAY_WEBHOOK_SECRET,
-      }),
+      provider: buildProvider(fromEnv.kind, fromEnv.credentials),
       connectionId: bootstrapped,
-      kind: 'RAZORPAY',
+      kind: fromEnv.kind,
     };
   }
 
@@ -103,12 +116,7 @@ function buildProvider(kind: ProviderKind, credentials: ProviderCredentials): Pa
     case 'RAZORPAY':
       return new RazorpayAdapter(credentials);
     case 'STRIPE':
-      // Declared rather than silently unsupported: a deployment that believes
-      // it has Stripe must fail loudly, not fall back to another provider.
-      throw badRequest(
-        ErrorCode.PAYMENT_PROVIDER_NOT_CONFIGURED,
-        'The Stripe adapter is not implemented yet.',
-      );
+      return new StripeAdapter(credentials);
     default: {
       const exhaustive: never = kind;
       throw badRequest(
@@ -119,6 +127,151 @@ function buildProvider(kind: ProviderKind, credentials: ProviderCredentials): Pa
   }
 }
 
+/** Display name for a gateway, for labels an administrator will read. */
+const PROVIDER_LABEL: Readonly<Record<ProviderKind, string>> = Object.freeze({
+  RAZORPAY: 'Razorpay',
+  STRIPE: 'Stripe',
+});
+
+/**
+ * Gateway credentials from the environment, if a complete pair exists.
+ *
+ * `preferred` is the customer's pick and outranks the configured default when
+ * that gateway is actually usable. With no pick, or a pick whose keys are
+ * missing, PAYMENT_DEFAULT_PROVIDER decides; and the non-default is still used
+ * when the default one is absent - a half-configured default should not leave
+ * a working gateway sitting unused and the checkout dead.
+ *
+ * Stripe's keyId is the PUBLISHABLE key, which is what the browser needs and
+ * what `modeForCredential` reads; the secret key stays in `keySecret`.
+ */
+function envCredentials(
+  preferred?: ProviderKind,
+): { kind: ProviderKind; credentials: ProviderCredentials } | null {
+  const razorpay =
+    env.RAZORPAY_KEY_ID.length > 0 && env.RAZORPAY_KEY_SECRET.length > 0
+      ? {
+          kind: 'RAZORPAY' as const,
+          credentials: {
+            keyId: env.RAZORPAY_KEY_ID,
+            keySecret: env.RAZORPAY_KEY_SECRET,
+            webhookSecret: env.RAZORPAY_WEBHOOK_SECRET,
+          },
+        }
+      : null;
+
+  const stripe =
+    env.STRIPE_PUBLISHABLE_KEY.length > 0 && env.STRIPE_SECRET_KEY.length > 0
+      ? {
+          kind: 'STRIPE' as const,
+          credentials: {
+            keyId: env.STRIPE_PUBLISHABLE_KEY,
+            keySecret: env.STRIPE_SECRET_KEY,
+            webhookSecret: env.STRIPE_WEBHOOK_SECRET,
+          },
+        }
+      : null;
+
+  if (preferred === 'RAZORPAY' && razorpay !== null) return razorpay;
+  if (preferred === 'STRIPE' && stripe !== null) return stripe;
+
+  return env.PAYMENT_DEFAULT_PROVIDER === 'stripe' ? (stripe ?? razorpay) : (razorpay ?? stripe);
+}
+
+/** A gateway the storefront may offer, and what it can be asked to show. */
+export interface AvailableGateway {
+  provider: ProviderKind;
+  label: string;
+  /**
+   * Instruments worth naming separately in the UI.
+   *
+   * Only what this codebase can actually *request* of the gateway, which is
+   * why the list is short: a Razorpay account also does netbanking and
+   * wallets, but nothing here asks for those, so offering them as a choice
+   * would be a checkbox that changes nothing.
+   */
+  methods: PaymentMethodHint[];
+  /**
+   * ISO-4217 codes this gateway may be offered for, or null for no
+   * restriction.
+   *
+   * Razorpay settles to an Indian account and is not an EEA acquirer - the
+   * same point processors.service.ts makes to the operator. Offering it for a
+   * EUR cart would put a gateway in front of the customer that declines the
+   * payment after they have chosen it, which is a worse outcome than never
+   * showing it.
+   */
+  currencies: string[] | null;
+}
+
+/**
+ * Which gateways the storefront may put in front of a customer, and the
+ * default.
+ *
+ * Derived from what is actually connected - an admin-configured connection or
+ * environment keys - so a gateway nobody has credentials for never appears as
+ * a choice. Returns no secrets: a provider name and a label, nothing more.
+ */
+export async function availableGateways(): Promise<{
+  gateways: AvailableGateway[];
+  defaultProvider: ProviderKind | null;
+}> {
+  const connections = await prisma.paymentProviderConnection.findMany({
+    where: { isActive: true },
+    select: { provider: true },
+    distinct: ['provider'],
+  });
+
+  const active = new Set<ProviderKind>(connections.map((row) => row.provider));
+
+  /**
+   * What the environment could serve, if it came to that.
+   *
+   * Deliberately not merged with the active connections above. This has to
+   * mirror `loadActiveProvider` exactly, and that function reaches for the
+   * environment only when there is no active connection at all - so a
+   * deployment with one active connection cannot serve a *second* gateway from
+   * env keys, however complete those keys are.
+   *
+   * Getting this wrong is not a cosmetic bug. Env keys used to be merged in,
+   * and the result was a checkout that offered a gateway an administrator had
+   * deliberately deactivated: the customer chose it, and the payment silently
+   * fell back to the one gateway that was actually connected. The offer must
+   * never promise what resolution cannot deliver.
+   */
+  const fromEnvironment = new Set<ProviderKind>();
+  if (env.RAZORPAY_KEY_ID.length > 0 && env.RAZORPAY_KEY_SECRET.length > 0) {
+    fromEnvironment.add('RAZORPAY');
+  }
+  if (env.STRIPE_PUBLISHABLE_KEY.length > 0 && env.STRIPE_SECRET_KEY.length > 0) {
+    fromEnvironment.add('STRIPE');
+  }
+
+  const connected = active.size > 0 ? active : fromEnvironment;
+
+  const catalogue: AvailableGateway[] = [
+    { provider: 'STRIPE', label: PROVIDER_LABEL.STRIPE, methods: ['ANY'], currencies: null },
+    {
+      provider: 'RAZORPAY',
+      label: PROVIDER_LABEL.RAZORPAY,
+      methods: ['ANY', 'UPI'],
+      currencies: ['INR'],
+    },
+  ];
+
+  const gateways = catalogue.filter((entry) => connected.has(entry.provider));
+
+  const configuredDefault: ProviderKind =
+    env.PAYMENT_DEFAULT_PROVIDER === 'stripe' ? 'STRIPE' : 'RAZORPAY';
+
+  const defaultProvider =
+    gateways.find((entry) => entry.provider === configuredDefault)?.provider ??
+    gateways[0]?.provider ??
+    null;
+
+  return { gateways, defaultProvider };
+}
+
 /**
  * Persist a connection row for the environment credentials.
  *
@@ -126,11 +279,14 @@ function buildProvider(kind: ProviderKind, credentials: ProviderCredentials): Pa
  * exist. The credentials are encrypted here exactly as an admin-entered one
  * would be.
  */
-async function ensureBootstrapConnection(): Promise<string> {
-  const mode = modeForCredential(env.RAZORPAY_KEY_ID);
+async function ensureBootstrapConnection(
+  kind: ProviderKind,
+  credentials: ProviderCredentials,
+): Promise<string> {
+  const mode = modeForCredential(credentials.keyId);
 
   const existing = await prisma.paymentProviderConnection.findUnique({
-    where: { provider_mode: { provider: 'RAZORPAY', mode } },
+    where: { provider_mode: { provider: kind, mode } },
     select: { id: true },
   });
 
@@ -141,18 +297,18 @@ async function ensureBootstrapConnection(): Promise<string> {
   await prisma.paymentProviderConnection.create({
     data: {
       id,
-      provider: 'RAZORPAY',
+      provider: kind,
       mode,
-      label: `Razorpay (${mode}, from environment)`,
+      label: `${PROVIDER_LABEL[kind]} (${mode}, from environment)`,
       credentialsEnc: encryptSecret(
-        JSON.stringify({ keyId: env.RAZORPAY_KEY_ID, keySecret: env.RAZORPAY_KEY_SECRET }),
+        JSON.stringify({ keyId: credentials.keyId, keySecret: credentials.keySecret }),
         credentialAad(id),
       ),
       webhookSecretEnc:
-        env.RAZORPAY_WEBHOOK_SECRET.length > 0
-          ? encryptSecret(env.RAZORPAY_WEBHOOK_SECRET, credentialAad(id))
+        credentials.webhookSecret.length > 0
+          ? encryptSecret(credentials.webhookSecret, credentialAad(id))
           : null,
-      credentialsMask: maskSecret(env.RAZORPAY_KEY_ID),
+      credentialsMask: maskSecret(credentials.keyId),
       isActive: true,
     },
   });
@@ -166,6 +322,13 @@ export interface CreateOrderPaymentInput {
   idempotencyKey: string;
   actorUserId: string | null;
   correlationId?: string | null;
+  /**
+   * The gateway the customer picked at checkout. A preference, not a
+   * requirement - see `loadActiveProvider`.
+   */
+  preferredProvider?: ProviderKind;
+  /** Which instruments to put in front of them. See `PaymentMethodHint`. */
+  methodHint?: PaymentMethodHint;
 }
 
 export interface CreateOrderPaymentResult {
@@ -210,7 +373,31 @@ export async function createOrderPayment(
     throw conflict(ErrorCode.ORDER_ALREADY_PAID, 'This order is already paid in full.');
   }
 
-  const { provider, connectionId } = await loadActiveProvider();
+  /**
+   * What the customer asked for, from the request or from the order.
+   *
+   * The order is the durable record, written at checkout. The request may
+   * still override it, which is what lets a payment page offer a different
+   * gateway after a decline - but with nothing in the request, a reload or a
+   * return to this order hours later gets the same sheet rather than the
+   * default, which is the whole point of storing it.
+   */
+  const preferredProvider = input.preferredProvider ?? order.preferredPaymentProvider ?? undefined;
+  const preferredMethod = input.methodHint ?? order.preferredPaymentMethod ?? undefined;
+
+  const { provider, connectionId } = await loadActiveProvider(preferredProvider);
+
+  /**
+   * A hint the resolved gateway can actually act on.
+   *
+   * The customer picks a gateway and an instrument together, but the gateway
+   * they picked may not be the one they get - the one they chose may have been
+   * disconnected since checkout. Carrying "UPI" over to Stripe would open a
+   * sheet asking for an instrument Stripe cannot settle, so the hint is
+   * dropped with the gateway it belonged to.
+   */
+  const methodHint: PaymentMethodHint =
+    preferredMethod === 'UPI' && provider.kind === 'RAZORPAY' ? 'UPI' : 'ANY';
 
   /**
    * An earlier attempt with this same key.
@@ -238,13 +425,13 @@ export async function createOrderPayment(
       );
     }
 
-    return {
-      paymentTransactionId: existing.id,
-      provider: existing.provider,
-      mode: existing.mode,
-      providerOrderId: existing.providerOrderId ?? '',
-      amount: serialiseMoney(existing.amountMinor, existing.currency),
-      checkoutPayload: provider.buildCheckoutPayload(existing.providerOrderId ?? '', {
+    // Razorpay derives this with no call; Stripe re-reads the intent for its
+    // client secret. Either way a provider failure here is the provider's, and
+    // must reach the customer as one rather than as a 500 on a retry that was
+    // working a moment ago.
+    let replayPayload: Record<string, string | number>;
+    try {
+      replayPayload = await provider.buildCheckoutPayload(existing.providerOrderId ?? '', {
         orderId: order.id,
         orderNumber: order.orderNumber,
         amountMinor: existing.amountMinor,
@@ -252,7 +439,26 @@ export async function createOrderPayment(
         customerEmail: order.customerProfile.user.email,
         customerName: order.customerProfile.fullName,
         customerPhone: order.customerProfile.phone,
-      }),
+        methodHint,
+      });
+    } catch (error) {
+      if (error instanceof PaymentProviderError) {
+        throw badRequest(
+          ErrorCode.PAYMENT_PROVIDER_ERROR,
+          error.message,
+          [{ code: error.providerCode ?? 'PROVIDER_ERROR', field: 'payment' }],
+        );
+      }
+      throw error;
+    }
+
+    return {
+      paymentTransactionId: existing.id,
+      provider: existing.provider,
+      mode: existing.mode,
+      providerOrderId: existing.providerOrderId ?? '',
+      amount: serialiseMoney(existing.amountMinor, existing.currency),
+      checkoutPayload: replayPayload,
     };
   }
 
@@ -266,6 +472,7 @@ export async function createOrderPayment(
       customerEmail: order.customerProfile.user.email,
       customerName: order.customerProfile.fullName,
       customerPhone: order.customerProfile.phone,
+      methodHint,
       idempotencyKey: input.idempotencyKey,
     });
   } catch (error) {

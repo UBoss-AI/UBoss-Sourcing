@@ -18,19 +18,29 @@ import { z } from 'zod';
 import { useSession } from '@/auth/session-context';
 import { useStorefront } from '@/app/storefront-context';
 import { Button, Field, Input, Spinner } from '@/components/ui';
+import { useI18n } from '@/i18n/i18n-context';
+import { LanguageSwitcher, TranslationQualityNotice } from '@/i18n/LanguageSwitcher';
 import { ApiError, NetworkError } from '@/lib/api';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 
-const schema = z.object({
-  email: z
-    .string()
-    .trim()
-    .min(1, 'Enter your email address.')
-    .pipe(z.email('Enter a valid email address.')),
-  password: z.string().min(1, 'Enter your password.'),
-});
+/**
+ * Built per render rather than once at module scope, because the messages
+ * inside it are translated and the module is evaluated long before a language
+ * has been resolved. A schema frozen at import time would report every
+ * validation failure in whatever language the first visitor happened to load.
+ */
+function buildSchema(t: ReturnType<typeof useI18n>['t']) {
+  return z.object({
+    email: z
+      .string()
+      .trim()
+      .min(1, t('validation.emailRequired'))
+      .pipe(z.email(t('validation.emailInvalid'))),
+    password: z.string().min(1, t('validation.passwordRequired')),
+  });
+}
 
-type FormValues = z.output<typeof schema>;
+type FormValues = z.output<ReturnType<typeof buildSchema>>;
 
 interface LocationState {
   from?: string;
@@ -39,13 +49,23 @@ interface LocationState {
 export function LoginPage(): React.JSX.Element {
   const { user, isCustomer, isLoading, login } = useSession();
   const { business, features } = useStorefront();
+  const { t } = useI18n();
   const navigate = useNavigate();
   const location = useLocation();
 
   const [formError, setFormError] = useState<string | null>(null);
-  const [extraHelp, setExtraHelp] = useState<string | null>(null);
 
-  useDocumentMeta({ title: 'Sign in', noIndex: true }, business.displayName);
+  // The failure is kept as a code plus its retry window, not as a rendered
+  // sentence. Somebody who has just failed to sign in and reached for the
+  // language picker is precisely the person who needs this line re-rendered in
+  // the language they picked, and a string translated once and parked in state
+  // would stay in the old one.
+  const [helpCode, setHelpCode] = useState<{
+    code: string;
+    retryAfterSeconds: number | null;
+  } | null>(null);
+
+  useDocumentMeta({ title: t('auth.login.pageTitle'), noIndex: true }, business.displayName);
 
   const {
     register,
@@ -53,7 +73,7 @@ export function LoginPage(): React.JSX.Element {
     setFocus,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(buildSchema(t)),
     defaultValues: { email: '', password: '' },
   });
 
@@ -66,7 +86,7 @@ export function LoginPage(): React.JSX.Element {
       <div className="flex min-h-64 items-center justify-center">
         <Spinner className="h-6 w-6 text-ink-subtle" />
         <span className="sr-only" role="status">
-          Checking your session
+          {t('auth.login.checkingSession')}
         </span>
       </div>
     );
@@ -77,9 +97,48 @@ export function LoginPage(): React.JSX.Element {
     return <Navigate to={from ?? '/'} replace />;
   }
 
+  /**
+   * The help line under a failed sign-in, rendered fresh each time so it
+   * follows the current language.
+   *
+   * Each branch has a different next action, which is why the codes are not
+   * collapsed into one generic message.
+   */
+  const extraHelp = ((): string | null => {
+    if (helpCode === null) return null;
+
+    switch (helpCode.code) {
+      case 'RATE_LIMITED':
+        return helpCode.retryAfterSeconds === null
+          ? t('auth.login.rateLimited')
+          : // Counted, not a template string: "minute(s)" has no equivalent in
+            // Polish, which takes a different ending at 1, at 2-4 and at 5
+            // upwards. i18next reads `count` and picks the form.
+            t('auth.login.rateLimitedFor', {
+              count: Math.ceil(helpCode.retryAfterSeconds / 60),
+            });
+      case 'ACCOUNT_NOT_ACTIVATED':
+        return t('auth.login.notActivated');
+      case 'EMAIL_NOT_VERIFIED':
+        return t('auth.login.emailNotVerified');
+      case 'ACCOUNT_PENDING_APPROVAL':
+        return t('auth.login.pendingApproval');
+      case 'ACCOUNT_LOCKED':
+        return t('auth.login.locked');
+      case 'ACCOUNT_DEACTIVATED':
+        return business.supportEmail === null
+          ? t('auth.login.deactivated')
+          : t('auth.login.deactivatedContact', {
+              email: business.supportEmail,
+            });
+      default:
+        return null;
+    }
+  })();
+
   const onSubmit = async (values: FormValues): Promise<void> => {
     setFormError(null);
-    setExtraHelp(null);
+    setHelpCode(null);
 
     try {
       await login(values.email, values.password);
@@ -97,42 +156,43 @@ export function LoginPage(): React.JSX.Element {
         // Each of these has a different next action, and leaving a customer to
         // guess which one applies is how a support call starts.
         if (error.isRateLimited) {
-          setExtraHelp(
-            error.retryAfterSeconds === null
-              ? 'Too many attempts. Wait a few minutes before trying again.'
-              : `Too many attempts. Try again in about ${String(Math.ceil(error.retryAfterSeconds / 60))} minute(s).`,
-          );
-        } else if (error.code === 'ACCOUNT_NOT_ACTIVATED') {
-          setExtraHelp(
-            'This account has not been activated yet. Use the link in your invitation email, or ask us to send a new one.',
-          );
-        } else if (error.code === 'ACCOUNT_LOCKED') {
-          setExtraHelp('For your security this account is temporarily locked. Try again shortly.');
-        } else if (error.code === 'ACCOUNT_DEACTIVATED') {
-          setExtraHelp(
-            business.supportEmail === null
-              ? 'This account is no longer active. Please contact us.'
-              : `This account is no longer active. Contact ${business.supportEmail} to restore it.`,
-          );
+          setHelpCode({
+            code: 'RATE_LIMITED',
+            retryAfterSeconds: error.retryAfterSeconds,
+          });
+        } else if (
+          error.code === 'ACCOUNT_NOT_ACTIVATED' ||
+          error.code === 'EMAIL_NOT_VERIFIED' ||
+          error.code === 'ACCOUNT_PENDING_APPROVAL' ||
+          error.code === 'ACCOUNT_LOCKED' ||
+          error.code === 'ACCOUNT_DEACTIVATED'
+        ) {
+          setHelpCode({ code: error.code, retryAfterSeconds: null });
         }
         return;
       }
 
-      setFormError('Sign-in failed. Please try again.');
+      setFormError(t('auth.login.failed'));
     }
   };
 
   return (
     <div className="mx-auto w-full max-w-md py-8">
+      {/* Above the form, not tucked into the footer. Somebody who cannot read
+          the interface cannot navigate to a setting buried inside it, so the
+          first screen they land on is the one that has to offer the way out.
+          The choice is remembered and carried into the session on sign-in. */}
+      <LanguageSwitcher placement="auth" />
+
       <div className="mb-6 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">Sign in</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">
+          {t('auth.login.heading')}
+        </h1>
         <p className="mt-1.5 text-sm text-ink-muted">
           {/* Reaching here means not signed in as a customer. A user object
               that still exists is therefore a staff session, which cannot
               shop — saying so beats an unexplained sign-in form. */}
-          {user === null
-            ? 'Sign in to place orders and manage repeat purchases.'
-            : 'You are signed in with a staff account. Sign in with your customer account to order.'}
+          {user === null ? t('auth.login.introVisitor') : t('auth.login.introStaff')}
         </p>
       </div>
 
@@ -153,7 +213,7 @@ export function LoginPage(): React.JSX.Element {
           </div>
         )}
 
-        <Field label="Email address" error={errors.email?.message} required>
+        <Field label={t('common.emailAddress')} error={errors.email?.message} required>
           {({ inputId, describedBy }) => (
             <Input
               id={inputId}
@@ -166,7 +226,7 @@ export function LoginPage(): React.JSX.Element {
           )}
         </Field>
 
-        <Field label="Password" error={errors.password?.message} required>
+        <Field label={t('common.password')} error={errors.password?.message} required>
           {({ inputId, describedBy }) => (
             <Input
               id={inputId}
@@ -180,39 +240,38 @@ export function LoginPage(): React.JSX.Element {
         </Field>
 
         <Button type="submit" variant="primary" size="lg" fullWidth isLoading={isSubmitting}>
-          Sign in
+          {t('auth.login.submit')}
         </Button>
 
         <p className="text-center text-sm">
           <Link to="/forgot-password" className="font-medium text-brand hover:underline">
-            Forgot your password?
+            {t('auth.login.forgotPassword')}
           </Link>
         </p>
       </form>
 
       <div className="mt-5 rounded-lg border border-border bg-surface p-5 text-sm">
-        <h2 className="font-medium text-ink">Do not have an account?</h2>
+        <h2 className="font-medium text-ink">{t('auth.login.noAccountHeading')}</h2>
 
         {features.selfRegistration ? (
           <p className="mt-1.5 text-ink-muted">
             <Link to="/register" className="font-medium text-brand hover:underline">
-              Create one now
+              {t('auth.login.createOne')}
             </Link>{' '}
-            — it only takes a minute.
+            {t('auth.login.createOneSuffix')}
           </p>
         ) : (
           <p className="mt-1.5 text-ink-muted">
-            Accounts are set up by our team. If you have been invited, use the activation link in
-            your email.
+            {t('auth.login.inviteOnly')}
             {business.supportEmail !== null && (
               <>
                 {' '}
-                Not received one?{' '}
+                {t('auth.login.inviteOnlyNotReceived')}{' '}
                 <a
                   href={`mailto:${business.supportEmail}`}
                   className="font-medium text-brand hover:underline"
                 >
-                  Get in touch
+                  {t('auth.login.getInTouch')}
                 </a>
                 .
               </>
@@ -220,6 +279,11 @@ export function LoginPage(): React.JSX.Element {
           </p>
         )}
       </div>
+
+      {/* Sits at the bottom of the first screen a customer sees, which is
+          where a wording complaint is most likely to be worth acting on.
+          Renders nothing in English. */}
+      <TranslationQualityNotice className="mt-5 text-center" />
     </div>
   );
 }

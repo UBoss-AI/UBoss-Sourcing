@@ -21,6 +21,7 @@ import { env } from '../config/env.js';
 import { logger, loggerFor } from '../infra/logger.js';
 import { disconnectPrisma } from '../infra/prisma.js';
 import { JobType, queue, type ClaimedJob } from '../infra/queue/index.js';
+import { pruneAdminNotifications } from '../modules/notifications/admin-notification.service.js';
 import { dispatchPendingNotifications } from '../modules/notifications/notification.service.js';
 import { purgeExpiredExports } from '../modules/reports/export.service.js';
 import { PermanentJobError, handlerFor } from './handlers.js';
@@ -148,6 +149,14 @@ async function maintenance(): Promise<void> {
     const purgedExports = await purgeExpiredExports();
     if (purgedExports > 0) logger.info({ purgedExports }, 'purged expired export files');
 
+    // The console bell is a "what happened lately" feed, not a record - the
+    // audit trail and the orders themselves outlive it. Without this the table
+    // grows for the life of the installation.
+    const prunedNotifications = await pruneAdminNotifications();
+    if (prunedNotifications > 0) {
+      logger.info({ prunedNotifications }, 'pruned expired console notifications');
+    }
+
     // One of each in flight at a time, whatever the tick rate.
     const slot = String(Math.floor(Date.now() / MAINTENANCE_INTERVAL_MS));
 
@@ -171,6 +180,23 @@ async function maintenance(): Promise<void> {
       {},
       { dedupeKey: `schedule_reminder:${String(Math.floor(Date.now() / 3_600_000))}` },
     );
+
+    // Exchange rates settle once a day and every run rewrites catalogue prices,
+    // so the dedupe key is the calendar day rather than a rolling window: more
+    // often than this is churn on the thing customers read, not freshness.
+    // The handler itself is a no-op while the feature is switched off.
+    await queue.enqueue(
+      JobType.FX_RATE_REFRESH,
+      {},
+      { dedupeKey: `fx_rate_refresh:${new Date().toISOString().slice(0, 10)}` },
+    );
+
+    // Storage limitation (Art. 5(1)(e)). On the ordinary maintenance beat
+    // rather than the daily one: each sweep is capped at a few hundred rows,
+    // so a deployment enabling retention for the first time drains its backlog
+    // over hours instead of locking every table in one statement. A pass with
+    // nothing expired costs four indexed queries and writes nothing.
+    await queue.enqueue(JobType.RETENTION_SWEEP, {}, { dedupeKey: `retention_sweep:${slot}` });
   } catch (error) {
     // Maintenance must never take the loop down; the next tick retries it.
     logger.error({ err: error }, 'maintenance pass failed');

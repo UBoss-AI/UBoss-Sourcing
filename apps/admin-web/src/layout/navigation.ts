@@ -16,6 +16,8 @@ import {
   CouponsIcon,
   CustomersIcon,
   DashboardIcon,
+  DataProtectionIcon,
+  ManufacturerIcon,
   IntegrationsIcon,
   InventoryIcon,
   OrdersIcon,
@@ -27,11 +29,20 @@ import {
   StaffIcon,
 } from '@/components/icons';
 import { Permission } from '@/lib/permissions';
+import type { ParseKeys } from 'i18next';
 import type { IconComponent } from '@/components/icons';
 import type { PermissionKey } from '@/lib/permissions';
 
+/**
+ * A row in the sidebar.
+ *
+ * The label is a message key, not a string: this module is plain data with no
+ * hooks in it, and resolving the text here would mean either freezing it in
+ * one language at import time or turning the navigation map into a component.
+ * The shell translates each key as it renders the row.
+ */
 export interface NavItem {
-  label: string;
+  labelKey: ParseKeys;
   to: string;
   /**
    * The row's silhouette. Decoration in the strict sense — every icon here is
@@ -46,39 +57,88 @@ export interface NavItem {
 }
 
 export interface NavGroup {
-  label: string;
+  labelKey: ParseKeys;
   items: NavItem[];
 }
 
 export const NAVIGATION: NavGroup[] = [
   {
-    label: 'Overview',
-    items: [{ label: 'Dashboard', to: '/', icon: DashboardIcon, permissions: [] }],
+    labelKey: 'nav.group.overview',
+    items: [{ labelKey: 'nav.dashboard', to: '/', icon: DashboardIcon, permissions: [] }],
   },
   {
-    label: 'Catalogue',
+    labelKey: 'nav.group.catalogue',
     items: [
-      { label: 'Categories', to: '/categories', icon: CategoriesIcon, permissions: [Permission.CATEGORY_READ], matchPrefix: true },
-      { label: 'Products', to: '/products', icon: ProductsIcon, permissions: [Permission.PRODUCT_READ], matchPrefix: true },
-      { label: 'Inventory', to: '/inventory', icon: InventoryIcon, permissions: [Permission.INVENTORY_READ], matchPrefix: true },
-      { label: 'Coupons', to: '/coupons', icon: CouponsIcon, permissions: [Permission.COUPON_READ], matchPrefix: true },
+      {
+        labelKey: 'nav.categories',
+        to: '/categories',
+        icon: CategoriesIcon,
+        permissions: [Permission.CATEGORY_READ],
+        matchPrefix: true,
+      },
+      {
+        labelKey: 'nav.products',
+        to: '/products',
+        icon: ProductsIcon,
+        permissions: [Permission.PRODUCT_READ],
+        matchPrefix: true,
+      },
+      {
+        labelKey: 'nav.inventory',
+        to: '/inventory',
+        icon: InventoryIcon,
+        permissions: [Permission.INVENTORY_READ],
+        matchPrefix: true,
+      },
+      {
+        labelKey: 'nav.coupons',
+        to: '/coupons',
+        icon: CouponsIcon,
+        permissions: [Permission.COUPON_READ],
+        matchPrefix: true,
+      },
+      {
+        labelKey: 'nav.manufacturers',
+        to: '/manufacturers',
+        icon: ManufacturerIcon,
+        permissions: [Permission.PRODUCT_READ],
+        matchPrefix: true,
+      },
     ],
   },
   {
-    label: 'Sales',
+    labelKey: 'nav.group.sales',
     items: [
-      { label: 'Orders', to: '/orders', icon: OrdersIcon, permissions: [Permission.ORDER_READ], matchPrefix: true },
-      { label: 'Payments', to: '/payments', icon: PaymentsIcon, permissions: [Permission.PAYMENT_READ], matchPrefix: true },
       {
-        label: 'Recurring',
+        labelKey: 'nav.orders',
+        to: '/orders',
+        icon: OrdersIcon,
+        permissions: [Permission.ORDER_READ],
+        matchPrefix: true,
+      },
+      {
+        labelKey: 'nav.payments',
+        to: '/payments',
+        icon: PaymentsIcon,
+        permissions: [Permission.PAYMENT_READ],
+        matchPrefix: true,
+      },
+      {
+        labelKey: 'nav.recurring',
         to: '/recurring',
         icon: RecurringIcon,
         permissions: [Permission.SCHEDULE_READ],
         matchPrefix: true,
       },
-      { label: 'Customers', to: '/customers', icon: CustomersIcon, permissions: [Permission.CUSTOMER_READ], matchPrefix: true },
       {
-        label: 'Chat enquiries',
+        labelKey: 'nav.customers',
+        to: '/customers',
+        icon: CustomersIcon,
+        permissions: [Permission.CUSTOMER_READ],
+        matchPrefix: true,
+      },
+      {
+        labelKey: 'nav.chatEnquiries',
         to: '/chat-enquiries',
         icon: ChatIcon,
         permissions: [Permission.ASSISTANT_CHAT_READ],
@@ -87,24 +147,55 @@ export const NAVIGATION: NavGroup[] = [
     ],
   },
   {
-    label: 'Insight',
+    labelKey: 'nav.group.insight',
     items: [
-      { label: 'Reports', to: '/reports', icon: ReportsIcon, permissions: [Permission.REPORT_READ], matchPrefix: true },
-      { label: 'Audit log', to: '/audit', icon: AuditIcon, permissions: [Permission.AUDIT_READ], matchPrefix: true },
+      {
+        labelKey: 'nav.reports',
+        to: '/reports',
+        icon: ReportsIcon,
+        permissions: [Permission.REPORT_READ],
+        matchPrefix: true,
+      },
+      {
+        labelKey: 'nav.auditLog',
+        to: '/audit',
+        icon: AuditIcon,
+        permissions: [Permission.AUDIT_READ],
+        matchPrefix: true,
+      },
+      {
+        labelKey: 'nav.dataRequests',
+        to: '/data-requests',
+        icon: DataProtectionIcon,
+        permissions: [Permission.DATA_REQUEST_READ],
+        matchPrefix: true,
+      },
     ],
   },
   {
-    label: 'Administration',
+    labelKey: 'nav.group.administration',
     items: [
       {
-        label: 'Integrations',
+        labelKey: 'nav.integrations',
         to: '/integrations',
         icon: IntegrationsIcon,
         permissions: [Permission.INTEGRATION_READ, Permission.PAYMENT_GATEWAY_WRITE],
         matchPrefix: true,
       },
-      { label: 'Staff', to: '/staff', icon: StaffIcon, permissions: [Permission.STAFF_READ], matchPrefix: true },
-      { label: 'Settings', to: '/settings', icon: SettingsIcon, permissions: [Permission.SETTINGS_READ], matchPrefix: true },
+      {
+        labelKey: 'nav.staff',
+        to: '/staff',
+        icon: StaffIcon,
+        permissions: [Permission.STAFF_READ],
+        matchPrefix: true,
+      },
+      {
+        labelKey: 'nav.settings',
+        to: '/settings',
+        icon: SettingsIcon,
+        permissions: [Permission.SETTINGS_READ],
+        matchPrefix: true,
+      },
     ],
   },
 ];
@@ -114,7 +205,8 @@ export function visibleNavigation(can: (permission: PermissionKey) => boolean): 
   return NAVIGATION.map((group) => ({
     ...group,
     items: group.items.filter(
-      (item) => item.permissions.length === 0 || item.permissions.some((permission) => can(permission)),
+      (item) =>
+        item.permissions.length === 0 || item.permissions.some((permission) => can(permission)),
     ),
   })).filter((group) => group.items.length > 0);
 }

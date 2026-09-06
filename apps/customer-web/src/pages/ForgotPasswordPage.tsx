@@ -13,25 +13,31 @@ import { Link } from 'react-router-dom';
 import { z } from 'zod';
 import { useStorefront } from '@/app/storefront-context';
 import { Button, Field, Input } from '@/components/ui';
+import { useI18n } from '@/i18n/i18n-context';
+import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
 import { ApiError, NetworkError, api } from '@/lib/api';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 
-const schema = z.object({
-  email: z
-    .string()
-    .trim()
-    .min(1, 'Enter your email address.')
-    .pipe(z.email('Enter a valid email address.')),
-});
+/** Rebuilt per render so its messages follow the chosen language. */
+function buildSchema(t: ReturnType<typeof useI18n>['t']) {
+  return z.object({
+    email: z
+      .string()
+      .trim()
+      .min(1, t('validation.emailRequired'))
+      .pipe(z.email(t('validation.emailInvalid'))),
+  });
+}
 
-type FormValues = z.output<typeof schema>;
+type FormValues = z.output<ReturnType<typeof buildSchema>>;
 
 export function ForgotPasswordPage(): React.JSX.Element {
   const { business } = useStorefront();
+  const { t } = useI18n();
   const [isSent, setIsSent] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  useDocumentMeta({ title: 'Reset your password', noIndex: true }, business.displayName);
+  useDocumentMeta({ title: t('auth.forgot.pageTitle'), noIndex: true }, business.displayName);
 
   const {
     register,
@@ -39,7 +45,7 @@ export function ForgotPasswordPage(): React.JSX.Element {
     setFocus,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(buildSchema(t)),
     defaultValues: { email: '' },
   });
 
@@ -51,19 +57,16 @@ export function ForgotPasswordPage(): React.JSX.Element {
     return (
       <div className="mx-auto w-full max-w-md py-8">
         <div className="rounded-lg border border-border bg-surface p-6 text-center shadow-card">
-          <h1 className="text-lg font-semibold text-ink">Check your email</h1>
+          <h1 className="text-lg font-semibold text-ink">{t('auth.forgot.sentHeading')}</h1>
           <p className="mx-auto mt-2 max-w-sm text-sm text-ink-muted">
-            If that address belongs to an account, a reset link is on its way. It is valid for a
-            limited time, so use it soon.
+            {t('auth.forgot.sentBody')}
           </p>
-          <p className="mt-2 text-xs text-ink-subtle">
-            Nothing arrived? Check your spam folder before asking for another.
-          </p>
+          <p className="mt-2 text-xs text-ink-subtle">{t('auth.forgot.sentSpam')}</p>
           <Link
             to="/login"
             className="mt-6 inline-flex h-10 items-center rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-ink hover:bg-surface-hover"
           >
-            Back to sign in
+            {t('auth.forgot.backToSignIn')}
           </Link>
         </div>
       </div>
@@ -86,7 +89,7 @@ export function ForgotPasswordPage(): React.JSX.Element {
       // would let the caller distinguish a real address from an unknown one,
       // which is exactly what the uniform response prevents.
       if (error instanceof ApiError && error.isRateLimited) {
-        setFormError('Too many requests. Please wait a few minutes and try again.');
+        setFormError(t('auth.forgot.rateLimited'));
         return;
       }
 
@@ -96,11 +99,13 @@ export function ForgotPasswordPage(): React.JSX.Element {
 
   return (
     <div className="mx-auto w-full max-w-md py-8">
+      <LanguageSwitcher placement="auth" />
+
       <div className="mb-6 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">Reset your password</h1>
-        <p className="mt-1.5 text-sm text-ink-muted">
-          We will email you a link to choose a new one.
-        </p>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">
+          {t('auth.forgot.heading')}
+        </h1>
+        <p className="mt-1.5 text-sm text-ink-muted">{t('auth.forgot.intro')}</p>
       </div>
 
       <form
@@ -119,7 +124,7 @@ export function ForgotPasswordPage(): React.JSX.Element {
           </div>
         )}
 
-        <Field label="Email address" error={errors.email?.message} required>
+        <Field label={t('common.emailAddress')} error={errors.email?.message} required>
           {({ inputId, describedBy }) => (
             <Input
               id={inputId}
@@ -133,12 +138,12 @@ export function ForgotPasswordPage(): React.JSX.Element {
         </Field>
 
         <Button type="submit" variant="primary" size="lg" fullWidth isLoading={isSubmitting}>
-          Send the reset link
+          {t('auth.forgot.submit')}
         </Button>
 
         <p className="text-center text-sm">
           <Link to="/login" className="font-medium text-brand hover:underline">
-            Back to sign in
+            {t('auth.forgot.backToSignIn')}
           </Link>
         </p>
       </form>

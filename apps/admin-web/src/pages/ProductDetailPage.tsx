@@ -31,6 +31,9 @@ import { useToast } from '@/components/toast-context';
 import { SpecificationsPanel } from '@/pages/product/SpecificationsPanel';
 import { VariantsPanel } from '@/pages/product/VariantsPanel';
 import { CurrencyPricesPanel } from '@/pages/product/CurrencyPricesPanel';
+import { TranslationsPanel } from '@/pages/product/TranslationsPanel';
+import { ProductSafetyPanel } from '@/pages/product/ProductSafetyPanel';
+import { DevicePanel } from '@/pages/product/DevicePanel';
 import {
   Badge,
   Button,
@@ -52,6 +55,7 @@ import { formatDateTime, majorToMinor, minorToMajor } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
 import type { BadgeTone } from '@/components/ui';
 import type { CategoryNode } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 interface TaxClass {
   id: string;
@@ -94,6 +98,15 @@ interface ProductDetail {
   isRecurringEligible: boolean;
   hasVariants: boolean;
   weightGrams: number | null;
+
+  /** GPSR Art. 19. Null throughout on a catalogue that does not sell into the EU. */
+  manufacturerId: string | null;
+  euResponsibleId: string | null;
+  gtin: string | null;
+  modelIdentifier: string | null;
+  safetyWarnings: string | null;
+  safetyInstructions: string | null;
+
   archivedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -145,7 +158,8 @@ const productSchema = z
         ctx.addIssue({
           code: 'custom',
           path: ['compareAtPrice'],
-          message: 'The compare-at price must be at least the price, or the discount reads negative.',
+          message:
+            'The compare-at price must be at least the price, or the discount reads negative.',
         });
       }
     }
@@ -153,22 +167,39 @@ const productSchema = z
     if (values.maxOrderQty !== '') {
       const max = Number(values.maxOrderQty);
       if (!Number.isInteger(max) || max < 1) {
-        ctx.addIssue({ code: 'custom', path: ['maxOrderQty'], message: 'Enter a whole number, or leave blank.' });
+        ctx.addIssue({
+          code: 'custom',
+          path: ['maxOrderQty'],
+          message: 'Enter a whole number, or leave blank.',
+        });
       } else if (max < values.minOrderQty) {
         // Otherwise no quantity satisfies both rules and nobody can buy it.
         ctx.addIssue({
           code: 'custom',
           path: ['maxOrderQty'],
-          message: 'The maximum cannot be below the minimum, or the product cannot be ordered at all.',
+          message:
+            'The maximum cannot be below the minimum, or the product cannot be ordered at all.',
         });
       }
     }
 
     if (values.weightGrams !== '' && !/^\d+$/.test(values.weightGrams)) {
-      ctx.addIssue({ code: 'custom', path: ['weightGrams'], message: 'Enter a whole number of grams.' });
+      ctx.addIssue({
+        code: 'custom',
+        path: ['weightGrams'],
+        message: 'Enter a whole number of grams.',
+      });
     }
   });
 
+/**
+ * Input and output differ: `reorderThreshold`, `minOrderQty` and `qtyIncrement`
+ * are coerced, so what the form holds for them is whatever a number input hands
+ * back and what the schema produces is a number. `useForm` is told both types,
+ * which is what lets `handleSubmit` deliver parsed values without lying about
+ * what `register` is bound to.
+ */
+type ProductFormInput = z.input<typeof productSchema>;
 type ProductForm = z.output<typeof productSchema>;
 
 const FORM_FIELDS = [
@@ -207,7 +238,25 @@ const CATALOGUE_STATUS: Record<ProductDetail['status'], { label: string; tone: B
 
 // ---------------------------------------------------------------------------
 
+/**
+ * What the file picker offers, and what a chosen file is checked against.
+ *
+ * Advisory only. The server sniffs magic bytes and ignores both the extension
+ * and the browser's Content-Type, so this list cannot let anything through -
+ * it only spares a round trip when somebody picks a PDF through the picker's
+ * "all files" escape hatch.
+ */
+const ACCEPTED_IMAGE_TYPES: readonly string[] = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+];
+const IMAGE_ACCEPT_ATTRIBUTE = ACCEPTED_IMAGE_TYPES.join(',');
+
 function MediaPanel({ product }: { product: ProductDetail }): React.JSX.Element {
+  const { t } = useI18n();
+
   const { can } = useSession();
   const queryClient = useQueryClient();
   const toast = useToast();
@@ -229,7 +278,9 @@ function MediaPanel({ product }: { product: ProductDetail }): React.JSX.Element 
     onError: (error) => {
       // The server sniffs magic bytes and refuses anything that is not a real
       // image, whatever the extension says. Its message explains which.
-      setUploadError(error instanceof ApiError ? error.message : 'The image could not be uploaded.');
+      setUploadError(
+        error instanceof ApiError ? error.message : 'The image could not be uploaded.',
+      );
     },
   });
 
@@ -248,15 +299,15 @@ function MediaPanel({ product }: { product: ProductDetail }): React.JSX.Element 
 
   return (
     <Card
-      title="Images"
-      description="Publication needs at least one image. The first is the one customers see in listings."
+      title={t('productDetail.images')}
+      description={t('productDetail.publicationNeedsAtLeastOne')}
       actions={
         canUpload ? (
           <>
             <input
               ref={fileRef}
               type="file"
-              accept="image/jpeg,image/png,image/webp,image/gif"
+              accept={IMAGE_ACCEPT_ATTRIBUTE}
               className="sr-only"
               onChange={(event) => {
                 const file = event.target.files?.[0];
@@ -272,7 +323,7 @@ function MediaPanel({ product }: { product: ProductDetail }): React.JSX.Element 
                 fileRef.current?.click();
               }}
             >
-              Add image
+              {t('productDetail.addImage')}
             </Button>
           </>
         ) : undefined
@@ -287,8 +338,8 @@ function MediaPanel({ product }: { product: ProductDetail }): React.JSX.Element 
 
         {product.media.length === 0 ? (
           <EmptyState
-            title="No images yet"
-            description="A product cannot be published without at least one. The first image is what customers see in listings."
+            title={t('productDetail.noImagesYet')}
+            description={t('productDetail.aProductCannotBePublished')}
           />
         ) : (
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -301,7 +352,7 @@ function MediaPanel({ product }: { product: ProductDetail }): React.JSX.Element 
                 />
                 {item.isPrimary && (
                   <span className="absolute left-1.5 top-1.5">
-                    <Badge tone="accent">Primary</Badge>
+                    <Badge tone="accent">{t('productDetail.primary')}</Badge>
                   </span>
                 )}
                 {canUpload && (
@@ -317,7 +368,7 @@ function MediaPanel({ product }: { product: ProductDetail }): React.JSX.Element 
                       remove.mutate(item.mediaId);
                     }}
                   >
-                    Remove
+                    {t('productDetail.remove')}
                     <span className="sr-only"> this image</span>
                   </Button>
                 )}
@@ -332,7 +383,206 @@ function MediaPanel({ product }: { product: ProductDetail }): React.JSX.Element 
 
 // ---------------------------------------------------------------------------
 
+/**
+ * An image chosen for a product that does not exist yet.
+ *
+ * Uploads are addressed to `/admin/products/:id/media`, so until the create
+ * call returns an id there is nothing to post them to. The bytes wait here in
+ * the meantime.
+ *
+ * `previewUrl` is an object URL. It is not released when the component goes
+ * away, so every abandoned draft holds the whole file in memory for the life
+ * of the tab unless it is revoked by hand.
+ */
+interface StagedImage {
+  key: string;
+  file: File;
+  previewUrl: string;
+}
+
+/** A counter, not a random id: this only has to be unique within one form. */
+let stagedImageSeed = 0;
+
+function stageImage(file: File): StagedImage {
+  stagedImageSeed += 1;
+  return { key: `staged-${stagedImageSeed}`, file, previewUrl: URL.createObjectURL(file) };
+}
+
+interface StagedUploadFailure {
+  fileName: string;
+  message: string;
+}
+
+/**
+ * Post the staged images to a product that now exists.
+ *
+ * Sequential, not parallel. The server counts the images a product already has
+ * to decide the next one's `sortOrder`, and makes the first one primary;
+ * firing these together would shuffle the gallery and choose the primary image
+ * at random.
+ *
+ * A rejected file does not abort the rest. The product is already created by
+ * the time this runs, so the useful outcome is every image that can go up
+ * going up, plus the names of the ones that did not.
+ */
+async function uploadStagedImages(
+  productId: string,
+  images: StagedImage[],
+  altText: string,
+): Promise<StagedUploadFailure[]> {
+  const failures: StagedUploadFailure[] = [];
+
+  for (const image of images) {
+    const form = new FormData();
+    form.append('file', image.file);
+    form.append('altText', altText);
+
+    try {
+      await api.upload<{ mediaId: string }>(`/admin/products/${productId}/media`, form);
+    } catch (error) {
+      failures.push({
+        fileName: image.file.name,
+        message: error instanceof ApiError ? error.message : 'The image could not be uploaded.',
+      });
+    }
+  }
+
+  return failures;
+}
+
+/**
+ * The Images panel for a product that has not been created yet.
+ *
+ * Deliberately the same shape as `MediaPanel` - same grid, same primary badge,
+ * same Remove control - because to the person filling the form in this is the
+ * same job. The one honest difference is when the bytes leave the browser, and
+ * the description says so rather than leaving it to be discovered.
+ */
+function StagedMediaPanel({
+  images,
+  onAdd,
+  onRemove,
+  isSaving,
+}: {
+  images: StagedImage[];
+  onAdd: (files: File[]) => void;
+  onRemove: (key: string) => void;
+  isSaving: boolean;
+}): React.JSX.Element {
+  const { t } = useI18n();
+
+  const { can } = useSession();
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [rejected, setRejected] = useState<string | null>(null);
+
+  const canUpload = can(Permission.MEDIA_UPLOAD);
+
+  return (
+    <Card
+      title={t('productDetail.images')}
+      description={t('productDetail.imagesUploadOnCreate')}
+      actions={
+        canUpload ? (
+          <>
+            <input
+              ref={fileRef}
+              type="file"
+              multiple
+              accept={IMAGE_ACCEPT_ATTRIBUTE}
+              className="sr-only"
+              onChange={(event) => {
+                const chosen = Array.from(event.target.files ?? []);
+                // An empty `type` is not a refusal - some platforms report
+                // nothing for a file the picker was perfectly happy with. Only
+                // a type that is present *and* wrong is worth stopping here.
+                const accepted = chosen.filter(
+                  (file) => file.type === '' || ACCEPTED_IMAGE_TYPES.includes(file.type),
+                );
+                const refused = chosen.filter((file) => !accepted.includes(file));
+
+                setRejected(
+                  refused.length === 0
+                    ? null
+                    : t('productDetail.notAnImageFile', {
+                        names: refused.map((file) => file.name).join(', '),
+                      }),
+                );
+
+                if (accepted.length > 0) onAdd(accepted);
+                // Reset so re-choosing the same file fires change again.
+                event.target.value = '';
+              }}
+            />
+            <Button
+              size="sm"
+              disabled={isSaving}
+              onClick={() => {
+                fileRef.current?.click();
+              }}
+            >
+              {t('productDetail.addImages')}
+            </Button>
+          </>
+        ) : undefined
+      }
+    >
+      <div className="px-5 py-4">
+        {rejected !== null && (
+          <Callout tone="danger" role="alert" className="mb-3">
+            {rejected}
+          </Callout>
+        )}
+
+        {images.length === 0 ? (
+          <EmptyState
+            title={t('productDetail.noImagesChosenYet')}
+            description={t('productDetail.orAddThemAfterCreating')}
+          />
+        ) : (
+          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {images.map((image, index) => (
+              <li key={image.key} className="group relative">
+                <img
+                  src={image.previewUrl}
+                  alt={image.file.name}
+                  className="aspect-square w-full rounded-md border border-border bg-surface-sunken object-cover"
+                />
+                {index === 0 && (
+                  <span className="absolute left-1.5 top-1.5">
+                    <Badge tone="accent">{t('productDetail.primary')}</Badge>
+                  </span>
+                )}
+                {canUpload && (
+                  // Same reasoning as the saved gallery above: visible by
+                  // default below `lg` and hover-revealed only where a pointer
+                  // is a safe assumption.
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    disabled={isSaving}
+                    className="absolute right-1.5 top-1.5 transition-opacity lg:opacity-0 lg:focus:opacity-100 lg:group-hover:opacity-100"
+                    onClick={() => {
+                      onRemove(image.key);
+                    }}
+                  >
+                    {t('productDetail.remove')}
+                    <span className="sr-only"> {image.file.name}</span>
+                  </Button>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </Card>
+  );
+}
+
+// ---------------------------------------------------------------------------
+
 export function ProductDetailPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const { id } = useParams<{ id: string }>();
   const isNew = id === 'new';
   const navigate = useNavigate();
@@ -343,6 +593,35 @@ export function ProductDetailPage(): React.JSX.Element {
   const [formError, setFormError] = useState<string | null>(null);
   const [publishError, setPublishError] = useState<string | null>(null);
   const [isArchiving, setIsArchiving] = useState(false);
+
+  // Images picked before the product exists. Held here rather than inside the
+  // panel because the create mutation is what finally uploads them.
+  const [stagedImages, setStagedImages] = useState<StagedImage[]>([]);
+
+  // Revoke the previews when the page goes away. Reading the list through a
+  // ref is what keeps this cleanup out of the dependency array - depending on
+  // `stagedImages` would revoke every preview the moment one is added.
+  const stagedImagesRef = useRef(stagedImages);
+  useEffect(() => {
+    stagedImagesRef.current = stagedImages;
+  }, [stagedImages]);
+  useEffect(
+    () => () => {
+      for (const image of stagedImagesRef.current) URL.revokeObjectURL(image.previewUrl);
+    },
+    [],
+  );
+
+  const addStagedImages = (files: File[]): void => {
+    const additions = files.map(stageImage);
+    setStagedImages((current) => [...current, ...additions]);
+  };
+
+  const removeStagedImage = (key: string): void => {
+    const match = stagedImages.find((image) => image.key === key);
+    if (match !== undefined) URL.revokeObjectURL(match.previewUrl);
+    setStagedImages((current) => current.filter((image) => image.key !== key));
+  };
 
   const productQuery = useQuery({
     queryKey: ['product', id],
@@ -373,7 +652,7 @@ export function ProductDetailPage(): React.JSX.Element {
     reset,
     setError,
     formState: { errors, isDirty },
-  } = useForm<ProductForm>({
+  } = useForm<ProductFormInput, unknown, ProductForm>({
     resolver: zodResolver(productSchema),
     defaultValues: {
       name: '',
@@ -459,16 +738,53 @@ export function ProductDetailPage(): React.JSX.Element {
         weightGrams: values.weightGrams === '' ? null : Number(values.weightGrams),
       };
 
-      return isNew
-        ? api.post<{ id: string }>('/admin/products', body)
-        : api.patch<{ updated: boolean }>(`/admin/products/${String(id)}`, body);
+      if (!isNew) {
+        return api.patch<{ updated: boolean }>(`/admin/products/${String(id)}`, body);
+      }
+
+      const created = await api.post<{ id: string }>('/admin/products', body);
+
+      // The first moment there is anything to upload against. Kept inside the
+      // mutation so the Create button stays busy until the images have
+      // actually landed, rather than claiming success while they are still on
+      // their way.
+      const failures = await uploadStagedImages(created.id, stagedImages, values.name);
+
+      return { id: created.id, failures };
     },
     onSuccess: async (result) => {
       setFormError(null);
       await queryClient.invalidateQueries({ queryKey: ['products'] });
 
-      if (isNew && 'id' in result) {
-        toast.success('Product created. Add an image, then publish it.');
+      if ('id' in result) {
+        const attempted = stagedImages.length;
+
+        for (const image of stagedImages) URL.revokeObjectURL(image.previewUrl);
+        setStagedImages([]);
+
+        if (result.failures.length > 0) {
+          // The product exists whatever happened to the images, so this is a
+          // warning about part of the job, not a failed create. Name the files
+          // - that is what says which ones to add again on the next screen -
+          // and give the reason once. Failures here share a cause almost
+          // every time (one oversized file, an expired session), and a toast
+          // repeating the same sentence per file is a toast nobody reads.
+          const names = result.failures.map((failure) => failure.fileName).join(', ');
+          toast.error(
+            `Product created, but ${result.failures.length} of ${attempted} images did not ` +
+              `upload (${names}). ${result.failures[0]?.message ?? ''} ` +
+              'Add them again from the Images panel.',
+          );
+        } else if (attempted === 0) {
+          toast.success('Product created. Add an image, then publish it.');
+        } else {
+          toast.success(
+            attempted === 1
+              ? 'Product created with its image. Publish it when it is ready.'
+              : `Product created with ${attempted} images. Publish it when it is ready.`,
+          );
+        }
+
         void navigate(`/products/${result.id}`, { replace: true });
         return;
       }
@@ -528,9 +844,12 @@ export function ProductDetailPage(): React.JSX.Element {
   if (!isNew && productQuery.isPending) {
     return (
       <>
-        <PageHeader title="Product" back={{ to: '/products', label: 'Back to products' }} />
+        <PageHeader
+          title={t('productDetail.product')}
+          back={{ to: '/products', label: 'Back to products' }}
+        />
         <Card>
-          <LoadingState label="Loading the product" />
+          <LoadingState label={t('productDetail.loadingTheProduct')} />
         </Card>
       </>
     );
@@ -539,7 +858,10 @@ export function ProductDetailPage(): React.JSX.Element {
   if (!isNew && productQuery.isError) {
     return (
       <>
-        <PageHeader title="Product" back={{ to: '/products', label: 'Back to products' }} />
+        <PageHeader
+          title={t('productDetail.product')}
+          back={{ to: '/products', label: 'Back to products' }}
+        />
         <Card>
           <ErrorState
             error={productQuery.error}
@@ -567,7 +889,7 @@ export function ProductDetailPage(): React.JSX.Element {
         back={{ to: '/products', label: 'Back to products' }}
         description={
           isNew
-            ? 'Create the product first, then add images and publish it.'
+            ? 'Fill in the details and add images, then create it. A new product starts as an unpublished draft.'
             : `SKU ${product?.sku ?? ''} · last edited ${formatDateTime(product?.updatedAt)}`
         }
         // The two states that decide whether a customer can see this, beside
@@ -581,16 +903,16 @@ export function ProductDetailPage(): React.JSX.Element {
               </Badge>
               {product.isPublished ? (
                 <Badge dot tone="success">
-                  Live on the storefront
+                  {t('productDetail.liveOnTheStorefront')}
                 </Badge>
               ) : (
                 <Badge dot tone="neutral">
-                  Not published
+                  {t('productDetail.notPublished')}
                 </Badge>
               )}
               {product.archivedAt !== null && (
                 <Badge dot tone="danger">
-                  Archived
+                  {t('productDetail.archived')}
                 </Badge>
               )}
             </>
@@ -601,7 +923,7 @@ export function ProductDetailPage(): React.JSX.Element {
             <>
               {isDirty && (
                 <span role="status" className="text-xs font-medium text-warning">
-                  Unsaved changes
+                  {t('productDetail.unsavedChanges')}
                 </span>
               )}
               <Button variant="primary" isLoading={save.isPending} onClick={submit}>
@@ -614,7 +936,7 @@ export function ProductDetailPage(): React.JSX.Element {
 
       <div className="grid gap-5 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-5">
-          <Card title="Details">
+          <Card title={t('productDetail.details')}>
             <form
               className="space-y-4 px-5 py-4"
               onSubmit={(event) => {
@@ -629,7 +951,7 @@ export function ProductDetailPage(): React.JSX.Element {
               )}
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Name" error={errors.name?.message} required>
+                <Field label={t('productDetail.name')} error={errors.name?.message} required>
                   {({ inputId, describedBy }) => (
                     <Input
                       id={inputId}
@@ -643,7 +965,7 @@ export function ProductDetailPage(): React.JSX.Element {
 
                 <Field
                   label="SKU"
-                  hint="Unique across products and variants alike."
+                  hint={t('productDetail.uniqueAcrossProductsAndVariants')}
                   error={errors.sku?.message}
                   required
                 >
@@ -659,7 +981,11 @@ export function ProductDetailPage(): React.JSX.Element {
                   )}
                 </Field>
 
-                <Field label="Category" error={errors.categoryId?.message} required>
+                <Field
+                  label={t('productDetail.category')}
+                  error={errors.categoryId?.message}
+                  required
+                >
                   {({ inputId, describedBy }) => (
                     <Select
                       id={inputId}
@@ -668,7 +994,7 @@ export function ProductDetailPage(): React.JSX.Element {
                       disabled={!canWrite}
                       {...register('categoryId')}
                     >
-                      <option value="">Choose a category</option>
+                      <option value="">{t('productDetail.chooseACategory')}</option>
                       {flatten(categories.data?.categories ?? []).map((node) => (
                         <option key={node.id} value={node.id}>
                           {'— '.repeat(node.depth)}
@@ -680,8 +1006,8 @@ export function ProductDetailPage(): React.JSX.Element {
                 </Field>
 
                 <Field
-                  label="Slug"
-                  hint="Leave blank to generate it from the name."
+                  label={t('productDetail.slug')}
+                  hint={t('productDetail.leaveBlankToGenerateIt')}
                   error={errors.slug?.message}
                 >
                   {({ inputId, describedBy }) => (
@@ -696,8 +1022,8 @@ export function ProductDetailPage(): React.JSX.Element {
               </div>
 
               <Field
-                label="Short description"
-                hint="One line, shown in listings."
+                label={t('productDetail.shortDescription')}
+                hint={t('productDetail.oneLineShownInListings')}
                 error={errors.shortDescription?.message}
               >
                 {({ inputId, describedBy }) => (
@@ -710,7 +1036,7 @@ export function ProductDetailPage(): React.JSX.Element {
                 )}
               </Field>
 
-              <Field label="Description" error={errors.description?.message}>
+              <Field label={t('productDetail.description')} error={errors.description?.message}>
                 {({ inputId, describedBy }) => (
                   <Textarea
                     id={inputId}
@@ -724,11 +1050,11 @@ export function ProductDetailPage(): React.JSX.Element {
             </form>
           </Card>
 
-          <Card title="Pricing">
+          <Card title={t('productDetail.pricing')}>
             <div className="grid gap-4 px-5 py-4 sm:grid-cols-3">
               <Field
                 label={`Price (${currency})`}
-                hint="Major units, e.g. 45.50."
+                hint={t('productDetail.majorUnitsEG45')}
                 error={errors.price?.message}
                 required
               >
@@ -746,8 +1072,8 @@ export function ProductDetailPage(): React.JSX.Element {
               </Field>
 
               <Field
-                label="Compare-at price"
-                hint="Optional strike-through price."
+                label={t('productDetail.compareAtPrice')}
+                hint={t('productDetail.optionalStrikeThroughPrice')}
                 error={errors.compareAtPrice?.message}
               >
                 {({ inputId, describedBy }) => (
@@ -763,7 +1089,11 @@ export function ProductDetailPage(): React.JSX.Element {
                 )}
               </Field>
 
-              <Field label="Tax class" error={errors.taxClassCode?.message} required>
+              <Field
+                label={t('productDetail.taxClass')}
+                error={errors.taxClassCode?.message}
+                required
+              >
                 {({ inputId, describedBy }) => (
                   <Select
                     id={inputId}
@@ -772,7 +1102,7 @@ export function ProductDetailPage(): React.JSX.Element {
                     disabled={!canWrite}
                     {...register('taxClassCode')}
                   >
-                    <option value="">Choose a tax class</option>
+                    <option value="">{t('productDetail.chooseATaxClass')}</option>
                     {(taxClasses.data?.taxClasses ?? [])
                       .filter((taxClass) => taxClass.isActive)
                       .map((taxClass) => (
@@ -790,11 +1120,11 @@ export function ProductDetailPage(): React.JSX.Element {
           <CurrencyPricesPanel productId={id ?? ''} canWrite={canWrite} />
 
           <Card
-            title="Ordering rules"
-            description="Enforced on every cart change and again at checkout, so a customer cannot get round them by editing the cart."
+            title={t('productDetail.orderingRules')}
+            description={t('productDetail.enforcedOnEveryCartChange')}
           >
             <div className="grid gap-4 px-5 py-4 sm:grid-cols-3">
-              <Field label="Minimum quantity" error={errors.minOrderQty?.message}>
+              <Field label={t('productDetail.minimumQuantity')} error={errors.minOrderQty?.message}>
                 {({ inputId, describedBy }) => (
                   <Input
                     id={inputId}
@@ -809,8 +1139,8 @@ export function ProductDetailPage(): React.JSX.Element {
               </Field>
 
               <Field
-                label="Maximum quantity"
-                hint="Blank means no limit."
+                label={t('productDetail.maximumQuantity')}
+                hint={t('productDetail.blankMeansNoLimit')}
                 error={errors.maxOrderQty?.message}
               >
                 {({ inputId, describedBy }) => (
@@ -826,8 +1156,8 @@ export function ProductDetailPage(): React.JSX.Element {
               </Field>
 
               <Field
-                label="Quantity step"
-                hint="Orders must be a multiple of this."
+                label={t('productDetail.quantityStep')}
+                hint={t('productDetail.ordersMustBeAMultiple')}
                 error={errors.qtyIncrement?.message}
               >
                 {({ inputId, describedBy }) => (
@@ -843,7 +1173,10 @@ export function ProductDetailPage(): React.JSX.Element {
                 )}
               </Field>
 
-              <Field label="Reorder threshold" error={errors.reorderThreshold?.message}>
+              <Field
+                label={t('productDetail.reorderThreshold')}
+                error={errors.reorderThreshold?.message}
+              >
                 {({ inputId, describedBy }) => (
                   <Input
                     id={inputId}
@@ -856,7 +1189,7 @@ export function ProductDetailPage(): React.JSX.Element {
                 )}
               </Field>
 
-              <Field label="Weight (grams)" error={errors.weightGrams?.message}>
+              <Field label={t('productDetail.weightGrams')} error={errors.weightGrams?.message}>
                 {({ inputId, describedBy }) => (
                   <Input
                     id={inputId}
@@ -871,14 +1204,14 @@ export function ProductDetailPage(): React.JSX.Element {
 
               <div className="flex flex-col justify-end gap-2 pb-1 sm:col-span-3">
                 <CheckboxField
-                  label="Track stock"
-                  description="Off means the product is always orderable and Inventory ignores it."
+                  label={t('productDetail.trackStock')}
+                  description={t('productDetail.offMeansTheProductIs')}
                   disabled={!canWrite}
                   {...register('isStockTracked')}
                 />
                 <CheckboxField
-                  label="Available for recurring orders"
-                  description="Customers can put it on a standing schedule."
+                  label={t('productDetail.availableForRecurringOrders')}
+                  description={t('productDetail.customersCanPutItOn')}
                   disabled={!canWrite}
                   {...register('isRecurringEligible')}
                 />
@@ -886,7 +1219,16 @@ export function ProductDetailPage(): React.JSX.Element {
             </div>
           </Card>
 
-          {!isNew && product !== undefined && <MediaPanel product={product} />}
+          {isNew ? (
+            <StagedMediaPanel
+              images={stagedImages}
+              onAdd={addStagedImages}
+              onRemove={removeStagedImage}
+              isSaving={save.isPending}
+            />
+          ) : (
+            product !== undefined && <MediaPanel product={product} />
+          )}
           {!isNew && product !== undefined && (
             <SpecificationsPanel
               productId={product.id}
@@ -898,20 +1240,48 @@ export function ProductDetailPage(): React.JSX.Element {
             />
           )}
           {!isNew && product !== undefined && <VariantsPanel productId={product.id} />}
+
+          {/* Directly under the GPSR panel: both are listing obligations, and
+              the device record is the narrower of the two - most of a
+              catalogue has none, and this panel says so in one line. */}
+          {!isNew && product !== undefined && <DevicePanel productId={product.id} />}
+
+          {/* Above the translations tab, because the base-language warning is
+              what that tab translates - and below the variants, because a
+              safety warning is about the product rather than about which
+              option somebody picked. */}
+          {!isNew && product !== undefined && (
+            <ProductSafetyPanel
+              productId={product.id}
+              values={{
+                manufacturerId: product.manufacturerId,
+                euResponsibleId: product.euResponsibleId,
+                gtin: product.gtin,
+                modelIdentifier: product.modelIdentifier,
+                safetyWarnings: product.safetyWarnings,
+                safetyInstructions: product.safetyInstructions,
+              }}
+            />
+          )}
+
+          {/* Below the base fields, not beside them: the English copy above is
+              the source every tab here translates, and reading it first is the
+              order the work actually happens in. */}
+          {!isNew && product !== undefined && (
+            <TranslationsPanel kind="products" entityId={product.id} canWrite={canWrite} />
+          )}
         </div>
 
         <div className="space-y-5">
-          <Card title="Visibility">
+          <Card title={t('productDetail.visibility')}>
             <div className="space-y-4 px-5 py-4">
               {isNew ? (
-                <p className="text-sm text-ink-muted">
-                  A new product starts as a draft. Create it first, then publish.
-                </p>
+                <p className="text-sm text-ink-muted">{t('productDetail.aNewProductStartsAs')}</p>
               ) : (
                 <>
                   <div>
                     <p className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                      Catalogue status
+                      {t('productDetail.catalogueStatus')}
                     </p>
                     <div className="mt-1.5">
                       <Select
@@ -920,27 +1290,27 @@ export function ProductDetailPage(): React.JSX.Element {
                         onChange={(event) => {
                           setStatus.mutate(event.target.value as 'DRAFT' | 'ACTIVE' | 'INACTIVE');
                         }}
-                        aria-label="Catalogue status"
+                        aria-label={t('productDetail.catalogueStatus')}
                       >
-                        <option value="DRAFT">Draft</option>
-                        <option value="ACTIVE">Active</option>
-                        <option value="INACTIVE">Inactive</option>
+                        <option value="DRAFT">{t('productDetail.draft')}</option>
+                        <option value="ACTIVE">{t('productDetail.active')}</option>
+                        <option value="INACTIVE">{t('productDetail.inactive')}</option>
                       </Select>
                     </div>
                   </div>
 
                   <div className="border-t border-border-subtle pt-4">
                     <p className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                      Customer website
+                      {t('productDetail.customerWebsite')}
                     </p>
                     <div className="mt-1.5 flex flex-wrap items-center gap-2">
                       {product?.isPublished === true ? (
                         <Badge dot tone="success">
-                          Published
+                          {t('productDetail.published')}
                         </Badge>
                       ) : (
                         <Badge dot tone="neutral">
-                          Not published
+                          {t('productDetail.notPublished')}
                         </Badge>
                       )}
                       {product?.publishedAt !== null && product?.publishedAt !== undefined && (
@@ -951,8 +1321,9 @@ export function ProductDetailPage(): React.JSX.Element {
                     </div>
 
                     <p className="mt-2 text-xs leading-relaxed text-ink-muted">
-                      A product reaches customers only when it is <strong>both</strong> Active in the
-                      catalogue and Published here.
+                      {t('productDetail.aProductReachesCustomersOnly')}
+                      <strong>both</strong>
+                      {t('productDetail.activeInTheCatalogueAnd')}
                     </p>
 
                     {/* Advisory, not a gate. The button stays enabled and the
@@ -961,7 +1332,7 @@ export function ProductDetailPage(): React.JSX.Element {
                     {product !== undefined && !product.isPublished && (
                       <div className="mt-3 rounded-md border border-border bg-surface-sunken p-3">
                         <p className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                          The server checks
+                          {t('productDetail.theServerChecks')}
                         </p>
                         <ul className="mt-1.5 space-y-1">
                           {(
@@ -1009,8 +1380,7 @@ export function ProductDetailPage(): React.JSX.Element {
 
                     {canPublish && product?.isPublished === true && (
                       <p className="mt-2 text-xxs leading-relaxed text-ink-muted">
-                        Unpublishing removes it from the storefront immediately. Orders that already
-                        include it are unaffected.
+                        {t('productDetail.unpublishingRemovesItFromThe')}
                       </p>
                     )}
                   </div>
@@ -1023,11 +1393,10 @@ export function ProductDetailPage(): React.JSX.Element {
               irreversible action on this page cannot be reached by momentum
               from the ones above it. */}
           {!isNew && can(Permission.PRODUCT_ARCHIVE) && product?.archivedAt === null && (
-            <Card title="Archive" tone="danger">
+            <Card title={t('productDetail.archive')} tone="danger">
               <div className="px-5 py-4">
                 <p className="text-xs leading-relaxed text-ink-muted">
-                  Archiving removes the product from the catalogue and the storefront. Existing
-                  orders keep it, so history stays readable.
+                  {t('productDetail.archivingRemovesTheProductFrom')}
                 </p>
                 <Button
                   variant="danger"
@@ -1036,7 +1405,7 @@ export function ProductDetailPage(): React.JSX.Element {
                     setIsArchiving(true);
                   }}
                 >
-                  Archive product
+                  {t('productDetail.archiveProduct')}
                 </Button>
               </div>
             </Card>
@@ -1053,7 +1422,7 @@ export function ProductDetailPage(): React.JSX.Element {
           archive.mutate();
         }}
         title={`Archive ${product?.name ?? 'this product'}?`}
-        confirmLabel="Archive product"
+        confirmLabel={t('productDetail.archiveProduct')}
         isDangerous
         isWorking={archive.isPending}
         body="It disappears from the catalogue and the customer website. Orders that already include it are unaffected."

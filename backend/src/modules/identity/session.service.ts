@@ -16,6 +16,7 @@
  * with real authority, which is why it carries all the machinery.
  */
 import { createHmac } from 'node:crypto';
+import type { Prisma } from '../../generated/prisma/client.js';
 import { env } from '../../config/env.js';
 import { ErrorCode, unauthorized } from '../../domain/errors.js';
 import { generateToken, safeCompare, sha256Hex } from '../../infra/crypto.js';
@@ -105,6 +106,18 @@ export function verifyAccessToken(token: string): AccessTokenClaims | null {
 
 // --- Session lifecycle -----------------------------------------------------
 
+/**
+ * The position an admin session was opened from, carried from one rotation to
+ * the next. See `carriedLocation` on `createSessionRow`.
+ */
+interface SessionLocationColumns {
+  locationLatitude: Prisma.Decimal | null;
+  locationLongitude: Prisma.Decimal | null;
+  locationAccuracyM: number | null;
+  locationLabel: string | null;
+  locationCapturedAt: Date | null;
+}
+
 /** Create a fresh session family after a successful sign-in. */
 export async function issueSession(
   userId: string,
@@ -113,7 +126,9 @@ export async function issueSession(
 ): Promise<IssuedSession> {
   const sessionId = newId();
   const familyId = newId();
-  return createSessionRow(sessionId, familyId, userId, userType, context);
+  // No location: this is a new sign-in, and asking for one afresh is the whole
+  // point of the gate in `requireAdmin`.
+  return createSessionRow(sessionId, familyId, userId, userType, context, null);
 }
 
 async function createSessionRow(
@@ -122,6 +137,16 @@ async function createSessionRow(
   userId: string,
   userType: 'ADMIN' | 'CUSTOMER',
   context: SessionContext,
+  /**
+   * Copied from the session being replaced, and null for a brand-new one.
+   *
+   * A refresh happens every few minutes in a browser that is being used. If the
+   * replacement row started empty, the console would fall back to the location
+   * screen mid-task, several times an hour, for somebody who has not moved. The
+   * position belongs to the sign-in, not to the token, so it travels with the
+   * family.
+   */
+  carriedLocation: SessionLocationColumns | null,
 ): Promise<IssuedSession> {
   const { token: refreshToken, tokenHash } = generateToken(32);
 
@@ -138,6 +163,7 @@ async function createSessionRow(
       userAgent: context.userAgent?.slice(0, 512) ?? null,
       ipAddress: context.ipAddress ?? null,
       expiresAt: refreshTokenExpiresAt,
+      ...(carriedLocation ?? {}),
     },
   });
 
@@ -215,6 +241,13 @@ export async function rotateSession(
     session.userId,
     userType,
     context,
+    {
+      locationLatitude: session.locationLatitude,
+      locationLongitude: session.locationLongitude,
+      locationAccuracyM: session.locationAccuracyM,
+      locationLabel: session.locationLabel,
+      locationCapturedAt: session.locationCapturedAt,
+    },
   );
 
   // Revoke the consumed token only after the replacement exists, so a crash in
@@ -231,15 +264,37 @@ export async function rotateSession(
   return issued;
 }
 
-/** True when the session is present, unrevoked and unexpired. */
-export async function isSessionActive(sessionId: string): Promise<boolean> {
+/** What a guard needs to know about the session behind an access token. */
+export interface SessionAuthState {
+  /** Present, unrevoked and unexpired. */
+  isActive: boolean;
+  /** The browser has told us where this sign-in happened. */
+  hasLocation: boolean;
+}
+
+/**
+ * The session row, as the guards see it.
+ *
+ * Both facts come from one query on purpose: `requireAdmin` needs each of them
+ * on every single request, and two round trips per request to the same row is a
+ * cost a self-hosted box pays for nothing.
+ */
+export async function getSessionAuthState(sessionId: string): Promise<SessionAuthState> {
   const session = await prisma.session.findUnique({
     where: { id: sessionId },
-    select: { revokedAt: true, expiresAt: true },
+    select: { revokedAt: true, expiresAt: true, locationCapturedAt: true },
   });
 
-  if (session === null || session.revokedAt !== null) return false;
-  return session.expiresAt.getTime() > Date.now();
+  if (session === null || session.revokedAt !== null || session.expiresAt.getTime() <= Date.now()) {
+    return { isActive: false, hasLocation: false };
+  }
+
+  return { isActive: true, hasLocation: session.locationCapturedAt !== null };
+}
+
+/** True when the session is present, unrevoked and unexpired. */
+export async function isSessionActive(sessionId: string): Promise<boolean> {
+  return (await getSessionAuthState(sessionId)).isActive;
 }
 
 export async function revokeSession(sessionId: string, reason = 'logout'): Promise<void> {

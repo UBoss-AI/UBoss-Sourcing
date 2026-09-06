@@ -232,11 +232,16 @@ export async function writeProductPrices(
         currencyCode: code,
         basePriceMinor: price.basePriceMinor,
         compareAtPriceMinor: price.compareAtPriceMinor ?? null,
+        // A person typed this, so the exchange-rate refresh must never touch
+        // it again. Clearing the flag here is the whole mechanism by which a
+        // deliberate local price outranks a converted one, permanently.
+        isAutoConverted: false,
         updatedById: actorId,
       },
       update: {
         basePriceMinor: price.basePriceMinor,
         compareAtPriceMinor: price.compareAtPriceMinor ?? null,
+        isAutoConverted: false,
         updatedById: actorId,
       },
     });

@@ -9,6 +9,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { notFound } from '../../domain/errors.js';
+import { getInvoiceForOrder } from '../../modules/invoicing/invoice.service.js';
 import { serialiseMoney } from '../../domain/money.js';
 import { OrderStatusValues } from '../../domain/order-state-machine.js';
 import { Permission } from '../../domain/permissions.js';
@@ -105,6 +106,29 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
     });
   });
 
+  /**
+   * The customer's own invoice.
+   *
+   * Ownership is the `where` clause on the order, exactly as on the detail
+   * route above: an invoice for somebody else's order simply does not match.
+   * A buyer is entitled to the document, and a supplier who makes them email
+   * for it is creating support work for no reason.
+   */
+  app.get('/:id/invoice', async (request, reply) => {
+    const auth = currentUser(request);
+    const { id } = idParam.parse(request.params);
+
+    const order = await prisma.order.findFirst({
+      where: { id, customerProfileId: auth.customerProfileId ?? '' },
+      select: { id: true },
+    });
+
+    if (order === null) throw notFound('Order');
+
+    const invoice = await getInvoiceForOrder(order.id);
+    return reply.status(200).send({ invoice });
+  });
+
   app.get('/:id', async (request, reply) => {
     const auth = currentUser(request);
     const { id } = idParam.parse(request.params);
@@ -133,6 +157,12 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
         // `internalNote` is deliberately absent: it is written by staff about
         // the order and is not the customer's to read.
         cancelReason: order.cancelReason,
+        // Why the tax line says what it says. A business reading a zero-rated
+        // order needs to know it is reverse-charged - they have to account for
+        // the VAT themselves, and an unexplained zero looks like a mistake.
+        taxTreatment: order.taxTreatment,
+        taxCountry: order.taxCountry,
+        buyerVatNumber: order.buyerVatNumberSnapshot,
         items: order.items.map((item) => ({
           id: item.id,
           // The product and variant ids let a customer reorder from their own

@@ -44,7 +44,7 @@ export function publicCategoryWhere(): Prisma.CategoryWhereInput {
  * must not silently expose it - cost price, internal notes and supplier data
  * stay invisible because they were never named here.
  */
-export const PUBLIC_PRODUCT_SELECT = {
+const PUBLIC_PRODUCT_SELECT_BASE = {
   id: true,
   name: true,
   slug: true,
@@ -64,7 +64,96 @@ export const PUBLIC_PRODUCT_SELECT = {
   publishedAt: true,
   metaTitle: true,
   metaDescription: true,
-  category: { select: { id: true, name: true, slug: true } },
+
+  /**
+   * GPSR Art. 19. Public because the whole point of the article is that a
+   * buyer sees this BEFORE they buy - who made it, how to reach them, what it
+   * is, and what the warnings are. Hiding any of it behind checkout is the
+   * non-compliance the regulation was written about.
+   */
+  gtin: true,
+  modelIdentifier: true,
+  safetyWarnings: true,
+  safetyInstructions: true,
+
+  /**
+   * MDR device identification, where the product is one.
+   *
+   * Public for the same reason the GPSR block is: a buyer comparing devices
+   * needs the class, the notified body and the UDI before they commit, and a
+   * hospital's procurement team will not place an order without them.
+   */
+  deviceInfo: {
+    select: {
+      deviceClass: true,
+      basicUdiDi: true,
+      udiDi: true,
+      notifiedBodyNumber: true,
+      declarationOfConformityUrl: true,
+      intendedPurpose: true,
+      isSterile: true,
+      isSingleUse: true,
+      hasMeasuringFunction: true,
+      containsBiologicalMaterial: true,
+    },
+  },
+  manufacturer: {
+    select: {
+      legalName: true,
+      tradeName: true,
+      addressJson: true,
+      countryCode: true,
+      email: true,
+      phone: true,
+      website: true,
+      // MDR Art. 31. Named on the listing because a buyer's compliance team
+      // asks for it and would otherwise have to write and wait.
+      eudamedSrn: true,
+    },
+  },
+  euResponsible: {
+    select: {
+      legalName: true,
+      tradeName: true,
+      addressJson: true,
+      countryCode: true,
+      email: true,
+      phone: true,
+      website: true,
+    },
+  },
+
+  /**
+   * At most one translation row, chosen by the caller's language.
+   *
+   * Selected here rather than joined per query so every public read gets the
+   * same shape, and `applyProductCopy` has something to layer over the base
+   * columns. `take: 1` with a `language` filter is a point lookup on the
+   * unique index, not a scan.
+   */
+  translations: {
+    select: {
+      language: true,
+      name: true,
+      shortDescription: true,
+      description: true,
+      metaTitle: true,
+      metaDescription: true,
+      safetyWarnings: true,
+      safetyInstructions: true,
+      intendedPurpose: true,
+    },
+    take: 1,
+  },
+
+  category: {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      translations: { select: { name: true }, take: 1 },
+    },
+  },
   taxClass: { select: { code: true, name: true, ratePercent: true, isInclusive: true } },
   media: {
     select: {
@@ -221,12 +310,52 @@ export function validateForPublish(input: PublishValidationInput): PublishBlocke
  * produces a candidate.
  */
 export function slugify(value: string): string {
-  return value
-    .normalize('NFKD')
-    // Strip combining marks so accented characters degrade to their base form.
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 200);
+  return (
+    value
+      .normalize('NFKD')
+      // Strip combining marks so accented characters degrade to their base form.
+      .replace(/[̀-ͯ]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 200)
+  );
 }
+
+/**
+ * The public product select, filtered to one language's translation.
+ *
+ * A function rather than a constant because the language is per request and
+ * Prisma's nested `where` cannot be parameterised after the fact. The
+ * alternative - selecting every language and picking in code - would drag
+ * seven copies of every description across the wire for a 24-product grid.
+ *
+ * Passing null selects no translation rows at all, which is what an
+ * unlocalised caller (the admin panel, an export) wants.
+ */
+export function publicProductSelect(language: string | null) {
+  return {
+    ...PUBLIC_PRODUCT_SELECT_BASE,
+    translations: {
+      ...PUBLIC_PRODUCT_SELECT_BASE.translations,
+      // `language: ''` can never match a stored row, so this is an empty
+      // result rather than a special case at every call site.
+      where: { language: language ?? '' },
+    },
+    category: {
+      select: {
+        ...PUBLIC_PRODUCT_SELECT_BASE.category.select,
+        translations: {
+          ...PUBLIC_PRODUCT_SELECT_BASE.category.select.translations,
+          where: { language: language ?? '' },
+        },
+      },
+    },
+  } as const;
+}
+
+/**
+ * The shape above, for typing a row that came back from it. Identical whatever
+ * language was asked for - only the contents of `translations` differ.
+ */
+export const PUBLIC_PRODUCT_SELECT = publicProductSelect(null);

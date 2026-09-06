@@ -15,6 +15,7 @@
  */
 import { Link } from 'react-router-dom';
 import { useStorefront } from '@/app/storefront-context';
+import { useI18n } from '@/i18n/i18n-context';
 import { DocumentIcon, MailIcon, PhoneIcon } from '@/components/icons';
 
 /** A footer column heading. One style, so the columns read as a set. */
@@ -70,6 +71,7 @@ function ContactRow({
 
 export function Footer(): React.JSX.Element {
   const { business } = useStorefront();
+  const { t } = useI18n();
   const policies = Object.entries(business.policyLinks ?? {});
   const hasSupport = business.supportEmail !== null || business.supportPhone !== null;
 
@@ -109,27 +111,27 @@ export function Footer(): React.JSX.Element {
           </div>
 
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-ink-muted">
-            Industrial and business supplies, sourced and delivered.
+            {t('footer.tagline')}
           </p>
         </div>
 
         <div className="grid gap-10 sm:grid-cols-2 lg:flex lg:shrink-0 lg:gap-16">
           <div>
-            <ColumnHeading>Shop</ColumnHeading>
+            <ColumnHeading>{t('footer.shop')}</ColumnHeading>
             <ul className="mt-3 space-y-2">
               <li>
                 <Link to="/products" className={LINK_CLASS}>
-                  All products
+                  {t('footer.allProducts')}
                 </Link>
               </li>
               <li>
                 <Link to="/account/orders" className={LINK_CLASS}>
-                  My orders
+                  {t('header.myOrders')}
                 </Link>
               </li>
               <li>
                 <Link to="/account/schedules" className={LINK_CLASS}>
-                  Repeat purchases
+                  {t('header.repeatPurchases')}
                 </Link>
               </li>
             </ul>
@@ -140,7 +142,7 @@ export function Footer(): React.JSX.Element {
               support email in the world is how one column ends up owning half
               the footer. */}
           <div className="lg:w-60">
-            <ColumnHeading>Support</ColumnHeading>
+            <ColumnHeading>{t('footer.support')}</ColumnHeading>
 
             {hasSupport ? (
               <div className="mt-3 space-y-2">
@@ -148,7 +150,7 @@ export function Footer(): React.JSX.Element {
                   <ContactRow
                     href={`mailto:${business.supportEmail}`}
                     icon={MailIcon}
-                    label="Email"
+                    label={t('footer.email')}
                     value={business.supportEmail}
                   />
                 )}
@@ -156,21 +158,21 @@ export function Footer(): React.JSX.Element {
                   <ContactRow
                     href={`tel:${business.supportPhone.replace(/\s+/g, '')}`}
                     icon={PhoneIcon}
-                    label="Phone"
+                    label={t('footer.phone')}
                     value={business.supportPhone}
                   />
                 )}
               </div>
             ) : (
               <p className="mt-3 rounded-md border border-dashed border-border px-3 py-2.5 text-sm text-ink-subtle">
-                Contact details coming soon.
+                {t('footer.noContactDetails')}
               </p>
             )}
           </div>
 
           {policies.length > 0 && (
             <div>
-              <ColumnHeading>Policies</ColumnHeading>
+              <ColumnHeading>{t('footer.policies')}</ColumnHeading>
               <ul className="mt-3 space-y-2">
                 {policies.map(([label, href]) => (
                   <li key={label}>
@@ -184,7 +186,7 @@ export function Footer(): React.JSX.Element {
                     >
                       <DocumentIcon className="h-4 w-4 shrink-0 text-ink-subtle transition-colors group-hover:text-brand" />
                       <span className="group-hover:underline">{label}</span>
-                      <span className="sr-only">(opens in a new tab)</span>
+                      <span className="sr-only">{t('footer.opensInNewTab')}</span>
                     </a>
                   </li>
                 ))}
@@ -206,7 +208,7 @@ export function Footer(): React.JSX.Element {
           <p>
             © {new Date().getFullYear()} {business.displayName}
           </p>
-          <p>All prices in {business.currency}.</p>
+          <p>{t('footer.allPricesIn', { currency: business.currency })}</p>
         </div>
       </div>
     </footer>

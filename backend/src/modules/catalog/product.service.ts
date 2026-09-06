@@ -16,6 +16,8 @@ import { sanitiseProductHtml, stripHtml } from '../../infra/sanitize.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { slugify, validateForPublish } from './catalog.visibility.js';
+import { assessGpsr } from './gpsr.service.js';
+import { assessMdr } from './mdr.service.js';
 
 export interface ProductActor {
   userId: string;
@@ -43,6 +45,15 @@ export interface CreateProductInput {
   qtyIncrement?: number;
   isRecurringEligible?: boolean;
   weightGrams?: number | null;
+
+  /// --- Product safety (GPSR Art. 19) ---
+  manufacturerId?: string | null;
+  euResponsibleId?: string | null;
+  gtin?: string | null;
+  modelIdentifier?: string | null;
+  safetyWarnings?: string | null;
+  safetyInstructions?: string | null;
+
   metaTitle?: string | null;
   metaDescription?: string | null;
   attributes?: { name: string; value: string; isFilterable?: boolean }[];
@@ -173,6 +184,12 @@ export async function createProduct(
         qtyIncrement: input.qtyIncrement ?? 1,
         isRecurringEligible: input.isRecurringEligible ?? false,
         weightGrams: input.weightGrams ?? null,
+        manufacturerId: input.manufacturerId ?? null,
+        euResponsibleId: input.euResponsibleId ?? null,
+        gtin: input.gtin ?? null,
+        modelIdentifier: input.modelIdentifier ?? null,
+        safetyWarnings: input.safetyWarnings ?? null,
+        safetyInstructions: input.safetyInstructions ?? null,
         metaTitle: stripHtml(input.metaTitle),
         metaDescription: stripHtml(input.metaDescription),
         // Always DRAFT and unpublished. Publication is a separate, audited,
@@ -246,6 +263,14 @@ export async function updateProduct(
     if (input.qtyIncrement !== undefined) data.qtyIncrement = input.qtyIncrement;
     if (input.isRecurringEligible !== undefined) data.isRecurringEligible = input.isRecurringEligible;
     if (input.weightGrams !== undefined) data.weightGrams = input.weightGrams;
+    if (input.manufacturerId !== undefined) data.manufacturerId = input.manufacturerId;
+    if (input.euResponsibleId !== undefined) data.euResponsibleId = input.euResponsibleId;
+    if (input.gtin !== undefined) data.gtin = input.gtin;
+    if (input.modelIdentifier !== undefined) data.modelIdentifier = input.modelIdentifier;
+    if (input.safetyWarnings !== undefined) data.safetyWarnings = input.safetyWarnings;
+    if (input.safetyInstructions !== undefined) {
+      data.safetyInstructions = input.safetyInstructions;
+    }
     if (input.metaTitle !== undefined) data.metaTitle = stripHtml(input.metaTitle);
     if (input.metaDescription !== undefined) {
       data.metaDescription = stripHtml(input.metaDescription);
@@ -386,6 +411,15 @@ export async function publishProduct(
       where: { id: productId },
       include: {
         category: { select: { isActive: true, archivedAt: true } },
+        // GPSR Art. 19 is about what the listing carries at the moment it is
+        // OFFERED, so the check belongs here rather than on the edit form.
+        manufacturer: {
+          select: { legalName: true, email: true, countryCode: true, eudamedSrn: true },
+        },
+        euResponsible: { select: { legalName: true, email: true, countryCode: true } },
+        // Present only for a product marked as a medical device. Null here
+        // means MDR simply does not reach this listing.
+        deviceInfo: true,
         _count: {
           select: {
             media: true,
@@ -417,11 +451,62 @@ export async function publishProduct(
       categoryIsActive: product.category.isActive && product.category.archivedAt === null,
     });
 
-    if (blockers.length > 0) {
+    // Product safety, where this deployment sells somewhere that requires it.
+    //
+    // Read inside the transaction rather than passed in: the setting and the
+    // EU country list are two small indexed reads, and a publication that
+    // checked a stale copy of either would be checking the wrong rules.
+    const [business, euCountries] = await Promise.all([
+      tx.businessProfile.findFirst({ select: { gpsrEnforced: true, mdrEnforced: true } }),
+      tx.country.findMany({ where: { isEuVat: true }, select: { code: true } }),
+    ]);
+
+    const gpsr = assessGpsr(
+      {
+        manufacturer: product.manufacturer,
+        euResponsible: product.euResponsible,
+        gtin: product.gtin,
+        modelIdentifier: product.modelIdentifier,
+        safetyWarnings: product.safetyWarnings,
+      },
+      new Set(euCountries.map((row) => row.code.toUpperCase())),
+      business?.gpsrEnforced ?? false,
+    );
+
+    // Medical devices, where this one is. Assessed separately from GPSR
+    // because the two are different obligations with different scopes: GPSR
+    // covers every consumer product, MDR covers devices only, and a shop
+    // selling gloves alongside bandages may need one and not the other.
+    const mdr = assessMdr(
+      product.deviceInfo === null
+        ? null
+        : {
+            deviceClass: product.deviceInfo.deviceClass,
+            basicUdiDi: product.deviceInfo.basicUdiDi,
+            udiDi: product.deviceInfo.udiDi,
+            notifiedBodyNumber: product.deviceInfo.notifiedBodyNumber,
+            intendedPurpose: product.deviceInfo.intendedPurpose,
+            isSterile: product.deviceInfo.isSterile,
+            hasMeasuringFunction: product.deviceInfo.hasMeasuringFunction,
+            ...(product.manufacturer === null
+              ? {}
+              : { manufacturerSrn: product.manufacturer.eudamedSrn }),
+          },
+      business?.mdrEnforced ?? false,
+    );
+
+    // Only blocking where the deployment has said it sells into the Union.
+    // Elsewhere the same gaps are still reported by the product screen, which
+    // is what lets an operator see the cost of switching enforcement on before
+    // they do it.
+    const safetyBlockers = gpsr.enforced ? gpsr.gaps : [];
+    const deviceBlockers = mdr.enforced ? mdr.gaps : [];
+
+    if (blockers.length > 0 || safetyBlockers.length > 0 || deviceBlockers.length > 0) {
       throw unprocessable(
         ErrorCode.PRODUCT_INCOMPLETE_FOR_PUBLISH,
         'This product is not ready to publish.',
-        blockers.map((blocker) => ({
+        [...blockers, ...safetyBlockers, ...deviceBlockers].map((blocker) => ({
           field: blocker.field,
           code: blocker.code,
           message: blocker.message,

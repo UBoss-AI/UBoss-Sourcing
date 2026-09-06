@@ -14,12 +14,8 @@ import { randomBytes } from 'node:crypto';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { env } from '../../config/env.js';
-import { ErrorCode, badRequest, forbidden, unauthorized } from '../../domain/errors.js';
-import {
-  changePassword,
-  login,
-  type UserKind,
-} from '../../modules/identity/auth.service.js';
+import { ErrorCode, unauthorized } from '../../domain/errors.js';
+import { changePassword, login, type UserKind } from '../../modules/identity/auth.service.js';
 import {
   revokeAllUserSessions,
   revokeSession,
@@ -31,6 +27,20 @@ import {
   completePasswordReset,
   requestPasswordReset,
 } from '../../modules/identity/token.service.js';
+import {
+  registerCustomer,
+  resendVerificationEmail,
+  verifyRegistrationEmail,
+} from '../../modules/customers/registration.service.js';
+import {
+  SUPPORTED_LANGUAGES,
+  getUserLanguage,
+  setUserLanguage,
+} from '../../modules/identity/language.service.js';
+import {
+  formatCoordinates,
+  recordSessionLocation,
+} from '../../modules/identity/session-location.service.js';
 import { enqueueNotification } from '../../modules/notifications/notification.service.js';
 import {
   cookieNamesFor,
@@ -64,6 +74,45 @@ const acceptInvitationSchema = z.object({
   consentVersion: z.string().min(1).max(32).default('v1'),
 });
 
+/**
+ * The storefront's own sign-up form.
+ *
+ * Four fields are asked for and all four are required: name, email, mobile
+ * number and country. The country is not decoration - this catalogue holds a
+ * real price per market rather than converting one, so it decides what every
+ * price the new account sees is quoted in. The mobile number is how a sourcing
+ * order actually gets chased when something is short or late.
+ *
+ * `organization` is optional and deliberately last: a buyer registering on
+ * behalf of a company usually types it, a sole trader has nothing to type, and
+ * making it required would only teach people to write "n/a".
+ */
+const registerSchema = z.object({
+  fullName: z.string().trim().min(1, 'Enter your name.').max(255),
+  email: z.string().trim().min(1).max(320).email('Enter a valid email address.'),
+  /**
+   * Loose on purpose. The shape of a valid mobile number differs by country and
+   * changes without notice, so this bounds the field and the service strips it
+   * to digits; a real check is somebody ringing it.
+   */
+  phone: z.string().trim().min(6, 'Enter your mobile number.').max(32),
+  country: z.string().trim().length(2, 'Choose a country.').toUpperCase(),
+  password: passwordSchema,
+  organization: z.string().trim().max(255).nullable().optional(),
+  acceptedTerms: z.boolean(),
+  consentVersion: z.string().min(1).max(32).default('v1'),
+  /** What the storefront is being read in, so the first email matches it. */
+  language: z.enum(SUPPORTED_LANGUAGES).nullable().optional(),
+});
+
+const verifyEmailSchema = z.object({
+  token: z.string().min(16).max(512),
+});
+
+const resendVerificationSchema = z.object({
+  email: z.string().trim().min(1).max(320).email(),
+});
+
 const forgotPasswordSchema = z.object({
   email: z.string().trim().min(1).max(320).email(),
 });
@@ -78,6 +127,34 @@ const changePasswordSchema = z.object({
   newPassword: passwordSchema,
 });
 
+/**
+ * A position from the browser's Geolocation API.
+ *
+ * Bounded to the real coordinate ranges, and the accuracy radius to something a
+ * device could plausibly claim. None of this makes the numbers trustworthy - a
+ * client can send whatever it likes - but the values are read by people and
+ * written into a fixed-precision column, so nonsense is refused at the edge
+ * rather than stored and puzzled over later.
+ */
+const sessionLocationSchema = z.object({
+  latitude: z.number().finite().min(-90).max(90),
+  longitude: z.number().finite().min(-180).max(180),
+  /** Metres. Nullable because not every device reports one. */
+  accuracyM: z.number().finite().min(0).max(20_000_000).nullable().default(null),
+});
+
+/**
+ * The interface language.
+ *
+ * An enum, not a free string. The value is written into `<html lang>` by both
+ * frontends and selects which catalogue they load, so leaving it unconstrained
+ * would turn an account preference into a place to park arbitrary text and
+ * have it rendered back into a page attribute.
+ */
+const languageSchema = z.object({
+  language: z.enum(SUPPORTED_LANGUAGES),
+});
+
 // --- Cookie helpers --------------------------------------------------------
 
 interface SessionCookies {
@@ -85,11 +162,7 @@ interface SessionCookies {
   refreshToken: string;
 }
 
-function setSessionCookies(
-  reply: FastifyReply,
-  session: SessionCookies,
-  kind: UserKind,
-): string {
+function setSessionCookies(reply: FastifyReply, session: SessionCookies, kind: UserKind): string {
   // The CSRF token is readable by JS on purpose - the frontend copies it into
   // the X-CSRF-Token header. It authorises nothing by itself; it only proves
   // the caller could read a same-site cookie.
@@ -109,7 +182,10 @@ function setSessionCookies(
 }
 
 function clearSessionCookies(reply: FastifyReply, kind: UserKind): void {
-  const options = { path: '/', ...(env.COOKIE_DOMAIN.length > 0 ? { domain: env.COOKIE_DOMAIN } : {}) };
+  const options = {
+    path: '/',
+    ...(env.COOKIE_DOMAIN.length > 0 ? { domain: env.COOKIE_DOMAIN } : {}),
+  };
   const names = cookieNamesFor(kind);
 
   // Only this surface's cookies. Signing out of the admin panel must not sign
@@ -118,6 +194,18 @@ function clearSessionCookies(reply: FastifyReply, kind: UserKind): void {
     .clearCookie(names.access, options)
     .clearCookie(names.refresh, options)
     .clearCookie(names.csrf, options);
+}
+
+/**
+ * Whether this surface asks a signer-in where they are.
+ *
+ * The admin console does, when the deployment has it on; the storefront never
+ * does. Returned on the user object rather than inferred by the frontend so the
+ * panel and the API agree about it - a panel that decided for itself would show
+ * the location screen to a deployment that had switched the feature off.
+ */
+function locationRequiredFor(kind: UserKind): boolean {
+  return kind === 'ADMIN' && env.FEATURE_ADMIN_LOGIN_LOCATION;
 }
 
 function requestContext(request: FastifyRequest): {
@@ -181,6 +269,12 @@ export function authRoutes(kind: UserKind) {
           // The Admin Panel reads this to send a first-time signer-in straight
           // to the change-password screen instead of the dashboard.
           mustChangePassword: result.user.mustChangePassword,
+          // A fresh session has no position yet by definition, so this pair
+          // sends the panel to the location screen before anything else. Both
+          // are false on the customer surface and in a deployment that has the
+          // feature switched off.
+          locationRequired: locationRequiredFor(kind),
+          locationGranted: false,
         },
         // Returned for non-browser clients. Browsers should rely on the cookie.
         accessToken: result.session.accessToken,
@@ -239,7 +333,87 @@ export function authRoutes(kind: UserKind) {
         customerProfileId: auth.customerProfileId,
         mfaEnabled: auth.mfaEnabled,
         mustChangePassword: auth.mustChangePassword,
+        locationRequired: locationRequiredFor(kind),
+        locationGranted: auth.sessionHasLocation,
       });
+    });
+
+    // --- Sign-in location (admin surface only) -----------------------------
+    //
+    // The storefront asks nothing of a shopper's device. This exists because a
+    // console shared by several staff accounts needs its sign-ins to be
+    // visible to the people running it, which is not a thing to impose on
+    // customers.
+    if (kind === 'ADMIN') {
+      app.post(
+        '/session/location',
+        {
+          preHandler: requireAuthenticated(kind),
+          // Every accepted post can trigger one outbound geocode lookup, so the
+          // route is capped well below what a person clicking "Allow" could
+          // ever need. A browser retrying a denied prompt does not reach here.
+          config: { rateLimit: { max: 20, timeWindow: '15 minutes' } },
+        },
+        async (request, reply) => {
+          const body = sessionLocationSchema.parse(request.body);
+          const auth = currentUser(request);
+          const context = requestContext(request);
+
+          const recorded = await recordSessionLocation({
+            sessionId: auth.sessionId,
+            userId: auth.id,
+            userEmail: auth.email,
+            latitude: body.latitude,
+            longitude: body.longitude,
+            accuracyM: body.accuracyM,
+            ipAddress: context.ipAddress,
+            userAgent: context.userAgent,
+            correlationId: context.correlationId,
+          });
+
+          return reply.status(200).send({
+            locationGranted: true,
+            // Echoed back so the panel can confirm what was recorded without a
+            // second round trip. `place` is the geocoded name when there was
+            // one and the coordinates when there was not.
+            place: recorded.label ?? formatCoordinates(recorded.latitude, recorded.longitude),
+            recordedAt: recorded.capturedAt.toISOString(),
+          });
+        },
+      );
+    }
+
+    /**
+     * The interface language for this account.
+     *
+     * Lives on the auth routes because this factory is registered for both
+     * surfaces, so staff and customers get the endpoint from one
+     * implementation. The alternative was the same handler written twice, once
+     * per account route file, drifting apart the first time either changed.
+     *
+     * `requireAuthenticated` rather than `requireCustomer` or `requireAdmin`
+     * is deliberate and is the reason it sits beside `/password/change`: both
+     * have to work for a session that is otherwise refused everywhere. An
+     * admin on a temporary password, or a customer part-way through
+     * activation, is exactly the person who may need to get out of a language
+     * they cannot read.
+     *
+     * A null reply means never chosen, which is not the same as English - the
+     * frontend then falls back to what the browser asks for.
+     */
+    app.get('/language', { preHandler: requireAuthenticated(kind) }, async (request, reply) => {
+      const auth = currentUser(request);
+      const language = await getUserLanguage(auth.id);
+      return reply.status(200).send({ language });
+    });
+
+    app.put('/language', { preHandler: requireAuthenticated(kind) }, async (request, reply) => {
+      const auth = currentUser(request);
+      const body = languageSchema.parse(request.body);
+
+      const language = await setUserLanguage(auth.id, body.language);
+
+      return reply.status(200).send({ language });
     });
 
     app.post(
@@ -347,24 +521,88 @@ export function authRoutes(kind: UserKind) {
         },
       );
 
+      /**
+       * Open an account from the storefront.
+       *
+       * Optional and OFF by default (SOP 7.2); the service refuses outright
+       * when the flag is down, so the frontend gets a precise code rather than
+       * a 404 it has to guess the meaning of.
+       *
+       * 202, not 201, and the body carries no account in it. The endpoint
+       * answers identically whether an account was created or the address was
+       * already registered - see the note at the top of registration.service.ts
+       * for why a sign-up form that says "that email is taken" is an
+       * enumeration oracle. Nothing is signed in here either: the whole point
+       * of the confirmation link is that the address is not trusted yet.
+       */
       app.post(
         '/register',
         { config: { rateLimit: { max: 5, timeWindow: '1 hour' } } },
-        (_request, _reply) => {
-          // Self-registration is optional and OFF by default (SOP 7.2). The
-          // route exists so the frontend gets a precise, actionable code rather
-          // than a 404 it has to guess the meaning of.
-          if (!env.FEATURE_CUSTOMER_SELF_REGISTRATION) {
-            throw forbidden(
-              ErrorCode.SELF_REGISTRATION_DISABLED,
-              'Accounts are created by invitation. Please contact your account manager.',
-            );
-          }
+        async (request, reply) => {
+          const body = registerSchema.parse(request.body);
+          const context = requestContext(request);
 
-          throw badRequest(
-            ErrorCode.FEATURE_DISABLED,
-            'Self-registration is enabled but not yet implemented.',
-          );
+          const outcome = await registerCustomer({
+            fullName: body.fullName,
+            email: body.email,
+            phone: body.phone,
+            country: body.country,
+            password: body.password,
+            organization: body.organization ?? null,
+            acceptedTerms: body.acceptedTerms,
+            consentVersion: body.consentVersion,
+            language: body.language ?? null,
+            ipAddress: context.ipAddress,
+            correlationId: context.correlationId,
+          });
+
+          return reply.status(202).send({
+            registered: true,
+            requiresApproval: outcome.requiresApproval,
+            message:
+              'Check your email. If this address can have an account here, a confirmation link is on its way.',
+          });
+        },
+      );
+
+      app.post(
+        '/verify-email',
+        { config: { rateLimit: { max: 10, timeWindow: '15 minutes' } } },
+        async (request, reply) => {
+          const body = verifyEmailSchema.parse(request.body);
+          const context = requestContext(request);
+
+          const result = await verifyRegistrationEmail({
+            token: body.token,
+            ipAddress: context.ipAddress,
+            correlationId: context.correlationId,
+          });
+
+          return reply.status(200).send({
+            verified: true,
+            email: result.email,
+            // ACTIVE means the storefront can sign them in with the password
+            // they chose at sign-up; PENDING_APPROVAL means it must not try.
+            status: result.status,
+          });
+        },
+      );
+
+      app.post(
+        '/verify-email/resend',
+        { config: { rateLimit: { max: 5, timeWindow: '1 hour' } } },
+        async (request, reply) => {
+          const body = resendVerificationSchema.parse(request.body);
+          const context = requestContext(request);
+
+          await resendVerificationEmail(body.email, {
+            correlationId: context.correlationId,
+          });
+
+          // Uniform, like /password/forgot next door and for the same reason.
+          return reply.status(202).send({
+            message: 'If that address is waiting on a confirmation link, a new one has been sent.',
+          });
         },
       );
     }

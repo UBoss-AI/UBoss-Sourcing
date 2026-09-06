@@ -38,11 +38,17 @@ import {
   Input,
   LoadingState,
   PageHeader,
+  Select,
 } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { applyApiErrors, nullIfBlank } from '@/lib/forms';
 import { formatNumber, humanise } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
+import { useI18n } from '@/i18n/i18n-context';
+import { ExchangeRatesPanel } from './settings/ExchangeRatesPanel';
+import { CatalogueTranslationPanel } from './settings/CatalogueTranslationPanel';
+import { VatRatesPanel } from './settings/VatRatesPanel';
+import { ProcessorsPanel } from './settings/ProcessorsPanel';
 
 interface BusinessProfile {
   id: string;
@@ -51,6 +57,18 @@ interface BusinessProfile {
   supportEmail: string;
   supportPhone: string | null;
   gstin: string | null;
+  /** The seller's EU VAT number. Art. 226(3) requires it on every invoice. */
+  vatNumber: string | null;
+  /**
+   * The member state the business is established in for VAT.
+   *
+   * The single switch for the whole EU VAT engine. Null means every order is
+   * taxed at its tax class's own flat rate, exactly as before EU VAT existed
+   * in this system.
+   */
+  vatCountry: string | null;
+  /** Whether a listing must satisfy GPSR Art. 19 before it can publish. */
+  gpsrEnforced: boolean;
   currency: string;
   timezone: string;
   invoicePrefix: string;
@@ -63,6 +81,15 @@ interface TaxClass {
   code: string;
   name: string;
   ratePercent: string;
+  /**
+   * Which EU rate band this class falls in.
+   *
+   * Null means the class has no EU meaning: the flat rate above is used
+   * wherever it is sold, which is correct for GST and for any deployment not
+   * selling into the EU. Set it and the rate becomes a lookup against the
+   * destination member state.
+   */
+  vatCategory: 'STANDARD' | 'REDUCED' | 'SUPER_REDUCED' | 'ZERO' | 'EXEMPT' | null;
   isInclusive: boolean;
   isDefault: boolean;
   isActive: boolean;
@@ -93,9 +120,24 @@ interface FlagImpactResponse {
 const businessSchema = z.object({
   legalName: z.string().trim().min(1, 'A legal name is required.').max(255),
   displayName: z.string().trim().min(1, 'A display name is required.').max(255),
-  supportEmail: z.string().trim().min(1, 'A support email is required.').pipe(z.email('Enter a valid email address.')),
+  supportEmail: z
+    .string()
+    .trim()
+    .min(1, 'A support email is required.')
+    .pipe(z.email('Enter a valid email address.')),
   supportPhone: z.string().trim().max(32),
   gstin: z.string().trim().max(32),
+  vatNumber: z.string().trim().max(32),
+  // Two letters or blank. Blank is the meaningful value: it turns EU VAT
+  // resolution off, which is what a non-EU deployment wants.
+  vatCountry: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .refine((value) => value.length === 0 || value.length === 2, {
+      message: 'Use a two-letter country code, or leave it blank.',
+    }),
+  gpsrEnforced: z.boolean(),
   timezone: z.string().trim().min(1).max(64),
   invoicePrefix: z.string().trim().max(16),
   orderPrefix: z.string().trim().max(16),
@@ -109,12 +151,16 @@ const BUSINESS_FIELDS = [
   'supportEmail',
   'supportPhone',
   'gstin',
+  'vatNumber',
+  'vatCountry',
   'timezone',
   'invoicePrefix',
   'orderPrefix',
 ] as const;
 
 function BusinessPanel(): React.JSX.Element {
+  const { t } = useI18n();
+
   const queryClient = useQueryClient();
   const toast = useToast();
   const { can } = useSession();
@@ -139,6 +185,9 @@ function BusinessPanel(): React.JSX.Element {
       supportEmail: '',
       supportPhone: '',
       gstin: '',
+      vatNumber: '',
+      vatCountry: '',
+      gpsrEnforced: false,
       timezone: '',
       invoicePrefix: '',
       orderPrefix: '',
@@ -155,6 +204,9 @@ function BusinessPanel(): React.JSX.Element {
       supportEmail: business.supportEmail,
       supportPhone: business.supportPhone ?? '',
       gstin: business.gstin ?? '',
+      vatNumber: business.vatNumber ?? '',
+      vatCountry: business.vatCountry ?? '',
+      gpsrEnforced: business.gpsrEnforced,
       timezone: business.timezone,
       invoicePrefix: business.invoicePrefix,
       orderPrefix: business.orderPrefix,
@@ -169,6 +221,9 @@ function BusinessPanel(): React.JSX.Element {
         supportEmail: values.supportEmail,
         supportPhone: nullIfBlank(values.supportPhone),
         gstin: nullIfBlank(values.gstin),
+        vatNumber: nullIfBlank(values.vatNumber),
+        vatCountry: nullIfBlank(values.vatCountry),
+        gpsrEnforced: values.gpsrEnforced,
         timezone: values.timezone,
         invoicePrefix: values.invoicePrefix,
         orderPrefix: values.orderPrefix,
@@ -187,15 +242,15 @@ function BusinessPanel(): React.JSX.Element {
 
   if (query.isPending) {
     return (
-      <Card title="Business profile">
-        <LoadingState label="Loading the business profile" />
+      <Card title={t('settings.businessProfile')}>
+        <LoadingState label={t('settings.loadingTheBusinessProfile')} />
       </Card>
     );
   }
 
   if (query.isError) {
     return (
-      <Card title="Business profile">
+      <Card title={t('settings.businessProfile')}>
         <ErrorState
           error={query.error}
           onRetry={() => {
@@ -208,8 +263,8 @@ function BusinessPanel(): React.JSX.Element {
 
   return (
     <Card
-      title="Business profile"
-      description="Appears on invoices, emails and the customer site."
+      title={t('settings.businessProfile')}
+      description={t('settings.appearsOnInvoicesEmailsAnd')}
     >
       <form
         onSubmit={(event) => {
@@ -224,17 +279,13 @@ function BusinessPanel(): React.JSX.Element {
             </Callout>
           )}
 
-          {!canWrite && (
-            <Callout tone="neutral">
-              You can read these settings but not change them. The fields are shown as they stand.
-            </Callout>
-          )}
+          {!canWrite && <Callout tone="neutral">{t('settings.youCanReadTheseSettings')}</Callout>}
 
-          <FieldGroup legend="Identity" hint="How the business names itself to customers and on paper.">
+          <FieldGroup legend="Identity" hint={t('settings.howTheBusinessNamesItself')}>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field
-                label="Legal name"
-                hint="The registered entity, used on invoices."
+                label={t('settings.legalName')}
+                hint={t('settings.theRegisteredEntityUsedOn')}
                 error={errors.legalName?.message}
                 required
               >
@@ -250,8 +301,8 @@ function BusinessPanel(): React.JSX.Element {
               </Field>
 
               <Field
-                label="Display name"
-                hint="What customers see on the storefront and in emails."
+                label={t('settings.displayName')}
+                hint={t('settings.whatCustomersSeeOnThe')}
                 error={errors.displayName?.message}
                 required
               >
@@ -266,7 +317,11 @@ function BusinessPanel(): React.JSX.Element {
                 )}
               </Field>
 
-              <Field label="GSTIN" error={errors.gstin?.message}>
+              <Field
+                label="GSTIN"
+                hint={t('settings.theIndianRegistration')}
+                error={errors.gstin?.message}
+              >
                 {({ inputId, describedBy }) => (
                   <Input
                     id={inputId}
@@ -279,8 +334,25 @@ function BusinessPanel(): React.JSX.Element {
               </Field>
 
               <Field
-                label="Timezone"
-                hint="IANA name, e.g. Asia/Kolkata. Recurring schedules run on this clock."
+                label={t('settings.euVatNumber')}
+                hint={t('settings.euVatNumberHint')}
+                error={errors.vatNumber?.message}
+              >
+                {({ inputId, describedBy }) => (
+                  <Input
+                    id={inputId}
+                    className="font-mono"
+                    placeholder="NL123456789B01"
+                    aria-describedby={describedBy}
+                    disabled={!canWrite}
+                    {...register('vatNumber')}
+                  />
+                )}
+              </Field>
+
+              <Field
+                label={t('settings.timezone')}
+                hint={t('settings.ianaNameEGAsia')}
                 error={errors.timezone?.message}
               >
                 {({ inputId, describedBy }) => (
@@ -293,15 +365,52 @@ function BusinessPanel(): React.JSX.Element {
                 )}
               </Field>
             </div>
+
+            {/* The two switches that decide whether this deployment is held to
+                EU rules at all. Kept together and under the identity fields,
+                because both are answers to "where do we sell?" rather than to
+                "what are we called?". */}
+            <div className="mt-5 space-y-3 border-t border-border pt-5">
+              <Field
+                label={t('settings.vatCountry')}
+                hint={t('settings.vatCountryHint')}
+                error={errors.vatCountry?.message}
+              >
+                {({ inputId, describedBy }) => (
+                  <Input
+                    id={inputId}
+                    className="font-mono sm:w-32"
+                    maxLength={2}
+                    placeholder="NL"
+                    aria-describedby={describedBy}
+                    invalid={errors.vatCountry !== undefined}
+                    disabled={!canWrite}
+                    {...register('vatCountry')}
+                  />
+                )}
+              </Field>
+
+              <CheckboxField
+                boxed
+                disabled={!canWrite}
+                label={t('settings.gpsrEnforced')}
+                description={t('settings.gpsrEnforcedHint')}
+                {...register('gpsrEnforced')}
+              />
+            </div>
           </FieldGroup>
 
           <FieldGroup
             legend="Support contact"
-            hint="Where customers are told to write when something goes wrong."
+            hint={t('settings.whereCustomersAreToldTo')}
             className="border-t border-border-subtle pt-5"
           >
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Support email" error={errors.supportEmail?.message} required>
+              <Field
+                label={t('settings.supportEmail')}
+                error={errors.supportEmail?.message}
+                required
+              >
                 {({ inputId, describedBy }) => (
                   <Input
                     id={inputId}
@@ -314,7 +423,7 @@ function BusinessPanel(): React.JSX.Element {
                 )}
               </Field>
 
-              <Field label="Support phone" error={errors.supportPhone?.message}>
+              <Field label={t('settings.supportPhone')} error={errors.supportPhone?.message}>
                 {({ inputId, describedBy }) => (
                   <Input
                     id={inputId}
@@ -330,11 +439,11 @@ function BusinessPanel(): React.JSX.Element {
 
           <FieldGroup
             legend="Numbering and currency"
-            hint="Prefixes apply to numbers issued from now on. Numbers already assigned keep the prefix they were issued with."
+            hint={t('settings.prefixesApplyToNumbersIssued')}
             className="border-t border-border-subtle pt-5"
           >
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Order number prefix" error={errors.orderPrefix?.message}>
+              <Field label={t('settings.orderNumberPrefix')} error={errors.orderPrefix?.message}>
                 {({ inputId, describedBy }) => (
                   <Input
                     id={inputId}
@@ -346,7 +455,10 @@ function BusinessPanel(): React.JSX.Element {
                 )}
               </Field>
 
-              <Field label="Invoice number prefix" error={errors.invoicePrefix?.message}>
+              <Field
+                label={t('settings.invoiceNumberPrefix')}
+                error={errors.invoicePrefix?.message}
+              >
                 {({ inputId, describedBy }) => (
                   <Input
                     id={inputId}
@@ -363,12 +475,13 @@ function BusinessPanel(): React.JSX.Element {
                 disabled input would invite people to try. */}
             <div className="mt-4 rounded-md border border-border bg-surface-sunken px-3 py-2.5">
               <p className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                Currency
+                {t('settings.currency')}
               </p>
-              <p className="mt-0.5 text-sm font-semibold text-ink">{query.data.business.currency}</p>
+              <p className="mt-0.5 text-sm font-semibold text-ink">
+                {query.data.business.currency}
+              </p>
               <p className="mt-1 max-w-prose text-xs leading-relaxed text-ink-muted">
-                Fixed once any order exists. Every stored amount is minor units of this currency, so
-                changing the label would silently reprice all of history.
+                {t('settings.fixedOnceAnyOrderExists')}
               </p>
             </div>
           </FieldGroup>
@@ -377,11 +490,11 @@ function BusinessPanel(): React.JSX.Element {
         {canWrite && (
           <div className="flex flex-wrap items-center gap-3 border-t border-border-subtle bg-surface-sunken px-5 py-3">
             <Button type="submit" variant="primary" isLoading={save.isPending} disabled={!isDirty}>
-              Save profile
+              {t('settings.saveProfile')}
             </Button>
             {isDirty && (
               <p role="status" className="text-xs font-medium text-warning">
-                You have unsaved changes.
+                {t('settings.youHaveUnsavedChanges')}
               </p>
             )}
           </div>
@@ -398,6 +511,9 @@ const taxSchema = z.object({
     .string()
     .trim()
     .regex(/^\d+(\.\d+)?$/, 'Enter a rate like 18 or 18.5.'),
+  // '' is the meaningful empty value here, not undefined: it means "this
+  // class has no EU band", which is a choice rather than an omission.
+  vatCategory: z.enum(['', 'STANDARD', 'REDUCED', 'SUPER_REDUCED', 'ZERO', 'EXEMPT']),
   isInclusive: z.boolean(),
   isDefault: z.boolean(),
   isActive: z.boolean(),
@@ -412,6 +528,8 @@ function TaxClassDialog({
   editing: TaxClass | null;
   onClose: () => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const queryClient = useQueryClient();
   const toast = useToast();
   const [formError, setFormError] = useState<string | null>(null);
@@ -428,6 +546,7 @@ function TaxClassDialog({
       code: editing?.code ?? '',
       name: editing?.name ?? '',
       ratePercent: editing?.ratePercent ?? '',
+      vatCategory: editing?.vatCategory ?? '',
       isInclusive: editing?.isInclusive ?? false,
       isDefault: editing?.isDefault ?? false,
       isActive: editing?.isActive ?? true,
@@ -435,10 +554,16 @@ function TaxClassDialog({
   });
 
   const mutation = useMutation({
-    mutationFn: (values: TaxForm) =>
-      editing === null
-        ? api.post<{ id: string }>('/admin/settings/tax-classes', values)
-        : api.patch(`/admin/settings/tax-classes/${editing.id}`, values),
+    mutationFn: (values: TaxForm) => {
+      const body = {
+        ...values,
+        vatCategory: values.vatCategory === '' ? null : values.vatCategory,
+      };
+
+      return editing === null
+        ? api.post<{ id: string }>('/admin/settings/tax-classes', body)
+        : api.patch(`/admin/settings/tax-classes/${editing.id}`, body);
+    },
     onSuccess: async () => {
       toast.success(editing === null ? 'Tax class created.' : 'Tax class saved.');
       await queryClient.invalidateQueries({ queryKey: ['tax-classes'] });
@@ -461,11 +586,11 @@ function TaxClassDialog({
       isOpen
       onClose={onClose}
       title={editing === null ? 'New tax class' : `Edit ${editing.name}`}
-      description="Every product carries exactly one tax class."
+      description={t('settings.everyProductCarriesExactlyOne')}
       footer={
         <>
           <Button onClick={onClose} disabled={mutation.isPending}>
-            Cancel
+            {t('settings.cancel')}
           </Button>
           <Button variant="primary" isLoading={mutation.isPending} onClick={submit}>
             {editing === null ? 'Create tax class' : 'Save changes'}
@@ -487,7 +612,12 @@ function TaxClassDialog({
         )}
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Code" hint="Used in imports and exports." error={errors.code?.message} required>
+          <Field
+            label={t('settings.code')}
+            hint={t('settings.usedInImportsAndExports')}
+            error={errors.code?.message}
+            required
+          >
             {({ inputId, describedBy }) => (
               <Input
                 id={inputId}
@@ -499,7 +629,7 @@ function TaxClassDialog({
             )}
           </Field>
 
-          <Field label="Name" error={errors.name?.message} required>
+          <Field label={t('settings.name')} error={errors.name?.message} required>
             {({ inputId, describedBy }) => (
               <Input
                 id={inputId}
@@ -511,22 +641,37 @@ function TaxClassDialog({
           </Field>
         </div>
 
-        <Field label="Rate (%)" error={errors.ratePercent?.message} required>
-          {({ inputId, describedBy }) => (
-            <Input
-              id={inputId}
-              inputMode="decimal"
-              className="tabular sm:w-40"
-              aria-describedby={describedBy}
-              invalid={errors.ratePercent !== undefined}
-              {...register('ratePercent')}
-            />
-          )}
-        </Field>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label={t('settings.rate')} error={errors.ratePercent?.message} required>
+            {({ inputId, describedBy }) => (
+              <Input
+                id={inputId}
+                inputMode="decimal"
+                className="tabular"
+                aria-describedby={describedBy}
+                invalid={errors.ratePercent !== undefined}
+                {...register('ratePercent')}
+              />
+            )}
+          </Field>
+
+          <Field label={t('settings.vatBand')} hint={t('settings.vatBandHint')}>
+            {({ inputId, describedBy }) => (
+              <Select id={inputId} aria-describedby={describedBy} {...register('vatCategory')}>
+                <option value="">{t('settings.noEuBand')}</option>
+                <option value="STANDARD">{t('vatRates.category.STANDARD')}</option>
+                <option value="REDUCED">{t('vatRates.category.REDUCED')}</option>
+                <option value="SUPER_REDUCED">{t('vatRates.category.SUPER_REDUCED')}</option>
+                <option value="ZERO">{t('vatRates.category.ZERO')}</option>
+                <option value="EXEMPT">{t('vatRates.category.EXEMPT')}</option>
+              </Select>
+            )}
+          </Field>
+        </div>
 
         <div className="space-y-2 border-t border-border-subtle pt-4">
           <CheckboxField
-            label="Prices already include this tax"
+            label={t('settings.pricesAlreadyIncludeThisTax')}
             description={
               isInclusive
                 ? 'The tax is extracted from the listed price — the customer pays exactly what is shown.'
@@ -536,7 +681,7 @@ function TaxClassDialog({
           />
 
           <CheckboxField
-            label="Use as the default for new products"
+            label={t('settings.useAsTheDefaultFor')}
             {...(isDefault && editing?.isDefault !== true
               ? {
                   description:
@@ -547,8 +692,8 @@ function TaxClassDialog({
           />
 
           <CheckboxField
-            label="Active"
-            description="An inactive class cannot be chosen for new products. Products already on it are unaffected."
+            label={t('settings.active')}
+            description={t('settings.anInactiveClassCannotBe')}
             {...register('isActive')}
           />
         </div>
@@ -558,6 +703,8 @@ function TaxClassDialog({
 }
 
 function TaxClassesPanel(): React.JSX.Element {
+  const { t } = useI18n();
+
   const { can } = useSession();
   const [editorFor, setEditorFor] = useState<TaxClass | null | undefined>(undefined);
 
@@ -576,7 +723,7 @@ function TaxClassesPanel(): React.JSX.Element {
         <div className="min-w-40">
           <div className="flex flex-wrap items-center gap-2">
             <p className="font-medium text-ink">{row.name}</p>
-            {row.isDefault && <Badge tone="accent">Default</Badge>}
+            {row.isDefault && <Badge tone="accent">{t('settings.default')}</Badge>}
           </div>
           <p className="font-mono text-xxs text-ink-subtle">{row.code}</p>
         </div>
@@ -612,17 +759,17 @@ function TaxClassesPanel(): React.JSX.Element {
       render: (row) =>
         row.isActive ? (
           <Badge dot tone="success">
-            Active
+            {t('settings.active')}
           </Badge>
         ) : (
           <Badge dot tone="warning">
-            Inactive
+            {t('settings.inactive')}
           </Badge>
         ),
     },
     {
       key: 'actions',
-      header: <span className="sr-only">Actions</span>,
+      header: <span className="sr-only">{t('settings.actions')}</span>,
       align: 'right',
       render: (row) =>
         canWrite ? (
@@ -633,7 +780,7 @@ function TaxClassesPanel(): React.JSX.Element {
               setEditorFor(row);
             }}
           >
-            Edit
+            {t('settings.edit')}
             <span className="sr-only"> {row.name}</span>
           </Button>
         ) : null,
@@ -643,8 +790,8 @@ function TaxClassesPanel(): React.JSX.Element {
   return (
     <>
       <Card
-        title="Tax classes"
-        description="Exactly one is the default, and every product carries one. Changing a rate applies to new orders — orders already placed keep the tax they were charged."
+        title={t('settings.taxClasses')}
+        description={t('settings.exactlyOneIsTheDefault')}
         actions={
           canWrite ? (
             <Button
@@ -653,7 +800,7 @@ function TaxClassesPanel(): React.JSX.Element {
                 setEditorFor(null);
               }}
             >
-              New tax class
+              {t('settings.newTaxClass')}
             </Button>
           ) : undefined
         }
@@ -688,6 +835,8 @@ function TaxClassesPanel(): React.JSX.Element {
 }
 
 function FeatureFlagsPanel(): React.JSX.Element {
+  const { t } = useI18n();
+
   const queryClient = useQueryClient();
   const toast = useToast();
   const { can } = useSession();
@@ -703,9 +852,7 @@ function FeatureFlagsPanel(): React.JSX.Element {
   const impact = useQuery({
     queryKey: ['flag-impact', disabling?.key],
     queryFn: () =>
-      api.get<FlagImpactResponse>(
-        `/admin/settings/feature-flags/${String(disabling?.key)}/impact`,
-      ),
+      api.get<FlagImpactResponse>(`/admin/settings/feature-flags/${String(disabling?.key)}/impact`),
     enabled: disabling !== null,
   });
 
@@ -729,11 +876,8 @@ function FeatureFlagsPanel(): React.JSX.Element {
 
   return (
     <>
-      <Card
-        title="Feature flags"
-        description="Whole parts of the system, on or off. Turning one on is immediate and harmless; turning one off can stop work that is already in flight, so it asks what that would cost first."
-      >
-        {query.isPending && <LoadingState label="Loading feature flags" />}
+      <Card title={t('settings.featureFlags')} description={t('settings.wholePartsOfTheSystem')}>
+        {query.isPending && <LoadingState label={t('settings.loadingFeatureFlags')} />}
         {query.isError && (
           <ErrorState
             error={query.error}
@@ -746,7 +890,10 @@ function FeatureFlagsPanel(): React.JSX.Element {
         {query.data !== undefined && (
           <ul className="divide-y divide-border">
             {query.data.flags.map((flag) => (
-              <li key={flag.key} className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3.5">
+              <li
+                key={flag.key}
+                className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3.5"
+              >
                 <div className="min-w-56 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-sm font-medium text-ink">{humanise(flag.key)}</p>
@@ -756,7 +903,7 @@ function FeatureFlagsPanel(): React.JSX.Element {
                       </Badge>
                     ) : (
                       <Badge dot tone="neutral">
-                        Off
+                        {t('settings.off')}
                       </Badge>
                     )}
                   </div>
@@ -804,18 +951,20 @@ function FeatureFlagsPanel(): React.JSX.Element {
           if (disabling !== null) toggle.mutate({ key: disabling.key, enabled: false });
         }}
         title={`Turn off ${disabling === null ? 'this feature' : humanise(disabling.key)}?`}
-        confirmLabel="Turn it off"
+        confirmLabel={t('settings.turnItOff')}
         isDangerous
         isWorking={toggle.isPending}
         body={
           <div className="space-y-3">
             <p>{disabling?.description}</p>
 
-            {impact.isPending && <p className="text-ink-subtle">Checking what this affects…</p>}
+            {impact.isPending && (
+              <p className="text-ink-subtle">{t('settings.checkingWhatThisAffects')}</p>
+            )}
 
             {consequence !== null &&
               (consequence.count > 0 ? (
-                <Callout tone="warning" title="Turning this off will:">
+                <Callout tone="warning" title={t('settings.turningThisOffWill')}>
                   {consequence.message}
                 </Callout>
               ) : (
@@ -829,17 +978,34 @@ function FeatureFlagsPanel(): React.JSX.Element {
 }
 
 export function SettingsPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   return (
     <>
       <PageHeader
-        title="Settings"
-        description="Business identity, tax, and what the system does. Three panels, each with a rule the server enforces whatever this screen shows."
+        title={t('settings.settings')}
+        description={t('settings.businessIdentityTaxAndWhat')}
       />
 
       <div className="space-y-5">
         <BusinessPanel />
         <TaxClassesPanel />
+        {/* Directly under the tax classes: a class carries the BAND, this
+            carries the percentage that band means in each member state, and
+            neither is readable without the other. */}
+        <VatRatesPanel />
+        {/* Below tax because it is downstream of it: a converted price is still
+            taxed by the class on the product. Above feature flags because this
+            one changes what customers are charged. */}
+        <ExchangeRatesPanel />
+        {/* Beside the exchange rate panel because they are the same job seen
+            twice: what a market is quoted in, and what it reads. */}
+        <CatalogueTranslationPanel />
         <FeatureFlagsPanel />
+        {/* Last, because it is a report rather than a setting - nothing on it
+            is editable, and it is read against a register rather than used to
+            change anything. */}
+        <ProcessorsPanel />
       </div>
     </>
   );

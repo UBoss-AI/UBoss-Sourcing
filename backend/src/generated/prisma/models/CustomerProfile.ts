@@ -33,6 +33,10 @@ export type CustomerProfileMinAggregateOutputType = {
   phone: string | null
   gstin: string | null
   customerCode: string | null
+  vatNumber: string | null
+  vatNumberValid: boolean | null
+  vatNumberCheckedAt: Date | null
+  vatNumberReference: string | null
   requiresOrderApproval: boolean | null
   internalNotes: string | null
   preferredCountry: string | null
@@ -58,6 +62,10 @@ export type CustomerProfileMaxAggregateOutputType = {
   phone: string | null
   gstin: string | null
   customerCode: string | null
+  vatNumber: string | null
+  vatNumberValid: boolean | null
+  vatNumberCheckedAt: Date | null
+  vatNumberReference: string | null
   requiresOrderApproval: boolean | null
   internalNotes: string | null
   preferredCountry: string | null
@@ -83,6 +91,10 @@ export type CustomerProfileCountAggregateOutputType = {
   phone: number
   gstin: number
   customerCode: number
+  vatNumber: number
+  vatNumberValid: number
+  vatNumberCheckedAt: number
+  vatNumberReference: number
   requiresOrderApproval: number
   internalNotes: number
   preferredCountry: number
@@ -110,6 +122,10 @@ export type CustomerProfileMinAggregateInputType = {
   phone?: true
   gstin?: true
   customerCode?: true
+  vatNumber?: true
+  vatNumberValid?: true
+  vatNumberCheckedAt?: true
+  vatNumberReference?: true
   requiresOrderApproval?: true
   internalNotes?: true
   preferredCountry?: true
@@ -135,6 +151,10 @@ export type CustomerProfileMaxAggregateInputType = {
   phone?: true
   gstin?: true
   customerCode?: true
+  vatNumber?: true
+  vatNumberValid?: true
+  vatNumberCheckedAt?: true
+  vatNumberReference?: true
   requiresOrderApproval?: true
   internalNotes?: true
   preferredCountry?: true
@@ -160,6 +180,10 @@ export type CustomerProfileCountAggregateInputType = {
   phone?: true
   gstin?: true
   customerCode?: true
+  vatNumber?: true
+  vatNumberValid?: true
+  vatNumberCheckedAt?: true
+  vatNumberReference?: true
   requiresOrderApproval?: true
   internalNotes?: true
   preferredCountry?: true
@@ -258,6 +282,10 @@ export type CustomerProfileGroupByOutputType = {
   phone: string | null
   gstin: string | null
   customerCode: string | null
+  vatNumber: string | null
+  vatNumberValid: boolean | null
+  vatNumberCheckedAt: Date | null
+  vatNumberReference: string | null
   requiresOrderApproval: boolean
   internalNotes: string | null
   preferredCountry: string | null
@@ -304,6 +332,10 @@ export type CustomerProfileWhereInput = {
   phone?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   gstin?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   customerCode?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
+  vatNumber?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
+  vatNumberValid?: Prisma.BoolNullableFilter<"CustomerProfile"> | boolean | null
+  vatNumberCheckedAt?: Prisma.DateTimeNullableFilter<"CustomerProfile"> | Date | string | null
+  vatNumberReference?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   requiresOrderApproval?: Prisma.BoolFilter<"CustomerProfile"> | boolean
   internalNotes?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   preferredCountry?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
@@ -337,6 +369,10 @@ export type CustomerProfileOrderByWithRelationInput = {
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   gstin?: Prisma.SortOrderInput | Prisma.SortOrder
   customerCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  vatNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  vatNumberValid?: Prisma.SortOrderInput | Prisma.SortOrder
+  vatNumberCheckedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  vatNumberReference?: Prisma.SortOrderInput | Prisma.SortOrder
   requiresOrderApproval?: Prisma.SortOrder
   internalNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredCountry?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -374,6 +410,10 @@ export type CustomerProfileWhereUniqueInput = Prisma.AtLeast<{
   department?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   phone?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   gstin?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
+  vatNumber?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
+  vatNumberValid?: Prisma.BoolNullableFilter<"CustomerProfile"> | boolean | null
+  vatNumberCheckedAt?: Prisma.DateTimeNullableFilter<"CustomerProfile"> | Date | string | null
+  vatNumberReference?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   requiresOrderApproval?: Prisma.BoolFilter<"CustomerProfile"> | boolean
   internalNotes?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   preferredCountry?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
@@ -407,6 +447,10 @@ export type CustomerProfileOrderByWithAggregationInput = {
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   gstin?: Prisma.SortOrderInput | Prisma.SortOrder
   customerCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  vatNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  vatNumberValid?: Prisma.SortOrderInput | Prisma.SortOrder
+  vatNumberCheckedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  vatNumberReference?: Prisma.SortOrderInput | Prisma.SortOrder
   requiresOrderApproval?: Prisma.SortOrder
   internalNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredCountry?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -438,6 +482,10 @@ export type CustomerProfileScalarWhereWithAggregatesInput = {
   phone?: Prisma.StringNullableWithAggregatesFilter<"CustomerProfile"> | string | null
   gstin?: Prisma.StringNullableWithAggregatesFilter<"CustomerProfile"> | string | null
   customerCode?: Prisma.StringNullableWithAggregatesFilter<"CustomerProfile"> | string | null
+  vatNumber?: Prisma.StringNullableWithAggregatesFilter<"CustomerProfile"> | string | null
+  vatNumberValid?: Prisma.BoolNullableWithAggregatesFilter<"CustomerProfile"> | boolean | null
+  vatNumberCheckedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CustomerProfile"> | Date | string | null
+  vatNumberReference?: Prisma.StringNullableWithAggregatesFilter<"CustomerProfile"> | string | null
   requiresOrderApproval?: Prisma.BoolWithAggregatesFilter<"CustomerProfile"> | boolean
   internalNotes?: Prisma.StringNullableWithAggregatesFilter<"CustomerProfile"> | string | null
   preferredCountry?: Prisma.StringNullableWithAggregatesFilter<"CustomerProfile"> | string | null
@@ -462,6 +510,10 @@ export type CustomerProfileCreateInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
   requiresOrderApproval?: boolean
   internalNotes?: string | null
   preferredCountry?: string | null
@@ -495,6 +547,10 @@ export type CustomerProfileUncheckedCreateInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
   requiresOrderApproval?: boolean
   internalNotes?: string | null
   preferredCountry?: string | null
@@ -526,6 +582,10 @@ export type CustomerProfileUpdateInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -559,6 +619,10 @@ export type CustomerProfileUncheckedUpdateInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -591,6 +655,10 @@ export type CustomerProfileCreateManyInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
   requiresOrderApproval?: boolean
   internalNotes?: string | null
   preferredCountry?: string | null
@@ -615,6 +683,10 @@ export type CustomerProfileUpdateManyMutationInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -640,6 +712,10 @@ export type CustomerProfileUncheckedUpdateManyInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -676,6 +752,10 @@ export type CustomerProfileCountOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   gstin?: Prisma.SortOrder
   customerCode?: Prisma.SortOrder
+  vatNumber?: Prisma.SortOrder
+  vatNumberValid?: Prisma.SortOrder
+  vatNumberCheckedAt?: Prisma.SortOrder
+  vatNumberReference?: Prisma.SortOrder
   requiresOrderApproval?: Prisma.SortOrder
   internalNotes?: Prisma.SortOrder
   preferredCountry?: Prisma.SortOrder
@@ -701,6 +781,10 @@ export type CustomerProfileMaxOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   gstin?: Prisma.SortOrder
   customerCode?: Prisma.SortOrder
+  vatNumber?: Prisma.SortOrder
+  vatNumberValid?: Prisma.SortOrder
+  vatNumberCheckedAt?: Prisma.SortOrder
+  vatNumberReference?: Prisma.SortOrder
   requiresOrderApproval?: Prisma.SortOrder
   internalNotes?: Prisma.SortOrder
   preferredCountry?: Prisma.SortOrder
@@ -726,6 +810,10 @@ export type CustomerProfileMinOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   gstin?: Prisma.SortOrder
   customerCode?: Prisma.SortOrder
+  vatNumber?: Prisma.SortOrder
+  vatNumberValid?: Prisma.SortOrder
+  vatNumberCheckedAt?: Prisma.SortOrder
+  vatNumberReference?: Prisma.SortOrder
   requiresOrderApproval?: Prisma.SortOrder
   internalNotes?: Prisma.SortOrder
   preferredCountry?: Prisma.SortOrder
@@ -777,6 +865,10 @@ export type CustomerProfileUncheckedUpdateOneWithoutUserNestedInput = {
   delete?: Prisma.CustomerProfileWhereInput | boolean
   connect?: Prisma.CustomerProfileWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerProfileUpdateToOneWithWhereWithoutUserInput, Prisma.CustomerProfileUpdateWithoutUserInput>, Prisma.CustomerProfileUncheckedUpdateWithoutUserInput>
+}
+
+export type NullableBoolFieldUpdateOperationsInput = {
+  set?: boolean | null
 }
 
 export type CustomerProfileCreateNestedOneWithoutAddressesInput = {
@@ -891,6 +983,10 @@ export type CustomerProfileCreateWithoutUserInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
   requiresOrderApproval?: boolean
   internalNotes?: string | null
   preferredCountry?: string | null
@@ -922,6 +1018,10 @@ export type CustomerProfileUncheckedCreateWithoutUserInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
   requiresOrderApproval?: boolean
   internalNotes?: string | null
   preferredCountry?: string | null
@@ -969,6 +1069,10 @@ export type CustomerProfileUpdateWithoutUserInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1000,6 +1104,10 @@ export type CustomerProfileUncheckedUpdateWithoutUserInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1031,6 +1139,10 @@ export type CustomerProfileCreateWithoutAddressesInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
   requiresOrderApproval?: boolean
   internalNotes?: string | null
   preferredCountry?: string | null
@@ -1063,6 +1175,10 @@ export type CustomerProfileUncheckedCreateWithoutAddressesInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
   requiresOrderApproval?: boolean
   internalNotes?: string | null
   preferredCountry?: string | null
@@ -1109,6 +1225,10 @@ export type CustomerProfileUpdateWithoutAddressesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1141,6 +1261,10 @@ export type CustomerProfileUncheckedUpdateWithoutAddressesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1171,6 +1295,10 @@ export type CustomerProfileCreateWithoutCartsInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
   requiresOrderApproval?: boolean
   internalNotes?: string | null
   preferredCountry?: string | null
@@ -1203,6 +1331,10 @@ export type CustomerProfileUncheckedCreateWithoutCartsInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
   requiresOrderApproval?: boolean
   internalNotes?: string | null
   preferredCountry?: string | null
@@ -1249,6 +1381,10 @@ export type CustomerProfileUpdateWithoutCartsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1281,6 +1417,10 @@ export type CustomerProfileUncheckedUpdateWithoutCartsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1311,6 +1451,10 @@ export type CustomerProfileCreateWithoutOrdersInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
   requiresOrderApproval?: boolean
   internalNotes?: string | null
   preferredCountry?: string | null
@@ -1343,6 +1487,10 @@ export type CustomerProfileUncheckedCreateWithoutOrdersInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
   requiresOrderApproval?: boolean
   internalNotes?: string | null
   preferredCountry?: string | null
@@ -1389,6 +1537,10 @@ export type CustomerProfileUpdateWithoutOrdersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1421,6 +1573,10 @@ export type CustomerProfileUncheckedUpdateWithoutOrdersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1451,6 +1607,10 @@ export type CustomerProfileCreateWithoutSchedulesInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
   requiresOrderApproval?: boolean
   internalNotes?: string | null
   preferredCountry?: string | null
@@ -1483,6 +1643,10 @@ export type CustomerProfileUncheckedCreateWithoutSchedulesInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
   requiresOrderApproval?: boolean
   internalNotes?: string | null
   preferredCountry?: string | null
@@ -1529,6 +1693,10 @@ export type CustomerProfileUpdateWithoutSchedulesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1561,6 +1729,10 @@ export type CustomerProfileUncheckedUpdateWithoutSchedulesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1591,6 +1763,10 @@ export type CustomerProfileCreateWithoutCouponRedemptionsInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
   requiresOrderApproval?: boolean
   internalNotes?: string | null
   preferredCountry?: string | null
@@ -1623,6 +1799,10 @@ export type CustomerProfileUncheckedCreateWithoutCouponRedemptionsInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
   requiresOrderApproval?: boolean
   internalNotes?: string | null
   preferredCountry?: string | null
@@ -1669,6 +1849,10 @@ export type CustomerProfileUpdateWithoutCouponRedemptionsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1701,6 +1885,10 @@ export type CustomerProfileUncheckedUpdateWithoutCouponRedemptionsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1731,6 +1919,10 @@ export type CustomerProfileCreateWithoutLimitsInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
   requiresOrderApproval?: boolean
   internalNotes?: string | null
   preferredCountry?: string | null
@@ -1763,6 +1955,10 @@ export type CustomerProfileUncheckedCreateWithoutLimitsInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
   requiresOrderApproval?: boolean
   internalNotes?: string | null
   preferredCountry?: string | null
@@ -1809,6 +2005,10 @@ export type CustomerProfileUpdateWithoutLimitsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1841,6 +2041,10 @@ export type CustomerProfileUncheckedUpdateWithoutLimitsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1871,6 +2075,10 @@ export type CustomerProfileCreateWithoutAssistantConversationsInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
   requiresOrderApproval?: boolean
   internalNotes?: string | null
   preferredCountry?: string | null
@@ -1903,6 +2111,10 @@ export type CustomerProfileUncheckedCreateWithoutAssistantConversationsInput = {
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
   requiresOrderApproval?: boolean
   internalNotes?: string | null
   preferredCountry?: string | null
@@ -1949,6 +2161,10 @@ export type CustomerProfileUpdateWithoutAssistantConversationsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1981,6 +2197,10 @@ export type CustomerProfileUncheckedUpdateWithoutAssistantConversationsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2097,6 +2317,10 @@ export type CustomerProfileSelect<ExtArgs extends runtime.Types.Extensions.Inter
   phone?: boolean
   gstin?: boolean
   customerCode?: boolean
+  vatNumber?: boolean
+  vatNumberValid?: boolean
+  vatNumberCheckedAt?: boolean
+  vatNumberReference?: boolean
   requiresOrderApproval?: boolean
   internalNotes?: boolean
   preferredCountry?: boolean
@@ -2133,6 +2357,10 @@ export type CustomerProfileSelectScalar = {
   phone?: boolean
   gstin?: boolean
   customerCode?: boolean
+  vatNumber?: boolean
+  vatNumberValid?: boolean
+  vatNumberCheckedAt?: boolean
+  vatNumberReference?: boolean
   requiresOrderApproval?: boolean
   internalNotes?: boolean
   preferredCountry?: boolean
@@ -2149,7 +2377,7 @@ export type CustomerProfileSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CustomerProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "fullName" | "organization" | "department" | "phone" | "gstin" | "customerCode" | "requiresOrderApproval" | "internalNotes" | "preferredCountry" | "preferredCurrency" | "localeChosenAt" | "detectedCountry" | "detectedAt" | "consentAcceptedAt" | "consentVersion" | "invitedById" | "invitedAt" | "activatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["customerProfile"]>
+export type CustomerProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "fullName" | "organization" | "department" | "phone" | "gstin" | "customerCode" | "vatNumber" | "vatNumberValid" | "vatNumberCheckedAt" | "vatNumberReference" | "requiresOrderApproval" | "internalNotes" | "preferredCountry" | "preferredCurrency" | "localeChosenAt" | "detectedCountry" | "detectedAt" | "consentAcceptedAt" | "consentVersion" | "invitedById" | "invitedAt" | "activatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["customerProfile"]>
 export type CustomerProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   addresses?: boolean | Prisma.CustomerProfile$addressesArgs<ExtArgs>
@@ -2183,6 +2411,31 @@ export type $CustomerProfilePayload<ExtArgs extends runtime.Types.Extensions.Int
     phone: string | null
     gstin: string | null
     customerCode: string | null
+    /**
+     * The customer's EU VAT identification number, including the member state
+     * prefix, e.g. "DE811569869". Kept apart from `gstin`, which is the Indian
+     * registration: they are different identifiers under different laws, and a
+     * business can hold both.
+     * 
+     * This one field decides whether a cross-border sale is zero-rated. That is
+     * why it is never taken on trust - see the three columns below.
+     */
+    vatNumber: string | null
+    /**
+     * What VIES said, and when. Null means never checked, which is not the same
+     * as invalid: a check that could not be made leaves this null and the sale
+     * is taxed rather than zero-rated, because Art. 138(1)(b) puts the burden of
+     * the customer's status on the seller.
+     */
+    vatNumberValid: boolean | null
+    vatNumberCheckedAt: Date | null
+    /**
+     * The VIES consultation reference for the last successful check. Evidence
+     * under Art. 31 of Reg. 904/2010 that the seller relied on an official
+     * answer, which is what stands between a mis-zero-rated supply and the
+     * seller paying the tax themselves.
+     */
+    vatNumberReference: string | null
     /**
      * Whether this account needs sign-off at all. The amounts that decide when
      * live in `customer_limits`, one row per currency - see that model.
@@ -2596,6 +2849,10 @@ export interface CustomerProfileFieldRefs {
   readonly phone: Prisma.FieldRef<"CustomerProfile", 'String'>
   readonly gstin: Prisma.FieldRef<"CustomerProfile", 'String'>
   readonly customerCode: Prisma.FieldRef<"CustomerProfile", 'String'>
+  readonly vatNumber: Prisma.FieldRef<"CustomerProfile", 'String'>
+  readonly vatNumberValid: Prisma.FieldRef<"CustomerProfile", 'Boolean'>
+  readonly vatNumberCheckedAt: Prisma.FieldRef<"CustomerProfile", 'DateTime'>
+  readonly vatNumberReference: Prisma.FieldRef<"CustomerProfile", 'String'>
   readonly requiresOrderApproval: Prisma.FieldRef<"CustomerProfile", 'Boolean'>
   readonly internalNotes: Prisma.FieldRef<"CustomerProfile", 'String'>
   readonly preferredCountry: Prisma.FieldRef<"CustomerProfile", 'String'>

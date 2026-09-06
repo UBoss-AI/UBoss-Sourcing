@@ -23,6 +23,7 @@ import { formatDateTime, formatNumber, humanise } from '@/lib/format';
 import { scheduleStatusLabel, scheduleStatusTone } from '@/lib/order-status';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { Schedule } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 type PendingAction = 'pause' | 'resume' | 'cancel';
 
@@ -45,6 +46,8 @@ const ACTION_COPY: Record<PendingAction, { title: string; body: string; confirm:
 };
 
 export function ScheduleDetailPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -107,7 +110,8 @@ export function ScheduleDetailPage(): React.JSX.Element {
     },
   });
 
-  if (query.isPending) return <LoadingState label="Loading your repeat purchase" />;
+  if (query.isPending)
+    return <LoadingState label={t('scheduleDetail.loadingYourRepeatPurchase')} />;
 
   if (query.isError) {
     return (
@@ -125,11 +129,11 @@ export function ScheduleDetailPage(): React.JSX.Element {
 
   return (
     <>
-      <nav aria-label="Breadcrumb" className="mb-4 text-sm">
+      <nav aria-label={t('scheduleDetail.breadcrumb')} className="mb-4 text-sm">
         <ol className="flex flex-wrap items-center gap-1.5 text-ink-muted">
           <li>
             <Link to="/account/schedules" className="hover:text-brand hover:underline">
-              Repeat purchases
+              {t('scheduleDetail.repeatPurchases')}
             </Link>
           </li>
           <li aria-hidden="true">/</li>
@@ -173,9 +177,9 @@ export function ScheduleDetailPage(): React.JSX.Element {
             {schedule.failureCount === 1 ? 'y' : 'ies'} could not be placed
           </p>
           <p className="mt-1 text-ink">
-            Usually a stock or payment problem. After{' '}
-            {formatNumber(schedule.maxFailures)} failures in a row the schedule stops on its own so
-            it does not keep trying — get in touch and we will sort it out.
+            Usually a stock or payment problem. After {formatNumber(schedule.maxFailures)} failures
+            in a row the schedule stops on its own so it does not keep trying — get in touch and we
+            will sort it out.
           </p>
         </div>
       )}
@@ -183,17 +187,22 @@ export function ScheduleDetailPage(): React.JSX.Element {
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-6">
           {/* --- The schedule ------------------------------------------------ */}
-          <section aria-labelledby="cadence-heading" className="rounded-lg border border-border bg-surface p-5 shadow-card">
+          <section
+            aria-labelledby="cadence-heading"
+            className="rounded-lg border border-border bg-surface p-5 shadow-card"
+          >
             <h2 id="cadence-heading" className="text-title-sm text-ink">
-              Schedule
+              {t('scheduleDetail.schedule')}
             </h2>
 
             <dl className="mt-3 grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
               <div>
-                <dt className="text-xxs uppercase tracking-wider text-ink-subtle">Next delivery</dt>
+                <dt className="text-xxs uppercase tracking-wider text-ink-subtle">
+                  {t('scheduleDetail.nextDelivery')}
+                </dt>
                 <dd className="mt-0.5 text-ink">
                   {schedule.nextRunAt === null ? (
-                    <span className="text-ink-muted">Not scheduled</span>
+                    <span className="text-ink-muted">{t('scheduleDetail.notScheduled')}</span>
                   ) : (
                     <>
                       {formatDateTime(schedule.nextRunAt)}
@@ -205,10 +214,12 @@ export function ScheduleDetailPage(): React.JSX.Element {
               </div>
 
               <div>
-                <dt className="text-xxs uppercase tracking-wider text-ink-subtle">Last delivery</dt>
+                <dt className="text-xxs uppercase tracking-wider text-ink-subtle">
+                  {t('scheduleDetail.lastDelivery')}
+                </dt>
                 <dd className="mt-0.5 text-ink">
                   {schedule.lastRunAt === null ? (
-                    <span className="text-ink-muted">None yet</span>
+                    <span className="text-ink-muted">{t('scheduleDetail.noneYet')}</span>
                   ) : (
                     formatDateTime(schedule.lastRunAt)
                   )}
@@ -216,12 +227,16 @@ export function ScheduleDetailPage(): React.JSX.Element {
               </div>
 
               <div>
-                <dt className="text-xxs uppercase tracking-wider text-ink-subtle">Started</dt>
+                <dt className="text-xxs uppercase tracking-wider text-ink-subtle">
+                  {t('scheduleDetail.started')}
+                </dt>
                 <dd className="mt-0.5 text-ink">{schedule.startDate}</dd>
               </div>
 
               <div>
-                <dt className="text-xxs uppercase tracking-wider text-ink-subtle">Ends</dt>
+                <dt className="text-xxs uppercase tracking-wider text-ink-subtle">
+                  {t('scheduleDetail.ends')}
+                </dt>
                 <dd className="mt-0.5 text-ink">
                   {schedule.endDate !== null
                     ? schedule.endDate
@@ -232,12 +247,16 @@ export function ScheduleDetailPage(): React.JSX.Element {
               </div>
 
               <div>
-                <dt className="text-xxs uppercase tracking-wider text-ink-subtle">Delivered</dt>
+                <dt className="text-xxs uppercase tracking-wider text-ink-subtle">
+                  {t('scheduleDetail.delivered')}
+                </dt>
                 <dd className="mt-0.5 text-ink">{formatNumber(schedule.occurrenceCount)}</dd>
               </div>
 
               <div>
-                <dt className="text-xxs uppercase tracking-wider text-ink-subtle">Payment</dt>
+                <dt className="text-xxs uppercase tracking-wider text-ink-subtle">
+                  {t('scheduleDetail.payment')}
+                </dt>
                 <dd className="mt-0.5 text-ink">
                   {schedule.paymentMode === 'AUTO_PAY' ? 'Charged automatically' : 'Payment link'}
                   {schedule.paymentMode === 'PAYMENT_LINK' && schedule.payerEmail !== null && (
@@ -247,7 +266,7 @@ export function ScheduleDetailPage(): React.JSX.Element {
                   )}
                   {schedule.paymentMode === 'AUTO_PAY' && !schedule.hasMandate && (
                     <span className="block text-xxs text-danger">
-                      No mandate authorised yet — deliveries cannot be charged.
+                      {t('scheduleDetail.noMandateAuthorisedYetDeliveries')}
                     </span>
                   )}
                 </dd>
@@ -255,16 +274,18 @@ export function ScheduleDetailPage(): React.JSX.Element {
             </dl>
 
             <p className="mt-4 border-t border-border pt-4 text-xs text-ink-muted">
-              Every delivery is priced fresh against the catalogue, tax, stock and your account
-              limits on the day it runs, so the amount can change between deliveries.
+              {t('scheduleDetail.everyDeliveryIsPricedFresh')}
             </p>
           </section>
 
           {/* --- Items ------------------------------------------------------- */}
           {schedule.items !== undefined && schedule.items.length > 0 && (
-            <section aria-labelledby="items-heading" className="rounded-lg border border-border bg-surface p-5 shadow-card">
+            <section
+              aria-labelledby="items-heading"
+              className="rounded-lg border border-border bg-surface p-5 shadow-card"
+            >
               <h2 id="items-heading" className="text-title-sm text-ink">
-                What is delivered
+                {t('scheduleDetail.whatIsDelivered')}
               </h2>
 
               <ul className="mt-3 divide-y divide-border text-sm">
@@ -290,17 +311,23 @@ export function ScheduleDetailPage(): React.JSX.Element {
 
           {/* --- History ------------------------------------------------------ */}
           {schedule.occurrences !== undefined && schedule.occurrences.length > 0 && (
-            <section aria-labelledby="history-heading" className="rounded-lg border border-border bg-surface shadow-card">
+            <section
+              aria-labelledby="history-heading"
+              className="rounded-lg border border-border bg-surface shadow-card"
+            >
               <h2
                 id="history-heading"
                 className="border-b border-border px-5 py-4 text-base font-semibold text-ink"
               >
-                Delivery history
+                {t('scheduleDetail.deliveryHistory')}
               </h2>
 
               <ul className="divide-y divide-border">
                 {schedule.occurrences.map((occurrence) => (
-                  <li key={occurrence.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 px-5 py-3 text-sm">
+                  <li
+                    key={occurrence.id}
+                    className="flex flex-wrap items-center gap-x-3 gap-y-1 px-5 py-3 text-sm"
+                  >
                     <span className="whitespace-nowrap text-xs text-ink-subtle">
                       {formatDateTime(occurrence.scheduledFor)}
                     </span>
@@ -339,7 +366,7 @@ export function ScheduleDetailPage(): React.JSX.Element {
         {/* --- Actions --------------------------------------------------------- */}
         <aside className="lg:sticky lg:top-28 lg:self-start">
           <div className="rounded-lg border border-border bg-surface p-5 shadow-card">
-            <h2 className="text-title-sm text-ink">Manage</h2>
+            <h2 className="text-title-sm text-ink">{t('scheduleDetail.manage')}</h2>
 
             <div className="mt-3 space-y-2">
               {schedule.status === 'ACTIVE' && (
@@ -351,7 +378,7 @@ export function ScheduleDetailPage(): React.JSX.Element {
                     setPending('pause');
                   }}
                 >
-                  Pause deliveries
+                  {t('scheduleDetail.pauseDeliveries')}
                 </Button>
               )}
 
@@ -365,7 +392,7 @@ export function ScheduleDetailPage(): React.JSX.Element {
                     setPending('resume');
                   }}
                 >
-                  Resume deliveries
+                  {t('scheduleDetail.resumeDeliveries')}
                 </Button>
               )}
 
@@ -379,7 +406,7 @@ export function ScheduleDetailPage(): React.JSX.Element {
                     setPending('cancel');
                   }}
                 >
-                  Cancel this repeat purchase
+                  {t('scheduleDetail.cancelThisRepeatPurchase')}
                 </Button>
               )}
             </div>
@@ -387,8 +414,7 @@ export function ScheduleDetailPage(): React.JSX.Element {
             {/* Stated wherever a destructive action is offered, not only inside
                 the confirmation — someone deciding needs it before they click. */}
             <p className="mt-4 border-t border-border pt-4 text-xs text-ink-muted">
-              Pausing or cancelling only affects future deliveries. Orders already placed keep
-              their own status and are not changed.
+              {t('scheduleDetail.pausingOrCancellingOnlyAffects')}
             </p>
           </div>
         </aside>
@@ -408,7 +434,7 @@ export function ScheduleDetailPage(): React.JSX.Element {
               }}
               disabled={act.isPending}
             >
-              Leave it as it is
+              {t('scheduleDetail.leaveItAsItIs')}
             </Button>
             <Button
               variant={pending === 'cancel' ? 'danger' : 'primary'}
@@ -437,7 +463,7 @@ export function ScheduleDetailPage(): React.JSX.Element {
 
           {pending !== 'resume' && (
             <Field
-              label="Reason"
+              label={t('scheduleDetail.reason')}
               hint={
                 pending === 'cancel'
                   ? 'Required, so we know what went wrong.'

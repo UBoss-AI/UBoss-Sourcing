@@ -27,9 +27,16 @@ import { formatDateTime, formatNumber } from '@/lib/format';
 import { scheduleStatusLabel, scheduleStatusTone } from '@/lib/order-status';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { Schedule } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 /** One figure in a schedule row. */
-function Figure({ label, children }: { label: string; children: React.ReactNode }): React.JSX.Element {
+function Figure({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}): React.JSX.Element {
   return (
     <div>
       <dt className="text-xxs uppercase tracking-wider text-ink-subtle">{label}</dt>
@@ -39,6 +46,8 @@ function Figure({ label, children }: { label: string; children: React.ReactNode 
 }
 
 export function SchedulesPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const { business, features } = useStorefront();
 
   useDocumentMeta({ title: 'Repeat purchases', noIndex: true }, business.displayName);
@@ -48,7 +57,7 @@ export function SchedulesPage(): React.JSX.Element {
     queryFn: () => api.get<{ schedules: Schedule[] }>('/recurring-schedules'),
   });
 
-  if (query.isPending) return <LoadingState label="Loading your repeat purchases" />;
+  if (query.isPending) return <LoadingState label={t('schedules.loadingYourRepeatPurchases')} />;
 
   if (query.isError) {
     return (
@@ -66,7 +75,7 @@ export function SchedulesPage(): React.JSX.Element {
   if (schedules.length === 0) {
     return (
       <PageEmptyState
-        title="No repeat purchases yet"
+        title={t('schedules.noRepeatPurchasesYet')}
         description={
           features.recurringOrders
             ? 'Set one up and we will place the order for you on a schedule you choose. Look for the “Repeat purchase” label on a product.'
@@ -76,7 +85,7 @@ export function SchedulesPage(): React.JSX.Element {
           ? {
               action: (
                 <ButtonLink to="/products" variant="primary" size="lg">
-                  Browse products
+                  {t('schedules.browseProducts')}
                 </ButtonLink>
               ),
             }
@@ -88,8 +97,8 @@ export function SchedulesPage(): React.JSX.Element {
   return (
     <>
       <PageHeader
-        title="Repeat purchases"
-        description="Standing orders we place for you on a schedule. Pause, resume or cancel any of them at any time — only future deliveries are affected."
+        title={t('schedules.repeatPurchases')}
+        description={t('schedules.standingOrdersWePlaceFor')}
         {...(features.recurringOrders
           ? {
               actions: (
@@ -97,7 +106,7 @@ export function SchedulesPage(): React.JSX.Element {
                    navigation action nor a one-off purchase. */
                 <ButtonLink to="/schedules/new" variant="operational">
                   <RepeatIcon className="h-4 w-4" />
-                  Set up a new one
+                  {t('schedules.setUpANewOne')}
                 </ButtonLink>
               ),
             }
@@ -127,9 +136,9 @@ export function SchedulesPage(): React.JSX.Element {
               </div>
 
               <dl className="mt-3 flex flex-wrap gap-x-8 gap-y-2 border-t border-border-subtle pt-3 text-sm">
-                <Figure label="Next delivery">
+                <Figure label={t('schedules.nextDelivery')}>
                   {schedule.nextRunAt === null ? (
-                    <span className="text-ink-muted">Not scheduled</span>
+                    <span className="text-ink-muted">{t('schedules.notScheduled')}</span>
                   ) : (
                     <>
                       {formatDateTime(schedule.nextRunAt)}
@@ -138,13 +147,13 @@ export function SchedulesPage(): React.JSX.Element {
                   )}
                 </Figure>
 
-                <Figure label="Delivered">
+                <Figure label={t('schedules.delivered')}>
                   {formatNumber(schedule.occurrenceCount)}
                   {schedule.maxOccurrences !== null &&
                     ` of ${formatNumber(schedule.maxOccurrences)}`}
                 </Figure>
 
-                <Figure label="Payment">
+                <Figure label={t('schedules.payment')}>
                   {schedule.paymentMode === 'AUTO_PAY' ? 'Charged automatically' : 'Payment link'}
                 </Figure>
               </dl>

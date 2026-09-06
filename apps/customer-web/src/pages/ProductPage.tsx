@@ -47,6 +47,9 @@ import { SafeHtml } from '@/lib/safe-html';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { NotFoundPage } from './NotFoundPage';
 import type { Product, ProductDetailResponse, ProductVariant } from '@/lib/types';
+import { ProductSafetyPanel } from '@/components/ProductSafetyPanel';
+import { ProductDevicePanel } from '@/components/ProductDevicePanel';
+import { useI18n } from '@/i18n/i18n-context';
 
 /**
  * The image gallery.
@@ -57,6 +60,8 @@ import type { Product, ProductDetailResponse, ProductVariant } from '@/lib/types
  * shapes rather than as a photograph of a thing.
  */
 function Gallery({ product }: { product: Product }): React.JSX.Element {
+  const { t } = useI18n();
+
   const images = product.images;
   const [activeIndex, setActiveIndex] = useState(0);
   const active = images[activeIndex] ?? product.primaryImage;
@@ -80,7 +85,9 @@ function Gallery({ product }: { product: Product }): React.JSX.Element {
             <path d="m21 15-5-5L5 21" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </span>
-        <span className="text-xs font-medium uppercase tracking-wider">No image yet</span>
+        <span className="text-xs font-medium uppercase tracking-wider">
+          {t('product.noImageYet')}
+        </span>
       </div>
     );
   }
@@ -158,9 +165,11 @@ function VariantPicker({
   selectedId: string | null;
   onSelect: (variant: ProductVariant) => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   return (
     <fieldset>
-      <legend className="text-sm font-medium text-ink">Choose an option</legend>
+      <legend className="text-sm font-medium text-ink">{t('product.chooseAnOption')}</legend>
 
       <div className="mt-2 flex flex-wrap gap-2">
         {variants.map((variant) => {
@@ -228,6 +237,8 @@ function OrderingInformation({
   product: Product;
   canSchedule: boolean;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const rules = product.purchaseRules;
   const facts: OrderingFact[] = [];
 
@@ -283,7 +294,7 @@ function OrderingInformation({
       className="mt-5 rounded-lg border border-border bg-surface-sunken px-4 py-4"
     >
       <h2 id="ordering-information-heading" className="text-title-xs text-ink">
-        Ordering information
+        {t('product.orderingInformation')}
       </h2>
 
       <dl className="mt-3 grid gap-x-5 gap-y-3.5 sm:grid-cols-2">
@@ -307,6 +318,8 @@ function OrderingInformation({
 }
 
 export function ProductPage(): React.JSX.Element {
+  const { t, language } = useI18n();
+
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -321,10 +334,10 @@ export function ProductPage(): React.JSX.Element {
   const { currency } = useLocale();
 
   const query = useQuery({
-    queryKey: ['product', slug, currency],
+    queryKey: ['product', slug, currency, language],
     queryFn: () =>
       api.get<ProductDetailResponse>(`/catalog/products/${String(slug)}`, {
-        query: { currency },
+        query: { currency, language },
       }),
     enabled: slug !== undefined,
     retry: false,
@@ -381,7 +394,7 @@ export function ProductPage(): React.JSX.Element {
     },
   });
 
-  if (query.isPending) return <LoadingState label="Loading the product" />;
+  if (query.isPending) return <LoadingState label={t('product.loadingTheProduct')} />;
 
   // An unpublished or unknown product is a 404, which is a normal outcome here
   // rather than a fault: the admin may have unpublished it a second ago.
@@ -422,17 +435,17 @@ export function ProductPage(): React.JSX.Element {
 
   return (
     <>
-      <nav aria-label="Breadcrumb" className="mb-5 text-sm">
+      <nav aria-label={t('product.breadcrumb')} className="mb-5 text-sm">
         <ol className="flex flex-wrap items-center gap-1.5 text-ink-muted">
           <li>
             <Link to="/" className="hover:text-brand hover:underline">
-              Home
+              {t('product.home')}
             </Link>
           </li>
           <li aria-hidden="true">/</li>
           <li>
             <Link to="/products" className="hover:text-brand hover:underline">
-              Products
+              {t('product.products')}
             </Link>
           </li>
           {product.category !== null && (
@@ -487,11 +500,11 @@ export function ProductPage(): React.JSX.Element {
               </span>
               {hasDiscount && product.compareAtPrice !== null && (
                 <span className="text-base tabular text-ink-subtle">
-                  <span className="sr-only">Was </span>
+                  <span className="sr-only">{t('product.was')}</span>
                   <s>{formatMoney(product.compareAtPrice)}</s>
                 </span>
               )}
-              {hasDiscount && <Badge tone="action">Reduced price</Badge>}
+              {hasDiscount && <Badge tone="action">{t('product.reducedPrice')}</Badge>}
             </p>
 
             <p className="mt-1.5 text-sm text-ink-muted">
@@ -557,7 +570,7 @@ export function ProductPage(): React.JSX.Element {
                       // action beside nothing reads as unfinished.
                       className="w-full sm:w-auto"
                     >
-                      Add to cart
+                      {t('product.addToCart')}
                     </Button>
 
                     {canSchedule && (
@@ -572,18 +585,20 @@ export function ProductPage(): React.JSX.Element {
                         size="lg"
                         className="w-full sm:w-auto"
                       >
-                        Set up a repeat purchase
+                        {t('product.setUpARepeatPurchase')}
                       </ButtonLink>
                     )}
                   </div>
 
                   {!isReady && (
-                    <p className="text-sm text-ink-muted">Choose an option to continue.</p>
+                    <p className="text-sm text-ink-muted">
+                      {t('product.chooseAnOptionToContinue')}
+                    </p>
                   )}
                 </div>
               ) : (
                 <div className="rounded-md border border-border bg-surface-sunken p-4">
-                  <p className="text-sm text-ink">Sign in to add this to your cart.</p>
+                  <p className="text-sm text-ink">{t('product.signInToAddThis')}</p>
                   <Button
                     variant="primary"
                     className="mt-3"
@@ -593,7 +608,7 @@ export function ProductPage(): React.JSX.Element {
                       });
                     }}
                   >
-                    Sign in to order
+                    {t('product.signInToOrder')}
                   </Button>
                 </div>
               )}
@@ -617,7 +632,7 @@ export function ProductPage(): React.JSX.Element {
           {(product.description !== null || product.descriptionHtml !== null) && (
             <section aria-labelledby="description-heading" className="min-w-0">
               <h2 id="description-heading" className="text-title-sm text-ink">
-                Description
+                {t('product.description')}
               </h2>
 
               {product.descriptionHtml === null ? (
@@ -640,7 +655,7 @@ export function ProductPage(): React.JSX.Element {
           {product.attributes.length > 0 && (
             <section aria-labelledby="specifications-heading" className="min-w-0">
               <h2 id="specifications-heading" className="text-title-sm text-ink">
-                Specifications
+                {t('product.specifications')}
               </h2>
 
               {/* Two columns from `sm` up, stacked below it. The fixed 10rem
@@ -661,6 +676,18 @@ export function ProductPage(): React.JSX.Element {
               </dl>
             </section>
           )}
+
+          {/* GPSR Art. 19. Below the specifications because it is reference
+              material rather than a selling point, but on the page and not
+              behind a tab: the regulation is about what a buyer can see before
+              they buy, and a panel nobody opens is not something they saw. */}
+          <ProductSafetyPanel safety={product.safety} />
+
+          {/* Below the GPSR block: a buyer reads "what is it and is it safe"
+              before "what class is it and who certified it". Both are on the
+              page rather than behind a tab, because a panel nobody opens is
+              not something they saw. */}
+          <ProductDevicePanel device={product.device} />
         </div>
       )}
     </>

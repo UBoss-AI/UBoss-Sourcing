@@ -15,10 +15,19 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useSession } from '@/auth/session-context';
 import { useToast } from '@/components/toast-context';
-import { ChevronDownIcon, ChevronRightIcon, CloseIcon, MenuIcon, SignOutIcon } from '@/components/icons';
+import {
+  ChevronDownIcon,
+  ChevronRightIcon,
+  CloseIcon,
+  MenuIcon,
+  SignOutIcon,
+} from '@/components/icons';
 import { cx } from '@/lib/cx';
 import { roleLabel } from '@/lib/permissions';
+import { translateKey, useI18n } from '@/i18n/i18n-context';
+import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
 import { locateRoute, visibleNavigation } from './navigation';
+import { NotificationBell } from './NotificationBell';
 
 /**
  * The brand block.
@@ -30,6 +39,8 @@ import { locateRoute, visibleNavigation } from './navigation';
  * control in any admin panel.
  */
 function Brand({ onNavigate }: { onNavigate?: (() => void) | undefined }): React.JSX.Element {
+  const { t } = useI18n();
+
   return (
     <div className="flex h-16 shrink-0 items-center border-b border-white/10 px-4">
       <Link
@@ -46,7 +57,7 @@ function Brand({ onNavigate }: { onNavigate?: (() => void) | undefined }): React
         <span className="min-w-0 leading-tight">
           <span className="block text-sm font-semibold tracking-tight text-white">UBOSS</span>
           <span className="block text-xxs font-medium uppercase tracking-[0.14em] text-white/50">
-            Admin console
+            {t('shell.adminConsole')}
           </span>
         </span>
       </Link>
@@ -74,20 +85,21 @@ function Brand({ onNavigate }: { onNavigate?: (() => void) | undefined }): React
  */
 function Sidebar({ onNavigate }: { onNavigate?: (() => void) | undefined }): React.JSX.Element {
   const { can } = useSession();
+  const { t } = useI18n();
   const groups = visibleNavigation(can);
 
   return (
     <nav
-      aria-label="Main"
-      className="on-navy flex h-full flex-col overflow-y-auto bg-surface-inverse"
+      aria-label={t('shell.mainNav')}
+      className="on-navy scrollbar-none flex h-full flex-col overflow-y-auto bg-surface-inverse"
     >
       <Brand onNavigate={onNavigate} />
 
       <div className="flex-1 space-y-5 px-2.5 py-4">
         {groups.map((group) => (
-          <div key={group.label}>
+          <div key={group.labelKey}>
             <h2 className="px-3 pb-1.5 text-xxs font-semibold uppercase tracking-[0.12em] text-white/45">
-              {group.label}
+              {translateKey(t, group.labelKey)}
             </h2>
             <ul className="space-y-px">
               {group.items.map((item) => {
@@ -108,7 +120,7 @@ function Sidebar({ onNavigate }: { onNavigate?: (() => void) | undefined }): Rea
                               // element so it cannot drift out of step with
                               // the state that draws it.
                               'bg-white/[0.13] font-medium text-white ' +
-                                "before:absolute before:left-0 before:top-2 before:h-5 before:w-[3px] " +
+                                'before:absolute before:left-0 before:top-2 before:h-5 before:w-[3px] ' +
                                 "before:rounded-full before:bg-white before:content-['']"
                             : 'text-white/70 hover:bg-white/[0.07] hover:text-white',
                         )
@@ -122,7 +134,7 @@ function Sidebar({ onNavigate }: { onNavigate?: (() => void) | undefined }): Rea
                               isActive ? 'text-white' : 'text-white/55 group-hover:text-white/90',
                             )}
                           />
-                          <span className="truncate">{item.label}</span>
+                          <span className="truncate">{translateKey(t, item.labelKey)}</span>
                         </>
                       )}
                     </NavLink>
@@ -151,15 +163,16 @@ function Sidebar({ onNavigate }: { onNavigate?: (() => void) | undefined }): Rea
  */
 function PageContext(): React.JSX.Element | null {
   const location = useLocation();
+  const { t } = useI18n();
   const here = locateRoute(location.pathname);
 
   if (here === null) return null;
 
   return (
-    <nav aria-label="Breadcrumb" className="min-w-0">
+    <nav aria-label={t('shell.breadcrumb')} className="min-w-0">
       <ol className="flex min-w-0 items-center gap-1.5">
         <li className="whitespace-nowrap text-xxs font-semibold uppercase tracking-[0.12em] text-ink-subtle">
-          {here.group.label}
+          {translateKey(t, here.group.labelKey)}
         </li>
         {here.isChild && (
           <>
@@ -171,7 +184,7 @@ function PageContext(): React.JSX.Element | null {
                 to={here.item.to}
                 className="block truncate rounded text-xs font-medium text-ink-muted underline-offset-2 transition-colors hover:text-accent hover:underline"
               >
-                {here.item.label}
+                {translateKey(t, here.item.labelKey)}
               </Link>
             </li>
           </>
@@ -183,6 +196,7 @@ function PageContext(): React.JSX.Element | null {
 
 function UserMenu(): React.JSX.Element {
   const { user, logout } = useSession();
+  const { t } = useI18n();
   const toast = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
@@ -226,9 +240,15 @@ function UserMenu(): React.JSX.Element {
     <div ref={containerRef} className="relative shrink-0">
       <button
         type="button"
-        onClick={() => { setIsOpen((open) => !open); }}
+        onClick={() => {
+          setIsOpen((open) => !open);
+        }}
         aria-expanded={isOpen}
         aria-haspopup="menu"
+        // The trigger is the avatar alone, and the avatar is aria-hidden, so
+        // without this the button has no accessible name. The address is what
+        // identifies the account, so it is the name.
+        aria-label={user.email}
         className={cx(
           'flex h-10 items-center gap-2 rounded-md border border-transparent px-2 text-sm',
           'text-ink-muted transition-colors hover:border-border hover:bg-surface-hover hover:text-ink',
@@ -241,9 +261,8 @@ function UserMenu(): React.JSX.Element {
         >
           {user.email.slice(0, 2).toUpperCase()}
         </span>
-        <span className="hidden max-w-40 truncate sm:inline">{user.email}</span>
         <ChevronDownIcon
-          className={cx('hidden h-4 w-4 shrink-0 transition-transform sm:block', isOpen && 'rotate-180')}
+          className={cx('h-4 w-4 shrink-0 transition-transform', isOpen && 'rotate-180')}
         />
       </button>
 
@@ -254,9 +273,7 @@ function UserMenu(): React.JSX.Element {
         >
           <div className="border-b border-border px-3 py-2.5">
             <p className="truncate text-sm font-medium text-ink">{user.email}</p>
-            <p className="mt-0.5 text-xs text-ink-muted">
-              {user.roles.map(roleLabel).join(', ')}
-            </p>
+            <p className="mt-0.5 text-xs text-ink-muted">{user.roles.map(roleLabel).join(', ')}</p>
           </div>
 
           <button
@@ -267,7 +284,7 @@ function UserMenu(): React.JSX.Element {
             className="mt-1 flex w-full items-center gap-2.5 rounded px-3 py-2 text-left text-sm text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink disabled:opacity-60"
           >
             <SignOutIcon className="h-4 w-4 shrink-0" />
-            {isSigningOut ? 'Signing out…' : 'Sign out'}
+            {isSigningOut ? t('shell.signingOut') : t('shell.signOut')}
           </button>
         </div>
       )}
@@ -295,6 +312,7 @@ function MobileDrawer({
   isOpen: boolean;
   onClose: () => void;
 }): React.JSX.Element | null {
+  const { t } = useI18n();
   const panelRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -353,7 +371,7 @@ function MobileDrawer({
         ref={panelRef}
         role="dialog"
         aria-modal="true"
-        aria-label="Navigation"
+        aria-label={t('shell.navigation')}
         className="absolute inset-y-0 left-0 flex w-[17rem] max-w-[85%] animate-drawer-in flex-col bg-surface-inverse shadow-overlay"
       >
         {/* The close button sits over the brand block rather than in a bar of
@@ -366,7 +384,7 @@ function MobileDrawer({
           className="on-navy absolute right-2 top-3.5 z-10 flex h-9 w-9 items-center justify-center rounded-md text-white/70 transition-colors hover:bg-white/10 hover:text-white"
         >
           <CloseIcon className="h-5 w-5" />
-          <span className="sr-only">Close navigation</span>
+          <span className="sr-only">{t('shell.closeNavigation')}</span>
         </button>
 
         <Sidebar onNavigate={onClose} />
@@ -376,6 +394,7 @@ function MobileDrawer({
 }
 
 export function AppShell(): React.JSX.Element {
+  const { t } = useI18n();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const location = useLocation();
   const mainRef = useRef<HTMLElement>(null);
@@ -405,7 +424,7 @@ export function AppShell(): React.JSX.Element {
   return (
     <div className="min-h-screen">
       <a href="#main" className="skip-link">
-        Skip to content
+        {t('shell.skipToContent')}
       </a>
 
       <div className="lg:grid lg:grid-cols-[15rem_1fr]">
@@ -425,16 +444,29 @@ export function AppShell(): React.JSX.Element {
               ref={menuButtonRef}
               type="button"
               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink lg:hidden"
-              onClick={() => { setIsMobileNavOpen(true); }}
+              onClick={() => {
+                setIsMobileNavOpen(true);
+              }}
               aria-expanded={isMobileNavOpen}
             >
               <MenuIcon className="h-5 w-5" />
-              <span className="sr-only">Open navigation</span>
+              <span className="sr-only">{t('shell.openNavigation')}</span>
             </button>
 
             <PageContext />
 
             <div className="min-w-0 flex-1" />
+
+            {/* On every page, and that is the whole point of it being here
+                rather than on the dashboard: a new order is worth knowing
+                about while you are standing in Inventory. */}
+            <NotificationBell />
+
+            {/* Beside the account menu, on every page. The panel is a tool
+                people work in all day; the language it is in belongs where
+                they can see and change it, not behind a settings screen. */}
+            <LanguageSwitcher placement="header" />
+
             <UserMenu />
           </header>
 

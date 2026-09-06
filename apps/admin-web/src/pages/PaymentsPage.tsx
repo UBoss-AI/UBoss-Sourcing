@@ -49,10 +49,18 @@ import {
 } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { newIdempotencyKey } from '@/lib/forms';
-import { formatDateTime, formatMoney, formatNumber, humanise, majorToMinor, minorToMajor } from '@/lib/format';
+import {
+  formatDateTime,
+  formatMoney,
+  formatNumber,
+  humanise,
+  majorToMinor,
+  minorToMajor,
+} from '@/lib/format';
 import { paymentStatusTone } from '@/lib/orders';
 import { Permission } from '@/lib/permissions';
 import type { Pagination } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 interface PaymentRow {
   id: string;
@@ -122,6 +130,8 @@ function RefundDialog({
   payment: PaymentRow;
   onClose: () => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const queryClient = useQueryClient();
   const toast = useToast();
   const [amount, setAmount] = useState('');
@@ -176,11 +186,11 @@ function RefundDialog({
       isOpen
       onClose={onClose}
       title={`Refund ${payment.orderNumber}`}
-      description="The gateway processes this. It cannot be undone from here."
+      description={t('payments.theGatewayProcessesThisIt')}
       footer={
         <>
           <Button onClick={onClose} disabled={refund.isPending}>
-            Cancel
+            {t('payments.cancel')}
           </Button>
           <Button
             variant="danger"
@@ -190,7 +200,7 @@ function RefundDialog({
               refund.mutate();
             }}
           >
-            Issue refund
+            {t('payments.issueRefund')}
           </Button>
         </>
       }
@@ -248,13 +258,13 @@ function RefundDialog({
               setAmount(minorToMajor(maxMinor));
             }}
           >
-            Use the full refundable amount
+            {t('payments.useTheFullRefundableAmount')}
           </Button>
         </div>
 
         <Field
-          label="Reason"
-          hint="Recorded against your name and sent to the gateway."
+          label={t('payments.reason')}
+          hint={t('payments.recordedAgainstYourNameAnd')}
           required
         >
           {({ inputId, describedBy }) => (
@@ -275,6 +285,8 @@ function RefundDialog({
 }
 
 function WebhookHealthPanel(): React.JSX.Element {
+  const { t } = useI18n();
+
   const query = useQuery({
     queryKey: ['webhook-health'],
     queryFn: () => api.get<WebhookHealth>('/admin/payments/webhook-health'),
@@ -298,13 +310,13 @@ function WebhookHealthPanel(): React.JSX.Element {
       render: (row) =>
         row.signatureVerified ? (
           <Badge dot tone="success">
-            Verified
+            {t('payments.verified')}
           </Badge>
         ) : (
           // An unverified signature is the serious one: something sent a
           // payment event this system could not prove came from the gateway.
           <Badge dot tone="danger">
-            Rejected
+            {t('payments.rejected')}
           </Badge>
         ),
     },
@@ -342,14 +354,15 @@ function WebhookHealthPanel(): React.JSX.Element {
   const summary = Object.entries(query.data?.summary ?? {});
 
   return (
-    <Card
-      title="Webhook health"
-      description="A gateway event only counts once its signature verifies. Nothing from a rejected delivery is ever applied."
-    >
+    <Card title={t('payments.webhookHealth')} description={t('payments.aGatewayEventOnlyCounts')}>
       {(rejected > 0 || summary.length > 0) && (
         <div className="space-y-3 px-4 pt-4">
           {rejected > 0 && (
-            <Callout tone="danger" role="alert" title="Deliveries are failing signature verification">
+            <Callout
+              tone="danger"
+              role="alert"
+              title={t('payments.deliveriesAreFailingSignatureVerification')}
+            >
               {formatNumber(rejected)} of the recent deliveries below could not be proved to have
               come from the gateway. Either the webhook secret here does not match the one in the
               gateway dashboard, or something else is posting to the endpoint.
@@ -390,6 +403,8 @@ function WebhookHealthPanel(): React.JSX.Element {
 }
 
 export function PaymentsPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const { can } = useSession();
   const queryClient = useQueryClient();
   const toast = useToast();
@@ -493,9 +508,9 @@ export function PaymentsPage(): React.JSX.Element {
             {humanise(row.provider)}
             {/* LIVE and TEST must never be confusable on a money screen. */}
             {row.mode === 'LIVE' ? (
-              <Badge tone="danger">Live</Badge>
+              <Badge tone="danger">{t('payments.live')}</Badge>
             ) : (
-              <Badge tone="neutral">Test</Badge>
+              <Badge tone="neutral">{t('payments.test')}</Badge>
             )}
           </p>
           {row.method !== null && <p className="text-xxs text-ink-subtle">{row.method}</p>}
@@ -512,7 +527,7 @@ export function PaymentsPage(): React.JSX.Element {
     },
     {
       key: 'actions',
-      header: <span className="sr-only">Actions</span>,
+      header: <span className="sr-only">{t('payments.actions')}</span>,
       align: 'right',
       render: (row) => (
         <div className="flex justify-end gap-1">
@@ -526,7 +541,7 @@ export function PaymentsPage(): React.JSX.Element {
               reconcile.mutate(row);
             }}
           >
-            Reconcile
+            {t('payments.reconcile')}
             <span className="sr-only"> {row.orderNumber} with the gateway</span>
           </Button>
           {canRefund && row.capturedMinor !== '0' && (
@@ -537,7 +552,7 @@ export function PaymentsPage(): React.JSX.Element {
                 setRefundFor(row);
               }}
             >
-              Refund
+              {t('payments.refund')}
               <span className="sr-only"> {row.orderNumber}</span>
             </Button>
           )}
@@ -549,14 +564,14 @@ export function PaymentsPage(): React.JSX.Element {
   return (
     <>
       <PageHeader
-        title="Payments"
-        description="What the gateway confirmed. This screen reports money and issues refunds; nothing here marks an order paid by hand."
+        title={t('payments.payments')}
+        description={t('payments.whatTheGatewayConfirmedThis')}
       />
 
       <div className="space-y-5">
         <Card>
           <Toolbar>
-            <ToolbarField label="Status">
+            <ToolbarField label={t('payments.status')}>
               <Select
                 value={status}
                 onChange={(event) => {
@@ -570,7 +585,7 @@ export function PaymentsPage(): React.JSX.Element {
                 }}
                 className="w-52"
               >
-                <option value="">Any status</option>
+                <option value="">{t('payments.anyStatus')}</option>
                 {STATUS_GROUPS.map((group) => (
                   <optgroup key={group.label} label={group.label}>
                     {group.statuses.map((value) => (
@@ -586,10 +601,10 @@ export function PaymentsPage(): React.JSX.Element {
             {orderId !== '' && (
               <div className="flex h-10 items-center">
                 <span className="inline-flex h-8 items-center gap-2 rounded-md border border-accent bg-accent-soft px-3 text-xs font-medium text-accent">
-                  Filtered to one order
+                  {t('payments.filteredToOneOrder')}
                   <button
                     type="button"
-                    aria-label="Clear the order filter"
+                    aria-label={t('payments.clearTheOrderFilter')}
                     className="text-accent hover:text-accent-hover"
                     onClick={() => {
                       setSearchParams((current) => {
@@ -613,7 +628,7 @@ export function PaymentsPage(): React.JSX.Element {
                     setSearchParams({});
                   }}
                 >
-                  Clear filters
+                  {t('payments.clearFilters')}
                 </Button>
               </ToolbarActions>
             )}
@@ -645,7 +660,7 @@ export function PaymentsPage(): React.JSX.Element {
                     setSearchParams({});
                   }}
                 >
-                  Clear filters
+                  {t('payments.clearFilters')}
                 </Button>
               ) : undefined
             }

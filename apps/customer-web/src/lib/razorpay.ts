@@ -147,6 +147,7 @@ export async function openRazorpayCheckout(
       prefill_email: prefillEmail,
       prefill_name: prefillName,
       prefill_contact: prefillContact,
+      prefill_method: prefillMethod,
     } = checkoutPayload;
 
     const instance = new Razorpay({
@@ -160,6 +161,14 @@ export async function openRazorpayCheckout(
         email: prefillEmail,
         name: prefillName,
         contact: prefillContact,
+        // Opens the sheet on the instrument the customer already chose, rather
+        // than making them pick twice. Razorpay treats an unknown or absent
+        // value as "no preference", so an empty string is the safe default and
+        // the other instruments stay reachable either way — this preselects a
+        // tab, it does not lock the customer into one.
+        ...(typeof prefillMethod === 'string' && prefillMethod !== ''
+          ? { method: prefillMethod }
+          : {}),
       },
       // The provider's own success callback. Its payload — payment id,
       // signature — is deliberately *not* forwarded anywhere: the backend

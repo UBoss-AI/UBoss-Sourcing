@@ -24,6 +24,10 @@ export const AuditAction = {
   USER_PASSWORD_RESET_REQUESTED: 'user.password_reset_requested',
   USER_PASSWORD_CHANGED: 'user.password_changed',
   USER_SESSIONS_REVOKED: 'user.sessions_revoked',
+  /// Where an admin session said it was opened from. Recorded separately from
+  /// `user.login` because it arrives on a later request - the position is only
+  /// asked for once the password has been accepted.
+  USER_SESSION_LOCATION: 'user.session_location',
   /// Presenting a refresh token that was already rotated away. Either a stolen
   /// token or a broken client, and both are worth an alert.
   USER_REFRESH_REUSE_DETECTED: 'user.refresh_reuse_detected',
@@ -35,6 +39,13 @@ export const AuditAction = {
   CUSTOMER_UPDATED: 'customer.updated',
   CUSTOMER_INVITED: 'customer.invited',
   CUSTOMER_ACTIVATED: 'customer.activated',
+  /// Somebody created their own account from the storefront. Kept apart from
+  /// `customer.created`, which is a member of staff opening one for them - the
+  /// two answer different questions when the trail is read back.
+  CUSTOMER_REGISTERED: 'customer.registered',
+  CUSTOMER_EMAIL_VERIFIED: 'customer.email_verified',
+  /// A member of staff let a self-registered account in.
+  CUSTOMER_APPROVED: 'customer.approved',
   CUSTOMER_STATUS_CHANGED: 'customer.status_changed',
   CUSTOMER_LIMITS_CHANGED: 'customer.limits_changed',
 
@@ -47,6 +58,7 @@ export const AuditAction = {
   PRODUCT_PUBLISHED: 'product.published',
   PRODUCT_UNPUBLISHED: 'product.unpublished',
   PRODUCT_PRICE_CHANGED: 'product.price_changed',
+  PRODUCT_PRICES_BULK_SET: 'product.prices_bulk_set',
   PRODUCT_ARCHIVED: 'product.archived',
 
   // Coupons
@@ -84,12 +96,53 @@ export const AuditAction = {
   SCHEDULE_RESUMED: 'schedule.resumed',
   SCHEDULE_CANCELLED: 'schedule.cancelled',
 
+  // Product safety
+  //
+  // An economic operator is a legal identity printed on a public listing and
+  // written to by a market surveillance authority. Who changed one, and when,
+  // is the kind of thing that gets asked after a recall.
+  ECONOMIC_OPERATOR_CREATED: 'economic_operator.created',
+  ECONOMIC_OPERATOR_UPDATED: 'economic_operator.updated',
+  ECONOMIC_OPERATOR_ARCHIVED: 'economic_operator.archived',
+  /// A product's medical-device record. On the trail because a class or a
+  /// notified body number changing is the kind of edit somebody asks about
+  /// after a recall.
+  DEVICE_INFO_UPDATED: 'device_info.updated',
+
+  // Invoicing
+  //
+  // An invoice sequence with an unexplained gap is a problem at a VAT audit,
+  // so both the issue and the credit note that reverses one are on the record.
+  INVOICE_ISSUED: 'invoice.issued',
+  INVOICE_CREDITED: 'invoice.credited',
+  /// A VAT number was checked against VIES. Recorded because the answer is
+  /// what justifies zero-rating a supply, and "we checked" needs to be a fact
+  /// somebody can point at rather than a claim.
+  VAT_NUMBER_CHECKED: 'vat_number.checked',
+  VAT_RATE_UPDATED: 'vat_rate.updated',
+
   // Configuration
   SETTINGS_UPDATED: 'settings.updated',
   FEATURE_FLAG_CHANGED: 'feature_flag.changed',
   CONNECTOR_CREATED: 'connector.created',
   CONNECTOR_UPDATED: 'connector.updated',
   DATA_EXPORTED: 'data.exported',
+
+  // Data protection
+  //
+  // These rows are the Art. 5(2) accountability record. "We honour erasure
+  // requests" is a claim; this is what makes it a demonstrable fact, which is
+  // why the trail keeps them even after the account they refer to is gone.
+  DATA_REQUEST_CREATED: 'data_request.created',
+  DATA_REQUEST_FULFILLED: 'data_request.fulfilled',
+  DATA_REQUEST_REJECTED: 'data_request.rejected',
+  DATA_REQUEST_DOWNLOADED: 'data_request.downloaded',
+  /// The erasure itself, recorded separately from the request that asked for
+  /// it: one is a decision, the other is the thing that actually rewrote rows.
+  DATA_ERASURE_EXECUTED: 'data_erasure.executed',
+  /// A retention sweep that deleted something. Not written when a sweep finds
+  /// nothing - an empty pass is not an event.
+  RETENTION_PURGED: 'retention.purged',
 } as const;
 
 export type AuditActionKey = (typeof AuditAction)[keyof typeof AuditAction];

@@ -29,6 +29,7 @@ import type {
   CheckoutStepState,
   CheckoutStepStates,
 } from '@/lib/checkout-steps';
+import { useI18n } from '@/i18n/i18n-context';
 
 const STEPS: { id: CheckoutStepId; label: string }[] = [
   { id: 'cart', label: 'Cart' },
@@ -92,8 +93,10 @@ export function CheckoutSteps({
   notes?: CheckoutStepNotes;
   className?: string;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   return (
-    <nav aria-label="Checkout progress" className={cx('mb-6', className)}>
+    <nav aria-label={t('checkoutSteps.checkoutProgress')} className={cx('mb-6', className)}>
       <ol className="flex items-start gap-1 sm:gap-2">
         {STEPS.map((step, index) => {
           const state = states[step.id];

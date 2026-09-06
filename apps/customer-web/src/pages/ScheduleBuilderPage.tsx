@@ -26,13 +26,23 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
 import { AddressForm } from '@/components/AddressForm';
 import { QuantityInput } from '@/components/QuantityInput';
-import { Badge, Button, ButtonLink, ErrorState, Field, Input, LoadingState, Select } from '@/components/ui';
+import {
+  Badge,
+  Button,
+  ButtonLink,
+  ErrorState,
+  Field,
+  Input,
+  LoadingState,
+  Select,
+} from '@/components/ui';
 import { PageEmptyState } from '@/components/PageEmptyState';
 import { ApiError, NetworkError, api } from '@/lib/api';
 import { formatMoney, formatNumber } from '@/lib/format';
 import { clampToRules } from '@/lib/quantity-rules';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { AccountResponse, Address, Cart, Product, ScheduleCreated } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 type Frequency = 'EVERY_N_DAYS' | 'WEEKLY' | 'MONTHLY';
 type PaymentMode = 'AUTO_PAY' | 'PAYMENT_LINK';
@@ -76,6 +86,8 @@ interface ScheduleItemDraft {
 }
 
 export function ScheduleBuilderPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { business, features } = useStorefront();
@@ -259,7 +271,9 @@ export function ScheduleBuilderPage(): React.JSX.Element {
     onSuccess: (result) => {
       // Straight to the schedule itself, where the full record is read back
       // from the server rather than assembled from what was just submitted.
-      void navigate(`/account/schedules/${result.scheduleId}`, { replace: true });
+      void navigate(`/account/schedules/${result.scheduleId}`, {
+        replace: true,
+      });
     },
     onError: (error) => {
       if (error instanceof NetworkError) {
@@ -280,11 +294,11 @@ export function ScheduleBuilderPage(): React.JSX.Element {
   if (!features.recurringOrders) {
     return (
       <PageEmptyState
-        title="Repeat purchases are not available"
-        description="This option is switched off at the moment. You can still order normally."
+        title={t('scheduleBuilder.repeatPurchasesAreNotAvailable')}
+        description={t('scheduleBuilder.thisOptionIsSwitchedOff')}
         action={
           <ButtonLink to="/products" variant="primary" size="lg">
-            Browse products
+            {t('scheduleBuilder.browseProducts')}
           </ButtonLink>
         }
       />
@@ -292,7 +306,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
   }
 
   if ((fromCart && cart.isPending) || (!fromCart && product.isPending) || addresses.isPending) {
-    return <LoadingState label="Preparing your repeat purchase" />;
+    return <LoadingState label={t('scheduleBuilder.preparingYourRepeatPurchase')} />;
   }
 
   if (!fromCart && product.isError) {
@@ -309,7 +323,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
   if (items.length === 0) {
     return (
       <PageEmptyState
-        title="Nothing to repeat yet"
+        title={t('scheduleBuilder.nothingToRepeatYet')}
         description={
           fromCart
             ? 'None of the items in your cart can be set up as a repeat purchase. Look for the “Repeat purchase” label on a product.'
@@ -317,7 +331,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
         }
         action={
           <ButtonLink to="/products" variant="primary" size="lg">
-            Browse products
+            {t('scheduleBuilder.browseProducts')}
           </ButtonLink>
         }
       />
@@ -350,19 +364,21 @@ export function ScheduleBuilderPage(): React.JSX.Element {
   return (
     <>
       <header className="mb-6">
-        <h1 className="text-title-xl text-ink">Set up a repeat purchase</h1>
+        <h1 className="text-title-xl text-ink">{t('scheduleBuilder.setUpARepeatPurchase')}</h1>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted">
-          We will place the order for you on the schedule you choose. You can pause or cancel it at
-          any time.
+          {t('scheduleBuilder.weWillPlaceTheOrder')}
         </p>
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
         <div className="space-y-6">
           {/* --- What ------------------------------------------------------- */}
-          <section aria-labelledby="items-heading" className="rounded-lg border border-border bg-surface p-5 shadow-card">
+          <section
+            aria-labelledby="items-heading"
+            className="rounded-lg border border-border bg-surface p-5 shadow-card"
+          >
             <h2 id="items-heading" className="text-title-sm text-ink">
-              What to send
+              {t('scheduleBuilder.whatToSend')}
             </h2>
 
             <ul className="mt-3 divide-y divide-border">
@@ -384,7 +400,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                   <div className="mt-2">
                     <QuantityInput
                       value={item.quantity}
-                      label="Quantity per delivery"
+                      label={t('scheduleBuilder.quantityPerDelivery')}
                       rules={{
                         minOrderQty: item.minOrderQty,
                         maxOrderQty: item.maxOrderQty,
@@ -406,13 +422,16 @@ export function ScheduleBuilderPage(): React.JSX.Element {
           </section>
 
           {/* --- How often --------------------------------------------------- */}
-          <section aria-labelledby="cadence-heading" className="rounded-lg border border-border bg-surface p-5 shadow-card">
+          <section
+            aria-labelledby="cadence-heading"
+            className="rounded-lg border border-border bg-surface p-5 shadow-card"
+          >
             <h2 id="cadence-heading" className="text-title-sm text-ink">
-              How often
+              {t('scheduleBuilder.howOften')}
             </h2>
 
             <div className="mt-3 space-y-4">
-              <Field label="Repeat">
+              <Field label={t('scheduleBuilder.repeat')}>
                 {({ inputId }) => (
                   <Select
                     id={inputId}
@@ -421,17 +440,17 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                       setFrequency(event.target.value as Frequency);
                     }}
                   >
-                    <option value="EVERY_N_DAYS">Every so many days</option>
-                    <option value="WEEKLY">Weekly, on a chosen day</option>
-                    <option value="MONTHLY">Monthly, on a chosen date</option>
+                    <option value="EVERY_N_DAYS">{t('scheduleBuilder.everySoManyDays')}</option>
+                    <option value="WEEKLY">{t('scheduleBuilder.weeklyOnAChosenDay')}</option>
+                    <option value="MONTHLY">{t('scheduleBuilder.monthlyOnAChosenDate')}</option>
                   </Select>
                 )}
               </Field>
 
               {frequency === 'EVERY_N_DAYS' && (
                 <Field
-                  label="Number of days between deliveries"
-                  hint="7 gives you a weekly delivery."
+                  label={t('scheduleBuilder.numberOfDaysBetweenDeliveries')}
+                  hint={t('scheduleBuilder.7GivesYouAWeekly')}
                 >
                   {({ inputId, describedBy }) => (
                     <Input
@@ -455,7 +474,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
               )}
 
               {frequency === 'WEEKLY' && (
-                <Field label="Day of the week">
+                <Field label={t('scheduleBuilder.dayOfTheWeek')}>
                   {({ inputId }) => (
                     <Select
                       id={inputId}
@@ -476,8 +495,8 @@ export function ScheduleBuilderPage(): React.JSX.Element {
 
               {frequency === 'MONTHLY' && (
                 <Field
-                  label="Day of the month"
-                  hint="A month shorter than the date you pick runs on its last day."
+                  label={t('scheduleBuilder.dayOfTheMonth')}
+                  hint={t('scheduleBuilder.aMonthShorterThanThe')}
                 >
                   {({ inputId, describedBy }) => (
                     <Input
@@ -502,7 +521,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field
-                  label="Time of day"
+                  label={t('scheduleBuilder.timeOfDay')}
                   hint={`Your local time (${business.timezone}).`}
                 >
                   {({ inputId, describedBy }) => (
@@ -523,7 +542,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                   )}
                 </Field>
 
-                <Field label="First delivery on">
+                <Field label={t('scheduleBuilder.firstDeliveryOn')}>
                   {({ inputId }) => (
                     <Input
                       id={inputId}
@@ -539,7 +558,9 @@ export function ScheduleBuilderPage(): React.JSX.Element {
               </div>
 
               <fieldset>
-                <legend className="text-sm font-medium text-ink">When should it stop?</legend>
+                <legend className="text-sm font-medium text-ink">
+                  {t('scheduleBuilder.whenShouldItStop')}
+                </legend>
 
                 <div className="mt-2 space-y-2">
                   <label className="flex items-center gap-2 text-sm text-ink">
@@ -552,7 +573,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                         setEndMode('never');
                       }}
                     />
-                    Keep going until I cancel
+                    {t('scheduleBuilder.keepGoingUntilICancel')}
                   </label>
 
                   <label className="flex flex-wrap items-center gap-2 text-sm text-ink">
@@ -565,13 +586,13 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                         setEndMode('date');
                       }}
                     />
-                    Stop after
+                    {t('scheduleBuilder.stopAfter')}
                     <Input
                       type="date"
                       className="w-44"
                       value={endDate}
                       min={startDate}
-                      aria-label="Stop after this date"
+                      aria-label={t('scheduleBuilder.stopAfterThisDate')}
                       disabled={endMode !== 'date'}
                       onChange={(event) => {
                         setEndDate(event.target.value);
@@ -589,14 +610,14 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                         setEndMode('count');
                       }}
                     />
-                    Stop after
+                    {t('scheduleBuilder.stopAfter')}
                     <Input
                       type="number"
                       min={1}
                       max={10000}
                       className="w-24 tabular"
                       value={maxOccurrences}
-                      aria-label="Number of deliveries"
+                      aria-label={t('scheduleBuilder.numberOfDeliveries')}
                       disabled={endMode !== 'count'}
                       onChange={(event) => {
                         const parsed = Number(event.target.value);
@@ -611,14 +632,17 @@ export function ScheduleBuilderPage(): React.JSX.Element {
           </section>
 
           {/* --- Where -------------------------------------------------------- */}
-          <section aria-labelledby="delivery-heading" className="rounded-lg border border-border bg-surface p-5 shadow-card">
+          <section
+            aria-labelledby="delivery-heading"
+            className="rounded-lg border border-border bg-surface p-5 shadow-card"
+          >
             <h2 id="delivery-heading" className="text-title-sm text-ink">
-              Where to deliver
+              {t('scheduleBuilder.whereToDeliver')}
             </h2>
 
             {usableAddresses.length > 0 && (
               <fieldset className="mt-3">
-                <legend className="sr-only">Choose a delivery address</legend>
+                <legend className="sr-only">{t('scheduleBuilder.chooseADeliveryAddress')}</legend>
                 <div className="space-y-2">
                   {usableAddresses.map((address) => (
                     <label
@@ -676,13 +700,18 @@ export function ScheduleBuilderPage(): React.JSX.Element {
           </section>
 
           {/* --- How to pay ---------------------------------------------------- */}
-          <section aria-labelledby="pay-heading" className="rounded-lg border border-border bg-surface p-5 shadow-card">
+          <section
+            aria-labelledby="pay-heading"
+            className="rounded-lg border border-border bg-surface p-5 shadow-card"
+          >
             <h2 id="pay-heading" className="text-title-sm text-ink">
-              How each delivery is paid
+              {t('scheduleBuilder.howEachDeliveryIsPaid')}
             </h2>
 
             <fieldset className="mt-3">
-              <legend className="sr-only">Payment method for each occurrence</legend>
+              <legend className="sr-only">
+                {t('scheduleBuilder.paymentMethodForEachOccurrence')}
+              </legend>
 
               <div className="space-y-2">
                 <label
@@ -702,10 +731,11 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                     }}
                   />
                   <span className="text-sm">
-                    <span className="block font-medium text-ink">Send a payment link each time</span>
+                    <span className="block font-medium text-ink">
+                      {t('scheduleBuilder.sendAPaymentLinkEach')}
+                    </span>
                     <span className="mt-0.5 block text-ink-muted">
-                      Each delivery creates an order and emails a secure payment link for approval.
-                      Nothing is charged automatically.
+                      {t('scheduleBuilder.eachDeliveryCreatesAnOrder')}
                     </span>
                   </span>
                 </label>
@@ -727,10 +757,11 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                     }}
                   />
                   <span className="text-sm">
-                    <span className="block font-medium text-ink">Charge automatically</span>
+                    <span className="block font-medium text-ink">
+                      {t('scheduleBuilder.chargeAutomatically')}
+                    </span>
                     <span className="mt-0.5 block text-ink-muted">
-                      Each delivery is charged to a payment mandate. You will be asked to authorise
-                      the mandate with our payment provider before this starts.
+                      {t('scheduleBuilder.eachDeliveryIsChargedTo')}
                     </span>
                   </span>
                 </label>
@@ -740,8 +771,8 @@ export function ScheduleBuilderPage(): React.JSX.Element {
             {paymentMode === 'PAYMENT_LINK' && (
               <div className="mt-4">
                 <Field
-                  label="Send the payment link to"
-                  hint="Your own address is filled in. Change it if a finance colleague approves payments."
+                  label={t('scheduleBuilder.sendThePaymentLinkTo')}
+                  hint={t('scheduleBuilder.yourOwnAddressIsFilled')}
                   error={
                     payerEmail.trim() !== '' && !/^\S+@\S+\.\S+$/.test(payerEmail.trim())
                       ? 'Enter a valid email address.'
@@ -753,7 +784,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                     <Input
                       id={inputId}
                       type="email"
-                      placeholder="finance@yourcompany.com"
+                      placeholder={t('scheduleBuilder.financeYourcompanyCom')}
                       value={payerEmail}
                       aria-describedby={describedBy}
                       invalid={
@@ -773,11 +804,10 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                 role="status"
                 className="mt-4 rounded-md border border-warning/30 bg-warning-soft px-3 py-2.5 text-xs text-ink"
               >
-                <p className="font-medium text-warning">A mandate is needed before this can run</p>
-                <p className="mt-0.5">
-                  We will set the schedule up now and ask you to authorise the mandate with our
-                  payment provider. Until that is done, deliveries will not be charged automatically.
+                <p className="font-medium text-warning">
+                  {t('scheduleBuilder.aMandateIsNeededBefore')}
                 </p>
+                <p className="mt-0.5">{t('scheduleBuilder.weWillSetTheSchedule')}</p>
               </div>
             )}
           </section>
@@ -787,10 +817,10 @@ export function ScheduleBuilderPage(): React.JSX.Element {
         <aside aria-labelledby="summary-heading" className="lg:sticky lg:top-28 lg:self-start">
           <div className="rounded-lg border border-border bg-surface p-5 shadow-card">
             <h2 id="summary-heading" className="text-title-sm text-ink">
-              Your schedule
+              {t('scheduleBuilder.yourSchedule')}
             </h2>
 
-            <Field label="Name this schedule">
+            <Field label={t('scheduleBuilder.nameThisSchedule')}>
               {({ inputId }) => (
                 <div className="mt-1.5">
                   <Input
@@ -807,7 +837,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
 
             <dl className="mt-4 space-y-2 border-t border-border pt-4 text-sm">
               <div className="flex justify-between gap-3">
-                <dt className="text-ink-muted">Repeats</dt>
+                <dt className="text-ink-muted">{t('scheduleBuilder.repeats')}</dt>
                 <dd className="text-right text-ink">{cadence}</dd>
               </div>
               <div className="flex justify-between gap-3">
@@ -818,23 +848,26 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                 </dd>
               </div>
               <div className="flex justify-between gap-3">
-                <dt className="text-ink-muted">Starting</dt>
+                <dt className="text-ink-muted">{t('scheduleBuilder.starting')}</dt>
                 <dd className="text-right text-ink">{startDate}</dd>
               </div>
               <div className="flex justify-between gap-3">
-                <dt className="text-ink-muted">Ends</dt>
+                <dt className="text-ink-muted">{t('scheduleBuilder.ends')}</dt>
                 <dd className="text-right text-ink">
                   {endMode === 'never'
                     ? 'When you cancel'
                     : endMode === 'date'
-                      ? (endDate === '' ? 'Choose a date' : endDate)
+                      ? endDate === ''
+                        ? 'Choose a date'
+                        : endDate
                       : `After ${formatNumber(maxOccurrences)} deliveries`}
                 </dd>
               </div>
               <div className="flex justify-between gap-3">
-                <dt className="text-ink-muted">Items</dt>
+                <dt className="text-ink-muted">{t('scheduleBuilder.items')}</dt>
                 <dd className="text-right text-ink">
-                  {formatNumber(items.length)} product{items.length === 1 ? '' : 's'}
+                  {formatNumber(items.length)} product
+                  {items.length === 1 ? '' : 's'}
                 </dd>
               </div>
             </dl>
@@ -843,7 +876,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                 never assembled here. See the note at the top of this file. */}
             <div className="mt-4 rounded-md border border-border bg-surface-sunken p-3.5">
               <p className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                Estimated per delivery
+                {t('scheduleBuilder.estimatedPerDelivery')}
               </p>
 
               {cartTotals === undefined ? (
@@ -859,8 +892,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
               )}
 
               <p className="mt-1.5 text-xs text-ink-muted">
-                An estimate only. Every delivery is priced fresh against the catalogue, tax, stock
-                and your account limits on the day it runs — so the amount can change.
+                {t('scheduleBuilder.anEstimateOnlyEveryDelivery')}
               </p>
             </div>
 
@@ -899,28 +931,28 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                 create.mutate();
               }}
             >
-              Start this repeat purchase
+              {t('scheduleBuilder.startThisRepeatPurchase')}
             </Button>
 
             {!payerEmailValid && (
               <p className="mt-2 text-center text-xs text-ink-muted">
-                Enter who should receive the payment link.
+                {t('scheduleBuilder.enterWhoShouldReceiveThe')}
               </p>
             )}
 
             {payerEmailValid && !consentAccepted && (
               <p className="mt-2 text-center text-xs text-ink-muted">
-                Tick the box above to continue.
+                {t('scheduleBuilder.tickTheBoxAboveTo')}
               </p>
             )}
 
             <p className="mt-3 text-center text-xxs text-ink-subtle">
-              You can pause or cancel this at any time from your account.
+              {t('scheduleBuilder.youCanPauseOrCancel')}
             </p>
 
             {fromCart && (
               <p className="mt-3 text-center">
-                <Badge tone="brand">Built from your cart</Badge>
+                <Badge tone="brand">{t('scheduleBuilder.builtFromYourCart')}</Badge>
               </p>
             )}
           </div>

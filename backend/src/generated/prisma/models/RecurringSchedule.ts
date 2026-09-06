@@ -1281,10 +1281,6 @@ export type EnumSchedulePaymentModeFieldUpdateOperationsInput = {
   set?: $Enums.SchedulePaymentMode
 }
 
-export type NullableEnumPaymentProviderKindFieldUpdateOperationsInput = {
-  set?: $Enums.PaymentProviderKind | null
-}
-
 export type RecurringScheduleCreateNestedOneWithoutItemsInput = {
   create?: Prisma.XOR<Prisma.RecurringScheduleCreateWithoutItemsInput, Prisma.RecurringScheduleUncheckedCreateWithoutItemsInput>
   connectOrCreate?: Prisma.RecurringScheduleCreateOrConnectWithoutItemsInput

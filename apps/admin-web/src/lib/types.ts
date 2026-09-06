@@ -141,6 +141,25 @@ export interface ProductListResponse {
   pagination: Pagination;
 }
 
+/**
+ * What the product list can be filtered by.
+ *
+ * Which attributes are offered is a decision taken per product, by marking an
+ * attribute filterable — so the toolbar asks the catalogue rather than naming
+ * attributes that would be wrong for the next business to install this.
+ *
+ * Counts carry the other filters but not the attribute selection itself, so a
+ * value that is currently chosen still shows what choosing a different one
+ * would find.
+ */
+export interface ProductFilterFacets {
+  /** The base currency; every price on this list is quoted in it. */
+  currency: string;
+  /** What the catalogue holds, ignoring the price boxes. Null when empty. */
+  priceRange: { min: Money | null; max: Money | null };
+  attributes: { name: string; values: { value: string; count: number }[] }[];
+}
+
 export interface VariantRow {
   id: string;
   sku: string;
@@ -184,4 +203,34 @@ export interface ImportJob {
   completedAt: string | null;
   rowErrors: ImportRowError[];
   pagination: Pagination & { truncated: boolean };
+}
+
+// ---------------------------------------------------------------------------
+// Console notifications
+// ---------------------------------------------------------------------------
+
+/**
+ * One row of the bell.
+ *
+ * No prose crosses the wire, by design: the backend sends what happened
+ * (`kind`) and the values involved, and this panel builds the sentence in
+ * whichever of the eight languages the reader has chosen. A row whose `kind`
+ * this build does not recognise is rendered as plain fact rather than dropped -
+ * a panel that is one deploy behind the API must not silently swallow news.
+ */
+export interface ConsoleNotification {
+  id: string;
+  kind: string;
+  variables: Record<string, unknown>;
+  /** Admin-panel path this row opens, or null when it leads nowhere. */
+  linkPath: string | null;
+  /** For the signed-in member of staff, not for everyone. */
+  isRead: boolean;
+  createdAt: string;
+}
+
+export interface ConsoleNotificationFeed {
+  items: ConsoleNotification[];
+  /** Across the whole visible feed, not only the page returned. */
+  unreadCount: number;
 }

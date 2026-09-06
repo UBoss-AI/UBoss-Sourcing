@@ -242,9 +242,21 @@ Things this codebase enforces, and things only the deployment can:
       customer data, but it does reveal system shape.
 - [ ] Rotate `SECRETS_ENCRYPTION_KEY` only with a re-encryption plan — every
       `credentialsEnc` value is bound to the current key.
-- [ ] Configure the Razorpay dashboard webhook to the public
-      `/api/v1/payments/webhooks/razorpay` with the `RAZORPAY_WEBHOOK_SECRET`
-      from `.env`.
+- [ ] Configure the gateway's dashboard webhook against the public endpoint
+      for whichever gateway is active, with the matching signing secret:
+      - Razorpay -> `/api/v1/payments/webhooks/razorpay`, secret
+        `RAZORPAY_WEBHOOK_SECRET`. Subscribe to `payment.captured`,
+        `order.paid`, `payment.failed`, `refund.processed`, `refund.failed`.
+      - Stripe -> `/api/v1/payments/webhooks/stripe`, secret
+        `STRIPE_WEBHOOK_SECRET` (the `whsec_` value). Subscribe to
+        `payment_intent.succeeded`, `payment_intent.payment_failed`,
+        `charge.refunded`, `refund.updated` and `refund.failed`. Do **not**
+        add `charge.succeeded`: it reports the same capture as
+        `payment_intent.succeeded` under a different event id, so the
+        duplicate guard would not catch it and the order would be credited
+        twice.
+      Stripe rejects a delivery signed more than five minutes ago, so the
+      server's clock must be in step - check NTP before blaming the secret.
 - [ ] Set `internalRecipientsJson` on the `notification_settings` rows for
       `inventory.low_stock` and `payment.failed`. Without recipients, those
       alerts are logged and dropped.

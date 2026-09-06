@@ -28,6 +28,7 @@ import {
 import { api } from '@/lib/api';
 import { formatDateTime, humanise } from '@/lib/format';
 import type { Pagination } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 interface AuditEntry {
   id: string;
@@ -68,6 +69,8 @@ function JsonBlock({ label, value }: { label: string; value: unknown }): React.J
 }
 
 function DetailToggle({ entry }: { entry: AuditEntry }): React.JSX.Element {
+  const { t } = useI18n();
+
   const [isOpen, setIsOpen] = useState(false);
 
   const hasDetail = entry.before !== null || entry.after !== null;
@@ -89,8 +92,8 @@ function DetailToggle({ entry }: { entry: AuditEntry }): React.JSX.Element {
 
       {isOpen && (
         <div className="mt-2 space-y-2">
-          {entry.before !== null && <JsonBlock label="Before" value={entry.before} />}
-          {entry.after !== null && <JsonBlock label="After" value={entry.after} />}
+          {entry.before !== null && <JsonBlock label={t('audit.before')} value={entry.before} />}
+          {entry.after !== null && <JsonBlock label={t('audit.after')} value={entry.after} />}
         </div>
       )}
     </div>
@@ -98,6 +101,8 @@ function DetailToggle({ entry }: { entry: AuditEntry }): React.JSX.Element {
 }
 
 export function AuditPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const [searchParams, setSearchParams] = useSearchParams();
 
   const page = Number(searchParams.get('page') ?? '1');
@@ -142,7 +147,9 @@ export function AuditPage(): React.JSX.Element {
       key: 'action',
       header: 'Action',
       nowrap: true,
-      render: (row) => <span className="font-mono text-xxs font-medium text-ink">{row.action}</span>,
+      render: (row) => (
+        <span className="font-mono text-xxs font-medium text-ink">{row.action}</span>
+      ),
     },
     {
       key: 'actor',
@@ -150,7 +157,8 @@ export function AuditPage(): React.JSX.Element {
       render: (row) => (
         <div className="min-w-36">
           <p className="text-ink">
-            {row.actorEmail ?? (row.actorType === 'SYSTEM' ? 'The system' : humanise(row.actorType))}
+            {row.actorEmail ??
+              (row.actorType === 'SYSTEM' ? 'The system' : humanise(row.actorType))}
           </p>
           {row.ipAddress !== null && (
             <p className="font-mono text-xxs text-ink-subtle">{row.ipAddress}</p>
@@ -190,18 +198,15 @@ export function AuditPage(): React.JSX.Element {
 
   return (
     <>
-      <PageHeader
-        title="Audit log"
-        description="Who changed what, when, and from where. Append-only — nothing on this screen can edit or remove an entry."
-      />
+      <PageHeader title={t('audit.auditLog')} description={t('audit.whoChangedWhatWhenAnd')} />
 
       <Card>
         <Toolbar>
-          <ToolbarField label="Action" grow>
+          <ToolbarField label={t('audit.action')} grow>
             <Input
               type="search"
               defaultValue={action}
-              placeholder="e.g. product.updated"
+              placeholder={t('audit.eGProductUpdated')}
               className="font-mono"
               // Applied when the field is left or Enter is pressed, rather than
               // on every keystroke: this filter is an exact match, and
@@ -216,11 +221,11 @@ export function AuditPage(): React.JSX.Element {
             />
           </ToolbarField>
 
-          <ToolbarField label="Actor email" grow>
+          <ToolbarField label={t('audit.actorEmail')} grow>
             <Input
               type="search"
               defaultValue={actorEmail}
-              placeholder="staff@example.com"
+              placeholder={t('audit.staffExampleCom')}
               onBlur={(event) => {
                 setParam('actorEmail', event.target.value.trim());
               }}
@@ -230,7 +235,7 @@ export function AuditPage(): React.JSX.Element {
             />
           </ToolbarField>
 
-          <ToolbarField label="Resource">
+          <ToolbarField label={t('audit.resource')}>
             <Select
               value={resourceType}
               onChange={(event) => {
@@ -238,7 +243,7 @@ export function AuditPage(): React.JSX.Element {
               }}
               className="w-52"
             >
-              <option value="">Any resource</option>
+              <option value="">{t('audit.anyResource')}</option>
               {RESOURCE_TYPES.map((value) => (
                 <option key={value} value={value}>
                   {humanise(value)}
@@ -254,7 +259,7 @@ export function AuditPage(): React.JSX.Element {
                   setSearchParams({});
                 }}
               >
-                Clear filters
+                {t('audit.clearFilters')}
               </Button>
             </ToolbarActions>
           )}
@@ -289,7 +294,7 @@ export function AuditPage(): React.JSX.Element {
                   setSearchParams({});
                 }}
               >
-                Clear filters
+                {t('audit.clearFilters')}
               </Button>
             ) : undefined
           }

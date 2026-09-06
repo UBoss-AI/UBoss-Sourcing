@@ -38,10 +38,18 @@ import {
   ToolbarField,
 } from '@/components/ui';
 import { ApiError, api, downloadFile } from '@/lib/api';
-import { formatDate, formatDateTime, formatMoney, formatNumber, humanise, minorToMajor } from '@/lib/format';
+import {
+  formatDate,
+  formatDateTime,
+  formatMoney,
+  formatNumber,
+  humanise,
+  minorToMajor,
+} from '@/lib/format';
 import { Permission } from '@/lib/permissions';
 import type { BadgeTone } from '@/components/ui';
 import type { Money } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 interface SalesReport {
   summary: {
@@ -57,7 +65,13 @@ interface SalesReport {
     netRevenue: Money;
     averageOrderValue: Money;
   };
-  topProducts?: { productId: string; name: string; sku: string; quantity: number; revenue: Money }[];
+  topProducts?: {
+    productId: string;
+    name: string;
+    sku: string;
+    quantity: number;
+    revenue: Money;
+  }[];
 }
 
 interface OrdersReport {
@@ -102,6 +116,8 @@ function exportTone(status: string): BadgeTone {
 }
 
 function ExportsPanel(): React.JSX.Element {
+  const { t } = useI18n();
+
   const queryClient = useQueryClient();
   const toast = useToast();
   const { can } = useSession();
@@ -176,7 +192,11 @@ function ExportsPanel(): React.JSX.Element {
       align: 'right',
       secondary: true,
       render: (row) =>
-        row.rowCount == null ? <span className="text-ink-subtle">—</span> : formatNumber(row.rowCount),
+        row.rowCount == null ? (
+          <span className="text-ink-subtle">—</span>
+        ) : (
+          formatNumber(row.rowCount)
+        ),
     },
     {
       key: 'created',
@@ -187,7 +207,7 @@ function ExportsPanel(): React.JSX.Element {
     },
     {
       key: 'actions',
-      header: <span className="sr-only">Actions</span>,
+      header: <span className="sr-only">{t('reports.actions')}</span>,
       align: 'right',
       render: (row) =>
         row.status === 'SUCCEEDED' ? (
@@ -200,23 +220,20 @@ function ExportsPanel(): React.JSX.Element {
               download.mutate(row);
             }}
           >
-            Download
+            {t('reports.download')}
             <span className="sr-only"> the {humanise(row.type)} export</span>
           </Button>
         ) : isWorking(row) ? (
-          <span className="text-xs text-ink-subtle">Still running…</span>
+          <span className="text-xs text-ink-subtle">{t('reports.stillRunning')}</span>
         ) : null,
     },
   ];
 
   return (
-    <Card
-      title="Exports"
-      description="CSV, generated in the background. A large export does not hold up this page, and the list refreshes itself while one is running."
-    >
+    <Card title={t('reports.exports')} description={t('reports.csvGeneratedInTheBackground')}>
       {canCreate && (
         <Toolbar>
-          <ToolbarField label="What to export">
+          <ToolbarField label={t('reports.whatToExport')}>
             <Select
               value={type}
               onChange={(event) => {
@@ -274,6 +291,8 @@ function ExportsPanel(): React.JSX.Element {
 }
 
 export function ReportsPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const [searchParams, setSearchParams] = useSearchParams();
   const days = Number(searchParams.get('days') ?? '30');
 
@@ -342,22 +361,24 @@ export function ReportsPage(): React.JSX.Element {
   return (
     <>
       <PageHeader
-        title="Reports"
-        description="Ordered, collected and refunded — kept separate, because they are different numbers."
+        title={t('reports.reports')}
+        description={t('reports.orderedCollectedAndRefundedKept')}
       />
 
       <div className="space-y-5">
         <Card
-          title="Sales"
+          title={t('reports.sales')}
           // The dates the figures actually cover. "Last 30 days" is not a
           // period a number can be quoted against six weeks later.
           {...(reportWindow === undefined
             ? {}
-            : { description: `${formatDate(reportWindow.from)} to ${formatDate(reportWindow.to)}` })}
+            : {
+                description: `${formatDate(reportWindow.from)} to ${formatDate(reportWindow.to)}`,
+              })}
           actions={
             <label className="flex items-center gap-2">
               <span className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                Period
+                {t('reports.period')}
               </span>
               <Select
                 value={String(days)}
@@ -375,8 +396,7 @@ export function ReportsPage(): React.JSX.Element {
             </label>
           }
         >
-
-          {sales.isPending && <LoadingState label="Loading sales" />}
+          {sales.isPending && <LoadingState label={t('reports.loadingSales')} />}
           {sales.isError && (
             <ErrorState
               error={sales.error}
@@ -391,25 +411,25 @@ export function ReportsPage(): React.JSX.Element {
               {/* The four that get quoted. */}
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 <Metric
-                  label="Orders"
+                  label={t('reports.orders')}
                   value={formatNumber(sales.data.summary.orderCount)}
                   emphasis="primary"
                   sub={`Average ${formatMoney(sales.data.summary.averageOrderValue)}`}
                 />
                 <Metric
-                  label="Gross sales"
+                  label={t('reports.grossSales')}
                   value={formatMoney(sales.data.summary.grossSales)}
                   emphasis="primary"
                   sub="Ordered, including tax and shipping"
                 />
                 <Metric
-                  label="Collected"
+                  label={t('reports.collected')}
                   value={formatMoney(sales.data.summary.collected)}
                   emphasis="primary"
                   sub="Confirmed by the gateway, not merely ordered"
                 />
                 <Metric
-                  label="Net revenue"
+                  label={t('reports.netRevenue')}
                   value={formatMoney(sales.data.summary.netRevenue)}
                   emphasis="primary"
                   sub={`Collected less ${formatMoney(sales.data.summary.refunded)} refunded`}
@@ -418,17 +438,29 @@ export function ReportsPage(): React.JSX.Element {
 
               {/* The four they break down into. Same cards, one step quieter. */}
               <div className="grid gap-3 border-t border-border-subtle pt-4 sm:grid-cols-2 xl:grid-cols-4">
-                <Metric label="Tax" value={formatMoney(sales.data.summary.tax)} />
-                <Metric label="Shipping" value={formatMoney(sales.data.summary.shipping)} />
-                <Metric label="Discounts" value={formatMoney(sales.data.summary.discount)} />
-                <Metric label="Refunded" value={formatMoney(sales.data.summary.refunded)} />
+                <Metric label={t('reports.tax')} value={formatMoney(sales.data.summary.tax)} />
+                <Metric
+                  label={t('reports.shipping')}
+                  value={formatMoney(sales.data.summary.shipping)}
+                />
+                <Metric
+                  label={t('reports.discounts')}
+                  value={formatMoney(sales.data.summary.discount)}
+                />
+                <Metric
+                  label={t('reports.refunded')}
+                  value={formatMoney(sales.data.summary.refunded)}
+                />
               </div>
             </div>
           )}
         </Card>
 
         <div className="grid gap-5 lg:grid-cols-2">
-          <Card title="Orders by status" description="Every order placed in the period.">
+          <Card
+            title={t('reports.ordersByStatus')}
+            description={t('reports.everyOrderPlacedInThe')}
+          >
             <DataTable
               caption="Orders by status"
               columns={statusColumns}
@@ -446,8 +478,8 @@ export function ReportsPage(): React.JSX.Element {
           </Card>
 
           <Card
-            title="Fulfilment ageing"
-            description="How long confirmed orders have been waiting to ship."
+            title={t('reports.fulfilmentAgeing')}
+            description={t('reports.howLongConfirmedOrdersHave')}
           >
             <DataTable
               caption="Fulfilment ageing"

@@ -29,6 +29,7 @@ import { useToast } from '@/components/toast-context';
 import { Button, Callout, Card, Checkbox, EmptyState, Input } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { Permission } from '@/lib/permissions';
+import { useI18n } from '@/i18n/i18n-context';
 
 export interface SpecificationRow {
   name: string;
@@ -88,6 +89,8 @@ export function SpecificationsPanel({
   productId: string;
   specifications: SpecificationRow[];
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const { can } = useSession();
   const queryClient = useQueryClient();
   const toast = useToast();
@@ -148,8 +151,8 @@ export function SpecificationsPanel({
 
   return (
     <Card
-      title="Specifications"
-      description="Shown on the product page, in this order. Nothing here changes the price or how much a customer may buy."
+      title={t('specifications.specifications')}
+      description={t('specifications.shownOnTheProductPage')}
       actions={
         canEdit ? (
           <div className="flex items-center gap-2">
@@ -161,7 +164,7 @@ export function SpecificationsPanel({
                 rows.append({ name: '', value: '', isFilterable: false });
               }}
             >
-              Add row
+              {t('specifications.addRow')}
             </Button>
             <Button
               size="sm"
@@ -169,7 +172,7 @@ export function SpecificationsPanel({
               disabled={!isDirty || repeats.size > 0}
               onClick={submit}
             >
-              Save specifications
+              {t('specifications.saveSpecifications')}
             </Button>
           </div>
         ) : undefined
@@ -190,7 +193,7 @@ export function SpecificationsPanel({
 
         {rows.fields.length === 0 ? (
           <EmptyState
-            title="No specifications yet"
+            title={t('specifications.noSpecificationsYet')}
             description={
               canEdit
                 ? 'Add rows like Material, Finish or Thread — customers see them on the product page, in this order.'
@@ -218,7 +221,7 @@ export function SpecificationsPanel({
                     </label>
                     <Input
                       id={`spec-name-${field.id}`}
-                      placeholder="Material"
+                      placeholder={t('specifications.material')}
                       disabled={!canEdit}
                       invalid={nameError !== undefined}
                       {...register(`rows.${index}.name`)}
@@ -234,7 +237,7 @@ export function SpecificationsPanel({
                     </label>
                     <Input
                       id={`spec-value-${field.id}`}
-                      placeholder="Stainless 304"
+                      placeholder={t('specifications.stainless304')}
                       disabled={!canEdit}
                       invalid={valueError !== undefined}
                       {...register(`rows.${index}.value`)}
@@ -248,7 +251,7 @@ export function SpecificationsPanel({
                     <div className="flex items-start gap-2">
                       <label className="flex h-10 cursor-pointer items-center gap-1.5 whitespace-nowrap text-sm text-ink">
                         <Checkbox {...register(`rows.${index}.isFilterable`)} />
-                        Filterable
+                        {t('specifications.filterable')}
                       </label>
 
                       <Button
@@ -281,7 +284,7 @@ export function SpecificationsPanel({
                           rows.remove(index);
                         }}
                       >
-                        Remove
+                        {t('specifications.remove')}
                       </Button>
                     </div>
                   )}

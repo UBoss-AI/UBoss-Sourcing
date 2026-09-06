@@ -158,7 +158,6 @@ Do not "fix" these; each is a decision.
 |---|---|
 | **Auto-pay mandate charging** | Razorpay e-mandate/UPI Autopay needs a registered flow this deployment lacks. AUTO_PAY schedules create the order and leave it PENDING_PAYMENT. **PAYMENT_LINK mode is the working recurring path.** |
 | **"Run schedule now" admin action** | A manual trigger is the obvious route to a duplicate charge. |
-| Stripe adapter | Interface exists; only Razorpay is implemented. |
 | CSV/XLSX product import | Step 4 sub-item, skipped. |
 | MFA (TOTP) enrolment | Schema ready, flow not built. |
 | Customer delete/anonymise | SOP §17 needs an approved policy first. |

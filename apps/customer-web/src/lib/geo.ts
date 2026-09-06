@@ -49,6 +49,8 @@ const ZONE_TO_COUNTRY: Readonly<Record<string, string>> = {
   'Europe/Amsterdam': 'NL',
   'Europe/Brussels': 'BE',
   'Europe/Vienna': 'AT',
+  'Europe/Warsaw': 'PL',
+  'Europe/Athens': 'GR',
   'Australia/Sydney': 'AU',
   'Australia/Melbourne': 'AU',
   'Australia/Brisbane': 'AU',
@@ -118,6 +120,10 @@ const BOXES: readonly BoundingBox[] = [
   { country: 'NL', minLat: 50.7, maxLat: 53.6, minLon: 3.3, maxLon: 7.2 },
   { country: 'BE', minLat: 49.5, maxLat: 51.5, minLon: 2.5, maxLon: 6.4 },
   { country: 'AT', minLat: 46.4, maxLat: 49.0, minLon: 9.5, maxLon: 17.2 },
+  { country: 'GR', minLat: 34.8, maxLat: 41.8, minLon: 19.3, maxLon: 28.3 },
+  // Before Germany on purpose: the two boxes overlap between 14.1°E and
+  // 15.0°E, and everything in that strip is Polish. First match wins.
+  { country: 'PL', minLat: 49.0, maxLat: 54.9, minLon: 14.1, maxLon: 24.2 },
   { country: 'DE', minLat: 47.3, maxLat: 55.1, minLon: 5.9, maxLon: 15.0 },
   { country: 'FR', minLat: 41.3, maxLat: 51.1, minLon: -5.1, maxLon: 9.6 },
   { country: 'ES', minLat: 36.0, maxLat: 43.8, minLon: -9.3, maxLon: 3.3 },

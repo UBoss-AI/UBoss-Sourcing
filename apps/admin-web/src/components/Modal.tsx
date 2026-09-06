@@ -14,6 +14,7 @@ import { useEffect, useId, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { Button } from './ui';
 import { cx } from '@/lib/cx';
+import { useI18n } from '@/i18n/i18n-context';
 
 interface ModalProps {
   isOpen: boolean;
@@ -35,6 +36,8 @@ export function Modal({
   footer,
   size = 'md',
 }: ModalProps): React.JSX.Element {
+  const { t } = useI18n();
+
   const dialogRef = useRef<HTMLDialogElement>(null);
   // Generated, not the literal "modal-title" this used to hardcode. Two
   // dialogs mounted at once — a confirm raised from inside a form dialog, which
@@ -100,8 +103,8 @@ export function Modal({
             </p>
           )}
         </div>
-        <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close">
-          Close
+        <Button variant="ghost" size="sm" onClick={onClose} aria-label={t('modal.close')}>
+          {t('modal.close')}
         </Button>
       </div>
 
@@ -141,6 +144,8 @@ export function ConfirmDialog({
   isDangerous?: boolean;
   isWorking?: boolean;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   return (
     <Modal
       isOpen={isOpen}
@@ -149,7 +154,7 @@ export function ConfirmDialog({
       footer={
         <>
           <Button onClick={onClose} disabled={isWorking}>
-            Cancel
+            {t('modal.cancel')}
           </Button>
           <Button
             variant={isDangerous ? 'danger' : 'primary'}

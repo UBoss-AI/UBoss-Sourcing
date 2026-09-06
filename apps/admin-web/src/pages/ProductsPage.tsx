@@ -37,9 +37,16 @@ import {
 } from '@/components/ui';
 import type { BadgeTone } from '@/components/ui';
 import { api } from '@/lib/api';
-import { formatMoney, formatNumber } from '@/lib/format';
+import { formatMoney, formatNumber, majorToMinor, minorToMajor } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
-import type { CategoryNode, ProductListItem, ProductListResponse } from '@/lib/types';
+import type {
+  CategoryNode,
+  ProductFilterFacets,
+  ProductListItem,
+  ProductListResponse,
+} from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
+import { BulkCurrencyPricingDialog } from './product/BulkCurrencyPricingDialog';
 
 function flatten(nodes: CategoryNode[], into: CategoryNode[] = []): CategoryNode[] {
   for (const node of nodes) {
@@ -49,6 +56,9 @@ function flatten(nodes: CategoryNode[], into: CategoryNode[] = []): CategoryNode
   return into;
 }
 
+/** How recently added, as a filter. */
+const ADDED_WITHIN_OPTIONS = [7, 30, 90] as const;
+
 const CATALOGUE_STATUS: Record<ProductListItem['status'], { label: string; tone: BadgeTone }> = {
   ACTIVE: { label: 'Active', tone: 'success' },
   DRAFT: { label: 'Draft', tone: 'neutral' },
@@ -56,6 +66,8 @@ const CATALOGUE_STATUS: Record<ProductListItem['status'], { label: string; tone:
 };
 
 export function ProductsPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const { can } = useSession();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -66,13 +78,42 @@ export function ProductsPage(): React.JSX.Element {
   const categoryId = searchParams.get('categoryId') ?? '';
   const includeArchived = searchParams.get('includeArchived') === 'true';
   const q = searchParams.get('q') ?? '';
+  const minPrice = searchParams.get('minPrice') ?? '';
+  const maxPrice = searchParams.get('maxPrice') ?? '';
+  const stock = searchParams.get('stock') ?? '';
+  const onSale = searchParams.get('onSale') === 'true';
+  const recurring = searchParams.get('recurring') === 'true';
+  const added = searchParams.get('added') ?? '';
+  /**
+   * One attribute at a time, as `Name:Value`.
+   *
+   * The storefront lets a shopper tick several values at once, because they
+   * are browsing. This screen is a work queue - "show me the Bosch ones so I
+   * can price them" - and one pair keeps the toolbar to two selects instead of
+   * a column of tick boxes that would push the table off the screen.
+   */
+  const attr = searchParams.get('attr') ?? '';
 
   const hasFilters =
-    status !== '' || published !== '' || categoryId !== '' || includeArchived || q !== '';
+    status !== '' ||
+    published !== '' ||
+    categoryId !== '' ||
+    includeArchived ||
+    q !== '' ||
+    minPrice !== '' ||
+    maxPrice !== '' ||
+    stock !== '' ||
+    onSale ||
+    recurring ||
+    added !== '' ||
+    attr !== '';
 
   // Local mirror of the search box so typing stays responsive, debounced into
   // the URL. Writing every keystroke to the URL floods the history stack.
   const [searchText, setSearchText] = useState(q);
+
+  /** The bulk currency pricing dialog, raised from the page header. */
+  const [pricingOpen, setPricingOpen] = useState(false);
 
   useEffect(() => {
     setSearchText(q);
@@ -116,8 +157,73 @@ export function ProductsPage(): React.JSX.Element {
     queryFn: () => api.get<{ categories: CategoryNode[] }>('/admin/categories'),
   });
 
+  /**
+   * The filters this catalogue can offer, and what it costs.
+   *
+   * Which attributes appear is not written into this screen: an attribute
+   * becomes a filter when somebody ticks "filterable" on the product, so the
+   * toolbar asks rather than hard-coding names that would be wrong for the
+   * next catalogue. Drafts count here, unlike on the storefront - this screen
+   * exists to work on them.
+   *
+   * The ticked attribute is left out of the key and the request on purpose:
+   * the counts are taken without it, so asking again would only reload the
+   * same answer while the select is open.
+   */
+  const filters = useQuery({
+    queryKey: [
+      'product-filters',
+      {
+        status,
+        published,
+        categoryId,
+        includeArchived,
+        q,
+        minPrice,
+        maxPrice,
+        stock,
+        onSale,
+        recurring,
+        added,
+      },
+    ],
+    queryFn: () =>
+      api.get<ProductFilterFacets>('/admin/products/filters', {
+        query: {
+          status: status === '' ? undefined : status,
+          published: published === '' ? undefined : published,
+          categoryId: categoryId === '' ? undefined : categoryId,
+          includeArchived: includeArchived ? 'true' : undefined,
+          q: q === '' ? undefined : q,
+          minPrice: minPrice === '' ? undefined : minPrice,
+          maxPrice: maxPrice === '' ? undefined : maxPrice,
+          stock: stock === '' ? undefined : stock,
+          onSaleOnly: onSale ? 'true' : undefined,
+          recurringOnly: recurring ? 'true' : undefined,
+          addedWithinDays: added === '' ? undefined : added,
+        },
+      }),
+  });
+
   const query = useQuery({
-    queryKey: ['products', { page, status, published, categoryId, includeArchived, q }],
+    queryKey: [
+      'products',
+      {
+        page,
+        status,
+        published,
+        categoryId,
+        includeArchived,
+        q,
+        minPrice,
+        maxPrice,
+        stock,
+        onSale,
+        recurring,
+        added,
+        attr,
+      },
+    ],
     queryFn: () =>
       api.get<ProductListResponse>('/admin/products', {
         query: {
@@ -128,9 +234,109 @@ export function ProductsPage(): React.JSX.Element {
           categoryId: categoryId === '' ? undefined : categoryId,
           includeArchived: includeArchived ? 'true' : undefined,
           q: q === '' ? undefined : q,
+          minPrice: minPrice === '' ? undefined : minPrice,
+          maxPrice: maxPrice === '' ? undefined : maxPrice,
+          stock: stock === '' ? undefined : stock,
+          onSaleOnly: onSale ? 'true' : undefined,
+          recurringOnly: recurring ? 'true' : undefined,
+          addedWithinDays: added === '' ? undefined : added,
+          attr: attr === '' ? undefined : attr,
         },
       }),
   });
+
+  /*
+   * The price boxes.
+   *
+   * Typed in major units and held in the URL as minor, the same way the
+   * storefront does it: a manager types 500 meaning ₹500, and the conversion
+   * is digit shifting, never × 100.
+   *
+   * Local state, debounced into the URL like the search box beside it, so
+   * typing four digits does not fire four queries and leave four entries in
+   * the history stack. Text that cannot be read as an amount is simply not
+   * applied - the box says so by going red rather than the list going empty.
+   */
+  const [priceFromText, setPriceFromText] = useState(minPrice === '' ? '' : minorToMajor(minPrice));
+  const [priceToText, setPriceToText] = useState(maxPrice === '' ? '' : minorToMajor(maxPrice));
+
+  const priceFromInvalid = priceFromText.trim() !== '' && majorToMinor(priceFromText) === null;
+  const priceToInvalid = priceToText.trim() !== '' && majorToMinor(priceToText) === null;
+
+  /*
+   * Keep the boxes in step with the URL, so Clear filters resets them too.
+   *
+   * A box already saying the same amount is left exactly as it was typed. The
+   * naive version of this rewrites "500" as "500.00" the moment the debounce
+   * fires - under the cursor, mid-number, so the next keystroke lands in
+   * "500.005".
+   */
+  useEffect(() => {
+    const sync = (urlMinor: string) => (current: string) => {
+      const asMinor = current.trim() === '' ? '' : majorToMinor(current);
+      if (asMinor === urlMinor) return current;
+      return urlMinor === '' ? '' : minorToMajor(urlMinor);
+    };
+
+    setPriceFromText(sync(minPrice));
+    setPriceToText(sync(maxPrice));
+  }, [minPrice, maxPrice]);
+
+  useEffect(() => {
+    const nextMin = priceFromText.trim() === '' ? '' : (majorToMinor(priceFromText) ?? minPrice);
+    const nextMax = priceToText.trim() === '' ? '' : (majorToMinor(priceToText) ?? maxPrice);
+
+    if (nextMin === minPrice && nextMax === maxPrice) return undefined;
+
+    const timer = window.setTimeout(() => {
+      setSearchParams(
+        (current) => {
+          const next = new URLSearchParams(current);
+
+          if (nextMin === '') next.delete('minPrice');
+          else next.set('minPrice', nextMin);
+
+          if (nextMax === '') next.delete('maxPrice');
+          else next.set('maxPrice', nextMax);
+
+          next.delete('page');
+          return next;
+        },
+        { replace: true },
+      );
+    }, 400);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [priceFromText, priceToText, minPrice, maxPrice, setSearchParams]);
+
+  /*
+   * The attribute pair.
+   *
+   * The name lives in component state and only the finished `Name:Value` pair
+   * reaches the URL: a half-made selection is not a filter, and putting it in
+   * the address bar would mean sharing a link that filters by nothing while
+   * looking as though it filters by something.
+   */
+  const [attrName, setAttrName] = useState(() => {
+    const separator = attr.indexOf(':');
+    return separator <= 0 ? '' : attr.slice(0, separator);
+  });
+
+  useEffect(() => {
+    const separator = attr.indexOf(':');
+    if (separator > 0) setAttrName(attr.slice(0, separator));
+  }, [attr]);
+
+  const attrValue = ((): string => {
+    const separator = attr.indexOf(':');
+    return separator <= 0 ? '' : attr.slice(separator + 1);
+  })();
+
+  const facets = filters.data?.attributes ?? [];
+  const facetValues = facets.find((facet) => facet.name === attrName)?.values ?? [];
+  const priceRange = filters.data?.priceRange;
 
   const columns: Column<ProductListItem>[] = [
     {
@@ -147,7 +353,7 @@ export function ProductsPage(): React.JSX.Element {
             </Link>
             {/* Archived rows only appear when the filter asks for them, and
                 without this they are indistinguishable from live ones. */}
-            {row.archivedAt !== null && <Badge tone="danger">Archived</Badge>}
+            {row.archivedAt !== null && <Badge tone="danger">{t('products.archived')}</Badge>}
           </div>
           <p className="font-mono text-xxs text-ink-subtle">{row.sku}</p>
         </div>
@@ -184,11 +390,11 @@ export function ProductsPage(): React.JSX.Element {
       render: (row) =>
         row.isPublished ? (
           <Badge dot tone="success">
-            Live
+            {t('products.live')}
           </Badge>
         ) : (
           <Badge dot tone="neutral">
-            Not published
+            {t('products.notPublished')}
           </Badge>
         ),
     },
@@ -214,7 +420,7 @@ export function ProductsPage(): React.JSX.Element {
         row.mediaCount === 0 ? (
           // Publication requires at least one image, so a zero here explains
           // why a product cannot go live before anyone tries.
-          <Badge tone="warning">None</Badge>
+          <Badge tone="warning">{t('products.none')}</Badge>
         ) : (
           formatNumber(row.mediaCount)
         ),
@@ -224,36 +430,55 @@ export function ProductsPage(): React.JSX.Element {
   return (
     <>
       <PageHeader
-        title="Products"
-        description="A product reaches customers only when it is both Active in the catalogue and published to the storefront."
+        title={t('products.products')}
+        description={t('products.aProductReachesCustomersOnly')}
         actions={
           <>
             {can(Permission.PRODUCT_IMPORT) && (
               <LinkButton to="/products/import">Bulk import</LinkButton>
             )}
+            {/* Next to bulk import because it is the same kind of job: filling
+                the catalogue in one pass rather than product by product. A
+                currency with no prices is a market shoppers cannot see. */}
+            {can(Permission.PRODUCT_WRITE) && (
+              <Button
+                onClick={() => {
+                  setPricingOpen(true);
+                }}
+              >
+                {t('products.currencyPricing')}
+              </Button>
+            )}
             {can(Permission.PRODUCT_WRITE) && (
               <LinkButton to="/products/new" variant="primary">
-                New product
+                {t('products.newProduct')}
               </LinkButton>
             )}
           </>
         }
       />
 
+      <BulkCurrencyPricingDialog
+        isOpen={pricingOpen}
+        onClose={() => {
+          setPricingOpen(false);
+        }}
+      />
+
       <Card>
         <Toolbar>
-          <ToolbarField label="Search" grow>
+          <ToolbarField label={t('products.search')} grow>
             <Input
               type="search"
               value={searchText}
-              placeholder="Name or SKU"
+              placeholder={t('products.nameOrSku')}
               onChange={(event) => {
                 setSearchText(event.target.value);
               }}
             />
           </ToolbarField>
 
-          <ToolbarField label="Category">
+          <ToolbarField label={t('products.category')}>
             <Select
               value={categoryId}
               onChange={(event) => {
@@ -261,7 +486,7 @@ export function ProductsPage(): React.JSX.Element {
               }}
               className="w-48"
             >
-              <option value="">All categories</option>
+              <option value="">{t('products.allCategories')}</option>
               {flatten(categories.data?.categories ?? []).map((node) => (
                 <option key={node.id} value={node.id}>
                   {'— '.repeat(node.depth)}
@@ -271,7 +496,7 @@ export function ProductsPage(): React.JSX.Element {
             </Select>
           </ToolbarField>
 
-          <ToolbarField label="Catalogue">
+          <ToolbarField label={t('products.catalogue')}>
             <Select
               value={status}
               onChange={(event) => {
@@ -279,14 +504,14 @@ export function ProductsPage(): React.JSX.Element {
               }}
               className="w-36"
             >
-              <option value="">Any status</option>
-              <option value="DRAFT">Draft</option>
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
+              <option value="">{t('products.anyStatus')}</option>
+              <option value="DRAFT">{t('products.draft')}</option>
+              <option value="ACTIVE">{t('products.active')}</option>
+              <option value="INACTIVE">{t('products.inactive')}</option>
             </Select>
           </ToolbarField>
 
-          <ToolbarField label="Storefront">
+          <ToolbarField label={t('products.storefront')}>
             <Select
               value={published}
               onChange={(event) => {
@@ -294,14 +519,143 @@ export function ProductsPage(): React.JSX.Element {
               }}
               className="w-40"
             >
-              <option value="">Any visibility</option>
-              <option value="true">Published</option>
-              <option value="false">Not published</option>
+              <option value="">{t('products.anyVisibility')}</option>
+              <option value="true">{t('products.published')}</option>
+              <option value="false">{t('products.notPublished')}</option>
             </Select>
           </ToolbarField>
 
+          {/* Typed in whole currency, not minor units: nobody filters a list
+              by paise. The placeholders are the cheapest and dearest products
+              this filter set can reach, so the boxes are not a guess. */}
+          <ToolbarField label={t('products.priceFrom')}>
+            <Input
+              inputMode="decimal"
+              className="w-28 tabular"
+              value={priceFromText}
+              invalid={priceFromInvalid}
+              placeholder={
+                priceRange?.min == null ? t('products.any') : minorToMajor(priceRange.min.minor)
+              }
+              onChange={(event) => {
+                setPriceFromText(event.target.value);
+              }}
+            />
+          </ToolbarField>
+
+          <ToolbarField label={t('products.priceTo')}>
+            <Input
+              inputMode="decimal"
+              className="w-28 tabular"
+              value={priceToText}
+              invalid={priceToInvalid}
+              placeholder={
+                priceRange?.max == null ? t('products.any') : minorToMajor(priceRange.max.minor)
+              }
+              onChange={(event) => {
+                setPriceToText(event.target.value);
+              }}
+            />
+          </ToolbarField>
+
+          <ToolbarField label={t('products.stock')}>
+            <Select
+              value={stock}
+              onChange={(event) => {
+                setParam('stock', event.target.value);
+              }}
+              className="w-36"
+            >
+              <option value="">{t('products.anyStock')}</option>
+              <option value="in">{t('products.inStock')}</option>
+              <option value="out">{t('products.outOfStock')}</option>
+            </Select>
+          </ToolbarField>
+
+          <ToolbarField label={t('products.added')}>
+            <Select
+              value={added}
+              onChange={(event) => {
+                setParam('added', event.target.value);
+              }}
+              className="w-36"
+            >
+              <option value="">{t('products.anyTime')}</option>
+              {ADDED_WITHIN_OPTIONS.map((days) => (
+                <option key={days} value={String(days)}>
+                  {t('products.lastDays', { days })}
+                </option>
+              ))}
+            </Select>
+          </ToolbarField>
+
+          {/* Only offered when this catalogue has something to offer. An empty
+              pair of selects would read as a feature that is broken rather
+              than one nobody has set up yet. */}
+          {facets.length > 0 && (
+            <>
+              <ToolbarField label={t('products.attribute')}>
+                <Select
+                  value={attrName}
+                  onChange={(event) => {
+                    setAttrName(event.target.value);
+                    // Changing the attribute abandons the old pair: "Zinc" is
+                    // not a value Brand has, and leaving it would filter the
+                    // list down to nothing with both boxes looking sensible.
+                    setParam('attr', '');
+                  }}
+                  className="w-40"
+                >
+                  <option value="">{t('products.anyAttribute')}</option>
+                  {facets.map((facet) => (
+                    <option key={facet.name} value={facet.name}>
+                      {facet.name}
+                    </option>
+                  ))}
+                </Select>
+              </ToolbarField>
+
+              <ToolbarField label={t('products.value')}>
+                <Select
+                  value={attrValue}
+                  disabled={attrName === ''}
+                  onChange={(event) => {
+                    setParam(
+                      'attr',
+                      event.target.value === '' ? '' : `${attrName}:${event.target.value}`,
+                    );
+                  }}
+                  className="w-44"
+                >
+                  <option value="">{t('products.anyValue')}</option>
+                  {facetValues.map((entry) => (
+                    <option key={entry.value} value={entry.value}>
+                      {entry.value} ({formatNumber(entry.count)})
+                    </option>
+                  ))}
+                </Select>
+              </ToolbarField>
+            </>
+          )}
+
           <ToolbarToggle
-            label="Include archived"
+            label={t('products.onOffer')}
+            checked={onSale}
+            onChange={(checked) => {
+              setParam('onSale', checked ? 'true' : '');
+            }}
+          />
+
+          <ToolbarToggle
+            label={t('products.repeatOrders')}
+            checked={recurring}
+            onChange={(checked) => {
+              setParam('recurring', checked ? 'true' : '');
+            }}
+          />
+
+          <ToolbarToggle
+            label={t('products.includeArchived')}
             checked={includeArchived}
             onChange={(checked) => {
               setParam('includeArchived', checked ? 'true' : '');
@@ -315,7 +669,7 @@ export function ProductsPage(): React.JSX.Element {
                   setSearchParams({});
                 }}
               >
-                Clear filters
+                {t('products.clearFilters')}
               </Button>
             </ToolbarActions>
           )}
@@ -350,11 +704,11 @@ export function ProductsPage(): React.JSX.Element {
                   setSearchParams({});
                 }}
               >
-                Clear filters
+                {t('products.clearFilters')}
               </Button>
             ) : can(Permission.PRODUCT_WRITE) ? (
               <LinkButton to="/products/new" variant="primary">
-                New product
+                {t('products.newProduct')}
               </LinkButton>
             ) : undefined
           }

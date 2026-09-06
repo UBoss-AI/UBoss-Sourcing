@@ -24,6 +24,7 @@ import {
   revokePaymentLink,
 } from '../../modules/payments/payment-link.service.js';
 import {
+  availableGateways,
   createOrderPayment,
   getPaymentStatusForOrder,
   loadActiveProvider,
@@ -143,6 +144,18 @@ export function registerPaymentRoutes(app: FastifyInstance): Promise<void> {
 
   // --- Customer payment routes -------------------------------------------
 
+  /**
+   * Which gateways the storefront may offer, and which one to preselect.
+   *
+   * The checkout page needs this before an order exists, so it is not scoped
+   * to one. It carries no secrets and no customer data - only which gateways
+   * an operator has connected - but it stays behind the customer guard,
+   * because how a shop is wired is not something a passer-by needs to know.
+   */
+  app.get('/gateways', { preHandler: requireCustomer }, async (_request, reply) => {
+    return reply.status(200).send(await availableGateways());
+  });
+
   app.post(
     '/orders/:orderId/session',
     {
@@ -162,12 +175,30 @@ export function registerPaymentRoutes(app: FastifyInstance): Promise<void> {
         );
       }
 
+      /**
+       * The customer's gateway pick, carried from checkout.
+       *
+       * Optional, and optional on purpose: a client that sends nothing still
+       * gets the configured default, which is what every caller written before
+       * this existed does. What it can never do is choose an *amount* - that
+       * comes from the order and nowhere else.
+       */
+      const choice = z
+        .object({
+          provider: z.enum(['RAZORPAY', 'STRIPE']).optional(),
+          method: z.enum(['ANY', 'UPI']).optional(),
+        })
+        .default({})
+        .parse(request.body ?? {});
+
       const result = await createOrderPayment({
         orderId,
         customerProfileId: auth.customerProfileId ?? '',
         idempotencyKey: idempotencyKey.trim(),
         actorUserId: auth.id,
         correlationId: request.correlationId,
+        ...(choice.provider === undefined ? {} : { preferredProvider: choice.provider }),
+        ...(choice.method === undefined ? {} : { methodHint: choice.method }),
       });
 
       return reply.status(201).send(result);

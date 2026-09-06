@@ -156,7 +156,12 @@ export async function createCategory(
         actorType: 'ADMIN',
         actorUserId: actor.userId,
         actorEmail: actor.email,
-        after: { name: input.name, slug, parentId: parent.parentId, isActive: input.isActive ?? false },
+        after: {
+          name: input.name,
+          slug,
+          parentId: parent.parentId,
+          isActive: input.isActive ?? false,
+        },
         ipAddress: actor.ipAddress ?? null,
         correlationId: actor.correlationId ?? null,
       },
@@ -352,8 +357,11 @@ export interface CategoryNode {
  * callers - the storefront navigation must never show a draft category.
  */
 export async function listCategoryTree(
-  options: { includeInactive?: boolean } = {},
+  options: { includeInactive?: boolean; language?: string | null } = {},
 ): Promise<CategoryNode[]> {
+  // `language: ''` matches no stored row, so an unlocalised caller gets an
+  // empty array rather than every language's copy.
+  const language = options.language ?? '';
   const where: Prisma.CategoryWhereInput =
     options.includeInactive === true ? { archivedAt: null } : publicCategoryWhere();
 
@@ -368,6 +376,7 @@ export async function listCategoryTree(
       depth: true,
       sortOrder: true,
       isActive: true,
+      translations: { where: { language }, select: { name: true }, take: 1 },
       _count: { select: { products: true } },
     },
   });
@@ -378,7 +387,7 @@ export async function listCategoryTree(
   for (const row of rows) {
     nodeById.set(row.id, {
       id: row.id,
-      name: row.name,
+      name: row.translations[0]?.name ?? row.name,
       slug: row.slug,
       parentId: row.parentId,
       depth: row.depth,

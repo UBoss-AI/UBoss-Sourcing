@@ -88,6 +88,26 @@ export const Permission = {
   REPORT_READ: 'report.read',
   EXPORT_CREATE: 'export.create',
   AUDIT_READ: 'audit.read',
+
+  // --- Invoicing ---
+  /// Reading invoices and credit notes.
+  INVOICE_READ: 'invoice.read',
+  /// Raising one, and raising the credit note that cancels one. Held apart
+  /// from reading because an invoice enters a VAT return: a number issued in
+  /// error cannot be deleted, only reversed, and both documents stay on the
+  /// record forever.
+  INVOICE_ISSUE: 'invoice.issue',
+
+  // --- Data protection ---
+  /// Reading the data-subject request queue: who has asked for a copy of what
+  /// is held about them or for it to be erased, and when each one falls due.
+  DATA_REQUEST_READ: 'data_request.read',
+  /// Deciding one. Held apart from reading it because an erasure cannot be
+  /// undone and a refusal is a decision the subject may take to a supervisory
+  /// authority - neither is something everyone who can watch the queue should
+  /// be able to do. Business Owner only by default; a deployment with a named
+  /// data protection officer grants it to them explicitly.
+  DATA_REQUEST_ACTION: 'data_request.action',
 } as const;
 
 export type PermissionKey = (typeof Permission)[keyof typeof Permission];
@@ -194,6 +214,10 @@ export const ROLE_DEFINITIONS: readonly RoleDefinition[] = Object.freeze([
       Permission.ORDER_RETURN,
       Permission.ORDER_NOTE_WRITE,
       Permission.PAYMENT_READ,
+      // Reads an invoice to answer a customer asking for a copy; does not
+      // raise one, the same split the SOP draws between fulfilling an order
+      // and refunding it.
+      Permission.INVOICE_READ,
       Permission.SCHEDULE_READ,
       Permission.REPORT_READ,
       Permission.EXPORT_CREATE,
@@ -218,6 +242,10 @@ export const ROLE_DEFINITIONS: readonly RoleDefinition[] = Object.freeze([
       Permission.PAYMENT_LINK_CREATE,
       Permission.PAYMENT_GATEWAY_WRITE,
       Permission.REFUND_CREATE,
+      // Raising an invoice puts a number into a VAT return, which is finance's
+      // work rather than the order desk's.
+      Permission.INVOICE_READ,
+      Permission.INVOICE_ISSUE,
       Permission.SCHEDULE_READ,
       Permission.SCHEDULE_WRITE,
       Permission.REPORT_READ,

@@ -20,8 +20,11 @@ import { formatMoney } from '@/lib/format';
 import type { Cart } from '@/lib/types';
 import { Button } from '@/components/ui';
 import { AlertIcon, CheckIcon } from '@/components/icons';
+import { useI18n } from '@/i18n/i18n-context';
 
 export function CouponPanel({ cart }: { cart: Cart }): React.JSX.Element {
+  const { t } = useI18n();
+
   const queryClient = useQueryClient();
   const [code, setCode] = useState('');
   const [showOffers, setShowOffers] = useState(false);
@@ -42,9 +45,7 @@ export function CouponPanel({ cart }: { cart: Cart }): React.JSX.Element {
       // The server's own wording. It knows why - too small a basket, wrong
       // categories, expired - and inventing a client-side reason here would
       // eventually contradict it.
-      setError(
-        cause instanceof ApiError ? cause.message : 'That coupon could not be applied.',
-      );
+      setError(cause instanceof ApiError ? cause.message : 'That coupon could not be applied.');
     },
   });
 
@@ -62,7 +63,7 @@ export function CouponPanel({ cart }: { cart: Cart }): React.JSX.Element {
   return (
     <section aria-labelledby="coupon-heading" className="mt-5 border-t border-border-subtle pt-4">
       <h3 id="coupon-heading" className="text-title-xs text-ink">
-        Coupons
+        {t('coupon.coupons')}
       </h3>
 
       {applied !== null && applied.rejection === null && (
@@ -74,8 +75,8 @@ export function CouponPanel({ cart }: { cart: Cart }): React.JSX.Element {
 
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium text-success">
-              <span className="font-mono">{applied.code}</span> applied —{' '}
-              {applied.discountPercent}% off
+              <span className="font-mono">{applied.code}</span> applied — {applied.discountPercent}%
+              off
             </p>
             <p className="mt-0.5 text-xs text-ink-muted">
               You save {formatMoney(applied.discount)}
@@ -91,7 +92,8 @@ export function CouponPanel({ cart }: { cart: Cart }): React.JSX.Element {
             disabled={remove.isPending}
             className="shrink-0 rounded text-xs font-medium text-ink-muted underline underline-offset-2 hover:text-ink"
           >
-            Remove<span className="sr-only"> coupon {applied.code}</span>
+            {t('coupon.remove')}
+            <span className="sr-only"> coupon {applied.code}</span>
           </button>
         </div>
       )}
@@ -113,7 +115,8 @@ export function CouponPanel({ cart }: { cart: Cart }): React.JSX.Element {
             disabled={remove.isPending}
             className="shrink-0 rounded text-xs font-medium text-ink-muted underline underline-offset-2 hover:text-ink"
           >
-            Remove<span className="sr-only"> coupon {applied.code}</span>
+            {t('coupon.remove')}
+            <span className="sr-only"> coupon {applied.code}</span>
           </button>
         </div>
       )}
@@ -126,14 +129,14 @@ export function CouponPanel({ cart }: { cart: Cart }): React.JSX.Element {
         }}
       >
         <label className="min-w-0 flex-1">
-          <span className="sr-only">Coupon code</span>
+          <span className="sr-only">{t('coupon.couponCode')}</span>
           <input
             value={code}
             onChange={(event) => {
               setCode(event.target.value);
               setError(null);
             }}
-            placeholder="Enter coupon code"
+            placeholder={t('coupon.enterCouponCode')}
             autoComplete="off"
             spellCheck={false}
             className="block h-10 w-full rounded-md border border-border-strong bg-surface px-3 font-mono text-sm uppercase text-ink placeholder:font-sans placeholder:normal-case placeholder:text-ink-subtle"
@@ -203,7 +206,7 @@ export function CouponPanel({ cart }: { cart: Cart }): React.JSX.Element {
                         }}
                         disabled={apply.isPending}
                       >
-                        Apply
+                        {t('coupon.apply')}
                         <span className="sr-only"> coupon {offer.code}</span>
                       </Button>
                     ) : (
@@ -211,7 +214,7 @@ export function CouponPanel({ cart }: { cart: Cart }): React.JSX.Element {
                       // above the threshold is the reason to add one more item.
                       // The server decided this, not the panel.
                       <span className="shrink-0 rounded-full bg-surface px-2 py-0.5 text-xxs font-semibold uppercase tracking-wide text-ink-subtle ring-1 ring-inset ring-border">
-                        Not yet
+                        {t('coupon.notYet')}
                       </span>
                     )}
                   </div>

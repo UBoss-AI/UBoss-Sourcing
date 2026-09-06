@@ -14,8 +14,11 @@ import { Badge, Button, EmptyState, ErrorState, LoadingState, PageHeader } from 
 import { ApiError, api } from '@/lib/api';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { Address } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 export function AddressesPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const queryClient = useQueryClient();
   const toast = useToast();
   const { business } = useStorefront();
@@ -36,13 +39,11 @@ export function AddressesPage(): React.JSX.Element {
       await queryClient.invalidateQueries({ queryKey: ['addresses'] });
     },
     onError: (error) => {
-      toast.error(
-        error instanceof ApiError ? error.message : 'That address could not be removed.',
-      );
+      toast.error(error instanceof ApiError ? error.message : 'That address could not be removed.');
     },
   });
 
-  if (query.isPending) return <LoadingState label="Loading your addresses" />;
+  if (query.isPending) return <LoadingState label={t('addresses.loadingYourAddresses')} />;
 
   if (query.isError) {
     return (
@@ -60,8 +61,8 @@ export function AddressesPage(): React.JSX.Element {
   return (
     <>
       <PageHeader
-        title="Addresses"
-        description="Used at checkout for delivery and billing."
+        title={t('addresses.addresses')}
+        description={t('addresses.usedAtCheckoutForDelivery')}
         {...(editing === undefined
           ? {
               actions: (
@@ -71,7 +72,7 @@ export function AddressesPage(): React.JSX.Element {
                     setEditing(null);
                   }}
                 >
-                  Add an address
+                  {t('addresses.addAnAddress')}
                 </Button>
               ),
             }
@@ -99,14 +100,17 @@ export function AddressesPage(): React.JSX.Element {
       {addresses.length === 0 ? (
         <div className="rounded-lg border border-border bg-surface shadow-card">
           <EmptyState
-            title="No addresses saved"
-            description="Add one here, or at checkout when you place your first order."
+            title={t('addresses.noAddressesSaved')}
+            description={t('addresses.addOneHereOrAt')}
           />
         </div>
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2">
           {addresses.map((address) => (
-            <li key={address.id} className="rounded-lg border border-border bg-surface p-4 shadow-card">
+            <li
+              key={address.id}
+              className="rounded-lg border border-border bg-surface p-4 shadow-card"
+            >
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="min-w-0">
                   {address.label !== null && (
@@ -116,8 +120,12 @@ export function AddressesPage(): React.JSX.Element {
                 </div>
 
                 <div className="flex flex-wrap gap-1">
-                  {address.isDefaultShipping && <Badge tone="brand">Default delivery</Badge>}
-                  {address.isDefaultBilling && <Badge tone="brand">Default billing</Badge>}
+                  {address.isDefaultShipping && (
+                    <Badge tone="brand">{t('addresses.defaultDelivery')}</Badge>
+                  )}
+                  {address.isDefaultBilling && (
+                    <Badge tone="brand">{t('addresses.defaultBilling')}</Badge>
+                  )}
                 </div>
               </div>
 
@@ -138,7 +146,7 @@ export function AddressesPage(): React.JSX.Element {
                     setEditing(address);
                   }}
                 >
-                  Edit
+                  {t('addresses.edit')}
                 </Button>
                 <Button
                   size="sm"
@@ -148,7 +156,7 @@ export function AddressesPage(): React.JSX.Element {
                     archive.mutate(address.id);
                   }}
                 >
-                  Remove
+                  {t('addresses.remove')}
                 </Button>
               </div>
             </li>
@@ -156,10 +164,7 @@ export function AddressesPage(): React.JSX.Element {
         </ul>
       )}
 
-      <p className="mt-6 text-xs text-ink-muted">
-        Removing an address does not change any order already placed — each order keeps its own
-        copy of where it was sent.
-      </p>
+      <p className="mt-6 text-xs text-ink-muted">{t('addresses.removingAnAddressDoesNot')}</p>
     </>
   );
 }

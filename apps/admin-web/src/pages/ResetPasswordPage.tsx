@@ -23,6 +23,8 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Button, Field, Input } from '@/components/ui';
+import { useI18n } from '@/i18n/i18n-context';
+import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
 import { ApiError, NetworkError, api } from '@/lib/api';
 
 interface FormValues {
@@ -41,33 +43,30 @@ const TERMINAL_CODES = new Set([
   'ACCOUNT_DEACTIVATED',
 ]);
 
-function recoveryFor(code: string): { title: string; body: string } {
+/**
+ * Why the link failed, and what to do about it.
+ *
+ * Takes `t` as an argument rather than reaching for the hook itself. Keeping
+ * it a pure function of (language, code) is what makes the message re-render
+ * in the new language the moment somebody uses the picker — and on this screen
+ * that message is the entire content of the page, so it is exactly the thing
+ * they switched language in order to read.
+ */
+function recoveryFor(
+  t: ReturnType<typeof useI18n>['t'],
+  code: string,
+): { title: string; body: string } {
   switch (code) {
     case 'TOKEN_EXPIRED':
-      return {
-        title: 'This link has expired',
-        body: 'Reset links last an hour, because a live one sitting in an inbox is a key to the account. Ask for a fresh one and it will arrive within a few minutes.',
-      };
+      return { title: t('auth.reset.expiredTitle'), body: t('auth.reset.expiredBody') };
     case 'TOKEN_ALREADY_USED':
-      return {
-        title: 'This link has already been used',
-        body: 'Your password is already set. Sign in with it — or ask for another link if you cannot remember what you chose.',
-      };
+      return { title: t('auth.reset.usedTitleAdmin'), body: t('auth.reset.usedBodyAdmin') };
     case 'TOKEN_INVALID':
-      return {
-        title: 'This reset link is not valid',
-        body: 'The link may have been copied incompletely. Try opening it straight from the email rather than pasting it.',
-      };
+      return { title: t('auth.reset.invalidTitleAdmin'), body: t('auth.reset.invalidBodyAdmin') };
     case 'ACCOUNT_DEACTIVATED':
-      return {
-        title: 'This account is no longer active',
-        body: 'Ask a Business Owner to reactivate it from Staff before resetting the password.',
-      };
+      return { title: t('auth.reset.deactivatedTitle'), body: t('auth.reset.deactivatedBody') };
     default:
-      return {
-        title: 'We could not set your password',
-        body: 'Something went wrong at our end. Asking for a new link is usually the quickest way through.',
-      };
+      return { title: t('auth.reset.unknownTitle'), body: t('auth.reset.unknownBody') };
   }
 }
 
@@ -75,6 +74,11 @@ function Shell({ children }: { children: React.ReactNode }): React.JSX.Element {
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface-sunken px-4 py-10">
       <div className="w-full max-w-sm">
+        {/* In the shell so it is present on the form, the dead-link panel and
+            the success panel alike. This screen is reached straight from an
+            email, so it is often the first one somebody sees. */}
+        <LanguageSwitcher placement="auth" />
+
         <div className="mb-6 flex flex-col items-center">
           <span
             aria-hidden="true"
@@ -90,7 +94,8 @@ function Shell({ children }: { children: React.ReactNode }): React.JSX.Element {
 }
 
 function Failure({ code, message }: { code: string; message: string }): React.JSX.Element {
-  const recovery = recoveryFor(code);
+  const { t } = useI18n();
+  const recovery = recoveryFor(t, code);
 
   return (
     <Shell>
@@ -109,13 +114,13 @@ function Failure({ code, message }: { code: string; message: string }): React.JS
             to="/forgot-password"
             className="inline-flex h-10 items-center rounded-md bg-accent px-4 text-sm font-medium text-white hover:bg-accent-hover"
           >
-            Email me a new link
+            {t('auth.reset.emailNewLink')}
           </Link>
           <Link
             to="/login"
             className="inline-flex h-10 items-center rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-ink hover:bg-surface-hover"
           >
-            Go to sign in
+            {t('auth.reset.goToSignIn')}
           </Link>
         </div>
       </div>
@@ -126,6 +131,7 @@ function Failure({ code, message }: { code: string; message: string }): React.JS
 export function ResetPasswordPage(): React.JSX.Element {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') ?? '';
+  const { t } = useI18n();
 
   const [isDone, setIsDone] = useState(false);
   const [failure, setFailure] = useState<{ code: string; message: string } | null>(null);
@@ -145,7 +151,7 @@ export function ResetPasswordPage(): React.JSX.Element {
   // A link with no token never reaches the server: there is nothing to send,
   // and a round trip would only produce the same answer more slowly.
   if (token === '') {
-    return <Failure code="TOKEN_INVALID" message="No reset token was found in the link." />;
+    return <Failure code="TOKEN_INVALID" message={t('auth.reset.noToken')} />;
   }
 
   const isTerminal = failure !== null && TERMINAL_CODES.has(failure.code);
@@ -157,16 +163,14 @@ export function ResetPasswordPage(): React.JSX.Element {
     return (
       <Shell>
         <div className="rounded-lg border border-success/30 bg-success-soft p-6 text-center">
-          <h1 className="text-lg font-semibold text-success">Your password is set</h1>
-          <p className="mt-2 text-sm text-ink">
-            Sign in with it. Any other session you had open has been signed out.
-          </p>
+          <h1 className="text-lg font-semibold text-success">{t('auth.reset.doneHeading')}</h1>
+          <p className="mt-2 text-sm text-ink">{t('auth.reset.doneBody')}</p>
           <div className="mt-6 flex justify-center">
             <Link
               to="/login"
               className="inline-flex h-10 items-center rounded-md bg-accent px-5 text-sm font-medium text-white"
             >
-              Go to sign in
+              {t('auth.reset.goToSignIn')}
             </Link>
           </div>
         </div>
@@ -192,17 +196,17 @@ export function ResetPasswordPage(): React.JSX.Element {
         setFailure({ code: error.code, message: error.message });
         return;
       }
-      setFailure({ code: 'UNKNOWN', message: 'The password could not be set.' });
+      setFailure({ code: 'UNKNOWN', message: t('auth.reset.setFailed') });
     }
   };
 
   return (
     <Shell>
       <div className="mb-6 text-center">
-        <h1 className="text-lg font-semibold tracking-tight text-ink">Choose a new password</h1>
-        <p className="mt-1 text-sm text-ink-muted">
-          Only you will know it — nobody at UBOSS can see or set it.
-        </p>
+        <h1 className="text-lg font-semibold tracking-tight text-ink">
+          {t('auth.reset.setHeading')}
+        </h1>
+        <p className="mt-1 text-sm text-ink-muted">{t('auth.reset.onlyYouKnow')}</p>
       </div>
 
       <form
@@ -222,8 +226,8 @@ export function ResetPasswordPage(): React.JSX.Element {
         )}
 
         <Field
-          label="New password"
-          hint="At least 12 characters. A short phrase you will remember beats a short jumble you will not."
+          label={t('auth.reset.newPassword')}
+          hint={t('auth.passwordHint')}
           error={errors.newPassword?.message}
           required
         >
@@ -235,15 +239,19 @@ export function ResetPasswordPage(): React.JSX.Element {
               aria-describedby={describedBy}
               invalid={errors.newPassword !== undefined}
               {...register('newPassword', {
-                required: 'Choose a password.',
-                minLength: { value: MIN_LENGTH, message: 'Use at least 12 characters.' },
-                maxLength: { value: MAX_LENGTH, message: 'Use at most 128 characters.' },
+                required: t('validation.choosePassword'),
+                minLength: { value: MIN_LENGTH, message: t('validation.passwordTooShort') },
+                maxLength: { value: MAX_LENGTH, message: t('validation.passwordTooLong') },
               })}
             />
           )}
         </Field>
 
-        <Field label="Confirm your new password" error={errors.confirmPassword?.message} required>
+        <Field
+          label={t('auth.change.confirmPassword')}
+          error={errors.confirmPassword?.message}
+          required
+        >
           {({ inputId, describedBy }) => (
             <Input
               id={inputId}
@@ -252,16 +260,16 @@ export function ResetPasswordPage(): React.JSX.Element {
               aria-describedby={describedBy}
               invalid={errors.confirmPassword !== undefined}
               {...register('confirmPassword', {
-                required: 'Type the password again.',
+                required: t('validation.repeatPassword'),
                 validate: (value) =>
-                  value === getValues('newPassword') || 'The two passwords do not match.',
+                  value === getValues('newPassword') || t('validation.passwordsDoNotMatch'),
               })}
             />
           )}
         </Field>
 
         <Button type="submit" variant="primary" className="w-full" isLoading={isSubmitting}>
-          Set my password
+          {t('auth.reset.setSubmit')}
         </Button>
       </form>
     </Shell>

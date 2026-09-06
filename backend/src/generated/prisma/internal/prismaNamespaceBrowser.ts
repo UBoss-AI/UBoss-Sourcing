@@ -62,6 +62,8 @@ export const ModelName = {
   BusinessProfile: 'BusinessProfile',
   TaxClass: 'TaxClass',
   ShippingMethod: 'ShippingMethod',
+  CurrencyRateSync: 'CurrencyRateSync',
+  CatalogTranslationSync: 'CatalogTranslationSync',
   FeatureFlag: 'FeatureFlag',
   NotificationSetting: 'NotificationSetting',
   MediaAsset: 'MediaAsset',
@@ -101,6 +103,8 @@ export const ModelName = {
   ExportJob: 'ExportJob',
   NotificationOutbox: 'NotificationOutbox',
   NotificationDelivery: 'NotificationDelivery',
+  AdminNotification: 'AdminNotification',
+  AdminNotificationRead: 'AdminNotificationRead',
   JobQueue: 'JobQueue',
   RateLimitBucket: 'RateLimitBucket',
   AuditLog: 'AuditLog',
@@ -114,7 +118,15 @@ export const ModelName = {
   CouponRedemption: 'CouponRedemption',
   CustomerLimit: 'CustomerLimit',
   AssistantConversation: 'AssistantConversation',
-  AssistantMessage: 'AssistantMessage'
+  AssistantMessage: 'AssistantMessage',
+  ProductTranslation: 'ProductTranslation',
+  CategoryTranslation: 'CategoryTranslation',
+  DataRequest: 'DataRequest',
+  VatRate: 'VatRate',
+  VatNumberCheck: 'VatNumberCheck',
+  Invoice: 'Invoice',
+  EconomicOperator: 'EconomicOperator',
+  ProductDeviceInfo: 'ProductDeviceInfo'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -147,12 +159,14 @@ export const UserScalarFieldEnum = {
   temporaryPasswordExpiresAt: 'temporaryPasswordExpiresAt',
   mfaSecretEnc: 'mfaSecretEnc',
   mfaEnabledAt: 'mfaEnabledAt',
+  preferredLanguage: 'preferredLanguage',
   lastLoginAt: 'lastLoginAt',
   failedLoginCount: 'failedLoginCount',
   lockedUntil: 'lockedUntil',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  archivedAt: 'archivedAt'
+  archivedAt: 'archivedAt',
+  erasedAt: 'erasedAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -205,6 +219,11 @@ export const SessionScalarFieldEnum = {
   familyId: 'familyId',
   userAgent: 'userAgent',
   ipAddress: 'ipAddress',
+  locationLatitude: 'locationLatitude',
+  locationLongitude: 'locationLongitude',
+  locationAccuracyM: 'locationAccuracyM',
+  locationLabel: 'locationLabel',
+  locationCapturedAt: 'locationCapturedAt',
   expiresAt: 'expiresAt',
   revokedAt: 'revokedAt',
   revokedReason: 'revokedReason',
@@ -251,6 +270,10 @@ export const BusinessProfileScalarFieldEnum = {
   supportEmail: 'supportEmail',
   supportPhone: 'supportPhone',
   gstin: 'gstin',
+  gpsrEnforced: 'gpsrEnforced',
+  mdrEnforced: 'mdrEnforced',
+  vatNumber: 'vatNumber',
+  vatCountry: 'vatCountry',
   addressJson: 'addressJson',
   currency: 'currency',
   timezone: 'timezone',
@@ -270,6 +293,7 @@ export const TaxClassScalarFieldEnum = {
   code: 'code',
   name: 'name',
   ratePercent: 'ratePercent',
+  vatCategory: 'vatCategory',
   isInclusive: 'isInclusive',
   isDefault: 'isDefault',
   isActive: 'isActive',
@@ -297,6 +321,41 @@ export const ShippingMethodScalarFieldEnum = {
 } as const
 
 export type ShippingMethodScalarFieldEnum = (typeof ShippingMethodScalarFieldEnum)[keyof typeof ShippingMethodScalarFieldEnum]
+
+
+export const CurrencyRateSyncScalarFieldEnum = {
+  id: 'id',
+  isEnabled: 'isEnabled',
+  marginPercent: 'marginPercent',
+  rounding: 'rounding',
+  maxDriftPercent: 'maxDriftPercent',
+  lastRunAt: 'lastRunAt',
+  lastRunStatus: 'lastRunStatus',
+  lastRunMessage: 'lastRunMessage',
+  lastRunUpdated: 'lastRunUpdated',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  updatedById: 'updatedById'
+} as const
+
+export type CurrencyRateSyncScalarFieldEnum = (typeof CurrencyRateSyncScalarFieldEnum)[keyof typeof CurrencyRateSyncScalarFieldEnum]
+
+
+export const CatalogTranslationSyncScalarFieldEnum = {
+  id: 'id',
+  apiKeyEncrypted: 'apiKeyEncrypted',
+  apiKeyHint: 'apiKeyHint',
+  lastRunAt: 'lastRunAt',
+  lastRunStatus: 'lastRunStatus',
+  lastRunMessage: 'lastRunMessage',
+  lastRunTranslated: 'lastRunTranslated',
+  isRunning: 'isRunning',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  updatedById: 'updatedById'
+} as const
+
+export type CatalogTranslationSyncScalarFieldEnum = (typeof CatalogTranslationSyncScalarFieldEnum)[keyof typeof CatalogTranslationSyncScalarFieldEnum]
 
 
 export const FeatureFlagScalarFieldEnum = {
@@ -396,6 +455,12 @@ export const ProductScalarFieldEnum = {
   weightGrams: 'weightGrams',
   metaTitle: 'metaTitle',
   metaDescription: 'metaDescription',
+  manufacturerId: 'manufacturerId',
+  euResponsibleId: 'euResponsibleId',
+  gtin: 'gtin',
+  modelIdentifier: 'modelIdentifier',
+  safetyWarnings: 'safetyWarnings',
+  safetyInstructions: 'safetyInstructions',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   archivedAt: 'archivedAt',
@@ -525,6 +590,10 @@ export const CustomerProfileScalarFieldEnum = {
   phone: 'phone',
   gstin: 'gstin',
   customerCode: 'customerCode',
+  vatNumber: 'vatNumber',
+  vatNumberValid: 'vatNumberValid',
+  vatNumberCheckedAt: 'vatNumberCheckedAt',
+  vatNumberReference: 'vatNumberReference',
   requiresOrderApproval: 'requiresOrderApproval',
   internalNotes: 'internalNotes',
   preferredCountry: 'preferredCountry',
@@ -617,6 +686,12 @@ export const OrderScalarFieldEnum = {
   shippingMethodCode: 'shippingMethodCode',
   shippingMethodName: 'shippingMethodName',
   paymentMode: 'paymentMode',
+  preferredPaymentProvider: 'preferredPaymentProvider',
+  preferredPaymentMethod: 'preferredPaymentMethod',
+  taxTreatment: 'taxTreatment',
+  taxCountry: 'taxCountry',
+  sellerVatNumberSnapshot: 'sellerVatNumberSnapshot',
+  buyerVatNumberSnapshot: 'buyerVatNumberSnapshot',
   customerNote: 'customerNote',
   internalNote: 'internalNote',
   placedAt: 'placedAt',
@@ -1091,6 +1166,30 @@ export const NotificationDeliveryScalarFieldEnum = {
 export type NotificationDeliveryScalarFieldEnum = (typeof NotificationDeliveryScalarFieldEnum)[keyof typeof NotificationDeliveryScalarFieldEnum]
 
 
+export const AdminNotificationScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  variablesJson: 'variablesJson',
+  linkPath: 'linkPath',
+  requiredPermission: 'requiredPermission',
+  relatedType: 'relatedType',
+  relatedId: 'relatedId',
+  dedupeKey: 'dedupeKey',
+  createdAt: 'createdAt'
+} as const
+
+export type AdminNotificationScalarFieldEnum = (typeof AdminNotificationScalarFieldEnum)[keyof typeof AdminNotificationScalarFieldEnum]
+
+
+export const AdminNotificationReadScalarFieldEnum = {
+  notificationId: 'notificationId',
+  userId: 'userId',
+  readAt: 'readAt'
+} as const
+
+export type AdminNotificationReadScalarFieldEnum = (typeof AdminNotificationReadScalarFieldEnum)[keyof typeof AdminNotificationReadScalarFieldEnum]
+
+
 export const JobQueueScalarFieldEnum = {
   id: 'id',
   queue: 'queue',
@@ -1175,6 +1274,7 @@ export const CountryScalarFieldEnum = {
   name: 'name',
   currencyCode: 'currencyCode',
   phonePrefix: 'phonePrefix',
+  isEuVat: 'isEuVat',
   isActive: 'isActive',
   sortOrder: 'sortOrder',
   createdAt: 'createdAt',
@@ -1192,6 +1292,7 @@ export const ProductPriceScalarFieldEnum = {
   currencyCode: 'currencyCode',
   basePriceMinor: 'basePriceMinor',
   compareAtPriceMinor: 'compareAtPriceMinor',
+  isAutoConverted: 'isAutoConverted',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   updatedById: 'updatedById'
@@ -1302,6 +1403,169 @@ export const AssistantMessageScalarFieldEnum = {
 export type AssistantMessageScalarFieldEnum = (typeof AssistantMessageScalarFieldEnum)[keyof typeof AssistantMessageScalarFieldEnum]
 
 
+export const ProductTranslationScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  language: 'language',
+  name: 'name',
+  shortDescription: 'shortDescription',
+  description: 'description',
+  safetyWarnings: 'safetyWarnings',
+  safetyInstructions: 'safetyInstructions',
+  intendedPurpose: 'intendedPurpose',
+  metaTitle: 'metaTitle',
+  metaDescription: 'metaDescription',
+  isReviewed: 'isReviewed',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductTranslationScalarFieldEnum = (typeof ProductTranslationScalarFieldEnum)[keyof typeof ProductTranslationScalarFieldEnum]
+
+
+export const CategoryTranslationScalarFieldEnum = {
+  id: 'id',
+  categoryId: 'categoryId',
+  language: 'language',
+  name: 'name',
+  description: 'description',
+  metaTitle: 'metaTitle',
+  metaDescription: 'metaDescription',
+  isReviewed: 'isReviewed',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CategoryTranslationScalarFieldEnum = (typeof CategoryTranslationScalarFieldEnum)[keyof typeof CategoryTranslationScalarFieldEnum]
+
+
+export const DataRequestScalarFieldEnum = {
+  id: 'id',
+  subjectUserId: 'subjectUserId',
+  subjectEmail: 'subjectEmail',
+  type: 'type',
+  status: 'status',
+  requestedAt: 'requestedAt',
+  dueAt: 'dueAt',
+  completedAt: 'completedAt',
+  subjectNote: 'subjectNote',
+  decisionNote: 'decisionNote',
+  handledById: 'handledById',
+  handledAt: 'handledAt',
+  fileKey: 'fileKey',
+  fileName: 'fileName',
+  downloadTokenHash: 'downloadTokenHash',
+  downloadExpiresAt: 'downloadExpiresAt',
+  downloadedAt: 'downloadedAt',
+  errorMessage: 'errorMessage',
+  resultJson: 'resultJson',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DataRequestScalarFieldEnum = (typeof DataRequestScalarFieldEnum)[keyof typeof DataRequestScalarFieldEnum]
+
+
+export const VatRateScalarFieldEnum = {
+  id: 'id',
+  countryCode: 'countryCode',
+  category: 'category',
+  ratePercent: 'ratePercent',
+  label: 'label',
+  validFrom: 'validFrom',
+  validTo: 'validTo',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VatRateScalarFieldEnum = (typeof VatRateScalarFieldEnum)[keyof typeof VatRateScalarFieldEnum]
+
+
+export const VatNumberCheckScalarFieldEnum = {
+  id: 'id',
+  countryCode: 'countryCode',
+  number: 'number',
+  isValid: 'isValid',
+  registeredName: 'registeredName',
+  registeredAddress: 'registeredAddress',
+  consultationNumber: 'consultationNumber',
+  unavailableReason: 'unavailableReason',
+  checkedAt: 'checkedAt'
+} as const
+
+export type VatNumberCheckScalarFieldEnum = (typeof VatNumberCheckScalarFieldEnum)[keyof typeof VatNumberCheckScalarFieldEnum]
+
+
+export const InvoiceScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  series: 'series',
+  orderId: 'orderId',
+  issuedAt: 'issuedAt',
+  suppliedAt: 'suppliedAt',
+  sellerJson: 'sellerJson',
+  buyerJson: 'buyerJson',
+  sellerVatNumber: 'sellerVatNumber',
+  buyerVatNumber: 'buyerVatNumber',
+  taxTreatment: 'taxTreatment',
+  taxCountry: 'taxCountry',
+  exemptionNote: 'exemptionNote',
+  currency: 'currency',
+  linesJson: 'linesJson',
+  vatBreakdownJson: 'vatBreakdownJson',
+  subtotalMinor: 'subtotalMinor',
+  discountMinor: 'discountMinor',
+  taxMinor: 'taxMinor',
+  shippingMinor: 'shippingMinor',
+  grandTotalMinor: 'grandTotalMinor',
+  creditsInvoiceId: 'creditsInvoiceId',
+  createdAt: 'createdAt'
+} as const
+
+export type InvoiceScalarFieldEnum = (typeof InvoiceScalarFieldEnum)[keyof typeof InvoiceScalarFieldEnum]
+
+
+export const EconomicOperatorScalarFieldEnum = {
+  id: 'id',
+  role: 'role',
+  legalName: 'legalName',
+  tradeName: 'tradeName',
+  addressJson: 'addressJson',
+  countryCode: 'countryCode',
+  email: 'email',
+  phone: 'phone',
+  website: 'website',
+  eudamedSrn: 'eudamedSrn',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  archivedAt: 'archivedAt',
+  createdById: 'createdById'
+} as const
+
+export type EconomicOperatorScalarFieldEnum = (typeof EconomicOperatorScalarFieldEnum)[keyof typeof EconomicOperatorScalarFieldEnum]
+
+
+export const ProductDeviceInfoScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  deviceClass: 'deviceClass',
+  basicUdiDi: 'basicUdiDi',
+  udiDi: 'udiDi',
+  notifiedBodyNumber: 'notifiedBodyNumber',
+  declarationOfConformityUrl: 'declarationOfConformityUrl',
+  intendedPurpose: 'intendedPurpose',
+  isSterile: 'isSterile',
+  isSingleUse: 'isSingleUse',
+  hasMeasuringFunction: 'hasMeasuringFunction',
+  containsBiologicalMaterial: 'containsBiologicalMaterial',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductDeviceInfoScalarFieldEnum = (typeof ProductDeviceInfoScalarFieldEnum)[keyof typeof ProductDeviceInfoScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1339,7 +1603,8 @@ export const UserOrderByRelevanceFieldEnum = {
   emailNormalized: 'emailNormalized',
   phone: 'phone',
   passwordHash: 'passwordHash',
-  mfaSecretEnc: 'mfaSecretEnc'
+  mfaSecretEnc: 'mfaSecretEnc',
+  preferredLanguage: 'preferredLanguage'
 } as const
 
 export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
@@ -1388,6 +1653,7 @@ export const SessionOrderByRelevanceFieldEnum = {
   familyId: 'familyId',
   userAgent: 'userAgent',
   ipAddress: 'ipAddress',
+  locationLabel: 'locationLabel',
   revokedReason: 'revokedReason',
   replacedBySessionId: 'replacedBySessionId'
 } as const
@@ -1440,6 +1706,8 @@ export const BusinessProfileOrderByRelevanceFieldEnum = {
   supportEmail: 'supportEmail',
   supportPhone: 'supportPhone',
   gstin: 'gstin',
+  vatNumber: 'vatNumber',
+  vatCountry: 'vatCountry',
   currency: 'currency',
   timezone: 'timezone',
   invoicePrefix: 'invoicePrefix',
@@ -1467,6 +1735,29 @@ export const ShippingMethodOrderByRelevanceFieldEnum = {
 } as const
 
 export type ShippingMethodOrderByRelevanceFieldEnum = (typeof ShippingMethodOrderByRelevanceFieldEnum)[keyof typeof ShippingMethodOrderByRelevanceFieldEnum]
+
+
+export const CurrencyRateSyncOrderByRelevanceFieldEnum = {
+  id: 'id',
+  rounding: 'rounding',
+  lastRunStatus: 'lastRunStatus',
+  lastRunMessage: 'lastRunMessage',
+  updatedById: 'updatedById'
+} as const
+
+export type CurrencyRateSyncOrderByRelevanceFieldEnum = (typeof CurrencyRateSyncOrderByRelevanceFieldEnum)[keyof typeof CurrencyRateSyncOrderByRelevanceFieldEnum]
+
+
+export const CatalogTranslationSyncOrderByRelevanceFieldEnum = {
+  id: 'id',
+  apiKeyEncrypted: 'apiKeyEncrypted',
+  apiKeyHint: 'apiKeyHint',
+  lastRunStatus: 'lastRunStatus',
+  lastRunMessage: 'lastRunMessage',
+  updatedById: 'updatedById'
+} as const
+
+export type CatalogTranslationSyncOrderByRelevanceFieldEnum = (typeof CatalogTranslationSyncOrderByRelevanceFieldEnum)[keyof typeof CatalogTranslationSyncOrderByRelevanceFieldEnum]
 
 
 export const FeatureFlagOrderByRelevanceFieldEnum = {
@@ -1534,6 +1825,12 @@ export const ProductOrderByRelevanceFieldEnum = {
   currency: 'currency',
   metaTitle: 'metaTitle',
   metaDescription: 'metaDescription',
+  manufacturerId: 'manufacturerId',
+  euResponsibleId: 'euResponsibleId',
+  gtin: 'gtin',
+  modelIdentifier: 'modelIdentifier',
+  safetyWarnings: 'safetyWarnings',
+  safetyInstructions: 'safetyInstructions',
   createdById: 'createdById',
   updatedById: 'updatedById'
 } as const
@@ -1628,6 +1925,8 @@ export const CustomerProfileOrderByRelevanceFieldEnum = {
   phone: 'phone',
   gstin: 'gstin',
   customerCode: 'customerCode',
+  vatNumber: 'vatNumber',
+  vatNumberReference: 'vatNumberReference',
   internalNotes: 'internalNotes',
   preferredCountry: 'preferredCountry',
   preferredCurrency: 'preferredCurrency',
@@ -1687,6 +1986,9 @@ export const OrderOrderByRelevanceFieldEnum = {
   currency: 'currency',
   shippingMethodCode: 'shippingMethodCode',
   shippingMethodName: 'shippingMethodName',
+  taxCountry: 'taxCountry',
+  sellerVatNumberSnapshot: 'sellerVatNumberSnapshot',
+  buyerVatNumberSnapshot: 'buyerVatNumberSnapshot',
   customerNote: 'customerNote',
   internalNote: 'internalNote',
   cancelReason: 'cancelReason'
@@ -1991,6 +2293,27 @@ export const NotificationDeliveryOrderByRelevanceFieldEnum = {
 export type NotificationDeliveryOrderByRelevanceFieldEnum = (typeof NotificationDeliveryOrderByRelevanceFieldEnum)[keyof typeof NotificationDeliveryOrderByRelevanceFieldEnum]
 
 
+export const AdminNotificationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  linkPath: 'linkPath',
+  requiredPermission: 'requiredPermission',
+  relatedType: 'relatedType',
+  relatedId: 'relatedId',
+  dedupeKey: 'dedupeKey'
+} as const
+
+export type AdminNotificationOrderByRelevanceFieldEnum = (typeof AdminNotificationOrderByRelevanceFieldEnum)[keyof typeof AdminNotificationOrderByRelevanceFieldEnum]
+
+
+export const AdminNotificationReadOrderByRelevanceFieldEnum = {
+  notificationId: 'notificationId',
+  userId: 'userId'
+} as const
+
+export type AdminNotificationReadOrderByRelevanceFieldEnum = (typeof AdminNotificationReadOrderByRelevanceFieldEnum)[keyof typeof AdminNotificationReadOrderByRelevanceFieldEnum]
+
+
 export const JobQueueOrderByRelevanceFieldEnum = {
   id: 'id',
   queue: 'queue',
@@ -2135,4 +2458,116 @@ export const AssistantMessageOrderByRelevanceFieldEnum = {
 } as const
 
 export type AssistantMessageOrderByRelevanceFieldEnum = (typeof AssistantMessageOrderByRelevanceFieldEnum)[keyof typeof AssistantMessageOrderByRelevanceFieldEnum]
+
+
+export const ProductTranslationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  language: 'language',
+  name: 'name',
+  shortDescription: 'shortDescription',
+  description: 'description',
+  safetyWarnings: 'safetyWarnings',
+  safetyInstructions: 'safetyInstructions',
+  intendedPurpose: 'intendedPurpose',
+  metaTitle: 'metaTitle',
+  metaDescription: 'metaDescription'
+} as const
+
+export type ProductTranslationOrderByRelevanceFieldEnum = (typeof ProductTranslationOrderByRelevanceFieldEnum)[keyof typeof ProductTranslationOrderByRelevanceFieldEnum]
+
+
+export const CategoryTranslationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  categoryId: 'categoryId',
+  language: 'language',
+  name: 'name',
+  description: 'description',
+  metaTitle: 'metaTitle',
+  metaDescription: 'metaDescription'
+} as const
+
+export type CategoryTranslationOrderByRelevanceFieldEnum = (typeof CategoryTranslationOrderByRelevanceFieldEnum)[keyof typeof CategoryTranslationOrderByRelevanceFieldEnum]
+
+
+export const DataRequestOrderByRelevanceFieldEnum = {
+  id: 'id',
+  subjectUserId: 'subjectUserId',
+  subjectEmail: 'subjectEmail',
+  subjectNote: 'subjectNote',
+  decisionNote: 'decisionNote',
+  handledById: 'handledById',
+  fileKey: 'fileKey',
+  fileName: 'fileName',
+  downloadTokenHash: 'downloadTokenHash',
+  errorMessage: 'errorMessage'
+} as const
+
+export type DataRequestOrderByRelevanceFieldEnum = (typeof DataRequestOrderByRelevanceFieldEnum)[keyof typeof DataRequestOrderByRelevanceFieldEnum]
+
+
+export const VatRateOrderByRelevanceFieldEnum = {
+  id: 'id',
+  countryCode: 'countryCode',
+  label: 'label'
+} as const
+
+export type VatRateOrderByRelevanceFieldEnum = (typeof VatRateOrderByRelevanceFieldEnum)[keyof typeof VatRateOrderByRelevanceFieldEnum]
+
+
+export const VatNumberCheckOrderByRelevanceFieldEnum = {
+  id: 'id',
+  countryCode: 'countryCode',
+  number: 'number',
+  registeredName: 'registeredName',
+  registeredAddress: 'registeredAddress',
+  consultationNumber: 'consultationNumber',
+  unavailableReason: 'unavailableReason'
+} as const
+
+export type VatNumberCheckOrderByRelevanceFieldEnum = (typeof VatNumberCheckOrderByRelevanceFieldEnum)[keyof typeof VatNumberCheckOrderByRelevanceFieldEnum]
+
+
+export const InvoiceOrderByRelevanceFieldEnum = {
+  id: 'id',
+  number: 'number',
+  series: 'series',
+  orderId: 'orderId',
+  sellerVatNumber: 'sellerVatNumber',
+  buyerVatNumber: 'buyerVatNumber',
+  taxCountry: 'taxCountry',
+  exemptionNote: 'exemptionNote',
+  currency: 'currency',
+  creditsInvoiceId: 'creditsInvoiceId'
+} as const
+
+export type InvoiceOrderByRelevanceFieldEnum = (typeof InvoiceOrderByRelevanceFieldEnum)[keyof typeof InvoiceOrderByRelevanceFieldEnum]
+
+
+export const EconomicOperatorOrderByRelevanceFieldEnum = {
+  id: 'id',
+  legalName: 'legalName',
+  tradeName: 'tradeName',
+  countryCode: 'countryCode',
+  email: 'email',
+  phone: 'phone',
+  website: 'website',
+  eudamedSrn: 'eudamedSrn',
+  createdById: 'createdById'
+} as const
+
+export type EconomicOperatorOrderByRelevanceFieldEnum = (typeof EconomicOperatorOrderByRelevanceFieldEnum)[keyof typeof EconomicOperatorOrderByRelevanceFieldEnum]
+
+
+export const ProductDeviceInfoOrderByRelevanceFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  basicUdiDi: 'basicUdiDi',
+  udiDi: 'udiDi',
+  notifiedBodyNumber: 'notifiedBodyNumber',
+  declarationOfConformityUrl: 'declarationOfConformityUrl',
+  intendedPurpose: 'intendedPurpose'
+} as const
+
+export type ProductDeviceInfoOrderByRelevanceFieldEnum = (typeof ProductDeviceInfoOrderByRelevanceFieldEnum)[keyof typeof ProductDeviceInfoOrderByRelevanceFieldEnum]
 

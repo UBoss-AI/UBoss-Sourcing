@@ -16,7 +16,7 @@ import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.j
 import { parseRateToScaled } from '../../domain/money.js';
 import { newId } from '../../infra/ids.js';
 import { env } from '../../config/env.js';
-import { isAssistantConfigured } from '../assistant/assistant.service.js';
+import { assistantDisclosure, isAssistantConfigured } from '../assistant/assistant.service.js';
 import { prisma } from '../../infra/prisma.js';
 import { stripHtml } from '../../infra/sanitize.js';
 import { isValidTimeZone } from '../../domain/recurrence.js';
@@ -38,6 +38,28 @@ export interface BusinessProfileInput {
   supportEmail?: string;
   supportPhone?: string | null;
   gstin?: string | null;
+  /**
+   * The seller's EU VAT identification number. Art. 226(3) requires it on
+   * every invoice.
+   */
+  vatNumber?: string | null;
+  /**
+   * The member state the business is established in for VAT.
+   *
+   * The single switch for the whole EU VAT engine. Null - the default - means
+   * every order is taxed at its tax class's own flat rate, exactly as this
+   * system behaved before EU VAT existed in it. Setting it starts resolving
+   * rates against the delivery country, so it must not be set before the rate
+   * table has been checked.
+   */
+  vatCountry?: string | null;
+  /**
+   * Whether product listings must satisfy GPSR Art. 19 before they publish.
+   *
+   * Off by default: a shop selling outside the Union has no such obligation,
+   * and blocking its catalogue on one would be this software inventing law.
+   */
+  gpsrEnforced?: boolean;
   logoMediaId?: string | null;
   addressJson?: Record<string, unknown> | null;
   currency?: string;
@@ -61,6 +83,9 @@ export async function getBusinessProfile(): Promise<Record<string, unknown> | nu
     supportEmail: profile.supportEmail,
     supportPhone: profile.supportPhone,
     gstin: profile.gstin,
+    vatNumber: profile.vatNumber,
+    vatCountry: profile.vatCountry,
+    gpsrEnforced: profile.gpsrEnforced,
     logo: profile.logoMedia,
     address: profile.addressJson,
     currency: profile.currency,
@@ -111,6 +136,11 @@ export async function updateBusinessProfile(
   if (input.supportEmail !== undefined) data.supportEmail = input.supportEmail.trim().toLowerCase();
   if (input.supportPhone !== undefined) data.supportPhone = input.supportPhone;
   if (input.gstin !== undefined) data.gstin = input.gstin;
+  if (input.vatNumber !== undefined) data.vatNumber = input.vatNumber;
+  if (input.gpsrEnforced !== undefined) data.gpsrEnforced = input.gpsrEnforced;
+  if (input.vatCountry !== undefined) {
+    data.vatCountry = input.vatCountry === null ? null : input.vatCountry.toUpperCase();
+  }
   if (input.logoMediaId !== undefined) data.logoMediaId = input.logoMediaId;
   if (input.addressJson !== undefined) data.addressJson = input.addressJson as never;
   if (input.currency !== undefined) data.currency = input.currency.toUpperCase();
@@ -152,6 +182,15 @@ export interface TaxClassInput {
   name: string;
   /** Percent as an exact decimal string, e.g. "18.000000". Never a float. */
   ratePercent: string;
+  /**
+   * Which EU rate band this class falls in.
+   *
+   * Null - the default - means the class has no EU meaning and `ratePercent`
+   * above is used wherever it is sold. Set it and the rate becomes a lookup
+   * against the destination member state, and `ratePercent` is only the
+   * fallback for a deployment that has not switched EU VAT on.
+   */
+  vatCategory?: 'STANDARD' | 'REDUCED' | 'SUPER_REDUCED' | 'ZERO' | 'EXEMPT' | null;
   isInclusive?: boolean;
   isDefault?: boolean;
   isActive?: boolean;
@@ -168,6 +207,7 @@ export async function listTaxClasses(): Promise<Record<string, unknown>[]> {
     code: row.code,
     name: row.name,
     ratePercent: row.ratePercent.toString(),
+    vatCategory: row.vatCategory,
     isInclusive: row.isInclusive,
     isDefault: row.isDefault,
     isActive: row.isActive,
@@ -219,6 +259,7 @@ export async function createTaxClass(
         code,
         name: input.name.trim(),
         ratePercent: input.ratePercent,
+        vatCategory: input.vatCategory ?? null,
         isInclusive: input.isInclusive ?? false,
         isDefault: input.isDefault ?? false,
         isActive: input.isActive ?? true,
@@ -295,6 +336,7 @@ export async function updateTaxClass(
     const data: Prisma.TaxClassUncheckedUpdateInput = {};
     if (input.name !== undefined) data.name = input.name.trim();
     if (input.ratePercent !== undefined) data.ratePercent = input.ratePercent;
+    if (input.vatCategory !== undefined) data.vatCategory = input.vatCategory;
     if (input.isInclusive !== undefined) data.isInclusive = input.isInclusive;
     if (input.isDefault !== undefined) data.isDefault = input.isDefault;
     if (input.isActive !== undefined) data.isActive = input.isActive;
@@ -748,6 +790,10 @@ export async function getStorefrontConfig(): Promise<Record<string, unknown>> {
     },
     features: {
       selfRegistration: env.FEATURE_CUSTOMER_SELF_REGISTRATION,
+      // Whether a confirmed sign-up still waits for a member of staff. The
+      // storefront says so on the form itself rather than only afterwards -
+      // somebody who needs to order today should learn that before typing.
+      selfRegistrationRequiresApproval: env.CUSTOMER_SELF_REGISTRATION_REQUIRES_APPROVAL,
       recurringOrders: env.FEATURE_RECURRING_ORDERS,
       // Whether this deployment has an Anthropic key configured. The
       // storefront mounts the chat widget only when this is true, so a
@@ -755,5 +801,17 @@ export async function getStorefrontConfig(): Promise<Record<string, unknown>> {
       // than a button that 404s.
       assistant: isAssistantConfigured(),
     },
+
+    /**
+     * What the chat widget has to say about itself before anyone types.
+     *
+     * AI Act Art. 50(1) obliges the deployer to inform a person that they are
+     * interacting with an AI system. The storefront cannot honour that from a
+     * boolean feature flag, so the disclosure travels as its own block - and
+     * it names the provider, because that provider receives whatever the
+     * visitor types and therefore belongs in the privacy notice under
+     * Art. 13(1)(e) of the GDPR.
+     */
+    assistant: assistantDisclosure(),
   };
 }

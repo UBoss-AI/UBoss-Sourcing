@@ -42,6 +42,8 @@ import { orderStatusTone, paymentStatusTone, transitionLabel } from '@/lib/order
 import { Permission } from '@/lib/permissions';
 import type { AvailableTransition, OrderDetail, OrderTotals } from '@/lib/orders';
 import type { Money } from '@/lib/types';
+import { InvoicePanel } from '@/pages/order/InvoicePanel';
+import { useI18n } from '@/i18n/i18n-context';
 
 /** The same three-way reading of the totals the order queue shows. */
 function paymentState(totals: OrderTotals): { label: string; tone: BadgeTone } {
@@ -49,7 +51,8 @@ function paymentState(totals: OrderTotals): { label: string; tone: BadgeTone } {
   const due = BigInt(totals.grandTotal.minor);
   const refunded = BigInt(totals.refunded.minor);
 
-  if (refunded > 0n) return { label: refunded >= paid ? 'Refunded' : 'Part refunded', tone: 'danger' };
+  if (refunded > 0n)
+    return { label: refunded >= paid ? 'Refunded' : 'Part refunded', tone: 'danger' };
   if (paid <= 0n) return { label: 'Unpaid', tone: 'neutral' };
   if (paid >= due) return { label: 'Paid', tone: 'success' };
   return { label: 'Part paid', tone: 'warning' };
@@ -62,11 +65,13 @@ function AddressBlock({
   title: string;
   address: OrderDetail['shippingAddress'];
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   return (
     <div>
       <h3 className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">{title}</h3>
       {address === null ? (
-        <p className="mt-1 text-sm text-ink-muted">Not provided</p>
+        <p className="mt-1 text-sm text-ink-muted">{t('orderDetail.notProvided')}</p>
       ) : (
         <address className="mt-1 text-sm not-italic leading-relaxed text-ink">
           {address.contactName !== null && <div className="font-medium">{address.contactName}</div>}
@@ -95,6 +100,8 @@ function TransitionDialog({
   transition: AvailableTransition;
   onClose: () => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const queryClient = useQueryClient();
   const toast = useToast();
   const [reason, setReason] = useState('');
@@ -131,7 +138,7 @@ function TransitionDialog({
       footer={
         <>
           <Button onClick={onClose} disabled={mutation.isPending}>
-            Cancel
+            {t('orderDetail.cancel')}
           </Button>
           <Button
             variant={transition.to === 'CANCELLED' ? 'danger' : 'primary'}
@@ -148,9 +155,8 @@ function TransitionDialog({
     >
       <div className="space-y-4">
         {transition.to === 'CANCELLED' && (
-          <Callout tone="warning" title="Cancelling does not move money.">
-            Any reserved stock goes back to available. If the order has been paid, refund it
-            separately from the Payments panel.
+          <Callout tone="warning" title={t('orderDetail.cancellingDoesNotMoveMoney')}>
+            {t('orderDetail.anyReservedStockGoesBack')}
           </Callout>
         )}
 
@@ -161,7 +167,7 @@ function TransitionDialog({
         )}
 
         <Field
-          label="Reason"
+          label={t('orderDetail.reason')}
           hint={
             transition.requiresReason
               ? 'Required. Recorded on the order timeline against your name.'
@@ -187,6 +193,8 @@ function TransitionDialog({
 }
 
 function InternalNote({ order }: { order: OrderDetail }): React.JSX.Element {
+  const { t } = useI18n();
+
   const queryClient = useQueryClient();
   const toast = useToast();
   const { can } = useSession();
@@ -214,17 +222,22 @@ function InternalNote({ order }: { order: OrderDetail }): React.JSX.Element {
   const isDirty = note !== (order.internalNote ?? '');
 
   return (
-    <Card title="Internal note" description="Staff only. Customers never see this.">
+    <Card
+      title={t('orderDetail.internalNote')}
+      description={t('orderDetail.staffOnlyCustomersNeverSee')}
+    >
       <div className="space-y-2 px-5 py-4">
         <label htmlFor="internal-note" className="sr-only">
-          Internal note
+          {t('orderDetail.internalNote')}
         </label>
         <Textarea
           id="internal-note"
           rows={3}
           value={note}
           disabled={!canWrite}
-          placeholder={canWrite ? 'Anything the next person handling this order should know.' : undefined}
+          placeholder={
+            canWrite ? 'Anything the next person handling this order should know.' : undefined
+          }
           onChange={(event) => {
             setNote(event.target.value);
           }}
@@ -239,11 +252,11 @@ function InternalNote({ order }: { order: OrderDetail }): React.JSX.Element {
                 save.mutate();
               }}
             >
-              Save note
+              {t('orderDetail.saveNote')}
             </Button>
             {isDirty && (
               <span role="status" className="text-xs font-medium text-warning">
-                Unsaved
+                {t('orderDetail.unsaved')}
               </span>
             )}
           </div>
@@ -254,6 +267,8 @@ function InternalNote({ order }: { order: OrderDetail }): React.JSX.Element {
 }
 
 export function OrderDetailPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const { id } = useParams<{ id: string }>();
   const { can } = useSession();
   const queryClient = useQueryClient();
@@ -281,16 +296,21 @@ export function OrderDetailPage(): React.JSX.Element {
       await queryClient.invalidateQueries({ queryKey: ['orders'] });
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : 'The decision could not be recorded.');
+      toast.error(
+        error instanceof ApiError ? error.message : 'The decision could not be recorded.',
+      );
     },
   });
 
   if (query.isPending) {
     return (
       <>
-        <PageHeader title="Order" back={{ to: '/orders', label: 'Back to orders' }} />
+        <PageHeader
+          title={t('orderDetail.order')}
+          back={{ to: '/orders', label: 'Back to orders' }}
+        />
         <Card>
-          <LoadingState label="Loading the order" />
+          <LoadingState label={t('orderDetail.loadingTheOrder')} />
         </Card>
       </>
     );
@@ -299,7 +319,10 @@ export function OrderDetailPage(): React.JSX.Element {
   if (query.isError) {
     return (
       <>
-        <PageHeader title="Order" back={{ to: '/orders', label: 'Back to orders' }} />
+        <PageHeader
+          title={t('orderDetail.order')}
+          back={{ to: '/orders', label: 'Back to orders' }}
+        />
         <Card>
           <ErrorState
             error={query.error}
@@ -345,14 +368,17 @@ export function OrderDetailPage(): React.JSX.Element {
         <div className="space-y-5">
           {isAwaitingApproval && (
             <Card
-              title="Waiting for approval"
-              description="This order exceeds the customer's approval threshold and will not move until somebody decides."
+              title={t('orderDetail.waitingForApproval')}
+              description={t('orderDetail.thisOrderExceedsTheCustomer')}
               tone="danger"
             >
               <div className="space-y-3 px-5 py-4">
                 {canApprove ? (
                   <>
-                    <Field label="Comment" hint="Optional. Recorded with the decision, either way.">
+                    <Field
+                      label={t('orderDetail.comment')}
+                      hint={t('orderDetail.optionalRecordedWithTheDecision')}
+                    >
                       {({ inputId, describedBy }) => (
                         <Textarea
                           id={inputId}
@@ -373,7 +399,7 @@ export function OrderDetailPage(): React.JSX.Element {
                           decide.mutate(true);
                         }}
                       >
-                        Approve order
+                        {t('orderDetail.approveOrder')}
                       </Button>
                       <Button
                         variant="danger"
@@ -382,21 +408,26 @@ export function OrderDetailPage(): React.JSX.Element {
                           decide.mutate(false);
                         }}
                       >
-                        Reject order
+                        {t('orderDetail.rejectOrder')}
                       </Button>
                     </div>
                   </>
                 ) : (
                   <p className="text-sm text-ink-muted">
-                    A Finance Approver or Business Owner has to decide this one.
+                    {t('orderDetail.aFinanceApproverOrBusiness')}
                   </p>
                 )}
               </div>
             </Card>
           )}
 
-          <Card title="Items">
-            <div className="overflow-x-auto" role="region" aria-label="Order items" tabIndex={0}>
+          <Card title={t('orderDetail.items')}>
+            <div
+              className="overflow-x-auto"
+              role="region"
+              aria-label={t('orderDetail.orderItems')}
+              tabIndex={0}
+            >
               <table className="w-full min-w-[36rem] border-collapse text-sm">
                 <caption className="sr-only">
                   Items on order {order.orderNumber} — {order.items.length} line
@@ -410,31 +441,31 @@ export function OrderDetailPage(): React.JSX.Element {
                       scope="col"
                       className="px-4 py-2.5 text-left text-xxs font-semibold uppercase tracking-wider text-ink-muted"
                     >
-                      Product
+                      {t('orderDetail.product')}
                     </th>
                     <th
                       scope="col"
                       className="px-4 py-2.5 text-right text-xxs font-semibold uppercase tracking-wider text-ink-muted"
                     >
-                      Qty
+                      {t('orderDetail.qty')}
                     </th>
                     <th
                       scope="col"
                       className="px-4 py-2.5 text-right text-xxs font-semibold uppercase tracking-wider text-ink-muted"
                     >
-                      Unit price
+                      {t('orderDetail.unitPrice')}
                     </th>
                     <th
                       scope="col"
                       className="hidden px-4 py-2.5 text-right text-xxs font-semibold uppercase tracking-wider text-ink-muted lg:table-cell"
                     >
-                      Tax
+                      {t('orderDetail.tax')}
                     </th>
                     <th
                       scope="col"
                       className="px-4 py-2.5 text-right text-xxs font-semibold uppercase tracking-wider text-ink-muted"
                     >
-                      Line total
+                      {t('orderDetail.lineTotal')}
                     </th>
                   </tr>
                 </thead>
@@ -453,13 +484,17 @@ export function OrderDetailPage(): React.JSX.Element {
                         )}
                         <p className="font-mono text-xxs text-ink-subtle">{item.sku}</p>
                       </td>
-                      <td className="px-4 py-2.5 text-right tabular">{formatNumber(item.quantity)}</td>
+                      <td className="px-4 py-2.5 text-right tabular">
+                        {formatNumber(item.quantity)}
+                      </td>
                       <td className="whitespace-nowrap px-4 py-2.5 text-right tabular">
                         {formatMoney(item.unitPrice)}
                       </td>
                       <td className="hidden whitespace-nowrap px-4 py-2.5 text-right tabular lg:table-cell">
                         {formatMoney(item.tax)}
-                        <span className="ml-1 text-xxs text-ink-subtle">({item.taxRatePercent}%)</span>
+                        <span className="ml-1 text-xxs text-ink-subtle">
+                          ({item.taxRatePercent}%)
+                        </span>
                       </td>
                       <td className="whitespace-nowrap px-4 py-2.5 text-right font-medium tabular">
                         {formatMoney(item.lineTotal)}
@@ -487,18 +522,20 @@ export function OrderDetailPage(): React.JSX.Element {
                 </div>
               ))}
               <div className="flex justify-between gap-4 border-t border-border pt-2 text-base font-semibold">
-                <dt>Grand total</dt>
+                <dt>{t('orderDetail.grandTotal')}</dt>
                 <dd className="tabular">{formatMoney(order.totals.grandTotal)}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-ink-muted">Paid</dt>
-                <dd className={cx('tabular font-medium', isSettled ? 'text-success' : 'text-warning')}>
+                <dt className="text-ink-muted">{t('orderDetail.paid')}</dt>
+                <dd
+                  className={cx('tabular font-medium', isSettled ? 'text-success' : 'text-warning')}
+                >
                   {formatMoney(order.totals.paid)}
                 </dd>
               </div>
               {order.totals.refunded.minor !== '0' && (
                 <div className="flex justify-between gap-4">
-                  <dt className="text-ink-muted">Refunded</dt>
+                  <dt className="text-ink-muted">{t('orderDetail.refunded')}</dt>
                   <dd className="tabular font-medium text-danger">
                     {formatMoney(order.totals.refunded)}
                   </dd>
@@ -507,15 +544,24 @@ export function OrderDetailPage(): React.JSX.Element {
             </dl>
           </Card>
 
-          <Card title="Delivery" description={order.shippingMethodName ?? undefined}>
+          <Card
+            title={t('orderDetail.delivery')}
+            description={order.shippingMethodName ?? undefined}
+          >
             <div className="grid gap-6 px-5 py-4 sm:grid-cols-2">
-              <AddressBlock title="Shipping address" address={order.shippingAddress} />
-              <AddressBlock title="Billing address" address={order.billingAddress} />
+              <AddressBlock
+                title={t('orderDetail.shippingAddress')}
+                address={order.shippingAddress}
+              />
+              <AddressBlock
+                title={t('orderDetail.billingAddress')}
+                address={order.billingAddress}
+              />
             </div>
             {order.customerNote !== null && (
               <div className="border-t border-border-subtle px-5 py-3">
                 <h3 className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                  Customer note
+                  {t('orderDetail.customerNote')}
                 </h3>
                 <p className="mt-1 text-sm leading-relaxed text-ink">{order.customerNote}</p>
               </div>
@@ -524,7 +570,10 @@ export function OrderDetailPage(): React.JSX.Element {
 
           <InternalNote order={order} />
 
-          <Card title="Timeline" description="Every status change, with who made it and why.">
+          <Card
+            title={t('orderDetail.timeline')}
+            description={t('orderDetail.everyStatusChangeWithWho')}
+          >
             <ol className="divide-y divide-border-subtle">
               {order.timeline.map((entry, index) => (
                 <li
@@ -536,7 +585,7 @@ export function OrderDetailPage(): React.JSX.Element {
                   </span>
                   <span className="flex items-center gap-2 text-sm text-ink">
                     {entry.from === null ? (
-                      <span className="text-ink-muted">Created as</span>
+                      <span className="text-ink-muted">{t('orderDetail.createdAs')}</span>
                     ) : (
                       <>
                         <span className="text-ink-muted">{humanise(entry.from)}</span>
@@ -564,18 +613,17 @@ export function OrderDetailPage(): React.JSX.Element {
         </div>
 
         <div className="space-y-5">
-          <Card title="What happens next">
+          <Card title={t('orderDetail.whatHappensNext')}>
             <div className="space-y-3 px-5 py-4">
               {order.cancelReason !== null && (
-                <Callout tone="danger" title="Cancelled">
+                <Callout tone="danger" title={t('orderDetail.cancelled')}>
                   {order.cancelReason}
                 </Callout>
               )}
 
               {order.availableTransitions.length === 0 ? (
                 <p className="text-xs leading-relaxed text-ink-muted">
-                  Nothing can move from here. This is a final state, or the next step belongs to the
-                  system.
+                  {t('orderDetail.nothingCanMoveFromHere')}
                 </p>
               ) : (
                 <>
@@ -628,10 +676,14 @@ export function OrderDetailPage(): React.JSX.Element {
             </div>
           </Card>
 
-          <Card title="Customer">
+          {/* Above the customer card: an invoice is about the order, and it
+              is the thing somebody comes to this page to raise or to send. */}
+          <InvoicePanel orderId={order.id} />
+
+          <Card title={t('orderDetail.customer')}>
             <div className="px-5 py-4 text-sm">
               {order.customer === null ? (
-                <p className="text-ink-muted">No customer on this order.</p>
+                <p className="text-ink-muted">{t('orderDetail.noCustomerOnThisOrder')}</p>
               ) : (
                 <>
                   <Link
@@ -644,7 +696,9 @@ export function OrderDetailPage(): React.JSX.Element {
                     <p className="text-xs text-ink-muted">{order.customer.organization}</p>
                   )}
                   {order.customer.email !== undefined && (
-                    <p className="mt-1 break-words text-xs text-ink-muted">{order.customer.email}</p>
+                    <p className="mt-1 break-words text-xs text-ink-muted">
+                      {order.customer.email}
+                    </p>
                   )}
                 </>
               )}
@@ -652,12 +706,12 @@ export function OrderDetailPage(): React.JSX.Element {
           </Card>
 
           <Card
-            title="Payment"
-            description="Reported, never edited. Only a verified gateway event settles an order."
+            title={t('orderDetail.payment')}
+            description={t('orderDetail.reportedNeverEditedOnlyA')}
           >
             <div className="space-y-3 px-5 py-4 text-sm">
               {order.payments.length === 0 && order.paymentLinks.length === 0 ? (
-                <p className="text-ink-muted">No payment activity yet.</p>
+                <p className="text-ink-muted">{t('orderDetail.noPaymentActivityYet')}</p>
               ) : (
                 <>
                   {order.payments.map((item) => (
@@ -687,7 +741,7 @@ export function OrderDetailPage(): React.JSX.Element {
                       key={link.id}
                       className="border-b border-border-subtle pb-2.5 last:border-0 last:pb-0"
                     >
-                      <p className="text-xs font-medium text-ink">Payment link</p>
+                      <p className="text-xs font-medium text-ink">{t('orderDetail.paymentLink')}</p>
                       <p className="break-words text-xxs text-ink-muted">{link.recipientEmail}</p>
                       <p className="mt-0.5 text-xxs text-ink-subtle">
                         {link.usedAt !== null
@@ -704,7 +758,7 @@ export function OrderDetailPage(): React.JSX.Element {
               {order.refunds.length > 0 && (
                 <div className="border-t border-border-subtle pt-2.5">
                   <p className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                    Refunds
+                    {t('orderDetail.refunds')}
                   </p>
                   {order.refunds.map((refund) => (
                     <div key={refund.id} className="mt-1 flex justify-between gap-2 text-xs">
@@ -722,7 +776,7 @@ export function OrderDetailPage(): React.JSX.Element {
                   to={`/payments?orderId=${order.id}`}
                   className="block border-t border-border-subtle pt-2.5 text-xs font-medium text-accent underline underline-offset-2"
                 >
-                  Open in Payments
+                  {t('orderDetail.openInPayments')}
                 </Link>
               )}
             </div>

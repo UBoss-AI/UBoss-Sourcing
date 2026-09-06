@@ -209,6 +209,19 @@ export async function acceptInvitation(input: AcceptInvitationInput): Promise<Co
 }
 
 /**
+ * Redeem an email-verification link.
+ *
+ * Thin on purpose: unlike an invitation, confirming an address decides nothing
+ * on its own. What happens next - straight to ACTIVE, or a wait for a member of
+ * staff - is a customer-onboarding policy, so it lives in
+ * `customers/registration.service.ts` and this only guarantees the link was
+ * genuine, unexpired and spent exactly once.
+ */
+export async function consumeEmailVerificationToken(token: string): Promise<ConsumedToken> {
+  return consumeToken(token, 'EMAIL_VERIFICATION');
+}
+
+/**
  * Begin a password reset.
  *
  * Returns the token only when the account exists and can actually be reset.

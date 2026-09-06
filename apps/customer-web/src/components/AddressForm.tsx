@@ -16,6 +16,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Field, Input, Select } from '@/components/ui';
 import { ApiError, NetworkError, api } from '@/lib/api';
 import type { Address } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 const schema = z.object({
   label: z.string().trim().max(64),
@@ -67,6 +68,8 @@ export function AddressForm({
   onSaved: (addressId: string) => void;
   onCancel?: () => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const queryClient = useQueryClient();
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -128,11 +131,16 @@ export function AddressForm({
 
         for (const [field, message] of Object.entries(fieldErrors)) {
           if (!(FIELDS as readonly string[]).includes(field)) continue;
-          setError(field as (typeof FIELDS)[number], { type: 'server', message });
+          setError(field as (typeof FIELDS)[number], {
+            type: 'server',
+            message,
+          });
           matched += 1;
         }
 
-        setFormError(matched > 0 && matched === Object.keys(fieldErrors).length ? null : error.message);
+        setFormError(
+          matched > 0 && matched === Object.keys(fieldErrors).length ? null : error.message,
+        );
         return;
       }
 
@@ -158,8 +166,8 @@ export function AddressForm({
       )}
 
       <Field
-        label="Label"
-        hint="Optional — “Head office”, “Site 2”. Helps you pick the right one later."
+        label={t('addressForm.label')}
+        hint={t('addressForm.optionalHeadOfficeSite2')}
         error={errors.label?.message}
       >
         {({ inputId, describedBy }) => (
@@ -168,7 +176,7 @@ export function AddressForm({
       </Field>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Contact name" error={errors.contactName?.message} required>
+        <Field label={t('addressForm.contactName')} error={errors.contactName?.message} required>
           {({ inputId, describedBy }) => (
             <Input
               id={inputId}
@@ -180,7 +188,7 @@ export function AddressForm({
           )}
         </Field>
 
-        <Field label="Contact phone" error={errors.contactPhone?.message} required>
+        <Field label={t('addressForm.contactPhone')} error={errors.contactPhone?.message} required>
           {({ inputId, describedBy }) => (
             <Input
               id={inputId}
@@ -194,7 +202,7 @@ export function AddressForm({
         </Field>
       </div>
 
-      <Field label="Address line 1" error={errors.line1?.message} required>
+      <Field label={t('addressForm.addressLine1')} error={errors.line1?.message} required>
         {({ inputId, describedBy }) => (
           <Input
             id={inputId}
@@ -206,7 +214,7 @@ export function AddressForm({
         )}
       </Field>
 
-      <Field label="Address line 2" error={errors.line2?.message}>
+      <Field label={t('addressForm.addressLine2')} error={errors.line2?.message}>
         {({ inputId, describedBy }) => (
           <Input
             id={inputId}
@@ -218,7 +226,7 @@ export function AddressForm({
       </Field>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <Field label="Town or city" error={errors.city?.message} required>
+        <Field label={t('addressForm.townOrCity')} error={errors.city?.message} required>
           {({ inputId, describedBy }) => (
             <Input
               id={inputId}
@@ -230,7 +238,7 @@ export function AddressForm({
           )}
         </Field>
 
-        <Field label="State" error={errors.state?.message} required>
+        <Field label={t('addressForm.state')} error={errors.state?.message} required>
           {({ inputId, describedBy }) => (
             <Input
               id={inputId}
@@ -242,7 +250,7 @@ export function AddressForm({
           )}
         </Field>
 
-        <Field label="Postcode" error={errors.postalCode?.message} required>
+        <Field label={t('addressForm.postcode')} error={errors.postalCode?.message} required>
           {({ inputId, describedBy }) => (
             <Input
               id={inputId}
@@ -257,8 +265,8 @@ export function AddressForm({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field
-          label="Country code"
-          hint="Two letters, e.g. IN."
+          label={t('addressForm.countryCode')}
+          hint={t('addressForm.twoLettersEGIn')}
           error={errors.country?.message}
           required
         >
@@ -275,12 +283,12 @@ export function AddressForm({
           )}
         </Field>
 
-        <Field label="Use this address for">
+        <Field label={t('addressForm.useThisAddressFor')}>
           {({ inputId }) => (
             <Select id={inputId} {...register('kind')}>
-              <option value="BOTH">Delivery and billing</option>
-              <option value="SHIPPING">Delivery only</option>
-              <option value="BILLING">Billing only</option>
+              <option value="BOTH">{t('addressForm.deliveryAndBilling')}</option>
+              <option value="SHIPPING">{t('addressForm.deliveryOnly')}</option>
+              <option value="BILLING">{t('addressForm.billingOnly')}</option>
             </Select>
           )}
         </Field>
@@ -293,7 +301,7 @@ export function AddressForm({
             className="h-4 w-4 rounded border-border-strong text-brand"
             {...register('isDefaultShipping')}
           />
-          Use as my default delivery address
+          {t('addressForm.useAsMyDefaultDelivery')}
         </label>
         <label className="flex items-center gap-2 text-sm text-ink">
           <input
@@ -301,7 +309,7 @@ export function AddressForm({
             className="h-4 w-4 rounded border-border-strong text-brand"
             {...register('isDefaultBilling')}
           />
-          Use as my default billing address
+          {t('addressForm.useAsMyDefaultBilling')}
         </label>
       </div>
 
@@ -311,7 +319,7 @@ export function AddressForm({
         </Button>
         {onCancel !== undefined && (
           <Button onClick={onCancel} disabled={save.isPending}>
-            Cancel
+            {t('addressForm.cancel')}
           </Button>
         )}
       </div>

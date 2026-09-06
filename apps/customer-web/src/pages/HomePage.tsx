@@ -48,6 +48,7 @@ import { api } from '@/lib/api';
 import { useLocale } from '@/app/locale-context';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { CategoryNode, ProductListResponse } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 // ---------------------------------------------------------------------------
 // Hero
@@ -246,6 +247,8 @@ function TrustStrip(): React.JSX.Element {
 }
 
 function Hero(): React.JSX.Element {
+  const { t } = useI18n();
+
   const { business, features } = useStorefront();
   const { isCustomer, isLoading } = useSession();
   const { currency } = useLocale();
@@ -265,11 +268,11 @@ function Hero(): React.JSX.Element {
       <div className="relative grid gap-10 px-6 py-12 sm:px-10 sm:py-14 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-center lg:gap-12 lg:py-16 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="max-w-2xl">
           <p className="text-xxs font-semibold uppercase tracking-[0.18em] text-white/60">
-            Online trade catalogue
+            {t('home.onlineTradeCatalogue')}
           </p>
 
           <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
-            Everything your business orders, in one place
+            {t('home.everythingYourBusinessOrdersIn')}
           </h1>
 
           <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-inverse/80">
@@ -305,7 +308,7 @@ function Hero(): React.JSX.Element {
               size="lg"
               className="ring-1 ring-inset ring-white/25"
             >
-              Browse the catalogue
+              {t('home.browseTheCatalogue')}
             </ButtonLink>
 
             {/* Only offered while genuinely signed out, and never during the
@@ -313,7 +316,7 @@ function Hero(): React.JSX.Element {
                 that flashes for a signed-in customer looks broken. */}
             {!isLoading && !isCustomer && (
               <ButtonLink to="/login" variant="inverse-outline" size="lg">
-                Sign in to order
+                {t('home.signInToOrder')}
               </ButtonLink>
             )}
           </div>
@@ -362,9 +365,12 @@ function categoryMark(seed: string): (props: { className?: string }) => React.JS
 }
 
 function CategoryStrip(): React.JSX.Element | null {
+  const { t, language } = useI18n();
+
   const query = useQuery({
-    queryKey: ['categories'],
-    queryFn: () => api.get<{ categories: CategoryNode[] }>('/catalog/categories'),
+    queryKey: ['categories', language],
+    queryFn: () =>
+      api.get<{ categories: CategoryNode[] }>('/catalog/categories', { query: { language } }),
     staleTime: 5 * 60_000,
   });
 
@@ -377,7 +383,7 @@ function CategoryStrip(): React.JSX.Element | null {
     <section aria-labelledby="shop-by-category" className="mb-12">
       <header className="mb-4">
         <h2 id="shop-by-category" className="text-title-lg text-ink">
-          Shop by category
+          {t('home.shopByCategory')}
         </h2>
         <p className="mt-1 text-sm text-ink-muted">
           {categories.length} {categories.length === 1 ? 'department' : 'departments'} currently
@@ -423,7 +429,8 @@ function CategoryStrip(): React.JSX.Element | null {
                     {category.name}
                   </span>
                   <span className="mt-1 block text-xs text-ink-muted">
-                    {category.productCount} product{category.productCount === 1 ? '' : 's'}
+                    {category.productCount} product
+                    {category.productCount === 1 ? '' : 's'}
                   </span>
                 </span>
 
@@ -451,13 +458,15 @@ function CategoryStrip(): React.JSX.Element | null {
  * second act.
  */
 function NewestProducts(): React.JSX.Element {
+  const { t, language } = useI18n();
+
   const { currency } = useLocale();
 
   const query = useQuery({
-    queryKey: ['products', { sort: 'newest', limit: 8, currency }],
+    queryKey: ['products', { sort: 'newest', limit: 8, currency, language }],
     queryFn: () =>
       api.get<ProductListResponse>('/catalog/products', {
-        query: { limit: 8, sort: 'newest', currency },
+        query: { limit: 8, sort: 'newest', currency, language },
       }),
   });
 
@@ -468,10 +477,10 @@ function NewestProducts(): React.JSX.Element {
       <header className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
           <p className="text-xxs font-semibold uppercase tracking-[0.14em] text-ink-subtle">
-            Catalogue
+            {t('home.catalogue')}
           </p>
           <h2 id="latest-products" className="mt-1.5 text-title-lg text-ink">
-            Latest products
+            {t('home.latestProducts')}
           </h2>
           <p className="mt-1 max-w-prose text-sm text-ink-muted">
             The most recently published lines, priced in {currency}.
@@ -482,7 +491,7 @@ function NewestProducts(): React.JSX.Element {
           to="/products"
           className="inline-flex shrink-0 items-center gap-1 rounded text-sm font-medium text-brand hover:underline"
         >
-          View all products
+          {t('home.viewAllProducts')}
           <ChevronRightIcon className="h-4 w-4" />
         </Link>
       </header>
@@ -509,9 +518,9 @@ function NewestProducts(): React.JSX.Element {
       {query.data !== undefined &&
         (query.data.products.length === 0 ? (
           <div className="rounded-lg border border-border bg-surface px-6 py-14 text-center shadow-card">
-            <p className="text-base font-medium text-ink">Nothing is published yet</p>
+            <p className="text-base font-medium text-ink">{t('home.nothingIsPublishedYet')}</p>
             <p className="mx-auto mt-1.5 max-w-md text-sm text-ink-muted">
-              Products appear here as soon as they are published. Check back shortly.
+              {t('home.productsAppearHereAsSoon')}
             </p>
           </div>
         ) : (
@@ -532,14 +541,13 @@ function NewestProducts(): React.JSX.Element {
       {hasProducts && (
         <div className="mt-8 flex flex-col items-center gap-4 rounded-lg border border-border bg-surface px-6 py-8 text-center shadow-card">
           <div>
-            <p className="text-title-sm text-ink">Looking for something specific?</p>
+            <p className="text-title-sm text-ink">{t('home.lookingForSomethingSpecific')}</p>
             <p className="mx-auto mt-1.5 max-w-lg text-sm leading-relaxed text-ink-muted">
-              The full catalogue can be filtered by category and price, and sorted by name or
-              price.
+              {t('home.theFullCatalogueCanBe')}
             </p>
           </div>
           <ButtonLink to="/products" variant="secondary" size="lg">
-            View all products
+            {t('home.viewAllProducts')}
           </ButtonLink>
         </div>
       )}

@@ -27,7 +27,7 @@ Last updated: 2026-09-02. Verified against MariaDB 10.4.32 on `127.0.0.1:3306`.
 | **5. Inventory engine** | Ledger, receipts, adjustments, reservations, oversell prevention, low-stock events | ✅ **Done** (admin routes pending) |
 | **6. Customers and purchasing limits** | Invite/activate/deactivate, addresses, quantity + order-value rules, monthly spend cap, approval routing | ✅ **Done** |
 | **7. Cart, checkout, order state machine** | Cart APIs, repricing on every read, totals breakdown, idempotent checkout, guarded transitions, immutable snapshots | ✅ **Done** |
-| **8. Payments, webhooks, payment links** | Razorpay adapter (live test API verified), signed-webhook verification, payment links, refunds, reconciliation | ✅ **Done** (Stripe adapter not written) |
+| **8. Payments, webhooks, payment links** | Razorpay and Stripe adapters, signed-webhook verification, payment links, refunds, reconciliation | ✅ **Done** |
 | **9. Recurring purchase engine** | Schedules, timezone-correct recurrence, lease claiming, unique occurrences, re-validation, retries, auto-pause | ✅ **Done** (auto-pay mandate charge deliberately not implemented - see gaps) |
 | **10. Notifications, integrations, reports** | Outbox delivery, custom API connector with circuit breaker, reporting endpoints, async exports with expiring signed download | ✅ **Done** |
 | **11. Security, observability, recovery** | HTML sanitisation, per-endpoint rate limits, audit writes, Prometheus metrics, runbooks | ✅ **Done** |

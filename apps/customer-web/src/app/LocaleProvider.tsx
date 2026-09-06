@@ -5,7 +5,20 @@
  *
  *   1. The signed-in shopper's saved `preferredCurrency` / `preferredCountry`.
  *   2. A choice a signed-out visitor made in this browser (localStorage).
- *   3. The base currency from the public config.
+ *   3. The market the interface language points at, when this deployment
+ *      sells in it.
+ *   4. The base currency from the public config.
+ *
+ * Step 3 is the language talking, and it is the weakest signal here on
+ * purpose. Language is not location - a Polish buyer paying in euro is an
+ * ordinary case, which is why the two remain separate settings - but for
+ * somebody who has never answered the question it beats the alternative,
+ * which is quoting a Polish-reading shopper in the base currency of a business
+ * they have never heard of. The moment they answer, steps 1 and 2 outrank it.
+ *
+ * For somebody who *has* answered, the language never silently reprices
+ * anything. It raises `marketSuggestion` instead: an offer they can take or
+ * turn down, and a refusal is remembered so the same offer is not made twice.
  *
  * A signed-in shopper who has never answered gets `needsChoice`, which is what
  * raises the picker exactly once. Signing in adopts whatever a visitor chose
@@ -19,13 +32,25 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useStorefront } from '@/app/storefront-context';
 import { useSession } from '@/auth/session-context';
+import { useI18n } from '@/i18n/i18n-context';
+import { suggestedCountryForLanguage } from '@/i18n/languages';
 import { api } from '@/lib/api';
 import { detectCountry } from '@/lib/geo';
 import type { Locale } from '@/lib/types';
-import { LocaleContext, type LocaleState } from './locale-context';
+import { LocaleContext, type LocaleState, type MarketSuggestion } from './locale-context';
 
 /** Remembers a signed-out visitor's answer. Cleared by the browser, not by us. */
 const STORAGE_KEY = 'uboss.locale';
+
+/**
+ * Currencies the language has offered and the shopper has turned down.
+ *
+ * Kept in the browser rather than on the profile: it is a "stop asking me"
+ * flag, not a preference, and it is not worth a column, a migration and a
+ * round trip on every deployment to carry a dismissal between somebody's
+ * devices. The worst case is being asked once more on a new laptop.
+ */
+const DECLINED_KEY = 'uboss.locale.declined';
 
 interface StoredChoice {
   country: string;
@@ -59,6 +84,29 @@ function writeStored(choice: StoredChoice): void {
   }
 }
 
+function readDeclined(): string[] {
+  try {
+    const raw = window.localStorage.getItem(DECLINED_KEY);
+    if (raw === null) return [];
+
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed.filter((entry): entry is string => typeof entry === 'string');
+  } catch {
+    // Same as above. The offer is simply made once more.
+    return [];
+  }
+}
+
+function writeDeclined(codes: readonly string[]): void {
+  try {
+    window.localStorage.setItem(DECLINED_KEY, JSON.stringify(codes));
+  } catch {
+    // The dismissal holds for this page view only.
+  }
+}
+
 interface SavePayload {
   country: string;
   currency: string;
@@ -69,9 +117,11 @@ export function LocaleProvider({ children }: { children: ReactNode }): React.JSX
   const config = useStorefront();
   const session = useSession();
   const queryClient = useQueryClient();
+  const { language } = useI18n();
 
   const [stored, setStored] = useState<StoredChoice | null>(() => readStored());
   const [dismissed, setDismissed] = useState(false);
+  const [declined, setDeclined] = useState<string[]>(() => readDeclined());
   const [detected, setDetected] = useState<string | null>(null);
 
   const profileId = session.user?.customerProfileId ?? null;
@@ -133,7 +183,35 @@ export function LocaleProvider({ children }: { children: ReactNode }): React.JSX
   const serverLocale = localeQuery.data?.locale ?? null;
   const baseCurrency = config.localisation.baseCurrency;
 
-  const currency = serverLocale?.currency ?? stored?.currency ?? baseCurrency;
+  // --- what the language points at -----------------------------------------
+  // Filtered against this deployment's own configuration, twice over: the
+  // country has to be one staff activated, and its currency has to be one the
+  // catalogue is actually priced in. A store selling only in India must not
+  // start quoting a Polish reader in złoty it holds no prices for - that is an
+  // empty shop, which is worse than a readable one in an unexpected currency.
+  const languageMarket = useMemo<Omit<MarketSuggestion, 'language'> | null>(() => {
+    const countryCode = suggestedCountryForLanguage(language);
+    if (countryCode === null) return null;
+
+    const match = config.localisation.countries.find((entry) => entry.code === countryCode);
+    if (match === undefined) return null;
+
+    const priced = config.localisation.currencies.find(
+      // `!== false` rather than a truthy test, as everywhere else here: a
+      // config response cached from before that flag existed must not be read
+      // as "this currency sells nothing".
+      (entry) => entry.code === match.currencyCode && entry.hasProducts !== false,
+    );
+    if (priced === undefined) return null;
+
+    return { country: match.code, countryName: match.name, currency: priced.code };
+  }, [config.localisation.countries, config.localisation.currencies, language]);
+
+  /** True once the shopper has said where they are, in either store. */
+  const answered = serverLocale !== null || stored !== null;
+
+  const currency =
+    serverLocale?.currency ?? stored?.currency ?? languageMarket?.currency ?? baseCurrency;
   const country = serverLocale?.country ?? stored?.country ?? null;
 
   const choose = useCallback(
@@ -205,36 +283,78 @@ export function LocaleProvider({ children }: { children: ReactNode }): React.JSX
     [config.localisation.currencies, currency],
   );
 
+  // Only a signed-in shopper is asked, and only once: there is nowhere to
+  // remember "no thanks" for a visitor who never signs in.
+  const needsChoice =
+    profileId !== null && localeQuery.isSuccess && serverLocale === null && !dismissed;
+
+  // --- the offer -----------------------------------------------------------
+  // Suppressed in four cases, each for its own reason: nobody has answered yet
+  // (the resolution above already applied the language's market, so there is
+  // nothing left to offer), the first-run picker is up (it asks the same
+  // question and asks it better), the language points where they already are,
+  // or they have turned this currency down before.
+  const marketSuggestion = useMemo<MarketSuggestion | null>(() => {
+    if (languageMarket === null) return null;
+    if (!answered || needsChoice) return null;
+    if (languageMarket.currency === currency) return null;
+    if (declined.includes(languageMarket.currency)) return null;
+
+    return { language, ...languageMarket };
+  }, [answered, currency, declined, language, languageMarket, needsChoice]);
+
+  const acceptSuggestion = useCallback(async () => {
+    if (marketSuggestion === null) return;
+
+    // Country and currency together: taking the offer is the shopper saying
+    // where they are, so it is recorded the same way the picker records it -
+    // and `choose` is what reprices the catalogue and restamps the cart.
+    await choose(marketSuggestion.country, marketSuggestion.currency);
+  }, [choose, marketSuggestion]);
+
+  const dismissSuggestion = useCallback(() => {
+    if (marketSuggestion === null) return;
+
+    setDeclined((current) => {
+      if (current.includes(marketSuggestion.currency)) return current;
+
+      const next = [...current, marketSuggestion.currency];
+      writeDeclined(next);
+      return next;
+    });
+  }, [marketSuggestion]);
+
   const value = useMemo<LocaleState>(
     () => ({
       currency,
       country: country === '' ? null : country,
       currencies: offerable,
       countries: config.localisation.countries,
-      // Only a signed-in shopper is asked, and only once: there is nowhere to
-      // remember "no thanks" for a visitor who never signs in.
-      needsChoice:
-        profileId !== null && localeQuery.isSuccess && serverLocale === null && !dismissed,
+      needsChoice,
       detectedCountry: serverLocale?.detectedCountry ?? detected,
       detectedMismatch:
         serverLocale?.detectedMismatch ??
         (detected !== null && country !== null && country !== '' && detected !== country),
+      marketSuggestion,
       choose,
       dismissChoice: () => {
         setDismissed(true);
       },
       setCurrency,
+      acceptSuggestion,
+      dismissSuggestion,
     }),
     [
+      acceptSuggestion,
       choose,
       config.localisation.countries,
       country,
       currency,
       detected,
-      dismissed,
-      localeQuery.isSuccess,
+      dismissSuggestion,
+      marketSuggestion,
+      needsChoice,
       offerable,
-      profileId,
       serverLocale,
       setCurrency,
     ],
