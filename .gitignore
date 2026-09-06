@@ -1,0 +1,10 @@
+# Microsoft Office lock files.
+#
+# Word and PowerPoint write a `~$name.docx` beside a document for as long as
+# it is open, holding the editor's name so a second person gets told who has
+# it. They are per-machine scratch files and mean nothing to anyone else.
+#
+# One was committed by accident. The pattern is deliberately unanchored, so it
+# applies at every depth: the documents in this repository sit both at the
+# root and under Product-Description/.
+~$*
