@@ -160,6 +160,7 @@
   "auth.activate.unknownTitle": "Nous n'avons pas pu activer votre compte",
   "auth.activate.unknownBody": "Une erreur est survenue de notre côté. Veuillez réessayer dans un instant.",
   "header.currency": "Devise",
+  "header.shippingTo": "Commande depuis",
   "header.searchProducts": "Rechercher des produits",
   "header.account": "Compte",
   "header.cart": "Panier",

@@ -460,13 +460,13 @@ function CategoryStrip(): React.JSX.Element | null {
 function NewestProducts(): React.JSX.Element {
   const { t, language } = useI18n();
 
-  const { currency } = useLocale();
+  const { currency, country } = useLocale();
 
   const query = useQuery({
-    queryKey: ['products', { sort: 'newest', limit: 8, currency, language }],
+    queryKey: ['products', { sort: 'newest', limit: 8, currency, country, language }],
     queryFn: () =>
       api.get<ProductListResponse>('/catalog/products', {
-        query: { limit: 8, sort: 'newest', currency, language },
+        query: { limit: 8, sort: 'newest', currency, country: country ?? undefined, language },
       }),
   });
 

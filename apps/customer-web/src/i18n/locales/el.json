@@ -159,6 +159,7 @@
   "auth.activate.unknownTitle": "Δεν ήταν δυνατή η ενεργοποίηση του λογαριασμού σας",
   "auth.activate.unknownBody": "Κάτι πήγε στραβά από την πλευρά μας. Παρακαλούμε δοκιμάστε ξανά σε λίγο.",
   "header.currency": "Νόμισμα",
+  "header.shippingTo": "Παραγγελία από",
   "header.searchProducts": "Αναζήτηση προϊόντων",
   "header.account": "Λογαριασμός",
   "header.cart": "Καλάθι",

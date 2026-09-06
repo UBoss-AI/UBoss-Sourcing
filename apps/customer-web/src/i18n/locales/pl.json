@@ -161,6 +161,7 @@
   "auth.activate.unknownTitle": "Nie udało się aktywować konta",
   "auth.activate.unknownBody": "Coś poszło nie tak po naszej stronie. Spróbuj ponownie za chwilę.",
   "header.currency": "Waluta",
+  "header.shippingTo": "Zamawiam z",
   "header.searchProducts": "Szukaj produktów",
   "header.account": "Konto",
   "header.cart": "Koszyk",

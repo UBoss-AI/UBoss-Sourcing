@@ -574,14 +574,17 @@ export function CatalogPage(): React.JSX.Element {
     retry: false,
   });
 
-  const { currency } = useLocale();
+  const { currency, country } = useLocale();
   const { language } = useI18n();
 
   const products = useQuery({
     // `currency` is part of the key: the same filters in another market are a
     // different result set, because a product priced only in INR is simply not
-    // in the USD grid. `language` is part of it for a smaller reason - the
-    // names come back translated, so a cached English grid would be wrong.
+    // in the USD grid. `country` is part of it for a different reason — it does
+    // not change which products come back, it changes what they cost, because
+    // the destination's VAT is applied to every figure before it is sent.
+    // `language` is part of it for a smaller reason again — the names come back
+    // translated, so a cached English grid would be wrong.
     queryKey: [
       'products',
       {
@@ -597,6 +600,7 @@ export function CatalogPage(): React.JSX.Element {
         addedWithin,
         attrTokens,
         currency,
+        country,
         language,
       },
     ],
@@ -607,6 +611,7 @@ export function CatalogPage(): React.JSX.Element {
           limit: PAGE_SIZE,
           sort,
           currency,
+          country: country ?? undefined,
           language,
           q: q === '' ? undefined : q,
           category: category ?? undefined,
@@ -652,12 +657,17 @@ export function CatalogPage(): React.JSX.Element {
         onSaleOnly,
         addedWithin,
         currency,
+        country,
       },
     ],
     queryFn: () =>
       api.get<CatalogFilterFacets>('/catalog/filters', {
         query: {
           currency,
+          // The price range comes back in the shopper's own terms, so it has
+          // to be asked for in them: the same catalogue reads 100–500 in one
+          // member state and 104–520 in another.
+          country: country ?? undefined,
           q: q === '' ? undefined : q,
           category: category ?? undefined,
           minPrice: minPrice ?? undefined,

@@ -26,7 +26,14 @@ export function makeProduct(overrides: Partial<Product> = {}): Product {
     descriptionHtml: null,
     price: money('4550'),
     compareAtPrice: null,
-    tax: { code: 'GST18', name: 'GST 18%', ratePercent: '18', inclusive: false },
+    tax: {
+      code: 'GST18',
+      name: 'GST 18%',
+      ratePercent: '18',
+      inclusive: false,
+      country: null,
+      treatment: 'FLAT_RATE',
+    },
     purchaseRules: {
       minOrderQty: 10,
       maxOrderQty: null,

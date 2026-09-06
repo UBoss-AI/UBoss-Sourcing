@@ -30,7 +30,7 @@
  * where the gallery has just taken a full screen, the controls read as one
  * thing to work through rather than as four stacked fragments.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from '@/auth/session-context';
@@ -46,7 +46,7 @@ import { formatMoney, formatNumber } from '@/lib/format';
 import { SafeHtml } from '@/lib/safe-html';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { NotFoundPage } from './NotFoundPage';
-import type { Product, ProductDetailResponse, ProductVariant } from '@/lib/types';
+import type { Product, ProductDetailResponse, ProductVariant, TaxInfo } from '@/lib/types';
 import { ProductSafetyPanel } from '@/components/ProductSafetyPanel';
 import { ProductDevicePanel } from '@/components/ProductDevicePanel';
 import { useI18n } from '@/i18n/i18n-context';
@@ -215,6 +215,41 @@ interface OrderingFact {
 }
 
 /**
+ * The sentence under the price.
+ *
+ * The rate the server sends is the one it used, which in a deployment selling
+ * across the EU is the destination member state's rather than the tax class's
+ * own. Naming the country is the point: a shopper who has just switched from
+ * Germany to Ireland sees the number move, and "23% Irish VAT" is the
+ * difference between a price they trust and one they suspect.
+ *
+ * Where the supply carries no tax at all — an export, or a reverse charge —
+ * there is no country and no rate to name, so it says so plainly instead of
+ * printing "0%", which reads as a rounding error rather than as a rule.
+ */
+function taxLine(tax: TaxInfo, countryNames: ReadonlyMap<string, string>): string {
+  if (tax.country === null) {
+    if (tax.treatment === 'EXPORT') return 'No VAT is charged on deliveries outside the EU.';
+    if (tax.treatment === 'INTRA_EU_REVERSE_CHARGE') {
+      return 'No VAT is charged; you account for it under the reverse charge.';
+    }
+
+    return tax.inclusive
+      ? `Includes ${tax.ratePercent}% ${tax.code}.`
+      : `${tax.ratePercent}% ${tax.code} is added at checkout.`;
+  }
+
+  // The full name where the deployment has one for this country, the ISO code
+  // where it does not — never a bare code when a name is available, because
+  // "23% IE VAT" is a worse sentence than "23% Ireland VAT" for no reason.
+  const where = countryNames.get(tax.country) ?? tax.country;
+
+  return tax.inclusive
+    ? `Includes ${tax.ratePercent}% VAT (${where}).`
+    : `${tax.ratePercent}% VAT (${where}) is added at checkout.`;
+}
+
+/**
  * Ordering information — the purchase-confidence panel.
  *
  * Four facts at most, and every one of them is something the API already
@@ -248,7 +283,7 @@ function OrderingInformation({
     term: 'Tax',
     detail: product.tax.inclusive
       ? 'Included in the price shown.'
-      : `Added at checkout at ${product.tax.ratePercent}% ${product.tax.code}.`,
+      : `Added at checkout at ${product.tax.ratePercent}%.`,
   });
 
   const quantityParts: string[] = [];
@@ -331,13 +366,23 @@ export function ProductPage(): React.JSX.Element {
   const [quantity, setQuantity] = useState(1);
   const [addError, setAddError] = useState<string | null>(null);
 
-  const { currency } = useLocale();
+  const { currency, country, countries } = useLocale();
 
+  // For turning the ISO code the server names its rate country by into
+  // something readable. The list is already in context for the picker.
+  const countryNames = useMemo(
+    () => new Map(countries.map((entry) => [entry.code, entry.name])),
+    [countries],
+  );
+
+  // `country` sits in the key beside `currency`: it does not change which
+  // product comes back, it changes what it costs, because the server quotes
+  // the price under the destination's VAT rather than the seller's.
   const query = useQuery({
-    queryKey: ['product', slug, currency, language],
+    queryKey: ['product', slug, currency, country, language],
     queryFn: () =>
       api.get<ProductDetailResponse>(`/catalog/products/${String(slug)}`, {
-        query: { currency, language },
+        query: { currency, country: country ?? undefined, language },
       }),
     enabled: slug !== undefined,
     retry: false,
@@ -507,11 +552,7 @@ export function ProductPage(): React.JSX.Element {
               {hasDiscount && <Badge tone="action">{t('product.reducedPrice')}</Badge>}
             </p>
 
-            <p className="mt-1.5 text-sm text-ink-muted">
-              {product.tax.inclusive
-                ? `Includes ${product.tax.ratePercent}% ${product.tax.code}.`
-                : `${product.tax.ratePercent}% ${product.tax.code} is added at checkout.`}
-            </p>
+            <p className="mt-1.5 text-sm text-ink-muted">{taxLine(product.tax, countryNames)}</p>
 
             {selectedVariant?.price != null && (
               <p className="mt-1 text-xs text-ink-subtle">

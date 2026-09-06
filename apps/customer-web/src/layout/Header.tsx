@@ -187,6 +187,64 @@ function CurrencySwitcher(): React.JSX.Element | null {
   );
 }
 
+/**
+ * Where the shopper is ordering from.
+ *
+ * A separate control from the currency beside it, because they are separate
+ * questions with different answers: a Polish buyer paying in euro is ordinary,
+ * and so are Germany, the Netherlands and Ireland sharing one currency and
+ * charging 19%, 21% and 23% on the same box. The currency chooses which price
+ * list is read; this chooses what those figures become once the destination's
+ * tax is applied, and every price on the site is requoted the moment it
+ * changes.
+ *
+ * It lives in the header rather than only in the first-run picker because a
+ * location is not answered once and forever: people buy for a second site,
+ * ship to a different country, or simply want to see what an order would cost
+ * elsewhere before committing to it. A question that can only be answered once
+ * is a question that gets answered wrongly.
+ *
+ * Choosing a country adopts that country's default currency, which is what
+ * somebody selecting "Germany" means. The currency switcher next door is how
+ * they say otherwise, and it leaves the country alone.
+ */
+function LocationSwitcher(): React.JSX.Element | null {
+  const locale = useLocale();
+  const { t } = useI18n();
+
+  // Nothing to choose between. A single-market deployment gets no control, the
+  // same rule the currency switcher follows.
+  if (locale.countries.length < 2) return null;
+
+  return (
+    <label className="flex items-center">
+      <span className="sr-only">{t('header.shippingTo')}</span>
+      <select
+        // Empty while unanswered, so the placeholder shows rather than the
+        // control silently claiming a country the shopper never picked.
+        value={locale.country ?? ''}
+        onChange={(event) => {
+          void locale.choose(event.target.value);
+        }}
+        // Same skin as the currency control beside it — the two read as one
+        // pair of market settings, which is what they are.
+        className="select-chevron h-10 max-w-[9rem] truncate rounded-md border border-border-strong bg-surface pl-2.5 pr-7 text-xs font-medium text-ink"
+      >
+        {locale.country === null && (
+          <option value="" disabled>
+            {t('header.shippingTo')}
+          </option>
+        )}
+        {locale.countries.map((entry) => (
+          <option key={entry.code} value={entry.code}>
+            {entry.name}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 function CartLink(): React.JSX.Element {
   const { isCustomer } = useSession();
   const { t } = useI18n();
@@ -458,12 +516,14 @@ export function Header(): React.JSX.Element {
           </div>
 
           <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
-            {/* Language before currency: the two read as a pair of market
-                settings, and the one that decides whether the rest of the
-                header is legible belongs first. Both stay on the band at every
-                width for the same reason — folding either away on a phone
-                hides it from the person most likely to need it. */}
+            {/* Language, then location, then currency: the three read as a set
+                of market settings, ordered from the one that decides whether
+                the rest of the header is legible to the one that decides what
+                the numbers in it mean. All stay on the band at every width for
+                the same reason — folding any of them away on a phone hides it
+                from the person most likely to need it. */}
             <LanguageSwitcher placement="header" />
+            <LocationSwitcher />
             <CurrencySwitcher />
             <AccountMenu />
             <CartLink />

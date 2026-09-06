@@ -38,7 +38,12 @@ import {
   inStockCondition,
   outOfStockCondition,
 } from '../../modules/catalog/product-filters.js';
-import { getBaseCurrency, listActiveCurrencies } from '../../modules/settings/currency.service.js';
+import { loadShelfContext, quoteShelfPrice } from '../../modules/catalog/location-price.service.js';
+import {
+  getBaseCurrency,
+  listActiveCountries,
+  listActiveCurrencies,
+} from '../../modules/settings/currency.service.js';
 import { fetchRates } from '../../modules/settings/fx-rate.service.js';
 import {
   archiveProduct,
@@ -570,26 +575,52 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
   );
 
   /**
-   * Per-currency prices for one product.
+   * Per-currency prices for one product, and what a shopper pays for them.
    *
    * Returns every active currency, with the price where one exists and null
    * where it does not, so the editor can show the full grid rather than making
    * staff guess which markets are missing. A null is meaningful: the product is
    * simply not sold there.
+   *
+   * `?country=` adds the other half of the answer. The figure staff type is a
+   * price list entry; what a customer is charged is that figure after the
+   * destination's VAT, and in a business selling across the EU those two
+   * numbers differ by member state - 19% in Germany, 21% in the Netherlands,
+   * 23% in Ireland, on the same euro row. Staff pricing a market need to see
+   * the second number, and they need to see it from the same engine the
+   * storefront and the cart price through, or the preview is just a second
+   * opinion.
+   *
+   * Absent, or in a deployment with no EU VAT configured, `quoted` is the
+   * listed figure and nothing on the screen changes.
    */
   app.get(
     '/products/:id/prices',
     { preHandler: requireAdmin(Permission.PRODUCT_READ) },
     async (request, reply) => {
       const { id } = idParam.parse(request.params);
+      const { country } = z
+        .object({ country: z.string().trim().max(8).optional() })
+        .parse(request.query);
 
       const product = await prisma.product.findUnique({
         where: { id },
-        select: { id: true, name: true, sku: true },
+        select: {
+          id: true,
+          name: true,
+          sku: true,
+          taxClass: {
+            select: { code: true, ratePercent: true, isInclusive: true, vatCategory: true },
+          },
+        },
       });
       if (product === null) throw notFound('Product');
 
-      const currencies = await listActiveCurrencies();
+      const [currencies, shelf, countries] = await Promise.all([
+        listActiveCurrencies(),
+        loadShelfContext(country),
+        listActiveCountries(),
+      ]);
 
       const rows = await prisma.productPrice.findMany({
         where: { productId: id, variantKey: '' },
@@ -597,17 +628,38 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
       });
       const byCurrency = new Map(rows.map((row) => [row.currencyCode, row]));
 
+      const line = {
+        vatCategory: product.taxClass.vatCategory,
+        flatRatePercent: product.taxClass.ratePercent.toString(),
+        taxInclusive: product.taxClass.isInclusive,
+        productName: product.name,
+      };
+
       return reply.status(200).send({
-        product,
+        product: { id: product.id, name: product.name, sku: product.sku },
         baseCurrency: await getBaseCurrency(),
+        /** Where the preview column is quoted for. Null when none was asked for. */
+        country: shelf.country,
+        /** Countries staff can preview, so the picker does not hard-code a list. */
+        countries,
+        /** Which rate applies there and why, in a sentence, for the same reason. */
+        taxNote: shelf.setup.context.reason,
         prices: currencies.map((currency) => {
           const row = byCurrency.get(currency.code);
+          const quote =
+            row === undefined ? null : quoteShelfPrice(shelf.setup, line, row.basePriceMinor);
 
           return {
             currency,
             basePriceMinor: row?.basePriceMinor.toString() ?? null,
             compareAtPriceMinor: row?.compareAtPriceMinor?.toString() ?? null,
             price: row === undefined ? null : serialiseMoney(row.basePriceMinor, currency.code),
+            /** What a customer in `country` is charged for this row. */
+            quoted: quote === null ? null : serialiseMoney(quote.unitPriceMinor, currency.code),
+            quotedTax:
+              quote === null
+                ? null
+                : { ratePercent: quote.taxRatePercent, inclusive: quote.taxInclusive },
           };
         }),
       });

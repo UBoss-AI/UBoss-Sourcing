@@ -16,6 +16,16 @@
  * omitted from the listing, and its detail page says so rather than falling
  * back to another currency's number - that substitution would quote a JPY 5,000
  * item at USD 5,000.
+ *
+ * `?country=` is the second half of the same question and is asked separately,
+ * because a currency is not a location: Germany, the Netherlands and Ireland
+ * share the euro and charge 19%, 21% and 23% on the same box. The currency
+ * chooses the price list; the country decides what that figure becomes once the
+ * destination's VAT has been applied to it. Every price on the way out goes
+ * through `location-price.service`, which is the same `applyLineTax` the cart
+ * prices through - so the grid, the product page and the basket cannot quote
+ * three different numbers. In a deployment with no EU VAT configured that call
+ * returns the listed figure untouched.
  */
 import type { FastifyInstance } from 'fastify';
 import type { Prisma } from '../../generated/prisma/client.js';
@@ -34,6 +44,13 @@ import {
   listCategoryTree,
   subtreeCategoryIds,
 } from '../../modules/catalog/category.service.js';
+import {
+  loadShelfContext,
+  quoteShelfPrice,
+  toListed,
+  toQuoted,
+  type ShelfContext,
+} from '../../modules/catalog/location-price.service.js';
 import { loadPricesForCurrency, priceKey } from '../../modules/catalog/price.service.js';
 import {
   attributeConditions,
@@ -85,6 +102,19 @@ const filterQuerySchema = z.object({
   attr: z.union([z.string(), z.array(z.string())]).optional(),
   currency: z.string().trim().length(3).optional(),
   /**
+   * Where the shopper says they are, as ISO-3166 alpha-2.
+   *
+   * Not the same question as `currency`, and it is asked separately because
+   * the answers genuinely differ: Germany, the Netherlands and Ireland are one
+   * currency and three VAT rates. The currency decides which price list is
+   * read; the country decides what that figure becomes once the destination's
+   * tax is applied to it.
+   *
+   * Absent, unreadable, or in a deployment with no EU VAT configured, prices
+   * come back exactly as they are listed - see `location-price.service`.
+   */
+  country: z.string().trim().max(8).optional(),
+  /**
    * Which language to return product copy in.
    *
    * Sent by the storefront the same way `currency` is, and for the same
@@ -112,6 +142,8 @@ const listQuerySchema = filterQuerySchema.extend({
 
 const detailQuerySchema = z.object({
   currency: z.string().trim().length(3).optional(),
+  /** As on the listing: the destination whose VAT this price is quoted under. */
+  country: z.string().trim().max(8).optional(),
   language: z.string().trim().max(10).optional(),
 });
 
@@ -218,8 +250,29 @@ function serialiseProduct(
   currency: string,
   price: PricePair | null,
   variantPrices: Map<string, PricePair>,
+  shelf: ShelfContext,
 ): Record<string, unknown> {
   const primaryImage = product.media[0]?.media ?? null;
+
+  // What this product costs where the shopper says they are. Under FLAT_RATE -
+  // any deployment that has not configured EU VAT - `quote` hands back the
+  // listed figure and the tax class's own rate, so nothing below changes.
+  const line = {
+    vatCategory: product.taxClass.vatCategory,
+    flatRatePercent: product.taxClass.ratePercent.toString(),
+    taxInclusive: product.taxClass.isInclusive,
+    productName: product.name,
+  };
+
+  const quote = price === null ? null : quoteShelfPrice(shelf.setup, line, price.basePriceMinor);
+
+  // The strike-through follows the selling price. Leaving it at the listed
+  // figure would invent a saving in a low-VAT market and erase one in a
+  // high-VAT market, which is a claim about a discount that was never offered.
+  const compareAt =
+    price === null || price.compareAtPriceMinor === null
+      ? null
+      : quoteShelfPrice(shelf.setup, line, price.compareAtPriceMinor).unitPriceMinor;
 
   // Field by field, not row by row: a product whose Polish name is written but
   // whose Polish description is not shows the Polish name beside the English
@@ -246,17 +299,26 @@ function serialiseProduct(
     currency,
     /** False when the catalogue carries no price for this SKU in `currency`. */
     availableInCurrency: price !== null,
-    price: price === null ? null : serialiseMoney(price.basePriceMinor, currency),
-    compareAtPrice:
-      price === null || price.compareAtPriceMinor === null
-        ? null
-        : serialiseMoney(price.compareAtPriceMinor, currency),
+    price: quote === null ? null : serialiseMoney(quote.unitPriceMinor, currency),
+    compareAtPrice: compareAt === null ? null : serialiseMoney(compareAt, currency),
 
     tax: {
       code: product.taxClass.code,
       name: product.taxClass.name,
-      ratePercent: product.taxClass.ratePercent.toString(),
-      inclusive: product.taxClass.isInclusive,
+      /**
+       * The destination's rate, not the tax class's own.
+       *
+       * These two are the same figure in every deployment that has not
+       * configured EU VAT, and they diverge the moment one has: the class says
+       * what band the product is in, the destination member state says what
+       * that band costs. The storefront prints this beside the price, so it has
+       * to be the rate that produced the price.
+       */
+      ratePercent: quote?.taxRatePercent ?? product.taxClass.ratePercent.toString(),
+      inclusive: quote?.taxInclusive ?? product.taxClass.isInclusive,
+      /** ISO country whose rate was applied, or null where none was. */
+      country: shelf.setup.context.rateCountry,
+      treatment: shelf.setup.context.treatment,
     },
 
     purchaseRules: {
@@ -344,13 +406,21 @@ function serialiseProduct(
     variants: product.variants.map((variant) => {
       const variantPrice = variantPrices.get(priceKey(product.id, variant.id)) ?? price;
 
+      // Quoted through the same destination as the base price. A variant left
+      // at its listed figure would jump when the shopper picked it, after the
+      // page had already shown them a location-adjusted price for the product.
+      const variantQuote =
+        variantPrice === null
+          ? null
+          : quoteShelfPrice(shelf.setup, line, variantPrice.basePriceMinor);
+
       return {
         id: variant.id,
         sku: variant.sku,
         name: variant.name,
         options: variant.optionsJson,
         availableInCurrency: variantPrice !== null,
-        price: variantPrice === null ? null : serialiseMoney(variantPrice.basePriceMinor, currency),
+        price: variantQuote === null ? null : serialiseMoney(variantQuote.unitPriceMinor, currency),
       };
     }),
 
@@ -451,10 +521,18 @@ function priceWhereFor(
   query: FilterQuery,
   currency: string,
   productWhere: Prisma.ProductWhereInput,
+  shelf: ShelfContext,
   options: { applyBounds: boolean } = { applyBounds: true },
 ): Prisma.ProductPriceWhereInput {
   const bounded =
     options.applyBounds && (query.minPrice !== undefined || query.maxPrice !== undefined);
+
+  // The bounds arrive in the shopper's terms - they were typed against the
+  // prices on screen, which are quoted for their country. The column holds the
+  // listed figure, so they are converted back before they meet it. Without
+  // this, a shopper in Ireland caps the grid at 100 and gets back items the
+  // same response then displays at 104.
+  const toColumn = (amount: number): bigint => toListed(BigInt(amount), shelf.scale);
 
   return {
     currencyCode: currency,
@@ -465,8 +543,8 @@ function priceWhereFor(
     ...(bounded
       ? {
           basePriceMinor: {
-            ...(query.minPrice !== undefined ? { gte: BigInt(query.minPrice) } : {}),
-            ...(query.maxPrice !== undefined ? { lte: BigInt(query.maxPrice) } : {}),
+            ...(query.minPrice !== undefined ? { gte: toColumn(query.minPrice) } : {}),
+            ...(query.maxPrice !== undefined ? { lte: toColumn(query.maxPrice) } : {}),
           },
         }
       : {}),
@@ -502,6 +580,7 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
     const query = listQuerySchema.parse(request.query);
     const currency = await currencyForRequest(query.currency);
     const language = languageForRequest(query.language);
+    const shelf = await loadShelfContext(query.country);
 
     const { productWhere, unknownCategory } = await resolveFilters(query, language, {
       includeAttributes: true,
@@ -514,13 +593,14 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
       return reply.status(200).send({
         products: [],
         currency,
+        country: shelf.country,
         pagination: { page: query.page, limit: query.limit, total: 0, totalPages: 0 },
       });
     }
 
     // Rooted at the price row for this currency, so the filter and the sort
     // both operate on the amount the shopper is actually shown.
-    const where = priceWhereFor(query, currency, productWhere);
+    const where = priceWhereFor(query, currency, productWhere, shelf);
 
     const [rows, total] = await Promise.all([
       prisma.productPrice.findMany({
@@ -559,9 +639,12 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
             compareAtPriceMinor: row.compareAtPriceMinor,
           },
           variantPrices,
+          shelf,
         ),
       ),
       currency,
+      /** The destination these prices were quoted for. Null when none was given. */
+      country: shelf.country,
       pagination: {
         page: query.page,
         limit: query.limit,
@@ -594,6 +677,7 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
     const query = filterQuerySchema.parse(request.query);
     const currency = await currencyForRequest(query.currency);
     const language = languageForRequest(query.language);
+    const shelf = await loadShelfContext(query.country);
 
     const { productWhere, unknownCategory } = await resolveFilters(query, language, {
       includeAttributes: false,
@@ -602,7 +686,12 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
     if (unknownCategory) {
       return reply
         .status(200)
-        .send({ currency, priceRange: { min: null, max: null }, attributes: [] });
+        .send({
+          currency,
+          country: shelf.country,
+          priceRange: { min: null, max: null },
+          attributes: [],
+        });
     }
 
     const scopedProductWhere: Prisma.ProductWhereInput = {
@@ -613,12 +702,12 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
       // panel that filters the grid down to nothing, and a count taken without
       // the price bounds would promise twelve results under a maximum of 1,000
       // that the grid then shows three of.
-      prices: { some: priceWhereFor(query, currency, {}) },
+      prices: { some: priceWhereFor(query, currency, {}, shelf) },
     };
 
     const [range, facets] = await Promise.all([
       prisma.productPrice.aggregate({
-        where: priceWhereFor(query, currency, productWhere, { applyBounds: false }),
+        where: priceWhereFor(query, currency, productWhere, shelf, { applyBounds: false }),
         _min: { basePriceMinor: true },
         _max: { basePriceMinor: true },
       }),
@@ -627,15 +716,19 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
 
     return reply.status(200).send({
       currency,
+      country: shelf.country,
+      // Forward into the shopper's terms, because the boxes this fills sit
+      // beside the grid and are typed against the prices in it. The reverse of
+      // what `priceWhereFor` does to the bounds on the way in.
       priceRange: {
         min:
           range._min.basePriceMinor === null
             ? null
-            : serialiseMoney(range._min.basePriceMinor, currency),
+            : serialiseMoney(toQuoted(range._min.basePriceMinor, shelf.scale), currency),
         max:
           range._max.basePriceMinor === null
             ? null
-            : serialiseMoney(range._max.basePriceMinor, currency),
+            : serialiseMoney(toQuoted(range._max.basePriceMinor, shelf.scale), currency),
       },
       attributes: facets,
     });
@@ -646,6 +739,7 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
     const query = detailQuerySchema.parse(request.query);
     const currency = await currencyForRequest(query.currency);
     const language = languageForRequest(query.language);
+    const shelf = await loadShelfContext(query.country);
 
     const product = await prisma.product.findFirst({
       where: { ...publicProductWhere(), slug },
@@ -685,8 +779,19 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
         : [];
 
     return reply.status(200).send({
-      product: serialiseProduct(product, currency, base, prices),
+      product: serialiseProduct(product, currency, base, prices, shelf),
       currency,
+      country: shelf.country,
+      /**
+       * Why this price is what it is, in a sentence.
+       *
+       * The product page is where somebody notices that the same box costs
+       * more than it did before they switched country, and "19% German VAT
+       * applies" is the difference between a trusted price and a suspected
+       * one. Under FLAT_RATE this says no VAT country is configured, which is
+       * true and which no storefront in that deployment renders.
+       */
+      taxNote: shelf.setup.context.reason,
       soldInCurrencies: soldIn,
     });
   });

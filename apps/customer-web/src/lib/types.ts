@@ -169,8 +169,18 @@ export interface ProductVariant {
 export interface TaxInfo {
   code: string;
   name: string;
+  /**
+   * The rate that produced the price beside it — the destination member
+   * state's, where one applies, and the tax class's own flat percentage
+   * otherwise. Not a figure to recompute a price from: the server has already
+   * applied it.
+   */
   ratePercent: string;
   inclusive: boolean;
+  /** ISO country whose rate was applied, or null where none was. */
+  country: string | null;
+  /** Why: DOMESTIC, INTRA_EU_B2C, EXPORT, INTRA_EU_REVERSE_CHARGE, FLAT_RATE. */
+  treatment: string;
 }
 
 export interface Product {
@@ -284,6 +294,8 @@ export interface ProductListResponse {
   pagination: Pagination;
   /** The currency every price in this response is quoted in. */
   currency: string;
+  /** The destination every price in it was quoted for. Null when none was sent. */
+  country: string | null;
 }
 
 /**
@@ -299,7 +311,14 @@ export interface ProductListResponse {
  */
 export interface CatalogFilterFacets {
   currency: string;
-  /** What the catalogue holds, ignoring the price boxes. Null when empty. */
+  country: string | null;
+  /**
+   * What the catalogue holds, ignoring the price boxes. Null when empty.
+   *
+   * Quoted for the destination, like the grid beside it — the same catalogue
+   * reads 100–500 in one member state and 104–520 in another, and a range that
+   * did not move with the prices would bound the boxes wrongly.
+   */
   priceRange: { min: Money | null; max: Money | null };
   attributes: { name: string; values: { value: string; count: number }[] }[];
 }
@@ -307,6 +326,13 @@ export interface CatalogFilterFacets {
 export interface ProductDetailResponse {
   product: Product;
   currency: string;
+  country: string | null;
+  /**
+   * Why the price is what it is, in a sentence — which country's VAT applies
+   * and on what basis. Worth showing when the shopper has just changed market
+   * and the number moved.
+   */
+  taxNote: string;
   /**
    * Currencies this product IS sold in, when it is not sold in the requested
    * one. Lets the page offer a switch instead of just saying "unavailable".

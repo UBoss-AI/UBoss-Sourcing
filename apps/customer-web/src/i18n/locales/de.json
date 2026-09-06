@@ -159,6 +159,7 @@
   "auth.activate.unknownTitle": "Wir konnten Ihr Konto nicht aktivieren",
   "auth.activate.unknownBody": "Auf unserer Seite ist etwas schiefgelaufen. Bitte versuchen Sie es gleich noch einmal.",
   "header.currency": "Währung",
+  "header.shippingTo": "Bestellung aus",
   "header.searchProducts": "Produkte suchen",
   "header.account": "Konto",
   "header.cart": "Warenkorb",

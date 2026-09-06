@@ -71,7 +71,14 @@ const PRODUCT: Product = {
   descriptionHtml: null,
   price: money('12500'),
   compareAtPrice: null,
-  tax: { code: 'GST18', name: 'GST 18%', ratePercent: '18', inclusive: false },
+  tax: {
+    code: 'GST18',
+    name: 'GST 18%',
+    ratePercent: '18',
+    inclusive: false,
+    country: null,
+    treatment: 'FLAT_RATE',
+  },
   purchaseRules: {
     minOrderQty: 1,
     maxOrderQty: null,

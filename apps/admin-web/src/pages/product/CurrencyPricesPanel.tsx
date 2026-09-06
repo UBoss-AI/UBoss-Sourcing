@@ -11,13 +11,22 @@
  *
  * The base-currency row is the same figure as the Pricing card above; saving
  * here updates both, so they cannot disagree.
+ *
+ * Beside each figure sits what a customer actually pays for it, for whichever
+ * country is picked at the top. The two are not the same number and the gap is
+ * the whole reason the picker is here: a euro row priced at 100 is 119 to a
+ * German consumer, 121 to a Dutch one and 123 to an Irish one, because the
+ * destination member state's VAT is what the storefront quotes. The preview
+ * comes back from the same pricing engine the shop and the cart run on, so
+ * what staff read here is what a shopper is charged - not a second opinion
+ * computed in the browser, which would eventually disagree with both.
  */
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/toast-context';
-import { Badge, Button, Callout, Card, Input, LoadingState } from '@/components/ui';
+import { Badge, Button, Callout, Card, Input, LoadingState, Select } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
-import { majorToMinor, minorToMajor } from '@/lib/format';
+import { formatMoney, majorToMinor, minorToMajor } from '@/lib/format';
 import { useI18n } from '@/i18n/i18n-context';
 
 interface CurrencyRow {
@@ -28,15 +37,28 @@ interface CurrencyRow {
   isBase: boolean;
 }
 
+interface Money {
+  minor: string;
+  formatted: string;
+  currency: string;
+}
+
 interface PriceRow {
   currency: CurrencyRow;
   basePriceMinor: string | null;
   compareAtPriceMinor: string | null;
+  /** What a customer in the selected country is charged. Null where unpriced. */
+  quoted: Money | null;
+  quotedTax: { ratePercent: string; inclusive: boolean } | null;
 }
 
 interface PricesResponse {
   product: { id: string; name: string; sku: string };
   baseCurrency: string;
+  country: string | null;
+  countries: { code: string; name: string; currencyCode: string }[];
+  /** Which rate applies where, and on what basis, in one sentence. */
+  taxNote: string;
   prices: PriceRow[];
 }
 
@@ -60,9 +82,25 @@ export function CurrencyPricesPanel({
   const [draft, setDraft] = useState<Record<string, DraftRow>>({});
   const [error, setError] = useState<string | null>(null);
 
+  /**
+   * Which market the preview column is quoted for.
+   *
+   * Empty means "not stated", which the server reads the way it reads a
+   * shopper who has not given a delivery address yet: the seller's own
+   * country. That is the honest default - it is what the storefront shows
+   * somebody who has not said where they are - rather than picking a member
+   * state on staff's behalf and letting them read its rate as universal.
+   */
+  const [country, setCountry] = useState('');
+
   const prices = useQuery({
-    queryKey: ['product-prices', productId],
-    queryFn: () => api.get<PricesResponse>(`/admin/products/${productId}/prices`),
+    // `country` is in the key because it changes the response: the same rows
+    // come back with a different `quoted` figure against each.
+    queryKey: ['product-prices', productId, country],
+    queryFn: () =>
+      api.get<PricesResponse>(`/admin/products/${productId}/prices`, {
+        query: { country: country === '' ? undefined : country },
+      }),
   });
 
   useEffect(() => {
@@ -150,6 +188,21 @@ export function CurrencyPricesPanel({
   const rows = prices.data?.prices ?? [];
   const soldIn = rows.filter((row) => (draft[row.currency.code]?.price.trim() ?? '') !== '').length;
 
+  const countries = prices.data?.countries ?? [];
+
+  /**
+   * Whether the preview column is worth showing at all.
+   *
+   * In a deployment with no EU VAT configured every quoted figure equals its
+   * listed one, and a column repeating the number next to it is noise on a
+   * screen that is already a grid of inputs. It appears when it has something
+   * to say - which is exactly when a business has more than one market to say
+   * it about.
+   */
+  const showsQuoted = rows.some(
+    (row) => row.quoted !== null && row.quoted.minor !== row.basePriceMinor,
+  );
+
   return (
     <Card
       title={t('currencyPrices.pricesByCurrency')}
@@ -173,11 +226,37 @@ export function CurrencyPricesPanel({
           <LoadingState label={t('currencyPrices.loadingPrices')} />
         ) : (
           <>
-            <div className="mb-3 flex items-center gap-2">
+            <div className="mb-3 flex flex-wrap items-center gap-3">
               <Badge dot tone={soldIn === 0 ? 'warning' : 'success'}>
                 Sold in {soldIn} of {rows.length} currencies
               </Badge>
+
+              {countries.length > 0 && (
+                <label className="flex items-center gap-2 text-xs text-ink-muted">
+                  <span>Customer in</span>
+                  <Select
+                    className="h-8 w-48 text-xs"
+                    value={country}
+                    onChange={(event) => {
+                      setCountry(event.target.value);
+                    }}
+                  >
+                    <option value="">Nowhere stated yet</option>
+                    {countries.map((entry) => (
+                      <option key={entry.code} value={entry.code}>
+                        {entry.name}
+                      </option>
+                    ))}
+                  </Select>
+                </label>
+              )}
             </div>
+
+            {showsQuoted && prices.data !== undefined && (
+              <Callout tone="info" className="mb-3">
+                {prices.data.taxNote}
+              </Callout>
+            )}
 
             <div className="overflow-x-auto">
               <table className="w-full min-w-[32rem] text-sm">
@@ -196,6 +275,11 @@ export function CurrencyPricesPanel({
                     <th scope="col" className="px-3 py-2.5">
                       {t('currencyPrices.compareAt')}
                     </th>
+                    {showsQuoted && (
+                      <th scope="col" className="px-3 py-2.5">
+                        Customer pays
+                      </th>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
@@ -251,6 +335,30 @@ export function CurrencyPricesPanel({
                           }}
                         />
                       </td>
+                      {showsQuoted && (
+                        // Read-only, and deliberately so: this is what the
+                        // pricing engine makes of the figure to its left, not
+                        // a second place to type one. Editing here would mean
+                        // storing a price with VAT baked in at one country's
+                        // rate, which is the exact confusion the per-currency
+                        // list exists to avoid.
+                        <td className="px-3 py-2 tabular text-ink">
+                          {row.quoted === null ? (
+                            <span className="text-ink-subtle">—</span>
+                          ) : (
+                            <>
+                              <span className="font-medium">{formatMoney(row.quoted)}</span>
+                              {row.quotedTax !== null && (
+                                <span className="ml-2 text-xs text-ink-muted">
+                                  {row.quotedTax.inclusive
+                                    ? `incl. ${row.quotedTax.ratePercent}%`
+                                    : `+ ${row.quotedTax.ratePercent}%`}
+                                </span>
+                              )}
+                            </>
+                          )}
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>

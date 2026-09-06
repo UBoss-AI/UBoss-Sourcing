@@ -154,7 +154,17 @@ const PUBLIC_PRODUCT_SELECT_BASE = {
       translations: { select: { name: true }, take: 1 },
     },
   },
-  taxClass: { select: { code: true, name: true, ratePercent: true, isInclusive: true } },
+  taxClass: {
+    select: {
+      code: true,
+      name: true,
+      ratePercent: true,
+      isInclusive: true,
+      // The EU band, so a public price can be quoted at the destination member
+      // state's rate rather than at whatever the class's flat percentage says.
+      vatCategory: true,
+    },
+  },
   media: {
     select: {
       sortOrder: true,

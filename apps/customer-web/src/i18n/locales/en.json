@@ -159,6 +159,7 @@
   "auth.activate.unknownTitle": "We could not activate your account",
   "auth.activate.unknownBody": "Something went wrong at our end. Please try again in a moment.",
   "header.currency": "Currency",
+  "header.shippingTo": "Ordering from",
   "header.searchProducts": "Search products",
   "header.account": "Account",
   "header.cart": "Basket",

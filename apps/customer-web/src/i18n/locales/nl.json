@@ -159,6 +159,7 @@
   "auth.activate.unknownTitle": "Wij konden uw account niet activeren",
   "auth.activate.unknownBody": "Er is iets misgegaan aan onze kant. Probeer het over een moment opnieuw.",
   "header.currency": "Valuta",
+  "header.shippingTo": "Bestellen vanuit",
   "header.searchProducts": "Producten zoeken",
   "header.account": "Account",
   "header.cart": "Winkelmandje",

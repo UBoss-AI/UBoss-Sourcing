@@ -23,6 +23,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { useLocale } from '@/app/locale-context';
 import { useStorefront } from '@/app/storefront-context';
 import { AddressForm } from '@/components/AddressForm';
 import { QuantityInput } from '@/components/QuantityInput';
@@ -100,6 +101,8 @@ export function ScheduleBuilderPage(): React.JSX.Element {
 
   useDocumentMeta({ title: 'Set up a repeat purchase', noIndex: true }, business.displayName);
 
+  const { currency, country } = useLocale();
+
   // --- Sources -------------------------------------------------------------
 
   const cart = useQuery({
@@ -109,12 +112,17 @@ export function ScheduleBuilderPage(): React.JSX.Element {
   });
 
   const product = useQuery({
-    queryKey: ['product-by-id', productId],
+    queryKey: ['product-by-id', productId, currency, country],
     queryFn: async () => {
       // The public detail route is keyed by slug, so the id is resolved
       // through a search rather than guessing a slug.
+      //
+      // Priced for the shopper's own market, like every other catalogue read:
+      // the figure below is shown as the unit price of the schedule they are
+      // about to set up, and quoting it from the base market would show one
+      // number here and charge another on the first occurrence.
       const found = await api.get<{ products: Product[] }>('/catalog/products', {
-        query: { limit: 60 },
+        query: { limit: 60, currency, country: country ?? undefined },
       });
 
       const match = found.products.find((candidate) => candidate.id === productId);

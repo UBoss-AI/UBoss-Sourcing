@@ -216,14 +216,23 @@ const OPERATIONS: Readonly<Record<string, OperationDoc>> = Object.freeze({
     summary: 'List published products',
     description:
       'Only Active + Published products in an active category. Sorting always ends with `id`, ' +
-      'so pagination is stable.',
+      'so pagination is stable.\n\n' +
+      '`?currency=` chooses the price list and `?country=` (ISO-3166 alpha-2) chooses the tax ' +
+      'position: the same euro row is quoted differently in Germany, the Netherlands and ' +
+      'Ireland, and zero-rated to a destination outside the EU. `minPrice`/`maxPrice` are read ' +
+      'in the same terms the prices come back in. An unreadable country is ignored rather than ' +
+      'rejected; where the deployment has no EU VAT configured, prices are the listed figures.',
     tags: ['Catalog (Public)'],
     auth: 'none',
     responses: { '200': ok(ref('ProductListResponse')) },
   },
   'GET /api/v1/catalog/products/:slug': {
     summary: 'Product detail',
-    description: 'An unpublished product returns 404, indistinguishable from a missing one.',
+    description:
+      'An unpublished product returns 404, indistinguishable from a missing one.\n\n' +
+      'Takes the same `?currency=` and `?country=` as the listing, and prices identically — ' +
+      'a shopper clicking a card must not watch the price change. `taxNote` states which ' +
+      "country's VAT was applied and on what basis.",
     tags: ['Catalog (Public)'],
     auth: 'none',
     responses: { '200': ok(ref('ProductDetailResponse')), '404': ok(ref('ErrorEnvelope')) },
@@ -1164,12 +1173,23 @@ const SCHEMAS: Readonly<Record<string, unknown>> = Object.freeze({
     properties: {
       products: { type: 'array', items: ref('PublicProduct') },
       pagination: ref('Pagination'),
+      currency: { type: 'string', example: 'EUR' },
+      /** The destination every price in the response was quoted for. */
+      country: { type: 'string', nullable: true, example: 'DE' },
     },
   },
 
   ProductDetailResponse: {
     type: 'object',
-    properties: { product: ref('PublicProduct') },
+    properties: {
+      product: ref('PublicProduct'),
+      currency: { type: 'string', example: 'EUR' },
+      country: { type: 'string', nullable: true, example: 'DE' },
+      taxNote: {
+        type: 'string',
+        description: "Which country's VAT applies to this price, and why.",
+      },
+    },
   },
 
   CreateProductRequest: {

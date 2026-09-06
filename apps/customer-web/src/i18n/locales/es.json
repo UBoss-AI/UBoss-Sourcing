@@ -160,6 +160,7 @@
   "auth.activate.unknownTitle": "No hemos podido activar su cuenta",
   "auth.activate.unknownBody": "Algo ha fallado por nuestra parte. Vuelva a intentarlo en un momento.",
   "header.currency": "Moneda",
+  "header.shippingTo": "Pedido desde",
   "header.searchProducts": "Buscar productos",
   "header.account": "Cuenta",
   "header.cart": "Cesta",
