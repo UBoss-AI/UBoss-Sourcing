@@ -57,6 +57,13 @@ interface ListResponse {
   taxNote: string;
 }
 
+interface VariantRow {
+  sku: string;
+  priceMinor: string | null;
+  quotedMinor: string | null;
+  quotedTax: { ratePercent: string; inclusive: boolean } | null;
+}
+
 interface PricesResponse {
   country: string | null;
   taxNote: string;
@@ -84,6 +91,32 @@ async function row(country?: string): Promise<ListRow> {
 
   if (match === undefined) throw new Error(`${SKU} was not in the admin listing`);
   return match;
+}
+
+async function variants(country?: string): Promise<VariantRow[]> {
+  const response = await app.inject({
+    method: 'GET',
+    url: `/api/v1/admin/products/${productId}/variants${country === undefined ? '' : `?country=${country}`}`,
+    headers: { cookie: cookies },
+  });
+
+  expect(response.statusCode, response.body).toBe(200);
+  return response.json<{ variants: VariantRow[] }>().variants;
+}
+
+/** A variant with a price of its own, listed in the seller's own terms. */
+async function makeVariant(sku: string, listedMinor: bigint | null): Promise<void> {
+  await prisma.productVariant.create({
+    data: {
+      id: newId(),
+      productId,
+      sku,
+      name: sku,
+      optionsJson: { Pack: sku },
+      priceMinor: listedMinor,
+      isActive: true,
+    },
+  });
 }
 
 async function prices(country: string): Promise<PricesResponse> {
@@ -344,6 +377,45 @@ describe('the product list, quoted for a market', () => {
     expect(panel.country).toBe('DE');
   });
 
+  it('quotes a variant’s own price at the destination’s rate', async () => {
+    // EUR 242 is EUR 200 plus the seller's 21%.
+    await makeVariant('GLV-ADMIN-100-L', 24_200n);
+
+    const [variant] = await variants('DE');
+
+    // EUR 200 net at German 19%. A variant left at its listed figure would
+    // jump the moment a shopper picked it, after the page had already quoted
+    // them a German price for the product.
+    expect(variant?.priceMinor).toBe('24200');
+    expect(variant?.quotedMinor).toBe('23800');
+    expect(variant?.quotedTax).toMatchObject({ ratePercent: '19', inclusive: true });
+  });
+
+  it('quotes nothing for a variant that has no price of its own', async () => {
+    await makeVariant('GLV-ADMIN-100-M', null);
+
+    const [variant] = await variants('DE');
+
+    // It is sold at the product's price, whose quote is on the same screen a
+    // card above. Repeating it here would read as an override that does not
+    // exist - which is a price somebody would then go looking for.
+    expect(variant?.priceMinor).toBeNull();
+    expect(variant?.quotedMinor).toBeNull();
+    expect(variant?.quotedTax).toBeNull();
+  });
+
+  it('quotes a variant the same way it quotes the product it belongs to', async () => {
+    // Same listed figure on both, so a difference between them can only be
+    // the two paths disagreeing. The variant editor and the price card sit on
+    // one screen; a shopper switching option should see no jump either.
+    await makeVariant('GLV-ADMIN-100-S', 12_100n);
+
+    const [variant] = await variants('DE');
+    const listed = await row('DE');
+
+    expect(variant?.quotedMinor).toBe(listed.quoted.minor);
+  });
+
   it('leaves a catalogue authored net of tax at its listed figure', async () => {
     // An exclusive class: the listed figure is already net, so there is no
     // tax to put back in. What changes is the rate quoted beside it, which is
@@ -379,6 +451,15 @@ describe('a deployment with no EU VAT configured', () => {
     });
 
     await makeCatalogue({ inclusive: false, vatCategory: null });
+  });
+
+  it('leaves a variant override at its listed figure too', async () => {
+    await makeVariant('GST-1-L', 20_000n);
+
+    const [variant] = await variants('DE');
+
+    expect(variant?.quotedMinor).toBe('20000');
+    expect(variant?.quotedTax).toMatchObject({ ratePercent: '18', inclusive: false });
   });
 
   it('quotes every row at its listed figure, country or no country', async () => {

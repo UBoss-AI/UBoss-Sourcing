@@ -925,12 +925,24 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
     sortOrder: z.number().int().min(0).max(10_000).optional(),
   });
 
+  /**
+   * Variants, with what each override costs a customer in `?country=`.
+   *
+   * The same query parameter and the same engine as the product list and the
+   * per-currency card, because a variant price is a shelf price: the market
+   * chosen in the console's header has to reach all three, or one screen
+   * quotes Germany while the next quotes the seller's own country.
+   */
   app.get(
     '/products/:id/variants',
     { preHandler: requireAdmin(Permission.PRODUCT_READ) },
     async (request, reply) => {
       const { id } = idParam.parse(request.params);
-      return reply.status(200).send({ variants: await listVariants(id) });
+      const { country } = z
+        .object({ country: z.string().trim().max(8).optional() })
+        .parse(request.query);
+
+      return reply.status(200).send({ variants: await listVariants(id, country) });
     },
   );
 

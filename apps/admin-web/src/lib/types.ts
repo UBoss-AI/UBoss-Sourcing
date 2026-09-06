@@ -180,7 +180,17 @@ export interface VariantRow {
   sku: string;
   name: string;
   options: Record<string, string>;
+  /** The variant's own price. Null means the product's price applies. */
   priceMinor: string | null;
+  /**
+   * What a customer in the requested market pays for that override.
+   *
+   * Null where the variant has none - it is sold at the product's price, and
+   * that figure is quoted on the price card above rather than repeated here.
+   */
+  quotedMinor: string | null;
+  /** The rate that produced `quotedMinor`, and whether it is inside it. */
+  quotedTax: { ratePercent: string; inclusive: boolean } | null;
   isActive: boolean;
   sortOrder: number;
   archivedAt: string | null;

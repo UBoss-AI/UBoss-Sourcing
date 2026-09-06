@@ -14,6 +14,7 @@ import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.j
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
+import { loadShelfContext, quoteShelfPrice } from './location-price.service.js';
 
 export interface VariantActor {
   userId: string;
@@ -61,19 +62,68 @@ function parseMinor(value: string, field: string): bigint {
   return BigInt(value.trim());
 }
 
-export async function listVariants(productId: string): Promise<Record<string, unknown>[]> {
-  const rows = await prisma.productVariant.findMany({
-    where: { productId },
-    orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
-    include: {
-      _count: { select: { orderItems: true } },
-      inventoryBalances: { select: { onHandQty: true, reservedQty: true } },
-    },
-  });
+/**
+ * Every variant of one product, priced for one market.
+ *
+ * `country` is what a customer's location does to a variant's own price. An
+ * override is a shelf price like any other, so the storefront quotes it at the
+ * destination's rate - a "Pack of 12" left at its listed figure while the
+ * product above it was quoted for Germany would jump the moment a shopper
+ * picked it. The console has to be able to read the same number staff are
+ * charging, and read it from the same engine.
+ *
+ * Only overrides are quoted. A variant with no price of its own is sold at the
+ * product's, whose quote is on the same screen a card above, and a figure
+ * repeated here would read as an override that does not exist. The tax class
+ * is the product's either way: a variant is a form of the thing, not a
+ * different supply.
+ */
+export async function listVariants(
+  productId: string,
+  requestedCountry?: string | null,
+): Promise<Record<string, unknown>[]> {
+  const [rows, product, shelf] = await Promise.all([
+    prisma.productVariant.findMany({
+      where: { productId },
+      orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
+      include: {
+        _count: { select: { orderItems: true } },
+        inventoryBalances: { select: { onHandQty: true, reservedQty: true } },
+      },
+    }),
+    // Not `findUniqueOrThrow`: a missing product has always answered this
+    // route with an empty list rather than a 404, and quoting is not the
+    // change that should start throwing.
+    prisma.product.findUnique({
+      where: { id: productId },
+      select: {
+        name: true,
+        taxClass: { select: { ratePercent: true, isInclusive: true, vatCategory: true } },
+      },
+    }),
+    // Once for the whole list. Every variant of one product shares its tax
+    // class, so there is exactly one tax question to ask here.
+    loadShelfContext(requestedCountry),
+  ]);
+
+  const line =
+    product === null
+      ? null
+      : {
+          vatCategory: product.taxClass.vatCategory,
+          flatRatePercent: product.taxClass.ratePercent.toString(),
+          taxInclusive: product.taxClass.isInclusive,
+          productName: product.name,
+        };
 
   return rows.map((row) => {
     const onHand = row.inventoryBalances.reduce((total, balance) => total + balance.onHandQty, 0);
     const reserved = row.inventoryBalances.reduce((total, balance) => total + balance.reservedQty, 0);
+
+    const quote =
+      line === null || row.priceMinor === null
+        ? null
+        : quoteShelfPrice(shelf.setup, line, row.priceMinor);
 
     return {
       id: row.id,
@@ -81,6 +131,17 @@ export async function listVariants(productId: string): Promise<Record<string, un
       name: row.name,
       options: row.optionsJson,
       priceMinor: row.priceMinor?.toString() ?? null,
+      /**
+       * What a customer in `country` pays for that override. Null where the
+       * variant has none, and equal to `priceMinor` wherever location moves no
+       * price - no EU VAT configured, or a market on the seller's own rate.
+       */
+      quotedMinor: quote?.unitPriceMinor.toString() ?? null,
+      /** The rate that produced it, and whether it is inside the figure. */
+      quotedTax:
+        quote === null
+          ? null
+          : { ratePercent: quote.taxRatePercent, inclusive: quote.taxInclusive },
       isActive: row.isActive,
       sortOrder: row.sortOrder,
       archivedAt: row.archivedAt?.toISOString() ?? null,

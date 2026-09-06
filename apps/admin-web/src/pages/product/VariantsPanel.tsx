@@ -10,12 +10,20 @@
  *   - **Delete is not always delete.** A variant that has been ordered is
  *     archived, because order history references it. The confirm dialog says
  *     which will happen, using the order count the list already returns.
+ *
+ * A variant's own price is a shelf price, so beside it sits what a customer in
+ * the market chosen in the header actually pays for it - the same preview the
+ * product list and the per-currency card show, from the same engine. Rows that
+ * inherit the product's price get no figure: that one is quoted on the price
+ * card above, and repeating it here would read as an override that does not
+ * exist.
  */
 import { useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
+import { useMarket } from '@/app/market-context';
 import { useSession } from '@/auth/session-context';
 import { DataTable } from '@/components/DataTable';
 import type { Column } from '@/components/DataTable';
@@ -275,9 +283,17 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
   const [editorFor, setEditorFor] = useState<VariantRow | null | undefined>(undefined);
   const [removing, setRemoving] = useState<VariantRow | null>(null);
 
+  /** Which market the preview column is quoted for, from the panel's header. */
+  const { country } = useMarket();
+
   const query = useQuery({
-    queryKey: ['variants', productId],
-    queryFn: () => api.get<{ variants: VariantRow[] }>(`/admin/products/${productId}/variants`),
+    // `country` is in the key because it changes the response, and because it
+    // is what requotes this table when the market in the header moves.
+    queryKey: ['variants', productId, country],
+    queryFn: () =>
+      api.get<{ variants: VariantRow[] }>(`/admin/products/${productId}/variants`, {
+        query: { country: country ?? undefined },
+      }),
   });
 
   const remove = useMutation({
@@ -297,6 +313,18 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
   });
 
   const canWrite = can(Permission.PRODUCT_WRITE);
+
+  /**
+   * Whether the customer-facing column has anything to say.
+   *
+   * Only where an override becomes a different figure for the chosen market -
+   * the same rule as the product list and the price card. With no EU VAT
+   * configured, or on the seller's own market, it repeats the column beside it
+   * and is left out.
+   */
+  const showsQuoted = (query.data?.variants ?? []).some(
+    (row) => row.quotedMinor !== null && row.quotedMinor !== row.priceMinor,
+  );
 
   const columns: Column<VariantRow>[] = [
     {
@@ -335,6 +363,36 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
           minorToMajor(row.priceMinor)
         ),
     },
+    // Read-only, like every other quoted figure in the console: this is what
+    // the pricing engine makes of the override beside it, not a second place
+    // to set one.
+    ...(showsQuoted
+      ? [
+          {
+            key: 'quoted',
+            header: t('market.customerPays'),
+            align: 'right' as const,
+            nowrap: true,
+            render: (row: VariantRow) =>
+              row.quotedMinor === null ? (
+                // Nothing of its own to convert. The price card above quotes
+                // the figure this row is actually sold at.
+                <span className="text-ink-subtle">—</span>
+              ) : (
+                <>
+                  <span className="font-medium">{minorToMajor(row.quotedMinor)}</span>
+                  {row.quotedTax !== null && (
+                    <span className="ml-2 text-xxs text-ink-muted">
+                      {row.quotedTax.inclusive
+                        ? t('market.inclusiveOfRate', { rate: row.quotedTax.ratePercent })
+                        : t('market.plusRate', { rate: row.quotedTax.ratePercent })}
+                    </span>
+                  )}
+                </>
+              ),
+          },
+        ]
+      : []),
     {
       key: 'available',
       header: 'Available',
@@ -423,7 +481,9 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
           isLoading={query.isPending}
           error={query.isError ? query.error : undefined}
           loadingLabel="Loading variants"
-          minWidth="52rem"
+          // Wider with the preview column in, so the options badges keep their
+          // line rather than the table cramming seven columns into six.
+          minWidth={showsQuoted ? '58rem' : '52rem'}
           onRetry={() => {
             void query.refetch();
           }}
