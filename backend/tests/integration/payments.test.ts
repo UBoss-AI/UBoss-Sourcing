@@ -17,7 +17,12 @@ import { env } from '../../src/config/env.js';
 import { newId } from '../../src/infra/ids.js';
 import { prisma } from '../../src/infra/prisma.js';
 import { RazorpayAdapter } from '../../src/modules/payments/razorpay.adapter.js';
-import { createOrderPayment, processWebhook } from '../../src/modules/payments/payment.service.js';
+import {
+  availableGateways,
+  createOrderPayment,
+  loadActiveProvider,
+  processWebhook,
+} from '../../src/modules/payments/payment.service.js';
 import { receiveStock, getAvailability } from '../../src/modules/inventory/inventory.service.js';
 import { addItem } from '../../src/modules/cart/cart.service.js';
 import { submitCheckout } from '../../src/modules/orders/order.service.js';
@@ -736,5 +741,302 @@ describe('payment session idempotency', () => {
         correlationId: null,
       }),
     ).rejects.toThrow(/already been used for a different order/i);
+  });
+});
+
+describe('gateway selection', () => {
+  /**
+   * Connect a gateway the way an administrator would, so `loadActiveProvider`
+   * is exercised against real stored credentials rather than a stub.
+   *
+   * `updatedAt` matters: with no preference the resolver takes the most
+   * recently touched connection, and a test that wrote both in the same
+   * millisecond would pass or fail on row order.
+   */
+  async function connect(provider: 'RAZORPAY' | 'STRIPE'): Promise<string> {
+    const { encryptSecret } = await import('../../src/infra/crypto.js');
+    const id = newId();
+
+    const keyId = provider === 'RAZORPAY' ? env.RAZORPAY_KEY_ID : env.STRIPE_PUBLISHABLE_KEY;
+    const keySecret = provider === 'RAZORPAY' ? env.RAZORPAY_KEY_SECRET : env.STRIPE_SECRET_KEY;
+
+    await prisma.paymentProviderConnection.create({
+      data: {
+        id,
+        provider,
+        mode: 'TEST',
+        label: `${provider} test connection`,
+        credentialsEnc: encryptSecret(
+          JSON.stringify({ keyId, keySecret }),
+          `payment_connection:${id}`,
+        ),
+        webhookSecretEnc: encryptSecret(WEBHOOK_SECRET, `payment_connection:${id}`),
+        isActive: true,
+      },
+    });
+
+    return id;
+  }
+
+  it('gives the customer the gateway they asked for', async () => {
+    await connect('RAZORPAY');
+    await connect('STRIPE');
+
+    await expect(loadActiveProvider('STRIPE')).resolves.toMatchObject({ kind: 'STRIPE' });
+    await expect(loadActiveProvider('RAZORPAY')).resolves.toMatchObject({ kind: 'RAZORPAY' });
+  });
+
+  /**
+   * The rule that keeps a preference from becoming an instruction.
+   *
+   * A storefront can be stale — a gateway it offered a minute ago may have
+   * been deactivated since. Honouring the request literally would mean
+   * decrypting credentials that are not there and failing the checkout, which
+   * is a worse answer than quietly taking the payment through the gateway the
+   * operator does have.
+   */
+  it('falls back rather than failing when the asked-for gateway is not connected', async () => {
+    await connect('RAZORPAY');
+
+    await expect(loadActiveProvider('STRIPE')).resolves.toMatchObject({ kind: 'RAZORPAY' });
+  });
+
+  it('still resolves a gateway when the customer expressed no preference', async () => {
+    await connect('STRIPE');
+
+    await expect(loadActiveProvider()).resolves.toMatchObject({ kind: 'STRIPE' });
+  });
+
+  it('offers no gateway that has been deactivated', async () => {
+    const stripeId = await connect('STRIPE');
+    await connect('RAZORPAY');
+
+    await prisma.paymentProviderConnection.update({
+      where: { id: stripeId },
+      data: { isActive: false },
+    });
+
+    await expect(loadActiveProvider('STRIPE')).resolves.toMatchObject({ kind: 'RAZORPAY' });
+  });
+});
+
+describe('gateways offered at checkout', () => {
+  it('names UPI only for the gateway that can settle it', async () => {
+    const { gateways } = await availableGateways();
+
+    const razorpay = gateways.find((entry) => entry.provider === 'RAZORPAY');
+    const stripe = gateways.find((entry) => entry.provider === 'STRIPE');
+
+    expect(razorpay?.methods).toContain('UPI');
+    expect(stripe?.methods).not.toContain('UPI');
+  });
+
+  /**
+   * Razorpay settles to an Indian account. Offering it for a euro cart would
+   * put a gateway in front of the customer that declines after they have
+   * chosen it — the storefront filters on this, and it is only correct if the
+   * restriction is actually reported.
+   */
+  it('reports the currencies each gateway may be offered for', async () => {
+    const { gateways } = await availableGateways();
+
+    expect(gateways.find((entry) => entry.provider === 'RAZORPAY')?.currencies).toStrictEqual([
+      'INR',
+    ]);
+    // Stripe settles many currencies; no restriction is the honest answer.
+    expect(gateways.find((entry) => entry.provider === 'STRIPE')?.currencies).toBeNull();
+  });
+
+  it('preselects a gateway that is actually on offer', async () => {
+    const { gateways, defaultProvider } = await availableGateways();
+
+    expect(defaultProvider).not.toBeNull();
+    expect(gateways.map((entry) => entry.provider)).toContain(defaultProvider);
+  });
+
+  it('carries no credential into the offer', async () => {
+    const serialised = JSON.stringify(await availableGateways());
+
+    expect(serialised).not.toContain(env.RAZORPAY_KEY_SECRET);
+    expect(serialised).not.toContain(env.STRIPE_SECRET_KEY);
+    expect(serialised).not.toContain(WEBHOOK_SECRET);
+  });
+});
+
+describe('the gateway choice survives the checkout', () => {
+  /**
+   * The bug this exists to prevent: the pick used to travel only in the
+   * browser's navigation state, so reloading the payment page — or opening the
+   * order again from an email an hour later — silently dropped it and put the
+   * customer on the default gateway. Nobody was charged wrongly, but somebody
+   * who chose UPI was shown a card form and had no idea why.
+   */
+  async function checkoutWith(choice: {
+    preferredPaymentProvider?: 'RAZORPAY' | 'STRIPE';
+    preferredPaymentMethod?: 'ANY' | 'UPI';
+    paymentMode?: 'ONLINE' | 'PAYMENT_LINK';
+  }): Promise<string> {
+    await addItem(customerProfileId, { productId, quantity: 20 });
+
+    const checkout = await submitCheckout({
+      customerProfileId,
+      shippingAddressId: addressId,
+      paymentMode: choice.paymentMode ?? 'ONLINE',
+      ...(choice.preferredPaymentProvider === undefined
+        ? {}
+        : { preferredPaymentProvider: choice.preferredPaymentProvider }),
+      ...(choice.preferredPaymentMethod === undefined
+        ? {}
+        : { preferredPaymentMethod: choice.preferredPaymentMethod }),
+      actor: { userId: customerUserId, email: 'buyer@pay.test', type: 'CUSTOMER' },
+    });
+
+    return checkout.orderId;
+  }
+
+  it('records what the customer picked', async () => {
+    const orderId = await checkoutWith({
+      preferredPaymentProvider: 'RAZORPAY',
+      preferredPaymentMethod: 'UPI',
+    });
+
+    const order = await prisma.order.findUniqueOrThrow({ where: { id: orderId } });
+
+    expect(order.preferredPaymentProvider).toBe('RAZORPAY');
+    expect(order.preferredPaymentMethod).toBe('UPI');
+  });
+
+  it('records nothing when the customer was offered no choice', async () => {
+    const order = await prisma.order.findUniqueOrThrow({ where: { id: await checkoutWith({}) } });
+
+    // Null rather than a default: an order nobody chose for must not read back
+    // as though somebody had.
+    expect(order.preferredPaymentProvider).toBeNull();
+    expect(order.preferredPaymentMethod).toBeNull();
+  });
+
+  /**
+   * A payment link is sent, not opened. Which gateway is behind it is the
+   * operator's business, so a preference against one would be an answer to a
+   * question the customer was never asked.
+   */
+  it('records nothing against an order paid by link', async () => {
+    const orderId = await checkoutWith({
+      paymentMode: 'PAYMENT_LINK',
+      preferredPaymentProvider: 'RAZORPAY',
+      preferredPaymentMethod: 'UPI',
+    });
+
+    const order = await prisma.order.findUniqueOrThrow({ where: { id: orderId } });
+
+    expect(order.preferredPaymentProvider).toBeNull();
+    expect(order.preferredPaymentMethod).toBeNull();
+  });
+
+  it('is readable without the browser having to remember it', async () => {
+    const orderId = await checkoutWith({
+      preferredPaymentProvider: 'RAZORPAY',
+      preferredPaymentMethod: 'UPI',
+    });
+
+    // What a reloaded payment page relies on: the choice is on the order, so a
+    // session request that names no gateway can still be answered with the one
+    // the customer picked.
+    const order = await prisma.order.findUniqueOrThrow({
+      where: { id: orderId },
+      select: { preferredPaymentProvider: true, preferredPaymentMethod: true },
+    });
+
+    expect(order).toStrictEqual({
+      preferredPaymentProvider: 'RAZORPAY',
+      preferredPaymentMethod: 'UPI',
+    });
+  });
+});
+
+describe('the offer matches what resolution can deliver', () => {
+  async function connectAs(provider: 'RAZORPAY' | 'STRIPE', isActive: boolean): Promise<void> {
+    const { encryptSecret } = await import('../../src/infra/crypto.js');
+    const id = newId();
+
+    const keyId = provider === 'RAZORPAY' ? env.RAZORPAY_KEY_ID : env.STRIPE_PUBLISHABLE_KEY;
+    const keySecret = provider === 'RAZORPAY' ? env.RAZORPAY_KEY_SECRET : env.STRIPE_SECRET_KEY;
+
+    await prisma.paymentProviderConnection.create({
+      data: {
+        id,
+        provider,
+        mode: 'TEST',
+        label: `${provider} test connection`,
+        credentialsEnc: encryptSecret(
+          JSON.stringify({ keyId, keySecret }),
+          `payment_connection:${id}`,
+        ),
+        credentialsMask: 'masked',
+        isActive,
+      },
+    });
+  }
+
+  /**
+   * The bug this covers, found by running the flow rather than by reading it.
+   *
+   * `availableGateways` used to merge the environment keys into the connected
+   * set unconditionally. On a machine whose Razorpay connection had been
+   * deactivated but whose .env still held Razorpay keys, checkout offered
+   * Razorpay and UPI, the customer chose them, and the payment quietly went
+   * through Stripe — because `loadActiveProvider` reaches for the environment
+   * only when NO active connection exists, and a Stripe one did.
+   *
+   * The customer saw a card form after asking for UPI, and nothing explained
+   * why. So the rule under test is the invariant, not the symptom: every
+   * gateway offered must be one resolution would actually return.
+   */
+  it('does not offer a gateway whose connection an administrator deactivated', async () => {
+    await connectAs('STRIPE', true);
+    await connectAs('RAZORPAY', false);
+
+    const { gateways } = await availableGateways();
+
+    expect(gateways.map((entry) => entry.provider)).toStrictEqual(['STRIPE']);
+  });
+
+  it('offers only gateways that resolution would actually return', async () => {
+    await connectAs('STRIPE', true);
+    await connectAs('RAZORPAY', false);
+
+    const { gateways } = await availableGateways();
+
+    // The invariant stated directly: ask for each offered gateway and check
+    // that is the one that comes back.
+    for (const entry of gateways) {
+      const resolved = await loadActiveProvider(entry.provider);
+      expect(resolved.kind).toBe(entry.provider);
+    }
+  });
+
+  it('falls back to environment keys only when nothing is connected', async () => {
+    // No connection rows at all: the local-development path, where the .env
+    // gateways are genuinely reachable.
+    const { gateways, defaultProvider } = await availableGateways();
+
+    expect(gateways.length).toBeGreaterThan(0);
+    expect(defaultProvider).not.toBeNull();
+
+    // Only one resolution is asserted, deliberately. Resolving through the
+    // environment path bootstraps a connection row as a side effect, so a
+    // second call in this test would be answered from the database and would
+    // be testing the previous line rather than this one.
+    const resolved = await loadActiveProvider(defaultProvider ?? undefined);
+    expect(resolved.kind).toBe(defaultProvider);
+  });
+
+  it('never preselects a gateway it did not offer', async () => {
+    await connectAs('STRIPE', true);
+    await connectAs('RAZORPAY', false);
+
+    const { gateways, defaultProvider } = await availableGateways();
+
+    expect(gateways.map((entry) => entry.provider)).toContain(defaultProvider);
   });
 });

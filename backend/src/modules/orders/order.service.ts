@@ -26,6 +26,7 @@ import {
   type OrderStatusName,
   type TransitionActor,
 } from '../../domain/order-state-machine.js';
+import { Permission } from '../../domain/permissions.js';
 import { newId } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
@@ -42,6 +43,10 @@ import {
   reserveStock,
   restockFromOrder,
 } from '../inventory/inventory.service.js';
+import {
+  AdminNotificationKind,
+  createAdminNotification,
+} from '../notifications/admin-notification.service.js';
 import {
   NotificationEvent,
   dispatchPendingNotifications,
@@ -127,6 +132,15 @@ export interface CheckoutInput {
   billingAddressId?: string;
   shippingMethodCode?: string | null;
   paymentMode: 'ONLINE' | 'PAYMENT_LINK';
+  /**
+   * Which gateway the customer chose, where they were offered a choice.
+   *
+   * Recorded on the order so that reloading the payment page, or returning to
+   * it later, offers the same sheet. It does not decide who gets paid - see
+   * `orders.preferredPaymentProvider` in the schema.
+   */
+  preferredPaymentProvider?: 'RAZORPAY' | 'STRIPE';
+  preferredPaymentMethod?: 'ANY' | 'UPI';
   customerNote?: string | null;
   actor: OrderActor;
 }
@@ -154,10 +168,33 @@ export interface CheckoutResult {
  * per attempt and does not deduplicate on its own.
  */
 export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResult> {
+  const billingAddressId = input.billingAddressId ?? input.shippingAddressId;
+
+  // Addresses first, and only then pricing.
+  //
+  // The order matters: EU VAT turns on where the goods are delivered, not on
+  // the country the shopper told us they are in, so the cart cannot be priced
+  // for real until the delivery address is known. Everything the shopper saw
+  // before this point was a quote at the seller's own rates, and this is where
+  // it is recomputed against the address they actually chose.
+  //
+  // The buyer's own name comes along for the console notification below. All
+  // three are plain lookups, read out here rather than inside the transaction,
+  // where holding the checkout's row locks open for them would be gratuitous.
+  const [shippingSnapshot, billingSnapshot, buyer] = await Promise.all([
+    loadAddressSnapshot(input.customerProfileId, input.shippingAddressId, 'shipping'),
+    loadAddressSnapshot(input.customerProfileId, billingAddressId, 'billing'),
+    prisma.customerProfile.findUnique({
+      where: { id: input.customerProfileId },
+      select: { fullName: true, organization: true },
+    }),
+  ]);
+
   // Reprice from the current catalog. The client's totals are never trusted;
   // this is the same function that produced what they were shown.
   const resolved: ResolvedCart = await resolveCart(input.customerProfileId, {
     shippingMethodCode: input.shippingMethodCode ?? null,
+    destinationCountry: shippingSnapshot.country,
   });
 
   assertCheckoutReady(resolved);
@@ -166,12 +203,15 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
   // of their lines before anything is written or charged.
   assertTotalsConsistent(resolved.pricing.lines, resolved.pricing.totals);
 
-  const billingAddressId = input.billingAddressId ?? input.shippingAddressId;
-
-  const [shippingSnapshot, billingSnapshot] = await Promise.all([
-    loadAddressSnapshot(input.customerProfileId, input.shippingAddressId, 'shipping'),
-    loadAddressSnapshot(input.customerProfileId, billingAddressId, 'billing'),
-  ]);
+  // "Asha Menon (Menon Clinic)". Two buyers called Asha is an ordinary case;
+  // two clinics of that name is not, so the organization earns its place.
+  // Falls back to the delivery contact if the profile has somehow gone.
+  const buyerName =
+    buyer === null
+      ? shippingSnapshot.contactName
+      : buyer.organization === null || buyer.organization === ''
+        ? buyer.fullName
+        : `${buyer.fullName} (${buyer.organization})`;
 
   const shippingMethod =
     input.shippingMethodCode === null || input.shippingMethodCode === undefined
@@ -217,8 +257,24 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
         shippingMethodCode: shippingMethod?.code ?? null,
         shippingMethodName: shippingMethod?.name ?? null,
         paymentMode: input.paymentMode,
+        // Only meaningful for a payment this shop will open itself. A payment
+        // link is sent rather than opened, and the gateway behind it is the
+        // operator's business, so recording a customer preference against one
+        // would be storing an answer to a question nobody asked.
+        preferredPaymentProvider:
+          input.paymentMode === 'ONLINE' ? (input.preferredPaymentProvider ?? null) : null,
+        preferredPaymentMethod:
+          input.paymentMode === 'ONLINE' ? (input.preferredPaymentMethod ?? null) : null,
         customerNote: input.customerNote ?? null,
         placedAt: new Date(),
+        // Why this was taxed the way it was, frozen alongside the numbers it
+        // produced. Taken from the pricing run rather than recomputed: a VIES
+        // answer expiring between the two would otherwise let an order be
+        // priced zero-rated and recorded as taxable.
+        taxTreatment: resolved.taxSetup.context.treatment,
+        taxCountry: resolved.taxSetup.context.rateCountry,
+        sellerVatNumberSnapshot: resolved.taxSetup.context.sellerVatNumber,
+        buyerVatNumberSnapshot: resolved.taxSetup.context.buyerVatNumber,
       },
     });
 
@@ -320,6 +376,41 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
         relatedType: 'order',
         relatedId: orderId,
         correlationId: input.actor.correlationId ?? null,
+      },
+      tx,
+    );
+
+    /*
+     * The console bell.
+     *
+     * In the same transaction as the order for the same reason the outbox row
+     * is: an order that rolls back must not leave the panel claiming somebody
+     * bought something, and one that commits must not fail to say so.
+     *
+     * The sentence itself is not written here - only its ingredients. The
+     * Admin Panel phrases it in whichever of the eight languages the reader
+     * has chosen. `order.read` gates it because these values name a customer
+     * and a total.
+     */
+    const firstLine = resolved.pricing.lines[0];
+
+    await createAdminNotification(
+      {
+        kind: AdminNotificationKind.ORDER_PLACED,
+        variables: {
+          customerName: buyerName,
+          itemName: firstLine?.nameSnapshot ?? 'an item',
+          itemCount: resolved.pricing.lines.length,
+          extraCount: Math.max(resolved.pricing.lines.length - 1, 0),
+          orderNumber,
+          orderTotal: serialiseMoney(totals.grandTotalMinor, resolved.currency).formatted,
+          orderStatus: initialStatus,
+        },
+        linkPath: `/orders/${orderId}`,
+        requiredPermission: Permission.ORDER_READ,
+        relatedType: 'order',
+        relatedId: orderId,
+        dedupeKey: `order_placed:${orderId}`,
       },
       tx,
     );

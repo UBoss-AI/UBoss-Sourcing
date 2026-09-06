@@ -48,9 +48,35 @@ export interface StorefrontConfig {
   };
   features: {
     selfRegistration: boolean;
+    /**
+     * Whether a confirmed sign-up still waits for a member of staff before it
+     * can order. Said on the sign-up form itself, not only afterwards -
+     * somebody who needs to order today should find that out before typing.
+     *
+     * Optional because a config response cached from before this field existed
+     * would otherwise be read as `false`, which is the reassuring answer and
+     * the wrong one.
+     */
+    selfRegistrationRequiresApproval?: boolean;
     recurringOrders: boolean;
     /** Whether this deployment has the chat assistant configured. */
     assistant: boolean;
+  };
+
+  /**
+   * What the chat widget has to say about itself before anyone types.
+   *
+   * AI Act Art. 50(1) obliges the deployer to tell a person they are
+   * interacting with an AI system. The vendor is named because that vendor
+   * receives whatever the visitor types, which puts them in the privacy
+   * notice under GDPR Art. 13(1)(e) - and a notice saying "a third-party AI
+   * provider" names nobody.
+   */
+  assistant: {
+    available: boolean;
+    isAi: boolean;
+    model: string | null;
+    vendor: { name: string; country: string } | null;
   };
 }
 
@@ -168,10 +194,89 @@ export interface Product {
   images: ProductImage[];
   attributes: { name: string; value: string }[];
   variants: ProductVariant[];
+  /**
+   * GPSR Art. 19 information, when the catalogue carries it.
+   *
+   * Present on every product read, list and detail alike, because the article
+   * is about what a buyer can see BEFORE they buy. Every field is nullable: a
+   * catalogue outside the EU has no reason to fill any of it in, and the page
+   * renders nothing where there is nothing rather than an empty heading.
+   */
+  safety?: ProductSafety | null;
+  /**
+   * MDR device identification, when the product is one.
+   *
+   * Null for everything else, which is most of a catalogue. The storefront
+   * renders nothing rather than an empty heading — "a device with no
+   * certification" is a far worse claim than silence.
+   */
+  device?: ProductDevice | null;
   availability?: {
     inStock: boolean;
     availableQty: number | null;
   } | null;
+}
+
+/** One company named on a listing under Union product law. */
+export interface EconomicOperator {
+  legalName: string;
+  tradeName: string | null;
+  address: {
+    line1?: string;
+    line2?: string | null;
+    city?: string;
+    region?: string | null;
+    postalCode?: string | null;
+  } | null;
+  countryCode: string;
+  /** Art. 19(a) calls this the "electronic address". */
+  email: string;
+  phone: string | null;
+  website: string | null;
+}
+
+export interface ProductSafety {
+  /** Follows the reader's language, falling back to the base copy. */
+  warnings: string | null;
+  instructions: string | null;
+  gtin: string | null;
+  modelIdentifier: string | null;
+  manufacturer: EconomicOperator | null;
+  /** Required when the manufacturer is established outside the Union. */
+  euResponsiblePerson: EconomicOperator | null;
+}
+
+/** Risk class under Annex VIII. Class I is subdivided because the
+ *  subdivision decides whether a notified body is involved at all. */
+export type DeviceClass =
+  | 'CLASS_I'
+  | 'CLASS_I_STERILE'
+  | 'CLASS_I_MEASURING'
+  | 'CLASS_I_REUSABLE_SURGICAL'
+  | 'CLASS_IIA'
+  | 'CLASS_IIB'
+  | 'CLASS_III';
+
+export interface ProductDevice {
+  deviceClass: DeviceClass;
+  /**
+   * Two identifiers doing two jobs. The Basic UDI-DI names the device group a
+   * declaration of conformity is filed against; the UDI-DI names this
+   * packaging configuration and is what appears on the label.
+   */
+  basicUdiDi: string | null;
+  udiDi: string | null;
+  /** The four digits beside the CE mark. Null for a self-certified Class I. */
+  notifiedBodyNumber: string | null;
+  declarationOfConformityUrl: string | null;
+  /** Follows the reader's language, like the safety warnings. */
+  intendedPurpose: string | null;
+  isSterile: boolean;
+  isSingleUse: boolean;
+  hasMeasuringFunction: boolean;
+  containsBiologicalMaterial: boolean;
+  /** The manufacturer's Eudamed Single Registration Number, MDR Art. 31. */
+  manufacturerSrn: string | null;
 }
 
 export interface ProductListResponse {
@@ -179,6 +284,24 @@ export interface ProductListResponse {
   pagination: Pagination;
   /** The currency every price in this response is quoted in. */
   currency: string;
+}
+
+/**
+ * What the catalogue can be filtered by, for one listing.
+ *
+ * Which attributes appear is the administrator's decision — an attribute is a
+ * facet only when it is marked filterable — so the filter panel asks rather
+ * than hard-coding a list that would be wrong for every other business.
+ *
+ * The counts are taken with the other filters applied, so a value that would
+ * return nothing is still shown with its real count rather than hidden: a
+ * facet that disappears as soon as you use it is worse than one that says 0.
+ */
+export interface CatalogFilterFacets {
+  currency: string;
+  /** What the catalogue holds, ignoring the price boxes. Null when empty. */
+  priceRange: { min: Money | null; max: Money | null };
+  attributes: { name: string; values: { value: string; count: number }[] }[];
 }
 
 export interface ProductDetailResponse {
@@ -447,6 +570,33 @@ export interface OrderDetail extends OrderListItem {
 // ---------------------------------------------------------------------------
 // Payments
 // ---------------------------------------------------------------------------
+
+export type PaymentProviderKind = 'RAZORPAY' | 'STRIPE';
+
+/**
+ * Which instruments to ask the gateway to show.
+ *
+ * A preference the customer expresses before the sheet opens — not a record of
+ * what they paid with, which only the backend learns from the provider.
+ */
+export type PaymentMethodHint = 'ANY' | 'UPI';
+
+/** One gateway the operator has connected, as offered at checkout. */
+export interface PaymentGateway {
+  provider: PaymentProviderKind;
+  label: string;
+  /** Instruments worth naming separately. `ANY` is the gateway's own set. */
+  methods: PaymentMethodHint[];
+  /** ISO-4217 codes this gateway may be offered for; null means no limit. */
+  currencies: string[] | null;
+}
+
+/** What `GET /payments/gateways` returns. */
+export interface PaymentGateways {
+  gateways: PaymentGateway[];
+  /** Preselected at checkout. Null when nothing is connected. */
+  defaultProvider: PaymentProviderKind | null;
+}
 
 /** What `POST /payments/orders/:orderId/session` returns. */
 export interface PaymentSession {

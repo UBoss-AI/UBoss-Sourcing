@@ -42,6 +42,11 @@ const checkoutSchema = z.object({
   billingAddressId: z.string().length(26).optional(),
   shippingMethodCode: z.string().max(32).nullable().optional(),
   paymentMode: z.enum(['ONLINE', 'PAYMENT_LINK']).default('ONLINE'),
+  // The gateway pick, where the storefront offered one. Optional: a client
+  // that sends nothing gets the configured default at payment time, which is
+  // what every caller written before this did.
+  preferredPaymentProvider: z.enum(['RAZORPAY', 'STRIPE']).optional(),
+  preferredPaymentMethod: z.enum(['ANY', 'UPI']).optional(),
   customerNote: z.string().max(2000).nullable().optional(),
 });
 
@@ -179,6 +184,12 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
               : {}),
             shippingMethodCode: body.shippingMethodCode ?? null,
             paymentMode: body.paymentMode,
+            ...(body.preferredPaymentProvider === undefined
+              ? {}
+              : { preferredPaymentProvider: body.preferredPaymentProvider }),
+            ...(body.preferredPaymentMethod === undefined
+              ? {}
+              : { preferredPaymentMethod: body.preferredPaymentMethod }),
             customerNote: body.customerNote ?? null,
             actor: {
               userId: auth.id,

@@ -72,6 +72,21 @@ model User {
   mfaSecretEnc  String?   @db.Text
   mfaEnabledAt  DateTime? @db.DateTime(3)
 
+  /// The language the interface is rendered in for this account, as a BCP-47
+  /// primary subtag ("pl", "el", "nl"). Deliberately on `User` rather than on
+  /// `CustomerProfile`: staff need it too, and a staff account has no profile
+  /// row to hang it from.
+  ///
+  /// Null means "never chosen", which is not the same as English - the
+  /// storefront falls back to what the browser asks for, and only a null here
+  /// lets it. Writing "en" on signup would take that away from every account
+  /// that has simply never opened the picker.
+  ///
+  /// Distinct from `preferredCountry`/`preferredCurrency` on the profile: those
+  /// decide what a shopper is quoted in, this decides what language they read
+  /// it in. A Polish buyer paying in euro is an ordinary case.
+  preferredLanguage String? @db.VarChar(10)
+
   lastLoginAt      DateTime? @db.DateTime(3)
   failedLoginCount Int       @default(0)
   lockedUntil      DateTime? @db.DateTime(3)
@@ -81,11 +96,19 @@ model User {
   /// Soft delete. Transactional history keeps referencing the row.
   archivedAt DateTime? @db.DateTime(3)
 
+  /// When an Art. 17 erasure rewrote this row. Distinct from `archivedAt`,
+  /// which only means 'no longer in use': an archived account can be brought
+  /// back, an erased one has nothing left to bring back. Set once and never
+  /// cleared - it is the evidence the erasure happened.
+  erasedAt DateTime? @db.DateTime(3)
+
   roles           UserRole[]
   sessions        Session[]
   authTokens      AuthToken[]
   customerProfile CustomerProfile?
   auditLogs       AuditLog[]
+  /// Which console notifications this member of staff has already opened.
+  notificationReads AdminNotificationRead[]
 
   @@index([type, status], map: "ix_user_type_status")
   @@index([createdAt], map: "ix_user_created_at")
@@ -158,6 +181,23 @@ model Session {
   userAgent String? @db.VarChar(512)
   ipAddress String? @db.VarChar(45)
 
+  /// Where the device said this sign-in happened, from the browser's
+  /// Geolocation API. Admin sessions carry it because the console refuses to
+  /// open until it is recorded; a customer session never has it.
+  ///
+  /// Six decimal places is roughly a tenth of a metre, which is finer than any
+  /// browser fix and leaves no rounding to explain away.
+  locationLatitude  Decimal? @db.Decimal(9, 6)
+  locationLongitude Decimal? @db.Decimal(9, 6)
+  /// The radius the device claimed, in metres. A wifi fix is a few hundred, a
+  /// GPS fix single digits - shown alongside the place so a coarse fix is not
+  /// read as a precise one.
+  locationAccuracyM Int?
+  /// The reverse-geocoded place, when a lookup was possible. Null falls back to
+  /// the coordinates, which are always present whenever this section is filled.
+  locationLabel      String?   @db.VarChar(255)
+  locationCapturedAt DateTime? @db.DateTime(3)
+
   expiresAt          DateTime  @db.DateTime(3)
   revokedAt          DateTime? @db.DateTime(3)
   revokedReason      String?   @db.VarChar(128)
@@ -228,6 +268,39 @@ model BusinessProfile {
   supportPhone String? @db.VarChar(32)
   gstin        String? @db.VarChar(32)
 
+  /// Whether product listings must satisfy GPSR Art. 19 before they publish.
+  ///
+  /// Off by default, because a deployment selling only outside the Union has
+  /// no such obligation and turning it on would block every existing listing
+  /// on a rule that does not apply to it.
+  ///
+  /// Turn it on to sell into the EU. The publish validator then refuses a
+  /// product with no manufacturer, no identifier or no safety warning - and,
+  /// where the manufacturer is established outside the Union, no responsible
+  /// person inside it. Until then the same checks still run and are reported
+  /// as warnings, so the gap is visible before it is enforced.
+  gpsrEnforced Boolean @default(false)
+
+  /// Whether a product marked as a medical device must carry its MDR
+  /// identification before it publishes.
+  ///
+  /// Off by default and separate from `gpsrEnforced`, because the two are
+  /// different obligations with different scopes: GPSR covers every consumer
+  /// product, MDR covers devices only. A shop selling gloves alongside
+  /// bandages may well need one and not the other.
+  mdrEnforced Boolean @default(false)
+
+  /// The seller's EU VAT identification number, e.g. "NL123456789B01".
+  /// Art. 226(3) requires it on every invoice; its presence is also what
+  /// switches EU VAT resolution on for this deployment.
+  vatNumber String? @db.VarChar(32)
+
+  /// The member state the business is established in for VAT. Decides which
+  /// supplies are domestic, which are intra-Community, and which are exports.
+  /// Null in a deployment that is not in the EU, and VAT resolution then never
+  /// runs - the flat tax-class rate applies, as it always did.
+  vatCountry String? @db.Char(2)
+
   /// Registered/invoice address. Shape validated by Zod at the API boundary.
   addressJson Json?
 
@@ -255,6 +328,13 @@ model TaxClass {
 
   /// Percent, e.g. 18.000000 for 18% GST. Decimal, never Float.
   ratePercent Decimal @db.Decimal(9, 6)
+  /// Which EU rate band this class falls in. Null means "this class has no EU
+  /// meaning": the flat `ratePercent` above is used wherever it is sold, which
+  /// is the correct behaviour for GST and for any deployment with no VAT rates
+  /// configured. Set it and the rate becomes a lookup against the destination
+  /// member state instead - see modules/tax/vat.service.ts.
+  vatCategory VatCategory?
+
   /// true  = listed price already contains tax (extract it)
   /// false = tax is added on top of the listed price
   isInclusive Boolean @default(false)
@@ -293,6 +373,88 @@ model ShippingMethod {
 
   @@index([isActive, sortOrder], map: "ix_shipping_method_active")
   @@map("shipping_methods")
+}
+
+/// Keeping converted prices current, without ever converting at read time.
+///
+/// One row. The refresh job reads it, re-converts every price still flagged
+/// `isAutoConverted`, and writes the results as ordinary price rows - so the
+/// figure a shopper is quoted is still a stored one, and still the figure they
+/// are charged. The rate is used at write time and never at display time; that
+/// distinction is the reason this is a scheduled job and not a formula.
+model CurrencyRateSync {
+  id String @id @db.Char(26)
+
+  /// Off until staff turn it on. A deployment that has never opened a second
+  /// market must not start making outbound calls on a timer.
+  isEnabled Boolean @default(false)
+
+  /// Added on top of every converted figure, as a percentage.
+  ///
+  /// A buffer against the rate moving between refreshes, and against the spread
+  /// the business actually pays to settle in another currency. Zero is legal
+  /// and means "quote the mid-market rate".
+  marginPercent Decimal @default(0.00) @db.Decimal(5, 2)
+
+  /// How a converted figure is tidied: exact, whole, or charm. Mirrors the
+  /// bulk pricing tool, so a scheduled run and a manual one agree.
+  rounding String @default("charm") @db.VarChar(8)
+
+  /// Abandon a run that would move any single price by more than this.
+  ///
+  /// A rate feed returning nonsense - a wrong base, a decimal shift, an error
+  /// body parsed as data - is a catalogue-wide mispricing that nobody is
+  /// watching for at 3am. The run refuses as a whole rather than writing part
+  /// of it, and says so on the settings screen.
+  maxDriftPercent Decimal @default(15.00) @db.Decimal(5, 2)
+
+  lastRunAt      DateTime? @db.DateTime(3)
+  /// ok | skipped | failed - what the settings screen reports.
+  lastRunStatus  String?   @db.VarChar(16)
+  lastRunMessage String?   @db.VarChar(512)
+  lastRunUpdated Int       @default(0)
+
+  createdAt   DateTime @default(now()) @db.DateTime(3)
+  updatedAt   DateTime @updatedAt @db.DateTime(3)
+  updatedById String?  @db.Char(26)
+
+  @@map("currency_rate_sync")
+}
+
+/// Machine-translating the catalogue itself.
+///
+/// The interface catalogues ship with the product and are translated once, in
+/// the repository. A shop's *own* products cannot be: every deployment sells
+/// something different, and twenty products across seven languages is a
+/// hundred and forty pieces of copy nobody will type. So the key lives here,
+/// encrypted, and the panel does the work.
+///
+/// One row, like `CurrencyRateSync`.
+model CatalogTranslationSync {
+  id String @id @db.Char(26)
+
+  /// DeepL auth key, encrypted at rest with `SECRETS_ENCRYPTION_KEY`. Null
+  /// until somebody enters one, which is what keeps the feature switched off.
+  apiKeyEncrypted String? @db.Text
+
+  /// The last four characters of the key, so the panel can show *which* key is
+  /// stored without being able to show the key.
+  apiKeyHint String? @db.VarChar(8)
+
+  lastRunAt         DateTime? @db.DateTime(3)
+  /// ok | skipped | failed
+  lastRunStatus     String?   @db.VarChar(16)
+  lastRunMessage    String?   @db.VarChar(512)
+  lastRunTranslated Int       @default(0)
+  /// True while a run is in flight, so the panel can show progress and a
+  /// second click cannot start an overlapping run.
+  isRunning         Boolean   @default(false)
+
+  createdAt   DateTime @default(now()) @db.DateTime(3)
+  updatedAt   DateTime @updatedAt @db.DateTime(3)
+  updatedById String?  @db.Char(26)
+
+  @@map("catalog_translation_sync")
 }
 
 model FeatureFlag {
@@ -411,6 +573,7 @@ model Category {
   products Product[]
 
   couponCategories CouponCategory[]
+  translations     CategoryTranslation[]
 
   imageMedia  MediaAsset? @relation("CategoryImage", fields: [imageMediaId], references: [id], onDelete: SetNull)
   bannerMedia MediaAsset? @relation("CategoryBanner", fields: [bannerMediaId], references: [id], onDelete: SetNull)
@@ -461,6 +624,41 @@ model Product {
   metaTitle       String? @db.VarChar(255)
   metaDescription String? @db.VarChar(512)
 
+  /// --- Product safety (GPSR Art. 19) ---
+  ///
+  /// Nullable, all of it, because a deployment that does not sell into the
+  /// Union has no use for any of it and must not be forced to invent values.
+  /// What turns these into a publication requirement is
+  /// `business_profile.gpsrEnforced` - see the publish validator.
+
+  /// Art. 19(a). Who made it.
+  manufacturerId String? @db.Char(26)
+
+  /// Art. 19(b). The responsible person inside the Union, required whenever
+  /// the manufacturer is established outside it. This is the field an
+  /// importing seller most often has no answer for, and the one a market
+  /// surveillance authority asks for first.
+  euResponsibleId String? @db.Char(26)
+
+  /// Art. 19(c). Identifiers a buyer and an authority can both use.
+  ///
+  /// `gtin` is the barcode number - EAN-13, UPC-A or GTIN-14 - which is what
+  /// a distributor's system matches on. `modelIdentifier` is the
+  /// manufacturer's own type or model designation, which is what a recall
+  /// notice names. The SKU on this row is ours and means nothing outside this
+  /// installation, so neither of these can be derived from it.
+  gtin            String? @db.VarChar(14)
+  modelIdentifier String? @db.VarChar(64)
+
+  /// Art. 19(d). Warnings and safety information.
+  ///
+  /// The base-language text. The translated versions live on
+  /// `product_translations`, because "a language which can be easily
+  /// understood" means the reader's, not the catalogue author's - a German
+  /// hospital reading an English-only warning has not been warned.
+  safetyWarnings     String? @db.Text
+  safetyInstructions String? @db.Text
+
   createdAt   DateTime  @default(now()) @db.DateTime(3)
   updatedAt   DateTime  @updatedAt @db.DateTime(3)
   archivedAt  DateTime? @db.DateTime(3)
@@ -469,6 +667,18 @@ model Product {
 
   category  Category  @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   taxClass  TaxClass  @relation(fields: [taxClassId], references: [id], onDelete: Restrict)
+
+  /// Restrict on both: an operator named on a published listing cannot be
+  /// deleted out from under it, because the listing would then be offering a
+  /// product with no manufacturer named - which is the exact state Art. 19
+  /// forbids. Retiring one means archiving it and repointing the products.
+  /// Present only for a product somebody has marked as a medical device.
+  /// The row's existence is the flag - a boolean here with the data elsewhere
+  /// is one more pair of things that can disagree.
+  deviceInfo ProductDeviceInfo?
+
+  manufacturer  EconomicOperator? @relation("ProductManufacturer", fields: [manufacturerId], references: [id], onDelete: Restrict)
+  euResponsible EconomicOperator? @relation("ProductEuResponsible", fields: [euResponsibleId], references: [id], onDelete: Restrict)
 
   variants            ProductVariant[]
   media               ProductMedia[]
@@ -480,12 +690,20 @@ model Product {
   orderItems          OrderItem[]
   scheduleItems       RecurringScheduleItem[]
   prices              ProductPrice[]
+  translations        ProductTranslation[]
 
   @@index([categoryId, status, isPublished], map: "ix_product_category_visibility")
   @@index([status, isPublished, archivedAt], map: "ix_product_visibility")
   @@index([basePriceMinor], map: "ix_product_price")
   @@index([createdAt], map: "ix_product_created")
   @@index([name], map: "ix_product_name")
+  @@index([manufacturerId], map: "ix_product_manufacturer")
+  @@index([euResponsibleId], map: "ix_product_eu_responsible")
+  /// A barcode is not unique in this table on purpose: two rows can legitimately
+  /// carry one GTIN - the same item listed in two pack sizes under one code by
+  /// a supplier who reuses them - and refusing that would block a real
+  /// catalogue for a rule the standard does not actually impose on us.
+  @@index([gtin], map: "ix_product_gtin")
   @@map("products")
 }
 
@@ -709,6 +927,27 @@ model CustomerProfile {
   gstin        String? @db.VarChar(32)
   customerCode String? @unique(map: "uq_customer_code") @db.VarChar(32)
 
+  /// The customer's EU VAT identification number, including the member state
+  /// prefix, e.g. "DE811569869". Kept apart from `gstin`, which is the Indian
+  /// registration: they are different identifiers under different laws, and a
+  /// business can hold both.
+  ///
+  /// This one field decides whether a cross-border sale is zero-rated. That is
+  /// why it is never taken on trust - see the three columns below.
+  vatNumber String? @db.VarChar(32)
+
+  /// What VIES said, and when. Null means never checked, which is not the same
+  /// as invalid: a check that could not be made leaves this null and the sale
+  /// is taxed rather than zero-rated, because Art. 138(1)(b) puts the burden of
+  /// the customer's status on the seller.
+  vatNumberValid       Boolean?
+  vatNumberCheckedAt   DateTime? @db.DateTime(3)
+  /// The VIES consultation reference for the last successful check. Evidence
+  /// under Art. 31 of Reg. 904/2010 that the seller relied on an official
+  /// answer, which is what stands between a mis-zero-rated supply and the
+  /// seller paying the tax themselves.
+  vatNumberReference   String?   @db.VarChar(64)
+
   /// Whether this account needs sign-off at all. The amounts that decide when
   /// live in `customer_limits`, one row per currency - see that model.
   requiresOrderApproval Boolean @default(false)
@@ -928,6 +1167,37 @@ model Order {
   shippingMethodName String? @db.VarChar(128)
   paymentMode        PaymentIntentMode @default(ONLINE)
 
+  /// What the customer chose at checkout when there was more than one gateway
+  /// to choose from.
+  ///
+  /// A preference, not a routing rule. The gateway that actually takes the
+  /// money is resolved at payment time from what the operator has connected,
+  /// and is recorded on the payment transaction - which is the row to read to
+  /// find out who was paid. This pair exists so that a customer who reloads
+  /// the payment page, or comes back to it from an email hours later, is
+  /// offered the same sheet they picked rather than silently dropped onto the
+  /// default.
+  ///
+  /// Null means nothing was expressed: an order placed before this existed, a
+  /// payment-link order, a deployment with a single gateway, or an API client
+  /// that sent no choice.
+  preferredPaymentProvider PaymentProviderKind?
+  preferredPaymentMethod   PaymentMethodPreference?
+
+  /// Why this order was taxed the way it was, and under whose rates. Frozen
+  /// here rather than recomputed, because rates change and VAT numbers get
+  /// cancelled - and an invoice already issued must not start disagreeing with
+  /// the order behind it.
+  taxTreatment TaxTreatment @default(FLAT_RATE)
+  /// The member state whose rates were applied. Null under FLAT_RATE.
+  taxCountry   String?      @db.Char(2)
+
+  /// Art. 226(3)-(4): both parties' VAT numbers as they stood at checkout. The
+  /// buyer's is the one that justified a zero rate, so it has to survive any
+  /// later edit to the customer record.
+  sellerVatNumberSnapshot String? @db.VarChar(32)
+  buyerVatNumberSnapshot  String? @db.VarChar(32)
+
   customerNote String? @db.Text
   internalNote String? @db.Text
 
@@ -955,6 +1225,7 @@ model Order {
   occurrence     ScheduleOccurrence? @relation(fields: [scheduleOccurrenceId], references: [id], onDelete: SetNull)
 
   couponRedemption CouponRedemption?
+  invoices         Invoice[]
 
   @@index([customerProfileId, createdAt], map: "ix_order_customer_time")
   @@index([status, createdAt], map: "ix_order_status_time")
@@ -1089,6 +1360,18 @@ model IdempotencyRecord {
 enum PaymentProviderKind {
   RAZORPAY
   STRIPE
+}
+
+/// Which instruments to open a gateway's sheet on.
+///
+/// A request, never a restriction: the sheet still offers everything the
+/// gateway supports, and what the customer actually paid with is read back
+/// from the provider rather than assumed from this. `ANY` is stored rather
+/// than left null so that "they were offered a choice and took the default" is
+/// distinguishable from "no choice was ever recorded".
+enum PaymentMethodPreference {
+  ANY
+  UPI
 }
 
 enum PaymentMode {
@@ -1876,6 +2159,78 @@ model NotificationDelivery {
 }
 
 // ===========================================================================
+// CONSOLE NOTIFICATIONS
+//
+// The bell in the Admin Panel's top bar. Distinct from `notification_outbox`
+// above, which is mail leaving the building: this is one row per thing that
+// happened that a member of staff would want to know about without going
+// looking for it - a customer placing an order, first of all.
+//
+// Two properties the outbox does not have and this needs:
+//
+//   * Read state is per person, not per row. Several people share one console;
+//     one of them opening the bell must not clear the badge for the others.
+//     Hence the join table rather than a `readAt` column here.
+//   * The text is not stored. The row carries its kind and the values that
+//     fill it, and the panel renders the sentence in whatever language the
+//     reader has chosen. Freezing English prose at write time would leave a
+//     Polish or Greek console permanently half-translated.
+// ===========================================================================
+
+model AdminNotification {
+  id String @id @db.Char(26)
+
+  /// Dotted event kind, e.g. order.placed. The panel maps this to a phrase;
+  /// the catalogue lives in AdminNotificationKind.
+  kind String @db.VarChar(48)
+
+  /// The values that fill the phrase - customer name, order number, total.
+  /// Primitives only, and already free of anything that should not be read by
+  /// everyone who can open the bell.
+  variablesJson Json?
+
+  /// Where the row leads in the Admin Panel, e.g. /orders/<id>. Null for a
+  /// notification with no screen to open, which renders as plain text rather
+  /// than as a link that goes nowhere.
+  linkPath String? @db.VarChar(255)
+
+  /// Deny-by-default, carried on the row rather than on the endpoint. A
+  /// notification about an order is shown only to staff who may read orders,
+  /// so the bell cannot become a side channel around the permission model.
+  /// Null means every member of staff sees it.
+  requiredPermission String? @db.VarChar(64)
+
+  relatedType String? @db.VarChar(48)
+  relatedId   String? @db.Char(26)
+
+  /// One row per business event even when the operation is retried - the same
+  /// guarantee `notification_outbox.dedupeKey` gives outgoing mail.
+  dedupeKey String? @unique(map: "uq_admin_notification_dedupe") @db.VarChar(191)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  reads AdminNotificationRead[]
+
+  @@index([createdAt], map: "ix_admin_notification_time")
+  @@index([kind, createdAt], map: "ix_admin_notification_kind_time")
+  @@index([relatedType, relatedId], map: "ix_admin_notification_related")
+  @@map("admin_notifications")
+}
+
+model AdminNotificationRead {
+  notificationId String   @db.Char(26)
+  userId         String   @db.Char(26)
+  readAt         DateTime @default(now()) @db.DateTime(3)
+
+  notification AdminNotification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([notificationId, userId])
+  @@index([userId], map: "ix_admin_notification_read_user")
+  @@map("admin_notification_reads")
+}
+
+// ===========================================================================
 // JOB QUEUE (MariaDB-backed; Redis driver is an alternative, not a requirement)
 //
 // Claiming, without SKIP LOCKED:
@@ -2055,6 +2410,14 @@ model Country {
   /// E.164 dialling prefix, e.g. "+91". Display only.
   phonePrefix String? @db.VarChar(8)
 
+  /// Whether this country is inside the EU VAT area. Not the same as EU
+  /// membership, which is why it is a stored flag rather than a hard-coded
+  /// list: the Canary Islands and Ceuta are Spain but outside it, Livigno is
+  /// Italy but outside it, Monaco is not the EU but is treated as France for
+  /// VAT, and Northern Ireland is a third case again. A deployment that gets
+  /// one of these wrong should be able to fix it in a row, not a release.
+  isEuVat Boolean @default(false)
+
   isActive  Boolean @default(true)
   sortOrder Int     @default(0)
 
@@ -2084,6 +2447,15 @@ model ProductPrice {
   /// Optional strike-through price. Must be >= basePriceMinor, enforced in the
   /// service rather than the schema so the message can name the field.
   compareAtPriceMinor BigInt?
+
+  /// True when this figure is maintained by the exchange-rate refresh rather
+  /// than typed by a person.
+  ///
+  /// The whole point of the flag is what it protects: editing a price by hand
+  /// clears it, and the refresh only ever touches rows that still carry it. A
+  /// deliberate local price - a market where the business undercuts its own
+  /// conversion, or absorbs a duty - must never be undone by a rate moving.
+  isAutoConverted Boolean @default(false)
 
   createdAt   DateTime @default(now()) @db.DateTime(3)
   updatedAt   DateTime @updatedAt @db.DateTime(3)
@@ -2361,4 +2733,625 @@ model AssistantMessage {
 
   @@index([conversationId, createdAt], map: "ix_assistant_message_conversation")
   @@map("assistant_messages")
+}
+
+/// A product's name and copy in one language.
+///
+/// A side table rather than name_pl, name_el … columns on `products`: a new
+/// language is a row here, not a migration, and "no translation yet" is the
+/// absence of a row rather than a column full of NULLs. The catalogue falls
+/// back to the base row on `products` for anything missing, exactly as the
+/// interface falls back to English for a missing key.
+///
+/// Deliberately not here: `slug` and `sku`. The slug is one URL for all
+/// languages - this is an ordering system reached by link, not a public SEO
+/// site - and a SKU is an identifier, not prose.
+model ProductTranslation {
+  id        String @id @db.Char(26)
+  productId String @db.Char(26)
+
+  /// BCP-47 primary subtag, matching the interface languages.
+  language  String @db.VarChar(10)
+
+  name             String  @db.VarChar(255)
+  shortDescription String? @db.VarChar(1024)
+  description      String? @db.Text
+
+  /// GPSR Art. 19(d) requires warnings "in a language which can be easily
+  /// understood by consumers", which for a storefront in eight languages means
+  /// the one the reader picked. Null falls back to the base row, exactly like
+  /// the description above - and the admin panel reports that fallback as a
+  /// gap rather than as a translation.
+  safetyWarnings     String? @db.Text
+  safetyInstructions String? @db.Text
+
+  /// MDR Art. 10(11): what the device is for. Translated for the same reason
+  /// the warnings are - an intended purpose the reader cannot read has not
+  /// been stated to them.
+  intendedPurpose String? @db.Text
+
+  /// Kept alongside the copy so a translated page can carry its own title.
+  metaTitle       String? @db.VarChar(255)
+  metaDescription String? @db.VarChar(512)
+
+  /// True when a person has checked this row. Machine output ships, but the
+  /// admin panel has to be able to show what nobody has read yet.
+  isReviewed Boolean @default(false)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, language], map: "uq_product_translation")
+  @@index([language], map: "ix_product_translation_language")
+  /// Search reads translated names, so the column it filters on is indexed.
+  @@index([name], map: "ix_product_translation_name")
+  @@map("product_translations")
+}
+
+/// A category's name and copy in one language. Same shape and same reasoning
+/// as ProductTranslation.
+model CategoryTranslation {
+  id         String @id @db.Char(26)
+  categoryId String @db.Char(26)
+
+  language String @db.VarChar(10)
+
+  name        String  @db.VarChar(255)
+  description String? @db.Text
+
+  metaTitle       String? @db.VarChar(255)
+  metaDescription String? @db.VarChar(512)
+
+  isReviewed Boolean @default(false)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, language], map: "uq_category_translation")
+  @@index([language], map: "ix_category_translation_language")
+  @@map("category_translations")
+}
+
+// ===========================================================================
+// DATA PROTECTION (GDPR)
+//
+// A data subject request is a clock, not a task list. Art. 12(3) gives the
+// controller one month from receipt, so every request carries the date it
+// falls due and the console sorts by it - a queue ordered by "oldest first"
+// tells you nothing about which one is about to be late.
+//
+// Fulfilment is a job rather than a request handler. Assembling everything one
+// account has ever touched reads a dozen tables, and erasing it rewrites them
+// in a single transaction; neither belongs on the end of an HTTP connection.
+// ===========================================================================
+
+enum DataRequestType {
+  /// Art. 15 access and Art. 20 portability. Two distinct rights that are
+  /// satisfied by the same machine-readable bundle, so they share a type.
+  EXPORT
+
+  /// Art. 17 erasure. Never a row delete - see `erasure.service.ts` for why
+  /// the order history has to survive in pseudonymised form.
+  ERASURE
+}
+
+enum DataRequestStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+
+  /// Art. 12(5) and 17(3): a refusal has to say why, and the reason is part of
+  /// the record because the subject may take it to a supervisory authority.
+  REJECTED
+
+  FAILED
+}
+
+model DataRequest {
+  id String @id @db.Char(26)
+
+  /// The data subject. The email is duplicated out of `users` on purpose: an
+  /// erasure scrubs that row, and this record must still name who was erased
+  /// well enough to answer "did you action my request?" months later. It is
+  /// itself scrubbed to a pseudonym when the erasure runs.
+  subjectUserId String @db.Char(26)
+  subjectEmail  String @db.VarChar(320)
+
+  type   DataRequestType
+  status DataRequestStatus @default(PENDING)
+
+  requestedAt DateTime @default(now()) @db.DateTime(3)
+
+  /// Art. 12(3). Set to requestedAt + one month when the request is opened.
+  dueAt DateTime @db.DateTime(3)
+
+  completedAt DateTime? @db.DateTime(3)
+
+  /// Free text from the subject. Never trusted as an instruction - a request
+  /// asking for something the law does not grant is still only a request.
+  subjectNote String? @db.VarChar(1024)
+
+  /// Why a request was refused, or which exemption was relied on. Required by
+  /// the service whenever status is REJECTED.
+  decisionNote String? @db.VarChar(1024)
+
+  /// Who actioned it. Null while PENDING, and for exports, which fulfil
+  /// themselves - the subject is already authenticated, and making a person
+  /// press a button before someone may read their own data adds delay without
+  /// adding a check.
+  handledById String?   @db.Char(26)
+  handledAt   DateTime? @db.DateTime(3)
+
+  /// The export bundle. Same hashed, expiring, single-purpose token as
+  /// `export_jobs`: this file is every personal fact the system holds about
+  /// one person, so a guessable or permanent URL would be the worst possible
+  /// leak.
+  fileKey           String?   @db.VarChar(512)
+  fileName          String?   @db.VarChar(255)
+  downloadTokenHash String?   @unique(map: "uq_data_request_download_token") @db.Char(64)
+  downloadExpiresAt DateTime? @db.DateTime(3)
+  downloadedAt      DateTime? @db.DateTime(3)
+
+  errorMessage String? @db.VarChar(1024)
+
+  /// What the erasure actually did, per table, as counts. Evidence for Art. 5(2)
+  /// accountability: "the account was erased" is a claim, and this is the
+  /// record that supports it.
+  resultJson Json?
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  @@index([status, dueAt], map: "ix_data_request_due")
+  @@index([subjectUserId, requestedAt], map: "ix_data_request_subject")
+  @@index([type, status], map: "ix_data_request_type_status")
+  @@map("data_requests")
+}
+
+// ===========================================================================
+// EU VAT
+//
+// The tax model this system started with is a flat percentage per product -
+// correct for Indian GST, where the rate travels with the goods. EU VAT does
+// not work that way: the rate depends on where the customer is, whether they
+// are a business, and whether they hold a VAT number the other member state
+// will recognise. The same box of syringes is 21% to a Dutch hospital, 0% to a
+// German wholesaler with a valid VAT ID, and 0% again to a buyer in Norway -
+// for three different legal reasons, and an invoice has to state which.
+//
+// So the flat rate stays and is still what a non-EU deployment uses, and this
+// section sits beside it. A tax class with no `vatCategory` behaves exactly as
+// it always did. One with a category is resolved against the destination
+// country at pricing time - see `modules/tax/vat.service.ts`.
+// ===========================================================================
+
+/// Which of a member state's rate bands a product falls in.
+///
+/// Deliberately the bands rather than the numbers. Every member state sets its
+/// own percentages and changes them on its own schedule; what is stable is
+/// that a given product is "the standard rate here" or "the reduced rate
+/// here". Storing the band on the tax class and the percentage per country is
+/// what lets one catalogue be sold into twenty-seven of them.
+enum VatCategory {
+  STANDARD
+
+  /// Annex III of Directive 2006/112/EC. Most member states have one or two.
+  REDUCED
+
+  /// The "super-reduced" band a few states kept under Art. 98(2).
+  SUPER_REDUCED
+
+  /// Taxable at 0%, with input VAT still recoverable.
+  ZERO
+
+  /// Exempt without the right to deduct - e.g. Art. 132 medical care.
+  /// Distinct from ZERO because the invoice wording and the seller's own VAT
+  /// return differ, even though the customer pays the same nothing.
+  EXEMPT
+}
+
+/// Why an order was taxed the way it was.
+///
+/// Recorded on the order rather than derived at read time: rates change, VAT
+/// numbers get cancelled, and a member state can leave. What an invoice says
+/// must stay true, and the only way to guarantee that is to freeze the
+/// reasoning alongside the numbers.
+enum TaxTreatment {
+  /// No EU VAT resolution ran. The flat tax-class rate applied - Indian GST,
+  /// or any deployment that has not configured VAT rates.
+  FLAT_RATE
+
+  /// Seller and customer in the same member state. That state's rate.
+  DOMESTIC
+
+  /// Intra-Community supply to a business holding a valid VAT number in
+  /// another member state. Zero-rated, and the customer accounts for the tax
+  /// themselves. Arts. 138 and 196.
+  INTRA_EU_REVERSE_CHARGE
+
+  /// Intra-Community distance sale to someone with no valid VAT number.
+  /// Charged at the DESTINATION state's rate and declared through the One Stop
+  /// Shop. Art. 33.
+  INTRA_EU_B2C
+
+  /// Goods leaving the Union. Zero-rated under Art. 146, on the condition that
+  /// the seller can prove they left - a paperwork obligation this software
+  /// records but cannot discharge.
+  EXPORT
+}
+
+/// One rate band, in one country, for a period of time.
+///
+/// Dated rather than a single current value, because a rate change is not an
+/// edit. Germany dropped its standard rate to 16% for six months in 2020, and
+/// an invoice raised in that window is still correct at 16% forever. Repricing
+/// history because a rate moved would falsify every document already issued.
+model VatRate {
+  id String @id @db.Char(26)
+
+  /// ISO-3166-1 alpha-2, matching `countries.code`. Not a foreign key: VAT
+  /// territory and country are not the same thing, and rows exist for codes
+  /// the storefront does not sell into.
+  countryCode String      @db.Char(2)
+  category    VatCategory
+
+  /// Percent, e.g. 21.000000. Decimal, never Float - see money.ts.
+  ratePercent Decimal @db.Decimal(9, 6)
+
+  /// A human label for the band, e.g. "Reduced - medical devices". Shown to
+  /// staff, so a catalogue manager choosing a tax class can tell which of two
+  /// reduced bands they mean.
+  label String? @db.VarChar(128)
+
+  validFrom DateTime  @db.Date
+  /// Null means "still in force". Exactly one open-ended row per country and
+  /// category is the expected shape; the service takes the latest that has
+  /// started if that is ever violated.
+  validTo   DateTime? @db.Date
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  @@unique([countryCode, category, validFrom], map: "uq_vat_rate_period")
+  @@index([countryCode, category, validFrom], map: "ix_vat_rate_lookup")
+  @@map("vat_rates")
+}
+
+/// A VAT number that has been checked, and what the check said.
+///
+/// Cached, because VIES is federated - each member state answers for its own
+/// numbers - and is regularly slow or simply down for one country. A checkout
+/// must not fail because Italy's node is having an afternoon, so a recent
+/// answer is reused and a missing one degrades to "unverified" rather than to
+/// an error.
+///
+/// The consultation number matters more than it looks. Art. 31 of Regulation
+/// 904/2010 lets a seller rely on a VIES answer, and the reference VIES
+/// returns is the proof they relied on it. Without it, a zero-rated supply to
+/// a customer whose number is later found invalid becomes the seller's tax
+/// bill.
+model VatNumberCheck {
+  id String @id @db.Char(26)
+
+  /// The member state prefix and the number, stored apart because VIES takes
+  /// them as separate arguments and because the prefix decides which state is
+  /// being asked.
+  countryCode String @db.Char(2)
+  number      String @db.VarChar(32)
+
+  isValid Boolean
+
+  /// What the member state returned for the holder, when it returns anything.
+  /// Several answer with a name and address; several answer "---" as a matter
+  /// of policy. Both are recorded as given.
+  registeredName    String? @db.VarChar(255)
+  registeredAddress String? @db.VarChar(512)
+
+  /// The VIES consultation reference. Art. 31 of Reg. 904/2010 evidence.
+  consultationNumber String? @db.VarChar(64)
+
+  /// Set when no answer could be obtained at all - a timeout, a member state's
+  /// node being down. Distinct from `isValid = false`, which is a real answer
+  /// meaning "no such number".
+  unavailableReason String? @db.VarChar(255)
+
+  checkedAt DateTime @default(now()) @db.DateTime(3)
+
+  @@unique([countryCode, number], map: "uq_vat_number_check")
+  @@index([checkedAt], map: "ix_vat_number_check_time")
+  @@map("vat_number_checks")
+}
+
+// ===========================================================================
+// INVOICING
+//
+// An invoice is not a view of an order. Art. 226 of Directive 2006/112/EC
+// lists what one must contain, national law requires it be kept for six to ten
+// years, and it must not change afterwards - not when the customer moves, not
+// when a rate changes, not when a product is renamed. So everything it says is
+// frozen into this row at the moment it is issued, and nothing here has an
+// update path.
+// ===========================================================================
+
+model Invoice {
+  id String @id @db.Char(26)
+
+  /// Art. 226(2): "a sequential number, based on one or more series, which
+  /// uniquely identifies the invoice". Allocated from `number_sequences` under
+  /// a row lock, so two concurrent issues cannot collide.
+  number String @unique(map: "uq_invoice_number") @db.VarChar(32)
+  series String @default("INV") @db.VarChar(16)
+
+  /// Not unique. An order has at most one invoice, but it may also have the
+  /// credit note that cancels it, and both point here - a credit note belongs
+  /// to the same supply as the document it reverses. "At most one live
+  /// invoice" is enforced in the service, where the condition
+  /// (creditsInvoiceId IS NULL) can actually be expressed.
+  orderId String @db.Char(26)
+
+  /// Art. 226(1). The date of issue, which is not necessarily the date of
+  /// supply - both are recorded, because the two can fall in different VAT
+  /// periods.
+  issuedAt   DateTime @default(now()) @db.DateTime(3)
+  suppliedAt DateTime @db.DateTime(3)
+
+  /// Art. 226(3)-(5): the seller's and the customer's identities and VAT
+  /// numbers, as they were. Snapshots, because a business that changes its
+  /// registered address does not change the invoices it has already issued.
+  sellerJson Json
+  buyerJson  Json
+
+  sellerVatNumber String? @db.VarChar(32)
+  buyerVatNumber  String? @db.VarChar(32)
+
+  /// Why this was taxed the way it was, carried from the order.
+  taxTreatment TaxTreatment
+  /// The member state whose rates were applied. Null under FLAT_RATE.
+  taxCountry   String?      @db.Char(2)
+
+  /// Art. 226(11): where no VAT is charged, the invoice must say which
+  /// provision it relies on. Rendered from the treatment and frozen here, so
+  /// the wording on a reprint is the wording that was issued.
+  exemptionNote String? @db.VarChar(512)
+
+  currency String @db.Char(3)
+
+  /// Art. 226(6)-(10): the lines, with quantity, unit price, rate and amount.
+  /// A JSON snapshot rather than a relation to `order_items`, which stay
+  /// editable in principle and would silently rewrite an issued document.
+  linesJson Json
+
+  /// Art. 226(8)-(10): the taxable amount per rate, and the tax at each. An
+  /// invoice mixing a standard-rated and a reduced-rated line must break the
+  /// total down by rate rather than state one figure.
+  vatBreakdownJson Json
+
+  subtotalMinor   BigInt
+  discountMinor   BigInt @default(0)
+  taxMinor        BigInt @default(0)
+  shippingMinor   BigInt @default(0)
+  grandTotalMinor BigInt
+
+  /// Set when this invoice cancels an earlier one. A credit note rather than a
+  /// deletion: an issued invoice is never removed, because the sequence it
+  /// belongs to must have no gaps anyone can explain away.
+  creditsInvoiceId String? @db.Char(26)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  creditsInvoice Invoice?  @relation("InvoiceCredit", fields: [creditsInvoiceId], references: [id], onDelete: Restrict)
+  creditedBy     Invoice[] @relation("InvoiceCredit")
+
+  @@index([orderId], map: "ix_invoice_order")
+  @@index([issuedAt], map: "ix_invoice_issued")
+  @@index([taxTreatment, issuedAt], map: "ix_invoice_treatment")
+  @@map("invoices")
+}
+
+// ===========================================================================
+// PRODUCT SAFETY (GPSR)
+//
+// Regulation (EU) 2023/988 has applied since 13 December 2024, and Article 19
+// is the part a catalogue has to answer to: a product may not be offered
+// online unless the listing already carries, before anyone buys,
+//
+//   (a) the manufacturer's name, postal address and electronic address;
+//   (b) where the manufacturer is outside the Union, the same for the
+//       responsible person established inside it;
+//   (c) information identifying the product, including a picture and any type
+//       or model identifier;
+//   (d) any warning or safety information, in a language the buyer of that
+//       member state readily understands.
+//
+// Two consequences shape what follows.
+//
+// The operators are their own table rather than columns on `products`. One
+// manufacturer supplies dozens of lines, their registered address changes as a
+// company detail rather than as a catalogue edit, and (b) is a legal role that
+// several manufacturers can share - an EU representative acting for a group of
+// Asian suppliers is the ordinary case, not an exception.
+//
+// The warnings are translated. Art. 19(d) says "easily understood", which for
+// a storefront serving eight languages means the warning follows the language
+// the reader chose - not the language the catalogue was written in. So the
+// text lives on `product_translations` beside the description, and the base
+// row is the fallback exactly as it is for everything else.
+// ===========================================================================
+
+/// The roles Union product law recognises for whoever put a product on the
+/// market. Named after the law rather than after the supply chain: an
+/// "importer" here is the Art. 4 Reg. 2019/1020 economic operator, not
+/// whichever company happens to have shipped the container.
+enum EconomicOperatorRole {
+  MANUFACTURER
+
+  /// The Art. 16 GPSR / Art. 4(2) Reg. 2019/1020 responsible person inside the
+  /// Union. Required whenever the manufacturer is not established in it, and
+  /// the single most commonly missing piece on a non-EU seller's listing.
+  EU_RESPONSIBLE_PERSON
+
+  IMPORTER
+}
+
+/// A company named on a product listing under Union product law.
+///
+/// Deliberately not merged into a generic "supplier" concept. A supplier is a
+/// commercial relationship; this is a legal identity that appears on a public
+/// page and that a market surveillance authority writes to. The two change for
+/// different reasons and at different times.
+model EconomicOperator {
+  id   String               @id @db.Char(26)
+  role EconomicOperatorRole
+
+  /// Art. 19(a): "name, registered trade name or registered trade mark".
+  legalName String  @db.VarChar(255)
+  /// The trading name, where it differs from the registered one. Shown beside
+  /// it rather than instead of it - a buyer looking for who to complain to
+  /// needs the name that appears on the register.
+  tradeName String? @db.VarChar(255)
+
+  /// Postal address. Shape validated by Zod at the API boundary, like every
+  /// other address in this schema.
+  addressJson Json
+  countryCode String @db.Char(2)
+
+  /// Art. 19(a) again: the "electronic address". Not optional, and not the
+  /// shop's own support address - the point of the field is that a buyer can
+  /// reach the manufacturer directly.
+  email String  @db.VarChar(320)
+  phone String? @db.VarChar(32)
+  website String? @db.VarChar(512)
+
+  /// The Single Registration Number Eudamed issues to an actor under MDR
+  /// Art. 31. Distinct from a VAT number and from a company registration:
+  /// it identifies this company specifically as a medical-device economic
+  /// operator, and a buyer's compliance team will ask for it by name.
+  eudamedSrn String? @db.VarChar(64)
+
+  isActive Boolean @default(true)
+
+  createdAt   DateTime  @default(now()) @db.DateTime(3)
+  updatedAt   DateTime  @updatedAt @db.DateTime(3)
+  archivedAt  DateTime? @db.DateTime(3)
+  createdById String?   @db.Char(26)
+
+  manufacturedProducts Product[] @relation("ProductManufacturer")
+  representedProducts  Product[] @relation("ProductEuResponsible")
+
+  @@index([role, isActive], map: "ix_economic_operator_role")
+  @@index([legalName], map: "ix_economic_operator_name")
+  @@map("economic_operators")
+}
+
+// ===========================================================================
+// MEDICAL DEVICES (MDR)
+//
+// Regulation (EU) 2017/745 governs medical devices placed on the Union market,
+// and it is very much larger than a catalogue: a quality management system,
+// clinical evaluation, post-market surveillance, periodic safety update
+// reports, vigilance reporting. **None of that is here, and none of it can
+// be** - see docs/PRODUCT-SAFETY.md.
+//
+// What a catalogue is responsible for is the part a buyer and a market
+// surveillance authority read off the listing: which device this is, what
+// class it falls in, who certified it, and what it is for. Those are Art. 27
+// (UDI), Annex VI Part C (the identifier structure), Annex VIII (the
+// classification rules) and Art. 10(11) (the information supplied with the
+// device). This section carries exactly those.
+//
+// A separate table rather than columns on `products`, because the great
+// majority of deployments sell nothing that this applies to and should not
+// carry eleven nullable columns to say so. A row exists only for a product
+// somebody has marked as a device.
+// ===========================================================================
+
+/// Risk class, under the Annex VIII rules.
+///
+/// Class I is subdivided because the subdivision decides whether a notified
+/// body is involved at all: a plain Class I device is self-certified, but one
+/// that is supplied sterile, has a measuring function, or is a reusable
+/// surgical instrument needs a notified body for that specific aspect. A
+/// validator that treated "Class I" as one thing would let a sterile syringe
+/// publish with no NB number, which is the exact case it exists to catch.
+enum DeviceClass {
+  CLASS_I
+  CLASS_I_STERILE
+  CLASS_I_MEASURING
+  CLASS_I_REUSABLE_SURGICAL
+  CLASS_IIA
+  CLASS_IIB
+  CLASS_III
+}
+
+/// The MDR facts that belong on a listing.
+///
+/// One row per product, and only for products that are devices. The presence
+/// of the row IS the "this is a medical device" flag - a boolean on `products`
+/// saying so, with the data somewhere else, is one more thing that can
+/// disagree with itself.
+model ProductDeviceInfo {
+  id        String @id @db.Char(26)
+  productId String @unique(map: "uq_device_info_product") @db.Char(26)
+
+  deviceClass DeviceClass
+
+  /// Art. 27 and Annex VI Part C.
+  ///
+  /// The Basic UDI-DI is the "main key" for a group of devices sharing a
+  /// design and intended purpose - it is what a Eudamed entry and a
+  /// declaration of conformity are filed against, and it does NOT appear on
+  /// the label. The UDI-DI is the identifier for one specific packaging
+  /// configuration, and it does. Two different identifiers for two different
+  /// jobs, which is why both are here and neither is derived from the other.
+  basicUdiDi String? @db.VarChar(64)
+  udiDi      String? @db.VarChar(64)
+
+  /// The four-digit identification number of the notified body that issued
+  /// the certificate, e.g. "0123". It appears beside the CE marking, and its
+  /// absence on a device that needs one is the most visible sign that
+  /// something is wrong with a listing.
+  notifiedBodyNumber String? @db.VarChar(8)
+
+  /// Where the declaration of conformity can be read. Art. 19(1) obliges the
+  /// manufacturer to draw one up; a distributor who cannot point at it cannot
+  /// discharge Art. 14(2)(a).
+  declarationOfConformityUrl String? @db.VarChar(1024)
+
+  /// Art. 10(11) / Annex I ch. III. What the device is FOR, in the
+  /// manufacturer's own words. Translated like the safety warnings, and for
+  /// the same reason: an intended purpose the reader cannot read has not been
+  /// stated to them.
+  intendedPurpose String? @db.Text
+
+  /// The three properties that change what else is required.
+  ///
+  /// `isSterile` and `hasMeasuringFunction` are what push a Class I device
+  /// into needing a notified body, and `isSingleUse` is what makes
+  /// reprocessing unlawful under Art. 17 unless a member state permits it.
+  /// They are stored rather than inferred from the class, because a device can
+  /// be sterile and Class IIb, and the class alone does not say so.
+  isSterile            Boolean @default(false)
+  isSingleUse          Boolean @default(false)
+  hasMeasuringFunction Boolean @default(false)
+
+  /// Whether the device contains a substance, tissue or cell of human or
+  /// animal origin. Not a rule this software enforces - it drives labelling
+  /// and, for some combinations, a different conformity route - but a fact a
+  /// buyer's own compliance team asks for and nobody wants to chase twice.
+  containsBiologicalMaterial Boolean @default(false)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([deviceClass], map: "ix_device_info_class")
+  @@index([basicUdiDi], map: "ix_device_info_basic_udi")
+  @@map("product_device_info")
 }
