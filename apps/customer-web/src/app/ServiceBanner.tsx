@@ -14,11 +14,12 @@
  * It listens to the query cache rather than being wired into every page. A
  * page that forgot to report an outage would otherwise be a silent one.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSession } from '@/auth/session-context';
 import { ApiError, NetworkError, onSessionEnded } from '@/lib/api';
+import { useI18n } from '@/i18n/i18n-context';
 
 /** True while at least one query is failing for a reason worth announcing. */
 function useServiceTrouble(): 'maintenance' | 'unreachable' | null {
@@ -60,14 +61,13 @@ function useServiceTrouble(): 'maintenance' | 'unreachable' | null {
 }
 
 function SessionEndedBanner(): React.JSX.Element {
+  const { t } = useI18n();
+
   const location = useLocation();
 
   return (
-    <div
-      role="alert"
-      className="bg-warning-soft px-4 py-2.5 text-center text-sm text-ink"
-    >
-      <span className="font-medium text-warning">Your session has ended.</span>{' '}
+    <div role="alert" className="bg-warning-soft px-4 py-2.5 text-center text-sm text-ink">
+      <span className="font-medium text-warning">{t('serviceBanner.yourSessionHasEnded')}</span>{' '}
       <Link
         to="/login"
         // Carrying the current location means signing back in returns them
@@ -75,7 +75,7 @@ function SessionEndedBanner(): React.JSX.Element {
         state={{ from: location.pathname + location.search }}
         className="font-medium text-brand underline underline-offset-2"
       >
-        Sign in again
+        {t('serviceBanner.signInAgain')}
       </Link>{' '}
       to carry on. Nothing in your cart has been lost.
     </div>
@@ -83,16 +83,35 @@ function SessionEndedBanner(): React.JSX.Element {
 }
 
 export function ServiceBanner(): React.JSX.Element | null {
+  const { t } = useI18n();
+
   const { user, isLoading } = useSession();
   const trouble = useServiceTrouble();
   const [sessionJustEnded, setSessionJustEnded] = useState(false);
+
+  /**
+   * Whether this visitor has been signed in at any point on this page.
+   *
+   * The api client announces a session ending on *any* 401 it cannot refresh
+   * away, because it has no idea whether there was ever a session - and a
+   * rejected sign-in is a 401 like any other. Without this, mistyping a
+   * password put "Your session has ended. Sign in again" across the top of the
+   * sign-in page, directly above the real reason, for somebody who has never
+   * signed in at all. A ref rather than state: it must be readable from inside
+   * the listener below without resubscribing it on every change.
+   */
+  const hadSession = useRef(false);
+
+  useEffect(() => {
+    if (user !== null) hadSession.current = true;
+  }, [user]);
 
   // Announced once, when it happens. A customer who was never signed in should
   // not be told their session ended.
   useEffect(
     () =>
       onSessionEnded(() => {
-        setSessionJustEnded(true);
+        if (hadSession.current) setSessionJustEnded(true);
       }),
     [],
   );
@@ -109,8 +128,10 @@ export function ServiceBanner(): React.JSX.Element | null {
   if (trouble === 'maintenance') {
     return (
       <div role="alert" className="bg-warning-soft px-4 py-2.5 text-center text-sm text-ink">
-        <span className="font-medium text-warning">The store is briefly unavailable.</span> We are
-        working on it — your cart and orders are safe. Please try again in a few minutes.
+        <span className="font-medium text-warning">
+          {t('serviceBanner.theStoreIsBrieflyUnavailable')}
+        </span>
+        {t('serviceBanner.weAreWorkingOnIt')}
       </div>
     );
   }
@@ -118,7 +139,9 @@ export function ServiceBanner(): React.JSX.Element | null {
   if (trouble === 'unreachable') {
     return (
       <div role="status" className="bg-warning-soft px-4 py-2.5 text-center text-sm text-ink">
-        <span className="font-medium text-warning">We are having trouble reaching the store.</span>{' '}
+        <span className="font-medium text-warning">
+          {t('serviceBanner.weAreHavingTroubleReaching')}
+        </span>{' '}
         Anything already on screen still works. Changes will not save until the connection is back.
       </div>
     );

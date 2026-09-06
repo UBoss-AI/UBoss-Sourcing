@@ -18,7 +18,15 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
 import { useToast } from '@/components/toast-context';
-import { Badge, Button, ButtonLink, ErrorState, Field, LoadingState, Textarea } from '@/components/ui';
+import {
+  Badge,
+  Button,
+  ButtonLink,
+  ErrorState,
+  Field,
+  LoadingState,
+  Textarea,
+} from '@/components/ui';
 import { Modal } from '@/components/Modal';
 import { GrandTotalRow, TotalRow } from '@/components/Totals';
 import { CheckIcon, DotIcon, RepeatIcon } from '@/components/icons';
@@ -28,6 +36,7 @@ import { formatDateTime, formatMoney, formatNumber } from '@/lib/format';
 import { orderStatusExplanation, orderStatusLabel, orderStatusTone } from '@/lib/order-status';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { OrderAddress, OrderDetail } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 function AddressBlock({
   title,
@@ -36,11 +45,13 @@ function AddressBlock({
   title: string;
   address: OrderAddress | null;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   return (
     <div>
       <h3 className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">{title}</h3>
       {address === null ? (
-        <p className="mt-1 text-sm text-ink-muted">Not provided</p>
+        <p className="mt-1 text-sm text-ink-muted">{t('orderDetail.notProvided')}</p>
       ) : (
         <address className="mt-1 text-sm not-italic text-ink">
           {address.contactName !== null && <div className="font-medium">{address.contactName}</div>}
@@ -61,6 +72,8 @@ function AddressBlock({
 }
 
 export function OrderDetailPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -135,7 +148,7 @@ export function OrderDetailPage(): React.JSX.Element {
     },
   });
 
-  if (query.isPending) return <LoadingState label="Loading your order" />;
+  if (query.isPending) return <LoadingState label={t('orderDetail.loadingYourOrder')} />;
 
   if (query.isError) {
     return (
@@ -155,11 +168,11 @@ export function OrderDetailPage(): React.JSX.Element {
 
   return (
     <>
-      <nav aria-label="Breadcrumb" className="mb-4 text-sm">
+      <nav aria-label={t('orderDetail.breadcrumb')} className="mb-4 text-sm">
         <ol className="flex flex-wrap items-center gap-1.5 text-ink-muted">
           <li>
             <Link to="/account/orders" className="hover:text-brand hover:underline">
-              Your orders
+              {t('orderDetail.yourOrders')}
             </Link>
           </li>
           <li aria-hidden="true">/</li>
@@ -184,7 +197,7 @@ export function OrderDetailPage(): React.JSX.Element {
           {order.source === 'RECURRING' && (
             <Badge tone="operational">
               <RepeatIcon className="h-3 w-3" />
-              From a repeat purchase
+              {t('orderDetail.fromARepeatPurchase')}
             </Badge>
           )}
           <Badge tone={orderStatusTone(order.status)}>{orderStatusLabel(order.status)}</Badge>
@@ -215,7 +228,7 @@ export function OrderDetailPage(): React.JSX.Element {
               size="lg"
               className="shrink-0"
             >
-              Pay for this order
+              {t('orderDetail.payForThisOrder')}
             </ButtonLink>
           )}
         </div>
@@ -232,7 +245,7 @@ export function OrderDetailPage(): React.JSX.Element {
               id="items-heading"
               className="border-b border-border-subtle px-5 py-4 text-title-sm text-ink"
             >
-              Items
+              {t('orderDetail.items')}
             </h2>
 
             <ul className="divide-y divide-border-subtle">
@@ -272,9 +285,7 @@ export function OrderDetailPage(): React.JSX.Element {
                       <p className="text-xs text-ink-muted">
                         {formatNumber(item.quantity)} × {formatMoney(item.unitPrice)}
                       </p>
-                      <p className="text-xxs text-ink-subtle">
-                        incl. {formatMoney(item.tax)} tax
-                      </p>
+                      <p className="text-xxs text-ink-subtle">incl. {formatMoney(item.tax)} tax</p>
                     </div>
                   </div>
                 </li>
@@ -285,24 +296,36 @@ export function OrderDetailPage(): React.JSX.Element {
                 confirmation, so a figure keeps its treatment all the way
                 through the flow. */}
             <dl className="space-y-2.5 border-t border-border-subtle px-5 py-4 text-sm">
-              <TotalRow label="Subtotal" value={formatMoney(order.totals.subtotal)} />
+              <TotalRow
+                label={t('orderDetail.subtotal')}
+                value={formatMoney(order.totals.subtotal)}
+              />
               {order.totals.discount.minor !== '0' && (
                 <TotalRow
-                  label="Discount"
+                  label={t('orderDetail.discount')}
                   tone="credit"
                   value={<>−{formatMoney(order.totals.discount)}</>}
                 />
               )}
-              <TotalRow label="Tax" value={formatMoney(order.totals.tax)} />
-              <TotalRow label="Delivery" value={formatMoney(order.totals.shipping)} />
-              <GrandTotalRow label="Total" value={formatMoney(order.totals.grandTotal)} />
+              <TotalRow label={t('orderDetail.tax')} value={formatMoney(order.totals.tax)} />
               <TotalRow
-                label="Paid"
+                label={t('orderDetail.delivery')}
+                value={formatMoney(order.totals.shipping)}
+              />
+              <GrandTotalRow
+                label={t('orderDetail.total')}
+                value={formatMoney(order.totals.grandTotal)}
+              />
+              <TotalRow
+                label={t('orderDetail.paid')}
                 tone={isSettled ? 'settled' : 'outstanding'}
                 value={formatMoney(order.totals.paid)}
               />
               {order.totals.refunded.minor !== '0' && (
-                <TotalRow label="Refunded" value={formatMoney(order.totals.refunded)} />
+                <TotalRow
+                  label={t('orderDetail.refunded')}
+                  value={formatMoney(order.totals.refunded)}
+                />
               )}
             </dl>
           </section>
@@ -316,7 +339,7 @@ export function OrderDetailPage(): React.JSX.Element {
               id="progress-heading"
               className="border-b border-border-subtle px-5 py-4 text-title-sm text-ink"
             >
-              Progress
+              {t('orderDetail.progress')}
             </h2>
 
             {/*
@@ -357,10 +380,7 @@ export function OrderDetailPage(): React.JSX.Element {
 
                     <div className={cx('min-w-0', isLatest ? 'pb-0' : 'pb-5')}>
                       <p
-                        className={cx(
-                          'text-sm',
-                          isLatest ? 'font-semibold text-ink' : 'text-ink',
-                        )}
+                        className={cx('text-sm', isLatest ? 'font-semibold text-ink' : 'text-ink')}
                       >
                         {orderStatusLabel(entry.to)}
                         {isLatest && <span className="sr-only"> — current status</span>}
@@ -377,26 +397,36 @@ export function OrderDetailPage(): React.JSX.Element {
           </section>
 
           {/* --- Delivery ---------------------------------------------------- */}
-          <section aria-labelledby="delivery-heading" className="rounded-lg border border-border bg-surface p-5 shadow-card">
+          <section
+            aria-labelledby="delivery-heading"
+            className="rounded-lg border border-border bg-surface p-5 shadow-card"
+          >
             <h2 id="delivery-heading" className="text-title-sm text-ink">
-              Delivery
+              {t('orderDetail.delivery')}
             </h2>
 
             <div className="mt-4 grid gap-6 sm:grid-cols-2">
-              <AddressBlock title="Delivery address" address={order.shippingAddress} />
-              <AddressBlock title="Billing address" address={order.billingAddress} />
+              <AddressBlock
+                title={t('orderDetail.deliveryAddress')}
+                address={order.shippingAddress}
+              />
+              <AddressBlock
+                title={t('orderDetail.billingAddress')}
+                address={order.billingAddress}
+              />
             </div>
 
             {order.shippingMethodName !== null && (
               <p className="mt-4 text-sm text-ink-muted">
-                Method: <span className="text-ink">{order.shippingMethodName}</span>
+                {t('orderDetail.method')}
+                <span className="text-ink">{order.shippingMethodName}</span>
               </p>
             )}
 
             {order.shipments.length > 0 && (
               <div className="mt-4 border-t border-border pt-4">
                 <h3 className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                  Tracking
+                  {t('orderDetail.tracking')}
                 </h3>
                 <ul className="mt-2 space-y-2 text-sm">
                   {order.shipments.map((shipment, index) => (
@@ -414,7 +444,7 @@ export function OrderDetailPage(): React.JSX.Element {
                           rel="noopener noreferrer"
                           className="ml-2 font-medium text-brand hover:underline"
                         >
-                          Track it
+                          {t('orderDetail.trackIt')}
                         </a>
                       )}
                       {shipment.dispatchedAt !== null && (
@@ -431,7 +461,7 @@ export function OrderDetailPage(): React.JSX.Element {
             {order.customerNote !== null && (
               <div className="mt-4 border-t border-border pt-4">
                 <h3 className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                  Your note
+                  {t('orderDetail.yourNote')}
                 </h3>
                 <p className="mt-1 text-sm text-ink">{order.customerNote}</p>
               </div>
@@ -442,7 +472,7 @@ export function OrderDetailPage(): React.JSX.Element {
         {/* --- Actions --------------------------------------------------------- */}
         <aside className="space-y-4 lg:sticky lg:top-28 lg:self-start">
           <div className="rounded-lg border border-border bg-surface p-5 shadow-card">
-            <h2 className="text-title-sm text-ink">Need something?</h2>
+            <h2 className="text-title-sm text-ink">{t('orderDetail.needSomething')}</h2>
 
             <div className="mt-3 space-y-2">
               <Button
@@ -452,7 +482,7 @@ export function OrderDetailPage(): React.JSX.Element {
                   reorder.mutate();
                 }}
               >
-                Order these again
+                {t('orderDetail.orderTheseAgain')}
               </Button>
               {/* Said plainly, because the alternative is a customer expecting
                   the old total and finding a new one at checkout. */}
@@ -470,19 +500,16 @@ export function OrderDetailPage(): React.JSX.Element {
                   setIsCancelling(true);
                 }}
               >
-                Cancel this order
+                {t('orderDetail.cancelThisOrder')}
               </Button>
-              <p className="text-xs text-ink-muted">
-                Whether an order can still be cancelled depends on how far along it is. We will tell
-                you either way.
-              </p>
+              <p className="text-xs text-ink-muted">{t('orderDetail.whetherAnOrderCanStill')}</p>
             </div>
           </div>
 
           {order.cancelReason !== null && (
             <div className="rounded-lg border border-border bg-surface p-5 shadow-card">
               <h2 className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                Cancellation reason
+                {t('orderDetail.cancellationReason')}
               </h2>
               <p className="mt-1 text-sm text-ink">{order.cancelReason}</p>
             </div>
@@ -490,7 +517,7 @@ export function OrderDetailPage(): React.JSX.Element {
 
           {business.supportEmail !== null && (
             <div className="rounded-lg border border-border bg-surface p-5 text-sm shadow-card">
-              <h2 className="font-medium text-ink">Something wrong?</h2>
+              <h2 className="font-medium text-ink">{t('orderDetail.somethingWrong')}</h2>
               <p className="mt-1 text-ink-muted">
                 Email{' '}
                 <a
@@ -512,7 +539,7 @@ export function OrderDetailPage(): React.JSX.Element {
           setIsCancelling(false);
         }}
         title={`Cancel ${order.orderNumber}?`}
-        description="Tell us why, so we can put it right."
+        description={t('orderDetail.tellUsWhySoWe')}
         footer={
           <>
             <Button
@@ -521,7 +548,7 @@ export function OrderDetailPage(): React.JSX.Element {
               }}
               disabled={cancel.isPending}
             >
-              Keep the order
+              {t('orderDetail.keepTheOrder')}
             </Button>
             <Button
               variant="danger"
@@ -531,16 +558,13 @@ export function OrderDetailPage(): React.JSX.Element {
                 cancel.mutate();
               }}
             >
-              Cancel the order
+              {t('orderDetail.cancelTheOrder')}
             </Button>
           </>
         }
       >
         <div className="space-y-4">
-          <p className="text-sm text-ink-muted">
-            If you have already paid, the refund is arranged separately and we will email you about
-            it.
-          </p>
+          <p className="text-sm text-ink-muted">{t('orderDetail.ifYouHaveAlreadyPaid')}</p>
 
           {cancelError !== null && (
             <p
@@ -551,7 +575,7 @@ export function OrderDetailPage(): React.JSX.Element {
             </p>
           )}
 
-          <Field label="Reason" required>
+          <Field label={t('orderDetail.reason')} required>
             {({ inputId }) => (
               <Textarea
                 id={inputId}

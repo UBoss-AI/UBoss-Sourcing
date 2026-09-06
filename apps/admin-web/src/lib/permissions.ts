@@ -62,6 +62,15 @@ export const Permission = {
   REPORT_READ: 'report.read',
   EXPORT_CREATE: 'export.create',
   AUDIT_READ: 'audit.read',
+
+  INVOICE_READ: 'invoice.read',
+  /// Held apart from reading: an invoice enters a VAT return, a number issued
+  /// in error cannot be deleted, only reversed, and both documents stay on the
+  /// record forever.
+  INVOICE_ISSUE: 'invoice.issue',
+
+  DATA_REQUEST_READ: 'data_request.read',
+  DATA_REQUEST_ACTION: 'data_request.action',
 } as const;
 
 export type PermissionKey = (typeof Permission)[keyof typeof Permission];

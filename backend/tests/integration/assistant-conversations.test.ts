@@ -20,6 +20,7 @@
  * write path without the bill.
  */
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
+import { signInAdmin } from '../support/admin-session.js';
 import { ROLE_DEFINITIONS, Permission, Role } from '../../src/domain/permissions.js';
 import { buildApp } from '../../src/http/app.js';
 import { hashPassword } from '../../src/infra/crypto.js';
@@ -78,17 +79,7 @@ async function createAdmin(email: string, roleKey: string): Promise<void> {
 }
 
 async function signIn(email: string): Promise<string> {
-  const response = await app.inject({
-    method: 'POST',
-    url: '/api/v1/admin/auth/login',
-    payload: { email, password: PASSWORD },
-  });
-
-  expect(response.statusCode).toBe(200);
-
-  const raw = response.headers['set-cookie'];
-  const cookies = Array.isArray(raw) ? raw : [raw ?? ''];
-  return cookies.map((cookie) => cookie.split(';')[0]).join('; ');
+  return (await signInAdmin(app, { email, password: PASSWORD })).cookies;
 }
 
 /** Start a conversation the way the widget does. */

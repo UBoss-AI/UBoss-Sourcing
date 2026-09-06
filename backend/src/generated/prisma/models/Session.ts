@@ -20,8 +20,22 @@ export type SessionModel = runtime.Types.Result.DefaultSelection<Prisma.$Session
 
 export type AggregateSession = {
   _count: SessionCountAggregateOutputType | null
+  _avg: SessionAvgAggregateOutputType | null
+  _sum: SessionSumAggregateOutputType | null
   _min: SessionMinAggregateOutputType | null
   _max: SessionMaxAggregateOutputType | null
+}
+
+export type SessionAvgAggregateOutputType = {
+  locationLatitude: runtime.Decimal | null
+  locationLongitude: runtime.Decimal | null
+  locationAccuracyM: number | null
+}
+
+export type SessionSumAggregateOutputType = {
+  locationLatitude: runtime.Decimal | null
+  locationLongitude: runtime.Decimal | null
+  locationAccuracyM: number | null
 }
 
 export type SessionMinAggregateOutputType = {
@@ -31,6 +45,11 @@ export type SessionMinAggregateOutputType = {
   familyId: string | null
   userAgent: string | null
   ipAddress: string | null
+  locationLatitude: runtime.Decimal | null
+  locationLongitude: runtime.Decimal | null
+  locationAccuracyM: number | null
+  locationLabel: string | null
+  locationCapturedAt: Date | null
   expiresAt: Date | null
   revokedAt: Date | null
   revokedReason: string | null
@@ -46,6 +65,11 @@ export type SessionMaxAggregateOutputType = {
   familyId: string | null
   userAgent: string | null
   ipAddress: string | null
+  locationLatitude: runtime.Decimal | null
+  locationLongitude: runtime.Decimal | null
+  locationAccuracyM: number | null
+  locationLabel: string | null
+  locationCapturedAt: Date | null
   expiresAt: Date | null
   revokedAt: Date | null
   revokedReason: string | null
@@ -61,6 +85,11 @@ export type SessionCountAggregateOutputType = {
   familyId: number
   userAgent: number
   ipAddress: number
+  locationLatitude: number
+  locationLongitude: number
+  locationAccuracyM: number
+  locationLabel: number
+  locationCapturedAt: number
   expiresAt: number
   revokedAt: number
   revokedReason: number
@@ -71,6 +100,18 @@ export type SessionCountAggregateOutputType = {
 }
 
 
+export type SessionAvgAggregateInputType = {
+  locationLatitude?: true
+  locationLongitude?: true
+  locationAccuracyM?: true
+}
+
+export type SessionSumAggregateInputType = {
+  locationLatitude?: true
+  locationLongitude?: true
+  locationAccuracyM?: true
+}
+
 export type SessionMinAggregateInputType = {
   id?: true
   userId?: true
@@ -78,6 +119,11 @@ export type SessionMinAggregateInputType = {
   familyId?: true
   userAgent?: true
   ipAddress?: true
+  locationLatitude?: true
+  locationLongitude?: true
+  locationAccuracyM?: true
+  locationLabel?: true
+  locationCapturedAt?: true
   expiresAt?: true
   revokedAt?: true
   revokedReason?: true
@@ -93,6 +139,11 @@ export type SessionMaxAggregateInputType = {
   familyId?: true
   userAgent?: true
   ipAddress?: true
+  locationLatitude?: true
+  locationLongitude?: true
+  locationAccuracyM?: true
+  locationLabel?: true
+  locationCapturedAt?: true
   expiresAt?: true
   revokedAt?: true
   revokedReason?: true
@@ -108,6 +159,11 @@ export type SessionCountAggregateInputType = {
   familyId?: true
   userAgent?: true
   ipAddress?: true
+  locationLatitude?: true
+  locationLongitude?: true
+  locationAccuracyM?: true
+  locationLabel?: true
+  locationCapturedAt?: true
   expiresAt?: true
   revokedAt?: true
   revokedReason?: true
@@ -155,6 +211,18 @@ export type SessionAggregateArgs<ExtArgs extends runtime.Types.Extensions.Intern
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: SessionAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: SessionSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: SessionMinAggregateInputType
@@ -185,6 +253,8 @@ export type SessionGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   _count?: SessionCountAggregateInputType | true
+  _avg?: SessionAvgAggregateInputType
+  _sum?: SessionSumAggregateInputType
   _min?: SessionMinAggregateInputType
   _max?: SessionMaxAggregateInputType
 }
@@ -196,6 +266,11 @@ export type SessionGroupByOutputType = {
   familyId: string
   userAgent: string | null
   ipAddress: string | null
+  locationLatitude: runtime.Decimal | null
+  locationLongitude: runtime.Decimal | null
+  locationAccuracyM: number | null
+  locationLabel: string | null
+  locationCapturedAt: Date | null
   expiresAt: Date
   revokedAt: Date | null
   revokedReason: string | null
@@ -203,6 +278,8 @@ export type SessionGroupByOutputType = {
   createdAt: Date
   lastUsedAt: Date
   _count: SessionCountAggregateOutputType | null
+  _avg: SessionAvgAggregateOutputType | null
+  _sum: SessionSumAggregateOutputType | null
   _min: SessionMinAggregateOutputType | null
   _max: SessionMaxAggregateOutputType | null
 }
@@ -232,6 +309,11 @@ export type SessionWhereInput = {
   familyId?: Prisma.StringFilter<"Session"> | string
   userAgent?: Prisma.StringNullableFilter<"Session"> | string | null
   ipAddress?: Prisma.StringNullableFilter<"Session"> | string | null
+  locationLatitude?: Prisma.DecimalNullableFilter<"Session"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationLongitude?: Prisma.DecimalNullableFilter<"Session"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationAccuracyM?: Prisma.IntNullableFilter<"Session"> | number | null
+  locationLabel?: Prisma.StringNullableFilter<"Session"> | string | null
+  locationCapturedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   expiresAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   revokedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   revokedReason?: Prisma.StringNullableFilter<"Session"> | string | null
@@ -248,6 +330,11 @@ export type SessionOrderByWithRelationInput = {
   familyId?: Prisma.SortOrder
   userAgent?: Prisma.SortOrderInput | Prisma.SortOrder
   ipAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  locationLatitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  locationLongitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  locationAccuracyM?: Prisma.SortOrderInput | Prisma.SortOrder
+  locationLabel?: Prisma.SortOrderInput | Prisma.SortOrder
+  locationCapturedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   revokedReason?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -268,6 +355,11 @@ export type SessionWhereUniqueInput = Prisma.AtLeast<{
   familyId?: Prisma.StringFilter<"Session"> | string
   userAgent?: Prisma.StringNullableFilter<"Session"> | string | null
   ipAddress?: Prisma.StringNullableFilter<"Session"> | string | null
+  locationLatitude?: Prisma.DecimalNullableFilter<"Session"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationLongitude?: Prisma.DecimalNullableFilter<"Session"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationAccuracyM?: Prisma.IntNullableFilter<"Session"> | number | null
+  locationLabel?: Prisma.StringNullableFilter<"Session"> | string | null
+  locationCapturedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   expiresAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   revokedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   revokedReason?: Prisma.StringNullableFilter<"Session"> | string | null
@@ -284,6 +376,11 @@ export type SessionOrderByWithAggregationInput = {
   familyId?: Prisma.SortOrder
   userAgent?: Prisma.SortOrderInput | Prisma.SortOrder
   ipAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  locationLatitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  locationLongitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  locationAccuracyM?: Prisma.SortOrderInput | Prisma.SortOrder
+  locationLabel?: Prisma.SortOrderInput | Prisma.SortOrder
+  locationCapturedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   revokedReason?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -291,8 +388,10 @@ export type SessionOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   lastUsedAt?: Prisma.SortOrder
   _count?: Prisma.SessionCountOrderByAggregateInput
+  _avg?: Prisma.SessionAvgOrderByAggregateInput
   _max?: Prisma.SessionMaxOrderByAggregateInput
   _min?: Prisma.SessionMinOrderByAggregateInput
+  _sum?: Prisma.SessionSumOrderByAggregateInput
 }
 
 export type SessionScalarWhereWithAggregatesInput = {
@@ -305,6 +404,11 @@ export type SessionScalarWhereWithAggregatesInput = {
   familyId?: Prisma.StringWithAggregatesFilter<"Session"> | string
   userAgent?: Prisma.StringNullableWithAggregatesFilter<"Session"> | string | null
   ipAddress?: Prisma.StringNullableWithAggregatesFilter<"Session"> | string | null
+  locationLatitude?: Prisma.DecimalNullableWithAggregatesFilter<"Session"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationLongitude?: Prisma.DecimalNullableWithAggregatesFilter<"Session"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationAccuracyM?: Prisma.IntNullableWithAggregatesFilter<"Session"> | number | null
+  locationLabel?: Prisma.StringNullableWithAggregatesFilter<"Session"> | string | null
+  locationCapturedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Session"> | Date | string | null
   expiresAt?: Prisma.DateTimeWithAggregatesFilter<"Session"> | Date | string
   revokedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Session"> | Date | string | null
   revokedReason?: Prisma.StringNullableWithAggregatesFilter<"Session"> | string | null
@@ -319,6 +423,11 @@ export type SessionCreateInput = {
   familyId: string
   userAgent?: string | null
   ipAddress?: string | null
+  locationLatitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationLongitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationAccuracyM?: number | null
+  locationLabel?: string | null
+  locationCapturedAt?: Date | string | null
   expiresAt: Date | string
   revokedAt?: Date | string | null
   revokedReason?: string | null
@@ -335,6 +444,11 @@ export type SessionUncheckedCreateInput = {
   familyId: string
   userAgent?: string | null
   ipAddress?: string | null
+  locationLatitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationLongitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationAccuracyM?: number | null
+  locationLabel?: string | null
+  locationCapturedAt?: Date | string | null
   expiresAt: Date | string
   revokedAt?: Date | string | null
   revokedReason?: string | null
@@ -349,6 +463,11 @@ export type SessionUpdateInput = {
   familyId?: Prisma.StringFieldUpdateOperationsInput | string
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationLatitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationLongitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -365,6 +484,11 @@ export type SessionUncheckedUpdateInput = {
   familyId?: Prisma.StringFieldUpdateOperationsInput | string
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationLatitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationLongitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -380,6 +504,11 @@ export type SessionCreateManyInput = {
   familyId: string
   userAgent?: string | null
   ipAddress?: string | null
+  locationLatitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationLongitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationAccuracyM?: number | null
+  locationLabel?: string | null
+  locationCapturedAt?: Date | string | null
   expiresAt: Date | string
   revokedAt?: Date | string | null
   revokedReason?: string | null
@@ -394,6 +523,11 @@ export type SessionUpdateManyMutationInput = {
   familyId?: Prisma.StringFieldUpdateOperationsInput | string
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationLatitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationLongitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -409,6 +543,11 @@ export type SessionUncheckedUpdateManyInput = {
   familyId?: Prisma.StringFieldUpdateOperationsInput | string
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationLatitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationLongitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -440,12 +579,23 @@ export type SessionCountOrderByAggregateInput = {
   familyId?: Prisma.SortOrder
   userAgent?: Prisma.SortOrder
   ipAddress?: Prisma.SortOrder
+  locationLatitude?: Prisma.SortOrder
+  locationLongitude?: Prisma.SortOrder
+  locationAccuracyM?: Prisma.SortOrder
+  locationLabel?: Prisma.SortOrder
+  locationCapturedAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
   revokedReason?: Prisma.SortOrder
   replacedBySessionId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   lastUsedAt?: Prisma.SortOrder
+}
+
+export type SessionAvgOrderByAggregateInput = {
+  locationLatitude?: Prisma.SortOrder
+  locationLongitude?: Prisma.SortOrder
+  locationAccuracyM?: Prisma.SortOrder
 }
 
 export type SessionMaxOrderByAggregateInput = {
@@ -455,6 +605,11 @@ export type SessionMaxOrderByAggregateInput = {
   familyId?: Prisma.SortOrder
   userAgent?: Prisma.SortOrder
   ipAddress?: Prisma.SortOrder
+  locationLatitude?: Prisma.SortOrder
+  locationLongitude?: Prisma.SortOrder
+  locationAccuracyM?: Prisma.SortOrder
+  locationLabel?: Prisma.SortOrder
+  locationCapturedAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
   revokedReason?: Prisma.SortOrder
@@ -470,12 +625,23 @@ export type SessionMinOrderByAggregateInput = {
   familyId?: Prisma.SortOrder
   userAgent?: Prisma.SortOrder
   ipAddress?: Prisma.SortOrder
+  locationLatitude?: Prisma.SortOrder
+  locationLongitude?: Prisma.SortOrder
+  locationAccuracyM?: Prisma.SortOrder
+  locationLabel?: Prisma.SortOrder
+  locationCapturedAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
   revokedReason?: Prisma.SortOrder
   replacedBySessionId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   lastUsedAt?: Prisma.SortOrder
+}
+
+export type SessionSumOrderByAggregateInput = {
+  locationLatitude?: Prisma.SortOrder
+  locationLongitude?: Prisma.SortOrder
+  locationAccuracyM?: Prisma.SortOrder
 }
 
 export type SessionCreateNestedManyWithoutUserInput = {
@@ -520,12 +686,33 @@ export type SessionUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.SessionScalarWhereInput | Prisma.SessionScalarWhereInput[]
 }
 
+export type NullableDecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type SessionCreateWithoutUserInput = {
   id: string
   refreshTokenHash: string
   familyId: string
   userAgent?: string | null
   ipAddress?: string | null
+  locationLatitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationLongitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationAccuracyM?: number | null
+  locationLabel?: string | null
+  locationCapturedAt?: Date | string | null
   expiresAt: Date | string
   revokedAt?: Date | string | null
   revokedReason?: string | null
@@ -540,6 +727,11 @@ export type SessionUncheckedCreateWithoutUserInput = {
   familyId: string
   userAgent?: string | null
   ipAddress?: string | null
+  locationLatitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationLongitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationAccuracyM?: number | null
+  locationLabel?: string | null
+  locationCapturedAt?: Date | string | null
   expiresAt: Date | string
   revokedAt?: Date | string | null
   revokedReason?: string | null
@@ -584,6 +776,11 @@ export type SessionScalarWhereInput = {
   familyId?: Prisma.StringFilter<"Session"> | string
   userAgent?: Prisma.StringNullableFilter<"Session"> | string | null
   ipAddress?: Prisma.StringNullableFilter<"Session"> | string | null
+  locationLatitude?: Prisma.DecimalNullableFilter<"Session"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationLongitude?: Prisma.DecimalNullableFilter<"Session"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationAccuracyM?: Prisma.IntNullableFilter<"Session"> | number | null
+  locationLabel?: Prisma.StringNullableFilter<"Session"> | string | null
+  locationCapturedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   expiresAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   revokedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   revokedReason?: Prisma.StringNullableFilter<"Session"> | string | null
@@ -598,6 +795,11 @@ export type SessionCreateManyUserInput = {
   familyId: string
   userAgent?: string | null
   ipAddress?: string | null
+  locationLatitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationLongitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationAccuracyM?: number | null
+  locationLabel?: string | null
+  locationCapturedAt?: Date | string | null
   expiresAt: Date | string
   revokedAt?: Date | string | null
   revokedReason?: string | null
@@ -612,6 +814,11 @@ export type SessionUpdateWithoutUserInput = {
   familyId?: Prisma.StringFieldUpdateOperationsInput | string
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationLatitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationLongitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -626,6 +833,11 @@ export type SessionUncheckedUpdateWithoutUserInput = {
   familyId?: Prisma.StringFieldUpdateOperationsInput | string
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationLatitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationLongitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -640,6 +852,11 @@ export type SessionUncheckedUpdateManyWithoutUserInput = {
   familyId?: Prisma.StringFieldUpdateOperationsInput | string
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationLatitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationLongitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  locationLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -657,6 +874,11 @@ export type SessionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   familyId?: boolean
   userAgent?: boolean
   ipAddress?: boolean
+  locationLatitude?: boolean
+  locationLongitude?: boolean
+  locationAccuracyM?: boolean
+  locationLabel?: boolean
+  locationCapturedAt?: boolean
   expiresAt?: boolean
   revokedAt?: boolean
   revokedReason?: boolean
@@ -675,6 +897,11 @@ export type SessionSelectScalar = {
   familyId?: boolean
   userAgent?: boolean
   ipAddress?: boolean
+  locationLatitude?: boolean
+  locationLongitude?: boolean
+  locationAccuracyM?: boolean
+  locationLabel?: boolean
+  locationCapturedAt?: boolean
   expiresAt?: boolean
   revokedAt?: boolean
   revokedReason?: boolean
@@ -683,7 +910,7 @@ export type SessionSelectScalar = {
   lastUsedAt?: boolean
 }
 
-export type SessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "refreshTokenHash" | "familyId" | "userAgent" | "ipAddress" | "expiresAt" | "revokedAt" | "revokedReason" | "replacedBySessionId" | "createdAt" | "lastUsedAt", ExtArgs["result"]["session"]>
+export type SessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "refreshTokenHash" | "familyId" | "userAgent" | "ipAddress" | "locationLatitude" | "locationLongitude" | "locationAccuracyM" | "locationLabel" | "locationCapturedAt" | "expiresAt" | "revokedAt" | "revokedReason" | "replacedBySessionId" | "createdAt" | "lastUsedAt", ExtArgs["result"]["session"]>
 export type SessionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -706,6 +933,28 @@ export type $SessionPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     familyId: string
     userAgent: string | null
     ipAddress: string | null
+    /**
+     * Where the device said this sign-in happened, from the browser's
+     * Geolocation API. Admin sessions carry it because the console refuses to
+     * open until it is recorded; a customer session never has it.
+     * 
+     * Six decimal places is roughly a tenth of a metre, which is finer than any
+     * browser fix and leaves no rounding to explain away.
+     */
+    locationLatitude: runtime.Decimal | null
+    locationLongitude: runtime.Decimal | null
+    /**
+     * The radius the device claimed, in metres. A wifi fix is a few hundred, a
+     * GPS fix single digits - shown alongside the place so a coarse fix is not
+     * read as a precise one.
+     */
+    locationAccuracyM: number | null
+    /**
+     * The reverse-geocoded place, when a lookup was possible. Null falls back to
+     * the coordinates, which are always present whenever this section is filled.
+     */
+    locationLabel: string | null
+    locationCapturedAt: Date | null
     expiresAt: Date
     revokedAt: Date | null
     revokedReason: string | null
@@ -1088,6 +1337,11 @@ export interface SessionFieldRefs {
   readonly familyId: Prisma.FieldRef<"Session", 'String'>
   readonly userAgent: Prisma.FieldRef<"Session", 'String'>
   readonly ipAddress: Prisma.FieldRef<"Session", 'String'>
+  readonly locationLatitude: Prisma.FieldRef<"Session", 'Decimal'>
+  readonly locationLongitude: Prisma.FieldRef<"Session", 'Decimal'>
+  readonly locationAccuracyM: Prisma.FieldRef<"Session", 'Int'>
+  readonly locationLabel: Prisma.FieldRef<"Session", 'String'>
+  readonly locationCapturedAt: Prisma.FieldRef<"Session", 'DateTime'>
   readonly expiresAt: Prisma.FieldRef<"Session", 'DateTime'>
   readonly revokedAt: Prisma.FieldRef<"Session", 'DateTime'>
   readonly revokedReason: Prisma.FieldRef<"Session", 'String'>

@@ -11,6 +11,7 @@
  *     the account, not the API response, not the audit log.
  */
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { signInAdmin } from '../support/admin-session.js';
 import type { AppError } from '../../src/domain/errors.js';
 import { Permission, ROLE_DEFINITIONS, Role } from '../../src/domain/permissions.js';
 import { hashPassword } from '../../src/infra/crypto.js';
@@ -485,17 +486,12 @@ describe('what a temporary-password session may do', () => {
     expect(changed.statusCode).toBe(200);
 
     // Changing a password ends every session, this one included, so the new
-    // password is what gets back in.
-    const reSignedIn = await app.inject({
-      method: 'POST',
-      url: '/api/v1/admin/auth/login',
-      payload: { email: 'newstaff@test.local', password: 'MyOwnRealPassword!2026' },
+    // password is what gets back in - and, like any real sign-in, the fresh
+    // session says where it is before the panel opens.
+    const { cookies: cookie } = await signInAdmin(app, {
+      email: 'newstaff@test.local',
+      password: 'MyOwnRealPassword!2026',
     });
-
-    expect(reSignedIn.statusCode).toBe(200);
-
-    const raw = reSignedIn.headers['set-cookie'];
-    const cookie = (Array.isArray(raw) ? raw : [raw ?? '']).map((c) => c.split(';')[0]).join('; ');
 
     // The same route that was 403 a moment ago. Orders, not staff: an Order
     // Manager holds order.read and does NOT hold staff.read, so /admin/staff

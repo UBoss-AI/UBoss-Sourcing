@@ -31,6 +31,7 @@ import { api } from '@/lib/api';
 import { formatDateTime, formatMoney, formatNumber, humanise } from '@/lib/format';
 import { ORDER_STATUSES, orderStatusTone } from '@/lib/orders';
 import type { OrderListItem, OrderListResponse, OrderTotals } from '@/lib/orders';
+import { useI18n } from '@/i18n/i18n-context';
 
 /**
  * Where the money is, in one word.
@@ -44,13 +45,16 @@ function paymentState(totals: OrderTotals): { label: string; tone: BadgeTone } {
   const due = BigInt(totals.grandTotal.minor);
   const refunded = BigInt(totals.refunded.minor);
 
-  if (refunded > 0n) return { label: refunded >= paid ? 'Refunded' : 'Part refunded', tone: 'danger' };
+  if (refunded > 0n)
+    return { label: refunded >= paid ? 'Refunded' : 'Part refunded', tone: 'danger' };
   if (paid <= 0n) return { label: 'Unpaid', tone: 'neutral' };
   if (paid >= due) return { label: 'Paid', tone: 'success' };
   return { label: 'Part paid', tone: 'warning' };
 }
 
 export function OrdersPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -210,24 +214,24 @@ export function OrdersPage(): React.JSX.Element {
   return (
     <>
       <PageHeader
-        title="Orders"
-        description="Fulfilment and payment are separate columns because they move separately. Total is what was ordered; paid is what actually arrived."
+        title={t('ordersList.orders')}
+        description={t('ordersList.fulfilmentAndPaymentAreSeparate')}
       />
 
       <Card>
         <Toolbar>
-          <ToolbarField label="Search" grow>
+          <ToolbarField label={t('ordersList.search')} grow>
             <Input
               type="search"
               value={searchText}
-              placeholder="Order number or customer"
+              placeholder={t('ordersList.orderNumberOrCustomer')}
               onChange={(event) => {
                 setSearchText(event.target.value);
               }}
             />
           </ToolbarField>
 
-          <ToolbarField label="Fulfilment status">
+          <ToolbarField label={t('ordersList.fulfilmentStatus')}>
             <Select
               value={status}
               onChange={(event) => {
@@ -235,7 +239,7 @@ export function OrdersPage(): React.JSX.Element {
               }}
               className="w-48"
             >
-              <option value="">Any status</option>
+              <option value="">{t('ordersList.anyStatus')}</option>
               {ORDER_STATUSES.map((value) => (
                 <option key={value} value={value}>
                   {humanise(value)}
@@ -244,7 +248,7 @@ export function OrdersPage(): React.JSX.Element {
             </Select>
           </ToolbarField>
 
-          <ToolbarField label="Source">
+          <ToolbarField label={t('ordersList.source')}>
             <Select
               value={source}
               onChange={(event) => {
@@ -252,10 +256,10 @@ export function OrdersPage(): React.JSX.Element {
               }}
               className="w-40"
             >
-              <option value="">Any source</option>
-              <option value="WEB">Website</option>
-              <option value="RECURRING">Recurring</option>
-              <option value="ADMIN">Created by staff</option>
+              <option value="">{t('ordersList.anySource')}</option>
+              <option value="WEB">{t('ordersList.website')}</option>
+              <option value="RECURRING">{t('ordersList.recurring')}</option>
+              <option value="ADMIN">{t('ordersList.createdByStaff')}</option>
             </Select>
           </ToolbarField>
 
@@ -266,7 +270,7 @@ export function OrdersPage(): React.JSX.Element {
                   setSearchParams({});
                 }}
               >
-                Clear filters
+                {t('ordersList.clearFilters')}
               </Button>
             </ToolbarActions>
           )}
@@ -301,7 +305,7 @@ export function OrdersPage(): React.JSX.Element {
                   setSearchParams({});
                 }}
               >
-                Clear filters
+                {t('ordersList.clearFilters')}
               </Button>
             ) : undefined
           }

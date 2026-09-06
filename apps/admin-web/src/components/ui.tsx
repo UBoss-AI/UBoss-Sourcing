@@ -33,6 +33,7 @@ import type {
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from 'react';
+import { useI18n } from '@/i18n/i18n-context';
 
 // ---------------------------------------------------------------------------
 // Button
@@ -106,11 +107,7 @@ export function Spinner({ className }: { className?: string }): React.JSX.Elemen
       aria-hidden="true"
     >
       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z"
-      />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z" />
     </svg>
   );
 }
@@ -127,7 +124,13 @@ interface FieldShellProps {
   children: (ids: { inputId: string; describedBy: string | undefined }) => ReactNode;
 }
 
-export function Field({ label, hint, error, required, children }: FieldShellProps): React.JSX.Element {
+export function Field({
+  label,
+  hint,
+  error,
+  required,
+  children,
+}: FieldShellProps): React.JSX.Element {
   const inputId = useId();
   const hintId = `${inputId}-hint`;
   const errorId = `${inputId}-error`;
@@ -231,18 +234,19 @@ const CONTROL_INVALID = 'border-danger hover:border-danger focus-visible:ring-da
  */
 const CONTROL_HEIGHT = 'h-10 py-0';
 
-export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean }>(
-  function Input({ className, invalid, ...rest }, ref) {
-    return (
-      <input
-        ref={ref}
-        aria-invalid={invalid === true ? true : undefined}
-        className={cx(CONTROL_BASE, CONTROL_HEIGHT, invalid === true && CONTROL_INVALID, className)}
-        {...rest}
-      />
-    );
-  },
-);
+export const Input = forwardRef<
+  HTMLInputElement,
+  InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean }
+>(function Input({ className, invalid, ...rest }, ref) {
+  return (
+    <input
+      ref={ref}
+      aria-invalid={invalid === true ? true : undefined}
+      className={cx(CONTROL_BASE, CONTROL_HEIGHT, invalid === true && CONTROL_INVALID, className)}
+      {...rest}
+    />
+  );
+});
 
 export const Textarea = forwardRef<
   HTMLTextAreaElement,
@@ -372,7 +376,8 @@ export const CheckboxField = forwardRef<
         boxed && 'rounded-md border px-3 py-2.5 transition-[background-color,border-color]',
         boxed && tone === 'warning'
           ? 'border-warning/30 bg-warning-soft'
-          : boxed && 'border-border hover:border-border-hover has-[:checked]:border-accent/40 has-[:checked]:bg-accent-soft',
+          : boxed &&
+              'border-border hover:border-border-hover has-[:checked]:border-accent/40 has-[:checked]:bg-accent-soft',
         disabled === true ? 'cursor-not-allowed opacity-60' : 'cursor-pointer',
         className,
       )}
@@ -537,7 +542,10 @@ export function Badge({
       )}
     >
       {dot && (
-        <span aria-hidden="true" className={cx('h-1.5 w-1.5 shrink-0 rounded-full', DOT_TONES[tone])} />
+        <span
+          aria-hidden="true"
+          className={cx('h-1.5 w-1.5 shrink-0 rounded-full', DOT_TONES[tone])}
+        />
       )}
       {children}
     </span>
@@ -692,7 +700,12 @@ export function SummaryTiles({
           <dt className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
             {item.label}
           </dt>
-          <dd className={cx('mt-0.5 text-sm font-semibold tabular', toneClass[item.tone ?? 'default'])}>
+          <dd
+            className={cx(
+              'mt-0.5 text-sm font-semibold tabular',
+              toneClass[item.tone ?? 'default'],
+            )}
+          >
             {item.value}
           </dd>
         </div>
@@ -791,10 +804,10 @@ export function ErrorState({
   error: unknown;
   onRetry?: () => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const message =
-    error instanceof Error && error.message.length > 0
-      ? error.message
-      : 'The request failed.';
+    error instanceof Error && error.message.length > 0 ? error.message : 'The request failed.';
 
   const correlationId =
     typeof error === 'object' && error !== null && 'correlationId' in error
@@ -813,7 +826,7 @@ export function ErrorState({
       )}
       {onRetry !== undefined && (
         <Button className="mt-6" size="sm" onClick={onRetry}>
-          Try again
+          {t('ui.tryAgain')}
         </Button>
       )}
     </div>

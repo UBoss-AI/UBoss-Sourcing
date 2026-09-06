@@ -16,34 +16,46 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
 import { useStorefront } from '@/app/storefront-context';
 import { Button, Field, Input } from '@/components/ui';
+import { useI18n } from '@/i18n/i18n-context';
+import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
 import { ApiError, NetworkError, api } from '@/lib/api';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 
-const schema = z
-  .object({
-    newPassword: z
-      .string()
-      .min(12, 'Use at least 12 characters.')
-      .max(128, 'Use at most 128 characters.'),
-    confirmPassword: z.string(),
-  })
-  .refine((values) => values.newPassword === values.confirmPassword, {
-    path: ['confirmPassword'],
-    message: 'The two passwords do not match.',
-  });
+type Translate = ReturnType<typeof useI18n>['t'];
 
-type FormValues = z.output<typeof schema>;
+/** Rebuilt per render so its messages follow the chosen language. */
+function buildSchema(t: Translate) {
+  return z
+    .object({
+      newPassword: z
+        .string()
+        .min(12, t('validation.passwordTooShort'))
+        .max(128, t('validation.passwordTooLong')),
+      confirmPassword: z.string(),
+    })
+    .refine((values) => values.newPassword === values.confirmPassword, {
+      path: ['confirmPassword'],
+      message: t('validation.passwordsDoNotMatch'),
+    });
+}
 
-function tokenFailureMessage(code: string): string {
+type FormValues = z.output<ReturnType<typeof buildSchema>>;
+
+/**
+ * Expired, used and invalid are three different situations with three
+ * different next actions, so they stay three separate messages rather than
+ * collapsing into "that did not work".
+ */
+function tokenFailureMessage(t: Translate, code: string): string {
   switch (code) {
     case 'TOKEN_EXPIRED':
-      return 'This reset link has expired. Reset links are short-lived for security — request a new one.';
+      return t('auth.reset.tokenExpired');
     case 'TOKEN_ALREADY_USED':
-      return 'This reset link has already been used. If it was not you, request a new one and sign in straight away.';
+      return t('auth.reset.tokenUsed');
     case 'TOKEN_INVALID':
-      return 'This reset link is not valid. Try opening it directly from the email rather than pasting it.';
+      return t('auth.reset.tokenInvalid');
     default:
-      return 'We could not reset your password. Please request a new link.';
+      return t('auth.reset.tokenUnknown');
   }
 }
 
@@ -52,13 +64,21 @@ export function ResetPasswordPage(): React.JSX.Element {
   const token = searchParams.get('token') ?? '';
   const navigate = useNavigate();
   const { business } = useStorefront();
+  const { t } = useI18n();
 
-  const [tokenError, setTokenError] = useState<string | null>(
-    token === '' ? tokenFailureMessage('TOKEN_INVALID') : null,
+  // The failure *code* is held, not the rendered sentence. A message
+  // translated once and parked in state would stay in the old language after
+  // somebody used the picker — and on this screen that message is the entire
+  // content of the page, so it is exactly the thing they switched language to
+  // be able to read.
+  const [tokenErrorCode, setTokenErrorCode] = useState<string | null>(
+    token === '' ? 'TOKEN_INVALID' : null,
   );
   const [formError, setFormError] = useState<string | null>(null);
 
-  useDocumentMeta({ title: 'Choose a new password', noIndex: true }, business.displayName);
+  const tokenError = tokenErrorCode === null ? null : tokenFailureMessage(t, tokenErrorCode);
+
+  useDocumentMeta({ title: t('auth.reset.pageTitle'), noIndex: true }, business.displayName);
 
   const {
     register,
@@ -66,7 +86,7 @@ export function ResetPasswordPage(): React.JSX.Element {
     setFocus,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(buildSchema(t)),
     defaultValues: { newPassword: '', confirmPassword: '' },
   });
 
@@ -81,23 +101,28 @@ export function ResetPasswordPage(): React.JSX.Element {
           role="alert"
           className="rounded-lg border border-border bg-surface p-6 text-center shadow-card"
         >
-          <h1 className="text-lg font-semibold text-ink">This link will not work</h1>
+          <h1 className="text-lg font-semibold text-ink">{t('auth.reset.badLinkHeading')}</h1>
           <p className="mx-auto mt-2 max-w-sm text-sm text-ink-muted">{tokenError}</p>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
             <Link
               to="/forgot-password"
               className="inline-flex h-10 items-center rounded-md bg-brand px-4 text-sm font-medium text-white hover:bg-brand-hover"
             >
-              Request a new link
+              {t('auth.reset.requestNewLink')}
             </Link>
             <Link
               to="/login"
               className="inline-flex h-10 items-center rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-ink hover:bg-surface-hover"
             >
-              Back to sign in
+              {t('auth.forgot.backToSignIn')}
             </Link>
           </div>
         </div>
+
+        {/* The picker stays reachable on the dead-end screen too: this is a
+            plausible place for somebody to arrive first, straight from an
+            email, having never seen the sign-in page. */}
+        <LanguageSwitcher placement="auth" className="mt-6" />
       </div>
     );
   }
@@ -106,7 +131,10 @@ export function ResetPasswordPage(): React.JSX.Element {
     setFormError(null);
 
     try {
-      await api.post('/auth/password/reset', { token, newPassword: values.newPassword });
+      await api.post('/auth/password/reset', {
+        token,
+        newPassword: values.newPassword,
+      });
 
       // No session is issued here on purpose, so signing in is the step that
       // confirms the new password actually works.
@@ -122,24 +150,26 @@ export function ResetPasswordPage(): React.JSX.Element {
 
       if (error instanceof ApiError) {
         if (error.code.startsWith('TOKEN_')) {
-          setTokenError(tokenFailureMessage(error.code));
+          setTokenErrorCode(error.code);
           return;
         }
         setFormError(error.message);
         return;
       }
 
-      setFormError('The password could not be reset.');
+      setFormError(t('auth.reset.failed'));
     }
   };
 
   return (
     <div className="mx-auto w-full max-w-md py-8">
+      <LanguageSwitcher placement="auth" />
+
       <div className="mb-6 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">Choose a new password</h1>
-        <p className="mt-1.5 text-sm text-ink-muted">
-          You will sign in with this straight afterwards.
-        </p>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">
+          {t('auth.reset.heading')}
+        </h1>
+        <p className="mt-1.5 text-sm text-ink-muted">{t('auth.reset.intro')}</p>
       </div>
 
       <form
@@ -159,8 +189,8 @@ export function ResetPasswordPage(): React.JSX.Element {
         )}
 
         <Field
-          label="New password"
-          hint="At least 12 characters."
+          label={t('auth.reset.newPassword')}
+          hint={t('auth.reset.newPasswordHint')}
           error={errors.newPassword?.message}
           required
         >
@@ -176,7 +206,11 @@ export function ResetPasswordPage(): React.JSX.Element {
           )}
         </Field>
 
-        <Field label="Confirm your password" error={errors.confirmPassword?.message} required>
+        <Field
+          label={t('auth.reset.confirmPassword')}
+          error={errors.confirmPassword?.message}
+          required
+        >
           {({ inputId, describedBy }) => (
             <Input
               id={inputId}
@@ -190,7 +224,7 @@ export function ResetPasswordPage(): React.JSX.Element {
         </Field>
 
         <Button type="submit" variant="primary" size="lg" fullWidth isLoading={isSubmitting}>
-          Save my new password
+          {t('auth.reset.submit')}
         </Button>
       </form>
     </div>

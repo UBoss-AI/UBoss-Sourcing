@@ -29,6 +29,7 @@ import { formatDateTime, formatMoney } from '@/lib/format';
 import { orderStatusLabel, orderStatusTone } from '@/lib/order-status';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { OrderDetail } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 /**
  * What happens next, in the customer's terms, per order status.
@@ -38,7 +39,11 @@ import type { OrderDetail } from '@/lib/types';
  * and a customer scanning for their own next move should not have to parse
  * prose to find it.
  */
-function nextStepFor(order: OrderDetail): { title: string; body: string; steps: string[] } {
+function nextStepFor(order: OrderDetail): {
+  title: string;
+  body: string;
+  steps: string[];
+} {
   if (order.status === 'PENDING_APPROVAL') {
     return {
       title: 'Waiting for approval',
@@ -91,6 +96,8 @@ function nextStepFor(order: OrderDetail): { title: string; body: string; steps: 
 }
 
 export function OrderConfirmationPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const { orderId } = useParams<{ orderId: string }>();
   const location = useLocation();
   const { business } = useStorefront();
@@ -105,7 +112,7 @@ export function OrderConfirmationPage(): React.JSX.Element {
     enabled: orderId !== undefined,
   });
 
-  if (query.isPending) return <LoadingState label="Loading your order" />;
+  if (query.isPending) return <LoadingState label={t('orderConfirmation.loadingYourOrder')} />;
 
   if (query.isError) {
     return (
@@ -138,7 +145,7 @@ export function OrderConfirmationPage(): React.JSX.Element {
           role="status"
           className="mb-5 rounded-md border border-brand/30 bg-brand-soft px-4 py-3 text-sm text-brand"
         >
-          This order had already been placed — we have not created a second one.
+          {t('orderConfirmation.thisOrderHadAlreadyBeen')}
         </div>
       )}
 
@@ -152,7 +159,9 @@ export function OrderConfirmationPage(): React.JSX.Element {
 
         {/* Deliberately "placed", never "paid". What is actually true about
             payment is stated below, from the order's own status. */}
-        <h1 className="mt-4 text-title-xl text-ink">Your order has been placed</h1>
+        <h1 className="mt-4 text-title-xl text-ink">
+          {t('orderConfirmation.yourOrderHasBeenPlaced')}
+        </h1>
 
         {/*
          * The reference, given the weight it earns.
@@ -163,7 +172,7 @@ export function OrderConfirmationPage(): React.JSX.Element {
          * grey metadata they have to hunt for.
          */}
         <p className="mt-4 text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-          Your order reference
+          {t('orderConfirmation.yourOrderReference')}
         </p>
         <p className="mt-1.5 inline-block select-all rounded-md border border-border bg-surface-sunken px-4 py-2 font-mono text-title-sm text-ink">
           {order.orderNumber}
@@ -202,23 +211,19 @@ export function OrderConfirmationPage(): React.JSX.Element {
           <div className="mt-5">
             {/* Orange: this one really does take money. */}
             <ButtonLink to={`/checkout/payment/${order.id}`} variant="action" size="lg">
-              Pay for this order
+              {t('orderConfirmation.payForThisOrder')}
             </ButtonLink>
           </div>
         )}
 
         {awaitingLinkPayment && (
           <div className="mt-4 rounded-md border border-border bg-surface-sunken p-4 text-sm">
-            <p className="text-ink">
-              The link is time-limited, so it is worth paying it soon. If it expires before anyone
-              acts on it, contact us and we will send a new one.
-            </p>
+            <p className="text-ink">{t('orderConfirmation.theLinkIsTimeLimited')}</p>
             {/* The token is never rendered here and is not in any account API —
                 it exists only inside that email, which is what makes emailing
                 it a safe way to delegate payment. */}
             <p className="mt-2 text-xs text-ink-subtle">
-              For security the link appears only in that email. We cannot show it here, and neither
-              can anyone signed in to this account.
+              {t('orderConfirmation.forSecurityTheLinkAppears')}
             </p>
           </div>
         )}
@@ -226,7 +231,7 @@ export function OrderConfirmationPage(): React.JSX.Element {
 
       {/* --- What you ordered ------------------------------------------------- */}
       <div className="mt-4 rounded-lg border border-border bg-surface p-6 shadow-card">
-        <h2 className="text-title-sm text-ink">What you ordered</h2>
+        <h2 className="text-title-sm text-ink">{t('orderConfirmation.whatYouOrdered')}</h2>
 
         <ul className="mt-3 divide-y divide-border-subtle text-sm">
           {order.items.map((item) => (
@@ -243,22 +248,31 @@ export function OrderConfirmationPage(): React.JSX.Element {
         </ul>
 
         <dl className="mt-4 space-y-2.5 border-t border-border-subtle pt-4 text-sm">
-          <TotalRow label="Subtotal" value={formatMoney(order.totals.subtotal)} />
+          <TotalRow
+            label={t('orderConfirmation.subtotal')}
+            value={formatMoney(order.totals.subtotal)}
+          />
           {order.totals.discount.minor !== '0' && (
             <TotalRow
-              label="Discount"
+              label={t('orderConfirmation.discount')}
               tone="credit"
               value={<>−{formatMoney(order.totals.discount)}</>}
             />
           )}
-          <TotalRow label="Tax" value={formatMoney(order.totals.tax)} />
-          <TotalRow label="Delivery" value={formatMoney(order.totals.shipping)} />
-          <GrandTotalRow label="Total" value={formatMoney(order.totals.grandTotal)} />
+          <TotalRow label={t('orderConfirmation.tax')} value={formatMoney(order.totals.tax)} />
+          <TotalRow
+            label={t('orderConfirmation.delivery')}
+            value={formatMoney(order.totals.shipping)}
+          />
+          <GrandTotalRow
+            label={t('orderConfirmation.total')}
+            value={formatMoney(order.totals.grandTotal)}
+          />
           {/* Two figures, never one. What the order came to, and what has
               actually been paid — collapsing them is how somebody comes to
               believe they have paid for something they have not. */}
           <TotalRow
-            label="Paid so far"
+            label={t('orderConfirmation.paidSoFar')}
             tone={isSettled ? 'settled' : 'outstanding'}
             value={formatMoney(order.totals.paid)}
           />
@@ -268,20 +282,20 @@ export function OrderConfirmationPage(): React.JSX.Element {
       {/* --- Where to go next -------------------------------------------------- */}
       <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
         <ButtonLink to={`/account/orders/${order.id}`} variant="primary" size="lg">
-          Track this order
+          {t('orderConfirmation.trackThisOrder')}
         </ButtonLink>
         <ButtonLink to="/account/orders" size="lg">
-          All your orders
+          {t('orderConfirmation.allYourOrders')}
         </ButtonLink>
         <ButtonLink to="/products" size="lg">
-          Keep shopping
+          {t('orderConfirmation.keepShopping')}
         </ButtonLink>
       </div>
 
       <p className="mt-4 text-center text-xs text-ink-muted">
         A copy of this confirmation is on its way to your email.{' '}
         <Link to="/account/orders" className="font-medium text-brand hover:underline">
-          Your order history
+          {t('orderConfirmation.yourOrderHistory')}
         </Link>{' '}
         always has the latest status.
       </p>

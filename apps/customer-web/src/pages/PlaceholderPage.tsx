@@ -8,6 +8,7 @@
 import { useStorefront } from '@/app/storefront-context';
 import { Card, PageHeader } from '@/components/ui';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { useI18n } from '@/i18n/i18n-context';
 
 export function PlaceholderPage({
   title,
@@ -16,6 +17,8 @@ export function PlaceholderPage({
   title: string;
   summary: string;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const { business } = useStorefront();
   useDocumentMeta({ title, noIndex: true }, business.displayName);
 
@@ -24,7 +27,7 @@ export function PlaceholderPage({
       <PageHeader title={title} />
       <Card>
         <div className="px-5 py-12 text-center">
-          <p className="text-sm font-medium text-ink">This page is not built yet</p>
+          <p className="text-sm font-medium text-ink">{t('placeholder.thisPageIsNotBuilt')}</p>
           <p className="mx-auto mt-1.5 max-w-md text-sm text-ink-muted">{summary}</p>
         </div>
       </Card>

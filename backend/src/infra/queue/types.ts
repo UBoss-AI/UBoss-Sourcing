@@ -23,6 +23,14 @@ export const JobType = {
   INTEGRATION_SYNC: 'integration.sync',
   RESERVATION_SWEEP: 'reservation.sweep',
   LOW_STOCK_CHECK: 'low_stock.check',
+  FX_RATE_REFRESH: 'fx_rate.refresh',
+  /// Build an Art. 15/20 export bundle, or carry out an approved Art. 17
+  /// erasure. A job rather than a request handler because both read or rewrite
+  /// most of the database for one person.
+  DATA_REQUEST_FULFIL: 'data_request.fulfil',
+  /// Delete personal data that has outlived its retention window. Runs on the
+  /// maintenance beat, like the reservation sweep.
+  RETENTION_SWEEP: 'retention.sweep',
 } as const;
 
 export type JobTypeValue = (typeof JobType)[keyof typeof JobType];

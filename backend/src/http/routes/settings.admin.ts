@@ -45,10 +45,44 @@ import {
   updateTaxClass,
   upsertNotificationSetting,
 } from '../../modules/settings/settings.service.js';
+import {
+  getFxRateSettings,
+  refreshNow,
+  updateFxRateSettings,
+} from '../../modules/settings/fx-rate.service.js';
+import { AuditAction, recordAudit } from '../../modules/audit/audit.service.js';
+import {
+  catalogueTranslationCoverage,
+  clearCatalogTranslationKey,
+  getCatalogTranslationSettings,
+  setCatalogTranslationKey,
+  translateCatalogue,
+} from '../../modules/catalog/catalog-translation.service.js';
+import { processorReport } from '../../modules/settings/processors.service.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
 
 const idParam = z.object({ id: z.string().length(26) });
 const minorUnits = z.string().regex(/^\d+$/, 'Expected whole minor units.');
+
+/**
+ * The exchange-rate panel's settings.
+ *
+ * Percentages arrive as decimal strings and stay strings: they end up in
+ * bigint arithmetic against catalogue prices, and a JSON number would already
+ * have lost precision by the time it got here.
+ */
+const exchangeRateSettingsBody = z.object({
+  isEnabled: z.boolean().optional(),
+  marginPercent: z
+    .string()
+    .regex(/^\d{1,3}(\.\d{1,2})?$/, 'Enter a percentage, e.g. 2.50.')
+    .optional(),
+  rounding: z.enum(['exact', 'whole', 'charm']).optional(),
+  maxDriftPercent: z
+    .string()
+    .regex(/^\d{1,3}(\.\d{1,2})?$/, 'Enter a percentage, e.g. 15.00.')
+    .optional(),
+});
 
 function actorFrom(request: FastifyRequest): {
   userId: string;
@@ -104,6 +138,13 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
           supportEmail: z.string().trim().max(320).email().optional(),
           supportPhone: z.string().max(32).nullable().optional(),
           gstin: z.string().max(32).nullable().optional(),
+          vatNumber: z.string().trim().max(32).nullable().optional(),
+          // Setting this switches EU VAT resolution on for the whole
+          // deployment. See ModelBusinessProfile.vatCountry.
+          vatCountry: z.string().trim().length(2).nullable().optional(),
+          // Turning this on refuses to publish a product that does not carry
+          // what GPSR Art. 19 requires. See docs/PRODUCT-SAFETY.md.
+          gpsrEnforced: z.boolean().optional(),
           logoMediaId: z.string().length(26).nullable().optional(),
           addressJson: z.record(z.string(), z.unknown()).nullable().optional(),
           currency: z.string().length(3).optional(),
@@ -136,12 +177,33 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
     async (_request, reply) => reply.status(200).send({ taxClasses: await listTaxClasses() }),
   );
 
+  /**
+   * Who this deployment actually shares data with.
+   *
+   * Derived from the environment rather than from a list somebody maintains,
+   * because a maintained list is a claim about configuration kept where
+   * configuration cannot reach it. Put this beside your Art. 30 register; the
+   * gaps are the point.
+   */
+  app.get(
+    '/settings/processors',
+    { preHandler: requireAdmin(Permission.SETTINGS_READ) },
+    (_request, reply) => reply.status(200).send(processorReport()),
+  );
+
   const taxClassBody = z.object({
     code: z.string().trim().min(1).max(32),
     name: z.string().trim().min(1).max(128),
     // A decimal string, not a number: a float tax rate is how rounding drift
     // starts.
     ratePercent: z.string().regex(/^\d+(\.\d+)?$/, 'Enter a rate like "18" or "18.5".'),
+    // Which EU rate band this class is. Null keeps the flat rate above, which
+    // is the right answer for GST and for any deployment not selling into the
+    // EU. Set it and the rate becomes a per-member-state lookup.
+    vatCategory: z
+      .enum(['STANDARD', 'REDUCED', 'SUPER_REDUCED', 'ZERO', 'EXEMPT'])
+      .nullable()
+      .optional(),
     isInclusive: z.boolean().optional(),
     isDefault: z.boolean().optional(),
     isActive: z.boolean().optional(),
@@ -280,6 +342,184 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
 
       await setFeatureFlag(key, enabled, actorFrom(request));
       return reply.status(200).send({ key, enabled });
+    },
+  );
+
+  // --- Exchange rates -------------------------------------------------------
+
+  /**
+   * Automatic refresh of rate-maintained prices.
+   *
+   * Read behind `settings.read` and written behind `settings.write`, like every
+   * other setting that changes how money is calculated. The screen also reads
+   * the last run's outcome from here: a scheduled job that quietly stopped
+   * working is worse than one that never ran, so its status is on the same
+   * panel as its switch.
+   */
+  app.get(
+    '/settings/exchange-rates',
+    { preHandler: requireAdmin(Permission.SETTINGS_READ) },
+    async (_request, reply) =>
+      reply.status(200).send({ settings: await getFxRateSettings() }),
+  );
+
+  app.put(
+    '/settings/exchange-rates',
+    { preHandler: requireAdmin(Permission.SETTINGS_WRITE) },
+    async (request, reply) => {
+      const body = exchangeRateSettingsBody.parse(request.body);
+      const actor = actorFrom(request);
+
+      const settings = await updateFxRateSettings(body, actor.userId);
+
+      await recordAudit({
+        actorType: 'ADMIN',
+        actorUserId: actor.userId,
+        actorEmail: actor.email,
+        ipAddress: actor.ipAddress,
+        correlationId: actor.correlationId,
+        action: AuditAction.SETTINGS_UPDATED,
+        resourceType: 'exchange_rates',
+        after: { ...body },
+      });
+
+      return reply.status(200).send({ settings });
+    },
+  );
+
+  /**
+   * Run the refresh now.
+   *
+   * The same work the scheduler does, so this is a real rehearsal of tonight's
+   * run rather than a second code path that resembles it. `settings.write`
+   * because it rewrites catalogue prices.
+   */
+  app.post(
+    '/settings/exchange-rates/refresh',
+    { preHandler: requireAdmin(Permission.SETTINGS_WRITE) },
+    async (request, reply) => {
+      const actor = actorFrom(request);
+      const result = await refreshNow(actor.userId);
+
+      await recordAudit({
+        actorType: 'ADMIN',
+        actorUserId: actor.userId,
+        actorEmail: actor.email,
+        ipAddress: actor.ipAddress,
+        correlationId: actor.correlationId,
+        action: AuditAction.PRODUCT_PRICES_BULK_SET,
+        resourceType: 'exchange_rates',
+        after: {
+          trigger: 'manual',
+          status: result.status,
+          updated: result.updated,
+          currencies: result.currencies.map((row) => ({
+            currency: row.currency,
+            rate: row.rate,
+            updated: row.updated,
+            error: row.error,
+          })),
+        },
+      });
+
+      return reply
+        .status(200)
+        .send({ result, settings: await getFxRateSettings() });
+    },
+  );
+
+  // --- Catalogue translation ------------------------------------------------
+
+  /**
+   * Machine-translating the shop's own product copy.
+   *
+   * The key is write-only over HTTP: it goes in, and only its last four
+   * characters ever come back. `settings.write` to change it, `settings.read`
+   * to see whether one is stored and how the last run went.
+   */
+  app.get(
+    '/settings/catalogue-translation',
+    { preHandler: requireAdmin(Permission.SETTINGS_READ) },
+    async (_request, reply) =>
+      reply.status(200).send({
+        settings: await getCatalogTranslationSettings(),
+        coverage: await catalogueTranslationCoverage(),
+      }),
+  );
+
+  app.put(
+    '/settings/catalogue-translation',
+    { preHandler: requireAdmin(Permission.SETTINGS_WRITE) },
+    async (request, reply) => {
+      const body = z.object({ apiKey: z.string().max(200).nullable() }).parse(request.body);
+      const actor = actorFrom(request);
+
+      const settings =
+        body.apiKey === null
+          ? await clearCatalogTranslationKey(actor.userId)
+          : await setCatalogTranslationKey(body.apiKey, actor.userId);
+
+      await recordAudit({
+        actorType: 'ADMIN',
+        actorUserId: actor.userId,
+        actorEmail: actor.email,
+        ipAddress: actor.ipAddress,
+        correlationId: actor.correlationId,
+        action: AuditAction.SETTINGS_UPDATED,
+        resourceType: 'catalogue_translation',
+        // The key itself is never audited. Whether one exists, and which one by
+        // its last four, is what an investigation actually needs.
+        after: { hasApiKey: settings.hasApiKey, apiKeyHint: settings.apiKeyHint },
+      });
+
+      return reply.status(200).send({ settings });
+    },
+  );
+
+  /**
+   * Translate everything that has no copy in a language yet.
+   *
+   * `dryRun` reports what it would cost in provider characters without sending
+   * anything, because a translation budget is consumed per character and staff
+   * should be able to see the bill before agreeing to it.
+   */
+  app.post(
+    '/settings/catalogue-translation/run',
+    { preHandler: requireAdmin(Permission.SETTINGS_WRITE) },
+    async (request, reply) => {
+      const body = z
+        .object({
+          overwrite: z.boolean().default(false),
+          dryRun: z.boolean().default(true),
+        })
+        .parse(request.body);
+
+      const actor = actorFrom(request);
+      const result = await translateCatalogue(body, actor.userId);
+
+      if (!body.dryRun) {
+        await recordAudit({
+          actorType: 'ADMIN',
+          actorUserId: actor.userId,
+          actorEmail: actor.email,
+          ipAddress: actor.ipAddress,
+          correlationId: actor.correlationId,
+          action: AuditAction.SETTINGS_UPDATED,
+          resourceType: 'catalogue_translation',
+          after: {
+            status: result.status,
+            translated: result.translated,
+            characters: result.characters,
+            overwrite: body.overwrite,
+          },
+        });
+      }
+
+      return reply.status(200).send({
+        result,
+        settings: await getCatalogTranslationSettings(),
+        coverage: await catalogueTranslationCoverage(),
+      });
     },
   );
 

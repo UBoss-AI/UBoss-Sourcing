@@ -29,6 +29,7 @@ import { useStorefront } from '@/app/storefront-context';
 import { Button, ButtonLink, Field, Input } from '@/components/ui';
 import { ApiError, NetworkError, api } from '@/lib/api';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { useI18n } from '@/i18n/i18n-context';
 
 /**
  * Mirrors the backend's password policy.
@@ -68,7 +69,11 @@ const TERMINAL_CODES = new Set([
 ]);
 
 /** What the customer should do next, per failure the server can report. */
-function recoveryFor(code: string): { title: string; body: string; canRetry: boolean } {
+function recoveryFor(code: string): {
+  title: string;
+  body: string;
+  canRetry: boolean;
+} {
   switch (code) {
     case 'TOKEN_EXPIRED':
       return {
@@ -113,6 +118,8 @@ function Failure({
   message: string;
   onRetry: () => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const { business } = useStorefront();
   const recovery = recoveryFor(code);
 
@@ -130,21 +137,21 @@ function Failure({
       <div className="mt-6 flex flex-wrap justify-center gap-2">
         {recovery.canRetry && (
           <Button variant="primary" onClick={onRetry}>
-            Try again
+            {t('activatePage.tryAgain')}
           </Button>
         )}
         <Link
           to="/login"
           className="inline-flex h-10 items-center rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-ink hover:bg-surface-hover"
         >
-          Go to sign in
+          {t('activatePage.goToSignIn')}
         </Link>
         {business.supportEmail !== null && (
           <a
             href={`mailto:${business.supportEmail}?subject=Account%20activation`}
             className="inline-flex h-10 items-center rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-ink hover:bg-surface-hover"
           >
-            Contact support
+            {t('activatePage.contactSupport')}
           </a>
         )}
       </div>
@@ -153,13 +160,18 @@ function Failure({
 }
 
 export function ActivatePage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') ?? '';
   const navigate = useNavigate();
   const { login } = useSession();
   const { business } = useStorefront();
 
-  const [failure, setFailure] = useState<{ code: string; message: string } | null>(null);
+  const [failure, setFailure] = useState<{
+    code: string;
+    message: string;
+  } | null>(null);
 
   /**
    * null      still on the form
@@ -177,7 +189,11 @@ export function ActivatePage(): React.JSX.Element {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { password: '', confirmPassword: '', acceptedTerms: false as never },
+    defaultValues: {
+      password: '',
+      confirmPassword: '',
+      acceptedTerms: false as never,
+    },
   });
 
   useEffect(() => {
@@ -191,7 +207,7 @@ export function ActivatePage(): React.JSX.Element {
       <div className="mx-auto w-full max-w-md py-8">
         <Failure
           code="TOKEN_INVALID"
-          message="No activation token was found in the link."
+          message={t('activatePage.noActivationTokenWasFound')}
           onRetry={() => {
             void navigate('/login');
           }}
@@ -204,7 +220,9 @@ export function ActivatePage(): React.JSX.Element {
     return (
       <div className="mx-auto w-full max-w-md py-8">
         <div className="rounded-lg border border-success/30 bg-success-soft p-6 text-center">
-          <h1 className="text-lg font-semibold text-success">Your account is ready</h1>
+          <h1 className="text-lg font-semibold text-success">
+            {t('activatePage.yourAccountIsReady')}
+          </h1>
           <p className="mt-2 text-sm text-ink">
             {outcome === 'signed-in'
               ? 'You are signed in and can start ordering right away.'
@@ -213,14 +231,14 @@ export function ActivatePage(): React.JSX.Element {
           <div className="mt-6 flex justify-center gap-2">
             {outcome === 'signed-in' ? (
               <ButtonLink to="/products" variant="primary">
-                Browse products
+                {t('activatePage.browseProducts')}
               </ButtonLink>
             ) : (
               <Link
                 to="/login"
                 className="inline-flex h-10 items-center rounded-md bg-brand px-5 text-sm font-medium text-white hover:bg-brand-hover"
               >
-                Go to sign in
+                {t('activatePage.goToSignIn')}
               </Link>
             )}
           </div>
@@ -290,10 +308,12 @@ export function ActivatePage(): React.JSX.Element {
   return (
     <div className="mx-auto w-full max-w-md py-8">
       <div className="mb-6 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">Activate your account</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">
+          {t('activatePage.activateYourAccount')}
+        </h1>
         <p className="mt-1.5 text-sm text-ink-muted">
-          Choose a password. Only you will know it — nobody at {business.displayName} can see or
-          set it.
+          Choose a password. Only you will know it — nobody at {business.displayName} can see or set
+          it.
         </p>
       </div>
 
@@ -314,8 +334,8 @@ export function ActivatePage(): React.JSX.Element {
         )}
 
         <Field
-          label="Choose a password"
-          hint="At least 12 characters. A short phrase you will remember beats a short jumble you will not."
+          label={t('activatePage.chooseAPassword')}
+          hint={t('activatePage.atLeast12CharactersA')}
           error={errors.password?.message}
           required
         >
@@ -331,7 +351,11 @@ export function ActivatePage(): React.JSX.Element {
           )}
         </Field>
 
-        <Field label="Confirm your password" error={errors.confirmPassword?.message} required>
+        <Field
+          label={t('activatePage.confirmYourPassword')}
+          error={errors.confirmPassword?.message}
+          required
+        >
           {({ inputId, describedBy }) => (
             <Input
               id={inputId}
@@ -385,7 +409,7 @@ export function ActivatePage(): React.JSX.Element {
         </div>
 
         <Button type="submit" variant="primary" size="lg" fullWidth isLoading={isSubmitting}>
-          Activate my account
+          {t('activatePage.activateMyAccount')}
         </Button>
       </form>
     </div>

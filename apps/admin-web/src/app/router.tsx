@@ -151,6 +151,20 @@ export const router = createBrowserRouter([
         ...lazyRoute(() => import('@/pages/ReportsPage').then((m) => m.ReportsPage), [Permission.REPORT_READ]),
       },
       {
+        path: 'data-requests',
+        ...lazyRoute(
+          () => import('@/pages/DataRequestsPage').then((m) => m.DataRequestsPage),
+          [Permission.DATA_REQUEST_READ],
+        ),
+      },
+      {
+        path: 'manufacturers',
+        ...lazyRoute(
+          () => import('@/pages/ManufacturersPage').then((m) => m.ManufacturersPage),
+          [Permission.PRODUCT_READ],
+        ),
+      },
+      {
         path: 'audit',
         ...lazyRoute(() => import('@/pages/AuditPage').then((m) => m.AuditPage), [Permission.AUDIT_READ]),
       },

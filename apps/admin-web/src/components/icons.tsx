@@ -171,6 +171,24 @@ export function AuditIcon(props: IconProps): React.JSX.Element {
   );
 }
 
+export function ManufacturerIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M3.4 20.4h17.2V9.6l-5.1 3.2V9.6l-5.1 3.2V9.6L5.3 12.8V4.4H3.4Z" />
+      <path d="M8 16.6h1.6M13 16.6h1.6" />
+    </Icon>
+  );
+}
+
+export function DataProtectionIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M12 3.2 5 6v5.2c0 4 2.9 7.4 7 9.6 4.1-2.2 7-5.6 7-9.6V6l-7-2.8Z" />
+      <path d="M9.4 11.8 11.4 13.8 15 10.2" />
+    </Icon>
+  );
+}
+
 export function IntegrationsIcon(props: IconProps): React.JSX.Element {
   return (
     <Icon {...props}>
@@ -287,6 +305,22 @@ export function ClockIcon(props: IconProps): React.JSX.Element {
     <Icon {...props}>
       <circle cx="12" cy="12" r="9" />
       <path d="M12 7.2V12l3.4 2" />
+    </Icon>
+  );
+}
+
+/**
+ * The console bell.
+ *
+ * Drawn without a clapper stroke inside the body: at 20px the extra line
+ * closes the shape into a blob, and the silhouette is the whole job here -
+ * this icon carries an unread count and has to stay readable behind it.
+ */
+export function BellIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M18 8.6a6 6 0 1 0-12 0c0 5.2-1.8 6.6-1.8 6.6h15.6S18 13.8 18 8.6" />
+      <path d="M13.7 18.6a2 2 0 0 1-3.4 0" />
     </Icon>
   );
 }

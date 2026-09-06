@@ -30,9 +30,29 @@ export interface StoredObject {
   height?: number;
 }
 
+/**
+ * Where an object lives, and therefore who can reach it.
+ *
+ * `public` is product media: an unguessable key served straight off the static
+ * route, because a catalogue photograph is meant to be loaded by a browser
+ * that has never signed in.
+ *
+ * `private` is everything that is somebody's personal data - report exports,
+ * and the Art. 15 bundle, which is every fact held about one person in a
+ * single archive. These are read back through code that checks a hashed,
+ * expiring token first, and the static route is not mounted over them at all,
+ * so an unguessable URL is never the only thing standing in the way.
+ */
+export type StorageVisibility = 'public' | 'private';
+
 export interface StorageDriver {
   readonly name: string;
-  put(buffer: Buffer, mimeType: string, extension: string): Promise<StoredObject>;
+  put(
+    buffer: Buffer,
+    mimeType: string,
+    extension: string,
+    visibility?: StorageVisibility,
+  ): Promise<StoredObject>;
   get(storageKey: string): Promise<Buffer>;
   delete(storageKey: string): Promise<void>;
   urlFor(storageKey: string): string;
@@ -166,15 +186,26 @@ export function readImageDimensions(
 }
 
 /**
- * Sharded key: `products/ab/cd/<ulid>.jpg`.
+ * The top-level prefix that decides reachability.
+ *
+ * The static route is mounted over PUBLIC_PREFIX only, so the separation is
+ * enforced by where the bytes are written rather than by every future caller
+ * remembering to check something.
+ */
+const PUBLIC_PREFIX = 'products';
+export const PRIVATE_PREFIX = 'private';
+
+/**
+ * Sharded key: `products/ab/cd/<ulid>.jpg`, or `private/ab/cd/<ulid>.json`.
  *
  * The two-level prefix keeps any single directory from accumulating tens of
  * thousands of entries on a local filesystem, and matches the prefix layout S3
  * likes for request distribution.
  */
-function buildStorageKey(extension: string): string {
+function buildStorageKey(extension: string, visibility: StorageVisibility): string {
   const id = newId();
-  return `products/${id.slice(0, 2).toLowerCase()}/${id.slice(2, 4).toLowerCase()}/${id}.${extension}`;
+  const root = visibility === 'private' ? PRIVATE_PREFIX : PUBLIC_PREFIX;
+  return `${root}/${id.slice(0, 2).toLowerCase()}/${id.slice(2, 4).toLowerCase()}/${id}.${extension}`;
 }
 
 class LocalStorageDriver implements StorageDriver {
@@ -198,8 +229,13 @@ class LocalStorageDriver implements StorageDriver {
     return target;
   }
 
-  async put(buffer: Buffer, mimeType: string, extension: string): Promise<StoredObject> {
-    const storageKey = buildStorageKey(extension);
+  async put(
+    buffer: Buffer,
+    mimeType: string,
+    extension: string,
+    visibility: StorageVisibility = 'public',
+  ): Promise<StoredObject> {
+    const storageKey = buildStorageKey(extension, visibility);
     const target = this.pathFor(storageKey);
 
     await mkdir(dirname(target), { recursive: true });
@@ -234,9 +270,15 @@ class LocalStorageDriver implements StorageDriver {
     return `${env.STORAGE_PUBLIC_BASE_URL.replace(/\/$/, '')}/${storageKey}`;
   }
 
-  /** Absolute directory the static route serves from. */
+  /**
+   * Absolute directory the static route serves from.
+   *
+   * The public prefix, not the storage root. Mounting the root would put the
+   * private tree - report exports and personal-data bundles - behind nothing
+   * but an unguessable path.
+   */
   get rootDirectory(): string {
-    return this.root;
+    return join(this.root, PUBLIC_PREFIX);
   }
 }
 

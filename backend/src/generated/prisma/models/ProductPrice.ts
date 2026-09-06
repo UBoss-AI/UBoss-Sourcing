@@ -44,6 +44,7 @@ export type ProductPriceMinAggregateOutputType = {
   currencyCode: string | null
   basePriceMinor: bigint | null
   compareAtPriceMinor: bigint | null
+  isAutoConverted: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
   updatedById: string | null
@@ -57,6 +58,7 @@ export type ProductPriceMaxAggregateOutputType = {
   currencyCode: string | null
   basePriceMinor: bigint | null
   compareAtPriceMinor: bigint | null
+  isAutoConverted: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
   updatedById: string | null
@@ -70,6 +72,7 @@ export type ProductPriceCountAggregateOutputType = {
   currencyCode: number
   basePriceMinor: number
   compareAtPriceMinor: number
+  isAutoConverted: number
   createdAt: number
   updatedAt: number
   updatedById: number
@@ -95,6 +98,7 @@ export type ProductPriceMinAggregateInputType = {
   currencyCode?: true
   basePriceMinor?: true
   compareAtPriceMinor?: true
+  isAutoConverted?: true
   createdAt?: true
   updatedAt?: true
   updatedById?: true
@@ -108,6 +112,7 @@ export type ProductPriceMaxAggregateInputType = {
   currencyCode?: true
   basePriceMinor?: true
   compareAtPriceMinor?: true
+  isAutoConverted?: true
   createdAt?: true
   updatedAt?: true
   updatedById?: true
@@ -121,6 +126,7 @@ export type ProductPriceCountAggregateInputType = {
   currencyCode?: true
   basePriceMinor?: true
   compareAtPriceMinor?: true
+  isAutoConverted?: true
   createdAt?: true
   updatedAt?: true
   updatedById?: true
@@ -221,6 +227,7 @@ export type ProductPriceGroupByOutputType = {
   currencyCode: string
   basePriceMinor: bigint
   compareAtPriceMinor: bigint | null
+  isAutoConverted: boolean
   createdAt: Date
   updatedAt: Date
   updatedById: string | null
@@ -257,6 +264,7 @@ export type ProductPriceWhereInput = {
   currencyCode?: Prisma.StringFilter<"ProductPrice"> | string
   basePriceMinor?: Prisma.BigIntFilter<"ProductPrice"> | bigint | number
   compareAtPriceMinor?: Prisma.BigIntNullableFilter<"ProductPrice"> | bigint | number | null
+  isAutoConverted?: Prisma.BoolFilter<"ProductPrice"> | boolean
   createdAt?: Prisma.DateTimeFilter<"ProductPrice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductPrice"> | Date | string
   updatedById?: Prisma.StringNullableFilter<"ProductPrice"> | string | null
@@ -273,6 +281,7 @@ export type ProductPriceOrderByWithRelationInput = {
   currencyCode?: Prisma.SortOrder
   basePriceMinor?: Prisma.SortOrder
   compareAtPriceMinor?: Prisma.SortOrderInput | Prisma.SortOrder
+  isAutoConverted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedById?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -294,6 +303,7 @@ export type ProductPriceWhereUniqueInput = Prisma.AtLeast<{
   currencyCode?: Prisma.StringFilter<"ProductPrice"> | string
   basePriceMinor?: Prisma.BigIntFilter<"ProductPrice"> | bigint | number
   compareAtPriceMinor?: Prisma.BigIntNullableFilter<"ProductPrice"> | bigint | number | null
+  isAutoConverted?: Prisma.BoolFilter<"ProductPrice"> | boolean
   createdAt?: Prisma.DateTimeFilter<"ProductPrice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductPrice"> | Date | string
   updatedById?: Prisma.StringNullableFilter<"ProductPrice"> | string | null
@@ -310,6 +320,7 @@ export type ProductPriceOrderByWithAggregationInput = {
   currencyCode?: Prisma.SortOrder
   basePriceMinor?: Prisma.SortOrder
   compareAtPriceMinor?: Prisma.SortOrderInput | Prisma.SortOrder
+  isAutoConverted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedById?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -331,6 +342,7 @@ export type ProductPriceScalarWhereWithAggregatesInput = {
   currencyCode?: Prisma.StringWithAggregatesFilter<"ProductPrice"> | string
   basePriceMinor?: Prisma.BigIntWithAggregatesFilter<"ProductPrice"> | bigint | number
   compareAtPriceMinor?: Prisma.BigIntNullableWithAggregatesFilter<"ProductPrice"> | bigint | number | null
+  isAutoConverted?: Prisma.BoolWithAggregatesFilter<"ProductPrice"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProductPrice"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ProductPrice"> | Date | string
   updatedById?: Prisma.StringNullableWithAggregatesFilter<"ProductPrice"> | string | null
@@ -341,6 +353,7 @@ export type ProductPriceCreateInput = {
   variantKey?: string
   basePriceMinor: bigint | number
   compareAtPriceMinor?: bigint | number | null
+  isAutoConverted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   updatedById?: string | null
@@ -357,6 +370,7 @@ export type ProductPriceUncheckedCreateInput = {
   currencyCode: string
   basePriceMinor: bigint | number
   compareAtPriceMinor?: bigint | number | null
+  isAutoConverted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   updatedById?: string | null
@@ -367,6 +381,7 @@ export type ProductPriceUpdateInput = {
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  isAutoConverted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -383,6 +398,7 @@ export type ProductPriceUncheckedUpdateInput = {
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  isAutoConverted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -396,6 +412,7 @@ export type ProductPriceCreateManyInput = {
   currencyCode: string
   basePriceMinor: bigint | number
   compareAtPriceMinor?: bigint | number | null
+  isAutoConverted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   updatedById?: string | null
@@ -406,6 +423,7 @@ export type ProductPriceUpdateManyMutationInput = {
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  isAutoConverted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -419,6 +437,7 @@ export type ProductPriceUncheckedUpdateManyInput = {
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  isAutoConverted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -454,6 +473,7 @@ export type ProductPriceCountOrderByAggregateInput = {
   currencyCode?: Prisma.SortOrder
   basePriceMinor?: Prisma.SortOrder
   compareAtPriceMinor?: Prisma.SortOrder
+  isAutoConverted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
@@ -472,6 +492,7 @@ export type ProductPriceMaxOrderByAggregateInput = {
   currencyCode?: Prisma.SortOrder
   basePriceMinor?: Prisma.SortOrder
   compareAtPriceMinor?: Prisma.SortOrder
+  isAutoConverted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
@@ -485,6 +506,7 @@ export type ProductPriceMinOrderByAggregateInput = {
   currencyCode?: Prisma.SortOrder
   basePriceMinor?: Prisma.SortOrder
   compareAtPriceMinor?: Prisma.SortOrder
+  isAutoConverted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
@@ -626,6 +648,7 @@ export type ProductPriceCreateWithoutProductInput = {
   variantKey?: string
   basePriceMinor: bigint | number
   compareAtPriceMinor?: bigint | number | null
+  isAutoConverted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   updatedById?: string | null
@@ -640,6 +663,7 @@ export type ProductPriceUncheckedCreateWithoutProductInput = {
   currencyCode: string
   basePriceMinor: bigint | number
   compareAtPriceMinor?: bigint | number | null
+  isAutoConverted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   updatedById?: string | null
@@ -682,6 +706,7 @@ export type ProductPriceScalarWhereInput = {
   currencyCode?: Prisma.StringFilter<"ProductPrice"> | string
   basePriceMinor?: Prisma.BigIntFilter<"ProductPrice"> | bigint | number
   compareAtPriceMinor?: Prisma.BigIntNullableFilter<"ProductPrice"> | bigint | number | null
+  isAutoConverted?: Prisma.BoolFilter<"ProductPrice"> | boolean
   createdAt?: Prisma.DateTimeFilter<"ProductPrice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductPrice"> | Date | string
   updatedById?: Prisma.StringNullableFilter<"ProductPrice"> | string | null
@@ -692,6 +717,7 @@ export type ProductPriceCreateWithoutVariantInput = {
   variantKey?: string
   basePriceMinor: bigint | number
   compareAtPriceMinor?: bigint | number | null
+  isAutoConverted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   updatedById?: string | null
@@ -706,6 +732,7 @@ export type ProductPriceUncheckedCreateWithoutVariantInput = {
   currencyCode: string
   basePriceMinor: bigint | number
   compareAtPriceMinor?: bigint | number | null
+  isAutoConverted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   updatedById?: string | null
@@ -742,6 +769,7 @@ export type ProductPriceCreateWithoutCurrencyInput = {
   variantKey?: string
   basePriceMinor: bigint | number
   compareAtPriceMinor?: bigint | number | null
+  isAutoConverted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   updatedById?: string | null
@@ -756,6 +784,7 @@ export type ProductPriceUncheckedCreateWithoutCurrencyInput = {
   variantKey?: string
   basePriceMinor: bigint | number
   compareAtPriceMinor?: bigint | number | null
+  isAutoConverted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   updatedById?: string | null
@@ -794,6 +823,7 @@ export type ProductPriceCreateManyProductInput = {
   currencyCode: string
   basePriceMinor: bigint | number
   compareAtPriceMinor?: bigint | number | null
+  isAutoConverted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   updatedById?: string | null
@@ -804,6 +834,7 @@ export type ProductPriceUpdateWithoutProductInput = {
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  isAutoConverted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -818,6 +849,7 @@ export type ProductPriceUncheckedUpdateWithoutProductInput = {
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  isAutoConverted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -830,6 +862,7 @@ export type ProductPriceUncheckedUpdateManyWithoutProductInput = {
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  isAutoConverted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -842,6 +875,7 @@ export type ProductPriceCreateManyVariantInput = {
   currencyCode: string
   basePriceMinor: bigint | number
   compareAtPriceMinor?: bigint | number | null
+  isAutoConverted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   updatedById?: string | null
@@ -852,6 +886,7 @@ export type ProductPriceUpdateWithoutVariantInput = {
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  isAutoConverted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -866,6 +901,7 @@ export type ProductPriceUncheckedUpdateWithoutVariantInput = {
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  isAutoConverted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -878,6 +914,7 @@ export type ProductPriceUncheckedUpdateManyWithoutVariantInput = {
   currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  isAutoConverted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -890,6 +927,7 @@ export type ProductPriceCreateManyCurrencyInput = {
   variantKey?: string
   basePriceMinor: bigint | number
   compareAtPriceMinor?: bigint | number | null
+  isAutoConverted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   updatedById?: string | null
@@ -900,6 +938,7 @@ export type ProductPriceUpdateWithoutCurrencyInput = {
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  isAutoConverted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -914,6 +953,7 @@ export type ProductPriceUncheckedUpdateWithoutCurrencyInput = {
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  isAutoConverted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -926,6 +966,7 @@ export type ProductPriceUncheckedUpdateManyWithoutCurrencyInput = {
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  isAutoConverted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -941,6 +982,7 @@ export type ProductPriceSelect<ExtArgs extends runtime.Types.Extensions.Internal
   currencyCode?: boolean
   basePriceMinor?: boolean
   compareAtPriceMinor?: boolean
+  isAutoConverted?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   updatedById?: boolean
@@ -959,12 +1001,13 @@ export type ProductPriceSelectScalar = {
   currencyCode?: boolean
   basePriceMinor?: boolean
   compareAtPriceMinor?: boolean
+  isAutoConverted?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   updatedById?: boolean
 }
 
-export type ProductPriceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "variantId" | "variantKey" | "currencyCode" | "basePriceMinor" | "compareAtPriceMinor" | "createdAt" | "updatedAt" | "updatedById", ExtArgs["result"]["productPrice"]>
+export type ProductPriceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "variantId" | "variantKey" | "currencyCode" | "basePriceMinor" | "compareAtPriceMinor" | "isAutoConverted" | "createdAt" | "updatedAt" | "updatedById", ExtArgs["result"]["productPrice"]>
 export type ProductPriceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   variant?: boolean | Prisma.ProductPrice$variantArgs<ExtArgs>
@@ -995,6 +1038,16 @@ export type $ProductPricePayload<ExtArgs extends runtime.Types.Extensions.Intern
      * service rather than the schema so the message can name the field.
      */
     compareAtPriceMinor: bigint | null
+    /**
+     * True when this figure is maintained by the exchange-rate refresh rather
+     * than typed by a person.
+     * 
+     * The whole point of the flag is what it protects: editing a price by hand
+     * clears it, and the refresh only ever touches rows that still carry it. A
+     * deliberate local price - a market where the business undercuts its own
+     * conversion, or absorbs a duty - must never be undone by a rate moving.
+     */
+    isAutoConverted: boolean
     createdAt: Date
     updatedAt: Date
     updatedById: string | null
@@ -1377,6 +1430,7 @@ export interface ProductPriceFieldRefs {
   readonly currencyCode: Prisma.FieldRef<"ProductPrice", 'String'>
   readonly basePriceMinor: Prisma.FieldRef<"ProductPrice", 'BigInt'>
   readonly compareAtPriceMinor: Prisma.FieldRef<"ProductPrice", 'BigInt'>
+  readonly isAutoConverted: Prisma.FieldRef<"ProductPrice", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"ProductPrice", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ProductPrice", 'DateTime'>
   readonly updatedById: Prisma.FieldRef<"ProductPrice", 'String'>

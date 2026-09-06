@@ -21,6 +21,19 @@ export interface AdminUser {
    * panel shows the change-password screen and nothing else.
    */
   mustChangePassword: boolean;
+  /**
+   * This deployment asks where each sign-in happened. True unless the operator
+   * set FEATURE_ADMIN_LOGIN_LOCATION=false, which a panel served over plain
+   * HTTP has to, because the browser offers no Geolocation API there.
+   */
+  locationRequired: boolean;
+  /**
+   * The browser has told this session where it is. False on every fresh
+   * sign-in; while it is false and `locationRequired` is true the backend
+   * refuses every admin route, so the panel shows the location screen and
+   * nothing else. Survives a token refresh - it is asked once per sign-in.
+   */
+  locationGranted: boolean;
 }
 
 export interface SessionState {

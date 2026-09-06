@@ -10,6 +10,7 @@
  */
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { render } from '@testing-library/react';
+import { I18nextProvider } from 'react-i18next';
 import type { RenderResult } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import type { ReactElement } from 'react';
@@ -20,6 +21,7 @@ import type { LocaleState } from '@/app/locale-context';
 import { SessionContext } from '@/auth/session-context';
 import type { SessionState } from '@/auth/session-context';
 import { ToastProvider } from '@/components/toast';
+import { i18n } from '@/i18n/config';
 import type { StorefrontConfig } from '@/lib/types';
 
 /** A signed-in customer, unless a test says otherwise. */
@@ -59,9 +61,12 @@ export function makeLocale(overrides: Partial<LocaleState> = {}): LocaleState {
     needsChoice: false,
     detectedCountry: null,
     detectedMismatch: false,
+    marketSuggestion: null,
     choose: vi.fn(),
     dismissChoice: vi.fn(),
     setCurrency: vi.fn(),
+    acceptSuggestion: vi.fn(),
+    dismissSuggestion: vi.fn(),
     ...overrides,
   };
 }
@@ -86,17 +91,22 @@ export function renderWithProviders(
 
   return render(
     <MemoryRouter initialEntries={[options.route ?? '/']}>
-      <QueryClientProvider client={queryClient}>
-        <StorefrontContext.Provider value={options.config ?? FALLBACK_CONFIG}>
-          <ToastProvider>
-            <SessionContext.Provider value={options.session ?? makeSession()}>
-              <LocaleContext.Provider value={options.locale ?? makeLocale()}>
-                {ui}
-              </LocaleContext.Provider>
-            </SessionContext.Provider>
-          </ToastProvider>
-        </StorefrontContext.Provider>
-      </QueryClientProvider>
+      {/* Real English copy, not raw keys. Without this a test asserting on
+          "Your cart is empty" fails against the key name, which reads as a
+          broken component rather than a missing provider. */}
+      <I18nextProvider i18n={i18n}>
+        <QueryClientProvider client={queryClient}>
+          <StorefrontContext.Provider value={options.config ?? FALLBACK_CONFIG}>
+            <ToastProvider>
+              <SessionContext.Provider value={options.session ?? makeSession()}>
+                <LocaleContext.Provider value={options.locale ?? makeLocale()}>
+                  {ui}
+                </LocaleContext.Provider>
+              </SessionContext.Provider>
+            </ToastProvider>
+          </StorefrontContext.Provider>
+        </QueryClientProvider>
+      </I18nextProvider>
     </MemoryRouter>,
   );
 }

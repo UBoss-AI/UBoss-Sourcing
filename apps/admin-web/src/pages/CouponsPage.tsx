@@ -44,6 +44,7 @@ import { ApiError, api } from '@/lib/api';
 import { formatDate, majorToMinor, minorToMajor } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
 import type { CategoryNode } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 interface CurrencyRow {
   code: string;
@@ -128,10 +129,7 @@ const STATUS_LABEL: Record<Coupon['status'], string> = {
 };
 
 /** Flattens the category tree for a multi-select, keeping the depth indent. */
-function flattenCategories(
-  nodes: CategoryNode[],
-  depth = 0,
-): { id: string; label: string }[] {
+function flattenCategories(nodes: CategoryNode[], depth = 0): { id: string; label: string }[] {
   return nodes.flatMap((node) => [
     { id: node.id, label: `${'  '.repeat(depth)}${node.name}` },
     ...flattenCategories(node.children, depth + 1),
@@ -139,6 +137,8 @@ function flattenCategories(
 }
 
 export function CouponsPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const { can } = useSession();
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -310,7 +310,7 @@ export function CouponsPage(): React.JSX.Element {
 
   const newCouponButton = (
     <Button variant="primary" onClick={openCreate}>
-      New coupon
+      {t('coupons.newCoupon')}
     </Button>
   );
 
@@ -365,7 +365,7 @@ export function CouponsPage(): React.JSX.Element {
       nowrap: true,
       render: (row) =>
         row.validFrom === null && row.validUntil === null ? (
-          <span className="text-xs text-ink-muted">Always</span>
+          <span className="text-xs text-ink-muted">{t('coupons.always')}</span>
         ) : (
           <span className="text-xs text-ink-muted">
             {row.validFrom === null ? '—' : formatDate(row.validFrom)} to{' '}
@@ -395,16 +395,16 @@ export function CouponsPage(): React.JSX.Element {
             </Badge>
           ) : (
             <Badge dot tone="danger">
-              Archived
+              {t('coupons.archived')}
             </Badge>
           )}
-          {!row.isPubliclyListed && <Badge tone="neutral">Code only</Badge>}
+          {!row.isPubliclyListed && <Badge tone="neutral">{t('coupons.codeOnly')}</Badge>}
         </div>
       ),
     },
     {
       key: 'actions',
-      header: <span className="sr-only">Actions</span>,
+      header: <span className="sr-only">{t('coupons.actions')}</span>,
       align: 'right',
       render: (row) =>
         canWrite ? (
@@ -416,7 +416,7 @@ export function CouponsPage(): React.JSX.Element {
                 openEdit(row);
               }}
             >
-              Edit
+              {t('coupons.edit')}
               <span className="sr-only"> {row.code}</span>
             </Button>
             {can(Permission.COUPON_ARCHIVE) && row.archivedAt === null && (
@@ -427,7 +427,7 @@ export function CouponsPage(): React.JSX.Element {
                   setArchiving(row);
                 }}
               >
-                Archive
+                {t('coupons.archive')}
                 <span className="sr-only"> {row.code}</span>
               </Button>
             )}
@@ -439,8 +439,8 @@ export function CouponsPage(): React.JSX.Element {
   return (
     <>
       <PageHeader
-        title="Coupons"
-        description="Percentage discounts, optionally limited to categories, that unlock at a cart value set per currency."
+        title={t('coupons.coupons')}
+        description={t('coupons.percentageDiscountsOptionallyLimitedTo')}
         actions={canWrite ? newCouponButton : undefined}
       />
 
@@ -471,7 +471,7 @@ export function CouponsPage(): React.JSX.Element {
         }}
         size="lg"
         title={editing === null ? 'New coupon' : `Edit ${editing.code}`}
-        description="The code is what a customer types. Everything else decides when it applies."
+        description={t('coupons.theCodeIsWhatA')}
         footer={
           <>
             <Button
@@ -480,7 +480,7 @@ export function CouponsPage(): React.JSX.Element {
               }}
               disabled={save.isPending}
             >
-              Cancel
+              {t('coupons.cancel')}
             </Button>
             <Button variant="primary" onClick={submit} isLoading={save.isPending}>
               {editing === null ? 'Create coupon' : 'Save coupon'}
@@ -498,7 +498,11 @@ export function CouponsPage(): React.JSX.Element {
           <FieldGroup legend="Identity">
             <div className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Code" required hint="Generated for you. Change it if you would rather.">
+                <Field
+                  label={t('coupons.code')}
+                  required
+                  hint={t('coupons.generatedForYouChangeIt')}
+                >
                   {({ inputId, describedBy }) => (
                     <Input
                       id={inputId}
@@ -512,7 +516,11 @@ export function CouponsPage(): React.JSX.Element {
                   )}
                 </Field>
 
-                <Field label="Internal name" required hint="Shown here, never to a customer.">
+                <Field
+                  label={t('coupons.internalName')}
+                  required
+                  hint={t('coupons.shownHereNeverToA')}
+                >
                   {({ inputId, describedBy }) => (
                     <Input
                       id={inputId}
@@ -527,8 +535,8 @@ export function CouponsPage(): React.JSX.Element {
               </div>
 
               <Field
-                label="Customer-facing description"
-                hint="Appears beside the code in the storefront's coupon list."
+                label={t('coupons.customerFacingDescription')}
+                hint={t('coupons.appearsBesideTheCodeIn')}
               >
                 {({ inputId, describedBy }) => (
                   <Textarea
@@ -547,12 +555,12 @@ export function CouponsPage(): React.JSX.Element {
 
           <FieldGroup
             legend="What it takes off, and where"
-            hint="A draft coupon never matches, whatever else is set here."
+            hint={t('coupons.aDraftCouponNeverMatches')}
             className="border-t border-border-subtle pt-5"
           >
             <div className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-3">
-                <Field label="Discount %" required>
+                <Field label={t('coupons.discount')} required>
                   {({ inputId }) => (
                     <Input
                       id={inputId}
@@ -566,7 +574,7 @@ export function CouponsPage(): React.JSX.Element {
                   )}
                 </Field>
 
-                <Field label="Status">
+                <Field label={t('coupons.status')}>
                   {({ inputId }) => (
                     <Select
                       id={inputId}
@@ -575,14 +583,14 @@ export function CouponsPage(): React.JSX.Element {
                         setDraft({ ...draft, status: event.target.value as Draft['status'] });
                       }}
                     >
-                      <option value="DRAFT">Draft — never matches</option>
-                      <option value="ACTIVE">Active</option>
-                      <option value="DISABLED">Disabled</option>
+                      <option value="DRAFT">{t('coupons.draftNeverMatches')}</option>
+                      <option value="ACTIVE">{t('coupons.active')}</option>
+                      <option value="DISABLED">{t('coupons.disabled')}</option>
                     </Select>
                   )}
                 </Field>
 
-                <Field label="Applies to">
+                <Field label={t('coupons.appliesTo')}>
                   {({ inputId }) => (
                     <Select
                       id={inputId}
@@ -591,8 +599,8 @@ export function CouponsPage(): React.JSX.Element {
                         setDraft({ ...draft, scope: event.target.value as Draft['scope'] });
                       }}
                     >
-                      <option value="ALL_PRODUCTS">All products</option>
-                      <option value="CATEGORIES">Chosen categories</option>
+                      <option value="ALL_PRODUCTS">{t('coupons.allProducts')}</option>
+                      <option value="CATEGORIES">{t('coupons.chosenCategories')}</option>
                     </Select>
                   )}
                 </Field>
@@ -601,9 +609,9 @@ export function CouponsPage(): React.JSX.Element {
               {/* Only asked for once the answer above makes it a question. */}
               {draft.scope === 'CATEGORIES' && (
                 <Field
-                  label="Categories"
+                  label={t('coupons.categories')}
                   required
-                  hint="Products in these categories, and everything beneath them, get the discount. Hold Ctrl (or Cmd) to choose more than one."
+                  hint={t('coupons.productsInTheseCategoriesAnd')}
                 >
                   {({ inputId, describedBy }) => (
                     <MultiSelect
@@ -615,7 +623,9 @@ export function CouponsPage(): React.JSX.Element {
                       onChange={(event) => {
                         setDraft({
                           ...draft,
-                          categoryIds: [...event.target.selectedOptions].map((option) => option.value),
+                          categoryIds: [...event.target.selectedOptions].map(
+                            (option) => option.value,
+                          ),
                         });
                       }}
                     >
@@ -633,7 +643,7 @@ export function CouponsPage(): React.JSX.Element {
 
           <FieldGroup
             legend="Qualifying cart value"
-            hint="Set per currency, because a threshold converted between currencies would move with the exchange rate. Leave one blank and the coupon does not apply in that market at all — at least one is required."
+            hint={t('coupons.setPerCurrencyBecauseA')}
             className="border-t border-border-subtle pt-5"
           >
             <div className="grid gap-3 sm:grid-cols-2">
@@ -646,7 +656,7 @@ export function CouponsPage(): React.JSX.Element {
                   <Input
                     inputMode="decimal"
                     className="tabular"
-                    placeholder="Not offered"
+                    placeholder={t('coupons.notOffered')}
                     value={draft.minimums[currency.code]?.amount ?? ''}
                     onChange={(event) => {
                       setDraft({
@@ -669,7 +679,7 @@ export function CouponsPage(): React.JSX.Element {
           >
             <div className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Starts" hint="Blank means immediately.">
+                <Field label={t('coupons.starts')} hint={t('coupons.blankMeansImmediately')}>
                   {({ inputId, describedBy }) => (
                     <Input
                       id={inputId}
@@ -683,7 +693,7 @@ export function CouponsPage(): React.JSX.Element {
                   )}
                 </Field>
 
-                <Field label="Ends" hint="Blank means open-ended.">
+                <Field label={t('coupons.ends')} hint={t('coupons.blankMeansOpenEnded')}>
                   {({ inputId, describedBy }) => (
                     <Input
                       id={inputId}
@@ -697,7 +707,7 @@ export function CouponsPage(): React.JSX.Element {
                   )}
                 </Field>
 
-                <Field label="Total uses" hint="Blank means unlimited.">
+                <Field label={t('coupons.totalUses')} hint={t('coupons.blankMeansUnlimited')}>
                   {({ inputId, describedBy }) => (
                     <Input
                       id={inputId}
@@ -712,7 +722,7 @@ export function CouponsPage(): React.JSX.Element {
                   )}
                 </Field>
 
-                <Field label="Uses per customer" hint="Blank means unlimited.">
+                <Field label={t('coupons.usesPerCustomer')} hint={t('coupons.blankMeansUnlimited')}>
                   {({ inputId, describedBy }) => (
                     <Input
                       id={inputId}
@@ -730,8 +740,8 @@ export function CouponsPage(): React.JSX.Element {
 
               <CheckboxField
                 boxed
-                label="Advertise on the cart"
-                description="Off makes it code-only: it still works when typed, it is just not listed."
+                label={t('coupons.advertiseOnTheCart')}
+                description={t('coupons.offMakesItCodeOnly')}
                 checked={draft.isPubliclyListed}
                 onChange={(event) => {
                   setDraft({ ...draft, isPubliclyListed: event.target.checked });
@@ -752,7 +762,7 @@ export function CouponsPage(): React.JSX.Element {
         }}
         title={`Archive ${archiving?.code ?? ''}?`}
         body="It stops applying immediately and disappears from every list. Orders that already used it keep their record."
-        confirmLabel="Archive coupon"
+        confirmLabel={t('coupons.archiveCoupon')}
         isDangerous
         isWorking={archive.isPending}
       />

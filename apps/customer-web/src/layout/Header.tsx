@@ -20,7 +20,7 @@
  *     visually separate is what stops "who am I" and "what am I browsing"
  *     competing for the same strip of screen.
  */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from '@/auth/session-context';
@@ -30,6 +30,8 @@ import { cx } from '@/lib/cx';
 import { CartIcon, ChevronDownIcon, SearchIcon } from '@/components/icons';
 import type { CategoryNode, Cart } from '@/lib/types';
 import { useLocale } from '@/app/locale-context';
+import { useI18n } from '@/i18n/i18n-context';
+import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
 
 /**
  * The brand lockup.
@@ -42,6 +44,7 @@ import { useLocale } from '@/app/locale-context';
  */
 function BrandMark(): React.JSX.Element {
   const { business } = useStorefront();
+  const { t } = useI18n();
 
   return (
     <Link
@@ -75,7 +78,7 @@ function BrandMark(): React.JSX.Element {
           aria-hidden="true"
           className="hidden text-xxs font-medium uppercase tracking-[0.14em] text-white/60 sm:block"
         >
-          Business purchasing
+          {t('header.brandTagline')}
         </span>
       </span>
     </Link>
@@ -83,6 +86,7 @@ function BrandMark(): React.JSX.Element {
 }
 
 function SearchBox(): React.JSX.Element {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const location = useLocation();
@@ -110,7 +114,7 @@ function SearchBox(): React.JSX.Element {
       }}
     >
       <label htmlFor="storefront-search" className="sr-only">
-        Search products
+        {t('header.searchProducts')}
       </label>
 
       {/* Decoration only, and `pointer-events-none` so it cannot swallow the
@@ -121,7 +125,7 @@ function SearchBox(): React.JSX.Element {
         id="storefront-search"
         type="search"
         value={term}
-        placeholder="Search products by name or code"
+        placeholder={t('header.searchPlaceholder')}
         onChange={(event) => {
           setTerm(event.target.value);
         }}
@@ -132,7 +136,7 @@ function SearchBox(): React.JSX.Element {
         type="submit"
         className="h-10 shrink-0 rounded-r-md bg-brand px-4 text-sm font-medium text-white transition-colors hover:bg-brand-hover"
       >
-        Search
+        {t('header.searchSubmit')}
       </button>
     </form>
   );
@@ -152,12 +156,13 @@ function SearchBox(): React.JSX.Element {
  */
 function CurrencySwitcher(): React.JSX.Element | null {
   const locale = useLocale();
+  const { t } = useI18n();
 
   if (locale.currencies.length < 2) return null;
 
   return (
     <label className="flex items-center">
-      <span className="sr-only">Currency</span>
+      <span className="sr-only">{t('header.currency')}</span>
       <select
         value={locale.currency}
         onChange={(event) => {
@@ -184,6 +189,7 @@ function CurrencySwitcher(): React.JSX.Element | null {
 
 function CartLink(): React.JSX.Element {
   const { isCustomer } = useSession();
+  const { t } = useI18n();
 
   // Only asked for when there is a session to ask with. A guest has no cart on
   // the server, and firing a 401 on every page load is noise in the logs and a
@@ -205,10 +211,13 @@ function CartLink(): React.JSX.Element {
       // is part of buying, and on a phone — where the word "Cart" collapses to
       // the icon — a bare glyph among glyphs would not read as the buy path.
       className="relative flex h-10 items-center gap-2 rounded-md bg-white/10 px-3 text-sm font-medium text-white ring-1 ring-inset ring-white/25 transition-colors hover:bg-white/20 hover:ring-white/40"
-      aria-label={count === 0 ? 'Cart, empty' : `Cart, ${String(count)} item${count === 1 ? '' : 's'}`}
+      // Counted, not an appended "s": the plural of "item" is a different word
+      // shape in most of the catalogue, and Polish needs three of them.
+      // i18next reads `count` and picks the form.
+      aria-label={count === 0 ? t('header.cartEmpty') : t('header.cartCount', { count })}
     >
       <CartIcon className="h-5 w-5" />
-      <span className="hidden sm:inline">Cart</span>
+      <span className="hidden sm:inline">{t('header.cart')}</span>
       {count > 0 && (
         <span
           aria-hidden="true"
@@ -229,8 +238,13 @@ function CartLink(): React.JSX.Element {
 
 function AccountMenu(): React.JSX.Element {
   const { user, isCustomer, logout } = useSession();
+  const { t } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  // Generated rather than a literal: the header renders once, but a literal id
+  // is the kind that survives into a second instance and quietly makes
+  // `aria-controls` point at whichever one the browser found first.
+  const panelId = useId();
 
   // Close on outside click or Escape. Without the Escape handler a keyboard
   // user who opens the menu has no way back out.
@@ -259,7 +273,7 @@ function AccountMenu(): React.JSX.Element {
         to="/login"
         className="inline-flex h-10 shrink-0 items-center rounded-md border border-white/40 px-3 text-sm font-medium text-white transition-colors hover:border-white/60 hover:bg-white/10 sm:px-4"
       >
-        Sign in
+        {t('header.signIn')}
       </Link>
     );
   }
@@ -272,11 +286,16 @@ function AccountMenu(): React.JSX.Element {
           setIsOpen((open) => !open);
         }}
         aria-expanded={isOpen}
-        aria-haspopup="menu"
-        // Named explicitly, because the visible word is dropped below `lg` and
-        // a `display:none` label leaves nothing in the accessibility tree —
-        // which made this an unnamed button on every phone.
-        aria-label="Account"
+        // Deliberately NOT aria-haspopup="menu". That role promises a
+        // composite widget: Tab enters it once and arrow keys move between
+        // items, per the ARIA authoring practices. This is a list of links,
+        // and announcing it as a menu would describe keyboard behaviour it
+        // does not have. `aria-expanded` is the whole contract for a
+        // disclosure.
+        aria-controls={panelId}
+        // Named explicitly: the trigger is the avatar alone, and the avatar is
+        // aria-hidden, so without this the button has no accessible name.
+        aria-label={t('header.account')}
         className="flex h-10 items-center gap-2 rounded-md px-2 text-sm font-medium text-white/85 transition-colors hover:bg-white/10 hover:text-white sm:px-3"
       >
         <span
@@ -285,18 +304,15 @@ function AccountMenu(): React.JSX.Element {
         >
           {(user?.email ?? '?').slice(0, 2).toUpperCase()}
         </span>
-        <span className="hidden max-w-32 truncate lg:inline">Account</span>
         <ChevronDownIcon
-          className={cx(
-            'hidden h-4 w-4 text-white/60 transition-transform lg:block',
-            isOpen && 'rotate-180',
-          )}
+          className={cx('h-4 w-4 text-white/60 transition-transform', isOpen && 'rotate-180')}
         />
       </button>
 
       {isOpen && (
-        <div
-          role="menu"
+        <nav
+          id={panelId}
+          aria-label={t('header.account')}
           // `on-light` puts the focus ring back to brand-on-white: this panel
           // is a white surface that happens to hang off the navy band, and the
           // band's white ring would be invisible inside it.
@@ -304,24 +320,28 @@ function AccountMenu(): React.JSX.Element {
         >
           <p className="border-b border-border px-3 pb-2.5 pt-2">
             <span className="block text-xxs font-medium uppercase tracking-wider text-ink-subtle">
-              Signed in as
+              {t('header.signedInAs')}
             </span>
-            <span className="mt-0.5 block truncate text-sm font-medium text-ink">{user?.email}</span>
+            <span className="mt-0.5 block truncate text-sm font-medium text-ink">
+              {user?.email}
+            </span>
           </p>
 
           <div className="pt-1.5">
             {(
               [
-                ['/account/orders', 'My orders'],
-                ['/account/schedules', 'Repeat purchases'],
-                ['/account/addresses', 'Addresses'],
-                ['/account/profile', 'Profile'],
+                ['/account/orders', t('header.myOrders')],
+                ['/account/schedules', t('header.repeatPurchases')],
+                ['/account/addresses', t('header.addresses')],
+                ['/account/profile', t('header.profile')],
               ] satisfies [string, string][]
             ).map(([to, label]) => (
               <Link
                 key={to}
                 to={to}
-                role="menuitem"
+                // No role="menuitem": it would replace "link" in the
+                // announcement, and a user who cannot tell that following this
+                // navigates has been told less, not more.
                 onClick={() => {
                   setIsOpen(false);
                 }}
@@ -334,16 +354,15 @@ function AccountMenu(): React.JSX.Element {
 
           <button
             type="button"
-            role="menuitem"
             onClick={() => {
               setIsOpen(false);
               void logout();
             }}
             className="mt-1.5 block w-full rounded border-t border-border px-3 py-2 text-left text-sm text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink"
           >
-            Sign out
+            {t('header.signOut')}
           </button>
-        </div>
+        </nav>
       )}
     </div>
   );
@@ -360,9 +379,11 @@ function AccountMenu(): React.JSX.Element {
  * for a screen reader and not only in the fill.
  */
 function CategoryBar(): React.JSX.Element | null {
+  const { t, language } = useI18n();
   const categories = useQuery({
-    queryKey: ['categories'],
-    queryFn: () => api.get<{ categories: CategoryNode[] }>('/catalog/categories'),
+    queryKey: ['categories', language],
+    queryFn: () =>
+      api.get<{ categories: CategoryNode[] }>('/catalog/categories', { query: { language } }),
     staleTime: 5 * 60_000,
   });
 
@@ -379,12 +400,15 @@ function CategoryBar(): React.JSX.Element | null {
     );
 
   return (
-    <nav aria-label="Product categories" className="border-b border-border bg-surface shadow-card">
+    <nav
+      aria-label={t('header.categories')}
+      className="border-b border-border bg-surface shadow-card"
+    >
       <div className="mx-auto max-w-content overflow-x-auto px-4">
         <ul className="flex items-center gap-1 py-2">
           <li className="shrink-0">
             <NavLink to="/products" end className={entryClass}>
-              All products
+              {t('header.allProducts')}
             </NavLink>
           </li>
 
@@ -434,6 +458,12 @@ export function Header(): React.JSX.Element {
           </div>
 
           <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
+            {/* Language before currency: the two read as a pair of market
+                settings, and the one that decides whether the rest of the
+                header is legible belongs first. Both stay on the band at every
+                width for the same reason — folding either away on a phone
+                hides it from the person most likely to need it. */}
+            <LanguageSwitcher placement="header" />
             <CurrencySwitcher />
             <AccountMenu />
             <CartLink />

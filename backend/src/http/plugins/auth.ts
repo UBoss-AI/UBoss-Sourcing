@@ -19,7 +19,7 @@ import {
   type AuthenticatedUser,
   type UserKind,
 } from '../../modules/identity/auth.service.js';
-import { isSessionActive, verifyAccessToken } from '../../modules/identity/session.service.js';
+import { getSessionAuthState, verifyAccessToken } from '../../modules/identity/session.service.js';
 
 export const CSRF_HEADER = 'x-csrf-token';
 
@@ -57,7 +57,7 @@ export function cookieNamesFor(kind: UserKind): CookieNames {
 declare module 'fastify' {
   interface FastifyRequest {
     /** Present only after a guard has run. Never populated speculatively. */
-    auth?: AuthenticatedUser & { sessionId: string };
+    auth?: AuthenticatedUser & { sessionId: string; sessionHasLocation: boolean };
   }
 }
 
@@ -134,7 +134,7 @@ function assertCsrf(request: FastifyRequest, usedCookie: boolean, kind: UserKind
 async function authenticate(
   request: FastifyRequest,
   expectedKind: UserKind,
-): Promise<AuthenticatedUser & { sessionId: string }> {
+): Promise<AuthenticatedUser & { sessionId: string; sessionHasLocation: boolean }> {
   const token = extractAccessToken(request, expectedKind);
   if (token === null) {
     throw unauthorized(ErrorCode.UNAUTHENTICATED, 'Authentication is required.');
@@ -156,7 +156,11 @@ async function authenticate(
   // The token is stateless but the session is not: logout, deactivation and
   // password change revoke the session, and that must take effect immediately
   // rather than at the next token expiry.
-  if (!(await isSessionActive(claims.sid))) {
+  //
+  // The same read answers whether the session has said where it is, so the
+  // location gate below costs no extra query.
+  const session = await getSessionAuthState(claims.sid);
+  if (!session.isActive) {
     throw unauthorized(ErrorCode.SESSION_EXPIRED, 'Your session is no longer valid.');
   }
 
@@ -165,7 +169,18 @@ async function authenticate(
     throw unauthorized(ErrorCode.ACCOUNT_DEACTIVATED, 'This account is no longer active.');
   }
 
-  return { ...user, sessionId: claims.sid };
+  return { ...user, sessionId: claims.sid, sessionHasLocation: session.hasLocation };
+}
+
+/**
+ * Does this admin session still owe us a position?
+ *
+ * False whenever the deployment has the feature off - an installation served
+ * over plain HTTP has no Geolocation API to satisfy the gate with, and locking
+ * every member of staff out of their own panel is not a security posture.
+ */
+export function isLocationPending(auth: { type: UserKind; sessionHasLocation: boolean }): boolean {
+  return env.FEATURE_ADMIN_LOGIN_LOCATION && auth.type === 'ADMIN' && !auth.sessionHasLocation;
 }
 
 /**
@@ -194,6 +209,23 @@ export function requireAdmin(...permissions: PermissionKey[]) {
       throw forbidden(
         ErrorCode.PASSWORD_CHANGE_REQUIRED,
         'Set your own password before using the admin panel.',
+      );
+    }
+
+    /**
+     * Signed in, but the browser has not yet said where from.
+     *
+     * Enforced here rather than only in the panel for the same reason as the
+     * line above: a screen can be skipped by anyone talking to the API
+     * directly, and a control that only exists in the frontend is a suggestion.
+     * The three routes that stay open - `/me`, `/logout` and
+     * `/session/location` itself - use `requireAuthenticated`, which is why
+     * they need no exception here.
+     */
+    if (isLocationPending(auth)) {
+      throw forbidden(
+        ErrorCode.LOCATION_REQUIRED,
+        'Allow location access to continue. The admin panel records where each sign-in happened.',
       );
     }
 
@@ -237,7 +269,9 @@ export function requireAuthenticated(kind: UserKind) {
 }
 
 /** Narrow `request.auth` after a guard has run. Throws rather than returning undefined. */
-export function currentUser(request: FastifyRequest): AuthenticatedUser & { sessionId: string } {
+export function currentUser(
+  request: FastifyRequest,
+): AuthenticatedUser & { sessionId: string; sessionHasLocation: boolean } {
   if (request.auth === undefined) {
     // A programming error - a handler read auth without declaring a guard.
     throw unauthorized(ErrorCode.UNAUTHENTICATED, 'Authentication is required.');

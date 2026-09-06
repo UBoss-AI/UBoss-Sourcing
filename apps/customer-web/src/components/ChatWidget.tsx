@@ -36,6 +36,7 @@ import { useStorefront } from '@/app/storefront-context';
 import { Button, Field, Input, Spinner } from './ui';
 import { cx } from '@/lib/cx';
 import { ApiError, BASE_URL, api } from '@/lib/api';
+import { useI18n } from '@/i18n/i18n-context';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -83,7 +84,11 @@ function readStoredSession(): ChatSession | null {
       return null;
     }
 
-    return { conversationId: parsed.conversationId, token: parsed.token, name: parsed.name };
+    return {
+      conversationId: parsed.conversationId,
+      token: parsed.token,
+      name: parsed.name,
+    };
   } catch {
     // Private browsing, blocked site data, or a value somebody hand-edited.
     // None of them is a reason to break the widget; the visitor is asked again.
@@ -225,7 +230,10 @@ function MessageBody({ text }: { text: string }): React.JSX.Element {
  */
 async function readEventStream(
   body: ReadableStream<Uint8Array>,
-  handlers: { onDelta: (text: string) => void; onError: (message: string) => void },
+  handlers: {
+    onDelta: (text: string) => void;
+    onError: (message: string) => void;
+  },
 ): Promise<void> {
   const reader = body.getReader();
   const decoder = new TextDecoder();
@@ -283,10 +291,11 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
  * Validated here as well as on the API, so a typo is caught before a round
  * trip. The API's rules are the ones that count; these mirror them.
  */
-function validateVisitor(values: { name: string; phone: string; email: string }): Record<
-  string,
-  string
-> {
+function validateVisitor(values: {
+  name: string;
+  phone: string;
+  email: string;
+}): Record<string, string> {
   const errors: Record<string, string> = {};
 
   if (values.name.trim().length < 2) errors.name = 'Please enter your name.';
@@ -308,7 +317,9 @@ function VisitorForm({
 }: {
   onStarted: (session: ChatSession) => void;
 }): React.JSX.Element {
-  const { business } = useStorefront();
+  const { t } = useI18n();
+
+  const { assistant } = useStorefront();
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -324,7 +335,11 @@ function VisitorForm({
   }, []);
 
   const submit = async (): Promise<void> => {
-    const values = { name: name.trim(), phone: phone.trim(), email: email.trim() };
+    const values = {
+      name: name.trim(),
+      phone: phone.trim(),
+      email: email.trim(),
+    };
     const found = validateVisitor(values);
 
     setErrors(found);
@@ -372,12 +387,23 @@ function VisitorForm({
       }}
       noValidate
     >
-      <p className="text-sm leading-relaxed text-ink-muted">
-        Tell us who you are and we will answer your questions about the catalogue. Our team can
-        then follow up if you need a quotation.
-      </p>
+      {/* AI Act Art. 50(1): a person has to be told they are dealing with a
+          machine. Above the first field, not in a footnote - the obligation is
+          to inform, and information that arrives after the decision has not
+          informed anybody. */}
+      <div className="rounded-md border border-border bg-surface-sunken px-3 py-2.5">
+        <p className="text-xs font-medium text-ink">{t('chat.aiNotice')}</p>
+        {assistant.vendor !== null && (
+          <p className="mt-1 text-xxs leading-relaxed text-ink-muted">
+            {t('chat.aiVendorNotice', { vendor: assistant.vendor.name })}
+          </p>
+        )}
+        <p className="mt-1 text-xxs leading-relaxed text-ink-muted">{t('chat.aiCanBeWrong')}</p>
+      </div>
 
-      <Field label="Your name" error={errors.name} required>
+      <p className="text-sm leading-relaxed text-ink-muted">{t('chat.tellUsWhoYouAre')}</p>
+
+      <Field label={t('chat.yourName')} error={errors.name} required>
         {({ inputId, describedBy }) => (
           <Input
             id={inputId}
@@ -394,7 +420,7 @@ function VisitorForm({
         )}
       </Field>
 
-      <Field label="Mobile number" error={errors.phone} required>
+      <Field label={t('chat.mobileNumber')} error={errors.phone} required>
         {({ inputId, describedBy }) => (
           <Input
             id={inputId}
@@ -413,7 +439,7 @@ function VisitorForm({
         )}
       </Field>
 
-      <Field label="Email address" error={errors.email} required>
+      <Field label={t('chat.emailAddress')} error={errors.email} required>
         {({ inputId, describedBy }) => (
           <Input
             id={inputId}
@@ -422,7 +448,7 @@ function VisitorForm({
             value={email}
             autoComplete="email"
             maxLength={320}
-            placeholder="you@hospital.org"
+            placeholder={t('chat.youHospitalOrg')}
             invalid={errors.email !== undefined}
             aria-describedby={describedBy}
             onChange={(event) => {
@@ -442,12 +468,14 @@ function VisitorForm({
       )}
 
       <Button type="submit" variant="primary" fullWidth isLoading={isSubmitting}>
-        Start chatting
+        {t('chat.startChatting')}
       </Button>
 
-      <p className="text-xxs leading-relaxed text-ink-subtle">
-        {business.displayName} keeps your details and this conversation so the team can respond.
-      </p>
+      {/* GDPR Art. 13: this form collects a name, a mobile number and an
+          email from somebody who has no account and no relationship with us
+          yet, so the notice belongs at the point of collection rather than
+          only in a policy page they have not opened. */}
+      <p className="text-xxs leading-relaxed text-ink-subtle">{t('chat.privacyNotice')}</p>
     </form>
   );
 }
@@ -478,6 +506,8 @@ function ChatPanel({
   messages: ChatMessage[];
   setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const { business } = useStorefront();
 
   const [draft, setDraft] = useState('');
@@ -602,7 +632,10 @@ function ChatPanel({
               const next = [...current];
               const last = next[next.length - 1];
               if (last?.role === 'assistant') {
-                next[next.length - 1] = { role: 'assistant', content: last.content + delta };
+                next[next.length - 1] = {
+                  role: 'assistant',
+                  content: last.content + delta,
+                };
               }
               return next;
             });
@@ -666,15 +699,18 @@ function ChatPanel({
       {/* Header */}
       <div className="flex shrink-0 items-start justify-between gap-3 border-b border-border-subtle bg-surface-sunken px-4 py-3">
         <div className="min-w-0">
-          <p className="text-title-xs text-ink">Ask about our products</p>
+          <p className="text-title-xs text-ink">{t('chat.askAboutOurProducts')}</p>
           <p className="mt-0.5 text-xxs leading-relaxed text-ink-muted">
-            Answers come from this catalogue. Not clinical advice.
+            {/* Repeated here on purpose. Somebody who opened this panel
+                yesterday and comes back to it today never saw the capture
+                form, and the disclosure has to hold for them too. */}
+            {t('chat.aiNotice')} {t('chat.answersComeFromThisCatalogue')}
           </p>
         </div>
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close the chat"
+          aria-label={t('chat.closeTheChat')}
           className="-mr-1 -mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-md
                      text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink"
         >
@@ -713,26 +749,26 @@ function ChatPanel({
                 said nothing. */}
             {transcript.map((message, index) =>
               message.role === 'assistant' && message.content.length === 0 ? null : (
-              <div
-                key={index}
-                className={cx('flex', message.role === 'user' ? 'justify-end' : 'justify-start')}
-              >
                 <div
-                  className={cx(
-                    'max-w-[85%] rounded-lg px-3 py-2 text-sm leading-relaxed',
-                    message.role === 'user'
-                      ? 'bg-brand text-white'
-                      : 'bg-surface-sunken text-ink ring-1 ring-inset ring-border',
-                  )}
+                  key={index}
+                  className={cx('flex', message.role === 'user' ? 'justify-end' : 'justify-start')}
                 >
-                  <MessageBody text={message.content} />
-                  {truncatedAt === index && (
-                    <p className="mt-2 border-t border-border pt-2 text-xs text-ink-muted">
-                      This answer was cut off. Please ask again for the full reply.
-                    </p>
-                  )}
+                  <div
+                    className={cx(
+                      'max-w-[85%] rounded-lg px-3 py-2 text-sm leading-relaxed',
+                      message.role === 'user'
+                        ? 'bg-brand text-white'
+                        : 'bg-surface-sunken text-ink ring-1 ring-inset ring-border',
+                    )}
+                  >
+                    <MessageBody text={message.content} />
+                    {truncatedAt === index && (
+                      <p className="mt-2 border-t border-border pt-2 text-xs text-ink-muted">
+                        {t('chat.thisAnswerWasCutOff')}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
               ),
             )}
 
@@ -742,7 +778,7 @@ function ChatPanel({
             {isStreaming && (
               <div className="flex items-center gap-2 text-xs text-ink-muted" role="status">
                 <Spinner className="h-3.5 w-3.5" />
-                Thinking…
+                {t('chat.thinking')}
               </div>
             )}
 
@@ -768,7 +804,9 @@ function ChatPanel({
               <p className="px-1 py-1 text-xs leading-relaxed text-ink-muted">
                 This conversation has reached its length limit. Reload the page to start a new one,
                 or email{' '}
-                {business.supportEmail === null ? 'our support team' : (
+                {business.supportEmail === null ? (
+                  'our support team'
+                ) : (
                   <a
                     href={`mailto:${business.supportEmail}`}
                     className="font-medium text-brand underline underline-offset-2"
@@ -781,7 +819,7 @@ function ChatPanel({
             ) : (
               <div className="flex items-end gap-2">
                 <label htmlFor="assistant-input" className="sr-only">
-                  Your question
+                  {t('chat.yourQuestion')}
                 </label>
                 <textarea
                   id="assistant-input"
@@ -789,7 +827,7 @@ function ChatPanel({
                   rows={1}
                   value={draft}
                   maxLength={MAX_MESSAGE_CHARS}
-                  placeholder="e.g. do you have 22G safety cannula?"
+                  placeholder={t('chat.eGDoYouHave')}
                   disabled={isStreaming}
                   onChange={(event) => {
                     setDraft(event.target.value);
@@ -810,7 +848,7 @@ function ChatPanel({
                 <button
                   type="submit"
                   disabled={isStreaming || draft.trim().length === 0}
-                  aria-label="Send"
+                  aria-label={t('chat.send')}
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand
                              text-white shadow-card transition-colors hover:bg-brand-hover
                              focus-visible:ring-brand disabled:cursor-not-allowed disabled:bg-ink-subtle

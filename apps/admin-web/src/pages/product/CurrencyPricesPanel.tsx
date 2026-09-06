@@ -18,6 +18,7 @@ import { useToast } from '@/components/toast-context';
 import { Badge, Button, Callout, Card, Input, LoadingState } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { majorToMinor, minorToMajor } from '@/lib/format';
+import { useI18n } from '@/i18n/i18n-context';
 
 interface CurrencyRow {
   code: string;
@@ -51,6 +52,8 @@ export function CurrencyPricesPanel({
   productId: string;
   canWrite: boolean;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const toast = useToast();
   const queryClient = useQueryClient();
 
@@ -85,7 +88,8 @@ export function CurrencyPricesPanel({
   }, [prices.data]);
 
   const save = useMutation({
-    mutationFn: (body: unknown) => api.put<{ updated: boolean }>(`/admin/products/${productId}/prices`, body),
+    mutationFn: (body: unknown) =>
+      api.put<{ updated: boolean }>(`/admin/products/${productId}/prices`, body),
     onSuccess: async () => {
       toast.success('Prices saved.');
       setError(null);
@@ -102,8 +106,11 @@ export function CurrencyPricesPanel({
     setError(null);
 
     const rows = prices.data?.prices ?? [];
-    const payload: { currencyCode: string; basePriceMinor: string; compareAtPriceMinor?: string }[] =
-      [];
+    const payload: {
+      currencyCode: string;
+      basePriceMinor: string;
+      compareAtPriceMinor?: string;
+    }[] = [];
 
     for (const row of rows) {
       const entry = draft[row.currency.code];
@@ -117,7 +124,8 @@ export function CurrencyPricesPanel({
       }
 
       const compareTyped = entry?.compareAt.trim() ?? '';
-      const compareMinor = compareTyped === '' ? null : majorToMinor(compareTyped, row.currency.exponent);
+      const compareMinor =
+        compareTyped === '' ? null : majorToMinor(compareTyped, row.currency.exponent);
 
       if (compareTyped !== '' && compareMinor === null) {
         setError(`The ${row.currency.code} compare-at price is not a valid amount.`);
@@ -144,8 +152,8 @@ export function CurrencyPricesPanel({
 
   return (
     <Card
-      title="Prices by currency"
-      description="A real price per market, never a conversion. Leave one blank and the product is not sold there."
+      title={t('currencyPrices.pricesByCurrency')}
+      description={t('currencyPrices.aRealPricePerMarket')}
       actions={
         canWrite ? (
           <Button
@@ -155,14 +163,14 @@ export function CurrencyPricesPanel({
             isLoading={save.isPending}
             disabled={prices.isLoading}
           >
-            Save prices
+            {t('currencyPrices.savePrices')}
           </Button>
         ) : undefined
       }
     >
       <div className="px-5 py-4">
         {prices.isLoading ? (
-          <LoadingState label="Loading prices" />
+          <LoadingState label={t('currencyPrices.loadingPrices')} />
         ) : (
           <>
             <div className="mb-3 flex items-center gap-2">
@@ -173,26 +181,29 @@ export function CurrencyPricesPanel({
 
             <div className="overflow-x-auto">
               <table className="w-full min-w-[32rem] text-sm">
-                <caption className="sr-only">Prices by currency</caption>
+                <caption className="sr-only">{t('currencyPrices.pricesByCurrency')}</caption>
                 {/* The same header treatment as every other table in the
                     panel: a tinted band with a heavier rule under it, so this
                     one does not read as a different kind of thing. */}
                 <thead className="bg-surface-sunken">
                   <tr className="border-b border-border-strong/40 text-left text-xxs font-semibold uppercase tracking-wider text-ink-muted">
                     <th scope="col" className="px-3 py-2.5">
-                      Currency
+                      {t('currencyPrices.currency')}
                     </th>
                     <th scope="col" className="px-3 py-2.5">
-                      Price
+                      {t('currencyPrices.price')}
                     </th>
                     <th scope="col" className="px-3 py-2.5">
-                      Compare-at
+                      {t('currencyPrices.compareAt')}
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((row) => (
-                    <tr key={row.currency.code} className="border-b border-border-subtle last:border-0">
+                    <tr
+                      key={row.currency.code}
+                      className="border-b border-border-subtle last:border-0"
+                    >
                       <th scope="row" className="px-3 py-2 text-left font-normal">
                         <span className="font-medium text-ink">{row.currency.code}</span>
                         <span className="ml-2 text-xs text-ink-muted">{row.currency.name}</span>
@@ -206,7 +217,7 @@ export function CurrencyPricesPanel({
                         <Input
                           inputMode="decimal"
                           className="tabular"
-                          placeholder="Not sold"
+                          placeholder={t('currencyPrices.notSold')}
                           disabled={!canWrite}
                           aria-label={`${row.currency.code} price`}
                           value={draft[row.currency.code]?.price ?? ''}

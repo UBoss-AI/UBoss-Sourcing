@@ -21,6 +21,7 @@ import {
   updateCustomer,
   updatePurchasingLimits,
 } from '../../modules/customers/customer.service.js';
+import { approveRegistration } from '../../modules/customers/registration.service.js';
 import { getSpendSummary } from '../../modules/customers/limits.service.js';
 import {
   buildTokenUrl,
@@ -82,6 +83,10 @@ const createCustomerSchema = z.object({
   department: z.string().max(128).nullable().optional(),
   phone: z.string().max(32).nullable().optional(),
   gstin: z.string().max(32).nullable().optional(),
+  /// The EU VAT identification number, prefix included ("DE811569869"). What
+  /// decides whether a cross-border sale is zero-rated - and never taken on
+  /// trust; see the VIES check on this customer's screen.
+  vatNumber: z.string().max(32).nullable().optional(),
   customerCode: z.string().max(32).nullable().optional(),
   internalNotes: z.string().max(20_000).nullable().optional(),
   limits: limitsSchema.optional(),
@@ -165,6 +170,7 @@ export function registerAdminCustomerRoutes(app: FastifyInstance): Promise<void>
           department: true,
           phone: true,
           gstin: true,
+          vatNumber: true,
           customerCode: true,
           internalNotes: true,
         })
@@ -199,6 +205,28 @@ export function registerAdminCustomerRoutes(app: FastifyInstance): Promise<void>
 
       const result = await setCustomerStatus(id, body.active, actorFrom(request), body.reason);
       return reply.status(200).send({ active: body.active, ...result });
+    },
+  );
+
+  /**
+   * Let a self-registered account in.
+   *
+   * Separate from `/status` rather than folded into it, because it is a
+   * different decision. `/status` suspends and restores an account somebody
+   * already agreed to sell to; this is the moment that agreement is made, and
+   * the panel should not present "reactivate" to a member of staff who is in
+   * fact vetting a stranger for the first time.
+   *
+   * Guarded by CUSTOMER_STATUS_WRITE, the same grant that suspends an account -
+   * both answer "may this account buy?".
+   */
+  app.post(
+    '/customers/:id/approve',
+    { preHandler: requireAdmin(Permission.CUSTOMER_STATUS_WRITE) },
+    async (request, reply) => {
+      const { id } = idParam.parse(request.params);
+      const result = await approveRegistration(id, actorFrom(request));
+      return reply.status(200).send({ approved: true, email: result.email });
     },
   );
 

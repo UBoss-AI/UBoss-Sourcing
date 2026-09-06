@@ -11,11 +11,15 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { useSession } from './session-context';
+import { LocationGate } from './LocationGate';
 import { ChangePasswordPage } from '@/pages/ChangePasswordPage';
 import { Spinner } from '@/components/ui';
 import type { PermissionKey } from '@/lib/permissions';
+import { useI18n } from '@/i18n/i18n-context';
 
 export function RequireAuth({ children }: { children: ReactNode }): React.JSX.Element {
+  const { t } = useI18n();
+
   const { user, isLoading } = useSession();
   const location = useLocation();
 
@@ -24,7 +28,7 @@ export function RequireAuth({ children }: { children: ReactNode }): React.JSX.El
       <div className="flex min-h-screen items-center justify-center">
         <Spinner className="h-6 w-6 text-ink-subtle" />
         <span className="sr-only" role="status">
-          Checking your session
+          {t('guards.checkingYourSession')}
         </span>
       </div>
     );
@@ -47,6 +51,21 @@ export function RequireAuth({ children }: { children: ReactNode }): React.JSX.El
     return <ChangePasswordPage />;
   }
 
+  /**
+   * Signed in, but the browser has not yet said where from. Same shape as the
+   * line above and for the same reasons: every admin route answers
+   * LOCATION_REQUIRED until it has, and rendering in place rather than
+   * redirecting keeps it unskippable by navigation.
+   *
+   * Ordered after the password check on purpose. Somebody still on a temporary
+   * password has a more urgent thing to do, and stacking two gates in the other
+   * order would ask them for a location before telling them their credential is
+   * not really theirs yet.
+   */
+  if (user.locationRequired && !user.locationGranted) {
+    return <LocationGate />;
+  }
+
   return <>{children}</>;
 }
 
@@ -57,16 +76,15 @@ export function RequirePermission({
   anyOf: PermissionKey[];
   children: ReactNode;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const { canAny } = useSession();
 
   if (anyOf.length > 0 && !canAny(...anyOf)) {
     return (
       <div className="mx-auto max-w-lg py-16 text-center">
-        <h1 className="text-lg font-semibold text-ink">You do not have access to this page</h1>
-        <p className="mt-2 text-sm text-ink-muted">
-          Your account does not include the permissions this screen needs. A Business Owner can
-          change that from Staff.
-        </p>
+        <h1 className="text-lg font-semibold text-ink">{t('guards.youDoNotHaveAccess')}</h1>
+        <p className="mt-2 text-sm text-ink-muted">{t('guards.yourAccountDoesNotInclude')}</p>
       </div>
     );
   }

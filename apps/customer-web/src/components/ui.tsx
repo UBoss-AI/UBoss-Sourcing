@@ -28,6 +28,7 @@ import type {
 } from 'react';
 import type { LinkProps } from 'react-router-dom';
 import { cx } from '@/lib/cx';
+import { useI18n } from '@/i18n/i18n-context';
 
 // ---------------------------------------------------------------------------
 // Button
@@ -130,7 +131,16 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { variant = 'secondary', size = 'md', isLoading = false, fullWidth, disabled, children, className, ...rest },
+  {
+    variant = 'secondary',
+    size = 'md',
+    isLoading = false,
+    fullWidth,
+    disabled,
+    children,
+    className,
+    ...rest
+  },
   ref,
 ) {
   return (
@@ -535,6 +545,8 @@ export function ErrorState({
   error: unknown;
   onRetry?: () => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const message =
     error instanceof Error && error.message.length > 0 ? error.message : 'The request failed.';
 
@@ -555,7 +567,7 @@ export function ErrorState({
       )}
       {onRetry !== undefined && (
         <Button className="mt-6" onClick={onRetry}>
-          Try again
+          {t('common.tryAgain')}
         </Button>
       )}
     </div>

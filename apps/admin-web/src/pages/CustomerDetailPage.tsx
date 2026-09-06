@@ -40,6 +40,8 @@ import { formatDateTime, humanise, majorToMinor, minorToMajor } from '@/lib/form
 import { Permission } from '@/lib/permissions';
 import { customerStatusTone } from '@/lib/customers';
 import type { CustomerLimits } from '@/lib/customers';
+import { VatNumberPanel } from '@/pages/customer/VatNumberPanel';
+import { useI18n } from '@/i18n/i18n-context';
 
 interface CustomerAddress {
   id: string;
@@ -68,10 +70,27 @@ interface CustomerDetail {
   department: string | null;
   phone: string | null;
   gstin: string | null;
+
+  /**
+   * The EU VAT number, and what VIES made of it.
+   *
+   * `vatNumberValid` has three states: true, false, and null for "never
+   * checked". Only the first zero-rates a cross-border supply.
+   */
+  vatNumber: string | null;
+  vatNumberValid: boolean | null;
+  vatNumberCheckedAt: string | null;
+  vatNumberReference: string | null;
+
   customerCode: string | null;
   internalNotes: string | null;
   consentAcceptedAt: string | null;
+  /** Null while a self-registered account has not opened its confirmation link. */
+  emailVerifiedAt: string | null;
   invitedAt: string | null;
+  /** True when they signed themselves up rather than being invited by staff. */
+  selfRegistered: boolean;
+  preferredCountry: string | null;
   activatedAt: string | null;
   lastLoginAt: string | null;
   limits: CustomerLimits;
@@ -107,6 +126,8 @@ const blankTerms = (): CurrencyTermsDraft => ({
  * where each one changes what a customer is allowed to spend.
  */
 function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Element {
+  const { t } = useI18n();
+
   const queryClient = useQueryClient();
   const toast = useToast();
   const { can } = useSession();
@@ -141,7 +162,8 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
   // not exist.
   const config = useQuery({
     queryKey: ['storefront-config'],
-    queryFn: () => api.get<{ localisation: { currencies: { code: string; name: string }[] } }>('/config'),
+    queryFn: () =>
+      api.get<{ localisation: { currencies: { code: string; name: string }[] } }>('/config'),
     staleTime: 5 * 60_000,
   });
 
@@ -218,14 +240,14 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
 
   return (
     <Card
-      title="Ordering limits"
-      description="Agreed terms per market. A currency with no terms is one this account cannot order in at all."
+      title={t('customerDetail.orderingLimits')}
+      description={t('customerDetail.agreedTermsPerMarketA')}
     >
       <div className="space-y-5 px-5 py-4">
         <CheckboxField
           boxed
-          label="Orders need approval"
-          description="Applies to the whole account. The value that triggers it is set per currency below — leave that blank and every order needs approving."
+          label={t('customerDetail.ordersNeedApproval')}
+          description={t('customerDetail.appliesToTheWholeAccount')}
           checked={approval}
           disabled={!canWrite}
           onChange={(event) => {
@@ -236,12 +258,12 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
         <div className="border-t border-border-subtle pt-4">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-              Terms in
+              {t('customerDetail.termsIn')}
             </span>
 
             {agreed.length === 0 && (
               <span className="text-sm text-warning">
-                None yet — this account cannot order in any currency.
+                {t('customerDetail.noneYetThisAccountCannot')}
               </span>
             )}
 
@@ -272,10 +294,10 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
                 onChange={(event) => {
                   addCurrency(event.target.value);
                 }}
-                aria-label="Add terms for a currency"
+                aria-label={t('customerDetail.addTermsForACurrency')}
                 className="h-8 w-44 py-0 text-xs"
               >
-                <option value="">Add currency…</option>
+                <option value="">{t('customerDetail.addCurrency')}</option>
                 {unusedCurrencies.map((entry) => (
                   <option key={entry.code} value={entry.code}>
                     {entry.code} — {entry.name}
@@ -288,14 +310,17 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
           {current !== undefined && (
             <div className="mt-4 space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label={`Minimum per order (${selected})`} hint="Blank means no minimum.">
+                <Field
+                  label={`Minimum per order (${selected})`}
+                  hint={t('customerDetail.blankMeansNoMinimum')}
+                >
                   {({ inputId, describedBy }) => (
                     <Input
                       id={inputId}
                       aria-describedby={describedBy}
                       inputMode="decimal"
                       className="tabular"
-                      placeholder="No minimum"
+                      placeholder={t('customerDetail.noMinimum')}
                       disabled={!canWrite}
                       value={current.perOrderMin}
                       onChange={(event) => {
@@ -305,14 +330,17 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
                   )}
                 </Field>
 
-                <Field label={`Maximum per order (${selected})`} hint="Blank means no maximum.">
+                <Field
+                  label={`Maximum per order (${selected})`}
+                  hint={t('customerDetail.blankMeansNoMaximum')}
+                >
                   {({ inputId, describedBy }) => (
                     <Input
                       id={inputId}
                       aria-describedby={describedBy}
                       inputMode="decimal"
                       className="tabular"
-                      placeholder="No maximum"
+                      placeholder={t('customerDetail.noMaximum')}
                       disabled={!canWrite}
                       value={current.perOrderMax}
                       onChange={(event) => {
@@ -324,7 +352,7 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
 
                 <Field
                   label={`Monthly cap (${selected})`}
-                  hint="Counts only orders placed in this currency. Blank means no cap."
+                  hint={t('customerDetail.countsOnlyOrdersPlacedIn')}
                 >
                   {({ inputId, describedBy }) => (
                     <Input
@@ -332,7 +360,7 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
                       aria-describedby={describedBy}
                       inputMode="decimal"
                       className="tabular"
-                      placeholder="No cap"
+                      placeholder={t('customerDetail.noCap')}
                       disabled={!canWrite}
                       value={current.monthlyCap}
                       onChange={(event) => {
@@ -356,7 +384,7 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
                       aria-describedby={describedBy}
                       inputMode="decimal"
                       className="tabular"
-                      placeholder="Every order"
+                      placeholder={t('customerDetail.everyOrder')}
                       disabled={!canWrite}
                       value={current.approvalThreshold}
                       onChange={(event) => {
@@ -401,7 +429,7 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
                 save.mutate();
               }}
             >
-              Save limits
+              {t('customerDetail.saveLimits')}
             </Button>
           </div>
         )}
@@ -411,6 +439,8 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
 }
 
 export function CustomerDetailPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const { id } = useParams<{ id: string }>();
   const { can } = useSession();
   const queryClient = useQueryClient();
@@ -434,9 +464,20 @@ export function CustomerDetailPage(): React.JSX.Element {
     },
   });
 
+  const approve = useMutation({
+    mutationFn: () => api.post(`/admin/customers/${String(id)}/approve`, {}),
+    onSuccess: async () => {
+      toast.success('Customer approved. They can sign in now.');
+      await queryClient.invalidateQueries({ queryKey: ['customer', id] });
+      await queryClient.invalidateQueries({ queryKey: ['customers'] });
+    },
+    onError: (error) => {
+      toast.error(error instanceof ApiError ? error.message : 'The customer could not be approved.');
+    },
+  });
+
   const setStatus = useMutation({
-    mutationFn: (active: boolean) =>
-      api.patch(`/admin/customers/${String(id)}/status`, { active }),
+    mutationFn: (active: boolean) => api.patch(`/admin/customers/${String(id)}/status`, { active }),
     onSuccess: async (_result, active) => {
       setSuspending(false);
       toast.success(active ? 'Customer reactivated.' : 'Customer suspended.');
@@ -452,9 +493,12 @@ export function CustomerDetailPage(): React.JSX.Element {
   if (query.isPending) {
     return (
       <>
-        <PageHeader title="Customer" back={{ to: '/customers', label: 'Back to customers' }} />
+        <PageHeader
+          title={t('customerDetail.customer')}
+          back={{ to: '/customers', label: 'Back to customers' }}
+        />
         <Card>
-          <LoadingState label="Loading the customer" />
+          <LoadingState label={t('customerDetail.loadingTheCustomer')} />
         </Card>
       </>
     );
@@ -463,7 +507,10 @@ export function CustomerDetailPage(): React.JSX.Element {
   if (query.isError) {
     return (
       <>
-        <PageHeader title="Customer" back={{ to: '/customers', label: 'Back to customers' }} />
+        <PageHeader
+          title={t('customerDetail.customer')}
+          back={{ to: '/customers', label: 'Back to customers' }}
+        />
         <Card>
           <ErrorState
             error={query.error}
@@ -495,7 +542,7 @@ export function CustomerDetailPage(): React.JSX.Element {
 
       <div className="grid gap-5 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-5">
-          <Card title="Account">
+          <Card title={t('customerDetail.account')}>
             <DescriptionList
               className="px-5 py-4"
               items={[
@@ -507,7 +554,20 @@ export function CustomerDetailPage(): React.JSX.Element {
                 {
                   label: 'GSTIN',
                   value:
-                    customer.gstin === null ? '—' : <span className="font-mono">{customer.gstin}</span>,
+                    customer.gstin === null ? (
+                      '—'
+                    ) : (
+                      <span className="font-mono">{customer.gstin}</span>
+                    ),
+                },
+                {
+                  label: 'EU VAT number',
+                  value:
+                    customer.vatNumber === null ? (
+                      '—'
+                    ) : (
+                      <span className="font-mono">{customer.vatNumber}</span>
+                    ),
                 },
                 {
                   label: 'Customer code',
@@ -527,11 +587,14 @@ export function CustomerDetailPage(): React.JSX.Element {
 
           <LimitsPanel customer={customer} />
 
-          <Card title="Addresses" description="Used at checkout for billing and delivery.">
+          <Card
+            title={t('customerDetail.addresses')}
+            description={t('customerDetail.usedAtCheckoutForBilling')}
+          >
             {liveAddresses.length === 0 ? (
               <EmptyState
-                title="No addresses yet"
-                description="The customer adds one at checkout. Nothing here can add one for them."
+                title={t('customerDetail.noAddressesYet')}
+                description={t('customerDetail.theCustomerAddsOneAt')}
               />
             ) : (
               <ul className="divide-y divide-border-subtle">
@@ -539,9 +602,15 @@ export function CustomerDetailPage(): React.JSX.Element {
                   <li key={address.id} className="px-5 py-3">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-sm font-medium text-ink">{address.contactName}</span>
-                      <Badge>{address.kind === 'BOTH' ? 'Billing & shipping' : humanise(address.kind)}</Badge>
-                      {address.isDefaultShipping && <Badge tone="accent">Default shipping</Badge>}
-                      {address.isDefaultBilling && <Badge tone="accent">Default billing</Badge>}
+                      <Badge>
+                        {address.kind === 'BOTH' ? 'Billing & shipping' : humanise(address.kind)}
+                      </Badge>
+                      {address.isDefaultShipping && (
+                        <Badge tone="accent">{t('customerDetail.defaultShipping')}</Badge>
+                      )}
+                      {address.isDefaultBilling && (
+                        <Badge tone="accent">{t('customerDetail.defaultBilling')}</Badge>
+                      )}
                     </div>
                     <address className="mt-1 text-sm not-italic leading-relaxed text-ink-muted">
                       {address.line1}
@@ -554,35 +623,94 @@ export function CustomerDetailPage(): React.JSX.Element {
               </ul>
             )}
           </Card>
+
+          <VatNumberPanel
+            customerId={customer.id}
+            state={{
+              vatNumber: customer.vatNumber,
+              vatNumberValid: customer.vatNumberValid,
+              vatNumberCheckedAt: customer.vatNumberCheckedAt,
+              vatNumberReference: customer.vatNumberReference,
+            }}
+          />
         </div>
 
         <div className="space-y-5">
-          <Card title="Status">
+          <Card title={t('customerDetail.status')}>
             <div className="space-y-3 px-5 py-4">
               <Badge dot tone={customerStatusTone(customer.status)}>
                 {humanise(customer.status)}
               </Badge>
 
-              {customer.activatedAt === null && (
-                <Callout tone="warning">
-                  This account has not been activated. The customer sets their own password from the
-                  invitation — nobody here can set it for them.
-                </Callout>
+              {/* Three different closed accounts land here and each needs a
+                  different sentence and a different button. Collapsing them
+                  into one "not activated" warning is how a colleague ends up
+                  emailing an invitation to somebody who already has a password
+                  and is only waiting to be let in. */}
+              {customer.selfRegistered ? (
+                <>
+                  {customer.emailVerifiedAt === null && customer.status !== 'ACTIVE' && (
+                    <Callout tone="warning">
+                      Signed up on the website and has not opened the confirmation link yet.
+                      There is nothing to approve until they do — until then we have no evidence
+                      the address belongs to whoever filled the form in.
+                    </Callout>
+                  )}
+
+                  {customer.emailVerifiedAt !== null && customer.status === 'PENDING_APPROVAL' && (
+                    <Callout tone="warning">
+                      Signed up on the website and confirmed their email. They cannot order until
+                      you approve them.
+                    </Callout>
+                  )}
+
+                  {can(Permission.CUSTOMER_STATUS_WRITE) &&
+                    customer.status === 'PENDING_APPROVAL' &&
+                    customer.emailVerifiedAt !== null && (
+                      <div>
+                        <Button
+                          className="w-full"
+                          variant="primary"
+                          isLoading={approve.isPending}
+                          onClick={() => {
+                            approve.mutate();
+                          }}
+                        >
+                          Approve customer
+                        </Button>
+                        <p className="mt-2 text-xxs leading-relaxed text-ink-muted">
+                          Lets them sign in with the password they chose, and emails them to say
+                          so. Set their purchasing limits first if this account needs any.
+                        </p>
+                      </div>
+                    )}
+                </>
+              ) : (
+                <>
+                  {customer.activatedAt === null && (
+                    <Callout tone="warning">{t('customerDetail.thisAccountHasNotBeen')}</Callout>
+                  )}
+
+                  {can(Permission.CUSTOMER_INVITE) && customer.activatedAt === null && (
+                    <Button
+                      className="w-full"
+                      isLoading={invite.isPending}
+                      onClick={() => {
+                        invite.mutate();
+                      }}
+                    >
+                      {customer.invitedAt === null ? 'Send invitation' : 'Resend invitation'}
+                    </Button>
+                  )}
+                </>
               )}
 
-              {can(Permission.CUSTOMER_INVITE) && customer.activatedAt === null && (
-                <Button
-                  className="w-full"
-                  isLoading={invite.isPending}
-                  onClick={() => {
-                    invite.mutate();
-                  }}
-                >
-                  {customer.invitedAt === null ? 'Send invitation' : 'Resend invitation'}
-                </Button>
-              )}
-
-              {can(Permission.CUSTOMER_STATUS_WRITE) && (
+              {/* Suspend/reactivate is about an account already agreed to, so it
+                  is hidden while a self-registered one is still awaiting that
+                  first decision - "Reactivate" would be the wrong word for it,
+                  and the wrong button. */}
+              {can(Permission.CUSTOMER_STATUS_WRITE) &&
+                !(customer.selfRegistered && customer.status === 'PENDING_APPROVAL') && (
                 <div className="border-t border-border-subtle pt-3">
                   <Button
                     className="w-full"
@@ -605,10 +733,10 @@ export function CustomerDetailPage(): React.JSX.Element {
             </div>
           </Card>
 
-          <Card title="Consent">
+          <Card title={t('customerDetail.consent')}>
             <div className="px-5 py-4 text-sm">
               {customer.consentAcceptedAt === null ? (
-                <p className="text-ink-muted">Not yet accepted.</p>
+                <p className="text-ink-muted">{t('customerDetail.notYetAccepted')}</p>
               ) : (
                 <p className="text-ink">Accepted {formatDateTime(customer.consentAcceptedAt)}</p>
               )}
@@ -616,7 +744,10 @@ export function CustomerDetailPage(): React.JSX.Element {
           </Card>
 
           {customer.internalNotes !== null && (
-            <Card title="Internal notes" description="Staff only. The customer never sees this.">
+            <Card
+              title={t('customerDetail.internalNotes')}
+              description={t('customerDetail.staffOnlyTheCustomerNever')}
+            >
               <p className="whitespace-pre-wrap px-5 py-4 text-sm leading-relaxed text-ink">
                 {customer.internalNotes}
               </p>
@@ -634,7 +765,7 @@ export function CustomerDetailPage(): React.JSX.Element {
           setStatus.mutate(false);
         }}
         title={`Suspend ${customer.fullName ?? customer.email}?`}
-        confirmLabel="Suspend customer"
+        confirmLabel={t('customerDetail.suspendCustomer')}
         isDangerous
         isWorking={setStatus.isPending}
         body="They will not be able to sign in or place orders. Existing orders and recurring schedules are not cancelled."

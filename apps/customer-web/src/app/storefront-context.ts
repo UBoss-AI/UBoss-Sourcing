@@ -38,12 +38,20 @@ export const FALLBACK_CONFIG: StorefrontConfig = {
     // All default to off. A capability that fails open is a capability that
     // shows a customer a feature the backend will then refuse.
     selfRegistration: false,
+    // Assumed until the real config says otherwise. Where a deployment does
+    // review sign-ups, promising an instant account and then not delivering
+    // one is the worse of the two mistakes.
+    selfRegistrationRequiresApproval: true,
     recurringOrders: false,
     // Off until the real config says otherwise: a chat button that appears
     // before we know the deployment has a key is a button that opens onto a
     // 404.
     assistant: false,
   },
+  // Nothing claimed until the real config arrives. `isAi` is still true,
+  // because if this widget ever renders it is an AI widget - the flag says
+  // what the thing IS, not whether it is switched on.
+  assistant: { available: false, isAi: true, model: null, vendor: null },
 };
 
 export const StorefrontContext = createContext<StorefrontConfig>(FALLBACK_CONFIG);

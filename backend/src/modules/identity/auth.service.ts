@@ -115,10 +115,23 @@ export async function login(input: LoginInput): Promise<LoginResult> {
   }
 
   if (user.status === 'PENDING_APPROVAL') {
+    // Two different closed accounts wear this status, and the person in front
+    // of each one has a different problem. A self-registered account that has
+    // never opened its confirmation link is waiting on THEM, and saying
+    // "awaiting approval" would send them off to wait for an email that will
+    // never come. `emailVerifiedAt` is what tells the two apart.
+    if (user.emailVerifiedAt === null) {
+      await recordFailedAttempt(emailNormalized, input, 'email_not_verified');
+      throw unauthorized(
+        ErrorCode.EMAIL_NOT_VERIFIED,
+        'Confirm your email address first - we sent a link when you registered.',
+      );
+    }
+
     await recordFailedAttempt(emailNormalized, input, 'pending_approval');
     throw unauthorized(
-      ErrorCode.ACCOUNT_NOT_ACTIVATED,
-      'This account is awaiting approval by an administrator.',
+      ErrorCode.ACCOUNT_PENDING_APPROVAL,
+      'This account is waiting to be approved. We will email you as soon as it is open.',
     );
   }
 

@@ -18,8 +18,10 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { ServiceBanner } from '@/app/ServiceBanner';
 import { useStorefront } from '@/app/storefront-context';
 import { CountryPicker } from '@/components/CountryPicker';
+import { MarketSuggestionBanner } from '@/components/MarketSuggestionBanner';
 import { Footer } from './Footer';
 import { Header } from './Header';
+import { useI18n } from '@/i18n/i18n-context';
 
 /*
  * Split out of the main bundle. The widget is chrome, not content: the
@@ -55,18 +57,21 @@ function useOnlineStatus(): boolean {
 }
 
 function OfflineBanner(): React.JSX.Element {
+  const { t } = useI18n();
+
   return (
     <div
       role="status"
       className="bg-warning-soft px-4 py-2.5 text-center text-sm font-medium text-warning"
     >
-      You are offline. You can keep browsing what has already loaded — changes will not be saved
-      until you reconnect.
+      {t('storeLayout.youAreOfflineYouCan')}
     </div>
   );
 }
 
 export function StoreLayout(): React.JSX.Element {
+  const { t } = useI18n();
+
   const isOnline = useOnlineStatus();
   const location = useLocation();
   const mainRef = useRef<HTMLElement>(null);
@@ -85,7 +90,7 @@ export function StoreLayout(): React.JSX.Element {
   return (
     <div className="flex min-h-screen flex-col">
       <a href="#main" className="skip-link">
-        Skip to content
+        {t('storeLayout.skipToContent')}
       </a>
 
       {/* Offline is the browser's own signal and takes precedence: if there
@@ -96,6 +101,12 @@ export function StoreLayout(): React.JSX.Element {
 
       {/* Asked once, on first sign-in. Renders nothing afterwards. */}
       <CountryPicker />
+
+      {/* Offers the language's market to a shopper already quoted in another
+          one. Under the header so the currency switcher it duplicates is in
+          view right above it, and above the content because taking the offer
+          reprices everything in that content. */}
+      <MarketSuggestionBanner />
 
       <main
         id="main"

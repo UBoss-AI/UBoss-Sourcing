@@ -21,6 +21,7 @@ import { formatDateTime, formatMoney, formatNumber } from '@/lib/format';
 import { orderStatusLabel, orderStatusTone } from '@/lib/order-status';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { OrderListItem, Pagination } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 /** One figure in the row's footer. Same shape for total, paid and refunded. */
 function Figure({
@@ -47,6 +48,8 @@ function Figure({
 }
 
 export function OrdersPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const { business } = useStorefront();
 
   useDocumentMeta({ title: 'Your orders', noIndex: true }, business.displayName);
@@ -59,7 +62,7 @@ export function OrdersPage(): React.JSX.Element {
       }),
   });
 
-  if (query.isPending) return <LoadingState label="Loading your orders" />;
+  if (query.isPending) return <LoadingState label={t('orders.loadingYourOrders')} />;
 
   if (query.isError) {
     return (
@@ -77,11 +80,11 @@ export function OrdersPage(): React.JSX.Element {
   if (orders.length === 0) {
     return (
       <PageEmptyState
-        title="No orders yet"
-        description="Once you place an order it will appear here, with its progress and delivery details."
+        title={t('orders.noOrdersYet')}
+        description={t('orders.onceYouPlaceAnOrder')}
         action={
           <ButtonLink to="/products" variant="primary" size="lg">
-            Browse products
+            {t('orders.browseProducts')}
           </ButtonLink>
         }
       />
@@ -91,7 +94,7 @@ export function OrdersPage(): React.JSX.Element {
   return (
     <>
       <PageHeader
-        title="Your orders"
+        title={t('orders.yourOrders')}
         description={`${formatNumber(orders.length)} order${orders.length === 1 ? '' : 's'}, newest first.`}
       />
 
@@ -130,7 +133,7 @@ export function OrdersPage(): React.JSX.Element {
                     {order.source === 'RECURRING' && (
                       <Badge tone="operational">
                         <RepeatIcon className="h-3 w-3" />
-                        Repeat purchase
+                        {t('orders.repeatPurchase')}
                       </Badge>
                     )}
                     <Badge tone={orderStatusTone(order.status)}>
@@ -140,14 +143,17 @@ export function OrdersPage(): React.JSX.Element {
                 </div>
 
                 <dl className="mt-3 flex flex-wrap gap-x-8 gap-y-1 border-t border-border-subtle pt-3 text-sm">
-                  <Figure label="Total" value={formatMoney(order.totals.grandTotal)} />
+                  <Figure label={t('orders.total')} value={formatMoney(order.totals.grandTotal)} />
                   <Figure
-                    label="Paid"
+                    label={t('orders.paid')}
                     value={formatMoney(order.totals.paid)}
                     tone={isSettled ? 'settled' : 'outstanding'}
                   />
                   {order.totals.refunded.minor !== '0' && (
-                    <Figure label="Refunded" value={formatMoney(order.totals.refunded)} />
+                    <Figure
+                      label={t('orders.refunded')}
+                      value={formatMoney(order.totals.refunded)}
+                    />
                   )}
                 </dl>
               </Link>

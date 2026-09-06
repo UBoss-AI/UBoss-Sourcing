@@ -44,9 +44,14 @@ import { Permission } from '@/lib/permissions';
 import { customerStatusTone } from '@/lib/customers';
 import type { CustomerListItem } from '@/lib/customers';
 import type { Pagination } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 const createSchema = z.object({
-  email: z.string().trim().min(1, 'An email address is required.').pipe(z.email('Enter a valid email address.')),
+  email: z
+    .string()
+    .trim()
+    .min(1, 'An email address is required.')
+    .pipe(z.email('Enter a valid email address.')),
   fullName: z.string().trim().min(1, 'A contact name is required.').max(255),
   organization: z.string().trim().max(255),
   department: z.string().trim().max(128),
@@ -57,9 +62,18 @@ const createSchema = z.object({
 
 type CreateForm = z.output<typeof createSchema>;
 
-const CREATE_FIELDS = ['email', 'fullName', 'organization', 'department', 'phone', 'gstin'] as const;
+const CREATE_FIELDS = [
+  'email',
+  'fullName',
+  'organization',
+  'department',
+  'phone',
+  'gstin',
+] as const;
 
 function NewCustomerDialog({ onClose }: { onClose: () => void }): React.JSX.Element {
+  const { t } = useI18n();
+
   const queryClient = useQueryClient();
   const toast = useToast();
   const navigate = useNavigate();
@@ -113,13 +127,13 @@ function NewCustomerDialog({ onClose }: { onClose: () => void }): React.JSX.Elem
     <Modal
       isOpen
       onClose={onClose}
-      title="New customer"
-      description="The account is created here; the customer activates it from the invitation."
+      title={t('customers.newCustomer')}
+      description={t('customers.theAccountIsCreatedHere')}
       footer={
         <>
-          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={onClose}>{t('customers.cancel')}</Button>
           <Button variant="primary" isLoading={mutation.isPending} onClick={submit}>
-            Create customer
+            {t('customers.createCustomer')}
           </Button>
         </>
       }
@@ -138,7 +152,7 @@ function NewCustomerDialog({ onClose }: { onClose: () => void }): React.JSX.Elem
         )}
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Email address" error={errors.email?.message} required>
+          <Field label={t('customers.emailAddress')} error={errors.email?.message} required>
             {({ inputId, describedBy }) => (
               <Input
                 id={inputId}
@@ -150,7 +164,7 @@ function NewCustomerDialog({ onClose }: { onClose: () => void }): React.JSX.Elem
             )}
           </Field>
 
-          <Field label="Contact name" error={errors.fullName?.message} required>
+          <Field label={t('customers.contactName')} error={errors.fullName?.message} required>
             {({ inputId, describedBy }) => (
               <Input
                 id={inputId}
@@ -161,27 +175,37 @@ function NewCustomerDialog({ onClose }: { onClose: () => void }): React.JSX.Elem
             )}
           </Field>
 
-          <Field label="Organisation" error={errors.organization?.message}>
+          <Field label={t('customers.organisation')} error={errors.organization?.message}>
             {({ inputId, describedBy }) => (
               <Input id={inputId} aria-describedby={describedBy} {...register('organization')} />
             )}
           </Field>
 
-          <Field label="Department" error={errors.department?.message}>
+          <Field label={t('customers.department')} error={errors.department?.message}>
             {({ inputId, describedBy }) => (
               <Input id={inputId} aria-describedby={describedBy} {...register('department')} />
             )}
           </Field>
 
-          <Field label="Phone" error={errors.phone?.message}>
+          <Field label={t('customers.phone')} error={errors.phone?.message}>
             {({ inputId, describedBy }) => (
-              <Input id={inputId} type="tel" aria-describedby={describedBy} {...register('phone')} />
+              <Input
+                id={inputId}
+                type="tel"
+                aria-describedby={describedBy}
+                {...register('phone')}
+              />
             )}
           </Field>
 
           <Field label="GSTIN" error={errors.gstin?.message}>
             {({ inputId, describedBy }) => (
-              <Input id={inputId} className="font-mono" aria-describedby={describedBy} {...register('gstin')} />
+              <Input
+                id={inputId}
+                className="font-mono"
+                aria-describedby={describedBy}
+                {...register('gstin')}
+              />
             )}
           </Field>
         </div>
@@ -189,8 +213,8 @@ function NewCustomerDialog({ onClose }: { onClose: () => void }): React.JSX.Elem
         <div className="border-t border-border-subtle pt-4">
           <CheckboxField
             boxed
-            label="Send an invitation now"
-            description="The customer sets their own password from the link. Nobody here types it for them, and until they accept it the account cannot sign in."
+            label={t('customers.sendAnInvitationNow')}
+            description={t('customers.theCustomerSetsTheirOwn')}
             {...register('sendInvitation')}
           />
         </div>
@@ -200,6 +224,8 @@ function NewCustomerDialog({ onClose }: { onClose: () => void }): React.JSX.Elem
 }
 
 export function CustomersPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const { can } = useSession();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -257,7 +283,7 @@ export function CustomersPage(): React.JSX.Element {
         setIsCreating(true);
       }}
     >
-      New customer
+      {t('customers.newCustomer')}
     </Button>
   );
 
@@ -282,7 +308,9 @@ export function CustomersPage(): React.JSX.Element {
       header: 'Organisation',
       render: (row) => (
         <div className="min-w-36">
-          <p className="text-ink">{row.organization ?? <span className="text-ink-subtle">—</span>}</p>
+          <p className="text-ink">
+            {row.organization ?? <span className="text-ink-subtle">—</span>}
+          </p>
           {row.department !== null && <p className="text-xxs text-ink-subtle">{row.department}</p>}
         </div>
       ),
@@ -316,7 +344,7 @@ export function CustomersPage(): React.JSX.Element {
                   .join(', ')}
           </Badge>
         ) : (
-          <span className="text-ink-subtle">Not required</span>
+          <span className="text-ink-subtle">{t('customers.notRequired')}</span>
         ),
     },
     {
@@ -338,7 +366,7 @@ export function CustomersPage(): React.JSX.Element {
       nowrap: true,
       render: (row) =>
         row.lastLoginAt === null ? (
-          <span className="text-ink-subtle">Never</span>
+          <span className="text-ink-subtle">{t('customers.never')}</span>
         ) : (
           <span className="text-ink-muted">{formatDateTime(row.lastLoginAt)}</span>
         ),
@@ -348,25 +376,25 @@ export function CustomersPage(): React.JSX.Element {
   return (
     <>
       <PageHeader
-        title="Customers"
-        description="Business accounts. Created here, activated by the invitation the customer accepts — nobody self-registers."
+        title={t('customers.customers')}
+        description={t('customers.businessAccountsCreatedHereActivated')}
         actions={can(Permission.CUSTOMER_WRITE) ? newCustomerButton : undefined}
       />
 
       <Card>
         <Toolbar>
-          <ToolbarField label="Search" grow>
+          <ToolbarField label={t('customers.search')} grow>
             <Input
               type="search"
               value={searchText}
-              placeholder="Name, email or organisation"
+              placeholder={t('customers.nameEmailOrOrganisation')}
               onChange={(event) => {
                 setSearchText(event.target.value);
               }}
             />
           </ToolbarField>
 
-          <ToolbarField label="Status">
+          <ToolbarField label={t('customers.status')}>
             <Select
               value={status}
               onChange={(event) => {
@@ -380,10 +408,14 @@ export function CustomersPage(): React.JSX.Element {
               }}
               className="w-44"
             >
-              <option value="">Any status</option>
-              <option value="ACTIVE">Active</option>
-              <option value="INVITED">Invited</option>
-              <option value="SUSPENDED">Suspended</option>
+              {/* The values are `UserStatus` from the schema. They were once
+                  INVITED/SUSPENDED, which the backend's enum rejects outright -
+                  so picking either filter answered 400 rather than filtering. */}
+              <option value="">{t('customers.anyStatus')}</option>
+              <option value="ACTIVE">{t('customers.active')}</option>
+              <option value="PENDING_INVITATION">{t('customers.invited')}</option>
+              <option value="PENDING_APPROVAL">{t('customers.awaitingApproval')}</option>
+              <option value="DEACTIVATED">{t('customers.suspended')}</option>
             </Select>
           </ToolbarField>
 
@@ -394,7 +426,7 @@ export function CustomersPage(): React.JSX.Element {
                   setSearchParams({});
                 }}
               >
-                Clear filters
+                {t('customers.clearFilters')}
               </Button>
             </ToolbarActions>
           )}
@@ -429,7 +461,7 @@ export function CustomersPage(): React.JSX.Element {
                   setSearchParams({});
                 }}
               >
-                Clear filters
+                {t('customers.clearFilters')}
               </Button>
             ) : can(Permission.CUSTOMER_WRITE) ? (
               newCustomerButton

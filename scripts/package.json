@@ -1,0 +1,10 @@
+{
+  "name": "uboss-scripts",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Repository maintenance scripts. Kept out of both apps because they belong to neither and should not ship in either bundle.",
+  "devDependencies": {
+    "deepl-node": "^1.19.0"
+  }
+}

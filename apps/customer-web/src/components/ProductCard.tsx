@@ -42,6 +42,7 @@ import { Link } from 'react-router-dom';
 import { Badge } from './ui';
 import { formatMoney, formatNumber } from '@/lib/format';
 import type { Product } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 /**
  * A neutral placeholder for a product with no image yet.
@@ -53,6 +54,8 @@ import type { Product } from '@/lib/types';
  * screen reader needs read out.
  */
 function ImageFallback(): React.JSX.Element {
+  const { t } = useI18n();
+
   return (
     <div
       aria-hidden="true"
@@ -71,12 +74,16 @@ function ImageFallback(): React.JSX.Element {
           <path d="m21 15-5-5L5 21" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </span>
-      <span className="text-xxs font-medium uppercase tracking-wider">No image yet</span>
+      <span className="text-xxs font-medium uppercase tracking-wider">
+        {t('productCard.noImageYet')}
+      </span>
     </div>
   );
 }
 
 export function ProductCard({ product }: { product: Product }): React.JSX.Element {
+  const { t } = useI18n();
+
   const { purchaseRules: rules } = product;
   const hasDiscount =
     product.compareAtPrice !== null &&
@@ -183,7 +190,7 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
               <span className="text-xs tabular text-ink-subtle">
                 {/* The strikethrough is the only thing that says "was" to a
                     sighted reader; a screen reader gets the word itself. */}
-                <span className="sr-only">Was </span>
+                <span className="sr-only">{t('productCard.was')}</span>
                 <s>{formatMoney(product.compareAtPrice)}</s>
               </span>
             )}
@@ -197,10 +204,12 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
 
           {hasRuleChips && (
             <div className="mt-2.5 flex flex-wrap gap-1 border-t border-border-subtle pt-2.5">
-              {hasDiscount && <Badge tone="action">Reduced price</Badge>}
+              {hasDiscount && <Badge tone="action">{t('productCard.reducedPrice')}</Badge>}
               {rules.minOrderQty > 1 && <Badge>Min {formatNumber(rules.minOrderQty)}</Badge>}
               {rules.qtyIncrement > 1 && <Badge>In {formatNumber(rules.qtyIncrement)}s</Badge>}
-              {rules.isRecurringEligible && <Badge tone="operational">Repeat purchase</Badge>}
+              {rules.isRecurringEligible && (
+                <Badge tone="operational">{t('productCard.repeatPurchase')}</Badge>
+              )}
             </div>
           )}
         </div>
@@ -212,7 +221,10 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
 /** Matches the card's shape, so the grid does not reflow when data arrives. */
 export function ProductCardSkeleton(): React.JSX.Element {
   return (
-    <div className="h-full overflow-hidden rounded-lg border border-border bg-surface" aria-hidden="true">
+    <div
+      className="h-full overflow-hidden rounded-lg border border-border bg-surface"
+      aria-hidden="true"
+    >
       <div className="skeleton aspect-square w-full rounded-none" />
       <div className="space-y-2 border-t border-border-subtle p-4">
         <div className="skeleton h-4 w-4/5" />

@@ -27,12 +27,16 @@ import { applyApiErrors } from '@/lib/forms';
 import { formatNumber, majorToMinor, minorToMajor } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
 import type { VariantRow } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 const variantSchema = z.object({
   sku: z.string().trim().min(1, 'A SKU is required.').max(64),
   name: z.string().trim().min(1, 'Give the variant a name.').max(255),
   price: z.union([
-    z.string().trim().regex(/^\d+(\.\d{1,2})?$/, 'Enter an amount like 45.50, or leave blank.'),
+    z
+      .string()
+      .trim()
+      .regex(/^\d+(\.\d{1,2})?$/, 'Enter an amount like 45.50, or leave blank.'),
     z.literal(''),
   ]),
   options: z
@@ -58,6 +62,8 @@ function VariantEditor({
   editing: VariantRow | null;
   onClose: () => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const queryClient = useQueryClient();
   const toast = useToast();
   const [formError, setFormError] = useState<string | null>(null);
@@ -116,10 +122,10 @@ function VariantEditor({
       isOpen
       onClose={onClose}
       title={editing === null ? 'New variant' : `Edit ${editing.name}`}
-      description="Leave the price blank to inherit the product's base price."
+      description={t('variants.leaveThePriceBlankTo')}
       footer={
         <>
-          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={onClose}>{t('variants.cancel')}</Button>
           <Button variant="primary" isLoading={mutation.isPending} onClick={submit}>
             {editing === null ? 'Add variant' : 'Save variant'}
           </Button>
@@ -142,7 +148,7 @@ function VariantEditor({
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
             label="SKU"
-            hint="Shares one namespace with product SKUs."
+            hint={t('variants.sharesOneNamespaceWithProduct')}
             error={errors.sku?.message}
             required
           >
@@ -157,7 +163,7 @@ function VariantEditor({
             )}
           </Field>
 
-          <Field label="Name" error={errors.name?.message} required>
+          <Field label={t('variants.name')} error={errors.name?.message} required>
             {({ inputId, describedBy }) => (
               <Input
                 id={inputId}
@@ -169,13 +175,13 @@ function VariantEditor({
           </Field>
         </div>
 
-        <Field label="Price override" error={errors.price?.message}>
+        <Field label={t('variants.priceOverride')} error={errors.price?.message}>
           {({ inputId, describedBy }) => (
             <Input
               id={inputId}
               inputMode="decimal"
               className="tabular"
-              placeholder="Inherits the product price"
+              placeholder={t('variants.inheritsTheProductPrice')}
               aria-describedby={describedBy}
               invalid={errors.price !== undefined}
               {...register('price')}
@@ -184,7 +190,7 @@ function VariantEditor({
         </Field>
 
         <fieldset>
-          <legend className="mb-1.5 text-sm font-medium text-ink">Options</legend>
+          <legend className="mb-1.5 text-sm font-medium text-ink">{t('variants.options')}</legend>
           <p className="mb-2 text-xs text-ink-muted">
             What distinguishes this variant, e.g. Size = 1L.
           </p>
@@ -201,7 +207,7 @@ function VariantEditor({
                 <div className="flex-1">
                   <Input
                     aria-label={`Option ${String(index + 1)} name`}
-                    placeholder="Size"
+                    placeholder={t('variants.size')}
                     invalid={errors.options?.[index]?.key !== undefined}
                     {...register(`options.${index}.key` as const)}
                   />
@@ -232,15 +238,13 @@ function VariantEditor({
                   aria-label={`Remove option ${String(index + 1)}`}
                   disabled={options.fields.length === 1}
                   title={
-                    options.fields.length === 1
-                      ? 'A variant needs at least one option.'
-                      : undefined
+                    options.fields.length === 1 ? 'A variant needs at least one option.' : undefined
                   }
                   onClick={() => {
                     options.remove(index);
                   }}
                 >
-                  Remove
+                  {t('variants.remove')}
                 </Button>
               </div>
             ))}
@@ -253,7 +257,7 @@ function VariantEditor({
               options.append({ key: '', value: '' });
             }}
           >
-            Add option
+            {t('variants.addOption')}
           </Button>
         </fieldset>
       </form>
@@ -262,6 +266,8 @@ function VariantEditor({
 }
 
 export function VariantsPanel({ productId }: { productId: string }): React.JSX.Element {
+  const { t } = useI18n();
+
   const { can } = useSession();
   const queryClient = useQueryClient();
   const toast = useToast();
@@ -278,7 +284,9 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
     mutationFn: (variant: VariantRow) =>
       api.delete<{ deleted: boolean }>(`/admin/products/${productId}/variants/${variant.id}`),
     onSuccess: async (result) => {
-      toast.success(result.deleted ? 'Variant deleted.' : 'Variant archived — orders reference it.');
+      toast.success(
+        result.deleted ? 'Variant deleted.' : 'Variant archived — orders reference it.',
+      );
       setRemoving(null);
       await queryClient.invalidateQueries({ queryKey: ['variants', productId] });
       await queryClient.invalidateQueries({ queryKey: ['product', productId] });
@@ -322,7 +330,7 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
       nowrap: true,
       render: (row) =>
         row.priceMinor === null ? (
-          <span className="text-ink-muted">Inherits</span>
+          <span className="text-ink-muted">{t('variants.inherits')}</span>
         ) : (
           minorToMajor(row.priceMinor)
         ),
@@ -335,9 +343,7 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
         // A variant nobody can buy is worth spotting from the product page,
         // not only from Inventory.
         <span
-          className={
-            row.availableQty <= 0 ? 'font-semibold text-danger' : 'font-medium text-ink'
-          }
+          className={row.availableQty <= 0 ? 'font-semibold text-danger' : 'font-medium text-ink'}
         >
           {formatNumber(row.availableQty)}
         </span>
@@ -349,21 +355,21 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
       render: (row) =>
         row.archivedAt !== null ? (
           <Badge dot tone="danger">
-            Archived
+            {t('variants.archived')}
           </Badge>
         ) : row.isActive ? (
           <Badge dot tone="success">
-            Active
+            {t('variants.active')}
           </Badge>
         ) : (
           <Badge dot tone="warning">
-            Inactive
+            {t('variants.inactive')}
           </Badge>
         ),
     },
     {
       key: 'actions',
-      header: <span className="sr-only">Actions</span>,
+      header: <span className="sr-only">{t('variants.actions')}</span>,
       align: 'right',
       render: (row) =>
         canWrite ? (
@@ -375,7 +381,7 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
                 setEditorFor(row);
               }}
             >
-              Edit
+              {t('variants.edit')}
             </Button>
             <Button
               size="sm"
@@ -384,7 +390,7 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
                 setRemoving(row);
               }}
             >
-              Remove
+              {t('variants.remove')}
             </Button>
           </div>
         ) : null,
@@ -394,8 +400,8 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
   return (
     <>
       <Card
-        title="Variants"
-        description="Separately stocked and priced forms of this product."
+        title={t('variants.variants')}
+        description={t('variants.separatelyStockedAndPricedForms')}
         actions={
           canWrite ? (
             <Button
@@ -404,7 +410,7 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
                 setEditorFor(null);
               }}
             >
-              Add variant
+              {t('variants.addVariant')}
             </Button>
           ) : undefined
         }
@@ -465,10 +471,7 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
               be archived rather than deleted.
             </p>
           ) : (
-            <p>
-              It has never been ordered and holds no stock, so it will be deleted outright rather
-              than left in the picker.
-            </p>
+            <p>{t('variants.itHasNeverBeenOrdered')}</p>
           )
         }
       />

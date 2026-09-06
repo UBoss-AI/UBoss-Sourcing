@@ -11,6 +11,7 @@
  * where it can be caught before money moves.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { signInAdmin } from '../support/admin-session.js';
 import { buildApp } from '../../src/http/app.js';
 import { Role } from '../../src/domain/permissions.js';
 import { encryptSecret, hashPassword } from '../../src/infra/crypto.js';
@@ -94,16 +95,7 @@ beforeAll(async () => {
     },
   });
 
-  const login = await app.inject({
-    method: 'POST',
-    url: '/api/v1/admin/auth/login',
-    payload: { email: EMAIL, password: PASSWORD },
-  });
-  expect(login.statusCode, login.body).toBe(200);
-
-  const jar = login.cookies as { name: string; value: string }[];
-  cookies = jar.map((cookie) => `${cookie.name}=${cookie.value}`).join('; ');
-  csrfToken = jar.find((cookie) => cookie.name === 'uboss_admin_csrf')?.value ?? '';
+  ({ cookies, csrfToken } = await signInAdmin(app, { email: EMAIL, password: PASSWORD }));
 });
 
 afterAll(async () => {

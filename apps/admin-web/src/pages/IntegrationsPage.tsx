@@ -53,6 +53,7 @@ import { ApiError, api } from '@/lib/api';
 import { applyApiErrors } from '@/lib/forms';
 import { formatDateTime, humanise } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
+import { useI18n } from '@/i18n/i18n-context';
 
 interface Connection {
   id: string;
@@ -107,6 +108,45 @@ const connectionSchema = z
         message: 'That is a TEST key but the mode is set to Live. Checkout would collect nothing.',
       });
     }
+
+    if (values.provider !== 'STRIPE') return;
+
+    // Stripe's two keys look alike and sit next to each other in its
+    // dashboard. Pasted the wrong way round, the secret key would be sent to
+    // every customer's browser - so this is checked before it can be saved,
+    // not after a test connection fails.
+    if (!values.keyId.startsWith('pk_')) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['keyId'],
+        message: values.keyId.startsWith('sk_')
+          ? 'That is the SECRET key. This field is the publishable key (pk_), which goes to the browser.'
+          : 'A Stripe publishable key begins with pk_.',
+      });
+    }
+
+    if (!values.keySecret.startsWith('sk_') && !values.keySecret.startsWith('rk_')) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['keySecret'],
+        message: 'A Stripe secret key begins with sk_, or rk_ for a restricted key.',
+      });
+    }
+
+    // The mismatch that produces a working handshake and a checkout nothing
+    // can ever confirm.
+    const publishableIsLive = values.keyId.startsWith('pk_live_');
+    const secretIsLive =
+      values.keySecret.startsWith('sk_live_') || values.keySecret.startsWith('rk_live_');
+
+    if (values.keyId.startsWith('pk_') && secretIsLive !== publishableIsLive) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['keySecret'],
+        message:
+          'This secret key is from the other Stripe environment. Pair pk_test_ with sk_test_, or pk_live_ with sk_live_.',
+      });
+    }
   });
 
 type ConnectionForm = z.output<typeof connectionSchema>;
@@ -118,6 +158,8 @@ function ConnectionDialog({
   existing: Connection | null;
   onClose: () => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const queryClient = useQueryClient();
   const toast = useToast();
   const [formError, setFormError] = useState<string | null>(null);
@@ -156,7 +198,9 @@ function ConnectionDialog({
       onClose();
     },
     onError: (error) => {
-      setFormError(applyApiErrors(error, setError, ['label', 'keyId', 'keySecret', 'webhookSecret']));
+      setFormError(
+        applyApiErrors(error, setError, ['label', 'keyId', 'keySecret', 'webhookSecret']),
+      );
     },
   });
 
@@ -165,20 +209,26 @@ function ConnectionDialog({
   };
 
   const mode = watch('mode');
+  const provider = watch('provider');
+  const isStripe = provider === 'STRIPE';
 
   return (
     <Modal
       isOpen
       onClose={onClose}
-      title={existing === null ? 'Connect a payment gateway' : `Replace credentials for ${existing.label}`}
-      description="Saving always deactivates the connection until it passes a test."
+      title={
+        existing === null
+          ? 'Connect a payment gateway'
+          : `Replace credentials for ${existing.label}`
+      }
+      description={t('integrations.savingAlwaysDeactivatesTheConnection')}
       footer={
         <>
           <Button onClick={onClose} disabled={save.isPending}>
-            Cancel
+            {t('integrations.cancel')}
           </Button>
           <Button variant="primary" isLoading={save.isPending} onClick={submit}>
-            Save credentials
+            {t('integrations.saveCredentials')}
           </Button>
         </>
       }
@@ -197,36 +247,35 @@ function ConnectionDialog({
         )}
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Gateway">
+          <Field label={t('integrations.gateway')}>
             {({ inputId }) => (
               <Select id={inputId} disabled={existing !== null} {...register('provider')}>
-                <option value="RAZORPAY">Razorpay</option>
-                <option value="STRIPE">Stripe (adapter not implemented)</option>
+                <option value="RAZORPAY">{t('integrations.razorpay')}</option>
+                <option value="STRIPE">Stripe</option>
               </Select>
             )}
           </Field>
 
-          <Field label="Mode">
+          <Field label={t('integrations.mode')}>
             {({ inputId }) => (
               <Select id={inputId} disabled={existing !== null} {...register('mode')}>
-                <option value="TEST">Test — no real money can move</option>
-                <option value="LIVE">Live — real money</option>
+                <option value="TEST">{t('integrations.testNoRealMoneyCan')}</option>
+                <option value="LIVE">{t('integrations.liveRealMoney')}</option>
               </Select>
             )}
           </Field>
         </div>
 
         {mode === 'LIVE' && (
-          <Callout tone="danger" role="alert" title="These are live credentials.">
-            Once this connection is activated, customer checkouts charge real cards and refunds move
-            real money. Use Test mode for anything that is not production.
+          <Callout tone="danger" role="alert" title={t('integrations.theseAreLiveCredentials')}>
+            {t('integrations.onceThisConnectionIsActivated')}
           </Callout>
         )}
 
         <div className="space-y-4 border-t border-border-subtle pt-4">
           <Field
-            label="Name"
-            hint="How this connection is listed here, e.g. “Razorpay sandbox”."
+            label={t('integrations.name')}
+            hint={t('integrations.howThisConnectionIsListed')}
             error={errors.label?.message}
             required
           >
@@ -240,13 +289,22 @@ function ConnectionDialog({
             )}
           </Field>
 
-          <Field label="Key ID" error={errors.keyId?.message} required>
+          <Field
+            label={isStripe ? 'Publishable key' : t('integrations.keyId')}
+            {...(isStripe
+              ? {
+                  hint: 'Stripe calls this the publishable key. It is public - it is sent to every customer’s browser to open the payment form.',
+                }
+              : {})}
+            error={errors.keyId?.message}
+            required
+          >
             {({ inputId, describedBy }) => (
               <Input
                 id={inputId}
                 className="font-mono"
                 autoComplete="off"
-                placeholder="rzp_test_…"
+                placeholder={isStripe ? 'pk_test_…' : t('integrations.rzpTest')}
                 aria-describedby={describedBy}
                 invalid={errors.keyId !== undefined}
                 {...register('keyId')}
@@ -255,8 +313,8 @@ function ConnectionDialog({
           </Field>
 
           <Field
-            label="Key secret"
-            hint="Encrypted before storage and never sent back to this screen."
+            label={isStripe ? 'Secret key' : t('integrations.keySecret')}
+            hint={t('integrations.encryptedBeforeStorageAndNever')}
             error={errors.keySecret?.message}
             required
           >
@@ -274,8 +332,12 @@ function ConnectionDialog({
           </Field>
 
           <Field
-            label="Webhook secret"
-            hint="From the gateway dashboard. Without it, no incoming payment event can be verified — and an unverified event is never applied, so no order would ever be confirmed by a payment."
+            label={t('integrations.webhookSecret')}
+            hint={
+              isStripe
+                ? 'The whsec_ value Stripe shows when you add an endpoint for POST /webhooks/stripe. Without it no payment can be verified, so no order would ever be confirmed.'
+                : t('integrations.fromTheGatewayDashboardWithout')
+            }
             error={errors.webhookSecret?.message}
           >
             {({ inputId, describedBy }) => (
@@ -298,9 +360,19 @@ function ConnectionDialog({
 /** The order the server enforces, printed where it is needed. */
 function GatewaySteps(): React.JSX.Element {
   const steps = [
-    { title: 'Save', detail: 'Credentials are encrypted server-side, and the connection is switched off.' },
-    { title: 'Test', detail: 'The gateway is asked whether the saved credentials work. Only this records a result.' },
-    { title: 'Activate', detail: 'Refused unless the last test passed. Any other active gateway is switched off.' },
+    {
+      title: 'Save',
+      detail: 'Credentials are encrypted server-side, and the connection is switched off.',
+    },
+    {
+      title: 'Test',
+      detail:
+        'The gateway is asked whether the saved credentials work. Only this records a result.',
+    },
+    {
+      title: 'Activate',
+      detail: 'Refused unless the last test passed. Any other active gateway is switched off.',
+    },
   ];
 
   return (
@@ -342,6 +414,8 @@ function ConnectionRow({
   onActivate: () => void;
   onReplace: () => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const canActivate = connection.lastTestStatus === 'OK';
   const isLive = connection.mode === 'LIVE';
 
@@ -364,20 +438,20 @@ function ConnectionRow({
         <Badge>{humanise(connection.provider)}</Badge>
         {isLive ? (
           <Badge dot tone="danger">
-            Live — real money
+            {t('integrations.liveRealMoney')}
           </Badge>
         ) : (
           <Badge dot tone="accent">
-            Test — no real money
+            {t('integrations.testNoRealMoney')}
           </Badge>
         )}
         {connection.isActive ? (
           <Badge dot tone="success">
-            Active
+            {t('integrations.active')}
           </Badge>
         ) : (
           <Badge dot tone="neutral">
-            Inactive
+            {t('integrations.inactive')}
           </Badge>
         )}
       </div>
@@ -392,14 +466,14 @@ function ConnectionRow({
             value: connection.hasWebhookSecret ? (
               'Stored'
             ) : (
-              <span className="font-medium text-warning">Missing</span>
+              <span className="font-medium text-warning">{t('integrations.missing')}</span>
             ),
           },
           {
             label: 'Last test',
             value:
               connection.lastTestStatus === null ? (
-                <span className="text-ink-muted">Never tested</span>
+                <span className="text-ink-muted">{t('integrations.neverTested')}</span>
               ) : (
                 <span
                   className={
@@ -428,20 +502,19 @@ function ConnectionRow({
 
       {!connection.hasWebhookSecret && (
         <Callout tone="warning" className="mt-3">
-          Without a webhook secret, no incoming payment event can be verified — so no order will
-          ever be confirmed by a payment.
+          {t('integrations.withoutAWebhookSecretNo')}
         </Callout>
       )}
 
       {canWrite && (
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <Button size="sm" isLoading={isTesting} onClick={onTest}>
-            Test connection
+            {t('integrations.testConnection')}
           </Button>
 
           {connection.isActive ? (
             <Button size="sm" variant="secondary" onClick={onDeactivate}>
-              Deactivate
+              {t('integrations.deactivate')}
             </Button>
           ) : (
             <Button
@@ -458,12 +531,12 @@ function ConnectionRow({
           )}
 
           <Button size="sm" variant="ghost" onClick={onReplace}>
-            Replace credentials
+            {t('integrations.replaceCredentials')}
           </Button>
 
           {!connection.isActive && !canActivate && (
             <p className="text-xs text-ink-muted">
-              Activation needs a passing test — enforced by the server, not just by this button.
+              {t('integrations.activationNeedsAPassingTest')}
             </p>
           )}
         </div>
@@ -473,6 +546,8 @@ function ConnectionRow({
 }
 
 function GatewayPanel(): React.JSX.Element {
+  const { t } = useI18n();
+
   const queryClient = useQueryClient();
   const toast = useToast();
   const { can } = useSession();
@@ -520,8 +595,8 @@ function GatewayPanel(): React.JSX.Element {
   return (
     <>
       <Card
-        title="Payment gateway"
-        description="Exactly one connection is active at a time. Customers cannot pay until one is connected, tested and activated."
+        title={t('integrations.paymentGateway')}
+        description={t('integrations.exactlyOneConnectionIsActive')}
         actions={
           canWrite ? (
             <Button
@@ -531,14 +606,14 @@ function GatewayPanel(): React.JSX.Element {
                 setDialogFor(null);
               }}
             >
-              Add credentials
+              {t('integrations.addCredentials')}
             </Button>
           ) : undefined
         }
       >
         {canWrite && <GatewaySteps />}
 
-        {query.isPending && <LoadingState label="Loading gateway connections" />}
+        {query.isPending && <LoadingState label={t('integrations.loadingGatewayConnections')} />}
         {query.isError && (
           <ErrorState
             error={query.error}
@@ -550,8 +625,8 @@ function GatewayPanel(): React.JSX.Element {
 
         {connections !== undefined && connections.length === 0 && (
           <EmptyState
-            title="No gateway connected"
-            description="Start in Test mode — no real money can move on a test key, and the same three steps apply."
+            title={t('integrations.noGatewayConnected')}
+            description={t('integrations.startInTestModeNo')}
             action={
               canWrite ? (
                 <Button
@@ -560,7 +635,7 @@ function GatewayPanel(): React.JSX.Element {
                     setDialogFor(null);
                   }}
                 >
-                  Add credentials
+                  {t('integrations.addCredentials')}
                 </Button>
               ) : undefined
             }
@@ -621,17 +696,18 @@ function GatewayPanel(): React.JSX.Element {
         body={
           activating?.mode === 'LIVE' ? (
             <div className="space-y-2">
-              <Callout tone="danger" title="Real cards, from this moment.">
-                Customer checkouts will charge real cards and refunds will move real money.
+              <Callout tone="danger" title={t('integrations.realCardsFromThisMoment')}>
+                {t('integrations.customerCheckoutsWillChargeReal')}
               </Callout>
-              <p>Any other active gateway is switched off — only one can be live at a time.</p>
+              <p>{t('integrations.anyOtherActiveGatewayIs')}</p>
             </div>
           ) : (
             <div className="space-y-2">
               <p>
-                This is a <strong>test</strong> connection. No real money can move on a test key.
+                {t('integrations.thisIsA')}
+                <strong>test</strong> connection. No real money can move on a test key.
               </p>
-              <p>Any other active gateway is switched off — only one can be active at a time.</p>
+              <p>{t('integrations.anyOtherActiveGatewayIs2')}</p>
             </div>
           )
         }
@@ -641,6 +717,8 @@ function GatewayPanel(): React.JSX.Element {
 }
 
 function ConnectorsPanel(): React.JSX.Element {
+  const { t } = useI18n();
+
   const query = useQuery({
     queryKey: ['connectors'],
     queryFn: () => api.get<{ connectors: Connector[] }>('/admin/integrations'),
@@ -659,11 +737,11 @@ function ConnectorsPanel(): React.JSX.Element {
       render: (row) =>
         row.isActive ? (
           <Badge dot tone="success">
-            Active
+            {t('integrations.active')}
           </Badge>
         ) : (
           <Badge dot tone="neutral">
-            Inactive
+            {t('integrations.inactive')}
           </Badge>
         ),
     },
@@ -673,7 +751,7 @@ function ConnectorsPanel(): React.JSX.Element {
       nowrap: true,
       render: (row) =>
         row.lastSyncAt === null ? (
-          <span className="text-ink-subtle">Never</span>
+          <span className="text-ink-subtle">{t('integrations.never')}</span>
         ) : (
           <span className="text-ink-muted">
             {humanise(row.lastSyncStatus ?? 'UNKNOWN')} · {formatDateTime(row.lastSyncAt)}
@@ -683,7 +761,10 @@ function ConnectorsPanel(): React.JSX.Element {
   ];
 
   return (
-    <Card title="Other integrations" description="Accounting, shipping and ERP connectors.">
+    <Card
+      title={t('integrations.otherIntegrations')}
+      description={t('integrations.accountingShippingAndErpConnectors')}
+    >
       <DataTable
         caption="Connectors"
         columns={columns}
@@ -704,6 +785,8 @@ function ConnectorsPanel(): React.JSX.Element {
 }
 
 export function IntegrationsPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const { can } = useSession();
 
   // This page is reachable with EITHER permission - a Finance Approver holds
@@ -716,8 +799,8 @@ export function IntegrationsPage(): React.JSX.Element {
   return (
     <>
       <PageHeader
-        title="Integrations"
-        description="Payment gateway credentials and third-party connectors. Secrets are encrypted before storage and never sent back to this screen."
+        title={t('integrations.integrations')}
+        description={t('integrations.paymentGatewayCredentialsAndThird')}
       />
 
       <div className="space-y-5">

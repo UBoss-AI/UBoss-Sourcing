@@ -19,6 +19,8 @@ import { ApiError, NetworkError, api } from '@/lib/api';
 import { formatDateTime, minorToMajor } from '@/lib/format';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { AccountResponse } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
+import { YourDataPanel } from './profile/YourDataPanel';
 
 const profileSchema = z.object({
   fullName: z.string().trim().min(1, 'Tell us who to address deliveries to.').max(255),
@@ -51,35 +53,43 @@ function money(minor: string | null, currency: string): string {
 }
 
 function LimitsPanel({ account }: { account: AccountResponse }): React.JSX.Element {
+  const { t } = useI18n();
+
   const { purchasingLimits: limits, spend } = account;
 
   return (
-    <section aria-labelledby="limits-heading" className="rounded-lg border border-border bg-surface p-5 shadow-card">
+    <section
+      aria-labelledby="limits-heading"
+      className="rounded-lg border border-border bg-surface p-5 shadow-card"
+    >
       <h2 id="limits-heading" className="text-title-sm text-ink">
-        Your purchasing limits
+        {t('profile.yourPurchasingLimits')}
       </h2>
-      <p className="mt-1 text-sm text-ink-muted">
-        Set by us on your account. Checkout applies them, so it is worth knowing them before you
-        build a large order.
-      </p>
+      <p className="mt-1 text-sm text-ink-muted">{t('profile.setByUsOnYour')}</p>
 
       <dl className="mt-4 grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
         <div>
-          <dt className="text-xxs uppercase tracking-wider text-ink-subtle">Minimum per order</dt>
+          <dt className="text-xxs uppercase tracking-wider text-ink-subtle">
+            {t('profile.minimumPerOrder')}
+          </dt>
           <dd className="mt-0.5 tabular text-ink">
             {money(limits.perOrderMinMinor, limits.currency)}
           </dd>
         </div>
 
         <div>
-          <dt className="text-xxs uppercase tracking-wider text-ink-subtle">Maximum per order</dt>
+          <dt className="text-xxs uppercase tracking-wider text-ink-subtle">
+            {t('profile.maximumPerOrder')}
+          </dt>
           <dd className="mt-0.5 tabular text-ink">
             {money(limits.perOrderMaxMinor, limits.currency)}
           </dd>
         </div>
 
         <div>
-          <dt className="text-xxs uppercase tracking-wider text-ink-subtle">Spent this month</dt>
+          <dt className="text-xxs uppercase tracking-wider text-ink-subtle">
+            {t('profile.spentThisMonth')}
+          </dt>
           <dd className="mt-0.5 tabular text-ink">
             {money(spend.monthToDateMinor, spend.currency)}
             {spend.capMinor !== null && (
@@ -89,12 +99,14 @@ function LimitsPanel({ account }: { account: AccountResponse }): React.JSX.Eleme
         </div>
 
         <div>
-          <dt className="text-xxs uppercase tracking-wider text-ink-subtle">Approvals</dt>
+          <dt className="text-xxs uppercase tracking-wider text-ink-subtle">
+            {t('profile.approvals')}
+          </dt>
           <dd className="mt-0.5 text-ink">
             {limits.requiresOrderApproval ? (
-              <Badge tone="warning">Orders need approval</Badge>
+              <Badge tone="warning">{t('profile.ordersNeedApproval')}</Badge>
             ) : (
-              <span className="text-ink-muted">Not required</span>
+              <span className="text-ink-muted">{t('profile.notRequired')}</span>
             )}
           </dd>
         </div>
@@ -103,9 +115,7 @@ function LimitsPanel({ account }: { account: AccountResponse }): React.JSX.Eleme
       {spend.remainingMinor !== null && (
         <p className="mt-4 border-t border-border pt-4 text-sm text-ink">
           You have{' '}
-          <span className="font-medium tabular">
-            {money(spend.remainingMinor, spend.currency)}
-          </span>{' '}
+          <span className="font-medium tabular">{money(spend.remainingMinor, spend.currency)}</span>{' '}
           left to spend this month.
         </p>
       )}
@@ -114,6 +124,8 @@ function LimitsPanel({ account }: { account: AccountResponse }): React.JSX.Eleme
 }
 
 function PasswordPanel(): React.JSX.Element {
+  const { t } = useI18n();
+
   const toast = useToast();
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -124,7 +136,11 @@ function PasswordPanel(): React.JSX.Element {
     formState: { errors, isSubmitting },
   } = useForm<PasswordForm>({
     resolver: zodResolver(passwordSchema),
-    defaultValues: { currentPassword: '', newPassword: '', confirmPassword: '' },
+    defaultValues: {
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    },
   });
 
   const change = useMutation({
@@ -150,9 +166,12 @@ function PasswordPanel(): React.JSX.Element {
   });
 
   return (
-    <section aria-labelledby="password-heading" className="rounded-lg border border-border bg-surface p-5 shadow-card">
+    <section
+      aria-labelledby="password-heading"
+      className="rounded-lg border border-border bg-surface p-5 shadow-card"
+    >
       <h2 id="password-heading" className="text-title-sm text-ink">
-        Change your password
+        {t('profile.changeYourPassword')}
       </h2>
 
       <form
@@ -171,7 +190,11 @@ function PasswordPanel(): React.JSX.Element {
           </div>
         )}
 
-        <Field label="Current password" error={errors.currentPassword?.message} required>
+        <Field
+          label={t('profile.currentPassword')}
+          error={errors.currentPassword?.message}
+          required
+        >
           {({ inputId, describedBy }) => (
             <Input
               id={inputId}
@@ -185,8 +208,8 @@ function PasswordPanel(): React.JSX.Element {
         </Field>
 
         <Field
-          label="New password"
-          hint="At least 12 characters."
+          label={t('profile.newPassword')}
+          hint={t('profile.atLeast12Characters')}
           error={errors.newPassword?.message}
           required
         >
@@ -202,7 +225,11 @@ function PasswordPanel(): React.JSX.Element {
           )}
         </Field>
 
-        <Field label="Confirm the new password" error={errors.confirmPassword?.message} required>
+        <Field
+          label={t('profile.confirmTheNewPassword')}
+          error={errors.confirmPassword?.message}
+          required
+        >
           {({ inputId, describedBy }) => (
             <Input
               id={inputId}
@@ -216,7 +243,7 @@ function PasswordPanel(): React.JSX.Element {
         </Field>
 
         <Button type="submit" variant="primary" isLoading={isSubmitting || change.isPending}>
-          Change password
+          {t('profile.changePassword')}
         </Button>
       </form>
     </section>
@@ -224,6 +251,8 @@ function PasswordPanel(): React.JSX.Element {
 }
 
 export function ProfilePage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const queryClient = useQueryClient();
   const toast = useToast();
   const { business } = useStorefront();
@@ -274,7 +303,7 @@ export function ProfilePage(): React.JSX.Element {
     },
   });
 
-  if (query.isPending) return <LoadingState label="Loading your profile" />;
+  if (query.isPending) return <LoadingState label={t('profile.loadingYourProfile')} />;
 
   if (query.isError) {
     return (
@@ -292,14 +321,17 @@ export function ProfilePage(): React.JSX.Element {
   return (
     <>
       <PageHeader
-        title="Your profile"
-        description="Your contact details and how we reach you about orders."
+        title={t('profile.yourProfile')}
+        description={t('profile.yourContactDetailsAndHow')}
       />
 
       <div className="space-y-6">
-        <section aria-labelledby="details-heading" className="rounded-lg border border-border bg-surface p-5 shadow-card">
+        <section
+          aria-labelledby="details-heading"
+          className="rounded-lg border border-border bg-surface p-5 shadow-card"
+        >
           <h2 id="details-heading" className="text-title-sm text-ink">
-            Your details
+            {t('profile.yourDetails')}
           </h2>
 
           <form
@@ -319,7 +351,7 @@ export function ProfilePage(): React.JSX.Element {
             )}
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Your name" error={errors.fullName?.message} required>
+              <Field label={t('profile.yourName')} error={errors.fullName?.message} required>
                 {({ inputId, describedBy }) => (
                   <Input
                     id={inputId}
@@ -331,7 +363,7 @@ export function ProfilePage(): React.JSX.Element {
                 )}
               </Field>
 
-              <Field label="Phone" error={errors.phone?.message}>
+              <Field label={t('profile.phone')} error={errors.phone?.message}>
                 {({ inputId, describedBy }) => (
                   <Input
                     id={inputId}
@@ -343,7 +375,7 @@ export function ProfilePage(): React.JSX.Element {
                 )}
               </Field>
 
-              <Field label="Department" error={errors.department?.message}>
+              <Field label={t('profile.department')} error={errors.department?.message}>
                 {({ inputId, describedBy }) => (
                   <Input id={inputId} aria-describedby={describedBy} {...register('department')} />
                 )}
@@ -356,13 +388,15 @@ export function ProfilePage(): React.JSX.Element {
               disabled={!isDirty}
               isLoading={isSubmitting || save.isPending}
             >
-              Save changes
+              {t('profile.saveChanges')}
             </Button>
           </form>
 
           <dl className="mt-6 grid gap-x-6 gap-y-3 border-t border-border pt-4 text-sm sm:grid-cols-2">
             <div>
-              <dt className="text-xxs uppercase tracking-wider text-ink-subtle">Email address</dt>
+              <dt className="text-xxs uppercase tracking-wider text-ink-subtle">
+                {t('profile.emailAddress')}
+              </dt>
               {/* Read-only: it identifies the account and is how invitations,
                   payment links and order emails reach you. */}
               <dd className="mt-0.5 text-ink">{profile.email}</dd>
@@ -370,29 +404,34 @@ export function ProfilePage(): React.JSX.Element {
 
             {profile.organization !== null && (
               <div>
-                <dt className="text-xxs uppercase tracking-wider text-ink-subtle">Organisation</dt>
+                <dt className="text-xxs uppercase tracking-wider text-ink-subtle">
+                  {t('profile.organisation')}
+                </dt>
                 <dd className="mt-0.5 text-ink">{profile.organization}</dd>
               </div>
             )}
 
             <div>
-              <dt className="text-xxs uppercase tracking-wider text-ink-subtle">Member since</dt>
+              <dt className="text-xxs uppercase tracking-wider text-ink-subtle">
+                {t('profile.memberSince')}
+              </dt>
               <dd className="mt-0.5 text-ink">{formatDateTime(profile.activatedAt)}</dd>
             </div>
 
             <div>
-              <dt className="text-xxs uppercase tracking-wider text-ink-subtle">Orders placed</dt>
+              <dt className="text-xxs uppercase tracking-wider text-ink-subtle">
+                {t('profile.ordersPlaced')}
+              </dt>
               <dd className="mt-0.5 text-ink">{profile.orderCount}</dd>
             </div>
           </dl>
 
-          <p className="mt-3 text-xs text-ink-muted">
-            To change your email address or organisation, get in touch — they identify your account.
-          </p>
+          <p className="mt-3 text-xs text-ink-muted">{t('profile.toChangeYourEmailAddress')}</p>
         </section>
 
         <LimitsPanel account={query.data} />
         <PasswordPanel />
+        <YourDataPanel />
       </div>
     </>
   );

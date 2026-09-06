@@ -12,6 +12,7 @@
 import type { MouseEvent, ReactNode } from 'react';
 import { cx } from '@/lib/cx';
 import { EmptyState, ErrorState, LoadingState, NoAccessState } from './ui';
+import { useI18n } from '@/i18n/i18n-context';
 
 export interface Column<T> {
   /** Stable key, also used for the cell's React key. */
@@ -269,6 +270,8 @@ export function Pager({
   totalPages: number;
   onPageChange: (page: number) => void;
 }): React.JSX.Element | null {
+  const { t } = useI18n();
+
   if (total === 0) return null;
 
   const first = (page - 1) * limit + 1;
@@ -287,7 +290,7 @@ export function Pager({
 
   return (
     <nav
-      aria-label="Pagination"
+      aria-label={t('dataTable.pagination')}
       className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-t border-border px-4 py-2.5 text-xs text-ink-muted"
     >
       <p aria-live="polite">
@@ -300,22 +303,27 @@ export function Pager({
       <div className="flex items-center gap-1">
         <button
           type="button"
-          onClick={() => { onPageChange(page - 1); }}
+          onClick={() => {
+            onPageChange(page - 1);
+          }}
           disabled={page <= 1}
           className={pageButton}
         >
-          Previous
+          {t('dataTable.previous')}
         </button>
         <span className="whitespace-nowrap px-2">
-          Page <span className="tabular">{page}</span> of <span className="tabular">{totalPages}</span>
+          {t('dataTable.page')}
+          <span className="tabular">{page}</span> of <span className="tabular">{totalPages}</span>
         </span>
         <button
           type="button"
-          onClick={() => { onPageChange(page + 1); }}
+          onClick={() => {
+            onPageChange(page + 1);
+          }}
           disabled={page >= totalPages}
           className={pageButton}
         >
-          Next
+          {t('dataTable.next')}
         </button>
       </div>
     </nav>

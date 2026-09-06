@@ -13,8 +13,11 @@ import { Navigate, useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { useSession } from './session-context';
 import { Spinner } from '@/components/ui';
+import { useI18n } from '@/i18n/i18n-context';
 
 export function RequireCustomer({ children }: { children: ReactNode }): React.JSX.Element {
+  const { t } = useI18n();
+
   const { isCustomer, isLoading } = useSession();
   const location = useLocation();
 
@@ -23,7 +26,7 @@ export function RequireCustomer({ children }: { children: ReactNode }): React.JS
       <div className="flex min-h-64 items-center justify-center">
         <Spinner className="h-6 w-6 text-ink-subtle" />
         <span className="sr-only" role="status">
-          Checking your session
+          {t('requireCustomer.checkingYourSession')}
         </span>
       </div>
     );

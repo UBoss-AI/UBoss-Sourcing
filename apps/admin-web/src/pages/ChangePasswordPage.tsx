@@ -28,6 +28,8 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useSession } from '@/auth/session-context';
 import { Button, Field, Input } from '@/components/ui';
+import { useI18n } from '@/i18n/i18n-context';
+import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
 import { ApiError, NetworkError, api } from '@/lib/api';
 
 interface FormValues {
@@ -42,6 +44,7 @@ const MAX_LENGTH = 128;
 
 export function ChangePasswordPage(): React.JSX.Element {
   const { user, login, logout } = useSession();
+  const { t } = useI18n();
   const [formError, setFormError] = useState<string | null>(null);
 
   const {
@@ -75,7 +78,7 @@ export function ChangePasswordPage(): React.JSX.Element {
         setFormError(error.message);
         return;
       }
-      setFormError('We could not set your password. Please try again.');
+      setFormError(t('auth.change.setFailed'));
       return;
     }
 
@@ -92,6 +95,11 @@ export function ChangePasswordPage(): React.JSX.Element {
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface-sunken px-4 py-10">
       <div className="w-full max-w-sm">
+        {/* This screen is a hard gate — a staff account on a temporary
+            password can reach nothing else until it is past. If the panel is
+            in the wrong language, this is the only place left to change it. */}
+        <LanguageSwitcher placement="auth" />
+
         <div className="mb-6 flex flex-col items-center text-center">
           <span
             aria-hidden="true"
@@ -99,9 +107,11 @@ export function ChangePasswordPage(): React.JSX.Element {
           >
             U
           </span>
-          <h1 className="text-lg font-semibold tracking-tight text-ink">Choose your password</h1>
+          <h1 className="text-lg font-semibold tracking-tight text-ink">
+            {t('auth.change.headingAdmin')}
+          </h1>
           <p className="mt-1 text-sm text-ink-muted">
-            You signed in with the temporary password we emailed
+            {t('auth.change.introAdmin')}
             {user === null ? '' : ` to ${user.email}`}. Replace it before you go any further.
           </p>
         </div>
@@ -121,8 +131,8 @@ export function ChangePasswordPage(): React.JSX.Element {
           )}
 
           <Field
-            label="Temporary password"
-            hint="The one from the email. It stops working as soon as you finish here."
+            label={t('auth.change.temporaryPassword')}
+            hint={t('auth.change.temporaryPasswordHint')}
             error={errors.currentPassword?.message}
             required
           >
@@ -134,15 +144,15 @@ export function ChangePasswordPage(): React.JSX.Element {
                 aria-describedby={describedBy}
                 invalid={errors.currentPassword !== undefined}
                 {...register('currentPassword', {
-                  required: 'Enter the temporary password from your email.',
+                  required: t('auth.change.temporaryPasswordRequired'),
                 })}
               />
             )}
           </Field>
 
           <Field
-            label="Your new password"
-            hint="At least 12 characters. A short phrase you will remember beats a short jumble you will not."
+            label={t('auth.change.yourNewPassword')}
+            hint={t('auth.passwordHint')}
             error={errors.newPassword?.message}
             required
           >
@@ -154,19 +164,18 @@ export function ChangePasswordPage(): React.JSX.Element {
                 aria-describedby={describedBy}
                 invalid={errors.newPassword !== undefined}
                 {...register('newPassword', {
-                  required: 'Choose a password.',
-                  minLength: { value: MIN_LENGTH, message: 'Use at least 12 characters.' },
-                  maxLength: { value: MAX_LENGTH, message: 'Use at most 128 characters.' },
+                  required: t('validation.choosePassword'),
+                  minLength: { value: MIN_LENGTH, message: t('validation.passwordTooShort') },
+                  maxLength: { value: MAX_LENGTH, message: t('validation.passwordTooLong') },
                   validate: (value) =>
-                    value !== getValues('currentPassword') ||
-                    'Choose something different from the temporary password.',
+                    value !== getValues('currentPassword') || t('auth.change.mustDiffer'),
                 })}
               />
             )}
           </Field>
 
           <Field
-            label="Confirm your new password"
+            label={t('auth.change.confirmPassword')}
             error={errors.confirmPassword?.message}
             required
           >
@@ -178,21 +187,19 @@ export function ChangePasswordPage(): React.JSX.Element {
                 aria-describedby={describedBy}
                 invalid={errors.confirmPassword !== undefined}
                 {...register('confirmPassword', {
-                  required: 'Type the password again.',
+                  required: t('validation.repeatPassword'),
                   validate: (value) =>
-                    value === getValues('newPassword') || 'The two passwords do not match.',
+                    value === getValues('newPassword') || t('validation.passwordsDoNotMatch'),
                 })}
               />
             )}
           </Field>
 
           <Button type="submit" variant="primary" className="w-full" isLoading={isSubmitting}>
-            Save and continue
+            {t('auth.change.submit')}
           </Button>
 
-          <p className="text-center text-xs text-ink-muted">
-            Nobody else knows this one — not even whoever set your account up.
-          </p>
+          <p className="text-center text-xs text-ink-muted">{t('auth.change.nobodyElseKnows')}</p>
         </form>
       </div>
     </div>

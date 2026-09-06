@@ -32,6 +32,7 @@ import {
 import { ApiError, api } from '@/lib/api';
 import { formatDateTime, humanise } from '@/lib/format';
 import { Permission, roleLabel } from '@/lib/permissions';
+import { useI18n } from '@/i18n/i18n-context';
 
 interface StaffRole {
   key: string;
@@ -107,6 +108,8 @@ function RoleDialog({
   assignable: AssignableRole[];
   onClose: () => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const queryClient = useQueryClient();
   const toast = useToast();
   const [selected, setSelected] = useState<string[]>(member.roles.map((role) => role.key));
@@ -138,11 +141,11 @@ function RoleDialog({
       isOpen
       onClose={onClose}
       title={`Roles for ${member.email}`}
-      description="A role is a set of permissions. Give the narrowest set that does the job."
+      description={t('staff.aRoleIsASet')}
       footer={
         <>
           <Button onClick={onClose} disabled={save.isPending}>
-            Cancel
+            {t('staff.cancel')}
           </Button>
           <Button
             variant="primary"
@@ -152,7 +155,7 @@ function RoleDialog({
               save.mutate();
             }}
           >
-            Save roles
+            {t('staff.saveRoles')}
           </Button>
         </>
       }
@@ -165,7 +168,7 @@ function RoleDialog({
         )}
 
         <fieldset>
-          <legend className="sr-only">Roles</legend>
+          <legend className="sr-only">{t('staff.roles')}</legend>
           <RoleChecklist
             assignable={assignable}
             selected={selected}
@@ -178,14 +181,17 @@ function RoleDialog({
         </fieldset>
 
         {held.length > 0 && (
-          <Callout tone="warning" title={`This account also holds ${held.map((role) => role.name).join(', ')}.`}>
-            You cannot grant or remove that role, so it is left unchanged.
+          <Callout
+            tone="warning"
+            title={`This account also holds ${held.map((role) => role.name).join(', ')}.`}
+          >
+            {t('staff.youCannotGrantOrRemove')}
           </Callout>
         )}
 
         {selected.length === 0 && (
           <Callout tone="danger" role="alert">
-            An account needs at least one role. Deactivate it instead if it should have no access.
+            {t('staff.anAccountNeedsAtLeast')}
           </Callout>
         )}
       </div>
@@ -200,6 +206,8 @@ function NewStaffDialog({
   assignable: AssignableRole[];
   onClose: () => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const queryClient = useQueryClient();
   const toast = useToast();
   const [email, setEmail] = useState('');
@@ -207,7 +215,8 @@ function NewStaffDialog({
   const [error, setError] = useState<string | null>(null);
 
   const create = useMutation({
-    mutationFn: () => api.post<{ id: string }>('/admin/staff', { email: email.trim(), roleKeys: selected }),
+    mutationFn: () =>
+      api.post<{ id: string }>('/admin/staff', { email: email.trim(), roleKeys: selected }),
     onSuccess: async () => {
       toast.success(
         'Account created. A temporary password has been emailed; they choose their own the first time they sign in.',
@@ -216,7 +225,9 @@ function NewStaffDialog({
       onClose();
     },
     onError: (apiError) => {
-      setError(apiError instanceof ApiError ? apiError.message : 'The account could not be created.');
+      setError(
+        apiError instanceof ApiError ? apiError.message : 'The account could not be created.',
+      );
     },
   });
 
@@ -226,12 +237,12 @@ function NewStaffDialog({
     <Modal
       isOpen
       onClose={onClose}
-      title="New staff account"
-      description="An account with no roles can sign in and see nothing, so at least one is required."
+      title={t('staff.newStaffAccount')}
+      description={t('staff.anAccountWithNoRoles')}
       footer={
         <>
           <Button onClick={onClose} disabled={create.isPending}>
-            Cancel
+            {t('staff.cancel')}
           </Button>
           <Button
             variant="primary"
@@ -241,7 +252,7 @@ function NewStaffDialog({
               create.mutate();
             }}
           >
-            Create account
+            {t('staff.createAccount')}
           </Button>
         </>
       }
@@ -253,11 +264,7 @@ function NewStaffDialog({
           </Callout>
         )}
 
-        <Field
-          label="Email address"
-          hint="A one-time password is emailed here, good for 72 hours. Signing in with it forces them to choose their own — which nobody else, including you, ever sees."
-          required
-        >
+        <Field label={t('staff.emailAddress')} hint={t('staff.aOneTimePasswordIs')} required>
           {({ inputId, describedBy }) => (
             <Input
               id={inputId}
@@ -273,7 +280,7 @@ function NewStaffDialog({
 
         <fieldset className="border-t border-border-subtle pt-4">
           <legend className="text-xs font-semibold uppercase tracking-wider text-ink-subtle">
-            Roles
+            {t('staff.roles')}
           </legend>
           <div className="mt-3">
             <RoleChecklist
@@ -293,6 +300,8 @@ function NewStaffDialog({
 }
 
 export function StaffPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const { can, user } = useSession();
   const queryClient = useQueryClient();
   const toast = useToast();
@@ -375,11 +384,11 @@ export function StaffPage(): React.JSX.Element {
         <div className="min-w-32">
           {row.archivedAt !== null ? (
             <Badge dot tone="danger">
-              Deactivated
+              {t('staff.deactivated')}
             </Badge>
           ) : row.lockedUntil !== null ? (
             <Badge dot tone="warning">
-              Locked
+              {t('staff.locked')}
             </Badge>
           ) : row.owesAPassword ? (
             // May well be ACTIVE in the database, but it has never been used: the
@@ -387,11 +396,11 @@ export function StaffPage(): React.JSX.Element {
             // invitation nobody clicked. Saying "Active" would hide the one thing
             // an administrator needs to notice.
             <Badge dot tone="warning">
-              Awaiting first sign-in
+              {t('staff.awaitingFirstSignIn')}
             </Badge>
           ) : row.status === 'ACTIVE' ? (
             <Badge dot tone="success">
-              Active
+              {t('staff.active')}
             </Badge>
           ) : (
             // Every other status here reads as English; this one should too.
@@ -415,7 +424,7 @@ export function StaffPage(): React.JSX.Element {
         row.mfaEnabled ? (
           <Badge tone="success">On</Badge>
         ) : (
-          <span className="text-ink-subtle">Off</span>
+          <span className="text-ink-subtle">{t('staff.off')}</span>
         ),
     },
     {
@@ -426,14 +435,14 @@ export function StaffPage(): React.JSX.Element {
       nowrap: true,
       render: (row) =>
         row.lastLoginAt === null ? (
-          <span className="text-ink-subtle">Never</span>
+          <span className="text-ink-subtle">{t('staff.never')}</span>
         ) : (
           <span className="text-ink-muted">{formatDateTime(row.lastLoginAt)}</span>
         ),
     },
     {
       key: 'actions',
-      header: <span className="sr-only">Actions</span>,
+      header: <span className="sr-only">{t('staff.actions')}</span>,
       align: 'right',
       render: (row) => (
         <div className="flex justify-end gap-1">
@@ -450,7 +459,7 @@ export function StaffPage(): React.JSX.Element {
                 reissue.mutate({ id: row.id });
               }}
             >
-              Resend password
+              {t('staff.resendPassword')}
               <span className="sr-only"> to {row.email}</span>
             </Button>
           )}
@@ -462,7 +471,7 @@ export function StaffPage(): React.JSX.Element {
                 setRolesFor(row);
               }}
             >
-              Roles
+              {t('staff.roles')}
               <span className="sr-only"> for {row.email}</span>
             </Button>
           )}
@@ -487,8 +496,8 @@ export function StaffPage(): React.JSX.Element {
   return (
     <>
       <PageHeader
-        title="Staff"
-        description="Who can sign in, and what each of them may do. Nobody here is given a password — an account is emailed a one-time credential and chooses its own."
+        title={t('staff.staff')}
+        description={t('staff.whoCanSignInAnd')}
         actions={
           canWrite && canAssign ? (
             <Button
@@ -497,7 +506,7 @@ export function StaffPage(): React.JSX.Element {
                 setIsCreating(true);
               }}
             >
-              New staff account
+              {t('staff.newStaffAccount')}
             </Button>
           ) : undefined
         }
@@ -530,7 +539,7 @@ export function StaffPage(): React.JSX.Element {
           />
         </Card>
 
-        <Callout tone="neutral" title="Two rules this screen cannot break">
+        <Callout tone="neutral" title={t('staff.twoRulesThisScreenCannot')}>
           The last active Business Owner cannot be demoted or deactivated, and nobody can deactivate
           their own account. Both are enforced by the server, so a button that looks available will
           still be refused.
@@ -565,7 +574,7 @@ export function StaffPage(): React.JSX.Element {
           if (deactivating !== null) setStatus.mutate({ member: deactivating, active: false });
         }}
         title={`Deactivate ${deactivating?.email ?? 'this account'}?`}
-        confirmLabel="Deactivate account"
+        confirmLabel={t('staff.deactivateAccount')}
         isDangerous
         isWorking={setStatus.isPending}
         body="Their sessions end immediately and they can no longer sign in. Everything they did stays in the audit log."

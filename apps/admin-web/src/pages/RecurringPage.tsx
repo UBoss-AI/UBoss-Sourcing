@@ -36,6 +36,7 @@ import { ApiError, api } from '@/lib/api';
 import { formatDateTime, formatNumber, formatRelative, humanise } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
 import type { Pagination } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 interface ScheduleRow {
   id: string;
@@ -84,6 +85,8 @@ function ActionDialog({
   action: 'pause' | 'resume' | 'cancel';
   onClose: () => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const queryClient = useQueryClient();
   const toast = useToast();
   const [reason, setReason] = useState('');
@@ -145,17 +148,23 @@ function ActionDialog({
       footer={
         <>
           <Button onClick={onClose} disabled={mutation.isPending}>
-            Keep as is
+            {t('recurring.keepAsIs')}
           </Button>
           <Button
-            variant={action === 'cancel' ? 'danger' : action === 'resume' ? 'operational' : 'primary'}
+            variant={
+              action === 'cancel' ? 'danger' : action === 'resume' ? 'operational' : 'primary'
+            }
             disabled={action === 'cancel' && reason.trim() === ''}
             isLoading={mutation.isPending}
             onClick={() => {
               mutation.mutate();
             }}
           >
-            {action === 'pause' ? 'Pause schedule' : action === 'resume' ? 'Resume schedule' : 'Cancel schedule'}
+            {action === 'pause'
+              ? 'Pause schedule'
+              : action === 'resume'
+                ? 'Resume schedule'
+                : 'Cancel schedule'}
           </Button>
         </>
       }
@@ -165,7 +174,7 @@ function ActionDialog({
             is the only one that gets a coloured warning. Wrapping all three in
             red would make the colour mean nothing. */}
         {action === 'cancel' ? (
-          <Callout tone="danger" title="This is final.">
+          <Callout tone="danger" title={t('recurring.thisIsFinal')}>
             {bodies.cancel}
           </Callout>
         ) : (
@@ -180,7 +189,7 @@ function ActionDialog({
 
         {action !== 'resume' && (
           <Field
-            label="Reason"
+            label={t('recurring.reason')}
             hint={
               action === 'cancel'
                 ? 'Required. Recorded on the schedule and visible to the customer.'
@@ -207,6 +216,8 @@ function ActionDialog({
 }
 
 export function RecurringPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const { can } = useSession();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -285,7 +296,7 @@ export function RecurringPage(): React.JSX.Element {
       nowrap: true,
       render: (row) =>
         row.nextRunAt === null ? (
-          <span className="text-ink-subtle">Not scheduled</span>
+          <span className="text-ink-subtle">{t('recurring.notScheduled')}</span>
         ) : (
           <div>
             <p className="text-ink">{formatRelative(row.nextRunAt)}</p>
@@ -305,7 +316,9 @@ export function RecurringPage(): React.JSX.Element {
         <div>
           <Badge>{humanise(row.paymentMode)}</Badge>
           {row.paymentMode === 'MANDATE' && !row.hasMandate && (
-            <p className="mt-1 text-xxs font-medium text-danger">No mandate on file</p>
+            <p className="mt-1 text-xxs font-medium text-danger">
+              {t('recurring.noMandateOnFile')}
+            </p>
           )}
         </div>
       ),
@@ -323,7 +336,7 @@ export function RecurringPage(): React.JSX.Element {
     },
     {
       key: 'actions',
-      header: <span className="sr-only">Actions</span>,
+      header: <span className="sr-only">{t('recurring.actions')}</span>,
       align: 'right',
       render: (row) =>
         canWrite ? (
@@ -336,7 +349,7 @@ export function RecurringPage(): React.JSX.Element {
                   setDialog({ schedule: row, action: 'pause' });
                 }}
               >
-                Pause
+                {t('recurring.pause')}
                 <span className="sr-only"> {row.name}</span>
               </Button>
             )}
@@ -348,7 +361,7 @@ export function RecurringPage(): React.JSX.Element {
                   setDialog({ schedule: row, action: 'resume' });
                 }}
               >
-                Resume
+                {t('recurring.resume')}
                 <span className="sr-only"> {row.name}</span>
               </Button>
             )}
@@ -360,7 +373,7 @@ export function RecurringPage(): React.JSX.Element {
                   setDialog({ schedule: row, action: 'cancel' });
                 }}
               >
-                Cancel
+                {t('recurring.cancel')}
                 <span className="sr-only"> {row.name}</span>
               </Button>
             )}
@@ -372,13 +385,13 @@ export function RecurringPage(): React.JSX.Element {
   return (
     <>
       <PageHeader
-        title="Recurring orders"
-        description="Schedules that place orders on their own. Times are the customer's local wall clock, not yours."
+        title={t('recurring.recurringOrders')}
+        description={t('recurring.schedulesThatPlaceOrdersOn')}
       />
 
       <Card>
         <Toolbar>
-          <ToolbarField label="Status">
+          <ToolbarField label={t('recurring.status')}>
             <Select
               value={status}
               onChange={(event) => {
@@ -392,7 +405,7 @@ export function RecurringPage(): React.JSX.Element {
               }}
               className="w-44"
             >
-              <option value="">Any status</option>
+              <option value="">{t('recurring.anyStatus')}</option>
               {['ACTIVE', 'PAUSED', 'COMPLETED', 'CANCELLED', 'FAILED'].map((value) => (
                 <option key={value} value={value}>
                   {humanise(value)}
@@ -408,7 +421,7 @@ export function RecurringPage(): React.JSX.Element {
                   setSearchParams({});
                 }}
               >
-                Clear filter
+                {t('recurring.clearFilter')}
               </Button>
             </ToolbarActions>
           )}
@@ -441,7 +454,7 @@ export function RecurringPage(): React.JSX.Element {
                   setSearchParams({});
                 }}
               >
-                Clear filter
+                {t('recurring.clearFilter')}
               </Button>
             )
           }

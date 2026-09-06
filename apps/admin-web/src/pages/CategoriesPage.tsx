@@ -39,6 +39,7 @@ import { applyApiErrors, nullIfBlank } from '@/lib/forms';
 import { formatNumber } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
 import type { CategoryNode } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 const categorySchema = z.object({
   name: z.string().trim().min(1, 'Give the category a name.').max(255),
@@ -49,6 +50,16 @@ const categorySchema = z.object({
   isActive: z.boolean(),
 });
 
+/**
+ * Two types, not one, because `sortOrder` is coerced.
+ *
+ * What the form HOLDS is whatever the number input hands back - a string, or
+ * nothing at all while the box is empty. What the schema PRODUCES is a number.
+ * `useForm` is told both, so `handleSubmit` hands the mutation the parsed value
+ * while `register` still types the raw one. Collapsing them to the output type
+ * is what used to make the resolver unassignable.
+ */
+type CategoryFormInput = z.input<typeof categorySchema>;
 type CategoryForm = z.output<typeof categorySchema>;
 
 const FORM_FIELDS = ['name', 'slug', 'parentId', 'description', 'sortOrder', 'isActive'] as const;
@@ -80,6 +91,8 @@ function CategoryEditor({
   editing: CategoryNode | null;
   allCategories: CategoryNode[];
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const queryClient = useQueryClient();
   const toast = useToast();
   const [formError, setFormError] = useState<string | null>(null);
@@ -89,7 +102,7 @@ function CategoryEditor({
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<CategoryForm>({
+  } = useForm<CategoryFormInput, unknown, CategoryForm>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
       name: editing?.name ?? '',
@@ -136,11 +149,11 @@ function CategoryEditor({
       isOpen={isOpen}
       onClose={onClose}
       title={editing === null ? 'New category' : `Edit ${editing.name}`}
-      description="Slug is generated from the name when left blank."
+      description={t('categories.slugIsGeneratedFromThe')}
       footer={
         <>
           <Button onClick={onClose} disabled={isSubmitting}>
-            Cancel
+            {t('categories.cancel')}
           </Button>
           <Button
             variant="primary"
@@ -168,7 +181,7 @@ function CategoryEditor({
         )}
 
         <div className="space-y-4">
-          <Field label="Name" error={errors.name?.message} required>
+          <Field label={t('categories.name')} error={errors.name?.message} required>
             {({ inputId, describedBy }) => (
               <Input
                 id={inputId}
@@ -180,8 +193,8 @@ function CategoryEditor({
           </Field>
 
           <Field
-            label="Slug"
-            hint="The URL segment customers see. Leave blank to generate it from the name."
+            label={t('categories.slug')}
+            hint={t('categories.theUrlSegmentCustomersSee')}
             error={errors.slug?.message}
           >
             {({ inputId, describedBy }) => (
@@ -201,8 +214,8 @@ function CategoryEditor({
             category is a different kind of edit from renaming one. */}
         <div className="space-y-4 border-t border-border-subtle pt-4">
           <Field
-            label="Parent category"
-            hint="A category cannot be moved beneath itself, so its own branch is not offered."
+            label={t('categories.parentCategory')}
+            hint={t('categories.aCategoryCannotBeMoved')}
             error={errors.parentId?.message}
           >
             {({ inputId, describedBy }) => (
@@ -219,8 +232,8 @@ function CategoryEditor({
           </Field>
 
           <Field
-            label="Sort order"
-            hint="Lower numbers come first among siblings."
+            label={t('categories.sortOrder')}
+            hint={t('categories.lowerNumbersComeFirstAmong')}
             error={errors.sortOrder?.message}
           >
             {({ inputId, describedBy }) => (
@@ -236,14 +249,14 @@ function CategoryEditor({
           </Field>
 
           <CheckboxField
-            label="Active"
-            description="An inactive category is hidden from the customer site. Products in it keep their category."
+            label={t('categories.active')}
+            description={t('categories.anInactiveCategoryIsHidden')}
             {...register('isActive')}
           />
         </div>
 
         <div className="border-t border-border-subtle pt-4">
-          <Field label="Description" error={errors.description?.message}>
+          <Field label={t('categories.description')} error={errors.description?.message}>
             {({ inputId, describedBy }) => (
               <Textarea id={inputId} aria-describedby={describedBy} {...register('description')} />
             )}
@@ -255,6 +268,8 @@ function CategoryEditor({
 }
 
 export function CategoriesPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const { can } = useSession();
   const queryClient = useQueryClient();
   const toast = useToast();
@@ -280,7 +295,9 @@ export function CategoriesPage(): React.JSX.Element {
     onError: (error) => {
       // The backend refuses when children or products still reference it, and
       // says which. Showing that message beats a generic failure toast.
-      setArchiveError(error instanceof ApiError ? error.message : 'The category could not be archived.');
+      setArchiveError(
+        error instanceof ApiError ? error.message : 'The category could not be archived.',
+      );
     },
   });
 
@@ -295,7 +312,7 @@ export function CategoriesPage(): React.JSX.Element {
         setEditorFor(null);
       }}
     >
-      New category
+      {t('categories.newCategory')}
     </Button>
   );
 
@@ -307,7 +324,10 @@ export function CategoriesPage(): React.JSX.Element {
         // The indent is inline because Tailwind cannot generate a class from a
         // runtime value. The elbow is the depth cue: at four levels an indent
         // alone stops reading as hierarchy and starts reading as a wobble.
-        <div className="flex items-center" style={{ paddingLeft: `${String(node.depth * 1.25)}rem` }}>
+        <div
+          className="flex items-center"
+          style={{ paddingLeft: `${String(node.depth * 1.25)}rem` }}
+        >
           {node.depth > 0 && (
             <span
               aria-hidden="true"
@@ -345,21 +365,21 @@ export function CategoriesPage(): React.JSX.Element {
       render: (node) =>
         node.archivedAt !== null && node.archivedAt !== undefined ? (
           <Badge dot tone="danger">
-            Archived
+            {t('categories.archived')}
           </Badge>
         ) : node.isActive ? (
           <Badge dot tone="success">
-            Active
+            {t('categories.active')}
           </Badge>
         ) : (
           <Badge dot tone="warning">
-            Inactive
+            {t('categories.inactive')}
           </Badge>
         ),
     },
     {
       key: 'actions',
-      header: <span className="sr-only">Actions</span>,
+      header: <span className="sr-only">{t('categories.actions')}</span>,
       align: 'right',
       render: (node) => (
         <div className="flex justify-end gap-1">
@@ -371,7 +391,7 @@ export function CategoriesPage(): React.JSX.Element {
                 setEditorFor(node);
               }}
             >
-              Edit
+              {t('categories.edit')}
               <span className="sr-only"> {node.name}</span>
             </Button>
           )}
@@ -384,7 +404,7 @@ export function CategoriesPage(): React.JSX.Element {
                 setArchiving(node);
               }}
             >
-              Archive
+              {t('categories.archive')}
               <span className="sr-only"> {node.name}</span>
             </Button>
           )}
@@ -396,8 +416,8 @@ export function CategoriesPage(): React.JSX.Element {
   return (
     <>
       <PageHeader
-        title="Categories"
-        description="The tree customers browse. Order here is the order they see, and a category has to be active before anything in it can reach the storefront."
+        title={t('categories.categories')}
+        description={t('categories.theTreeCustomersBrowseOrder')}
         actions={canWrite ? newCategoryButton : undefined}
       />
 
@@ -442,15 +462,12 @@ export function CategoriesPage(): React.JSX.Element {
           if (archiving !== null) archiveMutation.mutate(archiving);
         }}
         title={`Archive ${archiving?.name ?? 'category'}?`}
-        confirmLabel="Archive category"
+        confirmLabel={t('categories.archiveCategory')}
         isDangerous
         isWorking={archiveMutation.isPending}
         body={
           <div className="space-y-3">
-            <p>
-              An archived category disappears from the customer site. Products already in it keep
-              their history and are not deleted.
-            </p>
+            <p>{t('categories.anArchivedCategoryDisappearsFrom')}</p>
             {archiving !== null && (archiving.productCount ?? 0) > 0 && (
               <Callout tone="warning">
                 {formatNumber(archiving.productCount ?? 0)} product

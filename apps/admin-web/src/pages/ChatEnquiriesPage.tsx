@@ -40,6 +40,7 @@ import {
 import { api } from '@/lib/api';
 import { formatDateTime, formatNumber, formatRelative } from '@/lib/format';
 import type { Pagination } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 interface ChatEnquiry {
   id: string;
@@ -82,6 +83,8 @@ function TranscriptDialog({
   enquiryId: string | null;
   onClose: () => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const query = useQuery({
     queryKey: ['chat-enquiry', enquiryId],
     queryFn: () => api.get<ChatEnquiryDetail>(`/admin/assistant/conversations/${enquiryId ?? ''}`),
@@ -97,12 +100,12 @@ function TranscriptDialog({
       isOpen={enquiryId !== null}
       onClose={onClose}
       title={enquiry === undefined ? 'Chat transcript' : `Chat with ${enquiry.visitorName}`}
-      description="What the visitor asked and what the assistant answered. Details are as given — nothing here is verified."
+      description={t('chatEnquiries.whatTheVisitorAskedAnd')}
       size="lg"
-      footer={<Button onClick={onClose}>Close</Button>}
+      footer={<Button onClick={onClose}>{t('chatEnquiries.close')}</Button>}
     >
       {query.isPending ? (
-        <LoadingState label="Loading the transcript" />
+        <LoadingState label={t('chatEnquiries.loadingTheTranscript')} />
       ) : query.isError ? (
         <ErrorState
           error={query.error}
@@ -117,13 +120,13 @@ function TranscriptDialog({
           <dl className="grid grid-cols-1 gap-3 rounded-md border border-border bg-surface-sunken p-3 text-sm sm:grid-cols-3">
             <div>
               <dt className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                Name
+                {t('chatEnquiries.name')}
               </dt>
               <dd className="mt-0.5 text-ink">{enquiry.visitorName}</dd>
             </div>
             <div>
               <dt className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                Mobile
+                {t('chatEnquiries.mobile')}
               </dt>
               <dd className="mt-0.5">
                 <a
@@ -136,7 +139,7 @@ function TranscriptDialog({
             </div>
             <div className="min-w-0">
               <dt className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                Email
+                {t('chatEnquiries.email')}
               </dt>
               <dd className="mt-0.5 truncate">
                 <a
@@ -158,7 +161,8 @@ function TranscriptDialog({
                   to={`/customers/${enquiry.customerProfileId}`}
                   className="font-medium text-brand underline underline-offset-2"
                 >
-                  Registered customer{enquiry.customerName === null ? '' : `: ${enquiry.customerName}`}
+                  Registered customer
+                  {enquiry.customerName === null ? '' : `: ${enquiry.customerName}`}
                 </Link>
               </>
             )}
@@ -211,6 +215,8 @@ function TranscriptDialog({
 }
 
 export function ChatEnquiriesPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const [searchParams, setSearchParams] = useSearchParams();
   const [openId, setOpenId] = useState<string | null>(null);
 
@@ -254,7 +260,9 @@ export function ChatEnquiriesPage(): React.JSX.Element {
         <div className="min-w-40">
           <p className="font-medium text-ink">{row.visitorName}</p>
           {row.customerProfileId === null ? (
-            <p className="mt-0.5 text-xxs text-ink-subtle">Not a registered account</p>
+            <p className="mt-0.5 text-xxs text-ink-subtle">
+              {t('chatEnquiries.notARegisteredAccount')}
+            </p>
           ) : (
             <Link
               to={`/customers/${row.customerProfileId}`}
@@ -291,9 +299,7 @@ export function ChatEnquiriesPage(): React.JSX.Element {
       header: 'Opening question',
       secondary: true,
       render: (row) => (
-        <p className="line-clamp-2 min-w-56 max-w-md text-ink-muted">
-          {row.firstQuestion ?? '—'}
-        </p>
+        <p className="line-clamp-2 min-w-56 max-w-md text-ink-muted">{row.firstQuestion ?? '—'}</p>
       ),
     },
     {
@@ -325,7 +331,7 @@ export function ChatEnquiriesPage(): React.JSX.Element {
             setOpenId(row.id);
           }}
         >
-          Read chat
+          {t('chatEnquiries.readChat')}
         </Button>
       ),
     },
@@ -334,17 +340,17 @@ export function ChatEnquiriesPage(): React.JSX.Element {
   return (
     <>
       <PageHeader
-        title="Chat enquiries"
-        description="Visitors who used the storefront chat. They gave these details before asking anything — self-declared and unverified, so treat a match to a customer account as the only confirmed identity here."
+        title={t('chatEnquiries.chatEnquiries')}
+        description={t('chatEnquiries.visitorsWhoUsedTheStorefront')}
       />
 
       <Card>
         <Toolbar>
-          <ToolbarField label="Search" grow>
+          <ToolbarField label={t('chatEnquiries.search')} grow>
             <Input
               type="search"
               defaultValue={search}
-              placeholder="Name, email or phone"
+              placeholder={t('chatEnquiries.nameEmailOrPhone')}
               // Applied on blur or Enter rather than on every keystroke: this
               // is a three-column substring match on the server, and
               // re-querying at "a", "an", "ana" is three wasted round trips.
@@ -357,7 +363,7 @@ export function ChatEnquiriesPage(): React.JSX.Element {
             />
           </ToolbarField>
 
-          <ToolbarField label="Who asked">
+          <ToolbarField label={t('chatEnquiries.whoAsked')}>
             <Select
               value={audience}
               onChange={(event) => {
@@ -365,8 +371,8 @@ export function ChatEnquiriesPage(): React.JSX.Element {
               }}
               className="w-52"
             >
-              <option value="">Everyone</option>
-              <option value="customers">Registered customers only</option>
+              <option value="">{t('chatEnquiries.everyone')}</option>
+              <option value="customers">{t('chatEnquiries.registeredCustomersOnly')}</option>
             </Select>
           </ToolbarField>
 
@@ -377,7 +383,7 @@ export function ChatEnquiriesPage(): React.JSX.Element {
                   setSearchParams({});
                 }}
               >
-                Clear filters
+                {t('chatEnquiries.clearFilters')}
               </Button>
             </ToolbarActions>
           )}
@@ -409,7 +415,7 @@ export function ChatEnquiriesPage(): React.JSX.Element {
                   setSearchParams({});
                 }}
               >
-                Clear filters
+                {t('chatEnquiries.clearFilters')}
               </Button>
             ) : undefined
           }

@@ -39,6 +39,7 @@ import {
 import { checkPurchasingLimits, type LimitCheckResult } from '../customers/limits.service.js';
 import { getAvailabilityMap } from '../inventory/inventory.service.js';
 import { resolveCurrencyFor } from '../settings/currency.service.js';
+import { applyLineTax, loadTaxContext, type TaxSetup } from '../tax/vat.service.js';
 
 /** Abandoned carts are swept after this long. */
 const CART_TTL_DAYS = 30;
@@ -139,6 +140,16 @@ export interface ResolvedCart {
   appliedCoupon: CouponEvaluation | null;
   couponRejection: CouponRejection | null;
   availableCoupons: OfferedCouponView[];
+  /**
+   * The VAT treatment these lines were priced under.
+   *
+   * Carried out of here so checkout freezes onto the order the same reasoning
+   * that produced the numbers, rather than working it out a second time and
+   * risking a different answer - a VIES check that expires between the two
+   * calls would otherwise let an order be priced zero-rated and recorded as
+   * taxable.
+   */
+  taxSetup: TaxSetup;
 }
 
 /**
@@ -199,10 +210,31 @@ export async function getOrCreateCart(customerProfileId: string): Promise<string
  */
 export async function resolveCart(
   customerProfileId: string,
-  options: { shippingMethodCode?: string | null } = {},
+  options: { shippingMethodCode?: string | null; destinationCountry?: string | null } = {},
 ): Promise<ResolvedCart> {
   const cartId = await getOrCreateCart(customerProfileId);
   const currency = await resolveCurrency(customerProfileId);
+
+  // What VAT treatment this basket falls under, and at whose rates.
+  //
+  // The destination is the delivery address when there is one - checkout
+  // passes it - and the country the shopper said they are in otherwise. Only
+  // the first is what Art. 33 actually turns on, which is why checkout
+  // reprices through this same function against the real address before any
+  // money moves.
+  //
+  // In a deployment with no EU VAT configured this resolves to FLAT_RATE in
+  // two indexed queries and nothing below behaves differently.
+  const taxProfile = await prisma.customerProfile.findUnique({
+    where: { id: customerProfileId },
+    select: { preferredCountry: true, vatNumber: true, vatNumberValid: true },
+  });
+
+  const taxSetup = await loadTaxContext({
+    destinationCountry: options.destinationCountry ?? taxProfile?.preferredCountry ?? null,
+    vatNumber: taxProfile?.vatNumber ?? null,
+    vatNumberValid: taxProfile?.vatNumberValid ?? null,
+  });
 
   const items = await prisma.cartItem.findMany({
     where: { cartId },
@@ -210,7 +242,9 @@ export async function resolveCart(
     include: {
       product: {
         include: {
-          taxClass: { select: { code: true, ratePercent: true, isInclusive: true } },
+          taxClass: {
+            select: { code: true, ratePercent: true, isInclusive: true, vatCategory: true },
+          },
           category: { select: { isActive: true, archivedAt: true } },
           media: {
             orderBy: [{ isPrimary: 'desc' }, { sortOrder: 'asc' }],
@@ -306,7 +340,32 @@ export async function resolveCart(
       });
     }
 
-    const unitPriceMinor: Minor = price?.basePriceMinor ?? 0n;
+    const listedPriceMinor: Minor = price?.basePriceMinor ?? 0n;
+
+    // Under FLAT_RATE this returns the catalogue's own figures untouched.
+    // Under an EU treatment it resolves the destination's rate for this
+    // product's band, and converts a tax-inclusive listing back to net first -
+    // see `applyLineTax` for why that conversion is not optional.
+    const lineTax = applyLineTax(
+      taxSetup,
+      {
+        vatCategory: product.taxClass.vatCategory,
+        flatRatePercent: product.taxClass.ratePercent.toString(),
+        taxInclusive: product.taxClass.isInclusive,
+        productName: product.name,
+      },
+      listedPriceMinor,
+    );
+
+    if (lineTax.problem !== null) {
+      // A misconfiguration, not a shopper's mistake - but it blocks the line,
+      // because the alternative is charging a rate nobody chose.
+      issues.push({
+        code: ErrorCode.PRICE_UNAVAILABLE_IN_CURRENCY,
+        message: lineTax.problem,
+        meta: { productId: product.id },
+      });
+    }
 
     pricingInputs.push({
       product: {
@@ -315,10 +374,10 @@ export async function resolveCart(
         name: product.name,
         sku: item.variant?.sku ?? product.sku,
         variantName: item.variant?.name ?? null,
-        unitPriceMinor,
+        unitPriceMinor: lineTax.unitPriceMinor,
         taxClassCode: product.taxClass.code,
-        taxRatePercent: product.taxClass.ratePercent.toString(),
-        taxInclusive: product.taxClass.isInclusive,
+        taxRatePercent: lineTax.taxRatePercent,
+        taxInclusive: lineTax.taxInclusive,
         isRecurringEligible: product.isRecurringEligible,
         imageUrl: product.media[0]?.media.url ?? null,
       },
@@ -488,6 +547,7 @@ export async function resolveCart(
     appliedCoupon,
     couponRejection,
     availableCoupons,
+    taxSetup,
   };
 }
 

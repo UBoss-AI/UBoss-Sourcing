@@ -166,7 +166,12 @@ async function refreshSession(): Promise<boolean> {
 export interface RequestOptions {
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
   body?: unknown;
-  query?: Record<string, string | number | boolean | undefined | null>;
+  /**
+   * An array is sent as one repeated parameter per entry (`?attr=a&attr=b`),
+   * which is how a catalogue facet with several values ticked crosses the
+   * wire. An empty array sends nothing.
+   */
+  query?: Record<string, string | number | boolean | undefined | null | string[]>;
   signal?: AbortSignal;
   /**
    * Sent as `Idempotency-Key`. Required by the backend on checkout and payment
@@ -192,6 +197,16 @@ function buildUrl(path: string, query: RequestOptions['query']): string {
       // Undefined and null mean "no filter", which is not the same as an empty
       // string — `?q=` would filter on the empty string.
       if (value === undefined || value === null || value === '') continue;
+
+      if (Array.isArray(value)) {
+        // Appended, never set: each entry is its own occurrence of the key,
+        // and `set` would leave only the last one standing.
+        for (const entry of value) {
+          if (entry !== '') url.searchParams.append(key, entry);
+        }
+        continue;
+      }
+
       url.searchParams.set(key, String(value));
     }
   }
@@ -312,13 +327,24 @@ export const api = {
   get: <T>(path: string, options?: Omit<RequestOptions, 'method' | 'body'>): Promise<T> =>
     request<T>(path, { ...options, method: 'GET' }),
 
-  post: <T>(path: string, body?: unknown, options?: Omit<RequestOptions, 'method' | 'body'>): Promise<T> =>
+  post: <T>(
+    path: string,
+    body?: unknown,
+    options?: Omit<RequestOptions, 'method' | 'body'>,
+  ): Promise<T> =>
     request<T>(path, { ...options, method: 'POST', ...(body === undefined ? {} : { body }) }),
 
-  put: <T>(path: string, body?: unknown, options?: Omit<RequestOptions, 'method' | 'body'>): Promise<T> =>
-    request<T>(path, { ...options, method: 'PUT', body }),
+  put: <T>(
+    path: string,
+    body?: unknown,
+    options?: Omit<RequestOptions, 'method' | 'body'>,
+  ): Promise<T> => request<T>(path, { ...options, method: 'PUT', body }),
 
-  patch: <T>(path: string, body?: unknown, options?: Omit<RequestOptions, 'method' | 'body'>): Promise<T> =>
+  patch: <T>(
+    path: string,
+    body?: unknown,
+    options?: Omit<RequestOptions, 'method' | 'body'>,
+  ): Promise<T> =>
     request<T>(path, { ...options, method: 'PATCH', ...(body === undefined ? {} : { body }) }),
 
   delete: <T>(path: string, options?: Omit<RequestOptions, 'method' | 'body'>): Promise<T> =>

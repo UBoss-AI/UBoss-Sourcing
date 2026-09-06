@@ -12,6 +12,7 @@
  *                        precede routes; see the note at the registration site.
  *   8. Routes.
  */
+import { mkdir } from 'node:fs/promises';
 import cookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 import { CSRF_HEADER } from './plugins/auth.js';
@@ -29,37 +30,29 @@ import {
 } from '../domain/errors.js';
 import { newId } from '../infra/ids.js';
 import { logger } from '../infra/logger.js';
-import {
-  httpErrorsTotal,
-  httpRequestDuration,
-  httpRequestsTotal,
-} from '../infra/metrics.js';
+import { httpErrorsTotal, httpRequestDuration, httpRequestsTotal } from '../infra/metrics.js';
 import multipart from '@fastify/multipart';
 import fastifyStatic from '@fastify/static';
 import { localStorageRoot } from '../infra/storage/index.js';
 import { authRoutes } from './routes/auth.js';
-import { registerCustomerAccountRoutes } from './routes/account.customer.js';
+import {
+  registerCustomerAccountRoutes,
+  registerDataBundleDownloadRoute,
+} from './routes/account.customer.js';
+import { registerAdminPrivacyRoutes } from './routes/privacy.admin.js';
+import { registerAdminVatRoutes } from './routes/vat.admin.js';
+import { registerAdminGpsrRoutes } from './routes/gpsr.admin.js';
 import { registerAdminCatalogRoutes } from './routes/catalog.admin.js';
+import { registerAdminTranslationRoutes } from './routes/translations.admin.js';
 import { registerCartRoutes } from './routes/cart.customer.js';
 import { registerAdminCustomerRoutes } from './routes/customers.admin.js';
 import { registerAdminInventoryRoutes } from './routes/inventory.admin.js';
 import { registerAdminSettingsRoutes } from './routes/settings.admin.js';
-import {
-  registerAdminOrderRoutes,
-  registerCustomerOrderRoutes,
-} from './routes/orders.js';
-import {
-  registerAdminPaymentRoutes,
-  registerPaymentRoutes,
-} from './routes/payments.js';
-import {
-  registerAdminReportRoutes,
-  registerExportDownloadRoute,
-} from './routes/reports.admin.js';
-import {
-  registerAdminScheduleRoutes,
-  registerCustomerScheduleRoutes,
-} from './routes/schedules.js';
+import { registerAdminOrderRoutes, registerCustomerOrderRoutes } from './routes/orders.js';
+import { registerAdminPaymentRoutes, registerPaymentRoutes } from './routes/payments.js';
+import { registerAdminNotificationRoutes } from './routes/notifications.admin.js';
+import { registerAdminReportRoutes, registerExportDownloadRoute } from './routes/reports.admin.js';
+import { registerAdminScheduleRoutes, registerCustomerScheduleRoutes } from './routes/schedules.js';
 import { registerPublicConfigRoutes } from './routes/config.public.js';
 import { registerAssistantRoutes } from './routes/assistant.public.js';
 import { registerAdminAssistantRoutes } from './routes/assistant.admin.js';
@@ -323,8 +316,7 @@ export async function buildApp() {
       request.log.info({ correlationId, err: error }, 'request rejected by framework');
       void reply.status(fastifyStatus).send({
         error: {
-          code:
-            fastifyStatus === 413 ? ErrorCode.PAYLOAD_TOO_LARGE : ErrorCode.VALIDATION_FAILED,
+          code: fastifyStatus === 413 ? ErrorCode.PAYLOAD_TOO_LARGE : ErrorCode.VALIDATION_FAILED,
           message: framework.message ?? 'The request could not be processed.',
           details: [],
           correlationId,
@@ -370,6 +362,7 @@ export async function buildApp() {
   // the visitor gave before starting one. Staff only, behind assistant_chat.read.
   await app.register(registerAdminAssistantRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminCatalogRoutes, { prefix: `${API_PREFIX}/admin` });
+  await app.register(registerAdminTranslationRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminCustomerRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminInventoryRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminSettingsRoutes, { prefix: `${API_PREFIX}/admin` });
@@ -392,18 +385,33 @@ export async function buildApp() {
   });
   await app.register(registerAdminScheduleRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminReportRoutes, { prefix: `${API_PREFIX}/admin` });
+  await app.register(registerAdminNotificationRoutes, { prefix: `${API_PREFIX}/admin` });
+  await app.register(registerAdminPrivacyRoutes, { prefix: `${API_PREFIX}/admin` });
+  await app.register(registerAdminVatRoutes, { prefix: `${API_PREFIX}/admin` });
+  await app.register(registerAdminGpsrRoutes, { prefix: `${API_PREFIX}/admin` });
 
   // Outside the admin tree: the hashed expiring token is the authorisation, so
   // a download link works from an email client without a session.
   await app.register(registerExportDownloadRoute, { prefix: `${API_PREFIX}/exports` });
+  await app.register(registerDataBundleDownloadRoute, { prefix: `${API_PREFIX}/my-data` });
 
   // Local media, development only. Under STORAGE_DRIVER=s3 this is not mounted
   // and images are served by the object store instead.
+  //
+  // The mount is the PUBLIC prefix, not the storage root. Report exports and
+  // Art. 15 personal-data bundles are written under `private/` and are read
+  // back only through code that redeems a hashed, expiring token first; if the
+  // root were mounted here, an unguessable path would be the only thing
+  // between the open internet and one person's entire record.
   const mediaRoot = localStorageRoot();
   if (mediaRoot !== null) {
+    // fastify-static refuses a root that does not exist, and on a fresh
+    // checkout nothing has been uploaded yet.
+    await mkdir(mediaRoot, { recursive: true });
+
     await app.register(fastifyStatic, {
       root: mediaRoot,
-      prefix: '/media/',
+      prefix: '/media/products/',
       // Uploaded bytes must never execute or render as a document in the
       // API's origin, whatever a browser decides to sniff them as.
       setHeaders: (response) => {

@@ -71,6 +71,52 @@ export function isAssistantConfigured(): boolean {
   return activeProvider() !== null;
 }
 
+/** The company the visitor's question is actually sent to, and where they are. */
+const PROVIDER_VENDORS: Readonly<Record<'gemini' | 'anthropic', { name: string; country: string }>> =
+  Object.freeze({
+    anthropic: { name: 'Anthropic', country: 'US' },
+    gemini: { name: 'Google', country: 'US' },
+  });
+
+export interface AssistantDisclosure {
+  available: boolean;
+  /**
+   * AI Act Art. 50(1): a person has to be told they are talking to a machine.
+   *
+   * Hard-coded true rather than derived, because the only thing this flag can
+   * ever mean is "the replies are generated". A widget that reached this code
+   * at all is an AI widget.
+   */
+  isAi: boolean;
+  /** The model behind it, for a deployment that wants to name it. */
+  model: string | null;
+  /**
+   * Who the question is sent to and where they are established.
+   *
+   * Public because it has to be: the provider is a recipient of whatever the
+   * visitor types, so GDPR Art. 13(1)(e)-(f) puts them in the privacy notice,
+   * and a notice that says "a third-party AI provider" names nobody. Naming
+   * them on the widget itself is the same information at the moment it
+   * matters.
+   */
+  vendor: { name: string; country: string } | null;
+}
+
+export function assistantDisclosure(): AssistantDisclosure {
+  const provider = activeProvider();
+
+  if (provider === null) {
+    return { available: false, isAi: true, model: null, vendor: null };
+  }
+
+  return {
+    available: true,
+    isAi: true,
+    model: provider.model,
+    vendor: PROVIDER_VENDORS[provider.name],
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Catalogue snapshot
 // ---------------------------------------------------------------------------

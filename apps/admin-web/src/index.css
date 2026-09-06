@@ -264,3 +264,24 @@
     @apply animate-pulse rounded bg-border;
   }
 }
+
+@layer utilities {
+  /*
+   * Scrolls, but without the bar.
+   *
+   * The sidebar is a fixed navy column whose links overflow on a short
+   * viewport. A native scrollbar there is a light gutter cut down the middle
+   * of the chrome, and it appears and disappears as pages of different
+   * heights load. The element still scrolls by wheel, trackpad, touch and
+   * keyboard — only the bar is gone — so use it on chrome, never on content
+   * whose only clue that it scrolls is the bar itself.
+   */
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}

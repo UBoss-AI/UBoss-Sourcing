@@ -2,9 +2,15 @@
  * Dashboard.
  *
  * One request fills the whole page - `GET /admin/dashboard` returns sales,
- * orders by status, payments, low stock, recurring and alerts together. Six
- * separate panel requests would show six independent spinners and six chances
- * to disagree about the reporting window.
+ * orders by status, payments, low stock and recurring together. Six separate
+ * panel requests would show six independent spinners and six chances to
+ * disagree about the reporting window.
+ *
+ * What used to sit at the top of this page and no longer does: the "needs
+ * attention" alert panel. Something you must be told about is something you
+ * must be told about wherever you happen to be standing, not only on the one
+ * screen you may not have open - so that job moved to the bell in the top bar,
+ * which is on every page. See `layout/NotificationBell.tsx`.
  *
  * The window is in the URL, not in component state. An administrator who wants
  * to send someone "last week's numbers" sends the address bar.
@@ -36,7 +42,7 @@ import {
   PageHeader,
   Select,
 } from '@/components/ui';
-import { AlertCircleIcon, AlertTriangleIcon, ChevronRightIcon, RefreshIcon } from '@/components/icons';
+import { ChevronRightIcon, RefreshIcon } from '@/components/icons';
 import { api } from '@/lib/api';
 import { cx } from '@/lib/cx';
 import {
@@ -48,7 +54,13 @@ import {
   minorToMajor,
 } from '@/lib/format';
 import type { BadgeTone } from '@/components/ui';
-import type { DashboardResponse, LowStockItem, OrdersByStatusRow, UpcomingOccurrence } from '@/lib/types';
+import type {
+  DashboardResponse,
+  LowStockItem,
+  OrdersByStatusRow,
+  UpcomingOccurrence,
+} from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 /** Named windows, so the common cases are one click and not a date picker. */
 const WINDOWS = [
@@ -134,7 +146,10 @@ function Meter({
       aria-hidden="true"
       className={cx('block h-1.5 overflow-hidden rounded-full bg-border', className)}
     >
-      <span className={cx('block h-full rounded-full', METER_TONES[tone])} style={{ width: `${percent}%` }} />
+      <span
+        className={cx('block h-full rounded-full', METER_TONES[tone])}
+        style={{ width: `${percent}%` }}
+      />
     </span>
   );
 }
@@ -154,183 +169,16 @@ function PanelLink({ to, children }: { to: string; children: React.ReactNode }):
 
 /** The per-row action on a queue panel: "take me to this one". */
 function RowLink({ to, label }: { to: string; label: string }): React.JSX.Element {
+  const { t } = useI18n();
+
   return (
     <Link
       to={to}
       className="rounded text-xs font-medium text-accent underline-offset-2 transition-colors hover:text-accent-hover hover:underline"
     >
-      Open<span className="sr-only"> {label}</span>
+      {t('dashboard.open')}
+      <span className="sr-only"> {label}</span>
     </Link>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Alerts
-// ---------------------------------------------------------------------------
-
-type Severity = 'critical' | 'warning';
-
-interface AlertRow {
-  key: string;
-  severity: Severity;
-  count: number;
-  /** The thing that happened, in as few words as carry it. */
-  title: string;
-  /** Why it matters, in one line. */
-  detail: string;
-  /** Where the work gets done. Null where this panel has no screen for it. */
-  to: string | null;
-  /** Names the destination for a screen reader, since "Open" alone does not. */
-  actionLabel: string;
-}
-
-const SEVERITY_STYLES: Record<Severity, { row: string; chip: string; count: string }> = {
-  critical: {
-    row: 'border-l-2 border-danger',
-    chip: 'bg-danger-soft text-danger ring-1 ring-inset ring-danger/25',
-    count: 'text-danger',
-  },
-  warning: {
-    row: 'border-l-2 border-warning',
-    chip: 'bg-warning-soft text-warning ring-1 ring-inset ring-warning/25',
-    count: 'text-warning',
-  },
-};
-
-/**
- * The alert panel.
- *
- * Rendered only when something is actually wrong. A permanent row of green
- * ticks trains people to stop looking at it, and then the one red item that
- * matters is invisible too.
- *
- * Two severities, not five. Critical means work that did not happen or money
- * this system cannot account for; warning means a queue that needs a person
- * today. Anything finer than that is a taxonomy nobody reads under pressure.
- * The severity is carried by the icon's silhouette as well as its colour -
- * triangle for critical, circle for warning - so it survives a monochrome
- * screen.
- *
- * Two of these have no destination, because the panel has no screen for a
- * dead job or a failed notification. They render without an action rather than
- * with a link that goes somewhere unhelpful: a control that does not lead to
- * the fix is worse than no control.
- */
-function Alerts({ alerts }: { alerts: DashboardResponse['alerts'] }): React.JSX.Element | null {
-  const all: AlertRow[] = [
-    {
-      key: 'rejectedWebhooks',
-      severity: 'critical',
-      count: alerts.rejectedWebhooks,
-      title: 'webhook deliveries rejected',
-      detail:
-        'A signature did not verify, so the gateway event was not applied. Check the webhook secret.',
-      to: '/payments',
-      actionLabel: 'payments and webhook health',
-    },
-    {
-      key: 'deadJobs',
-      severity: 'critical',
-      count: alerts.deadJobs,
-      title: 'background jobs gave up',
-      detail: 'A job exhausted its retries. The work it represents did not happen.',
-      to: null,
-      actionLabel: '',
-    },
-    {
-      key: 'unreconciledPayments',
-      severity: 'warning',
-      count: alerts.unreconciledPayments,
-      title: 'payments not reconciled',
-      detail: 'The gateway and this system disagree about these payments.',
-      to: '/payments',
-      actionLabel: 'payments',
-    },
-    {
-      key: 'schedulesNeedingAttention',
-      severity: 'warning',
-      count: alerts.schedulesNeedingAttention,
-      title: 'recurring schedules need attention',
-      detail: 'These schedules have stopped producing orders.',
-      to: '/recurring',
-      actionLabel: 'recurring schedules',
-    },
-    {
-      key: 'failedNotifications',
-      severity: 'warning',
-      count: alerts.failedNotifications,
-      title: 'notifications failed to send',
-      detail: 'Customers were not told about something they should have been.',
-      to: null,
-      actionLabel: '',
-    },
-  ];
-
-  const rows = all.filter((row) => row.count > 0);
-
-  if (rows.length === 0) return null;
-
-  const critical = rows.filter((row) => row.severity === 'critical').length;
-  const warnings = rows.length - critical;
-
-  const summary = [
-    critical > 0 ? `${critical} critical` : null,
-    warnings > 0 ? `${warnings} to review` : null,
-  ]
-    .filter((part): part is string => part !== null)
-    .join(' · ');
-
-  return (
-    <section
-      role="status"
-      aria-label="Needs attention"
-      className={cx(
-        'mb-6 overflow-hidden rounded-lg border bg-surface shadow-card',
-        critical > 0 ? 'border-danger/35' : 'border-warning/35',
-      )}
-    >
-      <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b border-border-subtle px-5 py-3.5">
-        <h2 className="text-title-xs text-ink">Needs attention</h2>
-        <p className="text-xs font-medium text-ink-muted">{summary}</p>
-      </header>
-
-      <ul className="divide-y divide-border-subtle">
-        {rows.map((row) => {
-          const style = SEVERITY_STYLES[row.severity];
-          const SeverityIcon = row.severity === 'critical' ? AlertTriangleIcon : AlertCircleIcon;
-
-          return (
-            <li
-              key={row.key}
-              className={cx('flex flex-wrap items-start gap-x-4 gap-y-2 px-5 py-3.5', style.row)}
-            >
-              <span
-                className={cx(
-                  'mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
-                  style.chip,
-                )}
-              >
-                <SeverityIcon className="h-[1.05rem] w-[1.05rem]" />
-              </span>
-
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-ink">
-                  <span className={cx('tabular', style.count)}>{formatNumber(row.count)}</span>{' '}
-                  {row.title}
-                </p>
-                <p className="mt-0.5 text-xs leading-relaxed text-ink-muted">{row.detail}</p>
-              </div>
-
-              {row.to !== null && (
-                <div className="shrink-0 self-center">
-                  <RowLink to={row.to} label={row.actionLabel} />
-                </div>
-              )}
-            </li>
-          );
-        })}
-      </ul>
-    </section>
   );
 }
 
@@ -360,6 +208,8 @@ function shareOfMinor(part: string | undefined, whole: string | undefined): numb
 }
 
 export function DashboardPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const [searchParams, setSearchParams] = useSearchParams();
   const days = Number(searchParams.get('days') ?? '30');
   const effectiveDays = Number.isFinite(days) && days > 0 ? days : 30;
@@ -379,14 +229,21 @@ export function DashboardPage(): React.JSX.Element {
 
   /** Minor units, as this endpoint sends them for anything but `Money`. */
   const money = (minor: string | undefined, inCurrency: string): string =>
-    formatMoney({ minor: minor ?? '0', formatted: minorToMajor(minor ?? '0'), currency: inCurrency });
+    formatMoney({
+      minor: minor ?? '0',
+      formatted: minorToMajor(minor ?? '0'),
+      currency: inCurrency,
+    });
 
   const collectedShare = shareOfMinor(sales?.collected.minor, sales?.grossSales.minor);
 
   // The denominator for the share column, taken from the rows on screen rather
   // than from `sales.orderCount`: the two are aggregates of different things,
   // and a bar that can exceed its own track is worse than no bar.
-  const ordersInStatuses = (query.data?.ordersByStatus ?? []).reduce((sum, row) => sum + row.count, 0);
+  const ordersInStatuses = (query.data?.ordersByStatus ?? []).reduce(
+    (sum, row) => sum + row.count,
+    0,
+  );
 
   const statusColumns: Column<OrdersByStatusRow>[] = [
     {
@@ -422,7 +279,7 @@ export function DashboardPage(): React.JSX.Element {
     },
     {
       key: 'open',
-      header: <span className="sr-only">Actions</span>,
+      header: <span className="sr-only">{t('dashboard.actions')}</span>,
       align: 'right',
       render: (row) => (
         <RowLink to={`/orders?status=${row.status}`} label={`${humanise(row.status)} orders`} />
@@ -450,7 +307,7 @@ export function DashboardPage(): React.JSX.Element {
     },
     {
       key: 'open',
-      header: <span className="sr-only">Actions</span>,
+      header: <span className="sr-only">{t('dashboard.actions')}</span>,
       align: 'right',
       render: (row) => (
         <RowLink to={`/payments?status=${row.status}`} label={`${humanise(row.status)} payments`} />
@@ -466,7 +323,7 @@ export function DashboardPage(): React.JSX.Element {
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <p className="font-medium text-ink">{row.name}</p>
-            {row.availableQty <= 0 && <Badge tone="danger">Out of stock</Badge>}
+            {row.availableQty <= 0 && <Badge tone="danger">{t('dashboard.outOfStock')}</Badge>}
           </div>
           <p className="font-mono text-xxs text-ink-subtle">{row.sku}</p>
         </div>
@@ -503,7 +360,7 @@ export function DashboardPage(): React.JSX.Element {
     },
     {
       key: 'open',
-      header: <span className="sr-only">Actions</span>,
+      header: <span className="sr-only">{t('dashboard.actions')}</span>,
       align: 'right',
       render: (row) => (
         <RowLink to={`/inventory?q=${encodeURIComponent(row.sku)}`} label={row.name} />
@@ -563,15 +420,15 @@ export function DashboardPage(): React.JSX.Element {
       key: 'failures',
       header: 'Failures',
       align: 'right',
-      render: (row) => <span className="font-semibold text-danger">{formatNumber(row.failureCount)}</span>,
+      render: (row) => (
+        <span className="font-semibold text-danger">{formatNumber(row.failureCount)}</span>
+      ),
     },
     {
       key: 'reason',
       header: 'Reason',
       secondary: true,
-      render: (row) => (
-        <span className="text-ink-muted">{row.reason ?? 'No reason recorded'}</span>
-      ),
+      render: (row) => <span className="text-ink-muted">{row.reason ?? 'No reason recorded'}</span>,
     },
   ];
 
@@ -582,12 +439,12 @@ export function DashboardPage(): React.JSX.Element {
   return (
     <>
       <PageHeader
-        title="Dashboard"
-        description="Sales, orders and anything that needs attention."
+        title={t('dashboard.dashboard')}
+        description={t('dashboard.salesOrdersAndAnythingThat')}
         actions={
           <>
             <label className="flex items-center gap-2 text-sm text-ink-muted">
-              <span className="sr-only sm:not-sr-only">Period</span>
+              <span className="sr-only sm:not-sr-only">{t('dashboard.period')}</span>
               <Select
                 value={String(days)}
                 onChange={(event) => {
@@ -631,14 +488,12 @@ export function DashboardPage(): React.JSX.Element {
 
       {query.isPending && (
         <Card>
-          <LoadingState label="Loading the dashboard" />
+          <LoadingState label={t('dashboard.loadingTheDashboard')} />
         </Card>
       )}
 
       {query.data !== undefined && (
         <>
-          <Alerts alerts={query.data.alerts} />
-
           {/*
            * Five figures, two tiers.
            *
@@ -648,9 +503,12 @@ export function DashboardPage(): React.JSX.Element {
            * smaller one. Six columns divide cleanly into 2+2+2 and 3+3, so the
            * two tiers stay aligned to one grid instead of two.
            */}
-          <section aria-label="Key figures" className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
+          <section
+            aria-label={t('dashboard.keyFigures')}
+            className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-6"
+          >
             <Metric
-              label="Orders"
+              label={t('dashboard.orders')}
               emphasis="primary"
               className="xl:col-span-2"
               value={formatNumber(sales?.orderCount ?? 0)}
@@ -658,7 +516,7 @@ export function DashboardPage(): React.JSX.Element {
             />
 
             <Metric
-              label="Gross sales"
+              label={t('dashboard.grossSales')}
               emphasis="primary"
               className="xl:col-span-2"
               value={formatMoney(sales?.grossSales)}
@@ -666,18 +524,22 @@ export function DashboardPage(): React.JSX.Element {
             >
               <dl className="mt-3 flex flex-wrap gap-x-5 gap-y-1 border-t border-border-subtle pt-2.5 text-xxs">
                 <div className="flex gap-1.5">
-                  <dt className="text-ink-subtle">Shipping</dt>
-                  <dd className="tabular font-medium text-ink-muted">{formatMoney(sales?.shipping)}</dd>
+                  <dt className="text-ink-subtle">{t('dashboard.shipping')}</dt>
+                  <dd className="tabular font-medium text-ink-muted">
+                    {formatMoney(sales?.shipping)}
+                  </dd>
                 </div>
                 <div className="flex gap-1.5">
-                  <dt className="text-ink-subtle">Discount</dt>
-                  <dd className="tabular font-medium text-ink-muted">{formatMoney(sales?.discount)}</dd>
+                  <dt className="text-ink-subtle">{t('dashboard.discount')}</dt>
+                  <dd className="tabular font-medium text-ink-muted">
+                    {formatMoney(sales?.discount)}
+                  </dd>
                 </div>
               </dl>
             </Metric>
 
             <Metric
-              label="Collected"
+              label={t('dashboard.collected')}
               emphasis="primary"
               className="xl:col-span-2"
               value={formatMoney(sales?.collected)}
@@ -701,14 +563,14 @@ export function DashboardPage(): React.JSX.Element {
             </Metric>
 
             <Metric
-              label="Net revenue"
+              label={t('dashboard.netRevenue')}
               className="xl:col-span-3"
               value={formatMoney(sales?.netRevenue)}
               sub={`after ${formatMoney(sales?.refunded)} refunded`}
             />
 
             <Metric
-              label="Average order value"
+              label={t('dashboard.averageOrderValue')}
               className="xl:col-span-3"
               value={formatMoney(sales?.averageOrderValue)}
               sub={`across ${formatNumber(sales?.orderCount ?? 0)} orders`}
@@ -717,9 +579,9 @@ export function DashboardPage(): React.JSX.Element {
 
           <div className="grid gap-5 xl:grid-cols-2">
             <Card
-              title="Orders by status"
-              description="Where every order in this period currently sits. Open a row to work that status."
-              actions={<PanelLink to="/orders">All orders</PanelLink>}
+              title={t('dashboard.ordersByStatus')}
+              description={t('dashboard.whereEveryOrderInThis')}
+              actions={<PanelLink to="/orders">{t('dashboard.allOrders')}</PanelLink>}
             >
               <DataTable
                 caption="Orders by status"
@@ -731,9 +593,9 @@ export function DashboardPage(): React.JSX.Element {
             </Card>
 
             <Card
-              title="Payments"
-              description="Every transaction raised in this period, by the state it stopped in."
-              actions={<PanelLink to="/payments">All payments</PanelLink>}
+              title={t('dashboard.payments')}
+              description={t('dashboard.everyTransactionRaisedInThis')}
+              actions={<PanelLink to="/payments">{t('dashboard.allPayments')}</PanelLink>}
             >
               {/*
                * The three totals first, then the queue. Captured, refunded
@@ -742,16 +604,34 @@ export function DashboardPage(): React.JSX.Element {
                */}
               <dl className="grid grid-cols-2 gap-px border-b border-border-subtle bg-border">
                 {[
-                  { label: 'Captured', value: money(query.data.payments.captured, query.data.payments.currency), tone: 'text-success' },
-                  { label: 'Refunded', value: money(query.data.payments.refunded, query.data.payments.currency), tone: 'text-ink' },
-                  { label: 'Failed', value: money(query.data.payments.failed, query.data.payments.currency), tone: 'text-danger' },
-                  { label: 'Refunds issued', value: formatNumber(query.data.payments.refundCount), tone: 'text-ink' },
+                  {
+                    label: 'Captured',
+                    value: money(query.data.payments.captured, query.data.payments.currency),
+                    tone: 'text-success',
+                  },
+                  {
+                    label: 'Refunded',
+                    value: money(query.data.payments.refunded, query.data.payments.currency),
+                    tone: 'text-ink',
+                  },
+                  {
+                    label: 'Failed',
+                    value: money(query.data.payments.failed, query.data.payments.currency),
+                    tone: 'text-danger',
+                  },
+                  {
+                    label: 'Refunds issued',
+                    value: formatNumber(query.data.payments.refundCount),
+                    tone: 'text-ink',
+                  },
                 ].map((cell) => (
                   <div key={cell.label} className="bg-surface px-4 py-3">
                     <dt className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
                       {cell.label}
                     </dt>
-                    <dd className={cx('mt-1 text-sm font-semibold tabular', cell.tone)}>{cell.value}</dd>
+                    <dd className={cx('mt-1 text-sm font-semibold tabular', cell.tone)}>
+                      {cell.value}
+                    </dd>
                   </div>
                 ))}
               </dl>
@@ -766,13 +646,17 @@ export function DashboardPage(): React.JSX.Element {
             </Card>
 
             <Card
-              title="Low stock"
+              title={t('dashboard.lowStock')}
               description={
                 lowStockCount === 0
                   ? 'Available quantity at or below the reorder threshold.'
                   : `${formatNumber(lowStockCount)} product${lowStockCount === 1 ? '' : 's'} at or below the reorder threshold${lowStockCount > lowStockShown ? `, showing the first ${formatNumber(lowStockShown)}` : ''}.`
               }
-              actions={<PanelLink to="/inventory?lowStockOnly=true">All low stock</PanelLink>}
+              actions={
+                <PanelLink to="/inventory?lowStockOnly=true">
+                  {t('dashboard.allLowStock')}
+                </PanelLink>
+              }
             >
               <DataTable
                 caption="Low stock"
@@ -785,9 +669,11 @@ export function DashboardPage(): React.JSX.Element {
             </Card>
 
             <Card
-              title="Upcoming recurring orders"
-              description="The next scheduled run for each active schedule, over the coming week."
-              actions={<PanelLink to="/recurring?status=ACTIVE">All schedules</PanelLink>}
+              title={t('dashboard.upcomingRecurringOrders')}
+              description={t('dashboard.theNextScheduledRunFor')}
+              actions={
+                <PanelLink to="/recurring?status=ACTIVE">{t('dashboard.allSchedules')}</PanelLink>
+              }
             >
               <DataTable
                 caption="Upcoming recurring orders"
@@ -807,9 +693,13 @@ export function DashboardPage(): React.JSX.Element {
             {needsAttention.length > 0 && (
               <Card
                 className="xl:col-span-2"
-                title="Schedules that have stopped"
+                title={t('dashboard.schedulesThatHaveStopped')}
                 description={`Paused or failed after repeated errors. ${formatNumber(query.data.recurring.failedOccurrences)} occurrence${query.data.recurring.failedOccurrences === 1 ? ' has' : 's have'} failed in total.`}
-                actions={<PanelLink to="/recurring?status=PAUSED">Paused schedules</PanelLink>}
+                actions={
+                  <PanelLink to="/recurring?status=PAUSED">
+                    {t('dashboard.pausedSchedules')}
+                  </PanelLink>
+                }
               >
                 <DataTable
                   caption="Schedules that have stopped"

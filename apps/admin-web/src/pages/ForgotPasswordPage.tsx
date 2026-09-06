@@ -17,6 +17,8 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { Button, Field, Input } from '@/components/ui';
+import { useI18n } from '@/i18n/i18n-context';
+import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
 import { ApiError, NetworkError, api } from '@/lib/api';
 
 interface FormValues {
@@ -27,6 +29,11 @@ function Shell({ children }: { children: React.ReactNode }): React.JSX.Element {
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface-sunken px-4 py-10">
       <div className="w-full max-w-sm">
+        {/* In the shell rather than on each state, so the picker is there
+            whether the form is showing or the "check your email" panel is.
+            Somebody who cannot read the confirmation still needs the way out. */}
+        <LanguageSwitcher placement="auth" />
+
         <div className="mb-6 flex flex-col items-center">
           <span
             aria-hidden="true"
@@ -42,6 +49,7 @@ function Shell({ children }: { children: React.ReactNode }): React.JSX.Element {
 }
 
 export function ForgotPasswordPage(): React.JSX.Element {
+  const { t } = useI18n();
   const [isSent, setIsSent] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -60,21 +68,15 @@ export function ForgotPasswordPage(): React.JSX.Element {
     return (
       <Shell>
         <div className="rounded-lg border border-border bg-surface p-6 text-center shadow-card">
-          <h1 className="text-lg font-semibold text-ink">Check your email</h1>
-          <p className="mt-2 text-sm text-ink-muted">
-            If that address belongs to a staff account, a reset link is on its way. It expires in
-            an hour, so use it soon.
-          </p>
-          <p className="mt-2 text-xs text-ink-subtle">
-            Nothing arrived? Check your spam folder before asking for another. If you have never
-            signed in, ask a Business Owner to resend your temporary password instead.
-          </p>
+          <h1 className="text-lg font-semibold text-ink">{t('auth.forgot.sentHeading')}</h1>
+          <p className="mt-2 text-sm text-ink-muted">{t('auth.forgot.sentBodyAdmin')}</p>
+          <p className="mt-2 text-xs text-ink-subtle">{t('auth.forgot.sentSpamAdmin')}</p>
 
           <Link
             to="/login"
             className="mt-6 inline-flex h-10 items-center rounded-md border border-border-strong bg-surface px-4 text-sm font-medium text-ink hover:bg-surface-hover"
           >
-            Back to sign in
+            {t('auth.forgot.backToSignIn')}
           </Link>
         </div>
       </Shell>
@@ -95,24 +97,20 @@ export function ForgotPasswordPage(): React.JSX.Element {
         return;
       }
       if (error instanceof ApiError) {
-        setFormError(
-          error.status === 429
-            ? 'Too many requests. Wait a few minutes before trying again.'
-            : error.message,
-        );
+        setFormError(error.status === 429 ? t('auth.forgot.rateLimited') : error.message);
         return;
       }
-      setFormError('We could not send the link. Please try again.');
+      setFormError(t('auth.forgot.sendFailed'));
     }
   };
 
   return (
     <Shell>
       <div className="mb-6 text-center">
-        <h1 className="text-lg font-semibold tracking-tight text-ink">Reset your password</h1>
-        <p className="mt-1 text-sm text-ink-muted">
-          Enter the address you sign in with and we will email you a link.
-        </p>
+        <h1 className="text-lg font-semibold tracking-tight text-ink">
+          {t('auth.forgot.heading')}
+        </h1>
+        <p className="mt-1 text-sm text-ink-muted">{t('auth.forgot.enterAddress')}</p>
       </div>
 
       <form
@@ -129,7 +127,7 @@ export function ForgotPasswordPage(): React.JSX.Element {
           </div>
         )}
 
-        <Field label="Email address" error={errors.email?.message} required>
+        <Field label={t('common.emailAddress')} error={errors.email?.message} required>
           {({ inputId, describedBy }) => (
             <Input
               id={inputId}
@@ -138,10 +136,10 @@ export function ForgotPasswordPage(): React.JSX.Element {
               aria-describedby={describedBy}
               invalid={errors.email !== undefined}
               {...register('email', {
-                required: 'Enter your email address.',
+                required: t('validation.emailRequired'),
                 pattern: {
                   value: /^\S+@\S+\.\S+$/,
-                  message: 'Enter a valid email address.',
+                  message: t('validation.emailInvalid'),
                 },
               })}
             />
@@ -149,12 +147,12 @@ export function ForgotPasswordPage(): React.JSX.Element {
         </Field>
 
         <Button type="submit" variant="primary" className="w-full" isLoading={isSubmitting}>
-          Email me a link
+          {t('auth.forgot.emailMeALink')}
         </Button>
 
         <p className="text-center text-sm">
           <Link to="/login" className="font-medium text-accent hover:underline">
-            Back to sign in
+            {t('auth.forgot.backToSignIn')}
           </Link>
         </p>
       </form>

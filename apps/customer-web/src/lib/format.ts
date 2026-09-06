@@ -22,6 +22,11 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
   GBP: '£',
   AED: 'AED ',
   SGD: 'S$',
+  // Polish writes the złoty after the amount ("49,00 zł"). Everything here is
+  // a prefix, so it is spaced rather than reordered: "zł 49.00" reads as
+  // złoty to a Polish buyer, where the bare "PLN 49.00" fallback reads as a
+  // bank statement.
+  PLN: 'zł ',
   JPY: '¥',
   KRW: '₩',
 };

@@ -24,6 +24,7 @@ interface ConfigResponse {
   business: Record<string, unknown>;
   features: Record<string, unknown>;
   localisation: Record<string, unknown>;
+  assistant: Record<string, unknown>;
 }
 
 describe('GET /api/v1/config', () => {
@@ -37,7 +38,25 @@ describe('GET /api/v1/config', () => {
     const response = await app.inject({ method: 'GET', url: '/api/v1/config' });
     const body = response.json<ConfigResponse>();
 
-    expect(Object.keys(body).sort()).toEqual(['business', 'features', 'localisation']);
+    expect(Object.keys(body).sort()).toEqual([
+      // AI Act Art. 50(1): the widget has to say it is a machine before
+      // anybody types, so the disclosure is its own block rather than a
+      // boolean the storefront has to interpret.
+      'assistant',
+      'business',
+      'features',
+      'localisation',
+    ]);
+
+    expect(Object.keys(body.assistant).sort()).toEqual([
+      'available',
+      'isAi',
+      'model',
+      // Named on purpose: the provider receives whatever the visitor types, so
+      // GDPR Art. 13(1)(e) puts them in the privacy notice, and a notice that
+      // says "a third-party AI provider" names nobody.
+      'vendor',
+    ]);
 
     expect(Object.keys(body.business).sort()).toEqual([
       'currency',
@@ -56,6 +75,9 @@ describe('GET /api/v1/config', () => {
       'assistant',
       'recurringOrders',
       'selfRegistration',
+      // Whether a confirmed sign-up still waits for a member of staff. The
+      // storefront says so on the form rather than only afterwards.
+      'selfRegistrationRequiresApproval',
     ]);
 
     // The storefront asks a first-time shopper where they are before it can
@@ -87,6 +109,7 @@ describe('GET /api/v1/config', () => {
     // Booleans, not strings: the storefront uses these directly in a condition,
     // and the string "false" is truthy.
     expect(typeof body.features.selfRegistration).toBe('boolean');
+    expect(typeof body.features.selfRegistrationRequiresApproval).toBe('boolean');
     expect(typeof body.features.recurringOrders).toBe('boolean');
   });
 

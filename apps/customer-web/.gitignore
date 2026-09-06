@@ -2,3 +2,6 @@ node_modules
 dist
 coverage
 .env.local
+
+# Output of `npm run i18n:extract`. A diffing aid, never shipped.
+.extracted

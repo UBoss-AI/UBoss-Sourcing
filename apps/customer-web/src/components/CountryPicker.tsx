@@ -17,8 +17,11 @@ import { useLocale } from '@/app/locale-context';
 import { Modal } from '@/components/Modal';
 import { Button, Field, Select } from '@/components/ui';
 import { detectCountry, type LocationPermission } from '@/lib/geo';
+import { useI18n } from '@/i18n/i18n-context';
 
 export function CountryPicker(): React.JSX.Element | null {
+  const { t } = useI18n();
+
   const locale = useLocale();
 
   const [country, setCountry] = useState('');
@@ -86,12 +89,12 @@ export function CountryPicker(): React.JSX.Element | null {
     <Modal
       isOpen
       onClose={locale.dismissChoice}
-      title="Where are you ordering from?"
-      description="Prices are shown in your country's currency. You can change this at any time from the header."
+      title={t('countryPicker.whereAreYouOrderingFrom')}
+      description={t('countryPicker.pricesAreShownInYour')}
       footer={
         <div className="flex items-center justify-end gap-2">
           <Button variant="secondary" onClick={locale.dismissChoice} disabled={saving}>
-            Not now
+            {t('countryPicker.notNow')}
           </Button>
           <Button onClick={() => void save()} disabled={saving || country === ''}>
             {saving ? 'Saving…' : 'Continue'}
@@ -100,7 +103,7 @@ export function CountryPicker(): React.JSX.Element | null {
       }
     >
       <div className="space-y-4">
-        <Field label="Country" required>
+        <Field label={t('countryPicker.country')} required>
           {({ inputId, describedBy }) => (
             <Select
               id={inputId}
@@ -111,7 +114,7 @@ export function CountryPicker(): React.JSX.Element | null {
                 setCurrency('');
               }}
             >
-              <option value="">Select a country</option>
+              <option value="">{t('countryPicker.selectACountry')}</option>
               {locale.countries.map((entry) => (
                 <option key={entry.code} value={entry.code}>
                   {entry.name}
@@ -121,10 +124,7 @@ export function CountryPicker(): React.JSX.Element | null {
           )}
         </Field>
 
-        <Field
-          label="Currency"
-          hint="Defaults to your country's currency. Change it if you would rather be quoted in another."
-        >
+        <Field label={t('countryPicker.currency')} hint={t('countryPicker.defaultsToYourCountryS')}>
           {({ inputId, describedBy }) => (
             <Select
               id={inputId}
@@ -161,8 +161,7 @@ export function CountryPicker(): React.JSX.Element | null {
 
           {permission === 'denied' && (
             <p className="mt-2 text-xs text-ink-muted">
-              Location access was declined. That is fine — the country you choose above is what we
-              use.
+              {t('countryPicker.locationAccessWasDeclinedThat')}
             </p>
           )}
 

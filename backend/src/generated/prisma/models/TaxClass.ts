@@ -39,6 +39,7 @@ export type TaxClassMinAggregateOutputType = {
   code: string | null
   name: string | null
   ratePercent: runtime.Decimal | null
+  vatCategory: $Enums.VatCategory | null
   isInclusive: boolean | null
   isDefault: boolean | null
   isActive: boolean | null
@@ -51,6 +52,7 @@ export type TaxClassMaxAggregateOutputType = {
   code: string | null
   name: string | null
   ratePercent: runtime.Decimal | null
+  vatCategory: $Enums.VatCategory | null
   isInclusive: boolean | null
   isDefault: boolean | null
   isActive: boolean | null
@@ -63,6 +65,7 @@ export type TaxClassCountAggregateOutputType = {
   code: number
   name: number
   ratePercent: number
+  vatCategory: number
   isInclusive: number
   isDefault: number
   isActive: number
@@ -85,6 +88,7 @@ export type TaxClassMinAggregateInputType = {
   code?: true
   name?: true
   ratePercent?: true
+  vatCategory?: true
   isInclusive?: true
   isDefault?: true
   isActive?: true
@@ -97,6 +101,7 @@ export type TaxClassMaxAggregateInputType = {
   code?: true
   name?: true
   ratePercent?: true
+  vatCategory?: true
   isInclusive?: true
   isDefault?: true
   isActive?: true
@@ -109,6 +114,7 @@ export type TaxClassCountAggregateInputType = {
   code?: true
   name?: true
   ratePercent?: true
+  vatCategory?: true
   isInclusive?: true
   isDefault?: true
   isActive?: true
@@ -208,6 +214,7 @@ export type TaxClassGroupByOutputType = {
   code: string
   name: string
   ratePercent: runtime.Decimal
+  vatCategory: $Enums.VatCategory | null
   isInclusive: boolean
   isDefault: boolean
   isActive: boolean
@@ -243,6 +250,7 @@ export type TaxClassWhereInput = {
   code?: Prisma.StringFilter<"TaxClass"> | string
   name?: Prisma.StringFilter<"TaxClass"> | string
   ratePercent?: Prisma.DecimalFilter<"TaxClass"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vatCategory?: Prisma.EnumVatCategoryNullableFilter<"TaxClass"> | $Enums.VatCategory | null
   isInclusive?: Prisma.BoolFilter<"TaxClass"> | boolean
   isDefault?: Prisma.BoolFilter<"TaxClass"> | boolean
   isActive?: Prisma.BoolFilter<"TaxClass"> | boolean
@@ -256,6 +264,7 @@ export type TaxClassOrderByWithRelationInput = {
   code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   ratePercent?: Prisma.SortOrder
+  vatCategory?: Prisma.SortOrderInput | Prisma.SortOrder
   isInclusive?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -273,6 +282,7 @@ export type TaxClassWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.TaxClassWhereInput | Prisma.TaxClassWhereInput[]
   name?: Prisma.StringFilter<"TaxClass"> | string
   ratePercent?: Prisma.DecimalFilter<"TaxClass"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vatCategory?: Prisma.EnumVatCategoryNullableFilter<"TaxClass"> | $Enums.VatCategory | null
   isInclusive?: Prisma.BoolFilter<"TaxClass"> | boolean
   isDefault?: Prisma.BoolFilter<"TaxClass"> | boolean
   isActive?: Prisma.BoolFilter<"TaxClass"> | boolean
@@ -286,6 +296,7 @@ export type TaxClassOrderByWithAggregationInput = {
   code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   ratePercent?: Prisma.SortOrder
+  vatCategory?: Prisma.SortOrderInput | Prisma.SortOrder
   isInclusive?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -306,6 +317,7 @@ export type TaxClassScalarWhereWithAggregatesInput = {
   code?: Prisma.StringWithAggregatesFilter<"TaxClass"> | string
   name?: Prisma.StringWithAggregatesFilter<"TaxClass"> | string
   ratePercent?: Prisma.DecimalWithAggregatesFilter<"TaxClass"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vatCategory?: Prisma.EnumVatCategoryNullableWithAggregatesFilter<"TaxClass"> | $Enums.VatCategory | null
   isInclusive?: Prisma.BoolWithAggregatesFilter<"TaxClass"> | boolean
   isDefault?: Prisma.BoolWithAggregatesFilter<"TaxClass"> | boolean
   isActive?: Prisma.BoolWithAggregatesFilter<"TaxClass"> | boolean
@@ -318,6 +330,7 @@ export type TaxClassCreateInput = {
   code: string
   name: string
   ratePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
+  vatCategory?: $Enums.VatCategory | null
   isInclusive?: boolean
   isDefault?: boolean
   isActive?: boolean
@@ -331,6 +344,7 @@ export type TaxClassUncheckedCreateInput = {
   code: string
   name: string
   ratePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
+  vatCategory?: $Enums.VatCategory | null
   isInclusive?: boolean
   isDefault?: boolean
   isActive?: boolean
@@ -344,6 +358,7 @@ export type TaxClassUpdateInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   ratePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vatCategory?: Prisma.NullableEnumVatCategoryFieldUpdateOperationsInput | $Enums.VatCategory | null
   isInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -357,6 +372,7 @@ export type TaxClassUncheckedUpdateInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   ratePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vatCategory?: Prisma.NullableEnumVatCategoryFieldUpdateOperationsInput | $Enums.VatCategory | null
   isInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -370,6 +386,7 @@ export type TaxClassCreateManyInput = {
   code: string
   name: string
   ratePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
+  vatCategory?: $Enums.VatCategory | null
   isInclusive?: boolean
   isDefault?: boolean
   isActive?: boolean
@@ -382,6 +399,7 @@ export type TaxClassUpdateManyMutationInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   ratePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vatCategory?: Prisma.NullableEnumVatCategoryFieldUpdateOperationsInput | $Enums.VatCategory | null
   isInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -394,6 +412,7 @@ export type TaxClassUncheckedUpdateManyInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   ratePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vatCategory?: Prisma.NullableEnumVatCategoryFieldUpdateOperationsInput | $Enums.VatCategory | null
   isInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -412,6 +431,7 @@ export type TaxClassCountOrderByAggregateInput = {
   code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   ratePercent?: Prisma.SortOrder
+  vatCategory?: Prisma.SortOrder
   isInclusive?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -428,6 +448,7 @@ export type TaxClassMaxOrderByAggregateInput = {
   code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   ratePercent?: Prisma.SortOrder
+  vatCategory?: Prisma.SortOrder
   isInclusive?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -440,6 +461,7 @@ export type TaxClassMinOrderByAggregateInput = {
   code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   ratePercent?: Prisma.SortOrder
+  vatCategory?: Prisma.SortOrder
   isInclusive?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -464,6 +486,10 @@ export type DecimalFieldUpdateOperationsInput = {
   divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
+export type NullableEnumVatCategoryFieldUpdateOperationsInput = {
+  set?: $Enums.VatCategory | null
+}
+
 export type TaxClassCreateNestedOneWithoutProductsInput = {
   create?: Prisma.XOR<Prisma.TaxClassCreateWithoutProductsInput, Prisma.TaxClassUncheckedCreateWithoutProductsInput>
   connectOrCreate?: Prisma.TaxClassCreateOrConnectWithoutProductsInput
@@ -483,6 +509,7 @@ export type TaxClassCreateWithoutProductsInput = {
   code: string
   name: string
   ratePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
+  vatCategory?: $Enums.VatCategory | null
   isInclusive?: boolean
   isDefault?: boolean
   isActive?: boolean
@@ -495,6 +522,7 @@ export type TaxClassUncheckedCreateWithoutProductsInput = {
   code: string
   name: string
   ratePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
+  vatCategory?: $Enums.VatCategory | null
   isInclusive?: boolean
   isDefault?: boolean
   isActive?: boolean
@@ -523,6 +551,7 @@ export type TaxClassUpdateWithoutProductsInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   ratePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vatCategory?: Prisma.NullableEnumVatCategoryFieldUpdateOperationsInput | $Enums.VatCategory | null
   isInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -535,6 +564,7 @@ export type TaxClassUncheckedUpdateWithoutProductsInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   ratePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vatCategory?: Prisma.NullableEnumVatCategoryFieldUpdateOperationsInput | $Enums.VatCategory | null
   isInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -578,6 +608,7 @@ export type TaxClassSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   code?: boolean
   name?: boolean
   ratePercent?: boolean
+  vatCategory?: boolean
   isInclusive?: boolean
   isDefault?: boolean
   isActive?: boolean
@@ -594,6 +625,7 @@ export type TaxClassSelectScalar = {
   code?: boolean
   name?: boolean
   ratePercent?: boolean
+  vatCategory?: boolean
   isInclusive?: boolean
   isDefault?: boolean
   isActive?: boolean
@@ -601,7 +633,7 @@ export type TaxClassSelectScalar = {
   updatedAt?: boolean
 }
 
-export type TaxClassOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "ratePercent" | "isInclusive" | "isDefault" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["taxClass"]>
+export type TaxClassOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "ratePercent" | "vatCategory" | "isInclusive" | "isDefault" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["taxClass"]>
 export type TaxClassInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   products?: boolean | Prisma.TaxClass$productsArgs<ExtArgs>
   _count?: boolean | Prisma.TaxClassCountOutputTypeDefaultArgs<ExtArgs>
@@ -620,6 +652,14 @@ export type $TaxClassPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
      * Percent, e.g. 18.000000 for 18% GST. Decimal, never Float.
      */
     ratePercent: runtime.Decimal
+    /**
+     * Which EU rate band this class falls in. Null means "this class has no EU
+     * meaning": the flat `ratePercent` above is used wherever it is sold, which
+     * is the correct behaviour for GST and for any deployment with no VAT rates
+     * configured. Set it and the rate becomes a lookup against the destination
+     * member state instead - see modules/tax/vat.service.ts.
+     */
+    vatCategory: $Enums.VatCategory | null
     /**
      * true  = listed price already contains tax (extract it)
      * false = tax is added on top of the listed price
@@ -1003,6 +1043,7 @@ export interface TaxClassFieldRefs {
   readonly code: Prisma.FieldRef<"TaxClass", 'String'>
   readonly name: Prisma.FieldRef<"TaxClass", 'String'>
   readonly ratePercent: Prisma.FieldRef<"TaxClass", 'Decimal'>
+  readonly vatCategory: Prisma.FieldRef<"TaxClass", 'VatCategory'>
   readonly isInclusive: Prisma.FieldRef<"TaxClass", 'Boolean'>
   readonly isDefault: Prisma.FieldRef<"TaxClass", 'Boolean'>
   readonly isActive: Prisma.FieldRef<"TaxClass", 'Boolean'>

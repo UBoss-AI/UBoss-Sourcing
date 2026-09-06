@@ -34,6 +34,17 @@ const CURRENCY_EXPONENT: Readonly<Record<string, number>> = Object.freeze({
   GBP: 2,
   AED: 2,
   SGD: 2,
+  /// The seven EU member states outside the euro. All two-decimal, and all
+  /// listed rather than left to be added one crisis at a time: a Swedish
+  /// hospital quoted in euro because SEK was missing from this table is a
+  /// worse outcome than seven lines here.
+  PLN: 2,
+  BGN: 2,
+  CZK: 2,
+  DKK: 2,
+  HUF: 2,
+  RON: 2,
+  SEK: 2,
   /// Zero-decimal currencies. Listed so the rounding helpers stay correct if
   /// the business ever prices in them.
   JPY: 0,

@@ -106,6 +106,12 @@ export const router = createBrowserRouter([
         path: 'register',
         ...publicRoute(() => import('@/pages/RegisterPage').then((m) => m.RegisterPage)),
       },
+      {
+        // Where the confirmation email lands. The path is chosen by the
+        // backend's `buildTokenUrl`, so the two have to agree.
+        path: 'verify-email',
+        ...publicRoute(() => import('@/pages/VerifyEmailPage').then((m) => m.VerifyEmailPage)),
+      },
 
       // --- Buying: activated customers only ---------------------------------
       { path: 'cart', ...customerRoute(() => import('@/pages/CartPage').then((m) => m.CartPage)) },

@@ -42,10 +42,18 @@ export interface CustomerListItem {
   createdAt: string;
 }
 
-/** Colour is a second signal; the badge always carries its label too. */
+/**
+ * Colour is a second signal; the badge always carries its label too.
+ *
+ * The names are `UserStatus` from the schema, verbatim. They used to be a
+ * guess - INVITED, SUSPENDED, PENDING - none of which the backend has ever
+ * sent, so every non-active customer rendered grey.
+ */
 export function customerStatusTone(status: string): BadgeTone {
   if (status === 'ACTIVE') return 'success';
-  if (status === 'INVITED' || status === 'PENDING') return 'warning';
-  if (status === 'SUSPENDED' || status === 'DISABLED') return 'danger';
+  // Both are waiting on somebody: an invitation to be opened, or a colleague
+  // to approve a self-registered account.
+  if (status === 'PENDING_INVITATION' || status === 'PENDING_APPROVAL') return 'warning';
+  if (status === 'DEACTIVATED') return 'danger';
   return 'neutral';
 }

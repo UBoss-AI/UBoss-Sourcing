@@ -13,6 +13,7 @@ import type { ReactNode } from 'react';
 import { cx } from '@/lib/cx';
 import { ToastContext } from './toast-context';
 import type { ToastApi, ToastTone } from './toast-context';
+import { useI18n } from '@/i18n/i18n-context';
 
 interface Toast {
   id: number;
@@ -29,6 +30,8 @@ const TONE_CLASSES: Record<ToastTone, string> = {
 let nextId = 1;
 
 export function ToastProvider({ children }: { children: ReactNode }): React.JSX.Element {
+  const { t } = useI18n();
+
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const dismiss = useCallback((id: number) => {
@@ -89,7 +92,7 @@ export function ToastProvider({ children }: { children: ReactNode }): React.JSX.
               }}
               className="shrink-0 rounded text-xs font-medium underline underline-offset-2 opacity-70 hover:opacity-100"
             >
-              Dismiss
+              {t('toast.dismiss')}
             </button>
           </div>
         ))}

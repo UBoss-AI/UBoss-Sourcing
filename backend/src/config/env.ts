@@ -78,6 +78,34 @@ const envSchema = z
     WORKER_CONCURRENCY: intFromString(1, 64).default(4),
     WORKER_LEASE_SECONDS: intFromString(10, 3600).default(60),
 
+    // --- Exchange rates ---
+    // Where the price refresh reads rates from. `{base}` is replaced with the
+    // business's base currency. The default is a free, keyless feed; it lives
+    // in the environment rather than in the admin panel on purpose, so a
+    // deployment behind a firewall can point at its own mirror and no
+    // administrator can aim the server at an arbitrary URL.
+    FX_RATE_URL: z.string().url().default('https://open.er-api.com/v6/latest/{base}'),
+    FX_RATE_TIMEOUT_MS: intFromString(1000, 60_000).default(10_000),
+
+    // --- EU VAT number checking (VIES) ---
+    //
+    // The Commission's REST front door onto the twenty-seven national VAT
+    // registers. A URL rather than a fixed host, on the same reasoning as the
+    // geocoder above: an installation behind a firewall can point at its own
+    // proxy, and an empty string switches checking off entirely.
+    //
+    // Switching it off does not break anything - it makes every VAT number
+    // unverified, and an unverified number is charged VAT rather than
+    // zero-rated. That is the safe direction: it costs the customer cash flow,
+    // where the other direction costs the seller the tax.
+    //
+    // {country} is the member state prefix (EL for Greece, not GR) and
+    // {number} the rest.
+    VIES_CHECK_URL: z
+      .string()
+      .default('https://ec.europa.eu/taxation_customs/vies/rest-api/ms/{country}/vat/{number}'),
+    VIES_TIMEOUT_MS: intFromString(1000, 60_000).default(10_000),
+
     // --- Object storage ---
     STORAGE_DRIVER: z.enum(['local', 's3']).default('local'),
     STORAGE_LOCAL_DIR: z.string().default('.storage'),
@@ -105,6 +133,8 @@ const envSchema = z
     RAZORPAY_KEY_ID: z.string().default(''),
     RAZORPAY_KEY_SECRET: z.string().default(''),
     RAZORPAY_WEBHOOK_SECRET: z.string().default(''),
+    /// The PUBLISHABLE key (pk_...). Sent to the browser; not a secret.
+    STRIPE_PUBLISHABLE_KEY: z.string().default(''),
     STRIPE_SECRET_KEY: z.string().default(''),
     STRIPE_WEBHOOK_SECRET: z.string().default(''),
     PAYMENT_LINK_TTL_HOURS: intFromString(1, 8760).default(72),
@@ -115,9 +145,41 @@ const envSchema = z
 
     // --- Feature flags ---
     FEATURE_CUSTOMER_SELF_REGISTRATION: booleanFromString.default(false),
+    // Whether a self-registered account waits for a member of staff before it
+    // can sign in. On by default, and deliberately so: this is a B2B catalogue
+    // with per-customer prices, purchasing limits and credit terms, so "anyone
+    // who can receive an email may buy" is the wrong default even where the
+    // registration form itself is open. Set it to false only where the
+    // storefront is genuinely open to the public.
+    CUSTOMER_SELF_REGISTRATION_REQUIRES_APPROVAL: booleanFromString.default(true),
     FEATURE_STOCK_RESERVATIONS: booleanFromString.default(true),
     FEATURE_ORDER_APPROVALS: booleanFromString.default(false),
     FEATURE_RECURRING_ORDERS: booleanFromString.default(true),
+
+    // --- Admin sign-in location ---
+    //
+    // On by default: the console asks the browser where the device is at
+    // sign-in and stays closed until it is told. Two things a deployment has to
+    // know before leaving it on.
+    //
+    // The Geolocation API only exists in a secure context, so an admin panel
+    // served over plain HTTP on anything but localhost can never satisfy this
+    // and every member of staff would be locked out. That deployment sets
+    // FEATURE_ADMIN_LOGIN_LOCATION=false, or, better, puts the panel behind
+    // HTTPS.
+    //
+    // The reverse lookup turns coordinates into a place name and is the one
+    // part that leaves the building - a URL rather than a hard-coded host so an
+    // installation behind a firewall can point at its own geocoder, and an
+    // empty string switches it off entirely, leaving the notification to show
+    // coordinates. The default is OpenStreetMap's, whose usage policy asks for
+    // an identifying User-Agent and no bulk querying; one lookup per admin
+    // sign-in is well inside it.
+    FEATURE_ADMIN_LOGIN_LOCATION: booleanFromString.default(true),
+    GEOCODE_REVERSE_URL: z
+      .string()
+      .default('https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=14&lat={lat}&lon={lon}'),
+    GEOCODE_TIMEOUT_MS: intFromString(500, 30_000).default(5000),
 
     // --- Storefront assistant ---
     //
@@ -152,6 +214,54 @@ const envSchema = z
     /** Messages one visitor may send in a single conversation before it resets. */
     ASSISTANT_MAX_TURNS: intFromString(2, 100).default(20),
     ASSISTANT_RATE_LIMIT_PER_5MIN: intFromString(1, 1000).default(20),
+
+    // --- Data protection (GDPR) ---
+    //
+    // Storage limitation (Art. 5(1)(e)) is a number, not an intention: personal
+    // data is kept "no longer than is necessary", and the only way a running
+    // system can honour that is to be told how long that is and to delete on
+    // its own. Every window below is a maximum age in days, and 0 switches that
+    // sweep off for deployments whose own retention schedule says otherwise.
+    //
+    // The defaults are deliberately conservative rather than minimal. Erasing
+    // an audit trail or an order too eagerly breaks a different law - tax law
+    // in most member states wants invoicing records for six to ten years - so
+    // the sweeps here cover the categories that have no such obligation, and
+    // the erasure path (see erasure.service.ts) is what deals with the rest by
+    // pseudonymising instead of deleting.
+
+    /// Abandoned carts. Nobody's tax authority wants a basket that was never
+    /// bought, and it names a person and what they were interested in.
+    RETENTION_ABANDONED_CART_DAYS: intFromString(0, 3650).default(90),
+
+    /// Chat enquiries from the storefront widget: a stranger's name, mobile
+    /// number, email and transcript, captured before any relationship exists.
+    /// The shortest window here, because it is the weakest lawful basis.
+    RETENTION_ASSISTANT_CONVERSATION_DAYS: intFromString(0, 3650).default(180),
+
+    /// The audit trail. Two years covers a security investigation and an
+    /// accountability question (Art. 5(2)) without keeping every read of every
+    /// record for the life of the installation.
+    RETENTION_AUDIT_LOG_DAYS: intFromString(0, 3650).default(730),
+
+    /// Delivered notifications, with the rendered body still on them. Easy to
+    /// overlook and worth the longest look: an order confirmation is the
+    /// customer's name and delivery address written out in prose, so the
+    /// outbox holds a second copy of data the order already holds properly.
+    /// A year is generous for "did that email actually go out?".
+    RETENTION_SENT_NOTIFICATION_DAYS: intFromString(0, 3650).default(365),
+
+    /// Where an admin session was opened from, and the IP and user-agent that
+    /// went with it. This is staff monitoring data and ages badly: it is
+    /// useful for "was that sign-in me?" for a few weeks and is a liability
+    /// after that, so it is scrubbed from the session row long before the row
+    /// itself goes.
+    RETENTION_SESSION_LOCATION_DAYS: intFromString(0, 3650).default(90),
+
+    /// How long a fulfilled export bundle stays downloadable. Shorter than the
+    /// admin report exports next door, because this file is every personal
+    /// fact the system holds about one person in one archive.
+    DATA_REQUEST_DOWNLOAD_TTL_HOURS: intFromString(1, 720).default(72),
 
     // --- Rate limits ---
     RATE_LIMIT_GLOBAL_PER_MINUTE: intFromString(10, 100_000).default(300),
@@ -232,6 +342,52 @@ const envSchema = z
             'Live keys move real money. Use a sk_test_ key for development.',
         });
       }
+
+      if (value.STRIPE_PUBLISHABLE_KEY.startsWith('pk_live_')) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['STRIPE_PUBLISHABLE_KEY'],
+          message:
+            'refusing to start: this is a LIVE Stripe publishable key and NODE_ENV is not ' +
+            'production. Use a pk_test_ key for development.',
+        });
+      }
+    }
+
+    // A publishable key from one environment paired with a secret key from the
+    // other is the worst of the mismatches: the API handshake succeeds, the
+    // browser opens a checkout against the other environment, and no payment
+    // can ever be confirmed. Caught at boot, where it is one line to fix.
+    if (value.STRIPE_PUBLISHABLE_KEY.length > 0 && value.STRIPE_SECRET_KEY.length > 0) {
+      const publishableIsLive = value.STRIPE_PUBLISHABLE_KEY.startsWith('pk_live_');
+      const secretIsLive =
+        value.STRIPE_SECRET_KEY.startsWith('sk_live_') ||
+        value.STRIPE_SECRET_KEY.startsWith('rk_live_');
+
+      if (publishableIsLive !== secretIsLive) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['STRIPE_PUBLISHABLE_KEY'],
+          message:
+            'STRIPE_PUBLISHABLE_KEY and STRIPE_SECRET_KEY are from different Stripe ' +
+            'environments. Pair pk_test_ with sk_test_, or pk_live_ with sk_live_.',
+        });
+      }
+    }
+
+    // Stripe cannot be the default gateway without a key pair to use.
+    if (
+      value.PAYMENT_DEFAULT_PROVIDER === 'stripe' &&
+      value.STRIPE_SECRET_KEY.length > 0 &&
+      value.STRIPE_PUBLISHABLE_KEY.length === 0
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['STRIPE_PUBLISHABLE_KEY'],
+        message:
+          'STRIPE_SECRET_KEY is set but STRIPE_PUBLISHABLE_KEY is empty. The browser needs ' +
+          'the pk_ key to open a Stripe checkout.',
+      });
     }
 
     // The mirror of the rule above: production must not run on test keys, or
@@ -242,6 +398,15 @@ const envSchema = z
         path: ['RAZORPAY_KEY_ID'],
         message:
           'this is a TEST Razorpay key and NODE_ENV is production. Test keys never collect money.',
+      });
+    }
+
+    if (value.NODE_ENV === 'production' && value.STRIPE_SECRET_KEY.startsWith('sk_test_')) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['STRIPE_SECRET_KEY'],
+        message:
+          'this is a TEST Stripe key and NODE_ENV is production. Test keys never collect money.',
       });
     }
 
