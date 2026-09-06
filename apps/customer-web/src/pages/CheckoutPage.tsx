@@ -812,7 +812,7 @@ export function CheckoutPage(): React.JSX.Element {
                 submit.mutate();
               }}
             >
-              {paymentMode === 'ONLINE' ? 'Place order and pay' : 'Place order'}
+              {paymentMode === 'ONLINE' ? t('checkout.placeOrderAndPay') : t('checkout.placeOrder')}
             </Button>
 
             {shippingAddressId === null && (
@@ -831,11 +831,7 @@ export function CheckoutPage(): React.JSX.Element {
              */}
             <div className="mt-4 flex gap-2.5 border-t border-border-subtle pt-4 text-xxs leading-relaxed text-ink-subtle">
               <ShieldIcon className="mt-px h-4 w-4 shrink-0 text-ink-muted" />
-              <p>
-                Placing this order does not charge you yet. Payment is taken on the next step, on
-                our payment provider&rsquo;s own secure page, and is only confirmed once they verify
-                it.
-              </p>
+              <p>{t('checkout.placingThisOrderDoesNot')}</p>
             </div>
           </div>
         </aside>
