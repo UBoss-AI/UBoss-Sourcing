@@ -335,6 +335,16 @@ export function authRoutes(kind: UserKind) {
         mustChangePassword: auth.mustChangePassword,
         locationRequired: locationRequiredFor(kind),
         locationGranted: auth.sessionHasLocation,
+        /**
+         * Where this session signed in from, ISO-3166-1 alpha-2.
+         *
+         * The console prices its catalogue for it: a member of staff sees what
+         * a customer where they are sitting is charged, and there is no picker
+         * to say otherwise - the market is wherever the person actually is.
+         * Null when no geocoder answered, and the panel then quotes the
+         * seller's own country.
+         */
+        locationCountry: auth.sessionCountry,
       });
     });
 

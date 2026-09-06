@@ -53,7 +53,17 @@ export interface RecordedSessionLocation {
   accuracyM: number | null;
   /** The place, when a lookup was possible. Null means "show the coordinates". */
   label: string | null;
+  /** The country that place is in, when the geocoder named one. */
+  country: string | null;
   capturedAt: Date;
+}
+
+/** What a reverse lookup managed to say about a pair of coordinates. */
+export interface GeocodedPlace {
+  /** A human-readable place, for a notification line. */
+  label: string | null;
+  /** ISO-3166-1 alpha-2, upper case. What the console prices for. */
+  country: string | null;
 }
 
 /**
@@ -68,21 +78,56 @@ export function formatCoordinates(latitude: number, longitude: number): string {
 }
 
 /**
- * Turn coordinates into a place name.
+ * The country an address block names, ISO-3166-1 alpha-2.
+ *
+ * Nominatim returns `address.country_code` in lower case; clones and other
+ * services spell the same fact `countryCode` or `ISO3166-1`. All three are
+ * accepted and anything that is not two letters is treated as no answer -
+ * a geocoder guessing at a country is not a reason to price a shop wrongly.
+ */
+function countryFrom(body: Record<string, unknown>): string | null {
+  const address =
+    typeof body.address === 'object' && body.address !== null
+      ? (body.address as Record<string, unknown>)
+      : {};
+
+  const candidate = [address.country_code, address.countryCode, body.countryCode].find(
+    (value): value is string => typeof value === 'string' && value.trim().length > 0,
+  );
+
+  if (candidate === undefined) return null;
+
+  const code = candidate.trim().toUpperCase();
+  return /^[A-Z]{2}$/.test(code) ? code : null;
+}
+
+/**
+ * Turn coordinates into a place, and into the country it sits in.
  *
  * Exported for the tests, and deliberately total: every failure path - no URL
  * configured, a timeout, a non-200, a body in a shape this does not recognise -
- * returns null rather than throwing. The caller has already accepted the
+ * returns nulls rather than throwing. The caller has already accepted the
  * position by the time this runs, and the sign-in must not hinge on a third
  * party being reachable.
  */
-export async function reverseGeocode(latitude: number, longitude: number): Promise<string | null> {
-  const template = env.GEOCODE_REVERSE_URL.trim();
-  if (template.length === 0) return null;
+export async function reverseGeocode(latitude: number, longitude: number): Promise<GeocodedPlace> {
+  const empty: GeocodedPlace = { label: null, country: null };
 
-  const url = template
+  const template = env.GEOCODE_REVERSE_URL.trim();
+  if (template.length === 0) return empty;
+
+  const filled = template
     .replace('{lat}', encodeURIComponent(latitude.toFixed(6)))
     .replace('{lon}', encodeURIComponent(longitude.toFixed(6)));
+
+  // The country lives in the address block, which Nominatim only returns when
+  // asked. Appended rather than assumed, so a deployment whose .env still
+  // pins the previous URL gets the country too - and a geocoder that has
+  // never heard of the parameter ignores it, which is why adding it is safe
+  // for the installations that point somewhere else entirely.
+  const url = filled.includes('addressdetails')
+    ? filled
+    : `${filled}${filled.includes('?') ? '&' : '?'}addressdetails=1`;
 
   try {
     const response = await fetch(url, {
@@ -97,11 +142,11 @@ export async function reverseGeocode(latitude: number, longitude: number): Promi
 
     if (!response.ok) {
       logger.warn({ status: response.status }, 'reverse geocode answered a non-200');
-      return null;
+      return empty;
     }
 
     const body: unknown = await response.json();
-    if (typeof body !== 'object' || body === null) return null;
+    if (typeof body !== 'object' || body === null) return empty;
 
     // Tolerant of the shape, like the rate feed next door: `display_name` is
     // what Nominatim and most of its clones return, and a plain `name` covers
@@ -111,13 +156,16 @@ export async function reverseGeocode(latitude: number, longitude: number): Promi
       (value): value is string => typeof value === 'string' && value.trim().length > 0,
     );
 
-    if (candidate === undefined) return null;
-
-    // The column is 255, and a full Nominatim display name can run past it.
-    return candidate.trim().slice(0, 255);
+    return {
+      // The column is 255, and a full Nominatim display name can run past it.
+      label: candidate === undefined ? null : candidate.trim().slice(0, 255),
+      // Independent of the label: a service that answers with a country and no
+      // display name still tells the console which market to price for.
+      country: countryFrom(record),
+    };
   } catch (error) {
     logger.warn({ err: error }, 'reverse geocode failed; falling back to coordinates');
-    return null;
+    return empty;
   }
 }
 
@@ -130,7 +178,7 @@ export async function reverseGeocode(latitude: number, longitude: number): Promi
 export async function recordSessionLocation(
   input: RecordSessionLocationInput,
 ): Promise<RecordedSessionLocation> {
-  const label = await reverseGeocode(input.latitude, input.longitude);
+  const { label, country } = await reverseGeocode(input.latitude, input.longitude);
   const capturedAt = new Date();
 
   // `updateMany` rather than `update`: a session revoked between the guard and
@@ -143,6 +191,9 @@ export async function recordSessionLocation(
       locationLongitude: input.longitude.toFixed(6),
       locationAccuracyM: input.accuracyM === null ? null : Math.round(input.accuracyM),
       locationLabel: label,
+      // The market this session's console prices for. Null where no geocoder
+      // answered, which the panel reads as "the seller's own country".
+      locationCountry: country,
       locationCapturedAt: capturedAt,
     },
   });
@@ -179,6 +230,7 @@ export async function recordSessionLocation(
       longitude: input.longitude.toFixed(6),
       accuracyM: input.accuracyM === null ? null : Math.round(input.accuracyM),
       label,
+      country,
     },
     ipAddress: input.ipAddress ?? null,
     userAgent: input.userAgent ?? null,
@@ -190,6 +242,7 @@ export async function recordSessionLocation(
     longitude: input.longitude,
     accuracyM: input.accuracyM === null ? null : Math.round(input.accuracyM),
     label,
+    country,
     capturedAt,
   };
 }

@@ -34,6 +34,18 @@ export interface AdminUser {
    * nothing else. Survives a token refresh - it is asked once per sign-in.
    */
   locationGranted: boolean;
+  /**
+   * The country this session signed in from, ISO-3166-1 alpha-2.
+   *
+   * Resolved by the backend from the position the browser gave it, and the
+   * market every price in this panel is quoted for: a member of staff sees
+   * what a customer where they are sitting is charged. There is no picker,
+   * because there is no other market this person can speak for.
+   *
+   * Null when no geocoder answered, and the panel then quotes the seller's own
+   * country - the same fallback a shopper gets before giving an address.
+   */
+  locationCountry: string | null;
 }
 
 export interface SessionState {

@@ -19,7 +19,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { useMarket } from '@/app/market-context';
 import { useSession } from '@/auth/session-context';
 import { DataTable, Pager } from '@/components/DataTable';
 import type { Column } from '@/components/DataTable';
@@ -69,16 +68,6 @@ const CATALOGUE_STATUS: Record<ProductListItem['status'], { label: string; tone:
 
 export function ProductsPage(): React.JSX.Element {
   const { t } = useI18n();
-
-  /**
-   * Which market the price column is read against.
-   *
-   * Panel-wide and answered in the header, not here: somebody checking German
-   * prices is checking them on this screen and on the product screen behind
-   * it, and a per-page picker would have let those two quote different
-   * numbers on the same afternoon.
-   */
-  const market = useMarket();
 
   const { can } = useSession();
   const navigate = useNavigate();
@@ -182,12 +171,13 @@ export function ProductsPage(): React.JSX.Element {
    * the counts are taken without it, so asking again would only reload the
    * same answer while the select is open.
    *
-   * The market is left out for a different reason: the price boxes filter the
-   * price list, which is the column they sit above, and the range that labels
-   * them has to be in the same terms. Quoting these two in customer terms
-   * while the input still filtered listed figures is how a filter starts
-   * hiding rows it displays inside its own bounds - the storefront translates
-   * both ends precisely to avoid it, and here there is nothing to translate.
+   * These stay in listed terms while the table gains a customer-facing column
+   * beside the listed one, and deliberately: the price boxes filter the price
+   * list, which is the column they sit above, and the range that labels them
+   * has to be in the same terms. Quoting these in customer terms while the
+   * input still filtered listed figures is how a filter starts hiding rows it
+   * displays inside its own bounds - the storefront translates both ends
+   * precisely to avoid it, and here there is nothing to translate.
    */
   const filters = useQuery({
     queryKey: [
@@ -225,9 +215,8 @@ export function ProductsPage(): React.JSX.Element {
   });
 
   const query = useQuery({
-    // The market is in the key because it changes the response: the same rows
-    // come back with a different figure against each. Nothing invalidates on a
-    // market change; this is what makes the list requote on its own.
+    // No market in the key: the server quotes for the country this session
+    // signed in from, which cannot change without signing in again.
     queryKey: [
       'products',
       {
@@ -244,7 +233,6 @@ export function ProductsPage(): React.JSX.Element {
         recurring,
         added,
         attr,
-        country: market.country,
       },
     ],
     queryFn: () =>
@@ -252,7 +240,6 @@ export function ProductsPage(): React.JSX.Element {
         query: {
           page,
           limit: 25,
-          country: market.country ?? undefined,
           status: status === '' ? undefined : status,
           published: published === '' ? undefined : published,
           categoryId: categoryId === '' ? undefined : categoryId,

@@ -5625,6 +5625,7 @@ export const SessionScalarFieldEnum = {
   locationLongitude: 'locationLongitude',
   locationAccuracyM: 'locationAccuracyM',
   locationLabel: 'locationLabel',
+  locationCountry: 'locationCountry',
   locationCapturedAt: 'locationCapturedAt',
   expiresAt: 'expiresAt',
   revokedAt: 'revokedAt',
@@ -7056,6 +7057,7 @@ export const SessionOrderByRelevanceFieldEnum = {
   userAgent: 'userAgent',
   ipAddress: 'ipAddress',
   locationLabel: 'locationLabel',
+  locationCountry: 'locationCountry',
   revokedReason: 'revokedReason',
   replacedBySessionId: 'replacedBySessionId'
 } as const

@@ -15,11 +15,18 @@
  * had already adjusted, and every such correction is a real price change in
  * every other market.
  *
+ * The market is the session's own, recorded from the browser's position at
+ * sign-in, and nothing can override it - a console where anybody could quote
+ * any member state would let a price be judged against a market the person
+ * judging it does not sell in. `inMarket` below is how a test says where the
+ * signed-in member of staff is sitting.
+ *
  * The last block is everybody else's deployment: an Indian GST store has no
- * `vatCountry`, so `?country=` must be inert rather than merely harmless.
+ * `vatCountry`, so a recorded country must be inert rather than merely
+ * harmless.
  */
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { signInAdmin } from '../support/admin-session.js';
+import { setSessionCountry, signInAdmin } from '../support/admin-session.js';
 import { buildApp } from '../../src/http/app.js';
 import { Role } from '../../src/domain/permissions.js';
 import { hashPassword } from '../../src/infra/crypto.js';
@@ -75,10 +82,21 @@ interface PricesResponse {
   }[];
 }
 
-async function list(country?: string): Promise<ListResponse> {
+/**
+ * Sign this session in from somewhere, or from nowhere the geocoder could name.
+ *
+ * The market is the session's own and there is no parameter to override it, so
+ * this is how a test states which customer it is asking about. It writes the
+ * column a real sign-in from that country would have written.
+ */
+async function inMarket(country: string | null): Promise<void> {
+  await setSessionCountry(EMAIL, country);
+}
+
+async function list(query = ''): Promise<ListResponse> {
   const response = await app.inject({
     method: 'GET',
-    url: `/api/v1/admin/products?limit=60${country === undefined ? '' : `&country=${country}`}`,
+    url: `/api/v1/admin/products?limit=60${query}`,
     headers: { cookie: cookies },
   });
 
@@ -86,17 +104,17 @@ async function list(country?: string): Promise<ListResponse> {
   return response.json<ListResponse>();
 }
 
-async function row(country?: string): Promise<ListRow> {
-  const match = (await list(country)).products.find((entry) => entry.sku === SKU);
+async function row(query = ''): Promise<ListRow> {
+  const match = (await list(query)).products.find((entry) => entry.sku === SKU);
 
   if (match === undefined) throw new Error(`${SKU} was not in the admin listing`);
   return match;
 }
 
-async function variants(country?: string): Promise<VariantRow[]> {
+async function variants(): Promise<VariantRow[]> {
   const response = await app.inject({
     method: 'GET',
-    url: `/api/v1/admin/products/${productId}/variants${country === undefined ? '' : `?country=${country}`}`,
+    url: `/api/v1/admin/products/${productId}/variants`,
     headers: { cookie: cookies },
   });
 
@@ -119,10 +137,10 @@ async function makeVariant(sku: string, listedMinor: bigint | null): Promise<voi
   });
 }
 
-async function prices(country: string): Promise<PricesResponse> {
+async function prices(): Promise<PricesResponse> {
   const response = await app.inject({
     method: 'GET',
-    url: `/api/v1/admin/products/${productId}/prices?country=${country}`,
+    url: `/api/v1/admin/products/${productId}/prices`,
     headers: { cookie: cookies },
   });
 
@@ -295,7 +313,14 @@ beforeAll(async () => {
     },
   });
 
-  ({ cookies } = await signInAdmin(app, { email: EMAIL, password: PASSWORD, ip: IP }));
+  ({ cookies } = await signInAdmin(app, {
+    email: EMAIL,
+    password: PASSWORD,
+    ip: IP,
+    // Overwritten per test by `inMarket`. Stated here so a test that forgets
+    // is a test signed in from somewhere rather than from nowhere.
+    country: 'DE',
+  }));
 });
 
 afterAll(async () => {
@@ -315,7 +340,8 @@ describe('the product list, quoted for a market', () => {
   });
 
   it('shows what a German customer pays beside what the price list says', async () => {
-    const listed = await row('DE');
+    await inMarket('DE');
+    const listed = await row();
 
     // The listed figure is untouched. This is the assertion that keeps the
     // editor honest: staff type into this number, and a screen showing them
@@ -328,7 +354,8 @@ describe('the product list, quoted for a market', () => {
   });
 
   it('names the market the figure was produced for', async () => {
-    const { country, taxNote } = await list('DE');
+    await inMarket('DE');
+    const { country, taxNote } = await list();
 
     expect(country).toBe('DE');
     // The panel prints this beside the column, so it has to be the sentence
@@ -336,7 +363,10 @@ describe('the product list, quoted for a market', () => {
     expect(taxNote).toContain('DE');
   });
 
-  it('quotes the seller’s own rate when no market is asked for', async () => {
+  it('quotes the seller’s own rate when the sign-in named no country', async () => {
+    // A deployment with no geocoder configured, or one whose lookup failed.
+    await inMarket(null);
+
     const { country } = await list();
     const listed = await row();
 
@@ -347,16 +377,25 @@ describe('the product list, quoted for a market', () => {
     expect(listed.quotedTax.ratePercent).toBe('21');
   });
 
-  it('ignores a country code it cannot read rather than failing the screen', async () => {
-    const { country } = await list('ZZZ');
-    const listed = await row('ZZZ');
+  it('cannot be talked into quoting a market the session is not in', async () => {
+    await inMarket('NL');
 
-    expect(country).toBeNull();
+    const { country } = await list('&country=DE');
+    const listed = await row('&country=DE');
+
+    // The market is where this member of staff signed in from, and a query
+    // parameter is not a place anybody is standing. Were it honoured, every
+    // price in the console could be read against a member state the person
+    // reading it does not sell in - and the one figure they cannot check is
+    // the one they would be checking.
+    expect(country).toBe('NL');
     expect(listed.quoted.minor).toBe('12100');
+    expect(listed.quotedTax.ratePercent).toBe('21');
   });
 
   it('drops the VAT for a customer outside the EU', async () => {
-    const listed = await row('CH');
+    await inMarket('CH');
+    const listed = await row();
 
     // Zero-rated as an export, so the figure staff read is the net one.
     expect(listed.quoted.minor).toBe('10000');
@@ -364,8 +403,10 @@ describe('the product list, quoted for a market', () => {
   });
 
   it('agrees with the per-currency panel on the same product', async () => {
-    const listed = await row('DE');
-    const panel = await prices('DE');
+    await inMarket('DE');
+
+    const listed = await row();
+    const panel = await prices();
     const euro = panel.prices.find((entry) => entry.currency.code === 'EUR');
 
     // Two routes onto one engine. The list and the product screen sit a click
@@ -380,8 +421,9 @@ describe('the product list, quoted for a market', () => {
   it('quotes a variant’s own price at the destination’s rate', async () => {
     // EUR 242 is EUR 200 plus the seller's 21%.
     await makeVariant('GLV-ADMIN-100-L', 24_200n);
+    await inMarket('DE');
 
-    const [variant] = await variants('DE');
+    const [variant] = await variants();
 
     // EUR 200 net at German 19%. A variant left at its listed figure would
     // jump the moment a shopper picked it, after the page had already quoted
@@ -393,8 +435,9 @@ describe('the product list, quoted for a market', () => {
 
   it('quotes nothing for a variant that has no price of its own', async () => {
     await makeVariant('GLV-ADMIN-100-M', null);
+    await inMarket('DE');
 
-    const [variant] = await variants('DE');
+    const [variant] = await variants();
 
     // It is sold at the product's price, whose quote is on the same screen a
     // card above. Repeating it here would read as an override that does not
@@ -409,9 +452,10 @@ describe('the product list, quoted for a market', () => {
     // the two paths disagreeing. The variant editor and the price card sit on
     // one screen; a shopper switching option should see no jump either.
     await makeVariant('GLV-ADMIN-100-S', 12_100n);
+    await inMarket('DE');
 
-    const [variant] = await variants('DE');
-    const listed = await row('DE');
+    const [variant] = await variants();
+    const listed = await row();
 
     expect(variant?.quotedMinor).toBe(listed.quoted.minor);
   });
@@ -422,8 +466,9 @@ describe('the product list, quoted for a market', () => {
     // the destination's - printing the class's own 18% next to a German sale
     // would be telling staff a fiction.
     await prisma.taxClass.update({ where: { id: taxClassId }, data: { isInclusive: false } });
+    await inMarket('DE');
 
-    const listed = await row('DE');
+    const listed = await row();
 
     expect(listed.quoted.minor).toBe('12100');
     expect(listed.quotedTax).toMatchObject({ ratePercent: '19', inclusive: false });
@@ -455,16 +500,18 @@ describe('a deployment with no EU VAT configured', () => {
 
   it('leaves a variant override at its listed figure too', async () => {
     await makeVariant('GST-1-L', 20_000n);
+    await inMarket('DE');
 
-    const [variant] = await variants('DE');
+    const [variant] = await variants();
 
     expect(variant?.quotedMinor).toBe('20000');
     expect(variant?.quotedTax).toMatchObject({ ratePercent: '18', inclusive: false });
   });
 
-  it('quotes every row at its listed figure, country or no country', async () => {
-    for (const country of ['DE', undefined]) {
-      const listed = await row(country);
+  it('quotes every row at its listed figure, wherever staff signed in from', async () => {
+    for (const country of ['DE', null]) {
+      await inMarket(country);
+      const listed = await row();
 
       // One codebase serves a Dutch shop and an Indian one, and the Indian one
       // must not acquire German VAT because a console appended a query

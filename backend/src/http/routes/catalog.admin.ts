@@ -248,16 +248,6 @@ const adminProductFilterSchema = z.object({
 const adminProductQuerySchema = adminProductFilterSchema.extend({
   page: z.coerce.number().int().min(1).max(10_000).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(25),
-  /**
-   * Which market to quote each row for. Not a filter - it changes what a row
-   * says it costs a customer, never which rows come back - which is why it
-   * lives here and not in `adminProductFilterSchema`, where `adminProductWhere`
-   * would be handed a value it has no business acting on.
-   *
-   * An unreadable code is ignored rather than rejected, exactly as on the
-   * storefront: see `destinationFor`.
-   */
-  country: z.string().trim().max(8).optional(),
 });
 
 /**
@@ -388,19 +378,23 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
   /**
    * The product list.
    *
-   * `?country=` adds a second figure to every row: what a customer standing in
-   * that country is actually charged for it. The `price` column stays the
-   * listed one - the figure staff typed, and the figure they edit - because an
-   * editor that quietly redisplays 119 where somebody entered 100 teaches
-   * people to distrust their own price list. The two travel side by side
-   * instead, and the gap between them is the destination's VAT.
+   * Every row carries a second figure: what a customer standing where this
+   * member of staff signed in from is actually charged for it. The `price`
+   * column stays the listed one - the figure staff typed, and the figure they
+   * edit - because an editor that quietly redisplays 119 where somebody
+   * entered 100 teaches people to distrust their own price list. The two
+   * travel side by side instead, and the gap between them is the destination's
+   * VAT.
    *
-   * It is the same question `/products/:id/prices` answers for one product,
-   * asked of the same engine the storefront and the cart price through, so a
-   * list, a product screen and a shop cannot quote three different numbers.
+   * The market is the session's own, from the position recorded at sign-in.
+   * There is deliberately no way to ask for another one: a console that let
+   * anybody quote any member state would be inviting a price to be judged
+   * against a market the person judging it does not sell in, and the panel is
+   * not a shop window. Somebody who needs to see Germany's prices is somebody
+   * signing in from Germany.
    *
-   * Absent, or in a deployment with no EU VAT configured, `quoted` is the
-   * listed figure and the panel has nothing extra to show.
+   * Where no geocoder answered, or in a deployment with no EU VAT configured,
+   * `quoted` is the listed figure and the panel has nothing extra to show.
    */
   app.get(
     '/products',
@@ -442,7 +436,7 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
         // Resolved once for the whole page rather than once per row: the VAT
         // tables are the same for every line on it, and a lookup per product
         // would turn a page of twenty-five into fifty round trips.
-        loadShelfContext(query.country),
+        loadShelfContext(currentUser(request).sessionCountry),
       ]);
 
       return reply.status(200).send({
@@ -634,8 +628,8 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
    * staff guess which markets are missing. A null is meaningful: the product is
    * simply not sold there.
    *
-   * `?country=` adds the other half of the answer. The figure staff type is a
-   * price list entry; what a customer is charged is that figure after the
+   * `quoted` is the other half of the answer. The figure staff type is a price
+   * list entry; what a customer is charged is that figure after the
    * destination's VAT, and in a business selling across the EU those two
    * numbers differ by member state - 19% in Germany, 21% in the Netherlands,
    * 23% in Ireland, on the same euro row. Staff pricing a market need to see
@@ -643,17 +637,17 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
    * storefront and the cart price through, or the preview is just a second
    * opinion.
    *
-   * Absent, or in a deployment with no EU VAT configured, `quoted` is the
-   * listed figure and nothing on the screen changes.
+   * The market is the session's own, recorded at sign-in - the same rule as
+   * the product list, and for the same reason. Where none was recorded, or in
+   * a deployment with no EU VAT configured, `quoted` is the listed figure and
+   * nothing on the screen changes.
    */
   app.get(
     '/products/:id/prices',
     { preHandler: requireAdmin(Permission.PRODUCT_READ) },
     async (request, reply) => {
       const { id } = idParam.parse(request.params);
-      const { country } = z
-        .object({ country: z.string().trim().max(8).optional() })
-        .parse(request.query);
+      const country = currentUser(request).sessionCountry;
 
       const product = await prisma.product.findUnique({
         where: { id },
@@ -926,23 +920,23 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
   });
 
   /**
-   * Variants, with what each override costs a customer in `?country=`.
+   * Variants, with what each override costs a customer in the session's market.
    *
-   * The same query parameter and the same engine as the product list and the
-   * per-currency card, because a variant price is a shelf price: the market
-   * chosen in the console's header has to reach all three, or one screen
-   * quotes Germany while the next quotes the seller's own country.
+   * The same market and the same engine as the product list and the
+   * per-currency card, because a variant price is a shelf price: all three sit
+   * on screens a member of staff moves between in one afternoon, and a figure
+   * that changed on the way between them would leave them no way to tell which
+   * one the shop is using.
    */
   app.get(
     '/products/:id/variants',
     { preHandler: requireAdmin(Permission.PRODUCT_READ) },
     async (request, reply) => {
       const { id } = idParam.parse(request.params);
-      const { country } = z
-        .object({ country: z.string().trim().max(8).optional() })
-        .parse(request.query);
 
-      return reply.status(200).send({ variants: await listVariants(id, country) });
+      return reply
+        .status(200)
+        .send({ variants: await listVariants(id, currentUser(request).sessionCountry) });
     },
   );
 

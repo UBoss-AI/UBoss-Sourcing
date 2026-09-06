@@ -270,26 +270,43 @@ export interface SessionAuthState {
   isActive: boolean;
   /** The browser has told us where this sign-in happened. */
   hasLocation: boolean;
+  /**
+   * The country it happened in, when a geocoder named one.
+   *
+   * The console prices its catalogue for this: a member of staff is shown what
+   * a customer where they are sitting pays. Null leaves the panel quoting the
+   * seller's own country.
+   */
+  country: string | null;
 }
 
 /**
  * The session row, as the guards see it.
  *
- * Both facts come from one query on purpose: `requireAdmin` needs each of them
- * on every single request, and two round trips per request to the same row is a
- * cost a self-hosted box pays for nothing.
+ * All three facts come from one query on purpose: `requireAdmin` needs each of
+ * them on every single request, and two round trips per request to the same row
+ * is a cost a self-hosted box pays for nothing.
  */
 export async function getSessionAuthState(sessionId: string): Promise<SessionAuthState> {
   const session = await prisma.session.findUnique({
     where: { id: sessionId },
-    select: { revokedAt: true, expiresAt: true, locationCapturedAt: true },
+    select: {
+      revokedAt: true,
+      expiresAt: true,
+      locationCapturedAt: true,
+      locationCountry: true,
+    },
   });
 
   if (session === null || session.revokedAt !== null || session.expiresAt.getTime() <= Date.now()) {
-    return { isActive: false, hasLocation: false };
+    return { isActive: false, hasLocation: false, country: null };
   }
 
-  return { isActive: true, hasLocation: session.locationCapturedAt !== null };
+  return {
+    isActive: true,
+    hasLocation: session.locationCapturedAt !== null,
+    country: session.locationCountry,
+  };
 }
 
 /** True when the session is present, unrevoked and unexpired. */

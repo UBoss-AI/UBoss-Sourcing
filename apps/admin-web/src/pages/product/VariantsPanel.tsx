@@ -12,8 +12,9 @@
  *     which will happen, using the order count the list already returns.
  *
  * A variant's own price is a shelf price, so beside it sits what a customer in
- * the market chosen in the header actually pays for it - the same preview the
- * product list and the per-currency card show, from the same engine. Rows that
+ * the market this member of staff signed in from actually pays for it - the
+ * same preview the product list and the per-currency card show, named in the
+ * top bar and quoted by the same engine. Rows that
  * inherit the product's price get no figure: that one is quoted on the price
  * card above, and repeating it here would read as an override that does not
  * exist.
@@ -23,7 +24,6 @@ import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
-import { useMarket } from '@/app/market-context';
 import { useSession } from '@/auth/session-context';
 import { DataTable } from '@/components/DataTable';
 import type { Column } from '@/components/DataTable';
@@ -283,17 +283,9 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
   const [editorFor, setEditorFor] = useState<VariantRow | null | undefined>(undefined);
   const [removing, setRemoving] = useState<VariantRow | null>(null);
 
-  /** Which market the preview column is quoted for, from the panel's header. */
-  const { country } = useMarket();
-
   const query = useQuery({
-    // `country` is in the key because it changes the response, and because it
-    // is what requotes this table when the market in the header moves.
-    queryKey: ['variants', productId, country],
-    queryFn: () =>
-      api.get<{ variants: VariantRow[] }>(`/admin/products/${productId}/variants`, {
-        query: { country: country ?? undefined },
-      }),
+    queryKey: ['variants', productId],
+    queryFn: () => api.get<{ variants: VariantRow[] }>(`/admin/products/${productId}/variants`),
   });
 
   const remove = useMutation({

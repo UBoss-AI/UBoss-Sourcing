@@ -13,6 +13,7 @@
  */
 import { expect } from 'vitest';
 import type { buildApp } from '../../src/http/app.js';
+import { prisma } from '../../src/infra/prisma.js';
 
 export interface AdminSession {
   /** Ready for the `cookie` header. */
@@ -33,6 +34,14 @@ export interface SignInOptions {
   /** Somewhere in Pune, near enough. Any valid pair does. */
   latitude?: number;
   longitude?: number;
+  /**
+   * The country the session should look as though it signed in from.
+   *
+   * The console prices its catalogue for this, and there is no query parameter
+   * to override it - see `setSessionCountry` for why a test has to state it
+   * rather than let a geocoder decide.
+   */
+  country?: string;
 }
 
 export async function signInAdmin(
@@ -67,5 +76,27 @@ export async function signInAdmin(
 
   expect(located.statusCode, located.body).toBe(200);
 
+  if (options.country !== undefined) await setSessionCountry(options.email, options.country);
+
   return { cookies, csrfToken };
+}
+
+/**
+ * Say which country this account's live sessions signed in from.
+ *
+ * In production the reverse geocoder writes this column while the position is
+ * being recorded. The suite has no geocoder - `tests/setup.ts` empties
+ * `GEOCODE_REVERSE_URL`, because a test that reaches OpenStreetMap is a test
+ * that fails when a firewall says so - so a test that needs a market states it
+ * here instead, writing exactly the column a real sign-in would have written.
+ *
+ * Every unrevoked session of the account, rather than the one just opened: the
+ * helper has cookies, not a session id, and an account under test has one live
+ * session anyway.
+ */
+export async function setSessionCountry(email: string, country: string | null): Promise<void> {
+  await prisma.session.updateMany({
+    where: { user: { emailNormalized: email.trim().toLowerCase() }, revokedAt: null },
+    data: { locationCountry: country },
+  });
 }

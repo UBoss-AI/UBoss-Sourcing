@@ -196,6 +196,13 @@ model Session {
   /// The reverse-geocoded place, when a lookup was possible. Null falls back to
   /// the coordinates, which are always present whenever this section is filled.
   locationLabel      String?   @db.VarChar(255)
+  /// The country that place is in, ISO-3166-1 alpha-2, when the geocoder named
+  /// one. It is what the console prices for: a member of staff signing in from
+  /// Germany is shown what a German customer pays, because that is the only
+  /// market they can speak for. Null wherever no geocoder answered, and the
+  /// console then quotes the seller's own country - the same fallback a
+  /// shopper gets before they have given an address.
+  locationCountry    String?   @db.Char(2)
   locationCapturedAt DateTime? @db.DateTime(3)
 
   expiresAt          DateTime  @db.DateTime(3)

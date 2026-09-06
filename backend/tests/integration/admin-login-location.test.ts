@@ -20,13 +20,17 @@
  * leaves the machine and `place` falls back to the coordinates - itself a
  * supported deployment setting.
  */
+import { createServer } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildApp } from '../../src/http/app.js';
+import { env } from '../../src/config/env.js';
 import { Permission, Role } from '../../src/domain/permissions.js';
 import { hashPassword } from '../../src/infra/crypto.js';
 import { newId } from '../../src/infra/ids.js';
 import { prisma } from '../../src/infra/prisma.js';
 import { listAdminNotifications } from '../../src/modules/notifications/admin-notification.service.js';
+import { recordSessionLocation } from '../../src/modules/identity/session-location.service.js';
 
 let app: Awaited<ReturnType<typeof buildApp>>;
 
@@ -199,6 +203,82 @@ describe('sharing the position', () => {
     expect(row.locationAccuracyM).toBe(42);
     // Empty GEOCODE_REVERSE_URL means no lookup was attempted.
     expect(row.locationLabel).toBeNull();
+    // And with no lookup there is no country, which is what leaves the console
+    // quoting the seller's own market rather than guessing at one.
+    expect(row.locationCountry).toBeNull();
+  });
+
+  it('records the country a geocoder names, because the console prices for it', async () => {
+    /**
+     * A stub geocoder rather than a mocked `fetch`.
+     *
+     * What is under test is the parsing of somebody else's JSON, and a mock
+     * that returns an object this file wrote proves only that this file can
+     * write an object. The body below is Nominatim's shape, `country_code`
+     * lower case exactly as it arrives on the wire.
+     */
+    const geocoder = createServer((request, response) => {
+      // The address block only comes back when it is asked for, and asking is
+      // the service's own job - so the request must carry it.
+      expect(request.url ?? '').toContain('addressdetails=1');
+
+      response.setHeader('content-type', 'application/json');
+      response.end(
+        JSON.stringify({
+          display_name: 'Pune, Maharashtra, India',
+          address: { city: 'Pune', country: 'India', country_code: 'in' },
+        }),
+      );
+    });
+
+    await new Promise<void>((resolve) => geocoder.listen(0, '127.0.0.1', resolve));
+    const { port } = geocoder.address() as AddressInfo;
+
+    const previous = env.GEOCODE_REVERSE_URL;
+    env.GEOCODE_REVERSE_URL = `http://127.0.0.1:${String(port)}/reverse?lat={lat}&lon={lon}`;
+
+    try {
+      // Recorded against a session made here rather than through a sign-in:
+      // the login route is rate limited per address and this file is already
+      // near its budget, and what is under test is the write, not the gate
+      // that every other test in this file exercises.
+      const user = await prisma.user.findUniqueOrThrow({
+        where: { emailNormalized: EMAIL },
+        select: { id: true },
+      });
+
+      const sessionId = newId();
+      await prisma.session.create({
+        data: {
+          id: sessionId,
+          userId: user.id,
+          refreshTokenHash: sessionId.padEnd(64, '0'),
+          familyId: newId(),
+          expiresAt: new Date(Date.now() + 60_000),
+        },
+      });
+
+      await recordSessionLocation({
+        sessionId,
+        userId: user.id,
+        userEmail: EMAIL,
+        latitude: LATITUDE,
+        longitude: LONGITUDE,
+        accuracyM: 42,
+      });
+
+      const row = await prisma.session.findUniqueOrThrow({ where: { id: sessionId } });
+
+      expect(row.locationLabel).toBe('Pune, Maharashtra, India');
+      // Upper case, which is how every other country code in this system is
+      // written and how the pricing engine compares them. The console reads it
+      // from `/me`: it is the market every price in the panel is quoted for,
+      // and the only market it can be quoted for.
+      expect(row.locationCountry).toBe('IN');
+    } finally {
+      env.GEOCODE_REVERSE_URL = previous;
+      await new Promise<void>((resolve) => geocoder.close(() => { resolve(); }));
+    }
   });
 
   it('rings the bell once, for staff who may read staff records', async () => {

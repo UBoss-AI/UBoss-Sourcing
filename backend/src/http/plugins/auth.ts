@@ -57,7 +57,12 @@ export function cookieNamesFor(kind: UserKind): CookieNames {
 declare module 'fastify' {
   interface FastifyRequest {
     /** Present only after a guard has run. Never populated speculatively. */
-    auth?: AuthenticatedUser & { sessionId: string; sessionHasLocation: boolean };
+    auth?: AuthenticatedUser & {
+      sessionId: string;
+      sessionHasLocation: boolean;
+      /** Where this sign-in happened, ISO-3166-1 alpha-2. Null when unknown. */
+      sessionCountry: string | null;
+    };
   }
 }
 
@@ -134,7 +139,13 @@ function assertCsrf(request: FastifyRequest, usedCookie: boolean, kind: UserKind
 async function authenticate(
   request: FastifyRequest,
   expectedKind: UserKind,
-): Promise<AuthenticatedUser & { sessionId: string; sessionHasLocation: boolean }> {
+): Promise<
+  AuthenticatedUser & {
+    sessionId: string;
+    sessionHasLocation: boolean;
+    sessionCountry: string | null;
+  }
+> {
   const token = extractAccessToken(request, expectedKind);
   if (token === null) {
     throw unauthorized(ErrorCode.UNAUTHENTICATED, 'Authentication is required.');
@@ -169,7 +180,12 @@ async function authenticate(
     throw unauthorized(ErrorCode.ACCOUNT_DEACTIVATED, 'This account is no longer active.');
   }
 
-  return { ...user, sessionId: claims.sid, sessionHasLocation: session.hasLocation };
+  return {
+    ...user,
+    sessionId: claims.sid,
+    sessionHasLocation: session.hasLocation,
+    sessionCountry: session.country,
+  };
 }
 
 /**
@@ -271,7 +287,11 @@ export function requireAuthenticated(kind: UserKind) {
 /** Narrow `request.auth` after a guard has run. Throws rather than returning undefined. */
 export function currentUser(
   request: FastifyRequest,
-): AuthenticatedUser & { sessionId: string; sessionHasLocation: boolean } {
+): AuthenticatedUser & {
+  sessionId: string;
+  sessionHasLocation: boolean;
+  sessionCountry: string | null;
+} {
   if (request.auth === undefined) {
     // A programming error - a handler read auth without declaring a guard.
     throw unauthorized(ErrorCode.UNAUTHENTICATED, 'Authentication is required.');
