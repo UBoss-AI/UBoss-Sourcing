@@ -91,6 +91,30 @@ export interface ShelfQuote {
 }
 
 /**
+ * Are these two rates the same number?
+ *
+ * They arrive as strings from two different places - a Decimal column and a
+ * tax class's own percentage - so "21" and "21.000000" are the same rate
+ * written twice. Compared as text they are not, and compared as floats they
+ * would be a rounding bug in the code that exists to prevent rounding bugs.
+ */
+function sameRate(left: string, right: string): boolean {
+  const normalise = (value: string): string => {
+    const [whole = '0', fraction = ''] = value.trim().split('.');
+    return `${whole.replace(/^0+(?=\d)/, '')}.${fraction.replace(/0+$/, '')}`;
+  };
+
+  return normalise(left) === normalise(right);
+}
+
+/** The rate baked into a listed figure: the seller's own, for this band. */
+function domesticRateFor(setup: TaxSetup, line: ShelfLine): string {
+  if (line.vatCategory === null) return line.flatRatePercent;
+
+  return setup.domesticRates.get(line.vatCategory)?.toString() ?? line.flatRatePercent;
+}
+
+/**
  * Reprice one listed figure for the destination.
  *
  * Under FLAT_RATE this returns its argument untouched, which is why an Indian
@@ -118,6 +142,26 @@ export function quoteShelfPrice(setup: TaxSetup, line: ShelfLine, listedMinor: M
   // already quoted the way this shelf quotes prices.
   if (!line.taxInclusive || applied.taxInclusive) {
     return { ...applied, problem: null };
+  }
+
+  /**
+   * Quoted at the very rate the price was authored at - a domestic sale, or a
+   * member state that happens to charge the same on this band.
+   *
+   * The figure is already right, and the round trip below can only damage it:
+   * taking 9% out of INR 1,450.00 and putting 9% back lands on INR 1,450.01,
+   * because neither direction divides evenly and each rounds on its own. A
+   * penny appearing beside an untouched price reads as a pricing fault to
+   * whoever typed it, and it is the shopper's own market that sees it - the
+   * one market where the shelf must be exact.
+   */
+  if (sameRate(applied.taxRatePercent, domesticRateFor(setup, line))) {
+    return {
+      unitPriceMinor: listedMinor,
+      taxRatePercent: applied.taxRatePercent,
+      taxInclusive: true,
+      problem: null,
+    };
   }
 
   // An inclusive catalogue under an EU treatment. `applyLineTax` took the

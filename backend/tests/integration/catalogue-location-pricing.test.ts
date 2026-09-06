@@ -246,6 +246,21 @@ describe('a listed price against three destinations', () => {
     expect(product.tax).toMatchObject({ ratePercent: '21', inclusive: true, country: 'NL' });
   });
 
+  it('quotes a domestic sale at exactly the figure on the shelf', async () => {
+    // EUR 100.00 at 21%: taking the tax out gives EUR 82.64 and putting the
+    // same tax back gives EUR 99.99. Neither division is exact and each one
+    // rounds on its own, so a price quoted at the very rate it was authored at
+    // must not be round-tripped at all - the shopper's own market is the one
+    // market where the shelf has to be exact, and a penny missing from a round
+    // number is read as a fault by everybody who sees it.
+    await makeProduct({ sku: 'ROUND-100', slug: 'round-trip', listedMinor: 10_000n });
+
+    const { product } = await detail('round-trip', 'NL');
+
+    expect(product.price?.minor).toBe('10000');
+    expect(product.tax).toMatchObject({ ratePercent: '21', inclusive: true });
+  });
+
   it('quotes the destination state’s rate to a German consumer', async () => {
     const { product } = await detail('nitrile-gloves', 'DE');
 
