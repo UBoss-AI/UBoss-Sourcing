@@ -32,6 +32,7 @@ import {
   type CreatePaymentInput,
   type CreatePaymentResult,
   type NormalisedPaymentStatus,
+  type PaymentMethodHint,
   type PaymentProvider,
   type PaymentStatusResult,
   type ProviderCredentials,
@@ -296,6 +297,21 @@ export class StripeAdapter implements PaymentProvider {
     } finally {
       clearTimeout(timer);
     }
+  }
+
+  /**
+   * Nothing to name beyond the default.
+   *
+   * Stripe decides its own instrument list from the account's settings and the
+   * customer's country, and nothing in this codebase asks it to open on a
+   * particular one. Enumerating what the account has enabled would therefore
+   * produce a list this application cannot act on - a choice that changes
+   * nothing is worse than no choice at all.
+   *
+   * No network call, so a checkout page costs nothing to ask.
+   */
+  offerableMethods(): Promise<PaymentMethodHint[]> {
+    return Promise.resolve(['ANY']);
   }
 
   async testConnection(): Promise<ConnectionTestResult> {

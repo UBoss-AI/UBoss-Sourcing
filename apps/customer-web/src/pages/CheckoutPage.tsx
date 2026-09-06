@@ -601,8 +601,12 @@ export function CheckoutPage(): React.JSX.Element {
 
                       {/*
                         Instruments the chosen gateway can be opened on. Only
-                        UPI is named today, and only Razorpay offers it — so
-                        this appears exactly when Razorpay is the pick.
+                        UPI is named today, and only Razorpay offers it — but
+                        the server asks that Razorpay account whether UPI is
+                        actually switched on, so this can be absent even with
+                        Razorpay picked. Read the list, never infer it from the
+                        gateway: promising the UPI tab to an account that has
+                        no UPI tab lands the customer on a card form.
                       */}
                       {extraMethods.length > 0 && (
                         <div className="mt-3">

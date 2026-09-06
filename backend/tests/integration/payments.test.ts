@@ -821,14 +821,39 @@ describe('gateway selection', () => {
 });
 
 describe('gateways offered at checkout', () => {
-  it('names UPI only for the gateway that can settle it', async () => {
+  /**
+   * An instrument is named only when the gateway says it will open on it.
+   *
+   * This used to read `expect(razorpay?.methods).toContain('UPI')`, against a
+   * list written into `availableGateways` as `['ANY', 'UPI']`. It passed while
+   * being wrong: whether UPI works is a property of the operator's Razorpay
+   * account, not of this codebase, and the account this was found on has it
+   * switched off. Checkout offered UPI anyway, Razorpay dropped the
+   * `prefill.method` without complaining, and the customer who asked for UPI
+   * got a card form.
+   *
+   * So the assertion is against what the adapter reports rather than a fixed
+   * expectation - that is the invariant, and it holds on any account. The
+   * on/off contrast is in tests/unit/razorpay-offerable-methods.test.ts, where
+   * the account can be stubbed either way.
+   */
+  it('names an instrument only when the gateway reports it', async () => {
     const { gateways } = await availableGateways();
 
     const razorpay = gateways.find((entry) => entry.provider === 'RAZORPAY');
     const stripe = gateways.find((entry) => entry.provider === 'STRIPE');
 
-    expect(razorpay?.methods).toContain('UPI');
-    expect(stripe?.methods).not.toContain('UPI');
+    // Nothing in this codebase asks Stripe to open on a named instrument, so
+    // it offers none - whatever the Razorpay account beside it has enabled.
+    expect(stripe?.methods).toStrictEqual(['ANY']);
+
+    // The offer repeats the gateway's own answer instead of a list written
+    // into the service. Resolved through the same credentials, so the
+    // adapter's per-account cache makes both calls describe one account.
+    const { provider } = await loadActiveProvider('RAZORPAY');
+
+    expect(razorpay?.methods).toStrictEqual(await provider.offerableMethods());
+    expect(razorpay?.methods).toContain('ANY');
   });
 
   /**
@@ -1023,12 +1048,25 @@ describe('the offer matches what resolution can deliver', () => {
     expect(gateways.length).toBeGreaterThan(0);
     expect(defaultProvider).not.toBeNull();
 
-    // Only one resolution is asserted, deliberately. Resolving through the
-    // environment path bootstraps a connection row as a side effect, so a
-    // second call in this test would be answered from the database and would
-    // be testing the previous line rather than this one.
-    const resolved = await loadActiveProvider(defaultProvider ?? undefined);
-    expect(resolved.kind).toBe(defaultProvider);
+    // Every offered gateway, not just the default, and in sequence - because
+    // the first resolution is exactly what used to break the second.
+    //
+    // Resolving through the environment writes a connection row, to hang the
+    // payment transaction's foreign key on. That row used to be written
+    // active, which meant the first payment on an env-only deployment turned
+    // one gateway into "the active connection": from then on
+    // `loadActiveProvider` stopped consulting the environment, the other
+    // gateway resolved to this one, and it disappeared from checkout with
+    // nothing changed by anybody. The row is written inactive now, so the
+    // environment keeps governing every gateway it has keys for.
+    for (const entry of gateways) {
+      const resolved = await loadActiveProvider(entry.provider);
+      expect(resolved.kind).toBe(entry.provider);
+    }
+
+    expect((await availableGateways()).gateways.map((entry) => entry.provider)).toStrictEqual(
+      gateways.map((entry) => entry.provider),
+    );
   });
 
   it('never preselects a gateway it did not offer', async () => {

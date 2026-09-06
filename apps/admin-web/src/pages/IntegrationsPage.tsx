@@ -18,6 +18,12 @@
  * A failed test also deactivates the connection. Credentials that have stopped
  * working must not keep taking payments.
  *
+ * **More than one gateway may be active.** Checkout offers the customer every
+ * active gateway their currency can be settled in, so activating Stripe does
+ * not switch Razorpay off. What activation does switch off is the same gateway
+ * in its other mode, and every gateway in the other mode — a shop is either
+ * taking real payments or it is not.
+ *
  * **TEST and LIVE are never blurred.** A `rzp_live_` key filed under TEST, or
  * the reverse, is rejected at save. LIVE mode is called out in plain language
  * and given its own red edge every time it appears, because the difference is
@@ -371,7 +377,8 @@ function GatewaySteps(): React.JSX.Element {
     },
     {
       title: 'Activate',
-      detail: 'Refused unless the last test passed. Any other active gateway is switched off.',
+      detail:
+        'Refused unless the last test passed. Other gateways stay active; the other mode is not.',
     },
   ];
 
@@ -596,7 +603,7 @@ function GatewayPanel(): React.JSX.Element {
     <>
       <Card
         title={t('integrations.paymentGateway')}
-        description={t('integrations.exactlyOneConnectionIsActive')}
+        description={t('integrations.activateOneConnectionPer')}
         actions={
           canWrite ? (
             <Button
@@ -699,7 +706,7 @@ function GatewayPanel(): React.JSX.Element {
               <Callout tone="danger" title={t('integrations.realCardsFromThisMoment')}>
                 {t('integrations.customerCheckoutsWillChargeReal')}
               </Callout>
-              <p>{t('integrations.anyOtherActiveGatewayIs')}</p>
+              <p>{t('integrations.otherGatewaysOnLive')}</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -707,7 +714,7 @@ function GatewayPanel(): React.JSX.Element {
                 {t('integrations.thisIsA')}
                 <strong>test</strong> connection. No real money can move on a test key.
               </p>
-              <p>{t('integrations.anyOtherActiveGatewayIs2')}</p>
+              <p>{t('integrations.otherGatewaysOnTest')}</p>
             </div>
           )
         }

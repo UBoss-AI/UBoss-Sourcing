@@ -597,11 +597,34 @@ export function registerAdminPaymentRoutes(app: FastifyInstance): Promise<void> 
         );
       }
 
-      // Exactly one active connection. Two would make provider selection at
-      // checkout arbitrary.
+      /*
+       * At most one active connection per gateway, and never two modes at
+       * once - but a gateway other than this one is left alone.
+       *
+       * This used to switch off every other connection, whatever gateway it
+       * belonged to. That made it impossible for a shop to run Stripe and
+       * Razorpay together, which is the whole premise of letting the customer
+       * choose at checkout: `availableGateways` offers what is active, so a
+       * single-active rule meant the offer list could never hold more than one
+       * entry and the choice never appeared at all. An operator who connected
+       * both watched the second activation quietly switch the first off.
+       *
+       * The two rules that remain are the ones that were protecting something:
+       *
+       *   - Same gateway, both modes. `loadActiveProvider` selects by
+       *     provider, so a live and a test Razorpay both active would leave it
+       *     arbitrary which one takes the money.
+       *   - Mixed modes across gateways. Stripe LIVE beside Razorpay TEST
+       *     would charge one customer real money and let the next pay against
+       *     a sandbox key, decided by which radio button they happened to
+       *     pick. A shop is either taking real payments or it is not.
+       */
       if (active) {
         await prisma.paymentProviderConnection.updateMany({
-          where: { id: { not: id } },
+          where: {
+            id: { not: id },
+            OR: [{ provider: connection.provider }, { mode: { not: connection.mode } }],
+          },
           data: { isActive: false },
         });
       }

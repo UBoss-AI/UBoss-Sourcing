@@ -19,6 +19,7 @@ import {
   type CreatePaymentInput,
   type CreatePaymentResult,
   type NormalisedPaymentStatus,
+  type PaymentMethodHint,
   type PaymentProvider,
   type PaymentStatusResult,
   type ProviderCredentials,
@@ -30,6 +31,41 @@ import {
 
 const API_BASE = 'https://api.razorpay.com/v1';
 const REQUEST_TIMEOUT_MS = 15_000;
+
+/**
+ * A much shorter budget for reading which instruments the account has enabled.
+ *
+ * That call sits on the checkout page's critical path and buys nothing but a
+ * more precise instrument list. Fifteen seconds is the right patience for a
+ * payment; for this it would mean a customer staring at an unfinished checkout
+ * because a cosmetic lookup is slow.
+ */
+const PREFERENCES_TIMEOUT_MS = 4_000;
+
+/** How long an answer is reused. An operator toggles UPI once, not hourly. */
+const METHODS_TTL_MS = 10 * 60 * 1000;
+
+/** Shorter, so a Razorpay outage is re-checked soon but not on every load. */
+const METHODS_FAILURE_TTL_MS = 60 * 1000;
+
+/**
+ * Enabled instruments, keyed by the account they belong to.
+ *
+ * Cached because `availableGateways` runs on every checkout page load and the
+ * answer changes only when an operator changes it in the Razorpay dashboard.
+ *
+ * Deliberately not persisted on the connection row and refreshed at
+ * Test Connection time, which was the alternative. That would keep the
+ * checkout page free of any dependency on Razorpay being reachable - but it
+ * would also go stale the moment an operator switched UPI on or off without
+ * re-testing in UBOSS, and serving a stale "UPI is available" is exactly the
+ * silent lie this method exists to prevent. A ten-minute window in which UPI
+ * is not yet offered errs in the harmless direction.
+ *
+ * One entry per key_id ever seen in this process: two in practice, and one
+ * more each time an operator rotates credentials.
+ */
+const methodsByKeyId = new Map<string, { methods: PaymentMethodHint[]; expiresAt: number }>();
 
 /**
  * Razorpay order/payment states, mapped to ours.
@@ -192,6 +228,71 @@ export class RazorpayAdapter implements PaymentProvider {
         mode: this.mode,
         message: error instanceof Error ? error.message : 'Connection test failed.',
       };
+    }
+  }
+
+  /**
+   * Which instruments this account will actually show, `ANY` included.
+   *
+   * `/preferences` is the same endpoint Razorpay's own checkout.js asks before
+   * it draws the sheet, so it is the sheet's own answer rather than a guess
+   * about it. It takes the key_id as a query parameter and no authentication -
+   * that key already reaches the browser - so this sends no credentials and
+   * uses its own short timeout rather than the payment path's.
+   *
+   * Every failure answers `['ANY']`: unreachable, malformed, or a shape
+   * Razorpay has since changed. The customer then sees no named instrument,
+   * which costs them one tap inside a sheet that still offers everything.
+   */
+  async offerableMethods(): Promise<PaymentMethodHint[]> {
+    const cached = methodsByKeyId.get(this.credentials.keyId);
+    if (cached !== undefined && cached.expiresAt > Date.now()) return cached.methods;
+
+    let methods: PaymentMethodHint[] = ['ANY'];
+    let ttl = METHODS_FAILURE_TTL_MS;
+
+    try {
+      const enabled = await this.readEnabledMethods();
+
+      // Strictly `=== true`. Razorpay answers with a boolean here, and a shape
+      // change that made it an object must not be read as "enabled" by
+      // truthiness - that is how the promise gets made again.
+      methods = enabled.upi === true ? ['ANY', 'UPI'] : ['ANY'];
+      ttl = METHODS_TTL_MS;
+    } catch (error) {
+      logger.warn(
+        { reason: error instanceof Error ? error.message : 'unknown error' },
+        'could not read razorpay enabled instruments; offering none by name',
+      );
+    }
+
+    methodsByKeyId.set(this.credentials.keyId, { methods, expiresAt: Date.now() + ttl });
+
+    return methods;
+  }
+
+  /** The raw `methods` block from `/preferences`. Throws on anything unusable. */
+  private async readEnabledMethods(): Promise<Record<string, unknown>> {
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      controller.abort();
+    }, PREFERENCES_TIMEOUT_MS);
+
+    try {
+      const response = await fetch(
+        `${API_BASE}/preferences?key_id=${encodeURIComponent(this.credentials.keyId)}`,
+        { signal: controller.signal },
+      );
+
+      if (!response.ok) {
+        throw new Error(`Razorpay returned HTTP ${String(response.status)}`);
+      }
+
+      const parsed = (await response.json()) as { methods?: Record<string, unknown> };
+
+      return parsed.methods ?? {};
+    } finally {
+      clearTimeout(timer);
     }
   }
 

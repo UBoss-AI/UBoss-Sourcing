@@ -137,6 +137,27 @@ export interface PaymentProvider {
   /** Prove the credentials work before an administrator activates them. */
   testConnection(): Promise<ConnectionTestResult>;
 
+  /**
+   * The instruments this gateway would actually open on, `ANY` included.
+   *
+   * Asked of the gateway rather than declared here, because the answer belongs
+   * to the merchant account and not to the integration. Razorpay supports UPI;
+   * a particular Razorpay account may still have it switched off, and its
+   * checkout sheet then has no UPI tab to open on.
+   *
+   * Naming an instrument the account cannot serve is the same class of mistake
+   * as offering a gateway that cannot settle the cart's currency: the customer
+   * chooses UPI, reads that checkout will open on the UPI tab, and is handed a
+   * card form with nothing to explain the difference. `prefill.method` is not
+   * refused in that case - it is silently ignored, so nothing downstream can
+   * catch it either.
+   *
+   * An adapter that cannot find out must answer `['ANY']`. Under-promising
+   * costs the customer one extra tap inside the sheet; over-promising breaks a
+   * statement this application made to them.
+   */
+  offerableMethods(): Promise<PaymentMethodHint[]>;
+
   createPayment(input: CreatePaymentInput): Promise<CreatePaymentResult>;
 
   /**

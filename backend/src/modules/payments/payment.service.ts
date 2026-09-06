@@ -148,34 +148,49 @@ const PROVIDER_LABEL: Readonly<Record<ProviderKind, string>> = Object.freeze({
 function envCredentials(
   preferred?: ProviderKind,
 ): { kind: ProviderKind; credentials: ProviderCredentials } | null {
+  const razorpayCredentials = envCredentialsFor('RAZORPAY');
+  const stripeCredentials = envCredentialsFor('STRIPE');
+
   const razorpay =
-    env.RAZORPAY_KEY_ID.length > 0 && env.RAZORPAY_KEY_SECRET.length > 0
-      ? {
-          kind: 'RAZORPAY' as const,
-          credentials: {
-            keyId: env.RAZORPAY_KEY_ID,
-            keySecret: env.RAZORPAY_KEY_SECRET,
-            webhookSecret: env.RAZORPAY_WEBHOOK_SECRET,
-          },
-        }
-      : null;
+    razorpayCredentials === null
+      ? null
+      : { kind: 'RAZORPAY' as const, credentials: razorpayCredentials };
 
   const stripe =
-    env.STRIPE_PUBLISHABLE_KEY.length > 0 && env.STRIPE_SECRET_KEY.length > 0
-      ? {
-          kind: 'STRIPE' as const,
-          credentials: {
-            keyId: env.STRIPE_PUBLISHABLE_KEY,
-            keySecret: env.STRIPE_SECRET_KEY,
-            webhookSecret: env.STRIPE_WEBHOOK_SECRET,
-          },
-        }
-      : null;
+    stripeCredentials === null ? null : { kind: 'STRIPE' as const, credentials: stripeCredentials };
 
   if (preferred === 'RAZORPAY' && razorpay !== null) return razorpay;
   if (preferred === 'STRIPE' && stripe !== null) return stripe;
 
   return env.PAYMENT_DEFAULT_PROVIDER === 'stripe' ? (stripe ?? razorpay) : (razorpay ?? stripe);
+}
+
+/**
+ * Environment credentials for one named gateway, with no fallback.
+ *
+ * `envCredentials` answers "what should we use", and will hand back the other
+ * gateway when the one asked for has no keys. This answers "does THIS gateway
+ * have a complete pair", which is what a caller reasoning about one gateway at
+ * a time needs - being given the other one would make its answer wrong.
+ */
+function envCredentialsFor(kind: ProviderKind): ProviderCredentials | null {
+  if (kind === 'RAZORPAY') {
+    return env.RAZORPAY_KEY_ID.length > 0 && env.RAZORPAY_KEY_SECRET.length > 0
+      ? {
+          keyId: env.RAZORPAY_KEY_ID,
+          keySecret: env.RAZORPAY_KEY_SECRET,
+          webhookSecret: env.RAZORPAY_WEBHOOK_SECRET,
+        }
+      : null;
+  }
+
+  return env.STRIPE_PUBLISHABLE_KEY.length > 0 && env.STRIPE_SECRET_KEY.length > 0
+    ? {
+        keyId: env.STRIPE_PUBLISHABLE_KEY,
+        keySecret: env.STRIPE_SECRET_KEY,
+        webhookSecret: env.STRIPE_WEBHOOK_SECRET,
+      }
+    : null;
 }
 
 /** A gateway the storefront may offer, and what it can be asked to show. */
@@ -185,10 +200,12 @@ export interface AvailableGateway {
   /**
    * Instruments worth naming separately in the UI.
    *
-   * Only what this codebase can actually *request* of the gateway, which is
-   * why the list is short: a Razorpay account also does netbanking and
-   * wallets, but nothing here asks for those, so offering them as a choice
-   * would be a checkbox that changes nothing.
+   * Two filters, and the list is what survives both. Only what this codebase
+   * can actually *request* of the gateway, which is why it is short: a
+   * Razorpay account also does netbanking and wallets, but nothing here asks
+   * for those, so offering them as a choice would be a checkbox that changes
+   * nothing. And only what the gateway's own account has switched on, which
+   * comes from `offerableMethods` rather than from a list written here.
    */
   methods: PaymentMethodHint[];
   /**
@@ -218,11 +235,20 @@ export async function availableGateways(): Promise<{
 }> {
   const connections = await prisma.paymentProviderConnection.findMany({
     where: { isActive: true },
-    select: { provider: true },
-    distinct: ['provider'],
+    select: { id: true, provider: true, credentialsEnc: true, webhookSecretEnc: true },
+    orderBy: { updatedAt: 'desc' },
   });
 
-  const active = new Set<ProviderKind>(connections.map((row) => row.provider));
+  /**
+   * One row per gateway, most recently updated first.
+   *
+   * Same tie-break `loadActiveProvider` uses, so the row consulted here about
+   * a gateway's instruments is the row that would take the payment.
+   */
+  const active = new Map<ProviderKind, (typeof connections)[number]>();
+  for (const row of connections) {
+    if (!active.has(row.provider)) active.set(row.provider, row);
+  }
 
   /**
    * What the environment could serve, if it came to that.
@@ -247,19 +273,25 @@ export async function availableGateways(): Promise<{
     fromEnvironment.add('STRIPE');
   }
 
-  const connected = active.size > 0 ? active : fromEnvironment;
+  const connected = active.size > 0 ? new Set(active.keys()) : fromEnvironment;
 
-  const catalogue: AvailableGateway[] = [
-    { provider: 'STRIPE', label: PROVIDER_LABEL.STRIPE, methods: ['ANY'], currencies: null },
-    {
-      provider: 'RAZORPAY',
-      label: PROVIDER_LABEL.RAZORPAY,
-      methods: ['ANY', 'UPI'],
-      currencies: ['INR'],
-    },
+  /**
+   * What is fixed about each gateway. `methods` is not on this list, because
+   * it is a fact about the merchant account and only the gateway knows it.
+   */
+  const catalogue: Omit<AvailableGateway, 'methods'>[] = [
+    { provider: 'STRIPE', label: PROVIDER_LABEL.STRIPE, currencies: null },
+    { provider: 'RAZORPAY', label: PROVIDER_LABEL.RAZORPAY, currencies: ['INR'] },
   ];
 
-  const gateways = catalogue.filter((entry) => connected.has(entry.provider));
+  const gateways: AvailableGateway[] = await Promise.all(
+    catalogue
+      .filter((entry) => connected.has(entry.provider))
+      .map(async (entry) => ({
+        ...entry,
+        methods: await offerableMethodsFor(entry.provider, active.get(entry.provider)),
+      })),
+  );
 
   const configuredDefault: ProviderKind =
     env.PAYMENT_DEFAULT_PROVIDER === 'stripe' ? 'STRIPE' : 'RAZORPAY';
@@ -272,12 +304,74 @@ export async function availableGateways(): Promise<{
   return { gateways, defaultProvider };
 }
 
+/** Just enough of a connection row to build an adapter from it. */
+interface CredentialRow {
+  id: string;
+  credentialsEnc: string;
+  webhookSecretEnc: string | null;
+}
+
+/**
+ * Ask one gateway which instruments it would actually open on.
+ *
+ * `connection` is the active row for that gateway, or undefined when the offer
+ * is coming from environment keys - the same two sources, resolved the same
+ * way, as everywhere else in this file.
+ *
+ * Never throws and never rejects the whole offer. This runs while a customer
+ * waits on the checkout page, and a gateway that cannot be asked is still a
+ * gateway they can pay through: the fallback drops the named instrument, not
+ * the gateway. Under-promising costs one tap inside the sheet.
+ */
+async function offerableMethodsFor(
+  kind: ProviderKind,
+  connection: CredentialRow | undefined,
+): Promise<PaymentMethodHint[]> {
+  try {
+    const credentials =
+      connection === undefined
+        ? envCredentialsFor(kind)
+        : {
+            ...(JSON.parse(
+              decryptSecret(connection.credentialsEnc, credentialAad(connection.id)),
+            ) as ProviderCredentials),
+            webhookSecret:
+              connection.webhookSecretEnc === null
+                ? ''
+                : decryptSecret(connection.webhookSecretEnc, credentialAad(connection.id)),
+          };
+
+    if (credentials === null) return ['ANY'];
+
+    return await buildProvider(kind, credentials).offerableMethods();
+  } catch (error) {
+    logger.warn(
+      { provider: kind, reason: error instanceof Error ? error.message : 'unknown error' },
+      'could not read the gateway instruments; offering none by name',
+    );
+
+    return ['ANY'];
+  }
+}
+
 /**
  * Persist a connection row for the environment credentials.
  *
  * Payment transactions carry a foreign key to a connection, so one has to
  * exist. The credentials are encrypted here exactly as an admin-entered one
  * would be.
+ *
+ * The row is written inactive, and that is the point of it. `isActive` records
+ * an operator's decision in Settings > Payments; this row records neither a
+ * decision nor an operator, only that a payment once resolved through the
+ * environment. Marking it active made the environment fallback destroy itself:
+ * a deployment with keys for both gateways offered both, and then the first
+ * payment turned one of them into "the active connection" - after which
+ * `loadActiveProvider` stopped consulting the environment, `availableGateways`
+ * saw a non-empty active set, and the other gateway vanished from checkout
+ * with nothing changed by anybody. Left inactive, the environment keeps
+ * governing both, and the first thing an administrator activates takes over
+ * cleanly.
  */
 async function ensureBootstrapConnection(
   kind: ProviderKind,
@@ -309,7 +403,7 @@ async function ensureBootstrapConnection(
           ? encryptSecret(credentials.webhookSecret, credentialAad(id))
           : null,
       credentialsMask: maskSecret(credentials.keyId),
-      isActive: true,
+      isActive: false,
     },
   });
 
