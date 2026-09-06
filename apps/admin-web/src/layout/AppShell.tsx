@@ -26,6 +26,7 @@ import { cx } from '@/lib/cx';
 import { roleLabel } from '@/lib/permissions';
 import { translateKey, useI18n } from '@/i18n/i18n-context';
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
+import { MarketSwitcher } from './MarketSwitcher';
 import { locateRoute, visibleNavigation } from './navigation';
 import { NotificationBell } from './NotificationBell';
 
@@ -461,6 +462,13 @@ export function AppShell(): React.JSX.Element {
                 rather than on the dashboard: a new order is worth knowing
                 about while you are standing in Inventory. */}
             <NotificationBell />
+
+            {/* Which market the panel previews prices for. Beside the language
+                picker because it is the same kind of setting - how this
+                console is being read, not what is in the catalogue - and on
+                every page because prices are on more than one of them. It
+                renders itself away where the answer would move no number. */}
+            <MarketSwitcher />
 
             {/* Beside the account menu, on every page. The panel is a tool
                 people work in all day; the language it is in belongs where

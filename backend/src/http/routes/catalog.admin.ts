@@ -39,11 +39,7 @@ import {
   outOfStockCondition,
 } from '../../modules/catalog/product-filters.js';
 import { loadShelfContext, quoteShelfPrice } from '../../modules/catalog/location-price.service.js';
-import {
-  getBaseCurrency,
-  listActiveCountries,
-  listActiveCurrencies,
-} from '../../modules/settings/currency.service.js';
+import { getBaseCurrency, listActiveCurrencies } from '../../modules/settings/currency.service.js';
 import { fetchRates } from '../../modules/settings/fx-rate.service.js';
 import {
   archiveProduct,
@@ -252,6 +248,16 @@ const adminProductFilterSchema = z.object({
 const adminProductQuerySchema = adminProductFilterSchema.extend({
   page: z.coerce.number().int().min(1).max(10_000).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(25),
+  /**
+   * Which market to quote each row for. Not a filter - it changes what a row
+   * says it costs a customer, never which rows come back - which is why it
+   * lives here and not in `adminProductFilterSchema`, where `adminProductWhere`
+   * would be handed a value it has no business acting on.
+   *
+   * An unreadable code is ignored rather than rejected, exactly as on the
+   * storefront: see `destinationFor`.
+   */
+  country: z.string().trim().max(8).optional(),
 });
 
 /**
@@ -379,6 +385,23 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
 
   // --- Products ------------------------------------------------------------
 
+  /**
+   * The product list.
+   *
+   * `?country=` adds a second figure to every row: what a customer standing in
+   * that country is actually charged for it. The `price` column stays the
+   * listed one - the figure staff typed, and the figure they edit - because an
+   * editor that quietly redisplays 119 where somebody entered 100 teaches
+   * people to distrust their own price list. The two travel side by side
+   * instead, and the gap between them is the destination's VAT.
+   *
+   * It is the same question `/products/:id/prices` answers for one product,
+   * asked of the same engine the storefront and the cart price through, so a
+   * list, a product screen and a shop cannot quote three different numbers.
+   *
+   * Absent, or in a deployment with no EU VAT configured, `quoted` is the
+   * listed figure and the panel has nothing extra to show.
+   */
   app.get(
     '/products',
     { preHandler: requireAdmin(Permission.PRODUCT_READ) },
@@ -386,7 +409,7 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
       const query = adminProductQuerySchema.parse(request.query);
       const where = adminProductWhere(query);
 
-      const [rows, total] = await Promise.all([
+      const [rows, total, shelf] = await Promise.all([
         prisma.product.findMany({
           where,
           // `id` as a tiebreaker keeps pagination stable across pages.
@@ -408,30 +431,59 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
             archivedAt: true,
             createdAt: true,
             category: { select: { id: true, name: true } },
+            // For the quote below. Every product carries its own class, so a
+            // reduced-rate line is quoted at its own band rather than at
+            // whatever the rest of the catalogue happens to use.
+            taxClass: { select: { ratePercent: true, isInclusive: true, vatCategory: true } },
             _count: { select: { media: true, variants: true } },
           },
         }),
         prisma.product.count({ where }),
+        // Resolved once for the whole page rather than once per row: the VAT
+        // tables are the same for every line on it, and a lookup per product
+        // would turn a page of twenty-five into fifty round trips.
+        loadShelfContext(query.country),
       ]);
 
       return reply.status(200).send({
-        products: rows.map((row) => ({
-          id: row.id,
-          name: row.name,
-          slug: row.slug,
-          sku: row.sku,
-          status: row.status,
-          isPublished: row.isPublished,
-          publishedAt: row.publishedAt?.toISOString() ?? null,
-          price: serialiseMoney(row.basePriceMinor, row.currency),
-          isStockTracked: row.isStockTracked,
-          reorderThreshold: row.reorderThreshold,
-          archivedAt: row.archivedAt?.toISOString() ?? null,
-          category: row.category,
-          mediaCount: row._count.media,
-          variantCount: row._count.variants,
-          createdAt: row.createdAt.toISOString(),
-        })),
+        products: rows.map((row) => {
+          const quote = quoteShelfPrice(
+            shelf.setup,
+            {
+              vatCategory: row.taxClass.vatCategory,
+              flatRatePercent: row.taxClass.ratePercent.toString(),
+              taxInclusive: row.taxClass.isInclusive,
+              productName: row.name,
+            },
+            row.basePriceMinor,
+          );
+
+          return {
+            id: row.id,
+            name: row.name,
+            slug: row.slug,
+            sku: row.sku,
+            status: row.status,
+            isPublished: row.isPublished,
+            publishedAt: row.publishedAt?.toISOString() ?? null,
+            /** The listed figure: what staff typed, and what they edit. */
+            price: serialiseMoney(row.basePriceMinor, row.currency),
+            /** What a customer in `country` is charged for that figure. */
+            quoted: serialiseMoney(quote.unitPriceMinor, row.currency),
+            quotedTax: { ratePercent: quote.taxRatePercent, inclusive: quote.taxInclusive },
+            isStockTracked: row.isStockTracked,
+            reorderThreshold: row.reorderThreshold,
+            archivedAt: row.archivedAt?.toISOString() ?? null,
+            category: row.category,
+            mediaCount: row._count.media,
+            variantCount: row._count.variants,
+            createdAt: row.createdAt.toISOString(),
+          };
+        }),
+        /** Which destination those quotes are for. Null when none was asked for. */
+        country: shelf.country,
+        /** Which rate applies there and on what basis, in one sentence. */
+        taxNote: shelf.setup.context.reason,
         pagination: {
           page: query.page,
           limit: query.limit,
@@ -616,10 +668,9 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
       });
       if (product === null) throw notFound('Product');
 
-      const [currencies, shelf, countries] = await Promise.all([
+      const [currencies, shelf] = await Promise.all([
         listActiveCurrencies(),
         loadShelfContext(country),
-        listActiveCountries(),
       ]);
 
       const rows = await prisma.productPrice.findMany({
@@ -640,9 +691,7 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
         baseCurrency: await getBaseCurrency(),
         /** Where the preview column is quoted for. Null when none was asked for. */
         country: shelf.country,
-        /** Countries staff can preview, so the picker does not hard-code a list. */
-        countries,
-        /** Which rate applies there and why, in a sentence, for the same reason. */
+        /** Which rate applies there and why, in a sentence, because the panel prints it. */
         taxNote: shelf.setup.context.reason,
         prices: currencies.map((currency) => {
           const row = byCurrency.get(currency.code);

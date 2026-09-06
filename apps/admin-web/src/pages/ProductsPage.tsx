@@ -19,12 +19,14 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useMarket } from '@/app/market-context';
 import { useSession } from '@/auth/session-context';
 import { DataTable, Pager } from '@/components/DataTable';
 import type { Column } from '@/components/DataTable';
 import {
   Badge,
   Button,
+  Callout,
   Card,
   Input,
   LinkButton,
@@ -67,6 +69,16 @@ const CATALOGUE_STATUS: Record<ProductListItem['status'], { label: string; tone:
 
 export function ProductsPage(): React.JSX.Element {
   const { t } = useI18n();
+
+  /**
+   * Which market the price column is read against.
+   *
+   * Panel-wide and answered in the header, not here: somebody checking German
+   * prices is checking them on this screen and on the product screen behind
+   * it, and a per-page picker would have let those two quote different
+   * numbers on the same afternoon.
+   */
+  const market = useMarket();
 
   const { can } = useSession();
   const navigate = useNavigate();
@@ -169,6 +181,13 @@ export function ProductsPage(): React.JSX.Element {
    * The ticked attribute is left out of the key and the request on purpose:
    * the counts are taken without it, so asking again would only reload the
    * same answer while the select is open.
+   *
+   * The market is left out for a different reason: the price boxes filter the
+   * price list, which is the column they sit above, and the range that labels
+   * them has to be in the same terms. Quoting these two in customer terms
+   * while the input still filtered listed figures is how a filter starts
+   * hiding rows it displays inside its own bounds - the storefront translates
+   * both ends precisely to avoid it, and here there is nothing to translate.
    */
   const filters = useQuery({
     queryKey: [
@@ -206,6 +225,9 @@ export function ProductsPage(): React.JSX.Element {
   });
 
   const query = useQuery({
+    // The market is in the key because it changes the response: the same rows
+    // come back with a different figure against each. Nothing invalidates on a
+    // market change; this is what makes the list requote on its own.
     queryKey: [
       'products',
       {
@@ -222,6 +244,7 @@ export function ProductsPage(): React.JSX.Element {
         recurring,
         added,
         attr,
+        country: market.country,
       },
     ],
     queryFn: () =>
@@ -229,6 +252,7 @@ export function ProductsPage(): React.JSX.Element {
         query: {
           page,
           limit: 25,
+          country: market.country ?? undefined,
           status: status === '' ? undefined : status,
           published: published === '' ? undefined : published,
           categoryId: categoryId === '' ? undefined : categoryId,
@@ -338,6 +362,20 @@ export function ProductsPage(): React.JSX.Element {
   const facetValues = facets.find((facet) => facet.name === attrName)?.values ?? [];
   const priceRange = filters.data?.priceRange;
 
+  /**
+   * Whether the customer-facing column has anything to say.
+   *
+   * It appears when a figure on this page differs from the one beside it,
+   * which is exactly when the business has a second market to say it about.
+   * Where every quote equals its listed price - no EU VAT configured, a
+   * catalogue authored net of tax, or a market that happens to charge the
+   * seller's own rate - a column repeating the number to its left is noise on
+   * a table that is already eight columns wide.
+   */
+  const showsQuoted = (query.data?.products ?? []).some(
+    (row) => row.quoted.minor !== row.price.minor,
+  );
+
   const columns: Column<ProductListItem>[] = [
     {
       key: 'name',
@@ -372,6 +410,30 @@ export function ProductsPage(): React.JSX.Element {
       nowrap: true,
       render: (row) => formatMoney(row.price),
     },
+    // Read-only, and deliberately so - the same rule as on the per-currency
+    // panel. The column to the left is the price list; this one is what the
+    // engine makes of it for the market in the header. Somewhere to type would
+    // mean storing a figure with one country's VAT baked in.
+    ...(showsQuoted
+      ? [
+          {
+            key: 'quoted',
+            header: t('market.customerPays'),
+            align: 'right' as const,
+            nowrap: true,
+            render: (row: ProductListItem) => (
+              <>
+                <span className="font-medium">{formatMoney(row.quoted)}</span>
+                <span className="ml-2 text-xxs text-ink-muted">
+                  {row.quotedTax.inclusive
+                    ? t('market.inclusiveOfRate', { rate: row.quotedTax.ratePercent })
+                    : t('market.plusRate', { rate: row.quotedTax.ratePercent })}
+                </span>
+              </>
+            ),
+          },
+        ]
+      : []),
     {
       key: 'status',
       header: 'Catalogue',
@@ -675,6 +737,15 @@ export function ProductsPage(): React.JSX.Element {
           )}
         </Toolbar>
 
+        {/* Which rate produced the column, in the engine's own words. It says
+            what a shopper is told at checkout, so it is worth reading before
+            deciding a price looks wrong. */}
+        {showsQuoted && query.data !== undefined && (
+          <Callout tone="info" className="mx-4 my-3">
+            {query.data.taxNote}
+          </Callout>
+        )}
+
         <DataTable
           caption="Products"
           columns={columns}
@@ -684,7 +755,9 @@ export function ProductsPage(): React.JSX.Element {
           isRefreshing={query.isFetching && !query.isPending}
           error={query.isError ? query.error : undefined}
           loadingLabel="Loading products"
-          minWidth="60rem"
+          // A ninth column needs the room. Below this the table scrolls inside
+          // its own container rather than squeezing the SKU onto three lines.
+          minWidth={showsQuoted ? '68rem' : '60rem'}
           onRetry={() => {
             void query.refetch();
           }}

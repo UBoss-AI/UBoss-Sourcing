@@ -6,6 +6,7 @@ import { SessionProvider } from '@/auth/session';
 import { I18nProvider } from '@/i18n/I18nProvider';
 import { ToastProvider } from '@/components/toast';
 import { ErrorBoundary } from '@/app/ErrorBoundary';
+import { MarketProvider } from '@/app/MarketProvider';
 import { queryClient } from '@/app/queryClient';
 import { router } from '@/app/router';
 import './index.css';
@@ -27,7 +28,14 @@ createRoot(container).render(
                 the sign-in page included — is already translated on first
                 paint. */}
             <I18nProvider>
-              <RouterProvider router={router} />
+              {/* Which market prices are previewed for. Outside the router
+                  because the control that changes it lives in the shell's
+                  header and the screens that read it are routed below it -
+                  and beside the language provider because the two are the
+                  same kind of setting, answered once for the whole panel. */}
+              <MarketProvider>
+                <RouterProvider router={router} />
+              </MarketProvider>
             </I18nProvider>
           </SessionProvider>
         </ToastProvider>

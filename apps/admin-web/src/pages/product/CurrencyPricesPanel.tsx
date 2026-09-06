@@ -12,19 +12,24 @@
  * The base-currency row is the same figure as the Pricing card above; saving
  * here updates both, so they cannot disagree.
  *
- * Beside each figure sits what a customer actually pays for it, for whichever
- * country is picked at the top. The two are not the same number and the gap is
- * the whole reason the picker is here: a euro row priced at 100 is 119 to a
- * German consumer, 121 to a Dutch one and 123 to an Irish one, because the
- * destination member state's VAT is what the storefront quotes. The preview
- * comes back from the same pricing engine the shop and the cart run on, so
- * what staff read here is what a shopper is charged - not a second opinion
- * computed in the browser, which would eventually disagree with both.
+ * Beside each figure sits what a customer actually pays for it, in whichever
+ * market the panel's header is set to. The two are not the same number and the
+ * gap is the whole reason the preview exists: a euro row priced at 100 is 119
+ * to a German consumer, 121 to a Dutch one and 123 to an Irish one, because
+ * the destination member state's VAT is what the storefront quotes. It comes
+ * back from the same pricing engine the shop and the cart run on, so what
+ * staff read here is what a shopper is charged - not a second opinion computed
+ * in the browser, which would eventually disagree with both.
+ *
+ * The market itself is chosen in the top bar rather than on this card. It was
+ * chosen here once, and the product list a click away then went on quoting a
+ * market nobody had picked - two screens, two answers, one afternoon.
  */
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMarket } from '@/app/market-context';
 import { useToast } from '@/components/toast-context';
-import { Badge, Button, Callout, Card, Input, LoadingState, Select } from '@/components/ui';
+import { Badge, Button, Callout, Card, Input, LoadingState } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { formatMoney, majorToMinor, minorToMajor } from '@/lib/format';
 import { useI18n } from '@/i18n/i18n-context';
@@ -56,7 +61,6 @@ interface PricesResponse {
   product: { id: string; name: string; sku: string };
   baseCurrency: string;
   country: string | null;
-  countries: { code: string; name: string; currencyCode: string }[];
   /** Which rate applies where, and on what basis, in one sentence. */
   taxNote: string;
   prices: PriceRow[];
@@ -83,23 +87,24 @@ export function CurrencyPricesPanel({
   const [error, setError] = useState<string | null>(null);
 
   /**
-   * Which market the preview column is quoted for.
+   * Which market the preview column is quoted for, from the panel's header.
    *
-   * Empty means "not stated", which the server reads the way it reads a
-   * shopper who has not given a delivery address yet: the seller's own
-   * country. That is the honest default - it is what the storefront shows
-   * somebody who has not said where they are - rather than picking a member
-   * state on staff's behalf and letting them read its rate as universal.
+   * Null means "not stated", which the server reads the way it reads a shopper
+   * who has not given a delivery address yet: the seller's own country. That
+   * is the honest default - it is what the storefront shows somebody who has
+   * not said where they are - rather than picking a member state on staff's
+   * behalf and letting them read its rate as universal.
    */
-  const [country, setCountry] = useState('');
+  const { country } = useMarket();
 
   const prices = useQuery({
     // `country` is in the key because it changes the response: the same rows
-    // come back with a different `quoted` figure against each.
+    // come back with a different `quoted` figure against each. It is also what
+    // requotes this card when somebody changes the market in the header.
     queryKey: ['product-prices', productId, country],
     queryFn: () =>
       api.get<PricesResponse>(`/admin/products/${productId}/prices`, {
-        query: { country: country === '' ? undefined : country },
+        query: { country: country ?? undefined },
       }),
   });
 
@@ -188,8 +193,6 @@ export function CurrencyPricesPanel({
   const rows = prices.data?.prices ?? [];
   const soldIn = rows.filter((row) => (draft[row.currency.code]?.price.trim() ?? '') !== '').length;
 
-  const countries = prices.data?.countries ?? [];
-
   /**
    * Whether the preview column is worth showing at all.
    *
@@ -228,28 +231,8 @@ export function CurrencyPricesPanel({
           <>
             <div className="mb-3 flex flex-wrap items-center gap-3">
               <Badge dot tone={soldIn === 0 ? 'warning' : 'success'}>
-                Sold in {soldIn} of {rows.length} currencies
+                {t('currencyPrices.soldInOf', { sold: soldIn, total: rows.length })}
               </Badge>
-
-              {countries.length > 0 && (
-                <label className="flex items-center gap-2 text-xs text-ink-muted">
-                  <span>Customer in</span>
-                  <Select
-                    className="h-8 w-48 text-xs"
-                    value={country}
-                    onChange={(event) => {
-                      setCountry(event.target.value);
-                    }}
-                  >
-                    <option value="">Nowhere stated yet</option>
-                    {countries.map((entry) => (
-                      <option key={entry.code} value={entry.code}>
-                        {entry.name}
-                      </option>
-                    ))}
-                  </Select>
-                </label>
-              )}
             </div>
 
             {showsQuoted && prices.data !== undefined && (
@@ -277,7 +260,7 @@ export function CurrencyPricesPanel({
                     </th>
                     {showsQuoted && (
                       <th scope="col" className="px-3 py-2.5">
-                        Customer pays
+                        {t('market.customerPays')}
                       </th>
                     )}
                   </tr>
@@ -351,8 +334,10 @@ export function CurrencyPricesPanel({
                               {row.quotedTax !== null && (
                                 <span className="ml-2 text-xs text-ink-muted">
                                   {row.quotedTax.inclusive
-                                    ? `incl. ${row.quotedTax.ratePercent}%`
-                                    : `+ ${row.quotedTax.ratePercent}%`}
+                                    ? t('market.inclusiveOfRate', {
+                                        rate: row.quotedTax.ratePercent,
+                                      })
+                                    : t('market.plusRate', { rate: row.quotedTax.ratePercent })}
                                 </span>
                               )}
                             </>

@@ -761,6 +761,11 @@ export async function getStorefrontConfig(): Promise<Record<string, unknown>> {
       timezone: true,
       policyLinksJson: true,
       logoMedia: { select: { url: true, altText: true } },
+      // Read, never returned. It is the switch that decides whether a price
+      // depends on where the buyer is, and `localisation.locationPricing`
+      // below carries that as a boolean - the seller's own VAT country is a
+      // registration detail and stays on this side of the allowlist.
+      vatCountry: true,
     },
   });
 
@@ -787,6 +792,21 @@ export async function getStorefrontConfig(): Promise<Record<string, unknown>> {
       currencies,
       countries,
       baseCurrency: profile?.currency ?? 'INR',
+      /**
+       * Whether a price in this deployment depends on where the buyer is.
+       *
+       * True once a seller has a VAT country, which is what puts the EU
+       * treatment engine in charge of every quote: the same euro row is 19%
+       * in Germany and 21% in the Netherlands. False in an Indian GST shop,
+       * where every buyer is quoted the listed figure and asking somebody
+       * where they are would change no number on any screen.
+       *
+       * It says nothing a price does not already say out loud - `taxNote`
+       * names the country and the rate beside every figure - and it is what
+       * lets an interface offer a location control only where the answer
+       * matters. The admin console's market picker is the first caller.
+       */
+      locationPricing: (profile?.vatCountry ?? null) !== null,
     },
     features: {
       selfRegistration: env.FEATURE_CUSTOMER_SELF_REGISTRATION,

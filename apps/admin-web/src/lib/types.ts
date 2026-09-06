@@ -126,7 +126,18 @@ export interface ProductListItem {
   status: 'DRAFT' | 'ACTIVE' | 'INACTIVE';
   isPublished: boolean;
   publishedAt: string | null;
+  /** The listed figure: what staff typed, and what the editor writes back. */
   price: Money;
+  /**
+   * What a customer in the requested market is charged for that figure.
+   *
+   * Equal to `price` when no market was asked for, and in a deployment where
+   * no price depends on one. Never editable: it is the pricing engine's answer
+   * about the price beside it, not a second place to set one.
+   */
+  quoted: Money;
+  /** The rate that produced `quoted`, and whether it is inside the figure. */
+  quotedTax: { ratePercent: string; inclusive: boolean };
   isStockTracked: boolean;
   reorderThreshold: number;
   archivedAt: string | null;
@@ -138,6 +149,10 @@ export interface ProductListItem {
 
 export interface ProductListResponse {
   products: ProductListItem[];
+  /** The market every `quoted` above is for. Null when none was asked for. */
+  country: string | null;
+  /** Which rate applies there and on what basis, in one sentence. */
+  taxNote: string;
   pagination: Pagination;
 }
 

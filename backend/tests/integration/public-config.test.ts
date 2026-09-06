@@ -88,6 +88,11 @@ describe('GET /api/v1/config', () => {
       'baseCurrency',
       'countries',
       'currencies',
+      // Whether a price here depends on where the buyer is - true once the
+      // seller has a VAT country. A boolean, never the country itself: the
+      // registration is not public, and an interface only needs to know
+      // whether asking somebody where they are would change a number.
+      'locationPricing',
     ]);
   });
 
@@ -96,8 +101,19 @@ describe('GET /api/v1/config', () => {
     const raw = response.body.toLowerCase();
 
     // The trading name is public; the filing is not. Nor is internal numbering,
-    // which hints at order volume.
-    for (const field of ['gstin', 'legalname', 'invoiceprefix', 'orderprefix', 'addressjson']) {
+    // which hints at order volume. `vatCountry` and `vatNumber` are read by
+    // this response - the first decides `localisation.locationPricing` - and
+    // neither may travel with it: a tax registration is a filing, and the
+    // boolean is the whole of what a storefront or a console needs.
+    for (const field of [
+      'gstin',
+      'legalname',
+      'invoiceprefix',
+      'orderprefix',
+      'addressjson',
+      'vatcountry',
+      'vatnumber',
+    ]) {
       expect(raw).not.toContain(field);
     }
   });
