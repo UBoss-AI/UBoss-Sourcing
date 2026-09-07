@@ -4,3 +4,8 @@ dist
 
 # Output of `npm run i18n:extract`. A diffing aid, never shipped.
 .extracted
+
+# TypeScript's incremental-build cache. A local artefact of `tsc -b`: it is
+# rewritten on every build, it is meaningless on any other machine, and
+# committing it puts a large generated diff on unrelated pull requests.
+tsconfig.tsbuildinfo
