@@ -8,3 +8,9 @@
 # applies at every depth: the documents in this repository sit both at the
 # root and under Product-Description/.
 ~$*
+
+# The Hinglish twin of PROJECT-GUIDE.md. Deliberately not committed: this is a
+# product other companies buy and run, and its shipped documentation stays in
+# one language. The file is for reading here, not for shipping — and it must be
+# updated in step with PROJECT-GUIDE.md whenever the project changes.
+PROJECT-GUIDE.hinglish.md
