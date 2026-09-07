@@ -108,10 +108,24 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
     return reply.status(200).send({ cart: toCartView(resolved) });
   });
 
+  /**
+   * Empty the cart.
+   *
+   * Answers with the emptied cart, like every other route in this file. It used
+   * to answer `{ removed: n }` - the count the service happens to return - and
+   * that single inconsistency broke the storefront: the client writes a cart
+   * response straight into the cache both the cart page and the header basket
+   * read from, so a body with no `cart` in it left every page rendering
+   * `undefined.itemCount`. A delta is not a cheaper answer here, it is a
+   * different shape, and one route with a different shape is the one the client
+   * gets wrong.
+   */
   app.delete('/', async (request, reply) => {
     const auth = currentUser(request);
-    const result = await clearCart(auth.customerProfileId ?? '');
-    return reply.status(200).send(result);
+    await clearCart(auth.customerProfileId ?? '');
+
+    const resolved = await resolveCart(auth.customerProfileId ?? '');
+    return reply.status(200).send({ cart: toCartView(resolved) });
   });
 
   /**
