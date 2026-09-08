@@ -40,15 +40,20 @@ import { formatNumber } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
 import type { CategoryNode } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
+import type { Translate } from '@/i18n/i18n-context';
 
-const categorySchema = z.object({
-  name: z.string().trim().min(1, 'Give the category a name.').max(255),
+// A function of `t`, like every other schema that carries a message: built at
+// import time it would report failures in whichever language loaded first.
+function buildCategorySchema(t: Translate) {
+  return z.object({
+  name: z.string().trim().min(1, t('categories.giveTheCategoryAName')).max(255),
   slug: z.string().trim().max(255),
   parentId: z.string(),
   description: z.string().max(20_000),
   sortOrder: z.coerce.number().int().min(0).max(10_000),
   isActive: z.boolean(),
-});
+  });
+}
 
 /**
  * Two types, not one, because `sortOrder` is coerced.
@@ -59,8 +64,8 @@ const categorySchema = z.object({
  * while `register` still types the raw one. Collapsing them to the output type
  * is what used to make the resolver unassignable.
  */
-type CategoryFormInput = z.input<typeof categorySchema>;
-type CategoryForm = z.output<typeof categorySchema>;
+type CategoryFormInput = z.input<ReturnType<typeof buildCategorySchema>>;
+type CategoryForm = z.output<ReturnType<typeof buildCategorySchema>>;
 
 const FORM_FIELDS = ['name', 'slug', 'parentId', 'description', 'sortOrder', 'isActive'] as const;
 
@@ -103,7 +108,7 @@ function CategoryEditor({
     setError,
     formState: { errors, isSubmitting },
   } = useForm<CategoryFormInput, unknown, CategoryForm>({
-    resolver: zodResolver(categorySchema),
+    resolver: zodResolver(buildCategorySchema(t)),
     defaultValues: {
       name: editing?.name ?? '',
       slug: editing?.slug ?? '',
@@ -130,12 +135,12 @@ function CategoryEditor({
         : api.patch<{ updated: boolean }>(`/admin/categories/${editing.id}`, body);
     },
     onSuccess: async () => {
-      toast.success(editing === null ? 'Category created.' : 'Category saved.');
+      toast.success(editing === null ? t('categories.categoryCreated') : t('categories.categorySaved'));
       await queryClient.invalidateQueries({ queryKey: ['categories'] });
       onClose();
     },
     onError: (error) => {
-      setFormError(applyApiErrors(error, setError, FORM_FIELDS));
+      setFormError(applyApiErrors(error, setError, FORM_FIELDS, t('common.theRequestFailed')));
     },
   });
 
@@ -148,7 +153,7 @@ function CategoryEditor({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={editing === null ? 'New category' : `Edit ${editing.name}`}
+      title={editing === null ? t('categories.newCategory') : `Edit ${editing.name}`}
       description={t('categories.slugIsGeneratedFromThe')}
       footer={
         <>
@@ -162,7 +167,7 @@ function CategoryEditor({
               void handleSubmit((values) => mutation.mutateAsync(values))();
             }}
           >
-            {editing === null ? 'Create category' : 'Save changes'}
+            {editing === null ? t('categories.createCategory') : t('common.saveChanges')}
           </Button>
         </>
       }
@@ -220,7 +225,7 @@ function CategoryEditor({
           >
             {({ inputId, describedBy }) => (
               <Select id={inputId} aria-describedby={describedBy} {...register('parentId')}>
-                <option value="">No parent (top level)</option>
+                <option value="">{t('categories.noParentTopLevel')}</option>
                 {options.map((node) => (
                   <option key={node.id} value={node.id}>
                     {'— '.repeat(node.depth)}
@@ -287,7 +292,7 @@ export function CategoriesPage(): React.JSX.Element {
     mutationFn: (category: CategoryNode) =>
       api.delete<{ archived: boolean }>(`/admin/categories/${category.id}`),
     onSuccess: async () => {
-      toast.success('Category archived.');
+      toast.success(t('categories.categoryArchived'));
       setArchiving(null);
       setArchiveError(null);
       await queryClient.invalidateQueries({ queryKey: ['categories'] });
@@ -296,7 +301,7 @@ export function CategoriesPage(): React.JSX.Element {
       // The backend refuses when children or products still reference it, and
       // says which. Showing that message beats a generic failure toast.
       setArchiveError(
-        error instanceof ApiError ? error.message : 'The category could not be archived.',
+        error instanceof ApiError ? error.message : t('categories.couldNotBeArchived'),
       );
     },
   });
@@ -319,7 +324,7 @@ export function CategoriesPage(): React.JSX.Element {
   const columns: Column<CategoryNode>[] = [
     {
       key: 'name',
-      header: 'Category',
+      header: t('label.category'),
       render: (node) => (
         // The indent is inline because Tailwind cannot generate a class from a
         // runtime value. The elbow is the depth cue: at four levels an indent
@@ -343,7 +348,7 @@ export function CategoriesPage(): React.JSX.Element {
     },
     {
       key: 'products',
-      header: 'Products',
+      header: t('label.products'),
       align: 'right',
       render: (node) =>
         (node.productCount ?? 0) === 0 ? (
@@ -354,14 +359,14 @@ export function CategoriesPage(): React.JSX.Element {
     },
     {
       key: 'order',
-      header: 'Sort',
+      header: t('label.sort'),
       align: 'right',
       secondary: true,
       render: (node) => <span className="text-ink-muted">{formatNumber(node.sortOrder)}</span>,
     },
     {
       key: 'status',
-      header: 'Status',
+      header: t('label.status'),
       render: (node) =>
         node.archivedAt !== null && node.archivedAt !== undefined ? (
           <Badge dot tone="danger">
@@ -423,20 +428,20 @@ export function CategoriesPage(): React.JSX.Element {
 
       <Card>
         <DataTable
-          caption="Categories"
+          caption={t('categories.categories')}
           columns={columns}
           rows={rows}
           rowKey={(node) => node.id}
           isLoading={query.isPending}
           isRefreshing={query.isFetching && !query.isPending}
           error={query.isError ? query.error : undefined}
-          loadingLabel="Loading categories"
+          loadingLabel={t('categories.loadingCategories')}
           minWidth="44rem"
           onRetry={() => {
             void query.refetch();
           }}
-          emptyTitle="No categories yet"
-          emptyDescription="Every product needs a category, so this is the first thing to set up."
+          emptyTitle={t('categories.noCategoriesYet')}
+          emptyDescription={t('categories.everyProductNeedsACategory')}
           emptyAction={canWrite ? newCategoryButton : undefined}
         />
       </Card>

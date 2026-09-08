@@ -46,6 +46,49 @@ export interface AdminUser {
    * country - the same fallback a shopper gets before giving an address.
    */
   locationCountry: string | null;
+  /**
+   * The same sign-in as a person reads it: the geocoded place, or the
+   * coordinates where no geocoder answered.
+   *
+   * Shown in the top bar. The bell announces the sign-in once and has scrolled
+   * away by the afternoon; a console shared by several staff accounts should
+   * still be able to say out loud which sign-in is on screen - which is the
+   * question somebody handed a laptop, or with two panels open, actually has.
+   *
+   * Null when the browser has told this session nothing, which is every
+   * session in a deployment with the gate switched off.
+   */
+  locationPlace: string | null;
+  /**
+   * The interface language the office in that country works in, or null.
+   *
+   * Configured per country by the deployment, so a member of staff signing in
+   * from Berlin reads a German panel without touching the picker. Applied once
+   * per sign-in country - see I18nProvider - and outranked by the picker for
+   * as long as they stay in that country.
+   *
+   * Null means "leave the language alone". It is not a fallback to English:
+   * a country whose language the panel ships no catalogue for is a reason to
+   * change nothing, not a reason to throw somebody into English.
+   */
+  locationLanguage: string | null;
+  /**
+   * The currency customers in that country are quoted in, or null.
+   *
+   * The market's own currency, from the same country row the storefront prices
+   * a shopper from. Every customer-facing figure in this panel comes from that
+   * currency's price list - a real, staff-entered price - and never from
+   * converting another currency's number.
+   *
+   * Null for a country this deployment does not sell in, or whose currency has
+   * been retired. The catalogue screens then quote the base currency and name
+   * it, rather than implying that the seller's own currency is what a customer
+   * in that country pays.
+   *
+   * There is no picker for this and never will be. A language is a preference;
+   * a price is not.
+   */
+  locationCurrency: string | null;
 }
 
 export interface SessionState {

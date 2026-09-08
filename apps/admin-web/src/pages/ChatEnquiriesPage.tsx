@@ -99,7 +99,7 @@ function TranscriptDialog({
     <Modal
       isOpen={enquiryId !== null}
       onClose={onClose}
-      title={enquiry === undefined ? 'Chat transcript' : `Chat with ${enquiry.visitorName}`}
+      title={enquiry === undefined ? t('chatEnquiries.chatTranscript') : `Chat with ${enquiry.visitorName}`}
       description={t('chatEnquiries.whatTheVisitorAskedAnd')}
       size="lg"
       footer={<Button onClick={onClose}>{t('chatEnquiries.close')}</Button>}
@@ -161,7 +161,7 @@ function TranscriptDialog({
                   to={`/customers/${enquiry.customerProfileId}`}
                   className="font-medium text-brand underline underline-offset-2"
                 >
-                  Registered customer
+                  {t('chatEnquiries.registeredCustomer')}
                   {enquiry.customerName === null ? '' : `: ${enquiry.customerName}`}
                 </Link>
               </>
@@ -179,7 +179,7 @@ function TranscriptDialog({
               >
                 <div className="max-w-[85%]">
                   <p className="mb-1 text-xxs text-ink-subtle">
-                    {message.role === 'VISITOR' ? enquiry.visitorName : 'Assistant'}
+                    {message.role === 'VISITOR' ? enquiry.visitorName : t('chatEnquiries.assistant')}
                     {' · '}
                     {formatDateTime(message.createdAt)}
                   </p>
@@ -255,7 +255,7 @@ export function ChatEnquiriesPage(): React.JSX.Element {
   const columns: Column<ChatEnquiry>[] = [
     {
       key: 'visitor',
-      header: 'Visitor',
+      header: t('label.visitor'),
       render: (row) => (
         <div className="min-w-40">
           <p className="font-medium text-ink">{row.visitorName}</p>
@@ -268,7 +268,7 @@ export function ChatEnquiriesPage(): React.JSX.Element {
               to={`/customers/${row.customerProfileId}`}
               className="mt-0.5 inline-block text-xxs font-medium text-brand underline underline-offset-2"
             >
-              {row.customerName ?? 'Registered customer'}
+              {row.customerName ?? t('chatEnquiries.registeredCustomer')}
             </Link>
           )}
         </div>
@@ -276,7 +276,7 @@ export function ChatEnquiriesPage(): React.JSX.Element {
     },
     {
       key: 'contact',
-      header: 'Contact',
+      header: t('label.contact'),
       render: (row) => (
         <div className="min-w-44">
           <a
@@ -296,7 +296,7 @@ export function ChatEnquiriesPage(): React.JSX.Element {
     },
     {
       key: 'question',
-      header: 'Opening question',
+      header: t('label.openingQuestion'),
       secondary: true,
       render: (row) => (
         <p className="line-clamp-2 min-w-56 max-w-md text-ink-muted">{row.firstQuestion ?? '—'}</p>
@@ -304,7 +304,7 @@ export function ChatEnquiriesPage(): React.JSX.Element {
     },
     {
       key: 'messages',
-      header: 'Messages',
+      header: t('label.messages'),
       align: 'right',
       secondary: true,
       tertiary: true,
@@ -312,7 +312,7 @@ export function ChatEnquiriesPage(): React.JSX.Element {
     },
     {
       key: 'when',
-      header: 'Last message',
+      header: t('label.lastMessage'),
       nowrap: true,
       render: (row) => (
         <div>
@@ -323,7 +323,7 @@ export function ChatEnquiriesPage(): React.JSX.Element {
     },
     {
       key: 'transcript',
-      header: 'Chat',
+      header: t('label.chat'),
       render: (row) => (
         <Button
           size="sm"
@@ -390,23 +390,25 @@ export function ChatEnquiriesPage(): React.JSX.Element {
         </Toolbar>
 
         <DataTable
-          caption="Chat enquiries"
+          caption={t('chatEnquiries.chatEnquiries')}
           columns={columns}
           rows={query.data?.conversations}
           rowKey={(row) => row.id}
           isLoading={query.isPending}
           isRefreshing={query.isFetching && !query.isPending}
           error={query.isError ? query.error : undefined}
-          loadingLabel="Loading chat enquiries"
+          loadingLabel={t('chatEnquiries.loadingChatEnquiries')}
           minWidth="64rem"
           onRetry={() => {
             void query.refetch();
           }}
-          emptyTitle={hasFilters ? 'Nothing matches these filters' : 'No chat enquiries yet'}
+          emptyTitle={
+            hasFilters ? t('common.nothingMatchesFilters') : t('chatEnquiries.noChatEnquiriesYet')
+          }
           emptyDescription={
             hasFilters
-              ? 'Search matches part of a name, an email address or a phone number.'
-              : 'A row appears here as soon as a visitor gives their details and asks the storefront assistant a question.'
+              ? t('chatEnquiries.searchMatchesPartOf')
+              : t('chatEnquiries.aRowAppearsHere')
           }
           emptyAction={
             hasFilters ? (

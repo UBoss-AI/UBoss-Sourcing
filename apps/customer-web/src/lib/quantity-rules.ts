@@ -11,6 +11,7 @@
  */
 import { formatNumber } from './format';
 import type { PurchaseRules } from './types';
+import type { Translate } from '@/i18n/i18n-context';
 
 /**
  * The nearest valid quantity at or above `desired`, within the rules.
@@ -34,15 +35,23 @@ export function clampToRules(desired: number, rules: PurchaseRules): number {
   return candidate;
 }
 
-/** Human wording for the rules, or null when there is nothing unusual to say. */
-export function describeRules(rules: PurchaseRules): string | null {
+/**
+ * Human wording for the rules, or null when there is nothing unusual to say.
+ *
+ * Takes the translator: this is a sentence a customer reads, and a lib module
+ * has no component around it to reach the catalogue through.
+ */
+export function describeRules(t: Translate, rules: PurchaseRules): string | null {
   const parts: string[] = [];
 
-  if (rules.minOrderQty > 1) parts.push(`minimum ${formatNumber(rules.minOrderQty)}`);
-  if (rules.qtyIncrement > 1) parts.push(`in multiples of ${formatNumber(rules.qtyIncrement)}`);
-  if (rules.maxOrderQty !== null) parts.push(`maximum ${formatNumber(rules.maxOrderQty)}`);
+  if (rules.minOrderQty > 1)
+    parts.push(t('product.minimumLower', { quantity: formatNumber(rules.minOrderQty) }));
+  if (rules.qtyIncrement > 1)
+    parts.push(t('product.inMultiplesOf', { step: formatNumber(rules.qtyIncrement) }));
+  if (rules.maxOrderQty !== null)
+    parts.push(t('product.maximumLower', { quantity: formatNumber(rules.maxOrderQty) }));
 
   if (parts.length === 0) return null;
 
-  return `Ordered ${parts.join(', ')}.`;
+  return t('product.orderedRules', { rules: parts.join(', ') });
 }

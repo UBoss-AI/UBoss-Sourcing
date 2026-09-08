@@ -17,6 +17,7 @@ import { useI18n } from '@/i18n/i18n-context';
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
 import { ApiError, NetworkError, api } from '@/lib/api';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { errorMessage } from '@/lib/errors';
 
 /** Rebuilt per render so its messages follow the chosen language. */
 function buildSchema(t: ReturnType<typeof useI18n>['t']) {
@@ -81,7 +82,7 @@ export function ForgotPasswordPage(): React.JSX.Element {
       setIsSent(true);
     } catch (error) {
       if (error instanceof NetworkError) {
-        setFormError(error.message);
+        setFormError(errorMessage(t, error));
         return;
       }
 

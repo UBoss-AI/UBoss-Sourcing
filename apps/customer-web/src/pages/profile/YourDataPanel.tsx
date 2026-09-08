@@ -29,9 +29,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Modal } from '@/components/Modal';
 import { useToast } from '@/components/toast-context';
 import { Badge, Button, Spinner } from '@/components/ui';
-import { ApiError, BASE_URL, NetworkError, api } from '@/lib/api';
+import { BASE_URL, NetworkError, api } from '@/lib/api';
 import { formatDateTime } from '@/lib/format';
 import { useI18n } from '@/i18n/i18n-context';
+import { errorMessage } from '@/lib/errors';
 
 interface DataRequest {
   id: string;
@@ -120,10 +121,10 @@ export function YourDataPanel(): React.JSX.Element {
     onError: (error) => {
       setConfirmErasure(false);
       if (error instanceof NetworkError) {
-        setFormError(error.message);
+        setFormError(errorMessage(t, error));
         return;
       }
-      setFormError(error instanceof ApiError ? error.message : t('yourData.requestFailed'));
+      setFormError(errorMessage(t, error, t('yourData.requestFailed')));
     },
   });
 

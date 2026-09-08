@@ -30,6 +30,8 @@ import { Button, ButtonLink, Field, Input } from '@/components/ui';
 import { ApiError, NetworkError, api } from '@/lib/api';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { useI18n } from '@/i18n/i18n-context';
+import type { Translate } from '@/i18n/i18n-context';
+import { errorMessage } from '@/lib/errors';
 
 /**
  * Mirrors the backend's password policy.
@@ -39,25 +41,27 @@ import { useI18n } from '@/i18n/i18n-context';
  * not have their submission rejected. The server enforces the same policy, so
  * a drift here costs a confusing message, never a weak password.
  */
-const passwordSchema = z
-  .string()
-  .min(12, 'Use at least 12 characters.')
-  .max(128, 'Use at most 128 characters.');
+function buildSchema(t: Translate) {
+  const passwordSchema = z
+    .string()
+    .min(12, t('validation.passwordTooShort'))
+    .max(128, t('validation.passwordTooLong'));
 
-const schema = z
+  return z
   .object({
     password: passwordSchema,
     confirmPassword: z.string(),
     acceptedTerms: z.literal(true, {
-      message: 'You need to accept the terms to activate your account.',
+      message: t('activatePage.acceptTermsToActivate'),
     }),
   })
   .refine((values) => values.password === values.confirmPassword, {
     path: ['confirmPassword'],
-    message: 'The two passwords do not match.',
+    message: t('validation.passwordsDoNotMatch'),
   });
+}
 
-type FormValues = z.output<typeof schema>;
+type FormValues = z.output<ReturnType<typeof buildSchema>>;
 
 /** Failures no amount of retyping can fix — the link itself is the problem. */
 const TERMINAL_CODES = new Set([
@@ -69,7 +73,10 @@ const TERMINAL_CODES = new Set([
 ]);
 
 /** What the customer should do next, per failure the server can report. */
-function recoveryFor(code: string): {
+function recoveryFor(
+  t: Translate,
+  code: string,
+): {
   title: string;
   body: string;
   canRetry: boolean;
@@ -77,33 +84,33 @@ function recoveryFor(code: string): {
   switch (code) {
     case 'TOKEN_EXPIRED':
       return {
-        title: 'This invitation has expired',
-        body: 'Invitation links are time-limited for security. Ask us to send a new one and it will arrive within a few minutes.',
+        title: t('activatePage.invitationExpired'),
+        body: t('activatePage.invitationExpiredBody'),
         canRetry: false,
       };
     case 'TOKEN_ALREADY_USED':
     case 'INVITATION_ALREADY_ACCEPTED':
       return {
-        title: 'This invitation has already been used',
-        body: 'Your account is set up. Sign in with the password you chose — or reset it if you cannot remember.',
+        title: t('activatePage.invitationUsed'),
+        body: t('activatePage.invitationUsedBody'),
         canRetry: false,
       };
     case 'TOKEN_INVALID':
       return {
-        title: 'This activation link is not valid',
-        body: 'The link may have been copied incompletely. Try opening it straight from the email rather than pasting it.',
+        title: t('activatePage.linkNotValid'),
+        body: t('activatePage.linkNotValidBody'),
         canRetry: false,
       };
     case 'ACCOUNT_DEACTIVATED':
       return {
-        title: 'This account is no longer active',
-        body: 'Please contact us and we will sort it out.',
+        title: t('activatePage.accountNoLongerActive'),
+        body: t('activatePage.pleaseContactUs'),
         canRetry: false,
       };
     default:
       return {
-        title: 'We could not activate your account',
-        body: 'Something went wrong at our end. Please try again in a moment.',
+        title: t('activatePage.couldNotActivate'),
+        body: t('activatePage.somethingWentWrongAtOurEnd'),
         canRetry: true,
       };
   }
@@ -121,7 +128,7 @@ function Failure({
   const { t } = useI18n();
 
   const { business } = useStorefront();
-  const recovery = recoveryFor(code);
+  const recovery = recoveryFor(t, code);
 
   return (
     <div
@@ -180,7 +187,7 @@ export function ActivatePage(): React.JSX.Element {
    */
   const [outcome, setOutcome] = useState<'activated' | 'signed-in' | null>(null);
 
-  useDocumentMeta({ title: 'Activate your account', noIndex: true }, business.displayName);
+  useDocumentMeta({ title: t('activatePage.activateYourAccount'), noIndex: true }, business.displayName);
 
   const {
     register,
@@ -188,7 +195,7 @@ export function ActivatePage(): React.JSX.Element {
     setFocus,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(buildSchema(t)),
     defaultValues: {
       password: '',
       confirmPassword: '',
@@ -225,8 +232,8 @@ export function ActivatePage(): React.JSX.Element {
           </h1>
           <p className="mt-2 text-sm text-ink">
             {outcome === 'signed-in'
-              ? 'You are signed in and can start ordering right away.'
-              : 'Sign in with the password you just chose to start ordering.'}
+              ? t('activatePage.signedInStartOrdering')
+              : t('activatePage.signInWithPasswordJustChosen')}
           </p>
           <div className="mt-6 flex justify-center gap-2">
             {outcome === 'signed-in' ? (
@@ -273,7 +280,7 @@ export function ActivatePage(): React.JSX.Element {
       }
     } catch (error) {
       if (error instanceof NetworkError) {
-        setFailure({ code: 'NETWORK', message: error.message });
+        setFailure({ code: 'NETWORK', message: errorMessage(t, error) });
         return;
       }
 
@@ -282,7 +289,7 @@ export function ActivatePage(): React.JSX.Element {
         return;
       }
 
-      setFailure({ code: 'UNKNOWN', message: 'Activation failed.' });
+      setFailure({ code: 'UNKNOWN', message: t('activatePage.activationFailed') });
     }
   };
 
@@ -312,8 +319,7 @@ export function ActivatePage(): React.JSX.Element {
           {t('activatePage.activateYourAccount')}
         </h1>
         <p className="mt-1.5 text-sm text-ink-muted">
-          Choose a password. Only you will know it — nobody at {business.displayName} can see or set
-          it.
+          {t('activatePage.choosePasswordOnlyYou', { store: business.displayName })}
         </p>
       </div>
 
@@ -377,7 +383,7 @@ export function ActivatePage(): React.JSX.Element {
               {...register('acceptedTerms')}
             />
             <span>
-              I accept the terms of business
+              {t('activatePage.iAcceptTheTerms')}
               {business.policyLinks !== null && Object.keys(business.policyLinks).length > 0 && (
                 <>
                   {' '}

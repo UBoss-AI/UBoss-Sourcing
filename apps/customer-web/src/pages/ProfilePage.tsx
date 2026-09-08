@@ -15,40 +15,46 @@ import { z } from 'zod';
 import { useStorefront } from '@/app/storefront-context';
 import { useToast } from '@/components/toast-context';
 import { Badge, Button, ErrorState, Field, Input, LoadingState, PageHeader } from '@/components/ui';
-import { ApiError, NetworkError, api } from '@/lib/api';
+import { NetworkError, api } from '@/lib/api';
 import { formatDateTime, minorToMajor } from '@/lib/format';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { AccountResponse } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
+import type { Translate } from '@/i18n/i18n-context';
 import { YourDataPanel } from './profile/YourDataPanel';
+import { errorMessage } from '@/lib/errors';
 
-const profileSchema = z.object({
-  fullName: z.string().trim().min(1, 'Tell us who to address deliveries to.').max(255),
-  phone: z.string().trim().max(32),
-  department: z.string().trim().max(128),
-});
+function buildProfileSchema(t: Translate) {
+  return z.object({
+    fullName: z.string().trim().min(1, t('profile.tellUsWhoToAddress')).max(255),
+    phone: z.string().trim().max(32),
+    department: z.string().trim().max(128),
+  });
+}
 
-type ProfileForm = z.output<typeof profileSchema>;
+type ProfileForm = z.output<ReturnType<typeof buildProfileSchema>>;
 
-const passwordSchema = z
+function buildPasswordSchema(t: Translate) {
+  return z
   .object({
-    currentPassword: z.string().min(1, 'Enter your current password.'),
+    currentPassword: z.string().min(1, t('profile.enterYourCurrentPassword')),
     newPassword: z
       .string()
-      .min(12, 'Use at least 12 characters.')
-      .max(128, 'Use at most 128 characters.'),
+      .min(12, t('validation.passwordTooShort'))
+      .max(128, t('validation.passwordTooLong')),
     confirmPassword: z.string(),
   })
   .refine((values) => values.newPassword === values.confirmPassword, {
     path: ['confirmPassword'],
-    message: 'The two passwords do not match.',
+    message: t('validation.passwordsDoNotMatch'),
   });
+}
 
-type PasswordForm = z.output<typeof passwordSchema>;
+type PasswordForm = z.output<ReturnType<typeof buildPasswordSchema>>;
 
 /** An amount from the account API, which sends bare minor units. */
-function money(minor: string | null, currency: string): string {
-  if (minor === null) return 'No limit';
+function money(t: Translate, minor: string | null, currency: string): string {
+  if (minor === null) return t('profile.noLimit');
   return `${currency} ${minorToMajor(minor)}`;
 }
 
@@ -73,7 +79,7 @@ function LimitsPanel({ account }: { account: AccountResponse }): React.JSX.Eleme
             {t('profile.minimumPerOrder')}
           </dt>
           <dd className="mt-0.5 tabular text-ink">
-            {money(limits.perOrderMinMinor, limits.currency)}
+            {money(t, limits.perOrderMinMinor, limits.currency)}
           </dd>
         </div>
 
@@ -82,7 +88,7 @@ function LimitsPanel({ account }: { account: AccountResponse }): React.JSX.Eleme
             {t('profile.maximumPerOrder')}
           </dt>
           <dd className="mt-0.5 tabular text-ink">
-            {money(limits.perOrderMaxMinor, limits.currency)}
+            {money(t, limits.perOrderMaxMinor, limits.currency)}
           </dd>
         </div>
 
@@ -91,9 +97,12 @@ function LimitsPanel({ account }: { account: AccountResponse }): React.JSX.Eleme
             {t('profile.spentThisMonth')}
           </dt>
           <dd className="mt-0.5 tabular text-ink">
-            {money(spend.monthToDateMinor, spend.currency)}
+            {money(t, spend.monthToDateMinor, spend.currency)}
             {spend.capMinor !== null && (
-              <span className="text-ink-muted"> of {money(spend.capMinor, spend.currency)}</span>
+              <span className="text-ink-muted">
+                {' '}
+                {t('profile.ofCap', { amount: money(t, spend.capMinor, spend.currency) })}
+              </span>
             )}
           </dd>
         </div>
@@ -114,9 +123,13 @@ function LimitsPanel({ account }: { account: AccountResponse }): React.JSX.Eleme
 
       {spend.remainingMinor !== null && (
         <p className="mt-4 border-t border-border pt-4 text-sm text-ink">
-          You have{' '}
-          <span className="font-medium tabular">{money(spend.remainingMinor, spend.currency)}</span>{' '}
-          left to spend this month.
+          {/*
+            Split on the placeholder so the figure keeps its own styling: the
+            amount is the one thing on this line somebody is looking for.
+          */}
+          {t('profile.leftToSpendThisMonth').split('{{amount}}')[0]}
+          <span className="font-medium tabular">{money(t, spend.remainingMinor, spend.currency)}</span>
+          {t('profile.leftToSpendThisMonth').split('{{amount}}')[1]}
         </p>
       )}
     </section>
@@ -135,7 +148,7 @@ function PasswordPanel(): React.JSX.Element {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<PasswordForm>({
-    resolver: zodResolver(passwordSchema),
+    resolver: zodResolver(buildPasswordSchema(t)),
     defaultValues: {
       currentPassword: '',
       newPassword: '',
@@ -152,15 +165,15 @@ function PasswordPanel(): React.JSX.Element {
     onSuccess: () => {
       setFormError(null);
       reset();
-      toast.success('Password changed. Your other sessions have been signed out.');
+      toast.success(t('profile.passwordChanged'));
     },
     onError: (error) => {
       if (error instanceof NetworkError) {
-        setFormError(error.message);
+        setFormError(errorMessage(t, error));
         return;
       }
       setFormError(
-        error instanceof ApiError ? error.message : 'The password could not be changed.',
+        errorMessage(t, error, t('profile.passwordCouldNotBeChanged')),
       );
     },
   });
@@ -258,7 +271,7 @@ export function ProfilePage(): React.JSX.Element {
   const { business } = useStorefront();
   const [formError, setFormError] = useState<string | null>(null);
 
-  useDocumentMeta({ title: 'Your profile', noIndex: true }, business.displayName);
+  useDocumentMeta({ title: t('profile.yourProfile'), noIndex: true }, business.displayName);
 
   const query = useQuery({
     queryKey: ['account-profile'],
@@ -271,7 +284,7 @@ export function ProfilePage(): React.JSX.Element {
     reset,
     formState: { errors, isDirty, isSubmitting },
   } = useForm<ProfileForm>({
-    resolver: zodResolver(profileSchema),
+    resolver: zodResolver(buildProfileSchema(t)),
     defaultValues: { fullName: '', phone: '', department: '' },
   });
 
@@ -295,11 +308,11 @@ export function ProfilePage(): React.JSX.Element {
       }),
     onSuccess: async () => {
       setFormError(null);
-      toast.success('Profile saved.');
+      toast.success(t('profile.profileSaved'));
       await queryClient.invalidateQueries({ queryKey: ['account-profile'] });
     },
     onError: (error) => {
-      setFormError(error instanceof ApiError ? error.message : 'Your profile could not be saved.');
+      setFormError(errorMessage(t, error, t('profile.profileCouldNotBeSaved')));
     },
   });
 

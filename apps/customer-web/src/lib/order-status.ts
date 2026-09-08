@@ -6,6 +6,7 @@
  * terms of `PENDING_PAYMENT`; they think "you are waiting for my money".
  */
 import type { BadgeTone } from '@/components/ui';
+import type { Translate, TranslationKey } from '@/i18n/i18n-context';
 
 /** Colour is a second signal only; every badge carries its own words. */
 export function orderStatusTone(status: string): BadgeTone {
@@ -30,22 +31,24 @@ export function orderStatusTone(status: string): BadgeTone {
 }
 
 /** The status in the customer's terms rather than the database's. */
-export function orderStatusLabel(status: string): string {
-  const labels: Record<string, string> = {
-    PENDING_PAYMENT: 'Awaiting payment',
-    PENDING_APPROVAL: 'Awaiting approval',
-    CONFIRMED: 'Confirmed',
-    PROCESSING: 'Being prepared',
-    PACKED: 'Packed',
-    SHIPPED: 'On its way',
-    DELIVERED: 'Delivered',
-    CANCELLED: 'Cancelled',
-    RETURNED: 'Returned',
-    PAYMENT_FAILED: 'Payment failed',
+export function orderStatusLabel(t: Translate, status: string): string {
+  const labels: Record<string, TranslationKey> = {
+    PENDING_PAYMENT: 'orderStatus.pendingPayment',
+    PENDING_APPROVAL: 'orderStatus.pendingApproval',
+    CONFIRMED: 'orderStatus.confirmed',
+    PROCESSING: 'orderStatus.processing',
+    PACKED: 'orderStatus.packed',
+    SHIPPED: 'orderStatus.shipped',
+    DELIVERED: 'orderStatus.delivered',
+    CANCELLED: 'orderStatus.cancelled',
+    RETURNED: 'orderStatus.returned',
+    PAYMENT_FAILED: 'orderStatus.paymentFailed',
   };
 
+  const key = labels[status];
+  if (key !== undefined) return t(key);
+
   return (
-    labels[status] ??
     status
       .toLowerCase()
       .split('_')
@@ -60,26 +63,30 @@ export function orderStatusLabel(status: string): string {
  * Returned as a sentence rather than a status word, because "Awaiting payment"
  * on its own does not tell someone whether they need to act.
  */
-export function orderStatusExplanation(status: string, paymentMode: string | null): string | null {
+export function orderStatusExplanation(
+  t: Translate,
+  status: string,
+  paymentMode: string | null,
+): string | null {
   switch (status) {
     case 'PENDING_PAYMENT':
       return paymentMode === 'PAYMENT_LINK'
-        ? 'A payment link has been emailed. The order is confirmed once it is paid.'
-        : 'This order is waiting for payment. You can pay from this page.';
+        ? t('orderStatus.explainPaymentLinkSent')
+        : t('orderStatus.explainAwaitingPayment');
     case 'PENDING_APPROVAL':
-      return 'Your approver has been notified. We will confirm the order once they approve it.';
+      return t('orderStatus.explainAwaitingApproval');
     case 'CONFIRMED':
-      return 'Payment received. We are getting your order ready.';
+      return t('orderStatus.explainConfirmed');
     case 'PROCESSING':
-      return 'Your order is being picked and packed.';
+      return t('orderStatus.explainProcessing');
     case 'PACKED':
-      return 'Packed and waiting for collection by the courier.';
+      return t('orderStatus.explainPacked');
     case 'SHIPPED':
-      return 'On its way to you.';
+      return t('orderStatus.explainShipped');
     case 'PAYMENT_FAILED':
-      return 'The payment did not go through. Nothing has been charged — you can try again.';
+      return t('orderStatus.explainPaymentFailed');
     case 'CANCELLED':
-      return 'This order was cancelled. Any payment taken has been refunded.';
+      return t('orderStatus.explainCancelled');
     default:
       return null;
   }
@@ -100,14 +107,15 @@ export function scheduleStatusTone(status: string): BadgeTone {
   return 'neutral';
 }
 
-export function scheduleStatusLabel(status: string): string {
-  const labels: Record<string, string> = {
-    ACTIVE: 'Active',
-    PAUSED: 'Paused',
-    COMPLETED: 'Finished',
-    CANCELLED: 'Cancelled',
-    FAILED: 'Stopped after repeated failures',
+export function scheduleStatusLabel(t: Translate, status: string): string {
+  const labels: Record<string, TranslationKey> = {
+    ACTIVE: 'orderStatus.scheduleActive',
+    PAUSED: 'orderStatus.schedulePaused',
+    COMPLETED: 'orderStatus.scheduleFinished',
+    CANCELLED: 'orderStatus.scheduleCancelled',
+    FAILED: 'orderStatus.scheduleFailed',
   };
 
-  return labels[status] ?? status;
+  const key = labels[status];
+  return key === undefined ? status : t(key);
 }

@@ -44,7 +44,8 @@ import { ApiError, api } from '@/lib/api';
 import { formatDate, majorToMinor, minorToMajor } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
 import type { CategoryNode } from '@/lib/types';
-import { useI18n } from '@/i18n/i18n-context';
+import { translateKey, useI18n } from '@/i18n/i18n-context';
+import type { TranslationKey } from '@/i18n/i18n-context';
 
 interface CurrencyRow {
   code: string;
@@ -122,10 +123,12 @@ const STATUS_TONE: Record<Coupon['status'], BadgeTone> = {
   DISABLED: 'warning',
 };
 
-const STATUS_LABEL: Record<Coupon['status'], string> = {
-  ACTIVE: 'Active',
-  DRAFT: 'Draft',
-  DISABLED: 'Disabled',
+// Keys rather than words: this table is module state, built before any
+// component can call `t`. Translated where the badge is drawn.
+const STATUS_LABEL: Record<Coupon['status'], TranslationKey> = {
+  ACTIVE: 'label.active',
+  DRAFT: 'label.draft',
+  DISABLED: 'label.disabled',
 };
 
 /** Flattens the category tree for a multi-select, keeping the depth indent. */
@@ -197,19 +200,19 @@ export function CouponsPage(): React.JSX.Element {
       await invalidate();
     },
     onError: (cause: unknown) => {
-      setFormError(cause instanceof ApiError ? cause.message : 'That could not be saved.');
+      setFormError(cause instanceof ApiError ? cause.message : t('coupons.thatCouldNotBeSaved'));
     },
   });
 
   const archive = useMutation({
     mutationFn: (id: string) => api.delete<null>(`/admin/coupons/${id}`),
     onSuccess: async () => {
-      toast.success('Coupon archived.');
+      toast.success(t('coupons.couponArchived'));
       setArchiving(null);
       await invalidate();
     },
     onError: (cause: unknown) => {
-      toast.error(cause instanceof ApiError ? cause.message : 'That could not be archived.');
+      toast.error(cause instanceof ApiError ? cause.message : t('coupons.thatCouldNotBeArchived'));
     },
   });
 
@@ -281,13 +284,13 @@ export function CouponsPage(): React.JSX.Element {
 
     if (minimums.length === 0) {
       setFormError(
-        'Set a qualifying amount in at least one currency, or the coupon can never apply.',
+        t('coupons.setAQualifyingAmount'),
       );
       return;
     }
 
     if (draft.scope === 'CATEGORIES' && draft.categoryIds.length === 0) {
-      setFormError('Choose at least one category, or set the coupon to apply to all products.');
+      setFormError(t('coupons.chooseAtLeastOneCategory'));
       return;
     }
 
@@ -317,7 +320,7 @@ export function CouponsPage(): React.JSX.Element {
   const columns: Column<Coupon>[] = [
     {
       key: 'code',
-      header: 'Code',
+      header: t('label.code'),
       render: (row) => (
         <div className="min-w-40">
           <p className="font-mono text-sm font-semibold text-ink">{row.code}</p>
@@ -327,23 +330,23 @@ export function CouponsPage(): React.JSX.Element {
     },
     {
       key: 'discount',
-      header: 'Discount',
+      header: t('label.discount'),
       align: 'right',
       nowrap: true,
       render: (row) => <span className="font-medium text-ink">{row.discountPercent}%</span>,
     },
     {
       key: 'scope',
-      header: 'Applies to',
+      header: t('label.appliesTo'),
       secondary: true,
       render: (row) =>
         row.scope === 'ALL_PRODUCTS'
-          ? 'All products'
+          ? t('coupons.allProducts')
           : `${String(row.categoryIds.length)} categor${row.categoryIds.length === 1 ? 'y' : 'ies'}`,
     },
     {
       key: 'minimums',
-      header: 'Qualifies above',
+      header: t('label.qualifiesAbove'),
       align: 'right',
       secondary: true,
       render: (row) => (
@@ -359,7 +362,7 @@ export function CouponsPage(): React.JSX.Element {
     },
     {
       key: 'window',
-      header: 'Live',
+      header: t('label.live'),
       secondary: true,
       tertiary: true,
       nowrap: true,
@@ -375,7 +378,7 @@ export function CouponsPage(): React.JSX.Element {
     },
     {
       key: 'used',
-      header: 'Used',
+      header: t('label.used'),
       align: 'right',
       render: (row) => (
         <span className="text-ink-muted">
@@ -386,12 +389,12 @@ export function CouponsPage(): React.JSX.Element {
     },
     {
       key: 'status',
-      header: 'Status',
+      header: t('label.status'),
       render: (row) => (
         <div className="flex flex-wrap items-center gap-1">
           {row.archivedAt === null ? (
             <Badge dot tone={STATUS_TONE[row.status]}>
-              {STATUS_LABEL[row.status]}
+              {translateKey(t, STATUS_LABEL[row.status])}
             </Badge>
           ) : (
             <Badge dot tone="danger">
@@ -446,20 +449,20 @@ export function CouponsPage(): React.JSX.Element {
 
       <Card>
         <DataTable
-          caption="Coupons"
+          caption={t('coupons.coupons')}
           columns={columns}
           rows={coupons.data?.coupons}
           rowKey={(row) => row.id}
           isLoading={coupons.isPending}
           isRefreshing={coupons.isFetching && !coupons.isPending}
           error={coupons.isError ? coupons.error : undefined}
-          loadingLabel="Loading coupons"
+          loadingLabel={t('coupons.loadingCoupons')}
           minWidth="68rem"
           onRetry={() => {
             void coupons.refetch();
           }}
-          emptyTitle="No coupons yet"
-          emptyDescription="Create one to offer a discount on the storefront."
+          emptyTitle={t('coupons.noCouponsYet')}
+          emptyDescription={t('coupons.createOneToOffer')}
           {...(canWrite ? { emptyAction: newCouponButton } : {})}
         />
       </Card>
@@ -470,7 +473,7 @@ export function CouponsPage(): React.JSX.Element {
           setIsOpen(false);
         }}
         size="lg"
-        title={editing === null ? 'New coupon' : `Edit ${editing.code}`}
+        title={editing === null ? t('coupons.newCoupon') : `Edit ${editing.code}`}
         description={t('coupons.theCodeIsWhatA')}
         footer={
           <>
@@ -483,7 +486,7 @@ export function CouponsPage(): React.JSX.Element {
               {t('coupons.cancel')}
             </Button>
             <Button variant="primary" onClick={submit} isLoading={save.isPending}>
-              {editing === null ? 'Create coupon' : 'Save coupon'}
+              {editing === null ? t('coupons.createCoupon') : t('coupons.saveCoupon')}
             </Button>
           </>
         }

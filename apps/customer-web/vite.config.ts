@@ -1,12 +1,15 @@
 /// <reference types="vitest/config" />
 import { fileURLToPath, URL } from 'node:url';
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 
 /**
  * `npm run dev:tunnel` serves this dev server through an HTTPS tunnel (ngrok)
  * so someone outside this machine can look at it. Under plain `npm run dev`
- * every branch below is inert and the server behaves exactly as it always has.
+ * every branch below is inert and the server behaves exactly as it always has,
+ * with one deliberate exception: `allowedHosts` names the tunnel host in every
+ * mode, so opening the tunnel URL is never refused outright. See the note on it
+ * below.
  *
  * The signal is Vite's own `--mode tunnel` rather than an environment
  * variable, because `TUNNEL=1 npm run dev` is not something PowerShell can
@@ -20,6 +23,25 @@ import { defineConfig } from 'vite';
 export default defineConfig(({ mode }) => {
   const throughTunnel = mode === 'tunnel' || process.env.TUNNEL === '1';
 
+  // Which Host headers this server answers to besides loopback - in EVERY mode.
+  //
+  // Vite's host check is a DNS-rebinding defence: by default only `localhost`
+  // and the configured `host` get an answer, and any other Host header is
+  // refused with "Blocked request. This host is not allowed." Opening the
+  // tunnel URL against an ordinary `npm run dev` server therefore hits a wall
+  // whose only advice is to edit this file - which is exactly how that wall
+  // keeps coming back, once per person who forgot `dev:tunnel` exists.
+  //
+  // Naming the reserved tunnel host settles it: the page loads in either mode.
+  // Hot reload and the /admin proxy still want `dev:tunnel`, so this is the
+  // difference between a working page and a flat refusal - not a replacement
+  // for the tunnel script.
+  //
+  // A bare hostname, no scheme and no path, read from TUNNEL_HOST in
+  // `.env.local`. Unset on a machine that never tunnels, which leaves the
+  // check exactly at its default.
+  const tunnelHost = loadEnv(mode, process.cwd(), '').TUNNEL_HOST?.trim();
+
   return {
     plugins: [react()],
     resolve: {
@@ -31,6 +53,19 @@ export default defineConfig(({ mode }) => {
       // loudly rather than silently moving to a port CORS will reject.
       port: 5174,
       strictPort: true,
+
+      // IPv4 loopback, explicitly, and not only under a tunnel.
+      //
+      // Vite's default host is the NAME "localhost", and on Windows that
+      // resolves to ::1 first, leaving the server on IPv6 only. The ngrok
+      // agent dials 127.0.0.1, finds nothing, and reports the upstream as
+      // refused - which reads as "the dev server is down" when it is up and
+      // answering on the other address family. A browser asking for
+      // `127.0.0.1:5174` gets the same nothing, with even less explanation.
+      //
+      // Loopback either way, so nothing is exposed that the default did not.
+      // `npm run dev -- --host` still overrides it.
+      host: '127.0.0.1',
 
       // Same-origin proxy to the API. A tunnel gives out one hostname, and the
       // visitor's browser resolves `localhost` to their own machine - so an
@@ -66,20 +101,15 @@ export default defineConfig(({ mode }) => {
           : {}),
       },
 
+      // Decided above. `true` under a tunnel because the agent can be run
+      // without a reserved domain, and a hostname issued at connect time
+      // cannot be named in advance; that only lifts the DNS-rebinding guard on
+      // a dev server which is already deliberately public. Outside a tunnel it
+      // is the one named host, or Vite's default when TUNNEL_HOST is unset.
+      allowedHosts: throughTunnel ? true : tunnelHost ? [tunnelHost] : [],
+
       ...(throughTunnel
         ? {
-            // Bind IPv4 loopback explicitly. Vite's default host is the NAME
-            // "localhost", and on Windows that resolves to ::1 first, so the
-            // server ends up listening on IPv6 only. The ngrok agent dials
-            // 127.0.0.1, finds nothing, and reports the upstream as refused -
-            // which reads as "the dev server is down" when it is in fact up
-            // and answering on the other address family.
-            host: '127.0.0.1',
-            // The tunnel hostname is issued at connect time and is not known
-            // here, so the host check cannot name it. This only turns off
-            // Vite's DNS-rebinding guard on a dev server that is already
-            // deliberately public.
-            allowedHosts: true as const,
             // HMR would otherwise dial ws://<tunnel-host>:5174, which is not
             // reachable. The tunnel terminates TLS on 443.
             hmr: { clientPort: 443, protocol: 'wss' as const },

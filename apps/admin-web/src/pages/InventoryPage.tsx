@@ -53,7 +53,9 @@ import { formatDateTime, formatMoney, formatNumber, humanise } from '@/lib/forma
 import { Permission } from '@/lib/permissions';
 import type { BadgeTone } from '@/components/ui';
 import type { Money, Pagination } from '@/lib/types';
-import { useI18n } from '@/i18n/i18n-context';
+import { translateKey, useI18n } from '@/i18n/i18n-context';
+import type { Translate } from '@/i18n/i18n-context';
+import type { TranslationKey } from '@/i18n/i18n-context';
 
 interface InventoryRow {
   balanceId: string;
@@ -109,31 +111,35 @@ function movementTone(type: string): BadgeTone {
  * and a worse one: low means order more soon, none means the storefront is
  * already turning customers away.
  */
-function stockState(row: InventoryRow): { label: string; tone: BadgeTone } {
-  if (row.availableQty <= 0) return { label: 'Out of stock', tone: 'danger' };
-  if (row.isLowStock) return { label: 'Low', tone: 'warning' };
-  return { label: 'In stock', tone: 'success' };
+function stockState(row: InventoryRow): { labelKey: TranslationKey; tone: BadgeTone } {
+  if (row.availableQty <= 0) return { labelKey: 'label.outOfStock', tone: 'danger' };
+  if (row.isLowStock) return { labelKey: 'label.low', tone: 'warning' };
+  return { labelKey: 'label.inStock', tone: 'success' };
 }
 
 // ---------------------------------------------------------------------------
 
-const receiptSchema = z.object({
-  quantity: z.coerce.number().int().min(1, 'Receive at least 1.').max(10_000_000),
-  reference: z.string().trim().max(128),
-  note: z.string().trim().max(512),
-  locationId: z.string(),
-});
+function buildReceiptSchema(t: Translate) {
+  return z.object({
+    quantity: z.coerce.number().int().min(1, t('inventory.receiveAtLeastOne')).max(10_000_000),
+    reference: z.string().trim().max(128),
+    note: z.string().trim().max(512),
+    locationId: z.string(),
+  });
+}
 
-const adjustmentSchema = z.object({
+function buildAdjustmentSchema(t: Translate) {
+  return z.object({
   quantityDelta: z.coerce
     .number()
     .int()
     .min(-10_000_000)
     .max(10_000_000)
-    .refine((value) => value !== 0, 'An adjustment of zero changes nothing.'),
-  reason: z.string().trim().min(1, 'Say why. This is the audit trail.').max(512),
+    .refine((value) => value !== 0, t('inventory.anAdjustmentOfZero')),
+  reason: z.string().trim().min(1, t('inventory.sayWhyThisIsTheAuditTrail')).max(512),
   locationId: z.string(),
-});
+  });
+}
 
 /**
  * Input and output are different types here, because both quantities are
@@ -142,10 +148,10 @@ const adjustmentSchema = z.object({
  * told both, so `handleSubmit` gives the mutation the parsed value while
  * `watch` and `register` type the raw one honestly.
  */
-type ReceiptFormInput = z.input<typeof receiptSchema>;
-type AdjustmentFormInput = z.input<typeof adjustmentSchema>;
-type ReceiptForm = z.output<typeof receiptSchema>;
-type AdjustmentForm = z.output<typeof adjustmentSchema>;
+type ReceiptFormInput = z.input<ReturnType<typeof buildReceiptSchema>>;
+type AdjustmentFormInput = z.input<ReturnType<typeof buildAdjustmentSchema>>;
+type ReceiptForm = z.output<ReturnType<typeof buildReceiptSchema>>;
+type AdjustmentForm = z.output<ReturnType<typeof buildAdjustmentSchema>>;
 
 function StockMovementDialog({
   mode,
@@ -165,12 +171,12 @@ function StockMovementDialog({
   const [formError, setFormError] = useState<string | null>(null);
 
   const receiptForm = useForm<ReceiptFormInput, unknown, ReceiptForm>({
-    resolver: zodResolver(receiptSchema),
+    resolver: zodResolver(buildReceiptSchema(t)),
     defaultValues: { quantity: 1, reference: '', note: '', locationId: row.location.id },
   });
 
   const adjustForm = useForm<AdjustmentFormInput, unknown, AdjustmentForm>({
-    resolver: zodResolver(adjustmentSchema),
+    resolver: zodResolver(buildAdjustmentSchema(t)),
     defaultValues: { quantityDelta: 0, reason: '', locationId: row.location.id },
   });
 
@@ -191,12 +197,12 @@ function StockMovementDialog({
         note: nullIfBlank(values.note),
       }),
     onSuccess: async () => {
-      toast.success('Stock received.');
+      toast.success(t('inventory.stockReceived'));
       await invalidate();
       onClose();
     },
     onError: (error) => {
-      setFormError(applyApiErrors(error, receiptForm.setError, ['quantity', 'reference', 'note']));
+      setFormError(applyApiErrors(error, receiptForm.setError, ['quantity', 'reference', 'note'], t('common.theRequestFailed')));
     },
   });
 
@@ -210,12 +216,12 @@ function StockMovementDialog({
         reason: values.reason,
       }),
     onSuccess: async () => {
-      toast.success('Stock adjusted.');
+      toast.success(t('inventory.stockAdjusted'));
       await invalidate();
       onClose();
     },
     onError: (error) => {
-      setFormError(applyApiErrors(error, adjustForm.setError, ['quantityDelta', 'reason']));
+      setFormError(applyApiErrors(error, adjustForm.setError, ['quantityDelta', 'reason'], t('common.theRequestFailed')));
     },
   });
 
@@ -239,7 +245,7 @@ function StockMovementDialog({
     <Modal
       isOpen
       onClose={onClose}
-      title={isReceipt ? 'Receive stock' : 'Adjust stock'}
+      title={isReceipt ? t('inventory.receiveStock') : t('inventory.adjustStock')}
       description={`${row.productName}${row.variantName === null ? '' : ` — ${row.variantName}`} · ${row.sku}`}
       footer={
         <>
@@ -247,7 +253,7 @@ function StockMovementDialog({
             {t('inventory.cancel')}
           </Button>
           <Button variant="primary" isLoading={isPending} onClick={submit}>
-            {isReceipt ? 'Receive stock' : 'Apply adjustment'}
+            {isReceipt ? t('inventory.receiveStock') : t('inventory.applyAdjustment')}
           </Button>
         </>
       }
@@ -267,10 +273,10 @@ function StockMovementDialog({
 
         <SummaryTiles
           items={[
-            { label: 'On hand', value: formatNumber(row.onHandQty) },
-            { label: 'Reserved', value: formatNumber(row.reservedQty) },
+            { label: t('label.onHand'), value: formatNumber(row.onHandQty) },
+            { label: t('label.reserved'), value: formatNumber(row.reservedQty) },
             {
-              label: 'Available',
+              label: t('label.available'),
               value: formatNumber(row.availableQty),
               tone: row.availableQty <= 0 ? 'danger' : row.isLowStock ? 'warning' : 'default',
             },
@@ -476,7 +482,7 @@ export function InventoryPage(): React.JSX.Element {
   const stockColumns: Column<InventoryRow>[] = [
     {
       key: 'product',
-      header: 'Product',
+      header: t('label.product'),
       render: (row) => (
         <div className="min-w-48">
           <p className="font-medium text-ink">
@@ -491,32 +497,32 @@ export function InventoryPage(): React.JSX.Element {
     },
     {
       key: 'stock',
-      header: 'Stock',
+      header: t('label.stock'),
       render: (row) => {
         const state = stockState(row);
         return (
           <Badge dot tone={state.tone}>
-            {state.label}
+            {translateKey(t, state.labelKey)}
           </Badge>
         );
       },
     },
     {
       key: 'location',
-      header: 'Location',
+      header: t('label.location'),
       secondary: true,
       nowrap: true,
       render: (row) => <span className="text-ink-muted">{row.location.name}</span>,
     },
     {
       key: 'onHand',
-      header: 'On hand',
+      header: t('label.onHand'),
       align: 'right',
       render: (row) => formatNumber(row.onHandQty),
     },
     {
       key: 'reserved',
-      header: 'Reserved',
+      header: t('label.reserved'),
       align: 'right',
       render: (row) =>
         row.reservedQty === 0 ? (
@@ -527,7 +533,7 @@ export function InventoryPage(): React.JSX.Element {
     },
     {
       key: 'available',
-      header: 'Available',
+      header: t('label.available'),
       align: 'right',
       render: (row) => (
         <span
@@ -545,7 +551,7 @@ export function InventoryPage(): React.JSX.Element {
     },
     {
       key: 'threshold',
-      header: 'Reorder at',
+      header: t('label.reorderAt'),
       align: 'right',
       secondary: true,
       tertiary: true,
@@ -553,7 +559,7 @@ export function InventoryPage(): React.JSX.Element {
     },
     {
       key: 'valuation',
-      header: 'Value',
+      header: t('label.value'),
       align: 'right',
       secondary: true,
       nowrap: true,
@@ -597,13 +603,13 @@ export function InventoryPage(): React.JSX.Element {
   const movementColumns: Column<MovementRow>[] = [
     {
       key: 'when',
-      header: 'When',
+      header: t('label.when'),
       nowrap: true,
       render: (row) => <span className="text-ink-muted">{formatDateTime(row.createdAt)}</span>,
     },
     {
       key: 'type',
-      header: 'Type',
+      header: t('label.type'),
       render: (row) => (
         <Badge dot tone={movementTone(row.type)}>
           {humanise(row.type)}
@@ -612,7 +618,7 @@ export function InventoryPage(): React.JSX.Element {
     },
     {
       key: 'product',
-      header: 'Product',
+      header: t('label.product'),
       render: (row) => (
         <div className="min-w-40">
           <p className="text-ink">{row.product.name}</p>
@@ -622,7 +628,7 @@ export function InventoryPage(): React.JSX.Element {
     },
     {
       key: 'delta',
-      header: 'Change',
+      header: t('label.change'),
       align: 'right',
       render: (row) => (
         <span
@@ -637,19 +643,19 @@ export function InventoryPage(): React.JSX.Element {
     },
     {
       key: 'result',
-      header: 'On hand after',
+      header: t('label.onHandAfter'),
       align: 'right',
       secondary: true,
       render: (row) => formatNumber(row.resultingOnHand),
     },
     {
       key: 'reason',
-      header: 'Reason',
+      header: t('label.reason'),
       render: (row) => row.reason ?? <span className="text-ink-subtle">—</span>,
     },
     {
       key: 'actor',
-      header: 'By',
+      header: t('label.by'),
       secondary: true,
       tertiary: true,
       render: (row) => (
@@ -704,14 +710,14 @@ export function InventoryPage(): React.JSX.Element {
           </Toolbar>
 
           <DataTable
-            caption="Stock levels"
+            caption={t('inventory.stockLevels')}
             columns={stockColumns}
             rows={inventory.data?.inventory}
             rowKey={(row) => row.balanceId}
             isLoading={inventory.isPending}
             isRefreshing={inventory.isFetching && !inventory.isPending}
             error={inventory.isError ? inventory.error : undefined}
-            loadingLabel="Loading stock levels"
+            loadingLabel={t('inventory.loadingStockLevels')}
             minWidth="70rem"
             // Nothing available is the state that costs a sale today. The row
             // says so in words as well - the tint is the second signal, not
@@ -722,11 +728,13 @@ export function InventoryPage(): React.JSX.Element {
             onRetry={() => {
               void inventory.refetch();
             }}
-            emptyTitle={lowStockOnly ? 'Nothing needs reordering' : 'No stock records yet'}
+            emptyTitle={
+              lowStockOnly ? t('inventory.nothingNeedsReordering') : t('inventory.noStockRecordsYet')
+            }
             emptyDescription={
               lowStockOnly
-                ? 'Every tracked product is above its reorder threshold.'
-                : 'A stock record appears once a product is received into a location.'
+                ? t('common.everyTrackedProductIsAbove')
+                : t('inventory.aStockRecordAppears')
             }
           />
 
@@ -752,19 +760,19 @@ export function InventoryPage(): React.JSX.Element {
           description={t('inventory.everyChangeToStockWith')}
         >
           <DataTable
-            caption="Stock movements"
+            caption={t('inventory.stockMovements')}
             columns={movementColumns}
             rows={movements.data?.movements}
             rowKey={(row) => row.id}
             isLoading={movements.isPending}
             error={movements.isError ? movements.error : undefined}
-            loadingLabel="Loading the ledger"
+            loadingLabel={t('inventory.loadingTheLedger')}
             minWidth="60rem"
             onRetry={() => {
               void movements.refetch();
             }}
-            emptyTitle="No movements yet"
-            emptyDescription="Receipts, adjustments and shipments all land here as they happen."
+            emptyTitle={t('inventory.noMovementsYet')}
+            emptyDescription={t('inventory.receiptsAdjustmentsAndShipments')}
           />
         </Card>
       </div>

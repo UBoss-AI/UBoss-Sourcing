@@ -30,6 +30,7 @@ import { Button, Callout, Card, Checkbox, EmptyState, Input } from '@/components
 import { ApiError, api } from '@/lib/api';
 import { Permission } from '@/lib/permissions';
 import { useI18n } from '@/i18n/i18n-context';
+import type { Translate } from '@/i18n/i18n-context';
 
 export interface SpecificationRow {
   name: string;
@@ -39,19 +40,21 @@ export interface SpecificationRow {
 
 const MAX_ROWS = 50;
 
-const specificationsSchema = z.object({
+function buildSpecificationsSchema(t: Translate) {
+  return z.object({
   rows: z
     .array(
       z.object({
-        name: z.string().trim().min(1, 'Name it, e.g. Material.').max(128),
-        value: z.string().trim().min(1, 'Give it a value.').max(512),
+        name: z.string().trim().min(1, t('specifications.nameItEg')).max(128),
+        value: z.string().trim().min(1, t('specifications.giveItAValue')).max(512),
         isFilterable: z.boolean(),
       }),
     )
     .max(MAX_ROWS),
-});
+  });
+}
 
-type SpecificationsForm = z.output<typeof specificationsSchema>;
+type SpecificationsForm = z.output<ReturnType<typeof buildSpecificationsSchema>>;
 
 /**
  * Which rows repeat a name used by an earlier row, mapped to that earlier row.
@@ -105,7 +108,7 @@ export function SpecificationsPanel({
     reset,
     formState: { errors, isDirty },
   } = useForm<SpecificationsForm>({
-    resolver: zodResolver(specificationsSchema),
+    resolver: zodResolver(buildSpecificationsSchema(t)),
     defaultValues: { rows: specifications },
   });
 
@@ -131,12 +134,12 @@ export function SpecificationsPanel({
       }),
     onSuccess: async () => {
       setFormError(null);
-      toast.success('Specifications saved.');
+      toast.success(t('specifications.specificationsSaved'));
       await queryClient.invalidateQueries({ queryKey: ['product', productId] });
     },
     onError: (error) => {
       setFormError(
-        error instanceof ApiError ? error.message : 'The specifications could not be saved.',
+        error instanceof ApiError ? error.message : t('specifications.couldNotBeSaved'),
       );
     },
   });
@@ -196,8 +199,8 @@ export function SpecificationsPanel({
             title={t('specifications.noSpecificationsYet')}
             description={
               canEdit
-                ? 'Add rows like Material, Finish or Thread — customers see them on the product page, in this order.'
-                : 'None have been added for this product.'
+                ? t('specifications.addRowsLike')
+                : t('specifications.noneHaveBeenAdded')
             }
           />
         ) : (
@@ -298,10 +301,10 @@ export function SpecificationsPanel({
           <p className="mt-3 text-xs text-ink-muted">
             {rows.fields.length} of {MAX_ROWS} rows.{' '}
             {repeats.size > 0
-              ? 'Two rows share a name, so saving is held until one is changed.'
+              ? t('specifications.twoRowsShareAName')
               : isDirty
-                ? 'Unsaved changes.'
-                : 'Everything here is saved.'}{' '}
+                ? t('specifications.unsavedChanges')
+                : t('specifications.everythingHereIsSaved')}{' '}
             Filterable marks a row for future catalogue filters; customers see every row either way.
           </p>
         )}

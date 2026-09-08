@@ -50,7 +50,7 @@ export function SchedulesPage(): React.JSX.Element {
 
   const { business, features } = useStorefront();
 
-  useDocumentMeta({ title: 'Repeat purchases', noIndex: true }, business.displayName);
+  useDocumentMeta({ title: t('schedules.repeatPurchases'), noIndex: true }, business.displayName);
 
   const query = useQuery({
     queryKey: ['schedules'],
@@ -78,8 +78,8 @@ export function SchedulesPage(): React.JSX.Element {
         title={t('schedules.noRepeatPurchasesYet')}
         description={
           features.recurringOrders
-            ? 'Set one up and we will place the order for you on a schedule you choose. Look for the “Repeat purchase” label on a product.'
-            : 'Repeat purchases are switched off at the moment.'
+            ? t('schedules.setOneUpAndWeWillPlace')
+            : t('schedules.switchedOff')
         }
         {...(features.recurringOrders
           ? {
@@ -131,7 +131,7 @@ export function SchedulesPage(): React.JSX.Element {
                 </div>
 
                 <Badge tone={scheduleStatusTone(schedule.status)}>
-                  {scheduleStatusLabel(schedule.status)}
+                  {scheduleStatusLabel(t, schedule.status)}
                 </Badge>
               </div>
 
@@ -150,23 +150,27 @@ export function SchedulesPage(): React.JSX.Element {
                 <Figure label={t('schedules.delivered')}>
                   {formatNumber(schedule.occurrenceCount)}
                   {schedule.maxOccurrences !== null &&
-                    ` of ${formatNumber(schedule.maxOccurrences)}`}
+                    ` ${t('schedules.ofTotal', { total: formatNumber(schedule.maxOccurrences) })}`}
                 </Figure>
 
                 <Figure label={t('schedules.payment')}>
-                  {schedule.paymentMode === 'AUTO_PAY' ? 'Charged automatically' : 'Payment link'}
+                  {schedule.paymentMode === 'AUTO_PAY' ? t('schedules.chargedAutomatically') : t('schedules.paymentLink')}
                 </Figure>
               </dl>
 
               {schedule.failureCount > 0 && schedule.status !== 'CANCELLED' && (
                 <p className="mt-2 text-xs text-warning">
-                  {formatNumber(schedule.failureCount)} recent deliver
-                  {schedule.failureCount === 1 ? 'y' : 'ies'} could not be placed.
+                  {t('schedules.recentDeliveriesFailed', {
+                    count: schedule.failureCount,
+                    deliveries: formatNumber(schedule.failureCount),
+                  })}
                 </p>
               )}
 
               {schedule.pausedReason !== null && (
-                <p className="mt-2 text-xs text-ink-muted">Paused: {schedule.pausedReason}</p>
+                <p className="mt-2 text-xs text-ink-muted">
+                  {t('schedules.pausedReason', { reason: schedule.pausedReason })}
+                </p>
               )}
             </Link>
           </li>

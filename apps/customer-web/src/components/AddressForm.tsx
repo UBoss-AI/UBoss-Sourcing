@@ -17,27 +17,33 @@ import { Button, Field, Input, Select } from '@/components/ui';
 import { ApiError, NetworkError, api } from '@/lib/api';
 import type { Address } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
+import type { Translate } from '@/i18n/i18n-context';
+import { errorMessage } from '@/lib/errors';
 
-const schema = z.object({
+// A function of `t`: a schema built at import time would report every
+// validation failure in whichever language happened to load first.
+function buildSchema(t: Translate) {
+  return z.object({
   label: z.string().trim().max(64),
-  contactName: z.string().trim().min(1, 'Who should we ask for on delivery?').max(255),
-  contactPhone: z.string().trim().min(1, 'A phone number helps the courier reach you.').max(32),
-  line1: z.string().trim().min(1, 'Enter the street address.').max(255),
+  contactName: z.string().trim().min(1, t('addressForm.whoShouldWeAskFor')).max(255),
+  contactPhone: z.string().trim().min(1, t('addressForm.phoneHelpsCourier')).max(32),
+  line1: z.string().trim().min(1, t('addressForm.enterTheStreetAddress')).max(255),
   line2: z.string().trim().max(255),
-  city: z.string().trim().min(1, 'Enter the town or city.').max(128),
-  state: z.string().trim().min(1, 'Enter the state.').max(128),
-  postalCode: z.string().trim().min(1, 'Enter the postcode.').max(16),
+  city: z.string().trim().min(1, t('addressForm.enterTheTownOrCity')).max(128),
+  state: z.string().trim().min(1, t('addressForm.enterTheState')).max(128),
+  postalCode: z.string().trim().min(1, t('addressForm.enterThePostcode')).max(16),
   country: z
     .string()
     .trim()
-    .length(2, 'Use the two-letter country code, e.g. IN.')
+    .length(2, t('addressForm.useTheTwoLetterCode'))
     .transform((value) => value.toUpperCase()),
   kind: z.enum(['BOTH', 'SHIPPING', 'BILLING']),
   isDefaultShipping: z.boolean(),
   isDefaultBilling: z.boolean(),
-});
+  });
+}
 
-type FormValues = z.output<typeof schema>;
+type FormValues = z.output<ReturnType<typeof buildSchema>>;
 
 const FIELDS = [
   'label',
@@ -79,7 +85,7 @@ export function AddressForm({
     setError,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(buildSchema(t)),
     defaultValues: {
       label: existing?.label ?? '',
       contactName: existing?.contactName ?? '',
@@ -119,7 +125,7 @@ export function AddressForm({
     },
     onError: (error) => {
       if (error instanceof NetworkError) {
-        setFormError(error.message);
+        setFormError(errorMessage(t, error));
         return;
       }
 
@@ -144,7 +150,7 @@ export function AddressForm({
         return;
       }
 
-      setFormError('The address could not be saved.');
+      setFormError(t('addressForm.couldNotBeSaved'));
     },
   });
 
@@ -315,7 +321,7 @@ export function AddressForm({
 
       <div className="flex gap-2">
         <Button type="submit" variant="primary" isLoading={isSubmitting || save.isPending}>
-          {existing === undefined ? 'Save address' : 'Save changes'}
+          {existing === undefined ? t('addressForm.saveAddress') : t('common.saveChanges')}
         </Button>
         {onCancel !== undefined && (
           <Button onClick={onCancel} disabled={save.isPending}>

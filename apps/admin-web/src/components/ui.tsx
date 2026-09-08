@@ -33,6 +33,7 @@ import type {
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from 'react';
+import { NetworkError } from '@/lib/api';
 import { useI18n } from '@/i18n/i18n-context';
 
 // ---------------------------------------------------------------------------
@@ -778,13 +779,15 @@ export function EmptyState({
   );
 }
 
-export function LoadingState({ label = 'Loading' }: { label?: string }): React.JSX.Element {
+export function LoadingState({ label }: { label?: string }): React.JSX.Element {
+  const { t } = useI18n();
+
   return (
     <div className="flex items-center justify-center gap-2.5 px-6 py-14 text-sm text-ink-muted">
       <Spinner className="h-4 w-4" />
       {/* Announced politely so a screen reader says "Loading" once rather than
           interrupting whatever the user was reading. */}
-      <span role="status">{label}…</span>
+      <span role="status">{label ?? t('common.loading')}…</span>
     </div>
   );
 }
@@ -806,8 +809,15 @@ export function ErrorState({
 }): React.JSX.Element {
   const { t } = useI18n();
 
+  // A network failure is the one message this panel writes itself rather than
+  // repeating the server's: there was no server. `api.ts` throws it in English
+  // because it has no `t`, so the wording belongs here, where there is one.
   const message =
-    error instanceof Error && error.message.length > 0 ? error.message : 'The request failed.';
+    error instanceof NetworkError
+      ? t('common.couldNotReachServer')
+      : error instanceof Error && error.message.length > 0
+        ? error.message
+        : t('common.theRequestFailed');
 
   const correlationId =
     typeof error === 'object' && error !== null && 'correlationId' in error
@@ -842,16 +852,20 @@ export function ErrorState({
  * it cannot grant themselves the permission.
  */
 export function NoAccessState({
-  title = 'You do not have access to this',
-  description = 'Your account does not include the permission this panel needs. A Business Owner can change that from Staff.',
+  title,
+  description,
 }: {
   title?: string;
   description?: string;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   return (
     <div className="flex flex-col items-center justify-center px-6 py-14 text-center">
-      <p className="text-title-xs text-ink">{title}</p>
-      <p className="mt-1 max-w-sm text-sm leading-relaxed text-ink-muted">{description}</p>
+      <p className="text-title-xs text-ink">{title ?? t('common.noAccessTitle')}</p>
+      <p className="mt-1 max-w-sm text-sm leading-relaxed text-ink-muted">
+        {description ?? t('common.noAccessBody')}
+      </p>
     </div>
   );
 }

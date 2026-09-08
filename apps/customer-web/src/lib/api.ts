@@ -245,6 +245,11 @@ function toApiError(status: number, body: unknown, retryAfter: string | null): A
 
   // A response that is not the envelope means something upstream answered — a
   // proxy, a gateway, a maintenance page. Say that rather than inventing a code.
+  //
+  // The English below is a last resort, not what a customer reads: this module
+  // has no `t`, so `lib/errors.ts` matches on the *code* and words both of
+  // these in the page's own language. Keep the codes and the wording in step
+  // with the two branches there.
   return new ApiError(
     status,
     {
@@ -296,6 +301,8 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
     // server could not be reached" is not.
     const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
 
+    // Worded in English for the same reason, and translated the same way -
+    // `errorMessage` reads `isOffline`, never this string.
     throw new NetworkError(
       isOffline
         ? 'You appear to be offline. Check your connection and try again.'

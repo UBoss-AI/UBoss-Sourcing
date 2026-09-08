@@ -6,6 +6,8 @@
  * decides how each state looks.
  */
 import type { BadgeTone } from '@/components/ui';
+import type { Translate, TranslationKey } from '@/i18n/i18n-context';
+import { humanise } from './format';
 import type { Money, Pagination } from './types';
 
 export interface OrderTotals {
@@ -205,21 +207,29 @@ export function paymentStatusTone(status: string): BadgeTone {
  * The button says the action ("Mark as shipped"), not the target state
  * ("SHIPPED"), because the person clicking it is doing a thing, not setting an
  * enum.
+ *
+ * `t` is a parameter because this is a lib module with no component around it,
+ * and the words it returns are read by a person. A state this table has never
+ * heard of falls back to naming the state - the same shape the server's own
+ * transition list has, so a status added on the server does not need a release
+ * here to be usable.
  */
-export function transitionLabel(to: string): string {
-  const labels: Record<string, string> = {
-    PENDING_APPROVAL: 'Send for approval',
-    CONFIRMED: 'Confirm order',
-    PROCESSING: 'Start processing',
-    PACKED: 'Mark as packed',
-    SHIPPED: 'Mark as shipped',
-    DELIVERED: 'Mark as delivered',
-    CANCELLED: 'Cancel order',
-    RETURNED: 'Record a return',
-    PAYMENT_FAILED: 'Mark payment failed',
+export function transitionLabel(t: Translate, to: string): string {
+  const keys: Record<string, TranslationKey> = {
+    PENDING_APPROVAL: 'orders.transitionPendingApproval',
+    CONFIRMED: 'orders.transitionConfirmed',
+    PROCESSING: 'orders.transitionProcessing',
+    PACKED: 'orders.transitionPacked',
+    SHIPPED: 'orders.transitionShipped',
+    DELIVERED: 'orders.transitionDelivered',
+    CANCELLED: 'orders.transitionCancelled',
+    RETURNED: 'orders.transitionReturned',
+    PAYMENT_FAILED: 'orders.transitionPaymentFailed',
   };
 
-  return labels[to] ?? `Move to ${to}`;
+  const key = keys[to];
+
+  return key === undefined ? t('orders.transitionMoveTo', { status: humanise(to) }) : t(key);
 }
 
 export const ORDER_STATUSES = [

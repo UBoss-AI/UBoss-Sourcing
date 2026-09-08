@@ -14,7 +14,7 @@ export function NotFoundPage(): React.JSX.Element {
   const { t } = useI18n();
 
   const { business } = useStorefront();
-  useDocumentMeta({ title: 'Page not found', noIndex: true }, business.displayName);
+  useDocumentMeta({ title: t('notFound.pageNotFound'), noIndex: true }, business.displayName);
 
   return (
     <div className="mx-auto max-w-lg py-20 text-center">

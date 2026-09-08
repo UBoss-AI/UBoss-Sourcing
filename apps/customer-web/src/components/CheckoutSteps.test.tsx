@@ -8,9 +8,12 @@
  * itself is careful to say. These tests pin the states each page asks for, and
  * pin the markers those states produce.
  */
-import { render, screen, within } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { CheckoutSteps } from './CheckoutSteps';
+// Rendered through the providers, like every other component test: the step
+// labels and their spoken states are read from the catalogue now.
+import { renderWithProviders as render } from '@/test/harness';
 import {
   CART_STEPS,
   checkoutSteps,

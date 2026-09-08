@@ -18,30 +18,37 @@ import { useStorefront } from '@/app/storefront-context';
 import { useToast } from '@/components/toast-context';
 import { Modal } from '@/components/Modal';
 import { Badge, Button, ErrorState, Field, LoadingState, Textarea } from '@/components/ui';
-import { ApiError, api } from '@/lib/api';
+import { api } from '@/lib/api';
 import { formatDateTime, formatNumber, humanise } from '@/lib/format';
 import { scheduleStatusLabel, scheduleStatusTone } from '@/lib/order-status';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { Schedule } from '@/lib/types';
-import { useI18n } from '@/i18n/i18n-context';
+import { translateKey, useI18n } from '@/i18n/i18n-context';
+import type { TranslationKey } from '@/i18n/i18n-context';
+import { errorMessage } from '@/lib/errors';
 
 type PendingAction = 'pause' | 'resume' | 'cancel';
 
-const ACTION_COPY: Record<PendingAction, { title: string; body: string; confirm: string }> = {
+// Keys, not words: this table is module state, built before any component can
+// call `t`. Translated in the dialog that shows it.
+const ACTION_COPY: Record<
+  PendingAction,
+  { title: TranslationKey; body: TranslationKey; confirm: TranslationKey }
+> = {
   pause: {
-    title: 'Pause this repeat purchase?',
-    body: 'It stops producing deliveries and keeps its place. Resume it whenever you are ready and it carries on from its next scheduled date. Deliveries already made are unaffected.',
-    confirm: 'Pause it',
+    title: 'scheduleDetail.pauseThisQuestion',
+    body: 'scheduleDetail.pauseExplain',
+    confirm: 'scheduleDetail.pauseIt',
   },
   resume: {
-    title: 'Resume this repeat purchase?',
-    body: 'Deliveries start again from the next scheduled date.',
-    confirm: 'Resume it',
+    title: 'scheduleDetail.resumeThisQuestion',
+    body: 'scheduleDetail.resumeExplain',
+    confirm: 'scheduleDetail.resumeIt',
   },
   cancel: {
-    title: 'Cancel this repeat purchase?',
-    body: 'This is final — the schedule cannot be restarted, and you would need to set up a new one. Deliveries already made are unaffected and keep their own orders.',
-    confirm: 'Cancel it',
+    title: 'scheduleDetail.cancelThisQuestion',
+    body: 'scheduleDetail.cancelExplain',
+    confirm: 'scheduleDetail.cancelIt',
   },
 };
 
@@ -65,7 +72,7 @@ export function ScheduleDetailPage(): React.JSX.Element {
   });
 
   useDocumentMeta(
-    { title: query.data?.schedule.name ?? 'Repeat purchase', noIndex: true },
+    { title: query.data?.schedule.name ?? t('scheduleDetail.repeatPurchase'), noIndex: true },
     business.displayName,
   );
 
@@ -94,10 +101,10 @@ export function ScheduleDetailPage(): React.JSX.Element {
 
       toast.success(
         action === 'pause'
-          ? 'Paused. No further deliveries until you resume it.'
+          ? t('scheduleDetail.pausedNoFurther')
           : action === 'resume'
-            ? 'Resumed. Deliveries start again from the next scheduled date.'
-            : 'Cancelled. Deliveries already made are unaffected.',
+            ? t('scheduleDetail.resumedStartsAgain')
+            : t('scheduleDetail.cancelledAlreadyMade'),
       );
 
       await queryClient.invalidateQueries({ queryKey: ['schedule', id] });
@@ -106,7 +113,7 @@ export function ScheduleDetailPage(): React.JSX.Element {
       if (action === 'cancel') void navigate('/account/schedules');
     },
     onError: (error) => {
-      setActionError(error instanceof ApiError ? error.message : 'That could not be done.');
+      setActionError(errorMessage(t, error, t('scheduleDetail.thatCouldNotBeDone')));
     },
   });
 
@@ -153,7 +160,7 @@ export function ScheduleDetailPage(): React.JSX.Element {
 
         <div className="flex shrink-0 flex-wrap items-center gap-1.5">
           <Badge tone={scheduleStatusTone(schedule.status)}>
-            {scheduleStatusLabel(schedule.status)}
+            {scheduleStatusLabel(t, schedule.status)}
           </Badge>
         </div>
       </header>
@@ -173,13 +180,15 @@ export function ScheduleDetailPage(): React.JSX.Element {
           className="mb-6 rounded-lg border border-warning/30 bg-warning-soft px-4 py-3 text-sm"
         >
           <p className="font-medium text-warning">
-            {formatNumber(schedule.failureCount)} recent deliver
-            {schedule.failureCount === 1 ? 'y' : 'ies'} could not be placed
+            {t('schedules.recentDeliveriesFailed', {
+              count: schedule.failureCount,
+              deliveries: formatNumber(schedule.failureCount),
+            })}
           </p>
           <p className="mt-1 text-ink">
-            Usually a stock or payment problem. After {formatNumber(schedule.maxFailures)} failures
-            in a row the schedule stops on its own so it does not keep trying — get in touch and we
-            will sort it out.
+            {t('scheduleDetail.usuallyStockOrPayment', {
+              failures: formatNumber(schedule.maxFailures),
+            })}
           </p>
         </div>
       )}
@@ -241,8 +250,11 @@ export function ScheduleDetailPage(): React.JSX.Element {
                   {schedule.endDate !== null
                     ? schedule.endDate
                     : schedule.maxOccurrences !== null
-                      ? `After ${formatNumber(schedule.maxOccurrences)} deliveries`
-                      : 'When you cancel'}
+                      ? t('scheduleDetail.afterNDeliveries', {
+                          count: schedule.maxOccurrences,
+                          deliveries: formatNumber(schedule.maxOccurrences),
+                        })
+                      : t('scheduleDetail.whenYouCancel')}
                 </dd>
               </div>
 
@@ -258,7 +270,7 @@ export function ScheduleDetailPage(): React.JSX.Element {
                   {t('scheduleDetail.payment')}
                 </dt>
                 <dd className="mt-0.5 text-ink">
-                  {schedule.paymentMode === 'AUTO_PAY' ? 'Charged automatically' : 'Payment link'}
+                  {schedule.paymentMode === 'AUTO_PAY' ? t('scheduleDetail.chargedAutomatically') : t('scheduleDetail.paymentLink')}
                   {schedule.paymentMode === 'PAYMENT_LINK' && schedule.payerEmail !== null && (
                     <span className="block text-xxs text-ink-subtle">
                       Sent to {schedule.payerEmail}
@@ -295,7 +307,7 @@ export function ScheduleDetailPage(): React.JSX.Element {
                     className="flex justify-between gap-4 py-2.5"
                   >
                     <span className="min-w-0">
-                      <span className="block text-ink">{item.name ?? 'Product'}</span>
+                      <span className="block text-ink">{item.name ?? t('scheduleDetail.product')}</span>
                       {item.sku !== undefined && (
                         <span className="font-mono text-xxs text-ink-subtle">{item.sku}</span>
                       )}
@@ -349,7 +361,7 @@ export function ScheduleDetailPage(): React.JSX.Element {
                         to={`/account/orders/${occurrence.orderId}`}
                         className="font-mono text-xs font-medium text-brand hover:underline"
                       >
-                        {occurrence.orderNumber ?? 'View order'}
+                        {occurrence.orderNumber ?? t('scheduleDetail.viewOrder')}
                       </Link>
                     )}
 
@@ -425,7 +437,7 @@ export function ScheduleDetailPage(): React.JSX.Element {
         onClose={() => {
           setPending(null);
         }}
-        title={copy?.title ?? ''}
+        title={copy === null ? '' : translateKey(t, copy.title)}
         footer={
           <>
             <Button
@@ -444,13 +456,13 @@ export function ScheduleDetailPage(): React.JSX.Element {
                 if (pending !== null) act.mutate(pending);
               }}
             >
-              {copy?.confirm ?? 'Confirm'}
+              {copy === null ? t('scheduleDetail.confirm') : translateKey(t, copy.confirm)}
             </Button>
           </>
         }
       >
         <div className="space-y-4 text-sm">
-          <p className="text-ink-muted">{copy?.body}</p>
+          <p className="text-ink-muted">{copy === null ? null : translateKey(t, copy.body)}</p>
 
           {actionError !== null && (
             <p
@@ -466,8 +478,8 @@ export function ScheduleDetailPage(): React.JSX.Element {
               label={t('scheduleDetail.reason')}
               hint={
                 pending === 'cancel'
-                  ? 'Required, so we know what went wrong.'
-                  : 'Optional. Shown on the schedule while it is paused.'
+                  ? t('scheduleDetail.requiredSoWeKnow')
+                  : t('scheduleDetail.optionalShownWhilePaused')
               }
               required={pending === 'cancel'}
             >

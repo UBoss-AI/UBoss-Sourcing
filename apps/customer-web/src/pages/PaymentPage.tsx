@@ -30,14 +30,16 @@ import { paymentSteps } from '@/lib/checkout-steps';
 import { AlertIcon, CheckIcon, ClockIcon, ShieldIcon } from '@/components/icons';
 import { Badge, Button, ButtonLink, ErrorState, LoadingState, Spinner } from '@/components/ui';
 import type { BadgeTone } from '@/components/ui';
-import { ApiError, NetworkError, api, newIdempotencyKey } from '@/lib/api';
+import { NetworkError, api, newIdempotencyKey } from '@/lib/api';
 import { cx } from '@/lib/cx';
 import { formatMoney } from '@/lib/format';
 import { openRazorpayCheckout, type CheckoutOutcome } from '@/lib/razorpay';
 import { StripePaymentDialog } from '@/components/StripePaymentDialog';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { OrderDetail, PaymentSession, PaymentStatus } from '@/lib/types';
-import { useI18n } from '@/i18n/i18n-context';
+import { translateKey, useI18n } from '@/i18n/i18n-context';
+import type { TranslationKey } from '@/i18n/i18n-context';
+import { errorMessage } from '@/lib/errors';
 
 /** How long to keep asking the backend before offering a way out. */
 const MAX_POLL_SECONDS = 90;
@@ -65,19 +67,19 @@ type Phase =
  * `paid` is the only entry that says anything has succeeded, and only the
  * backend can put the page into it.
  */
-const PHASE_CHIP: Record<Phase, { tone: BadgeTone; label: string }> = {
-  idle: { tone: 'warning', label: 'Payment pending' },
-  opening: { tone: 'brand', label: 'Opening payment window' },
+const PHASE_CHIP: Record<Phase, { tone: BadgeTone; labelKey: TranslationKey }> = {
+  idle: { tone: 'warning', labelKey: 'payment.phasePending' },
+  opening: { tone: 'brand', labelKey: 'payment.phaseOpening' },
   'in-provider': {
     tone: 'brand',
-    label: 'Action needed in the payment window',
+    labelKey: 'payment.phaseInProvider',
   },
-  processing: { tone: 'brand', label: 'Processing' },
-  paid: { tone: 'success', label: 'Paid' },
+  processing: { tone: 'brand', labelKey: 'payment.phaseProcessing' },
+  paid: { tone: 'success', labelKey: 'payment.phasePaid' },
   // "Not paid", not "Payment not completed": the panel below already carries
   // that sentence, and a chip repeating it word for word reads as two separate
   // failures rather than one.
-  unpaid: { tone: 'danger', label: 'Not paid' },
+  unpaid: { tone: 'danger', labelKey: 'payment.phaseUnpaid' },
 };
 
 /**
@@ -144,7 +146,7 @@ export function PaymentPage(): React.JSX.Element {
   const replayState = location.state as { replayed?: boolean } | null;
   const wasReplayed = replayState?.replayed === true;
 
-  useDocumentMeta({ title: 'Payment', noIndex: true }, business.displayName);
+  useDocumentMeta({ title: t('payment.pageTitle'), noIndex: true }, business.displayName);
 
   /**
    * One key for every payment attempt on this order from this page.
@@ -243,7 +245,7 @@ export function PaymentPage(): React.JSX.Element {
 
     if (outcome.kind === 'dismissed') {
       setPhase('unpaid');
-      setMessage('You closed the payment window. Your order is saved and still awaiting payment.');
+      setMessage(t('payment.youClosedTheWindow'));
       return;
     }
 
@@ -254,7 +256,7 @@ export function PaymentPage(): React.JSX.Element {
     }
 
     setPhase('processing');
-  }, []);
+  }, [t]);
 
   const startPayment = useCallback(async (): Promise<void> => {
     setMessage(null);
@@ -282,29 +284,27 @@ export function PaymentPage(): React.JSX.Element {
       if (session.provider !== 'RAZORPAY') {
         setPhase('unpaid');
         setMessage(
-          'This order needs a payment method we cannot open here. Please contact us and we will send you a payment link.',
+          t('payment.needsAMethodWeCannotOpen'),
         );
         return;
       }
 
       setPhase('in-provider');
 
-      handleOutcome(await openRazorpayCheckout(session.checkoutPayload));
+      handleOutcome(await openRazorpayCheckout(t, session.checkoutPayload));
     } catch (error) {
       setPhase('unpaid');
 
       if (error instanceof NetworkError) {
-        setMessage(error.message);
+        setMessage(errorMessage(t, error));
         return;
       }
 
       setMessage(
-        error instanceof ApiError
-          ? error.message
-          : 'The payment could not be started. Please try again.',
+        errorMessage(t, error, t('payment.couldNotBeStarted')),
       );
     }
-  }, [orderId, idempotencyKey, handleOutcome]);
+  }, [orderId, idempotencyKey, handleOutcome, t]);
 
   if (order.isPending) return <LoadingState label={t('payment.loadingYourOrder')} />;
 
@@ -344,8 +344,14 @@ export function PaymentPage(): React.JSX.Element {
           {/* Said only here, and only because the backend has said it first. */}
           <h1 className="mt-4 text-title-lg text-success">{t('payment.paymentConfirmed')}</h1>
           <p className="mt-2 text-sm text-ink">
-            Order <span className="font-mono font-medium">{currentOrder.orderNumber}</span> is paid.
-            We have emailed your confirmation.
+            {/*
+              Split on the placeholder rather than interpolated, so the order
+              number keeps the monospace it is read back in - the same trick
+              the support-email sentences use.
+            */}
+            {t('payment.orderIsPaid').split('{{order}}')[0]}
+            <span className="font-mono font-medium">{currentOrder.orderNumber}</span>
+            {t('payment.orderIsPaid').split('{{order}}')[1]}
           </p>
 
           <div className="mt-6 flex flex-wrap justify-center gap-2">
@@ -397,7 +403,7 @@ export function PaymentPage(): React.JSX.Element {
           {/* The state of the payment itself, always on screen, never ahead of
               the backend. `idle` says pending, not "ready" — nothing has been
               paid and the chip should not imply otherwise. */}
-          <Badge tone={chip.tone}>{chip.label}</Badge>
+          <Badge tone={chip.tone}>{translateKey(t, chip.labelKey)}</Badge>
         </div>
 
         <div className="mt-5 flex items-baseline justify-between border-y border-border py-4">
@@ -459,7 +465,7 @@ export function PaymentPage(): React.JSX.Element {
                 void startPayment();
               }}
             >
-              {phase === 'unpaid' ? 'Try the payment again' : 'Pay securely now'}
+              {phase === 'unpaid' ? t('payment.tryThePaymentAgain') : t('payment.paySecurelyNow')}
             </Button>
 
             {/* Retrying reuses the same order and the same idempotency key, so
@@ -483,23 +489,20 @@ export function PaymentPage(): React.JSX.Element {
               icon={<Spinner className="h-5 w-5" />}
               title={
                 phase === 'opening'
-                  ? 'Opening the secure payment window'
-                  : 'Finish paying in the payment window'
+                  ? t('payment.openingTheSecureWindow')
+                  : t('payment.finishPayingInWindow')
               }
             >
               {phase === 'opening'
-                ? 'One moment — we are asking our payment provider for a secure session for this order.'
-                : 'The payment window is open. Complete the payment there and this page will pick it up. Nothing is charged until you finish.'}
+                ? t('payment.oneMomentAskingProvider')
+                : t('payment.theWindowIsOpen')}
             </StatusPanel>
           </div>
         )}
 
         <div className="mt-6 flex gap-2.5 border-t border-border pt-4 text-xs leading-relaxed text-ink-subtle">
           <ShieldIcon className="mt-px h-4 w-4 shrink-0 text-ink-muted" />
-          <p>
-            Card details are entered on our payment provider&rsquo;s own secure page and never reach
-            this site. We only ever learn that a payment succeeded, never how it was made.
-          </p>
+          <p>{t('payment.cardDetailsOnProviderPage')}</p>
         </div>
       </div>
 

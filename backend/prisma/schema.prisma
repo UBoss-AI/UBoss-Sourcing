@@ -2417,6 +2417,19 @@ model Country {
   /// E.164 dialling prefix, e.g. "+91". Display only.
   phonePrefix String? @db.VarChar(8)
 
+  /// The interface language somebody working in this country reads, as a BCP-47
+  /// primary subtag. The admin console adopts it for a member of staff whose
+  /// sign-in resolved to this country, which is what puts a German panel in
+  /// front of somebody signing in from Berlin without them touching a picker.
+  ///
+  /// A column rather than a hard-coded map, and for the same reason
+  /// `currencyCode` is one: it is a starting point a deployment corrects in a
+  /// row, not a fact of geography. Belgium is the obvious case - a Brussels
+  /// office may read French where an Antwerp one reads Dutch. Null is the
+  /// honest answer for a country whose language the panel ships no catalogue
+  /// for, and it means "leave this person's own choice alone", never "English".
+  languageCode String? @db.VarChar(8)
+
   /// Whether this country is inside the EU VAT area. Not the same as EU
   /// membership, which is why it is a stored flag rather than a hard-coded
   /// list: the Canary Islands and Ceuta are Spain but outside it, Livigno is

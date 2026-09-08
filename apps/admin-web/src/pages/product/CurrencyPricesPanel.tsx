@@ -62,6 +62,15 @@ interface PricesResponse {
   product: { id: string; name: string; sku: string };
   baseCurrency: string;
   country: string | null;
+  /**
+   * The one row this console is actually quoting from.
+   *
+   * Every currency is listed on this screen, because this is where prices are
+   * set and every market has to be reachable from it. Exactly one of them is
+   * the price a customer in front of the reader pays, and that is a different
+   * fact from which currency is the base.
+   */
+  marketCurrency: string | null;
   /** Which rate applies where, and on what basis, in one sentence. */
   taxNote: string;
   prices: PriceRow[];
@@ -118,14 +127,14 @@ export function CurrencyPricesPanel({
     mutationFn: (body: unknown) =>
       api.put<{ updated: boolean }>(`/admin/products/${productId}/prices`, body),
     onSuccess: async () => {
-      toast.success('Prices saved.');
+      toast.success(t('currencyPrices.pricesSaved'));
       setError(null);
       await queryClient.invalidateQueries({ queryKey: ['product-prices', productId] });
       // The base-currency mirror on the product row moved too.
       await queryClient.invalidateQueries({ queryKey: ['product', productId] });
     },
     onError: (cause: unknown) => {
-      setError(cause instanceof ApiError ? cause.message : 'Those prices could not be saved.');
+      setError(cause instanceof ApiError ? cause.message : t('currencyPrices.thosePricesCouldNotBeSaved'));
     },
   });
 
@@ -167,7 +176,7 @@ export function CurrencyPricesPanel({
     }
 
     if (payload.length === 0) {
-      setError('Set a price in at least one currency, or the product cannot be sold anywhere.');
+      setError(t('currencyPrices.setAPriceInAtLeastOne'));
       return;
     }
 
@@ -261,6 +270,15 @@ export function CurrencyPricesPanel({
                         {row.currency.isBase && (
                           <span className="ml-2 text-xxs uppercase tracking-wide text-ink-subtle">
                             base
+                          </span>
+                        )}
+                        {/* Which of these rows the reader's own screens quote
+                            from. Not the same as "base", and on a euro market
+                            in an Indian deployment the two are different rows -
+                            which is the case this marker exists for. */}
+                        {row.currency.code === prices.data?.marketCurrency && (
+                          <span className="ml-2 rounded bg-accent-soft px-1.5 py-0.5 text-xxs font-medium text-accent">
+                            {t('market.yourMarket')}
                           </span>
                         )}
                       </th>

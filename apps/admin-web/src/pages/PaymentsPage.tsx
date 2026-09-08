@@ -60,7 +60,8 @@ import {
 import { paymentStatusTone } from '@/lib/orders';
 import { Permission } from '@/lib/permissions';
 import type { Pagination } from '@/lib/types';
-import { useI18n } from '@/i18n/i18n-context';
+import { translateKey, useI18n } from '@/i18n/i18n-context';
+import type { TranslationKey } from '@/i18n/i18n-context';
 
 interface PaymentRow {
   id: string;
@@ -114,10 +115,10 @@ interface RefundQuote {
  * resting state.
  */
 const STATUS_GROUPS = [
-  { label: 'Settled', statuses: ['CAPTURED'] },
-  { label: 'Still in flight', statuses: ['CREATED', 'PENDING', 'AUTHORIZED'] },
-  { label: 'Ended without payment', statuses: ['FAILED', 'CANCELLED', 'EXPIRED'] },
-] as const;
+  { labelKey: 'payments.settled', statuses: ['CAPTURED'] },
+  { labelKey: 'payments.stillInFlight', statuses: ['CREATED', 'PENDING', 'AUTHORIZED'] },
+  { labelKey: 'payments.endedWithoutPayment', statuses: ['FAILED', 'CANCELLED', 'EXPIRED'] },
+] as const satisfies readonly { labelKey: TranslationKey; statuses: readonly string[] }[];
 
 function money(minor: string, currency: string): string {
   return formatMoney({ minor, formatted: minorToMajor(minor), currency });
@@ -154,7 +155,7 @@ function RefundDialog({
       if (minor === null) {
         throw new ApiError(400, {
           code: 'VALIDATION_FAILED',
-          message: 'Enter an amount like 500.00.',
+          message: t('payments.enterAnAmountLike'),
         });
       }
 
@@ -165,13 +166,13 @@ function RefundDialog({
       );
     },
     onSuccess: async () => {
-      toast.success('Refund submitted to the gateway.');
+      toast.success(t('payments.refundSubmitted'));
       await queryClient.invalidateQueries({ queryKey: ['payments'] });
       await queryClient.invalidateQueries({ queryKey: ['order', payment.orderId] });
       onClose();
     },
     onError: (apiError) => {
-      setError(apiError instanceof ApiError ? apiError.message : 'The refund could not be issued.');
+      setError(apiError instanceof ApiError ? apiError.message : t('payments.theRefundCouldNotBeIssued'));
     },
   });
 
@@ -215,13 +216,13 @@ function RefundDialog({
         {quote.data !== undefined && (
           <SummaryTiles
             items={[
-              { label: 'Captured', value: money(quote.data.capturedMinor, quote.data.currency) },
+              { label: t('label.captured'), value: money(quote.data.capturedMinor, quote.data.currency) },
               {
-                label: 'Already refunded',
+                label: t('payments.alreadyRefunded'),
                 value: money(quote.data.alreadyRefundedMinor, quote.data.currency),
               },
               {
-                label: 'Refundable now',
+                label: t('payments.refundableNow'),
                 value: money(quote.data.maxRefundableMinor, quote.data.currency),
                 tone: 'success',
               },
@@ -233,7 +234,7 @@ function RefundDialog({
           <Field
             label={`Refund amount (${payment.currency})`}
             hint={`At most ${money(maxMinor, quote.data?.currency ?? payment.currency)}.`}
-            error={isOverMax ? 'That is more than is refundable on this order.' : undefined}
+            error={isOverMax ? t('payments.thatIsMoreThanIsRefundable') : undefined}
             required
           >
             {({ inputId, describedBy }) => (
@@ -295,18 +296,18 @@ function WebhookHealthPanel(): React.JSX.Element {
   const columns: Column<WebhookEvent>[] = [
     {
       key: 'received',
-      header: 'Received',
+      header: t('label.received'),
       nowrap: true,
       render: (row) => <span className="text-ink-muted">{formatDateTime(row.receivedAt)}</span>,
     },
     {
       key: 'event',
-      header: 'Event',
+      header: t('label.event'),
       render: (row) => <span className="font-mono text-xxs">{row.eventType}</span>,
     },
     {
       key: 'signature',
-      header: 'Signature',
+      header: t('label.signature'),
       render: (row) =>
         row.signatureVerified ? (
           <Badge dot tone="success">
@@ -322,7 +323,7 @@ function WebhookHealthPanel(): React.JSX.Element {
     },
     {
       key: 'processing',
-      header: 'Processing',
+      header: t('label.processing'),
       render: (row) => (
         <Badge
           dot
@@ -340,7 +341,7 @@ function WebhookHealthPanel(): React.JSX.Element {
     },
     {
       key: 'error',
-      header: 'Detail',
+      header: t('label.detail'),
       secondary: true,
       render: (row) => row.processingError ?? <span className="text-ink-subtle">—</span>,
     },
@@ -381,13 +382,13 @@ function WebhookHealthPanel(): React.JSX.Element {
       )}
 
       <DataTable
-        caption="Recent webhook deliveries"
+        caption={t('payments.recentWebhookDeliveries')}
         columns={columns}
         rows={query.data?.recent}
         rowKey={(row) => row.id}
         isLoading={query.isPending}
         error={query.isError ? query.error : undefined}
-        loadingLabel="Loading webhook deliveries"
+        loadingLabel={t('payments.loadingWebhookDeliveries')}
         minWidth="52rem"
         rowClassName={(row) =>
           row.signatureVerified ? undefined : 'bg-danger-soft/60 hover:bg-danger-soft'
@@ -395,8 +396,8 @@ function WebhookHealthPanel(): React.JSX.Element {
         onRetry={() => {
           void query.refetch();
         }}
-        emptyTitle="No webhook deliveries yet"
-        emptyDescription="Once the gateway is configured with this system's webhook URL, deliveries appear here."
+        emptyTitle={t('payments.noWebhookDeliveriesYet')}
+        emptyDescription={t('payments.onceTheGatewayIsConfigured')}
       />
     </Card>
   );
@@ -432,12 +433,12 @@ export function PaymentsPage(): React.JSX.Element {
   const reconcile = useMutation({
     mutationFn: (payment: PaymentRow) => api.post(`/admin/payments/${payment.id}/reconcile`),
     onSuccess: async () => {
-      toast.success('Asked the gateway. The status here now matches theirs.');
+      toast.success(t('payments.askedTheGateway'));
       await queryClient.invalidateQueries({ queryKey: ['payments'] });
       await queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : 'The gateway could not be reached.');
+      toast.error(error instanceof ApiError ? error.message : t('payments.theGatewayCouldNotBeReached'));
     },
   });
 
@@ -447,7 +448,7 @@ export function PaymentsPage(): React.JSX.Element {
   const columns: Column<PaymentRow>[] = [
     {
       key: 'order',
-      header: 'Order',
+      header: t('label.order'),
       nowrap: true,
       render: (row) => (
         <Link
@@ -460,7 +461,7 @@ export function PaymentsPage(): React.JSX.Element {
     },
     {
       key: 'status',
-      header: 'Status',
+      header: t('label.status'),
       render: (row) => (
         <div className="min-w-32">
           <Badge dot tone={paymentStatusTone(row.status)}>
@@ -474,14 +475,14 @@ export function PaymentsPage(): React.JSX.Element {
     },
     {
       key: 'amount',
-      header: 'Amount',
+      header: t('label.amount'),
       align: 'right',
       nowrap: true,
       render: (row) => money(row.amountMinor, row.currency),
     },
     {
       key: 'captured',
-      header: 'Captured',
+      header: t('label.captured'),
       align: 'right',
       nowrap: true,
       render: (row) => (
@@ -500,7 +501,7 @@ export function PaymentsPage(): React.JSX.Element {
     },
     {
       key: 'provider',
-      header: 'Gateway',
+      header: t('label.gateway'),
       secondary: true,
       render: (row) => (
         <div>
@@ -519,7 +520,7 @@ export function PaymentsPage(): React.JSX.Element {
     },
     {
       key: 'when',
-      header: 'When',
+      header: t('label.when'),
       secondary: true,
       tertiary: true,
       nowrap: true,
@@ -587,7 +588,7 @@ export function PaymentsPage(): React.JSX.Element {
               >
                 <option value="">{t('payments.anyStatus')}</option>
                 {STATUS_GROUPS.map((group) => (
-                  <optgroup key={group.label} label={group.label}>
+                  <optgroup key={group.labelKey} label={translateKey(t, group.labelKey)}>
                     {group.statuses.map((value) => (
                       <option key={value} value={value}>
                         {humanise(value)}
@@ -635,23 +636,23 @@ export function PaymentsPage(): React.JSX.Element {
           </Toolbar>
 
           <DataTable
-            caption="Payments"
+            caption={t('label.payments')}
             columns={columns}
             rows={query.data?.payments}
             rowKey={(row) => row.id}
             isLoading={query.isPending}
             isRefreshing={query.isFetching && !query.isPending}
             error={query.isError ? query.error : undefined}
-            loadingLabel="Loading payments"
+            loadingLabel={t('payments.loadingPayments')}
             minWidth="64rem"
             onRetry={() => {
               void query.refetch();
             }}
-            emptyTitle={hasFilters ? 'Nothing matches these filters' : 'No payments yet'}
+            emptyTitle={hasFilters ? t('common.nothingMatchesFilters') : t('payments.noPaymentsYet')}
             emptyDescription={
               hasFilters
-                ? 'Try another status, or clear the filters.'
-                : 'A payment appears once a customer starts one. Nothing here is entered by hand.'
+                ? t('payments.tryAnotherStatus')
+                : t('payments.aPaymentAppearsOnce')
             }
             emptyAction={
               hasFilters ? (

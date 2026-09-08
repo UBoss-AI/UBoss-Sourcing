@@ -29,21 +29,23 @@ import type {
   CheckoutStepState,
   CheckoutStepStates,
 } from '@/lib/checkout-steps';
-import { useI18n } from '@/i18n/i18n-context';
+import { translateKey, useI18n } from '@/i18n/i18n-context';
+import type { TranslationKey } from '@/i18n/i18n-context';
 
-const STEPS: { id: CheckoutStepId; label: string }[] = [
-  { id: 'cart', label: 'Cart' },
-  { id: 'address', label: 'Address' },
-  { id: 'payment', label: 'Payment' },
-  { id: 'confirmation', label: 'Confirmation' },
+// Keys, not words: module state, built before any component can call `t`.
+const STEPS: { id: CheckoutStepId; labelKey: TranslationKey }[] = [
+  { id: 'cart', labelKey: 'checkoutSteps.cart' },
+  { id: 'address', labelKey: 'checkoutSteps.address' },
+  { id: 'payment', labelKey: 'checkoutSteps.payment' },
+  { id: 'confirmation', labelKey: 'checkoutSteps.confirmation' },
 ];
 
 /** What each state says to a screen reader, after the step's own name. */
-const STATE_WORDING: Record<CheckoutStepState, string> = {
-  complete: 'completed',
-  current: 'current step',
-  waiting: 'waiting',
-  upcoming: 'not started',
+const STATE_WORDING: Record<CheckoutStepState, TranslationKey> = {
+  complete: 'checkoutSteps.stateComplete',
+  current: 'checkoutSteps.stateCurrent',
+  waiting: 'checkoutSteps.stateWaiting',
+  upcoming: 'checkoutSteps.stateUpcoming',
 };
 
 const MARKER_STYLES: Record<CheckoutStepState, string> = {
@@ -113,8 +115,8 @@ export function CheckoutSteps({
                 <Marker state={state} position={index + 1} />
 
                 <span className={cx('text-xxs sm:text-xs', LABEL_STYLES[state])}>
-                  {step.label}
-                  <span className="sr-only">: {STATE_WORDING[state]}</span>
+                  {translateKey(t, step.labelKey)}
+                  <span className="sr-only">: {translateKey(t, STATE_WORDING[state])}</span>
                 </span>
 
                 {note !== undefined && (

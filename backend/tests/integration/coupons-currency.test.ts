@@ -53,8 +53,14 @@ async function resetAll(): Promise<void> {
   await prisma.inventoryLocation.deleteMany({});
   await prisma.customerProfile.deleteMany({});
   await prisma.user.deleteMany({ where: { email: { contains: '@coupontest.local' } } });
-  await prisma.country.deleteMany({});
-  await prisma.currency.deleteMany({});
+  // Currencies and countries are deliberately NOT wiped here.
+  //
+  // They are reference data shared with every other file in this suite, and
+  // vitest runs files in parallel against one database: a global delete here
+  // pulled the rows out from under whichever test happened to be mid-request,
+  // which showed up as another file failing for no reason anybody could
+  // reproduce alone. This file needs its own two of each to exist, not to be
+  // the only two, so the fixtures below upsert them instead.
   await prisma.businessProfile.deleteMany({});
 }
 
@@ -72,19 +78,29 @@ beforeEach(async () => {
     },
   });
 
-  await prisma.currency.createMany({
-    data: [
-      { code: 'INR', name: 'Indian Rupee', symbol: '₹', exponent: 2, isBase: true, sortOrder: 1 },
-      { code: 'USD', name: 'US Dollar', symbol: '$', exponent: 2, sortOrder: 2 },
-    ],
-  });
+  // Upserted, not created: see `resetAll`. Active and priced as this file
+  // needs them, whatever another file left behind.
+  for (const currency of [
+    { code: 'INR', name: 'Indian Rupee', symbol: '₹', exponent: 2, isBase: true, sortOrder: 1 },
+    { code: 'USD', name: 'US Dollar', symbol: '$', exponent: 2, sortOrder: 2 },
+  ]) {
+    await prisma.currency.upsert({
+      where: { code: currency.code },
+      update: { ...currency, isActive: true },
+      create: { ...currency, isActive: true },
+    });
+  }
 
-  await prisma.country.createMany({
-    data: [
-      { code: 'IN', name: 'India', currencyCode: 'INR', sortOrder: 1 },
-      { code: 'US', name: 'United States', currencyCode: 'USD', sortOrder: 2 },
-    ],
-  });
+  for (const country of [
+    { code: 'IN', name: 'India', currencyCode: 'INR', sortOrder: 1 },
+    { code: 'US', name: 'United States', currencyCode: 'USD', sortOrder: 2 },
+  ]) {
+    await prisma.country.upsert({
+      where: { code: country.code },
+      update: { ...country, isActive: true },
+      create: { ...country, isActive: true },
+    });
+  }
 
   await prisma.inventoryLocation.create({
     data: { id: newId(), code: 'MAIN', name: 'Main', isDefault: true, isActive: true },

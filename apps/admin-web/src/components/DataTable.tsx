@@ -109,7 +109,7 @@ export function DataTable<T>({
   error,
   onRetry,
   isForbidden = false,
-  emptyTitle = 'Nothing here yet',
+  emptyTitle,
   emptyDescription,
   emptyAction,
   loadingLabel,
@@ -117,6 +117,10 @@ export function DataTable<T>({
   rowClassName,
   onRowClick,
 }: DataTableProps<T>): React.JSX.Element {
+  // Before the early returns: a hook cannot sit behind a condition, and this
+  // component returns three different states before it ever draws a table.
+  const { t } = useI18n();
+
   if (isForbidden) return <NoAccessState />;
 
   if (error !== undefined && error !== null) {
@@ -130,7 +134,7 @@ export function DataTable<T>({
   if (rows === undefined || rows.length === 0) {
     return (
       <EmptyState
-        title={emptyTitle}
+        title={emptyTitle ?? t('common.nothingHereYet')}
         {...(emptyDescription === undefined ? {} : { description: emptyDescription })}
         {...(emptyAction === undefined ? {} : { action: emptyAction })}
       />

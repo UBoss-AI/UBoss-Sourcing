@@ -75,6 +75,31 @@ export async function listActiveCountries(): Promise<CountryView[]> {
 }
 
 /**
+ * What a customer standing in this country is quoted in.
+ *
+ * Step 2 of the resolution order above, on its own: given a country and
+ * nothing else, which currency is that market's? Used by the admin console,
+ * where the market is not a choice but the country the session signed in from,
+ * so there is no profile to read a preference off.
+ *
+ * Null rather than the base currency for every "no answer" - no country, a
+ * country this deployment does not sell in, or one whose currency has since
+ * been retired. The caller decides what to do about it, and for the console
+ * that means falling back to the base currency *and saying so*, which is not a
+ * decision this function should make silently.
+ */
+export async function currencyForCountry(country: string | null): Promise<string | null> {
+  if (country === null) return null;
+
+  const row = await prisma.country.findFirst({
+    where: { code: country.trim().toUpperCase(), isActive: true },
+    select: { currency: { select: { code: true, isActive: true } } },
+  });
+
+  return row?.currency.isActive === true ? row.currency.code : null;
+}
+
+/**
  * The business's reporting currency, and the fallback for anyone who has not
  * chosen. Falls back to the business profile if no row is flagged, so a
  * half-seeded database still serves pages.

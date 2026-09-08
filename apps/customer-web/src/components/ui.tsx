@@ -28,6 +28,7 @@ import type {
 } from 'react';
 import type { LinkProps } from 'react-router-dom';
 import { cx } from '@/lib/cx';
+import { errorMessage } from '@/lib/errors';
 import { useI18n } from '@/i18n/i18n-context';
 
 // ---------------------------------------------------------------------------
@@ -371,12 +372,15 @@ export const Select = forwardRef<
  * happened. Each entry links to its field.
  */
 export function ErrorSummary({
-  title = 'There is a problem',
+  title,
   errors,
 }: {
   title?: string;
   errors: { field?: string; message: string }[];
 }): React.JSX.Element | null {
+  // Before the early return: a hook cannot sit behind a condition.
+  const { t } = useI18n();
+
   if (errors.length === 0) return null;
 
   return (
@@ -388,7 +392,7 @@ export function ErrorSummary({
       }}
       className="rounded-lg border border-danger/30 bg-danger-soft px-4 py-3 outline-none"
     >
-      <h2 className="text-title-xs text-danger">{title}</h2>
+      <h2 className="text-title-xs text-danger">{title ?? t('common.problem')}</h2>
       <ul className="mt-1.5 list-inside list-disc space-y-1 text-sm text-ink">
         {errors.map((error, index) => (
           <li key={`${error.field ?? ''}:${String(index)}`}>{error.message}</li>
@@ -521,12 +525,14 @@ export function EmptyState({
   );
 }
 
-export function LoadingState({ label = 'Loading' }: { label?: string }): React.JSX.Element {
+export function LoadingState({ label }: { label?: string }): React.JSX.Element {
+  const { t } = useI18n();
+
   return (
     <div className="flex items-center justify-center gap-2.5 px-6 py-16 text-sm text-ink-muted">
       <Spinner className="h-4 w-4" />
       {/* Polite, so a screen reader says it once rather than interrupting. */}
-      <span role="status">{label}…</span>
+      <span role="status">{label ?? t('common.loading')}…</span>
     </div>
   );
 }
@@ -547,8 +553,11 @@ export function ErrorState({
 }): React.JSX.Element {
   const { t } = useI18n();
 
-  const message =
-    error instanceof Error && error.message.length > 0 ? error.message : 'The request failed.';
+  // Worded in `lib/errors.ts`. The three failures the client diagnoses for
+  // itself - offline, unreachable, 503 - are matched on their code there, so
+  // they are read in the page's own language rather than in the English
+  // `api.ts` had to throw them with.
+  const message = errorMessage(t, error);
 
   const correlationId =
     typeof error === 'object' && error !== null && 'correlationId' in error
@@ -562,7 +571,7 @@ export function ErrorState({
         // A chip, not a line of grey text: this is the one string a customer
         // will be asked to read back, so it needs to look selectable.
         <p className="mt-2.5 rounded bg-surface-sunken px-2 py-1 font-mono text-xxs text-ink-subtle">
-          Quote this if you contact support: {correlationId}
+          {t('common.quoteThisIfYouContactSupport', { id: correlationId })}
         </p>
       )}
       {onRetry !== undefined && (

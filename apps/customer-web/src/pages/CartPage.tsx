@@ -39,11 +39,12 @@ import { PageEmptyState } from '@/components/PageEmptyState';
 import { AlertIcon, TrashIcon } from '@/components/icons';
 import { clampToRules } from '@/lib/quantity-rules';
 import { Badge, Button, ButtonLink, ErrorState, LoadingState } from '@/components/ui';
-import { ApiError, api } from '@/lib/api';
+import { api } from '@/lib/api';
 import { formatMoney, formatNumber } from '@/lib/format';
 import { useI18n } from '@/i18n/i18n-context';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { Cart, CartIssue, CartLine, PurchaseRules } from '@/lib/types';
+import { errorMessage } from '@/lib/errors';
 
 /** The cart's rules, widened back to what the quantity control expects. */
 function toPurchaseRules(line: CartLine): PurchaseRules {
@@ -140,18 +141,18 @@ function LineRow({
       if (available === null || available < rules.minOrderQty) return null;
       const target = clampToRules(available, rules);
       if (target > available) return null;
-      return { label: `Reduce to ${formatNumber(target)}`, quantity: target };
+      return { label: t('cart.reduceTo', { quantity: formatNumber(target) }), quantity: target };
     }
 
     if (code === 'QUANTITY_BELOW_MINIMUM' || code === 'QUANTITY_INCREMENT_INVALID') {
       const target = clampToRules(line.quantity, rules);
       if (target === line.quantity) return null;
-      return { label: `Change to ${formatNumber(target)}`, quantity: target };
+      return { label: t('cart.changeTo', { quantity: formatNumber(target) }), quantity: target };
     }
 
     if (code === 'QUANTITY_ABOVE_MAXIMUM' && rules.maxOrderQty !== null) {
       const target = clampToRules(rules.maxOrderQty, rules);
-      return { label: `Reduce to ${formatNumber(target)}`, quantity: target };
+      return { label: t('cart.reduceTo', { quantity: formatNumber(target) }), quantity: target };
     }
 
     return null;
@@ -171,7 +172,7 @@ function LineRow({
       <Link
         to={`/product/${line.slug}`}
         className="group shrink-0"
-        aria-label={`View ${line.name}`}
+        aria-label={t('cart.viewProduct', { product: line.name })}
       >
         {line.imageUrl === null ? (
           <span
@@ -210,7 +211,9 @@ function LineRow({
             </span>
             <span className="mt-0.5 block text-xxs text-ink-muted">
               {formatMoney(line.unitPrice)} each
-              {line.taxInclusive ? ' (tax included)' : ` + ${line.taxRatePercent}% tax`}
+              {line.taxInclusive
+                ? ` ${t('cart.taxIncludedNote')}`
+                : ` ${t('cart.plusTaxRate', { rate: line.taxRatePercent })}`}
             </span>
           </p>
         </div>
@@ -308,7 +311,7 @@ export function CartPage(): React.JSX.Element {
     },
     onSuccess: applyCart,
     onError: (error) => {
-      setActionError(error instanceof ApiError ? error.message : t('cart.changeNotSaved'));
+      setActionError(errorMessage(t, error, t('cart.changeNotSaved')));
       // The local view may now disagree with the server, so re-read rather
       // than leaving a quantity on screen that was never accepted.
       void queryClient.invalidateQueries({ queryKey: ['cart'] });
@@ -328,7 +331,7 @@ export function CartPage(): React.JSX.Element {
       toast.success(t('cart.removedToast'));
     },
     onError: (error) => {
-      setActionError(error instanceof ApiError ? error.message : t('cart.itemNotRemoved'));
+      setActionError(errorMessage(t, error, t('cart.itemNotRemoved')));
       void queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
     onSettled: () => {

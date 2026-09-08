@@ -28,6 +28,7 @@
  */
 import { calculateTax, type Minor } from '../../domain/money.js';
 import { prisma } from '../../infra/prisma.js';
+import { currencyForCountry } from '../settings/currency.service.js';
 import {
   TaxTreatment,
   VatCategory,
@@ -278,4 +279,49 @@ export async function loadShelfContext(
   const [setup, inclusive] = await Promise.all([loadShelfTax(country), catalogueIsInclusive()]);
 
   return { country, setup, scale: shelfScaleFor(setup, inclusive) };
+}
+
+/** The market the admin console is quoting for: a place, a tax setup, a currency. */
+export interface ConsoleMarket extends ShelfContext {
+  /**
+   * The currency this market's customers pay in, or null.
+   *
+   * Null is a real answer and the caller must handle it: it means no market
+   * asked for a currency, so each product is quoted in the one its own price
+   * is authored in - which is what the console did before it knew about
+   * markets at all. Two situations produce it, and neither is an error:
+   *
+   *   - The sign-in named no country. A deployment with no geocoder is the
+   *     ordinary case, and there is no market to pick a price list for.
+   *   - The country is not one this deployment sells in, or its currency has
+   *     been retired. Quoting the seller's own currency *as though it were*
+   *     that country's would be a claim about the country that is not true.
+   *
+   * Where it is set, it is always a real sellable currency.
+   */
+  currency: string | null;
+}
+
+/**
+ * Everything the console needs to quote a shelf for the market a session is in.
+ *
+ * A currency and a country answer two different halves of one question, and
+ * the console has to ask both. `product_prices` holds one real figure per
+ * currency and nothing is converted, so the currency decides *which price
+ * list* a customer in front of staff is being quoted from; the country decides
+ * what that figure becomes once its VAT is on. Germany and Ireland read the
+ * same euro row and charge 19% and 23% on it - and neither of them reads the
+ * rupee row at all.
+ *
+ * The public catalogue asks the two separately, because a shopper may hold a
+ * currency preference that is not their country's default. A member of staff
+ * holds no such preference: the market they can speak for is the one they are
+ * sitting in, so here the country answers both halves.
+ */
+export async function loadConsoleMarket(
+  requestedCountry: string | undefined | null,
+): Promise<ConsoleMarket> {
+  const shelf = await loadShelfContext(requestedCountry);
+
+  return { ...shelf, currency: await currencyForCountry(shelf.country) };
 }

@@ -15,12 +15,13 @@
  */
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { ApiError, api } from '@/lib/api';
-import { formatMoney } from '@/lib/format';
+import { api } from '@/lib/api';
+import { formatMoney, formatNumber } from '@/lib/format';
 import type { Cart } from '@/lib/types';
 import { Button } from '@/components/ui';
 import { AlertIcon, CheckIcon } from '@/components/icons';
 import { useI18n } from '@/i18n/i18n-context';
+import { errorMessage } from '@/lib/errors';
 
 export function CouponPanel({ cart }: { cart: Cart }): React.JSX.Element {
   const { t } = useI18n();
@@ -45,7 +46,7 @@ export function CouponPanel({ cart }: { cart: Cart }): React.JSX.Element {
       // The server's own wording. It knows why - too small a basket, wrong
       // categories, expired - and inventing a client-side reason here would
       // eventually contradict it.
-      setError(cause instanceof ApiError ? cause.message : 'That coupon could not be applied.');
+      setError(errorMessage(t, cause, t('coupon.couldNotBeApplied')));
     },
   });
 
@@ -143,7 +144,7 @@ export function CouponPanel({ cart }: { cart: Cart }): React.JSX.Element {
           />
         </label>
         <Button type="submit" variant="secondary" disabled={apply.isPending || code.trim() === ''}>
-          {apply.isPending ? 'Applying…' : 'Apply'}
+          {apply.isPending ? t('coupon.applyingEllipsis') : 'Apply'}
         </Button>
       </form>
 
@@ -164,8 +165,11 @@ export function CouponPanel({ cart }: { cart: Cart }): React.JSX.Element {
             className="text-xs font-medium text-brand underline"
           >
             {showOffers
-              ? 'Hide coupons'
-              : `We have ${String(offers.length)} coupon${offers.length === 1 ? '' : 's'} — view`}
+              ? t('coupon.hideCoupons')
+              : t('coupon.weHaveCoupons', {
+                  count: offers.length,
+                  coupons: formatNumber(offers.length),
+                })}
           </button>
 
           {showOffers && (
@@ -186,10 +190,10 @@ export function CouponPanel({ cart }: { cart: Cart }): React.JSX.Element {
                     <div className="min-w-0">
                       <p className="font-mono text-sm font-semibold text-ink">{offer.code}</p>
                       <p className="mt-0.5 text-xs text-ink-muted">
-                        {offer.discountPercent}% off
+                        {t('coupon.percentOff', { percent: offer.discountPercent })}
                         {offer.minOrder.minor === '0'
                           ? ''
-                          : ` on orders over ${formatMoney(offer.minOrder)}`}
+                          : ` ${t('coupon.onOrdersOver', { amount: formatMoney(offer.minOrder) })}`}
                       </p>
                       {offer.description !== null && (
                         <p className="mt-0.5 text-xs text-ink-subtle">{offer.description}</p>

@@ -1,3 +1,4 @@
+import type { Translate } from '@/i18n/i18n-context';
 /**
  * Loading Stripe.js and describing the slice of it this app uses.
  *
@@ -78,7 +79,7 @@ let loadPromise: Promise<StripeConstructor> | null = null;
  * A second call while the first is in flight waits on the same load rather
  * than injecting a second `<script>`.
  */
-export function loadStripeJs(): Promise<StripeConstructor> {
+export function loadStripeJs(t: Translate): Promise<StripeConstructor> {
   if (window.Stripe !== undefined) return Promise.resolve(window.Stripe);
 
   loadPromise ??= new Promise<StripeConstructor>((resolve, reject) => {
@@ -86,7 +87,7 @@ export function loadStripeJs(): Promise<StripeConstructor> {
 
     const onReady = (): void => {
       if (window.Stripe === undefined) {
-        reject(new Error('The payment provider loaded but did not initialise.'));
+        reject(new Error(t('common.paymentProviderNotInitialised')));
         return;
       }
       resolve(window.Stripe);
@@ -97,7 +98,7 @@ export function loadStripeJs(): Promise<StripeConstructor> {
       existing.addEventListener(
         'error',
         () => {
-          reject(new Error('The payment provider could not be reached.'));
+          reject(new Error(t('common.paymentProviderUnreachable')));
         },
         { once: true },
       );
@@ -115,7 +116,7 @@ export function loadStripeJs(): Promise<StripeConstructor> {
         // Reset, so a later attempt can retry rather than waiting forever on a
         // promise that will never settle.
         loadPromise = null;
-        reject(new Error('The payment provider could not be reached. Check your connection.'));
+        reject(new Error(t('common.paymentProviderUnreachableCheck')));
       },
       { once: true },
     );

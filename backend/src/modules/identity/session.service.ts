@@ -23,6 +23,9 @@ import { generateToken, safeCompare, sha256Hex } from '../../infra/crypto.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
+// The label a position is read as. Shared with the notification the sign-in
+// rings so the bell and the top bar cannot word the same place differently.
+import { formatCoordinates } from './session-location.service.js';
 
 export interface IssuedSession {
   sessionId: string;
@@ -115,6 +118,15 @@ interface SessionLocationColumns {
   locationLongitude: Prisma.Decimal | null;
   locationAccuracyM: number | null;
   locationLabel: string | null;
+  /**
+   * Carried like the rest of it, and it has to be.
+   *
+   * The country is read by the console itself - the market it prices for, and
+   * the language it switches to - so a rotation that dropped it would put a
+   * member of staff back on the seller's own market and back into English
+   * several times a shift, without anything on screen explaining why.
+   */
+  locationCountry: string | null;
   locationCapturedAt: Date | null;
 }
 
@@ -246,6 +258,7 @@ export async function rotateSession(
       locationLongitude: session.locationLongitude,
       locationAccuracyM: session.locationAccuracyM,
       locationLabel: session.locationLabel,
+      locationCountry: session.locationCountry,
       locationCapturedAt: session.locationCapturedAt,
     },
   );
@@ -278,12 +291,21 @@ export interface SessionAuthState {
    * seller's own country.
    */
   country: string | null;
+  /**
+   * The place that sign-in came from, as a person reads it.
+   *
+   * The geocoded name where one was resolved, the coordinates where it was
+   * not, and null where the browser has said nothing at all. The panel puts it
+   * in the top bar: somebody who has two consoles open, or who was handed a
+   * laptop, can see which sign-in they are looking at.
+   */
+  place: string | null;
 }
 
 /**
  * The session row, as the guards see it.
  *
- * All three facts come from one query on purpose: `requireAdmin` needs each of
+ * Every fact comes from one query on purpose: `requireAdmin` needs each of
  * them on every single request, and two round trips per request to the same row
  * is a cost a self-hosted box pays for nothing.
  */
@@ -295,18 +317,44 @@ export async function getSessionAuthState(sessionId: string): Promise<SessionAut
       expiresAt: true,
       locationCapturedAt: true,
       locationCountry: true,
+      // For the top bar. The coordinates are the fallback label, which is why
+      // they are read here and not only the name.
+      locationLabel: true,
+      locationLatitude: true,
+      locationLongitude: true,
     },
   });
 
   if (session === null || session.revokedAt !== null || session.expiresAt.getTime() <= Date.now()) {
-    return { isActive: false, hasLocation: false, country: null };
+    return { isActive: false, hasLocation: false, country: null, place: null };
   }
 
   return {
     isActive: true,
     hasLocation: session.locationCapturedAt !== null,
     country: session.locationCountry,
+    place: sessionPlace(session),
   };
+}
+
+/**
+ * The label for one session's position.
+ *
+ * The geocoder's name when there is one, the coordinates when there is not,
+ * and null when nothing was ever recorded. Same order as the notification
+ * line, so the bell and the top bar cannot disagree about where a session
+ * came from.
+ */
+function sessionPlace(session: {
+  locationLabel: string | null;
+  locationLatitude: Prisma.Decimal | null;
+  locationLongitude: Prisma.Decimal | null;
+}): string | null {
+  if (session.locationLabel !== null) return session.locationLabel;
+
+  if (session.locationLatitude === null || session.locationLongitude === null) return null;
+
+  return formatCoordinates(Number(session.locationLatitude), Number(session.locationLongitude));
 }
 
 /** True when the session is present, unrevoked and unexpired. */

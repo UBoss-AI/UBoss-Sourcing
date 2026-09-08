@@ -113,17 +113,17 @@ function ActionDialog({
     onSuccess: async () => {
       toast.success(
         action === 'pause'
-          ? 'Schedule paused. It will not produce orders until resumed.'
+          ? t('recurring.schedulePaused')
           : action === 'resume'
-            ? 'Schedule resumed.'
-            : 'Schedule cancelled.',
+            ? t('recurring.scheduleResumed')
+            : t('recurring.scheduleCancelled'),
       );
       await queryClient.invalidateQueries({ queryKey: ['schedules'] });
       await queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       onClose();
     },
     onError: (apiError) => {
-      setError(apiError instanceof ApiError ? apiError.message : 'That could not be done.');
+      setError(apiError instanceof ApiError ? apiError.message : t('recurring.thatCouldNotBeDone'));
     },
   });
 
@@ -134,10 +134,10 @@ function ActionDialog({
   };
 
   const bodies = {
-    pause: 'It stops producing orders and keeps its place. Resume puts it back on schedule.',
-    resume: 'It starts producing orders again from its next scheduled run.',
+    pause: t('recurring.itStopsProducingOrders'),
+    resume: t('recurring.itStartsProducingOrdersAgain'),
     cancel:
-      'Orders it has already produced are unaffected, but the schedule cannot be restarted — the customer would have to create a new one.',
+      t('recurring.ordersItHasAlreadyProduced'),
   };
 
   return (
@@ -161,10 +161,10 @@ function ActionDialog({
             }}
           >
             {action === 'pause'
-              ? 'Pause schedule'
+              ? t('recurring.pauseSchedule')
               : action === 'resume'
-                ? 'Resume schedule'
-                : 'Cancel schedule'}
+                ? t('recurring.resumeSchedule')
+                : t('recurring.cancelSchedule')}
           </Button>
         </>
       }
@@ -192,8 +192,8 @@ function ActionDialog({
             label={t('recurring.reason')}
             hint={
               action === 'cancel'
-                ? 'Required. Recorded on the schedule and visible to the customer.'
-                : 'Optional. Shown on the schedule while it is paused.'
+                ? t('recurring.requiredRecordedAndVisible')
+                : t('recurring.optionalShownWhilePaused')
             }
             required={action === 'cancel'}
           >
@@ -242,7 +242,7 @@ export function RecurringPage(): React.JSX.Element {
   const columns: Column<ScheduleRow>[] = [
     {
       key: 'schedule',
-      header: 'Schedule',
+      header: t('label.schedule'),
       render: (row) => (
         <div className="min-w-48">
           <p className="font-medium text-ink">{row.name}</p>
@@ -253,7 +253,7 @@ export function RecurringPage(): React.JSX.Element {
     },
     {
       key: 'customer',
-      header: 'Customer',
+      header: t('label.customer'),
       render: (row) =>
         row.customer === null ? (
           <span className="text-ink-subtle">—</span>
@@ -263,7 +263,7 @@ export function RecurringPage(): React.JSX.Element {
               to={`/customers/${row.customer.id}`}
               className="text-ink hover:text-accent hover:underline"
             >
-              {row.customer.fullName ?? 'Customer'}
+              {row.customer.fullName ?? t('label.customer')}
             </Link>
             {row.customer.organization !== null && (
               <p className="truncate text-xxs text-ink-subtle">{row.customer.organization}</p>
@@ -273,7 +273,7 @@ export function RecurringPage(): React.JSX.Element {
     },
     {
       key: 'status',
-      header: 'Status',
+      header: t('label.status'),
       render: (row) => (
         <div className="min-w-32">
           <Badge dot tone={scheduleTone(row.status)}>
@@ -292,7 +292,7 @@ export function RecurringPage(): React.JSX.Element {
     },
     {
       key: 'next',
-      header: 'Next run',
+      header: t('label.nextRun'),
       nowrap: true,
       render: (row) =>
         row.nextRunAt === null ? (
@@ -310,7 +310,7 @@ export function RecurringPage(): React.JSX.Element {
     },
     {
       key: 'payment',
-      header: 'Payment',
+      header: t('label.payment'),
       secondary: true,
       render: (row) => (
         <div>
@@ -325,7 +325,7 @@ export function RecurringPage(): React.JSX.Element {
     },
     {
       key: 'runs',
-      header: 'Runs',
+      header: t('label.runs'),
       align: 'right',
       secondary: true,
       tertiary: true,
@@ -428,14 +428,14 @@ export function RecurringPage(): React.JSX.Element {
         </Toolbar>
 
         <DataTable
-          caption="Recurring schedules"
+          caption={t('recurring.recurringSchedules')}
           columns={columns}
           rows={query.data?.schedules}
           rowKey={(row) => row.id}
           isLoading={query.isPending}
           isRefreshing={query.isFetching && !query.isPending}
           error={query.isError ? query.error : undefined}
-          loadingLabel="Loading schedules"
+          loadingLabel={t('recurring.loadingSchedules')}
           minWidth="66rem"
           // A schedule the worker has given up on is the one that needs a
           // person. It says FAILED in words as well.
@@ -445,8 +445,12 @@ export function RecurringPage(): React.JSX.Element {
           onRetry={() => {
             void query.refetch();
           }}
-          emptyTitle={status === '' ? 'No recurring schedules' : 'Nothing with this status'}
-          emptyDescription="Customers create these from their account. Staff can pause, resume or cancel them here."
+          emptyTitle={
+            status === ''
+              ? t('recurring.noRecurringSchedules')
+              : t('recurring.nothingWithThisStatus')
+          }
+          emptyDescription={t('recurring.customersCreateTheseFromTheirAccount')}
           emptyAction={
             status === '' ? undefined : (
               <Button

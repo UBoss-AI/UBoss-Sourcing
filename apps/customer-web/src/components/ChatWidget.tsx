@@ -37,6 +37,7 @@ import { Button, Field, Input, Spinner } from './ui';
 import { cx } from '@/lib/cx';
 import { ApiError, BASE_URL, api } from '@/lib/api';
 import { useI18n } from '@/i18n/i18n-context';
+import type { Translate } from '@/i18n/i18n-context';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -229,6 +230,7 @@ function MessageBody({ text }: { text: string }): React.JSX.Element {
  * server-side when the visitor closes the panel.
  */
 async function readEventStream(
+  t: Translate,
   body: ReadableStream<Uint8Array>,
   handlers: {
     onDelta: (text: string) => void;
@@ -274,7 +276,7 @@ async function readEventStream(
       } else if (event === 'error') {
         const message = (parsed as { message?: unknown }).message;
         handlers.onError(
-          typeof message === 'string' ? message : 'The assistant could not answer that.',
+          typeof message === 'string' ? message : t('chat.assistantCouldNotAnswer'),
         );
       }
     }
@@ -291,23 +293,26 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
  * Validated here as well as on the API, so a typo is caught before a round
  * trip. The API's rules are the ones that count; these mirror them.
  */
-function validateVisitor(values: {
-  name: string;
-  phone: string;
-  email: string;
-}): Record<string, string> {
+function validateVisitor(
+  t: Translate,
+  values: {
+    name: string;
+    phone: string;
+    email: string;
+  },
+): Record<string, string> {
   const errors: Record<string, string> = {};
 
-  if (values.name.trim().length < 2) errors.name = 'Please enter your name.';
+  if (values.name.trim().length < 2) errors.name = t('chat.pleaseEnterYourName');
 
   // Digits only for the length check: people write +91 98765 43210,
   // (022) 4567-8900 and 09876543210, and all three are the same number.
   const digits = values.phone.replace(/\D/g, '');
   if (digits.length < 7 || digits.length > 15) {
-    errors.phone = 'Enter a mobile number with 7 to 15 digits.';
+    errors.phone = t('chat.enterAMobileNumber');
   }
 
-  if (!EMAIL_PATTERN.test(values.email.trim())) errors.email = 'Enter a valid email address.';
+  if (!EMAIL_PATTERN.test(values.email.trim())) errors.email = t('validation.emailInvalid');
 
   return errors;
 }
@@ -340,7 +345,7 @@ function VisitorForm({
       phone: phone.trim(),
       email: email.trim(),
     };
-    const found = validateVisitor(values);
+    const found = validateVisitor(t, values);
 
     setErrors(found);
     setFailure(null);
@@ -366,12 +371,12 @@ function VisitorForm({
         else {
           setFailure(
             error.isRateLimited
-              ? 'Too many attempts just now. Please wait a moment and try again.'
-              : 'We could not start the chat. Please try again shortly.',
+              ? t('chat.tooManyAttempts')
+              : t('chat.couldNotStartTheChat'),
           );
         }
       } else {
-        setFailure('Could not reach the store. Check your connection and try again.');
+        setFailure(t('chat.couldNotReachTheStore'));
       }
     } finally {
       setIsSubmitting(false);
@@ -484,11 +489,14 @@ function VisitorForm({
 // Panel
 // ---------------------------------------------------------------------------
 
-function greetingFor(name: string): string {
+function greetingFor(t: Translate, name: string): string {
   const firstName = name.trim().split(/\s+/)[0] ?? '';
-  const hello = firstName.length > 0 ? `Hello ${firstName}.` : 'Hello.';
 
-  return `${hello} Ask me about a product, what is in a pack, or which page to look at. I will keep answers short.`;
+  // Two whole sentences rather than a name glued onto a greeting: where the
+  // name sits in "Hello X" is not the same in every language.
+  return firstName.length > 0
+    ? t('chat.greetingNamed', { name: firstName })
+    : t('chat.greeting');
 }
 
 function ChatPanel({
@@ -611,14 +619,14 @@ function ChatPanel({
           if (response.status === 404) {
             onSession(null);
             setMessages([]);
-            setError('This chat has ended. Please enter your details to start a new one.');
+            setError(t('chat.thisChatHasEnded'));
             return;
           }
 
           setError(
             response.status === 429
-              ? 'That is a lot of questions at once. Please wait a moment and try again.'
-              : 'The assistant is unavailable right now. Please try again shortly.',
+              ? t('chat.thatIsALotOfQuestions')
+              : t('chat.assistantUnavailable'),
           );
           // Drop the pair we optimistically added: an empty bubble reads as a
           // reply that said nothing, which is worse than no bubble at all.
@@ -626,7 +634,7 @@ function ChatPanel({
           return;
         }
 
-        await readEventStream(response.body, {
+        await readEventStream(t, response.body, {
           onDelta: (delta) => {
             setMessages((current) => {
               const next = [...current];
@@ -668,7 +676,7 @@ function ChatPanel({
         });
       } catch {
         if (!abort.signal.aborted) {
-          setError('The connection dropped. Please try again.');
+          setError(t('chat.theConnectionDropped'));
           setMessages((current) => current.slice(0, -2));
         }
       } finally {
@@ -676,12 +684,12 @@ function ChatPanel({
         abortRef.current = null;
       }
     },
-    [isStreaming, onSession, session, setMessages],
+    [isStreaming, onSession, session, setMessages, t],
   );
 
   const transcript: ChatMessage[] =
     session !== null && messages.length === 0
-      ? [{ role: 'assistant', content: greetingFor(session.name) }]
+      ? [{ role: 'assistant', content: greetingFor(t, session.name) }]
       : messages;
 
   return (
@@ -690,7 +698,7 @@ function ChatPanel({
       // Not modal: the catalogue behind stays scrollable and usable, which is
       // the point of a panel rather than a dialog.
       aria-modal="false"
-      aria-label={`Ask ${business.displayName}`}
+      aria-label={t('chat.askStore', { store: business.displayName })}
       className="fixed inset-x-3 bottom-3 z-40 flex max-h-[min(32rem,calc(100dvh-1.5rem))] flex-col
                  overflow-hidden rounded-xl border border-border bg-surface shadow-overlay
                  animate-dialog-in sm:inset-x-auto sm:right-5 sm:bottom-24 sm:w-[23rem]
@@ -802,19 +810,25 @@ function ChatPanel({
           >
             {isFull ? (
               <p className="px-1 py-1 text-xs leading-relaxed text-ink-muted">
-                This conversation has reached its length limit. Reload the page to start a new one,
-                or email{' '}
                 {business.supportEmail === null ? (
-                  'our support team'
+                  t('chat.lengthLimitReached', { email: t('chat.ourSupportTeam') })
                 ) : (
-                  <a
-                    href={`mailto:${business.supportEmail}`}
-                    className="font-medium text-brand underline underline-offset-2"
-                  >
-                    {business.supportEmail}
-                  </a>
+                  <>
+                    {/*
+                      Called with no values, so the `{{email}}` placeholder
+                      survives for the split to find and the address can keep
+                      its mailto link.
+                    */}
+                    {t('chat.lengthLimitReached').split('{{email}}')[0]}
+                    <a
+                      href={`mailto:${business.supportEmail}`}
+                      className="font-medium text-brand underline underline-offset-2"
+                    >
+                      {business.supportEmail}
+                    </a>
+                    {t('chat.lengthLimitReached').split('{{email}}')[1]}
+                  </>
                 )}
-                .
               </p>
             ) : (
               <div className="flex items-end gap-2">
@@ -870,6 +884,7 @@ function ChatPanel({
 // ---------------------------------------------------------------------------
 
 export function ChatWidget(): React.JSX.Element | null {
+  const { t } = useI18n();
   const { features } = useStorefront();
   const [isOpen, setIsOpen] = useState(false);
   const launcherRef = useRef<HTMLButtonElement>(null);
@@ -923,7 +938,7 @@ export function ChatWidget(): React.JSX.Element | null {
           setIsOpen((open) => !open);
         }}
         aria-expanded={isOpen}
-        aria-label={isOpen ? 'Close the chat' : 'Ask about our products'}
+        aria-label={isOpen ? t('chat.closeTheChat') : t('chat.askAboutOurProducts')}
         className={cx(
           'fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full',
           'bg-brand text-white shadow-lift transition-[background-color,transform]',

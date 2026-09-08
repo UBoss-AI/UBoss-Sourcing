@@ -45,6 +45,7 @@ import { applyApiErrors, nullIfBlank } from '@/lib/forms';
 import { formatNumber, humanise } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
 import { useI18n } from '@/i18n/i18n-context';
+import type { Translate } from '@/i18n/i18n-context';
 import { ExchangeRatesPanel } from './settings/ExchangeRatesPanel';
 import { CatalogueTranslationPanel } from './settings/CatalogueTranslationPanel';
 import { VatRatesPanel } from './settings/VatRatesPanel';
@@ -117,14 +118,15 @@ interface FlagImpactResponse {
   };
 }
 
-const businessSchema = z.object({
-  legalName: z.string().trim().min(1, 'A legal name is required.').max(255),
-  displayName: z.string().trim().min(1, 'A display name is required.').max(255),
+function buildBusinessSchema(t: Translate) {
+  return z.object({
+  legalName: z.string().trim().min(1, t('settings.aLegalNameIsRequired')).max(255),
+  displayName: z.string().trim().min(1, t('settings.aDisplayNameIsRequired')).max(255),
   supportEmail: z
     .string()
     .trim()
-    .min(1, 'A support email is required.')
-    .pipe(z.email('Enter a valid email address.')),
+    .min(1, t('settings.aSupportEmailIsRequired'))
+    .pipe(z.email(t('validation.emailInvalid'))),
   supportPhone: z.string().trim().max(32),
   gstin: z.string().trim().max(32),
   vatNumber: z.string().trim().max(32),
@@ -135,15 +137,16 @@ const businessSchema = z.object({
     .trim()
     .toUpperCase()
     .refine((value) => value.length === 0 || value.length === 2, {
-      message: 'Use a two-letter country code, or leave it blank.',
+      message: t('settings.useATwoLetterCountryCode'),
     }),
   gpsrEnforced: z.boolean(),
   timezone: z.string().trim().min(1).max(64),
   invoicePrefix: z.string().trim().max(16),
   orderPrefix: z.string().trim().max(16),
-});
+  });
+}
 
-type BusinessForm = z.output<typeof businessSchema>;
+type BusinessForm = z.output<ReturnType<typeof buildBusinessSchema>>;
 
 const BUSINESS_FIELDS = [
   'legalName',
@@ -178,7 +181,7 @@ function BusinessPanel(): React.JSX.Element {
     setError,
     formState: { errors, isDirty },
   } = useForm<BusinessForm>({
-    resolver: zodResolver(businessSchema),
+    resolver: zodResolver(buildBusinessSchema(t)),
     defaultValues: {
       legalName: '',
       displayName: '',
@@ -230,11 +233,11 @@ function BusinessPanel(): React.JSX.Element {
       }),
     onSuccess: async () => {
       setFormError(null);
-      toast.success('Business profile saved.');
+      toast.success(t('settings.businessProfileSaved'));
       await queryClient.invalidateQueries({ queryKey: ['business-profile'] });
     },
     onError: (error) => {
-      setFormError(applyApiErrors(error, setError, BUSINESS_FIELDS));
+      setFormError(applyApiErrors(error, setError, BUSINESS_FIELDS, t('common.theRequestFailed')));
     },
   });
 
@@ -318,7 +321,7 @@ function BusinessPanel(): React.JSX.Element {
               </Field>
 
               <Field
-                label="GSTIN"
+                label={t('label.gstin')}
                 hint={t('settings.theIndianRegistration')}
                 error={errors.gstin?.message}
               >
@@ -504,22 +507,24 @@ function BusinessPanel(): React.JSX.Element {
   );
 }
 
-const taxSchema = z.object({
-  code: z.string().trim().min(1, 'A code is required.').max(32),
-  name: z.string().trim().min(1, 'A name is required.').max(128),
+function buildTaxSchema(t: Translate) {
+  return z.object({
+  code: z.string().trim().min(1, t('settings.aCodeIsRequired')).max(32),
+  name: z.string().trim().min(1, t('validation.nameRequired')).max(128),
   ratePercent: z
     .string()
     .trim()
-    .regex(/^\d+(\.\d+)?$/, 'Enter a rate like 18 or 18.5.'),
+    .regex(/^\d+(\.\d+)?$/, t('settings.enterARateLike')),
   // '' is the meaningful empty value here, not undefined: it means "this
   // class has no EU band", which is a choice rather than an omission.
   vatCategory: z.enum(['', 'STANDARD', 'REDUCED', 'SUPER_REDUCED', 'ZERO', 'EXEMPT']),
   isInclusive: z.boolean(),
   isDefault: z.boolean(),
   isActive: z.boolean(),
-});
+  });
+}
 
-type TaxForm = z.output<typeof taxSchema>;
+type TaxForm = z.output<ReturnType<typeof buildTaxSchema>>;
 
 function TaxClassDialog({
   editing,
@@ -541,7 +546,7 @@ function TaxClassDialog({
     setError,
     formState: { errors },
   } = useForm<TaxForm>({
-    resolver: zodResolver(taxSchema),
+    resolver: zodResolver(buildTaxSchema(t)),
     defaultValues: {
       code: editing?.code ?? '',
       name: editing?.name ?? '',
@@ -565,12 +570,12 @@ function TaxClassDialog({
         : api.patch(`/admin/settings/tax-classes/${editing.id}`, body);
     },
     onSuccess: async () => {
-      toast.success(editing === null ? 'Tax class created.' : 'Tax class saved.');
+      toast.success(editing === null ? t('settings.taxClassCreated') : t('settings.taxClassSaved'));
       await queryClient.invalidateQueries({ queryKey: ['tax-classes'] });
       onClose();
     },
     onError: (error) => {
-      setFormError(applyApiErrors(error, setError, ['code', 'name', 'ratePercent']));
+      setFormError(applyApiErrors(error, setError, ['code', 'name', 'ratePercent'], t('common.theRequestFailed')));
     },
   });
 
@@ -585,7 +590,7 @@ function TaxClassDialog({
     <Modal
       isOpen
       onClose={onClose}
-      title={editing === null ? 'New tax class' : `Edit ${editing.name}`}
+      title={editing === null ? t('settings.newTaxClass') : `Edit ${editing.name}`}
       description={t('settings.everyProductCarriesExactlyOne')}
       footer={
         <>
@@ -593,7 +598,7 @@ function TaxClassDialog({
             {t('settings.cancel')}
           </Button>
           <Button variant="primary" isLoading={mutation.isPending} onClick={submit}>
-            {editing === null ? 'Create tax class' : 'Save changes'}
+            {editing === null ? t('settings.createTaxClass') : t('common.saveChanges')}
           </Button>
         </>
       }
@@ -674,8 +679,8 @@ function TaxClassDialog({
             label={t('settings.pricesAlreadyIncludeThisTax')}
             description={
               isInclusive
-                ? 'The tax is extracted from the listed price — the customer pays exactly what is shown.'
-                : 'The tax is added on top of the listed price — the customer pays more than is shown.'
+                ? t('settings.theTaxIsExtracted')
+                : t('settings.theTaxIsAddedOnTop')
             }
             {...register('isInclusive')}
           />
@@ -685,7 +690,7 @@ function TaxClassDialog({
             {...(isDefault && editing?.isDefault !== true
               ? {
                   description:
-                    'Exactly one tax class is the default, so whichever one holds it now will lose it.',
+                    t('settings.exactlyOneTaxClassIsDefault'),
                 }
               : {})}
             {...register('isDefault')}
@@ -718,7 +723,7 @@ function TaxClassesPanel(): React.JSX.Element {
   const columns: Column<TaxClass>[] = [
     {
       key: 'name',
-      header: 'Tax class',
+      header: t('label.taxClass'),
       render: (row) => (
         <div className="min-w-40">
           <div className="flex flex-wrap items-center gap-2">
@@ -731,19 +736,19 @@ function TaxClassesPanel(): React.JSX.Element {
     },
     {
       key: 'rate',
-      header: 'Rate',
+      header: t('label.rate'),
       align: 'right',
       nowrap: true,
       render: (row) => <span className="font-medium text-ink">{row.ratePercent}%</span>,
     },
     {
       key: 'inclusive',
-      header: 'Applied',
-      render: (row) => <Badge>{row.isInclusive ? 'Included in price' : 'Added to price'}</Badge>,
+      header: t('label.applied'),
+      render: (row) => <Badge>{row.isInclusive ? t('settings.includedInPrice') : t('settings.addedToPrice')}</Badge>,
     },
     {
       key: 'products',
-      header: 'Products',
+      header: t('label.products'),
       align: 'right',
       secondary: true,
       render: (row) =>
@@ -755,7 +760,7 @@ function TaxClassesPanel(): React.JSX.Element {
     },
     {
       key: 'status',
-      header: 'Status',
+      header: t('label.status'),
       render: (row) =>
         row.isActive ? (
           <Badge dot tone="success">
@@ -806,19 +811,19 @@ function TaxClassesPanel(): React.JSX.Element {
         }
       >
         <DataTable
-          caption="Tax classes"
+          caption={t('settings.taxClasses')}
           columns={columns}
           rows={query.data?.taxClasses}
           rowKey={(row) => row.id}
           isLoading={query.isPending}
           error={query.isError ? query.error : undefined}
-          loadingLabel="Loading tax classes"
+          loadingLabel={t('settings.loadingTaxClasses')}
           minWidth="48rem"
           onRetry={() => {
             void query.refetch();
           }}
-          emptyTitle="No tax classes"
-          emptyDescription="A product cannot be saved without one, so at least one is needed before the catalogue opens."
+          emptyTitle={t('settings.noTaxClasses')}
+          emptyDescription={t('settings.aProductCannotBeSavedWithoutOne')}
         />
       </Card>
 
@@ -861,12 +866,12 @@ function FeatureFlagsPanel(): React.JSX.Element {
       api.patch(`/admin/settings/feature-flags/${key}`, { enabled }),
     onSuccess: async () => {
       setDisabling(null);
-      toast.success('Feature flag updated.');
+      toast.success(t('settings.featureFlagUpdated'));
       await queryClient.invalidateQueries({ queryKey: ['feature-flags'] });
     },
     onError: (error) => {
       setDisabling(null);
-      toast.error(error instanceof ApiError ? error.message : 'The flag could not be changed.');
+      toast.error(error instanceof ApiError ? error.message : t('settings.theFlagCouldNotBeChanged'));
     },
   });
 
@@ -932,7 +937,7 @@ function FeatureFlagsPanel(): React.JSX.Element {
                       toggle.variables.enabled
                     }
                   >
-                    {flag.enabled ? 'Turn off' : 'Turn on'}
+                    {flag.enabled ? t('common.turnOff') : t('common.turnOn')}
                     <span className="sr-only"> {humanise(flag.key)}</span>
                   </Button>
                 )}

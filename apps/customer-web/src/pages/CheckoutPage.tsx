@@ -34,7 +34,7 @@ import { GrandTotalRow, TotalRow } from '@/components/Totals';
 import { PageEmptyState } from '@/components/PageEmptyState';
 import { AlertIcon, CardIcon, CheckIcon, LinkIcon, ShieldIcon } from '@/components/icons';
 import { Button, ButtonLink, ErrorState, Field, LoadingState, Textarea } from '@/components/ui';
-import { ApiError, NetworkError, api, newIdempotencyKey } from '@/lib/api';
+import { NetworkError, api, newIdempotencyKey } from '@/lib/api';
 import { cx } from '@/lib/cx';
 import { formatMoney, formatNumber } from '@/lib/format';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
@@ -47,6 +47,7 @@ import type {
   PaymentProviderKind,
 } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
+import { errorMessage } from '@/lib/errors';
 
 type PaymentMode = 'ONLINE' | 'PAYMENT_LINK';
 
@@ -222,7 +223,7 @@ export function CheckoutPage(): React.JSX.Element {
   const [isAddingAddress, setIsAddingAddress] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  useDocumentMeta({ title: 'Checkout', noIndex: true }, business.displayName);
+  useDocumentMeta({ title: t('checkout.checkout'), noIndex: true }, business.displayName);
 
   /**
    * One key for this checkout attempt, for the life of the page.
@@ -358,15 +359,13 @@ export function CheckoutPage(): React.JSX.Element {
         // held, so retrying is safe and will not produce a second one —
         // which is exactly what the message promises.
         setSubmitError(
-          `${error.message} If your order did go through, trying again will not create a second one.`,
+          t('checkout.ifYourOrderDidGoThrough', { message: errorMessage(t, error) }),
         );
         return;
       }
 
       setSubmitError(
-        error instanceof ApiError
-          ? error.message
-          : 'Your order could not be placed. Please try again.',
+        errorMessage(t, error, t('checkout.orderCouldNotBePlaced')),
       );
 
       // A rejection usually means the cart changed underneath — re-read it so
@@ -766,7 +765,7 @@ export function CheckoutPage(): React.JSX.Element {
                 <p className="font-medium text-warning">{t('checkout.thisOrderNeedsApproval')}</p>
                 <p className="mt-0.5">
                   {currentCart.approvalReason ??
-                    'It goes to your approver before it is confirmed. You will be told when it is.'}
+                    t('checkout.itGoesToYourApprover')}
                 </p>
               </div>
             )}

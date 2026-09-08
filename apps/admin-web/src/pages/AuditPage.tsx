@@ -87,7 +87,7 @@ function DetailToggle({ entry }: { entry: AuditEntry }): React.JSX.Element {
           setIsOpen((open) => !open);
         }}
       >
-        {isOpen ? 'Hide detail' : 'Show detail'}
+        {isOpen ? t('audit.hideDetail') : t('audit.showDetail')}
       </Button>
 
       {isOpen && (
@@ -139,13 +139,13 @@ export function AuditPage(): React.JSX.Element {
   const columns: Column<AuditEntry>[] = [
     {
       key: 'when',
-      header: 'When',
+      header: t('label.when'),
       nowrap: true,
       render: (row) => <span className="text-ink-muted">{formatDateTime(row.createdAt)}</span>,
     },
     {
       key: 'action',
-      header: 'Action',
+      header: t('label.action'),
       nowrap: true,
       render: (row) => (
         <span className="font-mono text-xxs font-medium text-ink">{row.action}</span>
@@ -153,12 +153,12 @@ export function AuditPage(): React.JSX.Element {
     },
     {
       key: 'actor',
-      header: 'By',
+      header: t('label.by'),
       render: (row) => (
         <div className="min-w-36">
           <p className="text-ink">
             {row.actorEmail ??
-              (row.actorType === 'SYSTEM' ? 'The system' : humanise(row.actorType))}
+              (row.actorType === 'SYSTEM' ? t('audit.theSystem') : humanise(row.actorType))}
           </p>
           {row.ipAddress !== null && (
             <p className="font-mono text-xxs text-ink-subtle">{row.ipAddress}</p>
@@ -168,7 +168,7 @@ export function AuditPage(): React.JSX.Element {
     },
     {
       key: 'resource',
-      header: 'Resource',
+      header: t('label.resource'),
       secondary: true,
       render: (row) => (
         <div>
@@ -179,10 +179,10 @@ export function AuditPage(): React.JSX.Element {
         </div>
       ),
     },
-    { key: 'detail', header: 'Detail', render: (row) => <DetailToggle entry={row} /> },
+    { key: 'detail', header: t('label.detail'), render: (row) => <DetailToggle entry={row} /> },
     {
       key: 'correlation',
-      header: 'Reference',
+      header: t('label.reference'),
       secondary: true,
       tertiary: true,
       render: (row) =>
@@ -266,7 +266,7 @@ export function AuditPage(): React.JSX.Element {
         </Toolbar>
 
         <DataTable
-          caption="Audit log"
+          caption={t('audit.auditLog')}
           columns={columns}
           // A `key` on the table would reset the open/closed detail toggles on
           // every page change; leaving it off keeps them, which is what you
@@ -276,16 +276,16 @@ export function AuditPage(): React.JSX.Element {
           isLoading={query.isPending}
           isRefreshing={query.isFetching && !query.isPending}
           error={query.isError ? query.error : undefined}
-          loadingLabel="Loading the audit log"
+          loadingLabel={t('audit.loadingTheAuditLog')}
           minWidth="68rem"
           onRetry={() => {
             void query.refetch();
           }}
-          emptyTitle={hasFilters ? 'Nothing matches these filters' : 'The log is empty'}
+          emptyTitle={hasFilters ? t('common.nothingMatchesFilters') : t('audit.theLogIsEmpty')}
           emptyDescription={
             hasFilters
-              ? 'Action and actor are exact matches, so a partial name finds nothing.'
-              : 'Entries appear here as soon as anything is changed.'
+              ? t('audit.actionAndActorAreExact')
+              : t('audit.entriesAppearHere')
           }
           emptyAction={
             hasFilters ? (

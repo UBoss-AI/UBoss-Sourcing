@@ -29,6 +29,7 @@ import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
 import { MarketIndicator } from './MarketIndicator';
 import { locateRoute, visibleNavigation } from './navigation';
 import { NotificationBell } from './NotificationBell';
+import { SessionLocation } from './SessionLocation';
 
 /**
  * The brand block.
@@ -231,7 +232,7 @@ function UserMenu(): React.JSX.Element {
     try {
       await logout();
     } catch {
-      toast.error('Sign-out could not reach the server, but you have been signed out here.');
+      toast.error(t('shell.signOutCouldNotReachServer'));
     } finally {
       setIsSigningOut(false);
     }
@@ -463,11 +464,14 @@ export function AppShell(): React.JSX.Element {
                 about while you are standing in Inventory. */}
             <NotificationBell />
 
-            {/* Which market the panel quotes prices for: where this member of
-                staff signed in from. A label rather than a control - the
-                market is not a choice - and on every page because prices are
-                on more than one of them. It renders itself away where it would
-                have nothing to say. */}
+            {/* Where this sign-in came from, and which market that makes the
+                panel quote prices for. Two facts, deliberately two chips: one
+                is the place a person recognises and the other is a country a
+                price depends on, and in a single-market deployment only the
+                first of them has anything to say. Both are labels rather than
+                controls - neither is a choice - and both render themselves
+                away when they would be saying nothing. */}
+            <SessionLocation />
             <MarketIndicator />
 
             {/* Beside the account menu, on every page. The panel is a tool

@@ -35,8 +35,10 @@ import {
 import {
   SUPPORTED_LANGUAGES,
   getUserLanguage,
+  languageForCountry,
   setUserLanguage,
 } from '../../modules/identity/language.service.js';
+import { currencyForCountry } from '../../modules/settings/currency.service.js';
 import {
   formatCoordinates,
   recordSessionLocation,
@@ -275,6 +277,15 @@ export function authRoutes(kind: UserKind) {
           // feature switched off.
           locationRequired: locationRequiredFor(kind),
           locationGranted: false,
+          // And for the same reason, nothing is known yet about where that
+          // position will turn out to be. Sent as explicit nulls rather than
+          // left out, so the panel's user object has the same shape here as it
+          // does from /me and no screen has to treat "absent" and "not yet"
+          // as different states.
+          locationCountry: null,
+          locationPlace: null,
+          locationLanguage: null,
+          locationCurrency: null,
         },
         // Returned for non-browser clients. Browsers should rely on the cookie.
         accessToken: result.session.accessToken,
@@ -322,8 +333,18 @@ export function authRoutes(kind: UserKind) {
       return reply.status(200).send({ sessionsRevoked: revoked });
     });
 
-    app.get('/me', { preHandler: requireAuthenticated(kind) }, (request, reply) => {
+    app.get('/me', { preHandler: requireAuthenticated(kind) }, async (request, reply) => {
       const auth = currentUser(request);
+
+      // Two extra reads, and only for an admin session that resolved a
+      // country. The alternative was carrying both on every guarded request,
+      // which would mean two joins on the hot path for facts the panel needs
+      // once per sign-in.
+      const [locationLanguage, locationCurrency] = await Promise.all([
+        languageForCountry(auth.sessionCountry),
+        currencyForCountry(auth.sessionCountry),
+      ]);
+
       return reply.status(200).send({
         id: auth.id,
         email: auth.email,
@@ -345,6 +366,43 @@ export function authRoutes(kind: UserKind) {
          * seller's own country.
          */
         locationCountry: auth.sessionCountry,
+        /**
+         * Where this session signed in from, as a person reads it.
+         *
+         * The geocoded place, or the coordinates when no geocoder answered,
+         * and null when the browser has told us nothing. The panel puts it in
+         * the top bar beside the market: a console shared by several staff
+         * accounts should say out loud which sign-in is on screen, and the
+         * bell that announced it has scrolled away by the afternoon.
+         */
+        locationPlace: auth.sessionPlace,
+        /**
+         * The interface language that country's office works in, or null.
+         *
+         * Configured per country in `countries.languageCode`, so a member of
+         * staff signing in from Berlin reads a German panel without touching
+         * the picker. Null where the deployment has no answer for the country
+         * or the panel ships no catalogue for its language, and the panel then
+         * leaves whatever language the person was reading alone.
+         *
+         * A suggestion the panel applies once per sign-in country, never a
+         * lock: the picker outranks it and its choice is what gets saved.
+         */
+        locationLanguage,
+        /**
+         * The currency customers in that country are quoted in, or null.
+         *
+         * `countries.currencyCode`, the same row the storefront prices a
+         * shopper from - so the console quotes the market it is sitting in
+         * from that market's own price list rather than the seller's. Null
+         * where the country is not one this deployment sells in, or its
+         * currency has been retired; the catalogue screens then quote the base
+         * currency and say which one they are quoting.
+         *
+         * Unlike the language, this is never a suggestion and there is no
+         * picker to outrank it. A price is what it is.
+         */
+        locationCurrency,
       });
     });
 

@@ -956,6 +956,40 @@ const SCHEMAS: Readonly<Record<string, unknown>> = Object.freeze({
           'LOCATION_REQUIRED. Carried forward across a token refresh, so it is asked once per ' +
           'sign-in and not once per hour.',
       },
+      locationCountry: {
+        type: 'string',
+        nullable: true,
+        description:
+          'ISO-3166-1 alpha-2 country the sign-in resolved to. The market the console prices ' +
+          'its catalogue for; null leaves it quoting the seller\'s own country.',
+      },
+      locationPlace: {
+        type: 'string',
+        nullable: true,
+        description:
+          'The same sign-in as a person reads it - the geocoded place, or the coordinates ' +
+          'where no geocoder answered. Shown in the panel top bar. Null when the browser has ' +
+          'said nothing, and on the customer surface, which never asks.',
+      },
+      locationLanguage: {
+        type: 'string',
+        nullable: true,
+        description:
+          'The interface language that country works in, from countries.languageCode. The ' +
+          'panel adopts it once per sign-in country, so staff signing in from Berlin read a ' +
+          'German console without touching the picker. Null means leave the reader\'s own ' +
+          'choice alone - it is never a fallback to English.',
+      },
+      locationCurrency: {
+        type: 'string',
+        nullable: true,
+        description:
+          'The currency customers in that country are quoted in, from countries.currencyCode - ' +
+          'the same row the storefront prices a shopper from. Every customer-facing figure in ' +
+          'the console comes from that currency\'s own price list, never from converting ' +
+          'another. Null for a country this deployment does not sell in, and the catalogue ' +
+          'then quotes the base currency and names it.',
+      },
     },
   },
 

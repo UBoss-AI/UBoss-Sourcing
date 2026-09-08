@@ -46,7 +46,8 @@ import type {
   ProductListItem,
   ProductListResponse,
 } from '@/lib/types';
-import { useI18n } from '@/i18n/i18n-context';
+import { translateKey, useI18n } from '@/i18n/i18n-context';
+import type { TranslationKey } from '@/i18n/i18n-context';
 import { BulkCurrencyPricingDialog } from './product/BulkCurrencyPricingDialog';
 
 function flatten(nodes: CategoryNode[], into: CategoryNode[] = []): CategoryNode[] {
@@ -60,10 +61,13 @@ function flatten(nodes: CategoryNode[], into: CategoryNode[] = []): CategoryNode
 /** How recently added, as a filter. */
 const ADDED_WITHIN_OPTIONS = [7, 30, 90] as const;
 
-const CATALOGUE_STATUS: Record<ProductListItem['status'], { label: string; tone: BadgeTone }> = {
-  ACTIVE: { label: 'Active', tone: 'success' },
-  DRAFT: { label: 'Draft', tone: 'neutral' },
-  INACTIVE: { label: 'Inactive', tone: 'warning' },
+const CATALOGUE_STATUS: Record<
+  ProductListItem['status'],
+  { labelKey: TranslationKey; tone: BadgeTone }
+> = {
+  ACTIVE: { labelKey: 'label.active', tone: 'success' },
+  DRAFT: { labelKey: 'label.draft', tone: 'neutral' },
+  INACTIVE: { labelKey: 'label.inactive', tone: 'warning' },
 };
 
 export function ProductsPage(): React.JSX.Element {
@@ -358,15 +362,37 @@ export function ProductsPage(): React.JSX.Element {
    * catalogue authored net of tax, or a market that happens to charge the
    * seller's own rate - a column repeating the number to its left is noise on
    * a table that is already eight columns wide.
+   *
+   * Three ways it can differ, and all three are worth a column: a different
+   * figure, a different currency (the market reads its own price list, not the
+   * seller's), and no price at all in that currency - which is this catalogue's
+   * way of saying the product is not sold in that market.
    */
-  const showsQuoted = (query.data?.products ?? []).some(
-    (row) => row.quoted.minor !== row.price.minor,
+  const marketCurrency = query.data?.currency ?? null;
+  const rows = query.data?.products ?? [];
+
+  const showsQuoted = rows.some(
+    (row) =>
+      row.quoted !== null &&
+      (row.quoted.minor !== row.price.minor || row.quoted.currency !== row.price.currency),
   );
+
+  /**
+   * A page where nothing is sold in the market's currency.
+   *
+   * Then the column has no figures to show, and twenty-five rows each saying
+   * "not priced in EUR" is a column of nothing. The fact belongs in one
+   * sentence above the table instead - and it is a fact worth saying, because
+   * a catalogue that quotes this member of staff no prices at all is either a
+   * market nobody has priced yet or somebody signing in from a country the
+   * shop does not sell to.
+   */
+  const nonePriced = marketCurrency !== null && rows.length > 0 && !rows.some((row) => row.quoted !== null);
 
   const columns: Column<ProductListItem>[] = [
     {
       key: 'name',
-      header: 'Product',
+      header: t('label.product'),
       render: (row) => (
         <div className="min-w-48">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -386,13 +412,13 @@ export function ProductsPage(): React.JSX.Element {
     },
     {
       key: 'category',
-      header: 'Category',
+      header: t('label.category'),
       secondary: true,
       render: (row) => row.category?.name ?? <span className="text-ink-subtle">—</span>,
     },
     {
       key: 'price',
-      header: 'Price',
+      header: t('label.price'),
       align: 'right',
       nowrap: true,
       render: (row) => formatMoney(row.price),
@@ -408,34 +434,45 @@ export function ProductsPage(): React.JSX.Element {
             header: t('market.customerPays'),
             align: 'right' as const,
             nowrap: true,
-            render: (row: ProductListItem) => (
-              <>
-                <span className="font-medium">{formatMoney(row.quoted)}</span>
-                <span className="ml-2 text-xxs text-ink-muted">
-                  {row.quotedTax.inclusive
-                    ? t('market.inclusiveOfRate', { rate: row.quotedTax.ratePercent })
-                    : t('market.plusRate', { rate: row.quotedTax.ratePercent })}
+            render: (row: ProductListItem) =>
+              row.quoted === null ? (
+                // Not a dash: a blank cell reads as "we do not know", and this
+                // is a thing the catalogue knows and staff need told. The
+                // product has no price in the market's currency, so there is
+                // nothing a customer here could be charged.
+                <span className="text-xxs font-normal text-ink-subtle">
+                  {t('market.notPricedIn', { currency: marketCurrency ?? '' })}
                 </span>
-              </>
-            ),
+              ) : (
+                <>
+                  <span className="font-medium">{formatMoney(row.quoted)}</span>
+                  {row.quotedTax !== null && (
+                    <span className="ml-2 text-xxs text-ink-muted">
+                      {row.quotedTax.inclusive
+                        ? t('market.inclusiveOfRate', { rate: row.quotedTax.ratePercent })
+                        : t('market.plusRate', { rate: row.quotedTax.ratePercent })}
+                    </span>
+                  )}
+                </>
+              ),
           },
         ]
       : []),
     {
       key: 'status',
-      header: 'Catalogue',
+      header: t('label.catalogue'),
       render: (row) => {
         const state = CATALOGUE_STATUS[row.status];
         return (
           <Badge dot tone={state.tone}>
-            {state.label}
+            {translateKey(t, state.labelKey)}
           </Badge>
         );
       },
     },
     {
       key: 'published',
-      header: 'Storefront',
+      header: t('label.storefront'),
       render: (row) =>
         row.isPublished ? (
           <Badge dot tone="success">
@@ -449,7 +486,7 @@ export function ProductsPage(): React.JSX.Element {
     },
     {
       key: 'variants',
-      header: 'Variants',
+      header: t('label.variants'),
       align: 'right',
       secondary: true,
       render: (row) =>
@@ -461,7 +498,7 @@ export function ProductsPage(): React.JSX.Element {
     },
     {
       key: 'media',
-      header: 'Images',
+      header: t('label.images'),
       align: 'right',
       secondary: true,
       tertiary: true,
@@ -484,7 +521,7 @@ export function ProductsPage(): React.JSX.Element {
         actions={
           <>
             {can(Permission.PRODUCT_IMPORT) && (
-              <LinkButton to="/products/import">Bulk import</LinkButton>
+              <LinkButton to="/products/import">{t('products.bulkImport')}</LinkButton>
             )}
             {/* Next to bulk import because it is the same kind of job: filling
                 the catalogue in one pass rather than product by product. A
@@ -724,24 +761,35 @@ export function ProductsPage(): React.JSX.Element {
           )}
         </Toolbar>
 
-        {/* Which rate produced the column, in the engine's own words. It says
-            what a shopper is told at checkout, so it is worth reading before
-            deciding a price looks wrong. */}
-        {showsQuoted && query.data !== undefined && (
-          <Callout tone="info" className="mx-4 my-3">
+        {/* Which price list produced the column and which rate landed on it,
+            in the engine's own words. It says what a shopper is told at
+            checkout, so it is worth reading before deciding a price looks
+            wrong. The currency sentence comes first because it decides which
+            figures are being compared at all; the rate only moves them. */}
+        {(showsQuoted || nonePriced) && query.data !== undefined && (
+          <Callout tone={nonePriced ? 'warning' : 'info'} className="mx-4 my-3">
+            {/* Only where a market named a currency. Where none did, every row
+                is quoted in the currency of the price beside it and there is
+                nothing to say about which price list is being read. */}
+            {marketCurrency !== null && (
+              <>{t('market.quotedIn', { currency: marketCurrency })} </>
+            )}
+            {/* `nonePriced` is only ever true with a currency, so the key
+                always has one to name. */}
+            {nonePriced && <>{t('market.nonePricedIn', { currency: marketCurrency })} </>}
             {query.data.taxNote}
           </Callout>
         )}
 
         <DataTable
-          caption="Products"
+          caption={t('label.products')}
           columns={columns}
           rows={query.data?.products}
           rowKey={(row) => row.id}
           isLoading={query.isPending}
           isRefreshing={query.isFetching && !query.isPending}
           error={query.isError ? query.error : undefined}
-          loadingLabel="Loading products"
+          loadingLabel={t('products.loadingProducts')}
           // A ninth column needs the room. Below this the table scrolls inside
           // its own container rather than squeezing the SKU onto three lines.
           minWidth={showsQuoted ? '68rem' : '60rem'}
@@ -751,11 +799,11 @@ export function ProductsPage(): React.JSX.Element {
           onRowClick={(row) => {
             void navigate(`/products/${row.id}`);
           }}
-          emptyTitle={hasFilters ? 'Nothing matches these filters' : 'No products yet'}
+          emptyTitle={hasFilters ? t('common.nothingMatchesFilters') : t('products.noProductsYet')}
           emptyDescription={
             hasFilters
-              ? 'Try a different search, or clear the filters.'
-              : 'Add products one at a time, or import a spreadsheet.'
+              ? t('common.tryADifferentSearch')
+              : t('products.addProductsOneAtATime')
           }
           emptyAction={
             hasFilters ? (

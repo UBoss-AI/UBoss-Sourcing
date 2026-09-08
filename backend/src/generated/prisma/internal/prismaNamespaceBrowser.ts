@@ -1275,6 +1275,7 @@ export const CountryScalarFieldEnum = {
   name: 'name',
   currencyCode: 'currencyCode',
   phonePrefix: 'phonePrefix',
+  languageCode: 'languageCode',
   isEuVat: 'isEuVat',
   isActive: 'isActive',
   sortOrder: 'sortOrder',
@@ -2371,7 +2372,8 @@ export const CountryOrderByRelevanceFieldEnum = {
   code: 'code',
   name: 'name',
   currencyCode: 'currencyCode',
-  phonePrefix: 'phonePrefix'
+  phonePrefix: 'phonePrefix',
+  languageCode: 'languageCode'
 } as const
 
 export type CountryOrderByRelevanceFieldEnum = (typeof CountryOrderByRelevanceFieldEnum)[keyof typeof CountryOrderByRelevanceFieldEnum]

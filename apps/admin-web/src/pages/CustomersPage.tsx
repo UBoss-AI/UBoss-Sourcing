@@ -45,22 +45,25 @@ import { customerStatusTone } from '@/lib/customers';
 import type { CustomerListItem } from '@/lib/customers';
 import type { Pagination } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
+import type { Translate } from '@/i18n/i18n-context';
 
-const createSchema = z.object({
+function buildCreateSchema(t: Translate) {
+  return z.object({
   email: z
     .string()
     .trim()
-    .min(1, 'An email address is required.')
-    .pipe(z.email('Enter a valid email address.')),
-  fullName: z.string().trim().min(1, 'A contact name is required.').max(255),
+    .min(1, t('validation.emailRequiredField'))
+    .pipe(z.email(t('validation.emailInvalid'))),
+  fullName: z.string().trim().min(1, t('validation.contactNameRequired')).max(255),
   organization: z.string().trim().max(255),
   department: z.string().trim().max(128),
   phone: z.string().trim().max(32),
   gstin: z.string().trim().max(32),
   sendInvitation: z.boolean(),
-});
+  });
+}
 
-type CreateForm = z.output<typeof createSchema>;
+type CreateForm = z.output<ReturnType<typeof buildCreateSchema>>;
 
 const CREATE_FIELDS = [
   'email',
@@ -85,7 +88,7 @@ function NewCustomerDialog({ onClose }: { onClose: () => void }): React.JSX.Elem
     setError,
     formState: { errors },
   } = useForm<CreateForm>({
-    resolver: zodResolver(createSchema),
+    resolver: zodResolver(buildCreateSchema(t)),
     defaultValues: {
       email: '',
       fullName: '',
@@ -109,13 +112,13 @@ function NewCustomerDialog({ onClose }: { onClose: () => void }): React.JSX.Elem
         sendInvitation: values.sendInvitation,
       }),
     onSuccess: async (result) => {
-      toast.success('Customer created.');
+      toast.success(t('customers.customerCreated'));
       await queryClient.invalidateQueries({ queryKey: ['customers'] });
       onClose();
       void navigate(`/customers/${result.id}`);
     },
     onError: (error) => {
-      setFormError(applyApiErrors(error, setError, CREATE_FIELDS));
+      setFormError(applyApiErrors(error, setError, CREATE_FIELDS, t('common.theRequestFailed')));
     },
   });
 
@@ -198,7 +201,7 @@ function NewCustomerDialog({ onClose }: { onClose: () => void }): React.JSX.Elem
             )}
           </Field>
 
-          <Field label="GSTIN" error={errors.gstin?.message}>
+          <Field label={t('label.gstin')} error={errors.gstin?.message}>
             {({ inputId, describedBy }) => (
               <Input
                 id={inputId}
@@ -290,7 +293,7 @@ export function CustomersPage(): React.JSX.Element {
   const columns: Column<CustomerListItem>[] = [
     {
       key: 'customer',
-      header: 'Customer',
+      header: t('label.customer'),
       render: (row) => (
         <div className="min-w-48">
           <Link
@@ -305,7 +308,7 @@ export function CustomersPage(): React.JSX.Element {
     },
     {
       key: 'organization',
-      header: 'Organisation',
+      header: t('label.organisation'),
       render: (row) => (
         <div className="min-w-36">
           <p className="text-ink">
@@ -317,7 +320,7 @@ export function CustomersPage(): React.JSX.Element {
     },
     {
       key: 'status',
-      header: 'Status',
+      header: t('label.status'),
       render: (row) => (
         <Badge dot tone={customerStatusTone(row.status)}>
           {humanise(row.status)}
@@ -326,7 +329,7 @@ export function CustomersPage(): React.JSX.Element {
     },
     {
       key: 'approval',
-      header: 'Approvals',
+      header: t('label.approvals'),
       secondary: true,
       render: (row) =>
         row.limits.requiresOrderApproval ? (
@@ -334,7 +337,7 @@ export function CustomersPage(): React.JSX.Element {
           // rather than one number that would be true in only one of them.
           <Badge tone="warning">
             {row.limits.perCurrency.every((entry) => entry.approvalThresholdMinor === null)
-              ? 'All orders'
+              ? t('customers.allOrders')
               : row.limits.perCurrency
                   .filter((entry) => entry.approvalThresholdMinor !== null)
                   .map(
@@ -349,7 +352,7 @@ export function CustomersPage(): React.JSX.Element {
     },
     {
       key: 'orders',
-      header: 'Orders',
+      header: t('label.orders'),
       align: 'right',
       render: (row) =>
         row.orderCount === 0 ? (
@@ -360,7 +363,7 @@ export function CustomersPage(): React.JSX.Element {
     },
     {
       key: 'lastLogin',
-      header: 'Last sign-in',
+      header: t('label.lastSignIn'),
       secondary: true,
       tertiary: true,
       nowrap: true,
@@ -433,14 +436,14 @@ export function CustomersPage(): React.JSX.Element {
         </Toolbar>
 
         <DataTable
-          caption="Customers"
+          caption={t('label.customers')}
           columns={columns}
           rows={query.data?.customers}
           rowKey={(row) => row.id}
           isLoading={query.isPending}
           isRefreshing={query.isFetching && !query.isPending}
           error={query.isError ? query.error : undefined}
-          loadingLabel="Loading customers"
+          loadingLabel={t('customers.loadingCustomers')}
           minWidth="62rem"
           onRetry={() => {
             void query.refetch();
@@ -448,11 +451,11 @@ export function CustomersPage(): React.JSX.Element {
           onRowClick={(row) => {
             void navigate(`/customers/${row.id}`);
           }}
-          emptyTitle={hasFilters ? 'Nothing matches these filters' : 'No customers yet'}
+          emptyTitle={hasFilters ? t('common.nothingMatchesFilters') : t('customers.noCustomersYet')}
           emptyDescription={
             hasFilters
-              ? 'Try a different search, or clear the filters.'
-              : 'Create an account and send an invitation; the customer sets their own password.'
+              ? t('common.tryADifferentSearch')
+              : t('customers.createAnAccountAndSend')
           }
           emptyAction={
             hasFilters ? (

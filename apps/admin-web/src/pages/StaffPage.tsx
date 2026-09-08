@@ -118,14 +118,14 @@ function RoleDialog({
   const save = useMutation({
     mutationFn: () => api.patch(`/admin/staff/${member.id}/roles`, { roleKeys: selected }),
     onSuccess: async () => {
-      toast.success('Roles updated.');
+      toast.success(t('staff.rolesUpdated'));
       await queryClient.invalidateQueries({ queryKey: ['staff'] });
       onClose();
     },
     onError: (apiError) => {
       // The escalation guard's refusal names the role it refused, which is the
       // whole point of showing the server's message rather than a generic one.
-      setError(apiError instanceof ApiError ? apiError.message : 'The roles could not be changed.');
+      setError(apiError instanceof ApiError ? apiError.message : t('staff.theRolesCouldNotBeChanged'));
     },
   });
 
@@ -219,14 +219,14 @@ function NewStaffDialog({
       api.post<{ id: string }>('/admin/staff', { email: email.trim(), roleKeys: selected }),
     onSuccess: async () => {
       toast.success(
-        'Account created. A temporary password has been emailed; they choose their own the first time they sign in.',
+        t('staff.accountCreated'),
       );
       await queryClient.invalidateQueries({ queryKey: ['staff'] });
       onClose();
     },
     onError: (apiError) => {
       setError(
-        apiError instanceof ApiError ? apiError.message : 'The account could not be created.',
+        apiError instanceof ApiError ? apiError.message : t('staff.theAccountCouldNotBeCreated'),
       );
     },
   });
@@ -326,13 +326,13 @@ export function StaffPage(): React.JSX.Element {
       api.patch(`/admin/staff/${member.id}/status`, { active }),
     onSuccess: async (_result, variables) => {
       setDeactivating(null);
-      toast.success(variables.active ? 'Account reactivated.' : 'Account deactivated.');
+      toast.success(variables.active ? t('staff.accountReactivated') : t('staff.accountDeactivated'));
       await queryClient.invalidateQueries({ queryKey: ['staff'] });
     },
     onError: (error) => {
       setDeactivating(null);
       // Covers both server guards: the last Business Owner, and self-deactivation.
-      toast.error(error instanceof ApiError ? error.message : 'The status could not be changed.');
+      toast.error(error instanceof ApiError ? error.message : t('common.statusCouldNotBeChanged'));
     },
   });
 
@@ -343,12 +343,12 @@ export function StaffPage(): React.JSX.Element {
     mutationFn: ({ id }: { id: string }) =>
       api.post<{ temporaryPasswordExpiresAt: string }>(`/admin/staff/${id}/temporary-password`),
     onSuccess: async () => {
-      toast.success('A new temporary password has been emailed. The previous one no longer works.');
+      toast.success(t('staff.aNewTemporaryPassword'));
       await queryClient.invalidateQueries({ queryKey: ['staff'] });
     },
     onError: (error) => {
       toast.error(
-        error instanceof ApiError ? error.message : 'The password could not be sent. Try again.',
+        error instanceof ApiError ? error.message : t('staff.thePasswordCouldNotBeSent'),
       );
     },
   });
@@ -356,17 +356,19 @@ export function StaffPage(): React.JSX.Element {
   const columns: Column<StaffMember>[] = [
     {
       key: 'email',
-      header: 'Account',
+      header: t('label.account'),
       render: (row) => (
         <div className="min-w-48">
           <p className="font-medium text-ink">{row.email}</p>
-          {row.id === user?.id && <p className="text-xxs text-ink-subtle">That&rsquo;s you</p>}
+          {row.id === user?.id && (
+            <p className="text-xxs text-ink-subtle">{t('staff.thatsYou')}</p>
+          )}
         </div>
       ),
     },
     {
       key: 'roles',
-      header: 'Roles',
+      header: t('label.roles'),
       render: (row) => (
         <div className="flex flex-wrap gap-1">
           {row.roles.map((role) => (
@@ -379,7 +381,7 @@ export function StaffPage(): React.JSX.Element {
     },
     {
       key: 'status',
-      header: 'Status',
+      header: t('label.status'),
       render: (row) => (
         <div className="min-w-32">
           {row.archivedAt !== null ? (
@@ -418,7 +420,7 @@ export function StaffPage(): React.JSX.Element {
     },
     {
       key: 'mfa',
-      header: 'Two-factor',
+      header: t('label.twoFactor'),
       secondary: true,
       render: (row) =>
         row.mfaEnabled ? (
@@ -429,7 +431,7 @@ export function StaffPage(): React.JSX.Element {
     },
     {
       key: 'lastLogin',
-      header: 'Last sign-in',
+      header: t('label.lastSignIn'),
       secondary: true,
       tertiary: true,
       nowrap: true,
@@ -484,7 +486,7 @@ export function StaffPage(): React.JSX.Element {
                 else setStatus.mutate({ member: row, active: true });
               }}
             >
-              {row.archivedAt === null ? 'Deactivate' : 'Reactivate'}
+              {row.archivedAt === null ? t('staff.deactivate') : t('staff.reactivate')}
               <span className="sr-only"> {row.email}</span>
             </Button>
           )}
@@ -515,14 +517,14 @@ export function StaffPage(): React.JSX.Element {
       <div className="space-y-4">
         <Card>
           <DataTable
-            caption="Staff accounts"
+            caption={t('staff.staffAccounts')}
             columns={columns}
             rows={staff.data?.staff}
             rowKey={(row) => row.id}
             isLoading={staff.isPending}
             isRefreshing={staff.isFetching && !staff.isPending}
             error={staff.isError ? staff.error : undefined}
-            loadingLabel="Loading staff accounts"
+            loadingLabel={t('staff.loadingStaffAccounts')}
             minWidth="62rem"
             // A locked account cannot sign in right now, which is the thing
             // somebody opening this page is usually here to find.
@@ -534,15 +536,13 @@ export function StaffPage(): React.JSX.Element {
             onRetry={() => {
               void staff.refetch();
             }}
-            emptyTitle="No staff accounts"
-            emptyDescription="There is at least one Business Owner, so an empty list here means the request was filtered."
+            emptyTitle={t('staff.noStaffAccounts')}
+            emptyDescription={t('staff.thereIsAtLeastOneOwner')}
           />
         </Card>
 
         <Callout tone="neutral" title={t('staff.twoRulesThisScreenCannot')}>
-          The last active Business Owner cannot be demoted or deactivated, and nobody can deactivate
-          their own account. Both are enforced by the server, so a button that looks available will
-          still be refused.
+          {t('staff.theLastActiveBusinessOwner')}
         </Callout>
       </div>
 

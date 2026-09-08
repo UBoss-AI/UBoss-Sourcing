@@ -403,6 +403,96 @@ Two things to know:
   it, and everyone is locked out. Serve the panel over HTTPS, or set
   `FEATURE_ADMIN_LOGIN_LOCATION=false`.
 
+## What the panel does with that place
+
+The coordinates are reverse-geocoded once, at sign-in. `/admin/auth/me` then
+carries four facts, and the panel uses each of them:
+
+| Field on `/me` | What it is | What it changes |
+|---|---|---|
+| `locationPlace` | The geocoded place, or the coordinates when no geocoder answered | A chip in the **top bar on every page**: *"Signed in from Mitte, Berlin"* |
+| `locationCountry` | ISO-3166-1 alpha-2, or null | The market every price in the panel is quoted for |
+| `locationCurrency` | What `countries.currencyCode` says that market pays in, or null | Which per-currency price list every customer-facing figure is read from |
+| `locationLanguage` | What `countries.languageCode` says an office there reads, or null | The interface language, once per sign-in country |
+
+The top-bar chip exists because the bell announces a sign-in once and has
+scrolled away by the afternoon. A console shared by several staff accounts —
+and a laptop handed around a warehouse — should still be able to say which
+sign-in is on screen. It shows the first two parts of the geocoded name with
+the whole string in its tooltip, and it renders nothing at all when the browser
+told the session nothing.
+
+**The language switch is a starting point, not a lock.** It applies once per
+sign-in *country*, remembered in the browser under
+`uboss.admin.language-country`:
+
+- Sign in from Berlin, and the panel is German before you touch anything.
+- Switch it to English by hand, and every later sign-in from Germany is
+  English — the picker's choice is saved to the account and outranks the
+  country from then on.
+- Sign in from Athens, and the panel is Greek: that is a country it has not
+  had its say about yet.
+- Sign in from a country whose language the panel has no catalogue for, and
+  **nothing changes**. `locationLanguage` is null there, and null means "leave
+  this person's language alone" — never "fall back to English".
+
+Which language a country reads is a **row, not a release**:
+`countries.languageCode`. Belgium is why — a Brussels office may read French
+where an Antwerp one reads Dutch, and only the operator knows which one bought
+this.
+
+## The market's currency, not the seller's
+
+**A price is not a preference, and there is no picker for this one.** The
+country decides the currency exactly as it decides the rate, because the two
+are separate halves of one question:
+
+- The **currency** decides *which price list* is read. `product_prices` holds
+  one real, staff-entered figure per currency and nothing is ever converted, so
+  a customer in Warsaw is quoted the złoty row.
+- The **country** decides what that figure becomes once its VAT is on it.
+  Germany and Ireland read the same euro row at 19% and 23%.
+
+So a member of staff signed in from Warsaw sees, on every catalogue screen:
+
+| Column | What it holds |
+|---|---|
+| Price | The figure they typed, in the currency they typed it in — ₹780.00. Editable, and untouched by the market. |
+| Customer pays | The złoty row plus Poland's VAT — PLN 30.99. Read-only: it is the engine's answer, not a second place to set a price. |
+
+Three consequences worth knowing:
+
+- **A product with no row in that currency is not sold in that market.** The
+  cell says *"Not priced in PLN"* rather than showing a figure. There is
+  deliberately no fallback: quoting the rupee number in złoty would be
+  inventing a price, and quoting JPY 5,000 as EUR 5,000 is the failure this
+  catalogue has always refused. Where *nothing* on the page is priced in the
+  market's currency the column disappears and one sentence above the table
+  says so.
+- **Nothing changes where nothing changes.** With no country resolved, each row
+  is quoted in the currency its own price is authored in — exactly what the
+  console did before it knew about markets. And the top-bar market chip
+  appears only when being in that country moves a price at all: a different
+  rate (EU VAT configured) or a different price list (the market's currency is
+  not the base one). In a single-market Indian shop it never appears.
+- **The per-currency panel marks the market's row.** Every currency stays on
+  that screen — it is where prices are set — but one of them is what a customer
+  in front of the reader pays, and it carries a *"Your market"* badge. That is
+  a different fact from which currency is the base.
+
+What this deliberately does **not** touch: reports, the dashboard, orders and
+payments. Those are aggregates and settled facts in the currency they happened
+in, and restating them in the reader's market currency would need an exchange
+rate — which is exactly what this system does not have and does not want.
+
+Which currency a country pays in is a **row, not a release**, the same as its
+language: `countries.currencyCode`, the same row the storefront prices a
+shopper from.
+
+Every one of these facts survives a token refresh. Sessions rotate every few
+minutes, and losing the country there would change the prices, the currency and
+the language mid-shift for somebody who had not moved.
+
 ---
 
 # 6. The backend
@@ -1183,9 +1273,96 @@ English (default and fallback), Dutch, French, German, Greek, Italian, Polish
 and Spanish. Built on **i18next / react-i18next**, one instance per frontend,
 with translations in `src/i18n/locales/*.json`.
 
+## Where a key goes
+
+The catalogue is one flat file per language, and the key prefix says who owns
+the string:
+
+| Prefix | Holds | Example |
+|---|---|---|
+| `label.*` | A short reusable label: a column header, a field name, a metric caption | `label.status`, `label.onHand` |
+| `common.*` | Chrome that appears on many screens, including a table's empty and error states | `common.nothingMatchesFilters` |
+| `<page>.*` | That screen's own sentences: captions, empty states, filter wording | `inventory.stockMovements` |
+
+**One word, one key.** "Status" is a column on eleven tables in the admin
+panel; eleven `*.status` keys would be eleven chances for a translator to
+render the same header eleven ways. If a string is already in `label.*` or
+`common.*`, use it rather than adding a page copy.
+
+Two things are deliberately **not** translated, and both are contracts rather
+than prose: status and role values, which reach the screen through
+`humanise()` and are the same words the API and the audit log use, and format
+examples in placeholders (`NL123456789B01`, `PO-4471`).
+
+A key that a component defaults to has to be resolved *inside* the component —
+`emptyTitle = 'Nothing here yet'` as a default parameter is an English string
+on every screen that did not pass the prop, and the hardest kind to find,
+because it appears in no page's source.
+
+## Anything that carries a message takes `t`
+
+Two shapes recur, and both exist because `t` is only available while a
+component is rendering:
+
+- **A form schema is a function of `t`.** `buildSchema(t)` — never a
+  `const schema = z.object(…)` at module scope. A schema frozen at import time
+  reports every validation failure in whichever language loaded first, so the
+  message a Greek member of staff reads depends on which tab they opened
+  earlier. `zodResolver(buildSchema(t))` inside the component is the whole fix.
+- **A lib helper takes `t` as a parameter.** `transitionLabel(t, to)` in
+  `lib/orders.ts`, `applyApiErrors(…, t('common.theRequestFailed'))` in
+  `lib/forms.ts`, `describeRules(t, rules)` in the storefront's
+  `lib/quantity-rules.ts`. A module outside React cannot reach the catalogue
+  and must not hold English of its own.
+- **A failed request is worded in exactly one place.**
+  `errorMessage(t, error, fallback)` in `apps/customer-web/src/lib/errors.ts`.
+  The server's own `message` is already written for the person reading it and
+  is used unchanged; what the helper adds is the three failures the browser
+  diagnoses for itself. `api.ts` runs outside React, so it words those in
+  English and marks them — `NetworkError.isOffline`, and the codes
+  `SERVICE_UNAVAILABLE` and `UNEXPECTED_RESPONSE` — and `errorMessage` matches
+  on the *mark*, never on the text. A screen that still reads `error.message`
+  is reading the *server's* sentence, which is the one case where that is
+  right.
+
+Two shapes of string need more than a lookup:
+
+- **A counted string** carries `count` *and* the number a second time:
+  `t('catalog.productCount', { count: total, products: formatNumber(total) })`.
+  `count` chooses the plural form, `{{products}}` carries the figure already
+  formatted for the reader's locale — i18next would otherwise print a bare
+  `1234`. Every counted key needs the forms its language actually
+  distinguishes, which `Intl.PluralRules` decides and the catalogue test
+  enforces: `_many` for French, Italian and Spanish, `_few` and `_many` for
+  Polish.
+- **A sentence with one styled word in it** is *split* on its placeholder
+  rather than interpolated:
+  `t('payment.orderIsPaid').split('{{order}}')`, with the order number drawn
+  between the halves in its own monospace. Called with no values, so the
+  placeholder survives for the split to find. This is how the order number, a
+  spend figure and the support-email link keep their styling without cutting
+  the sentence into fragments a translator cannot move.
+
+A label table at module scope holds **keys**, not words —
+`{ ACTIVE: 'label.active' }` — and `translateKey(t, key)` translates it where
+it is drawn. The navigation map, the dashboard's period picker and the coupon
+status badges all work this way.
+
 A visitor's language is resolved most-specific-first: the signed-in account's
 saved preference, then a manual choice, then the browser's setting, then
 English.
+
+In the **admin panel** one thing sits above all of those, and only once: the
+country the current sign-in came from, read from `countries.languageCode`. A
+member of staff signing in from Berlin lands on a German panel without touching
+the picker; the moment they use the picker, their choice wins for that country
+from then on. See [The location check at sign-in](#the-location-check-at-sign-in)
+for the full rule. The storefront has no equivalent — a shopper is never asked
+where they are.
+
+The console's **currency** comes from the same country row and behaves the
+opposite way: it is not a preference, there is no picker, and it cannot be
+overridden. A language is a choice; a price is not.
 
 ## Language is not currency
 
@@ -1221,9 +1398,18 @@ Everything lives in `backend/.env`, validated at boot by `src/config/env.ts`.
 | `CUSTOMER_WEB_PUBLIC_URL` | Where emailed customer links point |
 | `ADMIN_WEB_PUBLIC_URL` | Where emailed staff links point |
 | `apps/*/.env` → `VITE_API_BASE_URL` | The API's base URL |
+| `apps/*/.env.local` → `TUNNEL_HOST` | The hostname of the development tunnel, if one is in use |
 
 The CORS allowlist is exact, and both frontends use `strictPort`, so a port
 clash fails loudly rather than silently moving to a port CORS will reject.
+
+`TUNNEL_HOST` is development-only and belongs to the machine, not the project,
+which is why it lives in the gitignored `.env.local` and is absent from every
+deployment that is not being shown to someone over a tunnel. A Vite dev server
+answers only to `localhost` — a DNS-rebinding defence — and refuses any other
+hostname with *"Blocked request. This host is not allowed."* Naming the tunnel's
+hostname adds it to that check, in every mode, and nothing else with it. See
+`SETUP.md` Part 3.
 
 ## Feature flags
 
@@ -1308,6 +1494,8 @@ UBoss-Software/
 | Change an error message | `i18n/locales/*.json` in the frontend |
 | Add an error code | `domain/errors.ts`, then map it in both frontends |
 | Change a page's look | `apps/*/src/pages/` |
+| Change which language a country's staff read | the `countries` row's `languageCode` |
+| Change which language a country's staff read | the `countries` row's `languageCode` |
 | Change what happens in the background | `src/worker/handlers.ts` |
 | Turn a feature on or off | `backend/.env` |
 

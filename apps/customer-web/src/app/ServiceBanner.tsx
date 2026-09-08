@@ -75,9 +75,9 @@ function SessionEndedBanner(): React.JSX.Element {
         state={{ from: location.pathname + location.search }}
         className="font-medium text-brand underline underline-offset-2"
       >
-        {t('serviceBanner.signInAgain')}
+        {t('serviceBanner.signInAgainToCarryOn')}
       </Link>{' '}
-      to carry on. Nothing in your cart has been lost.
+      {t('serviceBanner.nothingInYourCartLost')}
     </div>
   );
 }
@@ -142,7 +142,7 @@ export function ServiceBanner(): React.JSX.Element | null {
         <span className="font-medium text-warning">
           {t('serviceBanner.weAreHavingTroubleReaching')}
         </span>{' '}
-        Anything already on screen still works. Changes will not save until the connection is back.
+        {t('serviceBanner.anythingOnScreenStillWorks')}
       </div>
     );
   }

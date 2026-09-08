@@ -27,6 +27,7 @@ import { Badge, ButtonLink, ErrorState, LoadingState } from '@/components/ui';
 import { api } from '@/lib/api';
 import { formatDateTime, formatMoney } from '@/lib/format';
 import { orderStatusLabel, orderStatusTone } from '@/lib/order-status';
+import type { Translate } from '@/i18n/i18n-context';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { OrderDetail } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
@@ -39,58 +40,61 @@ import { useI18n } from '@/i18n/i18n-context';
  * and a customer scanning for their own next move should not have to parse
  * prose to find it.
  */
-function nextStepFor(order: OrderDetail): {
+function nextStepFor(
+  t: Translate,
+  order: OrderDetail,
+): {
   title: string;
   body: string;
   steps: string[];
 } {
   if (order.status === 'PENDING_APPROVAL') {
     return {
-      title: 'Waiting for approval',
-      body: 'Your order has gone to your approver. You will get an email at each step.',
+      title: t('orderConfirmation.waitingForApproval'),
+      body: t('orderConfirmation.goneToYourApprover'),
       steps: [
-        'Your approver reviews the order.',
-        'Once approved, we confirm it and arrange payment.',
-        'We email you when it is confirmed, and again when it ships.',
+        t('orderConfirmation.approverReviews'),
+        t('orderConfirmation.onceApprovedWeConfirm'),
+        t('orderConfirmation.weEmailWhenConfirmed'),
       ],
     };
   }
 
   if (order.status === 'PENDING_PAYMENT' && order.paymentMode === 'PAYMENT_LINK') {
     return {
-      title: 'Payment link sent',
-      body: 'A secure payment link has been emailed to the address you chose.',
+      title: t('orderConfirmation.paymentLinkSent'),
+      body: t('orderConfirmation.secureLinkEmailed'),
       steps: [
-        'Whoever received the link opens it and pays.',
-        'The order is confirmed once that payment goes through.',
-        'We email you when it is confirmed, and again when it ships.',
+        t('orderConfirmation.whoeverReceivedTheLink'),
+        t('orderConfirmation.confirmedOncePaymentGoesThrough'),
+        t('orderConfirmation.weEmailWhenConfirmed'),
       ],
     };
   }
 
   if (order.status === 'PENDING_PAYMENT') {
     return {
-      title: 'Awaiting payment',
-      body: 'Your order is saved and waiting for payment.',
+      title: t('orderConfirmation.awaitingPayment'),
+      body: t('orderConfirmation.savedAndWaiting'),
       steps: [
-        'Pay from the order page whenever you are ready.',
-        'The order is confirmed once the payment is verified.',
-        'We email you when it is confirmed, and again when it ships.',
+        t('orderConfirmation.payFromTheOrderPage'),
+        t('orderConfirmation.confirmedOnceVerified'),
+        t('orderConfirmation.weEmailWhenConfirmed'),
       ],
     };
   }
 
   if (order.status === 'CONFIRMED') {
     return {
-      title: 'Confirmed',
-      body: 'Payment has been received and your order is confirmed.',
-      steps: ['We pick and pack your order.', 'We email you a tracking link when it ships.'],
+      title: t('orderStatus.confirmed'),
+      body: t('orderConfirmation.paymentReceivedConfirmed'),
+      steps: [t('orderConfirmation.wePickAndPack'), t('orderConfirmation.trackingLinkWhenItShips')],
     };
   }
 
   return {
-    title: orderStatusLabel(order.status),
-    body: 'We will email you as your order progresses.',
+    title: orderStatusLabel(t, order.status),
+    body: t('orderConfirmation.weWillEmailAsItProgresses'),
     steps: [],
   };
 }
@@ -104,7 +108,7 @@ export function OrderConfirmationPage(): React.JSX.Element {
 
   const wasReplayed = (location.state as { replayed?: boolean } | null)?.replayed === true;
 
-  useDocumentMeta({ title: 'Order placed', noIndex: true }, business.displayName);
+  useDocumentMeta({ title: t('orderConfirmation.orderPlaced'), noIndex: true }, business.displayName);
 
   const query = useQuery({
     queryKey: ['order', orderId],
@@ -126,7 +130,7 @@ export function OrderConfirmationPage(): React.JSX.Element {
   }
 
   const order = query.data.order;
-  const next = nextStepFor(order);
+  const next = nextStepFor(t, order);
   const awaitingLinkPayment =
     order.status === 'PENDING_PAYMENT' && order.paymentMode === 'PAYMENT_LINK';
   const isSettled = BigInt(order.totals.paid.minor) >= BigInt(order.totals.grandTotal.minor);
@@ -137,7 +141,7 @@ export function OrderConfirmationPage(): React.JSX.Element {
       {/* Payment is a tick only if the money has actually arrived. */}
       <CheckoutSteps
         states={confirmationSteps(isSettled)}
-        {...(isSettled ? {} : { notes: { payment: 'Not paid yet' } })}
+        {...(isSettled ? {} : { notes: { payment: t('orderConfirmation.notPaidYet') } })}
       />
 
       {wasReplayed && (
@@ -182,7 +186,7 @@ export function OrderConfirmationPage(): React.JSX.Element {
         </p>
 
         <div className="mt-4 flex justify-center">
-          <Badge tone={orderStatusTone(order.status)}>{orderStatusLabel(order.status)}</Badge>
+          <Badge tone={orderStatusTone(order.status)}>{orderStatusLabel(t, order.status)}</Badge>
         </div>
       </div>
 
@@ -293,11 +297,10 @@ export function OrderConfirmationPage(): React.JSX.Element {
       </div>
 
       <p className="mt-4 text-center text-xs text-ink-muted">
-        A copy of this confirmation is on its way to your email.{' '}
+        {t('orderConfirmation.copyOnItsWay')}{' '}
         <Link to="/account/orders" className="font-medium text-brand hover:underline">
-          {t('orderConfirmation.yourOrderHistory')}
-        </Link>{' '}
-        always has the latest status.
+          {t('orderConfirmation.historyHasLatestStatus')}
+        </Link>
       </p>
     </div>
   );

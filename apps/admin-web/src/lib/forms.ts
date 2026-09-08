@@ -21,11 +21,20 @@ export function applyApiErrors<T extends FieldValues>(
   error: unknown,
   setError: UseFormSetError<T>,
   knownFields: readonly Path<T>[],
+  /**
+   * What to say when the failure carries no message of its own.
+   *
+   * Passed in rather than written here: this module has no `t`, and the string
+   * it returns is rendered above a form for a person to read. Callers hand it
+   * `t('common.theRequestFailed')`; the English default is what a caller that
+   * has not been updated still shows.
+   */
+  fallbackMessage = 'The request failed.',
 ): string | null {
   if (error instanceof NetworkError) return error.message;
 
   if (!(error instanceof ApiError)) {
-    return error instanceof Error ? error.message : 'The request failed.';
+    return error instanceof Error ? error.message : fallbackMessage;
   }
 
   const fieldErrors = error.fieldErrors();

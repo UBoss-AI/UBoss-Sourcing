@@ -17,7 +17,54 @@
  */
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import type en from './locales/en.json';
 import { languageOption, type LanguageCode } from './languages';
+
+/** The suffixes i18next appends to build a plural family. */
+type PluralSuffix = '_zero' | '_one' | '_two' | '_few' | '_many' | '_other';
+
+type PluralBase<Key extends string> = Key extends `${infer Base}${PluralSuffix}` ? Base : never;
+
+/**
+ * Every key in the catalogue, plus the base of each plural family.
+ *
+ * `cart.items_one` and `cart.items_other` live in the JSON; what a screen
+ * writes is `t('cart.items', { count })`, and that base form is not a key in
+ * the file. Deriving it here is what makes both spellings legal without either
+ * being invented.
+ */
+export type TranslationKey = keyof typeof en | PluralBase<keyof typeof en>;
+
+/** Placeholder values, and the `count` i18next picks a plural form from. */
+export interface TranslateOptions {
+  count?: number;
+  [placeholder: string]: unknown;
+}
+
+/**
+ * The translator, typed for this catalogue rather than by i18next's generics.
+ *
+ * Also the type a module outside React accepts: helpers in `lib/` that return
+ * words - order statuses, payment failures - are handed this, because a module
+ * with no component around it cannot call `useT()` and must not hold English
+ * of its own.
+ *
+ * What is given up is the compiler matching an options object against the
+ * `{{placeholders}}` in the string - a check that was never load bearing, and
+ * one no growing catalogue could keep.
+ */
+export type Translate = (key: TranslationKey, options?: TranslateOptions) => string;
+
+/**
+ * Translate a key that arrives as data rather than as a literal.
+ *
+ * Declaring the return type is what keeps a wide key union from widening the
+ * result back into i18next's detailed-result object. Used by the label tables
+ * in `lib/order-status.ts` and anywhere else a key is held in a structure.
+ */
+export function translateKey(t: Translate, key: TranslationKey): string {
+  return t(key);
+}
 
 /**
  * The shorthand most screens use: `const t = useT()`.
@@ -25,8 +72,8 @@ import { languageOption, type LanguageCode } from './languages';
  * Identical to `useTranslation().t`. Kept because `t('key')` at the call site
  * is short enough that translating a screen is not a rewrite of it.
  */
-export function useT(): ReturnType<typeof useTranslation>['t'] {
-  return useTranslation().t;
+export function useT(): Translate {
+  return useTranslation().t as Translate;
 }
 
 export interface I18nState {
@@ -46,7 +93,7 @@ export interface I18nState {
   isMachineTranslated: boolean;
 
   /** Translate a key, filling any `{{placeholder}}` slots. */
-  t: ReturnType<typeof useTranslation>['t'];
+  t: Translate;
 
   /** Switch language. The provider persists it to the account. */
   setLanguage: (next: LanguageCode) => void;
@@ -79,7 +126,7 @@ export function useI18n(): I18nState {
     // English is the source text, so it is the one catalogue nobody
     // machine-translated.
     isMachineTranslated: option.code !== 'en',
-    t,
+    t: t as Translate,
     setLanguage,
   };
 }

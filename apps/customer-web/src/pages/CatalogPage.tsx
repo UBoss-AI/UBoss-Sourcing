@@ -47,15 +47,16 @@ import {
 } from '@/lib/format';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { CatalogFilterFacets, CategoryNode, ProductListResponse } from '@/lib/types';
-import { useI18n } from '@/i18n/i18n-context';
+import { translateKey, useI18n } from '@/i18n/i18n-context';
+import type { TranslationKey } from '@/i18n/i18n-context';
 
 const SORT_OPTIONS = [
-  { value: 'newest', label: 'Newest first' },
-  { value: 'price_asc', label: 'Price: low to high' },
-  { value: 'price_desc', label: 'Price: high to low' },
-  { value: 'name_asc', label: 'Name: A to Z' },
-  { value: 'name_desc', label: 'Name: Z to A' },
-] as const;
+  { value: 'newest', labelKey: 'catalog.sortNewest' },
+  { value: 'price_asc', labelKey: 'catalog.sortPriceAsc' },
+  { value: 'price_desc', labelKey: 'catalog.sortPriceDesc' },
+  { value: 'name_asc', labelKey: 'catalog.sortNameAsc' },
+  { value: 'name_desc', labelKey: 'catalog.sortNameDesc' },
+] as const satisfies readonly { value: string; labelKey: TranslationKey }[];
 
 const PAGE_SIZE = 24;
 
@@ -273,13 +274,13 @@ function FilterFields({
     const max = maxText.trim() === '' ? null : majorToMinor(maxText);
 
     if ((minText.trim() !== '' && min === null) || (maxText.trim() !== '' && max === null)) {
-      setPriceError('Enter amounts like 500 or 499.50.');
+      setPriceError(t('catalog.enterAmountsLike'));
       return;
     }
 
     if (min !== null && max !== null && BigInt(max) < BigInt(min)) {
       // Otherwise the result is silently always empty and looks like a fault.
-      setPriceError('The highest price cannot be below the lowest.');
+      setPriceError(t('catalog.highestCannotBeBelowLowest'));
       return;
     }
 
@@ -474,7 +475,7 @@ function AppliedFilters({
             <button
               type="button"
               onClick={filter.remove}
-              aria-label={`Remove filter: ${filter.label}`}
+              aria-label={t('catalog.removeFilter', { filter: filter.label })}
               className="inline-flex items-center gap-1.5 rounded-full border border-brand/25 bg-brand-soft
                          py-1 pl-2.5 pr-2 text-xs font-medium text-brand transition-colors
                          hover:border-brand/40 hover:bg-brand-soft-hover"
@@ -687,23 +688,27 @@ export function CatalogPage(): React.JSX.Element {
 
   const heading =
     q !== ''
-      ? `Results for “${q}”`
-      : (categoryName ?? (category === null ? 'All products' : 'Category'));
+      ? t('catalog.resultsFor', { query: q })
+      : (categoryName ?? (category === null ? t('catalog.allProducts') : t('catalog.category')));
 
   // What kind of listing this is, above the title. A search result and a
   // department are not the same thing arrived at the same way, and the
   // eyebrow is cheaper than saying so in the heading.
-  const eyebrow = q !== '' ? 'Search' : categoryName === null ? 'Catalogue' : 'Category';
+  const eyebrow =
+    q !== '' ? t('common.search') : categoryName === null ? t('catalog.catalogue') : t('catalog.category');
 
   useDocumentMeta(
     {
       title: heading,
       description:
         q !== ''
-          ? `Search results for ${q} at ${business.displayName}.`
-          : categoryName === null
-            ? `Browse every product available from ${business.displayName}.`
-            : `Browse ${categoryName} at ${business.displayName}.`,
+          ? t('catalog.searchResultsFor', { query: q, store: business.displayName })
+          : category === null
+            ? t('catalog.browseEveryProduct', { store: business.displayName })
+            : t('catalog.browseCategoryAt', {
+                category: categoryName,
+                store: business.displayName,
+              }),
       // A search results page is thin, per-visitor content. Categories and the
       // full catalogue are the pages worth indexing.
       noIndex: q !== '',
@@ -809,19 +814,24 @@ export function CatalogPage(): React.JSX.Element {
    * pagination block, so nothing here is estimated.
    */
   const countLabel = ((): string => {
-    if (products.isPending) return 'Loading…';
-    if (total === 0) return 'No products';
-
-    const noun = `product${total === 1 ? '' : 's'}`;
+    if (products.isPending) return t('catalog.loadingEllipsis');
+    if (total === 0) return t('catalog.noProducts');
 
     if (pagination === undefined || pagination.totalPages <= 1) {
-      return `${formatNumber(total)} ${noun}`;
+      return t('catalog.productCount', { count: total, products: formatNumber(total) });
     }
 
     const first = (pagination.page - 1) * pagination.limit + 1;
     const last = Math.min(pagination.page * pagination.limit, total);
 
-    return `Showing ${formatNumber(first)}–${formatNumber(last)} of ${formatNumber(total)} ${noun}`;
+    // `count` picks the plural form; the three numbers are passed separately
+    // so each is formatted for the reader's own locale.
+    return t('catalog.showingRange', {
+      count: total,
+      first: formatNumber(first),
+      last: formatNumber(last),
+      total: formatNumber(total),
+    });
   })();
 
   const sortControl = (
@@ -836,7 +846,7 @@ export function CatalogPage(): React.JSX.Element {
       >
         {SORT_OPTIONS.map((option) => (
           <option key={option.value} value={option.value}>
-            {option.label}
+            {translateKey(t, option.labelKey)}
           </option>
         ))}
       </Select>
@@ -961,7 +971,7 @@ export function CatalogPage(): React.JSX.Element {
                 }}
               >
                 {products.isPending
-                  ? 'Show results'
+                  ? t('catalog.showResults')
                   : `Show ${formatNumber(total)} product${total === 1 ? '' : 's'}`}
               </Button>
             </>
@@ -1034,12 +1044,12 @@ export function CatalogPage(): React.JSX.Element {
           {products.data !== undefined && products.data.products.length === 0 && (
             <div className="rounded-lg border border-border bg-surface px-6 py-16 text-center shadow-card">
               <p className="text-title-sm text-ink">
-                {q === '' ? 'Nothing here yet' : `Nothing matches “${q}”`}
+                {q === '' ? t('catalog.nothingHereYet') : t('catalog.nothingMatches', { query: q })}
               </p>
               <p className="mx-auto mt-1.5 max-w-md text-sm leading-relaxed text-ink-muted">
                 {q === ''
-                  ? 'Products appear here as soon as they are published.'
-                  : 'Try a shorter search, check the spelling, or clear the filters.'}
+                  ? t('catalog.productsAppearOncePublished')
+                  : t('catalog.tryAShorterSearch')}
               </p>
               <div className="mt-5 flex flex-wrap justify-center gap-2">
                 {/* Only offered when it would do something. On a search page

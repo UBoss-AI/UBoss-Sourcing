@@ -15,6 +15,7 @@ import { useId } from 'react';
 import { Button } from './ui';
 import { clampToRules, describeRules } from '@/lib/quantity-rules';
 import type { PurchaseRules } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 interface QuantityInputProps {
   value: number;
@@ -28,15 +29,19 @@ export function QuantityInput({
   value,
   onChange,
   rules,
-  label = 'Quantity',
+  // Resolved in the body, not as a default parameter: a default cannot call
+  // `t`, and an English default here would label every quantity box that did
+  // not pass one.
+  label,
   disabled = false,
 }: QuantityInputProps): React.JSX.Element {
+  const { t } = useI18n();
   const inputId = useId();
   const hintId = `${inputId}-hint`;
 
   const step = Math.max(1, rules.qtyIncrement);
   const min = Math.max(1, rules.minOrderQty);
-  const description = describeRules(rules);
+  const description = describeRules(t, rules);
 
   const canDecrease = !disabled && value > min;
   const canIncrease =
@@ -45,14 +50,14 @@ export function QuantityInput({
   return (
     <div>
       <label htmlFor={inputId} className="block text-sm font-medium text-ink">
-        {label}
+        {label ?? t('product.quantity')}
       </label>
 
       <div className="mt-1.5 flex items-stretch gap-1.5">
         <Button
           size="md"
           disabled={!canDecrease}
-          aria-label={`Decrease quantity by ${String(step)}`}
+          aria-label={t('product.decreaseQuantityBy', { step: String(step) })}
           onClick={() => {
             onChange(clampToRules(value - step, rules));
           }}
@@ -87,7 +92,7 @@ export function QuantityInput({
         <Button
           size="md"
           disabled={!canIncrease}
-          aria-label={`Increase quantity by ${String(step)}`}
+          aria-label={t('product.increaseQuantityBy', { step: String(step) })}
           onClick={() => {
             onChange(clampToRules(value + step, rules));
           }}

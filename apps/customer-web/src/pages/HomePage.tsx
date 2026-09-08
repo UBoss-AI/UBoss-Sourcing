@@ -203,25 +203,26 @@ function HeroVisual(): React.JSX.Element {
  * deployment has — is the truthful version of the same reassurance.
  */
 function TrustStrip(): React.JSX.Element {
+  const { t } = useI18n();
   const { features } = useStorefront();
 
   const items = [
     {
       icon: BriefcaseIcon,
-      label: 'Business purchasing',
-      detail: 'Minimum quantities, order multiples and tax shown before you commit.',
+      label: t('home.businessPurchasing'),
+      detail: t('home.minimumQuantities'),
     },
     {
       icon: TruckIcon,
-      label: 'Reliable fulfilment',
-      detail: 'Every order tracked from confirmation through to delivery.',
+      label: t('home.reliableFulfilment'),
+      detail: t('home.everyOrderTracked'),
     },
     {
       icon: RepeatIcon,
-      label: 'Repeat ordering',
+      label: t('home.repeatOrdering'),
       detail: features.recurringOrders
-        ? 'Put regular lines on a schedule and let them repeat.'
-        : 'Reorder any past order at current prices.',
+        ? t('home.putRegularLinesOnASchedule')
+        : t('home.reorderAnyPastOrder'),
     },
   ];
 
@@ -256,9 +257,9 @@ function Hero(): React.JSX.Element {
   // Read from config, not written here. A chip that would be false for a given
   // deployment is simply absent from its storefront.
   const indicators = [
-    { icon: CurrencyIcon, label: `Priced in ${currency}` },
-    { icon: ClockIcon, label: 'Order online, any time' },
-    features.recurringOrders ? { icon: RepeatIcon, label: 'Repeat purchase scheduling' } : null,
+    { icon: CurrencyIcon, label: t('home.pricedIn', { currency }) },
+    { icon: ClockIcon, label: t('home.orderOnlineAnyTime') },
+    features.recurringOrders ? { icon: RepeatIcon, label: t('home.repeatPurchaseScheduling') } : null,
   ].filter((entry): entry is { icon: typeof ClockIcon; label: string } => entry !== null);
 
   return (
@@ -483,7 +484,7 @@ function NewestProducts(): React.JSX.Element {
             {t('home.latestProducts')}
           </h2>
           <p className="mt-1 max-w-prose text-sm text-ink-muted">
-            The most recently published lines, priced in {currency}.
+            {t('home.mostRecentlyPublished', { currency })}
           </p>
         </div>
 
@@ -556,12 +557,14 @@ function NewestProducts(): React.JSX.Element {
 }
 
 export function HomePage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const { business } = useStorefront();
 
   useDocumentMeta(
     {
       title: '',
-      description: `Browse the ${business.displayName} catalogue. Industrial and business supplies, ordered online with repeat purchase scheduling.`,
+      description: t('home.catalogueDescription', { store: business.displayName }),
     },
     business.displayName,
   );

@@ -129,15 +129,20 @@ export interface ProductListItem {
   /** The listed figure: what staff typed, and what the editor writes back. */
   price: Money;
   /**
-   * What a customer in the requested market is charged for that figure.
+   * What a customer in the requested market pays, in that market's currency.
    *
-   * Equal to `price` when no market was asked for, and in a deployment where
-   * no price depends on one. Never editable: it is the pricing engine's answer
-   * about the price beside it, not a second place to set one.
+   * Equal to `price` when the market is the seller's own and no price depends
+   * on a location. Never editable: it is the pricing engine's answer about the
+   * price beside it, not a second place to set one.
+   *
+   * **Null means this product has no price in that market's currency**, which
+   * is the same thing as not being sold there. There is deliberately no
+   * fallback figure: quoting the rupee price to a customer in Germany because
+   * the euro row is missing would be a made-up number.
    */
-  quoted: Money;
-  /** The rate that produced `quoted`, and whether it is inside the figure. */
-  quotedTax: { ratePercent: string; inclusive: boolean };
+  quoted: Money | null;
+  /** The rate that produced `quoted`. Null wherever `quoted` is. */
+  quotedTax: { ratePercent: string; inclusive: boolean } | null;
   isStockTracked: boolean;
   reorderThreshold: number;
   archivedAt: string | null;
@@ -151,6 +156,15 @@ export interface ProductListResponse {
   products: ProductListItem[];
   /** The market every `quoted` above is for. Null when none was asked for. */
   country: string | null;
+  /**
+   * The currency every `quoted` above is in.
+   *
+   * Null where the session's market named no currency - no country resolved at
+   * sign-in, or a country this deployment does not sell in. Each row is then
+   * quoted in the currency of its own listed price, which is the currency on
+   * the `price` beside it, so nothing on screen is ambiguous.
+   */
+  currency: string | null;
   /** Which rate applies there and on what basis, in one sentence. */
   taxNote: string;
   pagination: Pagination;
@@ -183,13 +197,20 @@ export interface VariantRow {
   /** The variant's own price. Null means the product's price applies. */
   priceMinor: string | null;
   /**
-   * What a customer in the requested market pays for that override.
+   * What a customer in the requested market pays for that override, in that
+   * market's currency.
    *
-   * Null where the variant has none - it is sold at the product's price, and
-   * that figure is quoted on the price card above rather than repeated here.
+   * Null in two cases, and the panel says the same thing about both because
+   * there is nothing to quote either way: the variant has no override at all -
+   * it is sold at the product's price, quoted on the card above - or it has
+   * one, but not in this market's currency, which means it is not sold there.
+   *
+   * A `Money` rather than bare minor units precisely because it can be in a
+   * different currency from `priceMinor` beside it, and two amounts in two
+   * currencies must never sit together unlabelled.
    */
-  quotedMinor: string | null;
-  /** The rate that produced `quotedMinor`, and whether it is inside it. */
+  quoted: Money | null;
+  /** The rate that produced `quoted`, and whether it is inside it. */
   quotedTax: { ratePercent: string; inclusive: boolean } | null;
   isActive: boolean;
   sortOrder: number;

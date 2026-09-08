@@ -15,6 +15,13 @@
  *     several times an hour.
  *   - Signing in again asks again. The gate is per sign-in, which is the whole
  *     point of it.
+ *   - What the panel is told about that position: the place for the top bar,
+ *     the country for the prices, and the language the deployment says an
+ *     office in that country reads - which is what puts a member of staff
+ *     signing in from Berlin on a German panel without them touching a picker.
+ *   - All three survive a token refresh. The country in particular is read on
+ *     every page, so losing it on a rotation would change the prices and the
+ *     language mid-shift for somebody who had not moved.
  *
  * `GEOCODE_REVERSE_URL` is empty in tests (see tests/setup.ts), so no lookup
  * leaves the machine and `place` falls back to the coordinates - itself a
@@ -31,6 +38,7 @@ import { newId } from '../../src/infra/ids.js';
 import { prisma } from '../../src/infra/prisma.js';
 import { listAdminNotifications } from '../../src/modules/notifications/admin-notification.service.js';
 import { recordSessionLocation } from '../../src/modules/identity/session-location.service.js';
+import { issueSession, rotateSession } from '../../src/modules/identity/session.service.js';
 
 let app: Awaited<ReturnType<typeof buildApp>>;
 
@@ -350,5 +358,182 @@ describe('what happens next', () => {
     const second = await signIn();
 
     expect((await readStaff(second.cookies)).statusCode).toBe(403);
+  });
+});
+
+/**
+ * What the panel is told about the position, and what it does with it.
+ *
+ * These build their sessions through `issueSession` and authenticate with a
+ * bearer token rather than signing in over HTTP. Two reasons: the login route
+ * is rate limited per address and this file is already at its budget, and what
+ * is under test here is what `/me` says about a session that *has* a position -
+ * not the gate that every test above exercises.
+ */
+describe('what the panel is told about the position', () => {
+  /** Somewhere in Berlin, with a name a geocoder would have given. */
+  const BERLIN = {
+    latitude: '52.520000',
+    longitude: '13.405000',
+    label: 'Mitte, Berlin, Germany',
+    country: 'DE',
+  };
+
+  async function adminUserId(): Promise<string> {
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { emailNormalized: EMAIL },
+      select: { id: true },
+    });
+    return user.id;
+  }
+
+  /** A signed-in session that has already said it is in Berlin. */
+  async function sessionInBerlin(): Promise<{
+    sessionId: string;
+    accessToken: string;
+    refreshToken: string;
+  }> {
+    const issued = await issueSession(await adminUserId(), 'ADMIN');
+
+    await prisma.session.update({
+      where: { id: issued.sessionId },
+      data: {
+        locationLatitude: BERLIN.latitude,
+        locationLongitude: BERLIN.longitude,
+        locationLabel: BERLIN.label,
+        locationCountry: BERLIN.country,
+        locationCapturedAt: new Date(),
+      },
+    });
+
+    return {
+      sessionId: issued.sessionId,
+      accessToken: issued.accessToken,
+      refreshToken: issued.refreshToken,
+    };
+  }
+
+  function readMe(accessToken: string) {
+    return app.inject({
+      method: 'GET',
+      url: '/api/v1/admin/auth/me',
+      headers: { authorization: `Bearer ${accessToken}` },
+    });
+  }
+
+  interface MeLocation {
+    locationGranted: boolean;
+    locationCountry: string | null;
+    locationPlace: string | null;
+    locationLanguage: string | null;
+  }
+
+  beforeAll(async () => {
+    // The language is a row the deployment edits, not a table shipped in a
+    // release - so the test has to assert it as data, the same way the
+    // location-pricing tests assert a VAT rate.
+    await prisma.country.upsert({
+      where: { code: 'DE' },
+      update: { languageCode: 'de', isActive: true },
+      create: {
+        code: 'DE',
+        name: 'Germany',
+        currencyCode: 'EUR',
+        languageCode: 'de',
+        isActive: true,
+        isEuVat: true,
+      },
+    });
+  });
+
+  it('names the place, for the top bar', async () => {
+    const session = await sessionInBerlin();
+
+    const me = await readMe(session.accessToken);
+    expect(me.statusCode, me.body).toBe(200);
+
+    const body = me.json<MeLocation>();
+    expect(body.locationGranted).toBe(true);
+    // The geocoder's own words, not a re-rendering of them. The chip in the
+    // top bar and the line in the bell are the same fact and must read the
+    // same way.
+    expect(body.locationPlace).toBe(BERLIN.label);
+    expect(body.locationCountry).toBe('DE');
+  });
+
+  it('falls back to the coordinates when no geocoder answered', async () => {
+    const issued = await issueSession(await adminUserId(), 'ADMIN');
+
+    await prisma.session.update({
+      where: { id: issued.sessionId },
+      data: {
+        locationLatitude: BERLIN.latitude,
+        locationLongitude: BERLIN.longitude,
+        // The deployment has no geocoder configured, which is supported.
+        locationLabel: null,
+        locationCountry: null,
+        locationCapturedAt: new Date(),
+      },
+    });
+
+    const body = (await readMe(issued.accessToken)).json<MeLocation>();
+
+    // Four decimals, exactly as the bell writes them. A top bar saying nothing
+    // at all would leave the reader unable to tell a session with no position
+    // from one whose geocoder is switched off.
+    expect(body.locationPlace).toBe('52.5200, 13.4050');
+    // And with no country there is no language to adopt: whatever this member
+    // of staff was reading, they keep.
+    expect(body.locationCountry).toBeNull();
+    expect(body.locationLanguage).toBeNull();
+  });
+
+  it('answers the language that country works in, from the country row', async () => {
+    const session = await sessionInBerlin();
+
+    expect((await readMe(session.accessToken)).json<MeLocation>().locationLanguage).toBe('de');
+  });
+
+  it('answers no language where the deployment has set none', async () => {
+    // Czechia is a real market with no Czech catalogue. Null is the answer,
+    // and it means "leave this person's language alone" - never English.
+    await prisma.country.upsert({
+      where: { code: 'CZ' },
+      update: { languageCode: null },
+      create: { code: 'CZ', name: 'Czechia', currencyCode: 'EUR', isActive: true },
+    });
+
+    const issued = await issueSession(await adminUserId(), 'ADMIN');
+    await prisma.session.update({
+      where: { id: issued.sessionId },
+      data: {
+        locationLatitude: '50.087500',
+        locationLongitude: '14.421400',
+        locationLabel: 'Prague, Czechia',
+        locationCountry: 'CZ',
+        locationCapturedAt: new Date(),
+      },
+    });
+
+    const body = (await readMe(issued.accessToken)).json<MeLocation>();
+
+    expect(body.locationPlace).toBe('Prague, Czechia');
+    expect(body.locationLanguage).toBeNull();
+  });
+
+  it('keeps all three through a token refresh', async () => {
+    const session = await sessionInBerlin();
+
+    const rotated = await rotateSession(session.refreshToken);
+
+    const body = (await readMe(rotated.accessToken)).json<MeLocation>();
+
+    // The country is the one that used to be dropped here, and it is the
+    // expensive one to lose: the panel would have gone back to quoting the
+    // seller's own market and back into English a few minutes into a shift,
+    // with nothing on screen to explain why.
+    expect(body.locationCountry).toBe('DE');
+    expect(body.locationPlace).toBe(BERLIN.label);
+    expect(body.locationLanguage).toBe('de');
   });
 });

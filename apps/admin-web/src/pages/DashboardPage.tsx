@@ -60,15 +60,22 @@ import type {
   OrdersByStatusRow,
   UpcomingOccurrence,
 } from '@/lib/types';
-import { useI18n } from '@/i18n/i18n-context';
+import { translateKey, useI18n } from '@/i18n/i18n-context';
+import type { TranslationKey } from '@/i18n/i18n-context';
 
-/** Named windows, so the common cases are one click and not a date picker. */
+/**
+ * Named windows, so the common cases are one click and not a date picker.
+ *
+ * Keys rather than words: this list is module state, built before any
+ * component has rendered and therefore before there is a `t` to call. The
+ * label is translated where it is shown.
+ */
 const WINDOWS = [
-  { value: '7', label: 'Last 7 days' },
-  { value: '30', label: 'Last 30 days' },
-  { value: '90', label: 'Last 90 days' },
-  { value: '365', label: 'Last 12 months' },
-] as const;
+  { value: '7', labelKey: 'dashboard.last7Days' },
+  { value: '30', labelKey: 'dashboard.last30Days' },
+  { value: '90', labelKey: 'dashboard.last90Days' },
+  { value: '365', labelKey: 'dashboard.last12Months' },
+] as const satisfies readonly { value: string; labelKey: TranslationKey }[];
 
 function windowRange(days: number): { from: string; to: string } {
   const to = new Date();
@@ -220,9 +227,14 @@ export function DashboardPage(): React.JSX.Element {
     queryFn: () => api.get<DashboardResponse>('/admin/dashboard', { query: range }),
   });
 
+  const namedWindow = WINDOWS.find((option) => option.value === String(effectiveDays));
+
+  // A hand-edited `?days=` is a supported way to arrive here, so the label has
+  // to be able to say a number that is not in the list.
   const windowLabel =
-    WINDOWS.find((option) => option.value === String(effectiveDays))?.label ??
-    `Last ${effectiveDays} days`;
+    namedWindow === undefined
+      ? t('dashboard.lastNDays', { count: effectiveDays, days: formatNumber(effectiveDays) })
+      : translateKey(t, namedWindow.labelKey);
 
   const sales = query.data?.sales;
   const currency = sales?.currency ?? 'INR';
@@ -248,13 +260,18 @@ export function DashboardPage(): React.JSX.Element {
   const statusColumns: Column<OrdersByStatusRow>[] = [
     {
       key: 'status',
-      header: 'Status',
+      header: t('label.status'),
       render: (row) => <Badge tone={orderStatusTone(row.status)}>{humanise(row.status)}</Badge>,
     },
-    { key: 'count', header: 'Orders', align: 'right', render: (row) => formatNumber(row.count) },
+    {
+      key: 'count',
+      header: t('label.orders'),
+      align: 'right',
+      render: (row) => formatNumber(row.count),
+    },
     {
       key: 'share',
-      header: 'Share',
+      header: t('dashboard.share'),
       width: '9rem',
       secondary: true,
       render: (row) => (
@@ -273,7 +290,7 @@ export function DashboardPage(): React.JSX.Element {
     },
     {
       key: 'value',
-      header: 'Value',
+      header: t('label.value'),
       align: 'right',
       render: (row) => money(row.value, currency),
     },
@@ -282,7 +299,10 @@ export function DashboardPage(): React.JSX.Element {
       header: <span className="sr-only">{t('dashboard.actions')}</span>,
       align: 'right',
       render: (row) => (
-        <RowLink to={`/orders?status=${row.status}`} label={`${humanise(row.status)} orders`} />
+        <RowLink
+          to={`/orders?status=${row.status}`}
+          label={t('dashboard.statusOrders', { status: humanise(row.status) })}
+        />
       ),
     },
   ];
@@ -290,18 +310,18 @@ export function DashboardPage(): React.JSX.Element {
   const paymentColumns: Column<{ status: string; count: number; amount?: string }>[] = [
     {
       key: 'status',
-      header: 'Status',
+      header: t('label.status'),
       render: (row) => <Badge tone={paymentStatusTone(row.status)}>{humanise(row.status)}</Badge>,
     },
     {
       key: 'count',
-      header: 'Transactions',
+      header: t('dashboard.transactions'),
       align: 'right',
       render: (row) => formatNumber(row.count),
     },
     {
       key: 'amount',
-      header: 'Amount',
+      header: t('label.amount'),
       align: 'right',
       render: (row) => money(row.amount, query.data?.payments.currency ?? currency),
     },
@@ -310,7 +330,10 @@ export function DashboardPage(): React.JSX.Element {
       header: <span className="sr-only">{t('dashboard.actions')}</span>,
       align: 'right',
       render: (row) => (
-        <RowLink to={`/payments?status=${row.status}`} label={`${humanise(row.status)} payments`} />
+        <RowLink
+          to={`/payments?status=${row.status}`}
+          label={t('dashboard.statusPayments', { status: humanise(row.status) })}
+        />
       ),
     },
   ];
@@ -318,7 +341,7 @@ export function DashboardPage(): React.JSX.Element {
   const lowStockColumns: Column<LowStockItem>[] = [
     {
       key: 'name',
-      header: 'Product',
+      header: t('label.product'),
       render: (row) => (
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -331,7 +354,7 @@ export function DashboardPage(): React.JSX.Element {
     },
     {
       key: 'available',
-      header: 'Available',
+      header: t('label.available'),
       align: 'right',
       render: (row) => (
         <span className={row.availableQty <= 0 ? 'font-semibold text-danger' : 'text-ink'}>
@@ -341,7 +364,7 @@ export function DashboardPage(): React.JSX.Element {
     },
     {
       key: 'cover',
-      header: 'Reorder at',
+      header: t('label.reorderAt'),
       width: '11rem',
       secondary: true,
       render: (row) => (
@@ -353,7 +376,7 @@ export function DashboardPage(): React.JSX.Element {
             className="min-w-0 flex-1"
           />
           <span className="w-14 shrink-0 text-right tabular text-xxs text-ink-subtle">
-            of {formatNumber(row.reorderThreshold)}
+            {t('dashboard.ofThreshold', { threshold: formatNumber(row.reorderThreshold) })}
           </span>
         </div>
       ),
@@ -371,17 +394,19 @@ export function DashboardPage(): React.JSX.Element {
   const upcomingColumns: Column<UpcomingOccurrence>[] = [
     {
       key: 'name',
-      header: 'Schedule',
+      header: t('label.schedule'),
       render: (row) => (
         <div className="min-w-0">
           <p className="font-medium text-ink">{row.name}</p>
-          <p className="text-xxs text-ink-subtle">{row.customerName ?? 'Unknown customer'}</p>
+          <p className="text-xxs text-ink-subtle">
+            {row.customerName ?? t('dashboard.unknownCustomer')}
+          </p>
         </div>
       ),
     },
     {
       key: 'next',
-      header: 'Next run',
+      header: t('label.nextRun'),
       render: (row) => {
         // Due inside a day is the one that changes what somebody does this
         // morning, so it is the one that gets a colour.
@@ -399,7 +424,7 @@ export function DashboardPage(): React.JSX.Element {
     },
     {
       key: 'mode',
-      header: 'Payment',
+      header: t('label.payment'),
       secondary: true,
       render: (row) => <Badge tone="operational">{humanise(row.paymentMode)}</Badge>,
     },
@@ -408,17 +433,19 @@ export function DashboardPage(): React.JSX.Element {
   const attentionColumns: Column<DashboardResponse['recurring']['needsAttention'][number]>[] = [
     {
       key: 'name',
-      header: 'Schedule',
+      header: t('label.schedule'),
       render: (row) => (
         <div className="min-w-0">
           <p className="font-medium text-ink">{row.name}</p>
-          <p className="text-xxs text-ink-subtle">{row.customerName ?? 'Unknown customer'}</p>
+          <p className="text-xxs text-ink-subtle">
+            {row.customerName ?? t('dashboard.unknownCustomer')}
+          </p>
         </div>
       ),
     },
     {
       key: 'failures',
-      header: 'Failures',
+      header: t('dashboard.failures'),
       align: 'right',
       render: (row) => (
         <span className="font-semibold text-danger">{formatNumber(row.failureCount)}</span>
@@ -426,14 +453,39 @@ export function DashboardPage(): React.JSX.Element {
     },
     {
       key: 'reason',
-      header: 'Reason',
+      header: t('label.reason'),
       secondary: true,
-      render: (row) => <span className="text-ink-muted">{row.reason ?? 'No reason recorded'}</span>,
+      render: (row) => (
+        <span className="text-ink-muted">{row.reason ?? t('dashboard.noReasonRecorded')}</span>
+      ),
     },
   ];
 
   const lowStockCount = query.data?.lowStock.count ?? 0;
   const lowStockShown = query.data?.lowStock.items.length ?? 0;
+
+  /**
+   * What the low-stock panel says about itself.
+   *
+   * Three sentences, not one with two optional clauses: none at all, a count,
+   * and a count that is more than the table can show. Assembling it here keeps
+   * the JSX below readable and keeps the plural in the catalogue where a
+   * translator can see it - Polish needs four forms of this sentence and
+   * English needs two.
+   */
+  const lowStockDescription =
+    lowStockCount === 0
+      ? t('dashboard.lowStockThreshold')
+      : t(
+          lowStockCount > lowStockShown
+            ? 'dashboard.lowStockAtThresholdShown'
+            : 'dashboard.lowStockAtThreshold',
+          {
+            count: lowStockCount,
+            products: formatNumber(lowStockCount),
+            shown: formatNumber(lowStockShown),
+          },
+        );
   const needsAttention = query.data?.recurring.needsAttention ?? [];
 
   return (
@@ -454,7 +506,7 @@ export function DashboardPage(): React.JSX.Element {
               >
                 {WINDOWS.map((option) => (
                   <option key={option.value} value={option.value}>
-                    {option.label}
+                    {translateKey(t, option.labelKey)}
                   </option>
                 ))}
               </Select>
@@ -469,7 +521,7 @@ export function DashboardPage(): React.JSX.Element {
               }}
             >
               {!query.isFetching && <RefreshIcon className="h-4 w-4" />}
-              {query.isFetching ? 'Refreshing…' : 'Refresh'}
+              {query.isFetching ? t('dashboard.refreshing') : t('dashboard.refresh')}
             </Button>
           </>
         }
@@ -508,7 +560,7 @@ export function DashboardPage(): React.JSX.Element {
             className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-6"
           >
             <Metric
-              label={t('dashboard.orders')}
+              label={t('label.orders')}
               emphasis="primary"
               className="xl:col-span-2"
               value={formatNumber(sales?.orderCount ?? 0)}
@@ -520,7 +572,7 @@ export function DashboardPage(): React.JSX.Element {
               emphasis="primary"
               className="xl:col-span-2"
               value={formatMoney(sales?.grossSales)}
-              sub={`incl. ${formatMoney(sales?.tax)} tax`}
+              sub={t('dashboard.inclTax', { amount: formatMoney(sales?.tax) })}
             >
               <dl className="mt-3 flex flex-wrap gap-x-5 gap-y-1 border-t border-border-subtle pt-2.5 text-xxs">
                 <div className="flex gap-1.5">
@@ -543,7 +595,7 @@ export function DashboardPage(): React.JSX.Element {
               emphasis="primary"
               className="xl:col-span-2"
               value={formatMoney(sales?.collected)}
-              sub="Verified payments only"
+              sub={t('dashboard.verifiedPaymentsOnly')}
             >
               {collectedShare !== null && (
                 <div className="mt-3 border-t border-border-subtle pt-2.5">
@@ -556,7 +608,11 @@ export function DashboardPage(): React.JSX.Element {
                     <span className="tabular font-medium text-ink">
                       {Math.round(collectedShare)}%
                     </span>{' '}
-                    of gross sales
+                    {/* The phrase alone, so the figure keeps its weight - it is
+                        what the line is for. Every language this panel ships
+                        puts it after the number; one that did not would need
+                        the two joined into a single interpolated key. */}
+                    {t('dashboard.ofGrossSales')}
                   </p>
                 </div>
               )}
@@ -566,14 +622,20 @@ export function DashboardPage(): React.JSX.Element {
               label={t('dashboard.netRevenue')}
               className="xl:col-span-3"
               value={formatMoney(sales?.netRevenue)}
-              sub={`after ${formatMoney(sales?.refunded)} refunded`}
+              sub={t('dashboard.afterRefunded', { amount: formatMoney(sales?.refunded) })}
             />
 
             <Metric
               label={t('dashboard.averageOrderValue')}
               className="xl:col-span-3"
               value={formatMoney(sales?.averageOrderValue)}
-              sub={`across ${formatNumber(sales?.orderCount ?? 0)} orders`}
+              // `count` picks the plural form, `orders` is what gets printed:
+              // i18next interpolates a raw number, and a four-figure order
+              // count belongs in the reader's own digit grouping.
+              sub={t('dashboard.acrossOrders', {
+                count: sales?.orderCount ?? 0,
+                orders: formatNumber(sales?.orderCount ?? 0),
+              })}
             />
           </section>
 
@@ -584,16 +646,16 @@ export function DashboardPage(): React.JSX.Element {
               actions={<PanelLink to="/orders">{t('dashboard.allOrders')}</PanelLink>}
             >
               <DataTable
-                caption="Orders by status"
+                caption={t('dashboard.ordersByStatus')}
                 columns={statusColumns}
                 rows={query.data.ordersByStatus}
                 rowKey={(row) => row.status}
-                emptyTitle="No orders in this period"
+                emptyTitle={t('dashboard.noOrdersInThisPeriod')}
               />
             </Card>
 
             <Card
-              title={t('dashboard.payments')}
+              title={t('label.payments')}
               description={t('dashboard.everyTransactionRaisedInThis')}
               actions={<PanelLink to="/payments">{t('dashboard.allPayments')}</PanelLink>}
             >
@@ -605,27 +667,34 @@ export function DashboardPage(): React.JSX.Element {
               <dl className="grid grid-cols-2 gap-px border-b border-border-subtle bg-border">
                 {[
                   {
-                    label: 'Captured',
+                    id: 'captured',
+                    label: t('label.captured'),
                     value: money(query.data.payments.captured, query.data.payments.currency),
                     tone: 'text-success',
                   },
                   {
-                    label: 'Refunded',
+                    id: 'refunded',
+                    label: t('label.refunded'),
                     value: money(query.data.payments.refunded, query.data.payments.currency),
                     tone: 'text-ink',
                   },
                   {
-                    label: 'Failed',
+                    id: 'failed',
+                    label: t('dashboard.failed'),
                     value: money(query.data.payments.failed, query.data.payments.currency),
                     tone: 'text-danger',
                   },
                   {
-                    label: 'Refunds issued',
+                    id: 'refundCount',
+                    label: t('dashboard.refundsIssued'),
                     value: formatNumber(query.data.payments.refundCount),
                     tone: 'text-ink',
                   },
+                  // Keyed on the id rather than the label: the label changes
+                  // with the language, and React would tear all four cells
+                  // down and rebuild them on a switch.
                 ].map((cell) => (
-                  <div key={cell.label} className="bg-surface px-4 py-3">
+                  <div key={cell.id} className="bg-surface px-4 py-3">
                     <dt className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
                       {cell.label}
                     </dt>
@@ -637,21 +706,17 @@ export function DashboardPage(): React.JSX.Element {
               </dl>
 
               <DataTable
-                caption="Payments by status"
+                caption={t('dashboard.paymentsByStatus')}
                 columns={paymentColumns}
                 rows={query.data.payments.byStatus}
                 rowKey={(row) => row.status}
-                emptyTitle="No payments in this period"
+                emptyTitle={t('dashboard.noPaymentsInThisPeriod')}
               />
             </Card>
 
             <Card
               title={t('dashboard.lowStock')}
-              description={
-                lowStockCount === 0
-                  ? 'Available quantity at or below the reorder threshold.'
-                  : `${formatNumber(lowStockCount)} product${lowStockCount === 1 ? '' : 's'} at or below the reorder threshold${lowStockCount > lowStockShown ? `, showing the first ${formatNumber(lowStockShown)}` : ''}.`
-              }
+              description={lowStockDescription}
               actions={
                 <PanelLink to="/inventory?lowStockOnly=true">
                   {t('dashboard.allLowStock')}
@@ -659,12 +724,12 @@ export function DashboardPage(): React.JSX.Element {
               }
             >
               <DataTable
-                caption="Low stock"
+                caption={t('dashboard.lowStock')}
                 columns={lowStockColumns}
                 rows={query.data.lowStock.items}
                 rowKey={(row) => `${row.productId}:${row.variantId ?? ''}`}
-                emptyTitle="Nothing is running low"
-                emptyDescription="Every tracked product is above its reorder threshold."
+                emptyTitle={t('dashboard.nothingIsRunningLow')}
+                emptyDescription={t('common.everyTrackedProductIsAbove')}
               />
             </Card>
 
@@ -676,12 +741,12 @@ export function DashboardPage(): React.JSX.Element {
               }
             >
               <DataTable
-                caption="Upcoming recurring orders"
+                caption={t('dashboard.upcomingRecurringOrders')}
                 columns={upcomingColumns}
                 rows={query.data.recurring.upcoming}
                 rowKey={(row) => row.scheduleId}
-                emptyTitle="No upcoming runs"
-                emptyDescription="No active schedule has a run due."
+                emptyTitle={t('dashboard.noUpcomingRuns')}
+                emptyDescription={t('dashboard.noActiveScheduleHasARun')}
               />
             </Card>
 
@@ -694,7 +759,10 @@ export function DashboardPage(): React.JSX.Element {
               <Card
                 className="xl:col-span-2"
                 title={t('dashboard.schedulesThatHaveStopped')}
-                description={`Paused or failed after repeated errors. ${formatNumber(query.data.recurring.failedOccurrences)} occurrence${query.data.recurring.failedOccurrences === 1 ? ' has' : 's have'} failed in total.`}
+                description={t('dashboard.stoppedSchedules', {
+                  count: query.data.recurring.failedOccurrences,
+                  occurrences: formatNumber(query.data.recurring.failedOccurrences),
+                })}
                 actions={
                   <PanelLink to="/recurring?status=PAUSED">
                     {t('dashboard.pausedSchedules')}
@@ -702,11 +770,11 @@ export function DashboardPage(): React.JSX.Element {
                 }
               >
                 <DataTable
-                  caption="Schedules that have stopped"
+                  caption={t('dashboard.schedulesThatHaveStopped')}
                   columns={attentionColumns}
                   rows={needsAttention}
                   rowKey={(row) => row.scheduleId}
-                  emptyTitle="Every schedule is running"
+                  emptyTitle={t('dashboard.everyScheduleIsRunning')}
                 />
               </Card>
             )}

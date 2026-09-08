@@ -43,20 +43,22 @@ import { formatMoney, formatNumber } from '@/lib/format';
 import { clampToRules } from '@/lib/quantity-rules';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { AccountResponse, Address, Cart, Product, ScheduleCreated } from '@/lib/types';
-import { useI18n } from '@/i18n/i18n-context';
+import { translateKey, useI18n } from '@/i18n/i18n-context';
+import type { TranslationKey } from '@/i18n/i18n-context';
+import { errorMessage } from '@/lib/errors';
 
 type Frequency = 'EVERY_N_DAYS' | 'WEEKLY' | 'MONTHLY';
 type PaymentMode = 'AUTO_PAY' | 'PAYMENT_LINK';
 
 const WEEKDAYS = [
-  { value: 1, label: 'Monday' },
-  { value: 2, label: 'Tuesday' },
-  { value: 3, label: 'Wednesday' },
-  { value: 4, label: 'Thursday' },
-  { value: 5, label: 'Friday' },
-  { value: 6, label: 'Saturday' },
-  { value: 7, label: 'Sunday' },
-] as const;
+  { value: 1, labelKey: 'scheduleBuilder.monday' },
+  { value: 2, labelKey: 'scheduleBuilder.tuesday' },
+  { value: 3, labelKey: 'scheduleBuilder.wednesday' },
+  { value: 4, labelKey: 'scheduleBuilder.thursday' },
+  { value: 5, labelKey: 'scheduleBuilder.friday' },
+  { value: 6, labelKey: 'scheduleBuilder.saturday' },
+  { value: 7, labelKey: 'scheduleBuilder.sunday' },
+] as const satisfies readonly { value: number; labelKey: TranslationKey }[];
 
 /** Times of day offered, as minutes past midnight in the schedule's zone. */
 const RUN_TIMES = [
@@ -99,7 +101,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
 
   const fromCart = productId === null;
 
-  useDocumentMeta({ title: 'Set up a repeat purchase', noIndex: true }, business.displayName);
+  useDocumentMeta({ title: t('scheduleBuilder.setUpARepeatPurchase'), noIndex: true }, business.displayName);
 
   const { currency, country } = useLocale();
 
@@ -130,7 +132,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
       if (match === undefined) {
         throw new ApiError(404, {
           code: 'NOT_FOUND',
-          message: 'That product is no longer available for repeat purchase.',
+          message: t('scheduleBuilder.productNoLongerAvailable'),
         });
       }
 
@@ -217,7 +219,10 @@ export function ScheduleBuilderPage(): React.JSX.Element {
       // customer typed — and the functional form keeps `name` out of the
       // dependency list, so this does not re-run on every keystroke.
       if (lines.length > 0) {
-        const suggested = lines.length === 1 ? `Repeat: ${lines[0]?.name ?? ''}` : 'Repeat order';
+        const suggested =
+          lines.length === 1
+            ? t('scheduleBuilder.repeatName', { product: lines[0]?.name ?? '' })
+            : t('scheduleBuilder.repeatOrder');
         setName((current) => (current === '' ? suggested : current));
       }
       return;
@@ -248,8 +253,10 @@ export function ScheduleBuilderPage(): React.JSX.Element {
       },
     ]);
 
-    setName((current) => (current === '' ? `Repeat: ${found.name}` : current));
-  }, [fromCart, cart.data, product.data, requestedQuantity, variantId]);
+    setName((current) =>
+      current === '' ? t('scheduleBuilder.repeatName', { product: found.name }) : current,
+    );
+  }, [fromCart, cart.data, product.data, requestedQuantity, variantId, t]);
 
   const create = useMutation({
     mutationFn: () =>
@@ -285,14 +292,12 @@ export function ScheduleBuilderPage(): React.JSX.Element {
     },
     onError: (error) => {
       if (error instanceof NetworkError) {
-        setSubmitError(error.message);
+        setSubmitError(errorMessage(t, error));
         return;
       }
 
       setSubmitError(
-        error instanceof ApiError
-          ? error.message
-          : 'The repeat purchase could not be set up. Please try again.',
+        errorMessage(t, error, t('scheduleBuilder.couldNotBeSetUp')),
       );
     },
   });
@@ -334,8 +339,8 @@ export function ScheduleBuilderPage(): React.JSX.Element {
         title={t('scheduleBuilder.nothingToRepeatYet')}
         description={
           fromCart
-            ? 'None of the items in your cart can be set up as a repeat purchase. Look for the “Repeat purchase” label on a product.'
-            : 'This product cannot be set up as a repeat purchase.'
+            ? t('scheduleBuilder.noneOfTheItems')
+            : t('scheduleBuilder.thisProductCannot')
         }
         action={
           <ButtonLink to="/products" variant="primary" size="lg">
@@ -360,12 +365,20 @@ export function ScheduleBuilderPage(): React.JSX.Element {
     !create.isPending;
 
   /** A plain-language description of what was chosen, for the summary. */
+  const weekdayKey = WEEKDAYS.find((day) => day.value === weekday)?.labelKey;
+
   const cadence =
     frequency === 'EVERY_N_DAYS'
-      ? `Every ${formatNumber(intervalDays)} day${intervalDays === 1 ? '' : 's'}`
+      ? t('scheduleBuilder.everyNDays', {
+          count: intervalDays,
+          days: formatNumber(intervalDays),
+        })
       : frequency === 'WEEKLY'
-        ? `Every ${WEEKDAYS.find((day) => day.value === weekday)?.label ?? 'week'}`
-        : `On day ${formatNumber(monthDay)} of each month`;
+        ? t('scheduleBuilder.everyWeekday', {
+            weekday:
+              weekdayKey === undefined ? t('scheduleBuilder.week') : translateKey(t, weekdayKey),
+          })
+        : t('scheduleBuilder.onDayOfEachMonth', { day: formatNumber(monthDay) });
 
   const timeLabel = RUN_TIMES.find((time) => time.value === runAtMinute)?.label ?? '06:00';
 
@@ -493,7 +506,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                     >
                       {WEEKDAYS.map((day) => (
                         <option key={day.value} value={day.value}>
-                          {day.label}
+                          {translateKey(t, day.labelKey)}
                         </option>
                       ))}
                     </Select>
@@ -530,7 +543,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field
                   label={t('scheduleBuilder.timeOfDay')}
-                  hint={`Your local time (${business.timezone}).`}
+                  hint={t('scheduleBuilder.yourLocalTime', { timezone: business.timezone })}
                 >
                   {({ inputId, describedBy }) => (
                     <Select
@@ -702,7 +715,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                   setIsAddingAddress(true);
                 }}
               >
-                {usableAddresses.length === 0 ? 'Add an address' : 'Add a different address'}
+                {usableAddresses.length === 0 ? t('scheduleBuilder.addAnAddress') : t('scheduleBuilder.addADifferentAddress')}
               </Button>
             )}
           </section>
@@ -783,7 +796,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                   hint={t('scheduleBuilder.yourOwnAddressIsFilled')}
                   error={
                     payerEmail.trim() !== '' && !/^\S+@\S+\.\S+$/.test(payerEmail.trim())
-                      ? 'Enter a valid email address.'
+                      ? t('validation.emailInvalid')
                       : undefined
                   }
                   required
@@ -863,10 +876,10 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                 <dt className="text-ink-muted">{t('scheduleBuilder.ends')}</dt>
                 <dd className="text-right text-ink">
                   {endMode === 'never'
-                    ? 'When you cancel'
+                    ? t('scheduleBuilder.whenYouCancel')
                     : endMode === 'date'
                       ? endDate === ''
-                        ? 'Choose a date'
+                        ? t('scheduleBuilder.chooseADate')
                         : endDate
                       : `After ${formatNumber(maxOccurrences)} deliveries`}
                 </dd>
@@ -890,8 +903,8 @@ export function ScheduleBuilderPage(): React.JSX.Element {
               {cartTotals === undefined ? (
                 <p className="mt-1 text-sm text-ink">
                   {items[0]?.unitPrice === null || items[0]?.unitPrice === undefined
-                    ? 'Calculated at each delivery'
-                    : `${formatMoney(items[0].unitPrice)} per unit`}
+                    ? t('scheduleBuilder.calculatedAtEachDelivery')
+                    : t('scheduleBuilder.perUnit', { amount: formatMoney(items[0].unitPrice) })}
                 </p>
               ) : (
                 <p className="mt-1 text-lg font-semibold tabular text-ink">
@@ -922,10 +935,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                   setConsentAccepted(event.target.checked);
                 }}
               />
-              <span>
-                I authorise {business.displayName} to place this order on the schedule above, and I
-                understand the amount is recalculated for each delivery.
-              </span>
+              <span>{t('scheduleBuilder.consentAuthorise', { store: business.displayName })}</span>
             </label>
 
             <Button

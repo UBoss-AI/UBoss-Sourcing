@@ -32,32 +32,38 @@ import { useToast } from '@/components/toast-context';
 import { Badge, Button, Callout, Card, Field, Input } from '@/components/ui';
 import { ApiError, api } from '@/lib/api';
 import { applyApiErrors } from '@/lib/forms';
-import { formatNumber, majorToMinor, minorToMajor } from '@/lib/format';
+import { formatMoney, formatNumber, majorToMinor, minorToMajor } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
 import type { VariantRow } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
+import type { Translate } from '@/i18n/i18n-context';
 
-const variantSchema = z.object({
-  sku: z.string().trim().min(1, 'A SKU is required.').max(64),
-  name: z.string().trim().min(1, 'Give the variant a name.').max(255),
+// A function of `t`, not a frozen schema: the messages in it are read by a
+// person, and a schema built at import time would report them in whichever
+// language happened to load first. Same shape as `buildSchema` in LoginPage.
+function buildVariantSchema(t: Translate) {
+  return z.object({
+  sku: z.string().trim().min(1, t('validation.skuRequired')).max(64),
+  name: z.string().trim().min(1, t('variants.giveTheVariantAName')).max(255),
   price: z.union([
     z
       .string()
       .trim()
-      .regex(/^\d+(\.\d{1,2})?$/, 'Enter an amount like 45.50, or leave blank.'),
+      .regex(/^\d+(\.\d{1,2})?$/, t('variants.enterAnAmountOrLeaveBlank')),
     z.literal(''),
   ]),
   options: z
     .array(
       z.object({
-        key: z.string().trim().min(1, 'Name the option.'),
-        value: z.string().trim().min(1, 'Give the option a value.'),
+        key: z.string().trim().min(1, t('variants.nameTheOption')),
+        value: z.string().trim().min(1, t('variants.giveTheOptionAValue')),
       }),
     )
-    .min(1, 'A variant needs at least one option, e.g. Size = 1L.'),
-});
+    .min(1, t('variants.aVariantNeedsAtLeastOneOptionEg')),
+  });
+}
 
-type VariantForm = z.output<typeof variantSchema>;
+type VariantForm = z.output<ReturnType<typeof buildVariantSchema>>;
 
 const FORM_FIELDS = ['sku', 'name', 'price', 'options'] as const;
 
@@ -83,7 +89,7 @@ function VariantEditor({
     setError,
     formState: { errors },
   } = useForm<VariantForm>({
-    resolver: zodResolver(variantSchema),
+    resolver: zodResolver(buildVariantSchema(t)),
     defaultValues: {
       sku: editing?.sku ?? '',
       name: editing?.name ?? '',
@@ -111,13 +117,13 @@ function VariantEditor({
         : api.patch(`/admin/products/${productId}/variants/${editing.id}`, body);
     },
     onSuccess: async () => {
-      toast.success(editing === null ? 'Variant added.' : 'Variant saved.');
+      toast.success(editing === null ? t('variants.variantAdded') : t('variants.variantSaved'));
       await queryClient.invalidateQueries({ queryKey: ['variants', productId] });
       await queryClient.invalidateQueries({ queryKey: ['product', productId] });
       onClose();
     },
     onError: (error) => {
-      setFormError(applyApiErrors(error, setError, FORM_FIELDS));
+      setFormError(applyApiErrors(error, setError, FORM_FIELDS, t('common.theRequestFailed')));
     },
   });
 
@@ -129,13 +135,13 @@ function VariantEditor({
     <Modal
       isOpen
       onClose={onClose}
-      title={editing === null ? 'New variant' : `Edit ${editing.name}`}
+      title={editing === null ? t('variants.newVariant') : `Edit ${editing.name}`}
       description={t('variants.leaveThePriceBlankTo')}
       footer={
         <>
           <Button onClick={onClose}>{t('variants.cancel')}</Button>
           <Button variant="primary" isLoading={mutation.isPending} onClick={submit}>
-            {editing === null ? 'Add variant' : 'Save variant'}
+            {editing === null ? t('variants.addVariant') : t('variants.saveVariant')}
           </Button>
         </>
       }
@@ -155,7 +161,7 @@ function VariantEditor({
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
-            label="SKU"
+            label={t('label.sku')}
             hint={t('variants.sharesOneNamespaceWithProduct')}
             error={errors.sku?.message}
             required
@@ -246,7 +252,7 @@ function VariantEditor({
                   aria-label={`Remove option ${String(index + 1)}`}
                   disabled={options.fields.length === 1}
                   title={
-                    options.fields.length === 1 ? 'A variant needs at least one option.' : undefined
+                    options.fields.length === 1 ? t('variants.aVariantNeedsAtLeastOneOption') : undefined
                   }
                   onClick={() => {
                     options.remove(index);
@@ -276,7 +282,11 @@ function VariantEditor({
 export function VariantsPanel({ productId }: { productId: string }): React.JSX.Element {
   const { t } = useI18n();
 
-  const { can } = useSession();
+  const { can, user } = useSession();
+
+  // The market this session quotes for. Named in the blank cells, because
+  // "not priced in EUR" is a fact about a currency and useless without it.
+  const marketCurrency = user?.locationCurrency ?? null;
   const queryClient = useQueryClient();
   const toast = useToast();
 
@@ -293,14 +303,14 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
       api.delete<{ deleted: boolean }>(`/admin/products/${productId}/variants/${variant.id}`),
     onSuccess: async (result) => {
       toast.success(
-        result.deleted ? 'Variant deleted.' : 'Variant archived — orders reference it.',
+        result.deleted ? t('variants.variantDeleted') : t('variants.variantArchivedOrdersReference'),
       );
       setRemoving(null);
       await queryClient.invalidateQueries({ queryKey: ['variants', productId] });
       await queryClient.invalidateQueries({ queryKey: ['product', productId] });
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : 'The variant could not be removed.');
+      toast.error(error instanceof ApiError ? error.message : t('variants.theVariantCouldNotBeRemoved'));
     },
   });
 
@@ -309,19 +319,23 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
   /**
    * Whether the customer-facing column has anything to say.
    *
-   * Only where an override becomes a different figure for the chosen market -
+   * Only where an override becomes something different for the chosen market -
    * the same rule as the product list and the price card. With no EU VAT
-   * configured, or on the seller's own market, it repeats the column beside it
-   * and is left out.
+   * configured, and on the seller's own market in its own currency, it repeats
+   * the column beside it and is left out.
+   *
+   * An override with no quote counts as something to say: it means this variant
+   * carries a price, but not one in the market's currency, and staff pricing
+   * that market need to see the hole rather than an empty column.
    */
   const showsQuoted = (query.data?.variants ?? []).some(
-    (row) => row.quotedMinor !== null && row.quotedMinor !== row.priceMinor,
+    (row) => row.priceMinor !== null && (row.quoted === null || row.quoted.minor !== row.priceMinor),
   );
 
   const columns: Column<VariantRow>[] = [
     {
       key: 'name',
-      header: 'Variant',
+      header: t('label.variant'),
       render: (row) => (
         <div>
           <p className="font-medium text-ink">{row.name}</p>
@@ -331,7 +345,7 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
     },
     {
       key: 'options',
-      header: 'Options',
+      header: t('label.options'),
       secondary: true,
       render: (row) => (
         <div className="flex flex-wrap gap-1">
@@ -345,7 +359,7 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
     },
     {
       key: 'price',
-      header: 'Price',
+      header: t('label.price'),
       align: 'right',
       nowrap: true,
       render: (row) =>
@@ -366,13 +380,25 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
             align: 'right' as const,
             nowrap: true,
             render: (row: VariantRow) =>
-              row.quotedMinor === null ? (
-                // Nothing of its own to convert. The price card above quotes
-                // the figure this row is actually sold at.
-                <span className="text-ink-subtle">—</span>
+              row.quoted === null ? (
+                // Two different reasons for the same blank, and the row itself
+                // says which: no override at all means it is sold at the
+                // product's price, quoted on the card above; an override with
+                // no figure in the market's currency means it is not sold in
+                // this market, and that is worth wording rather than dashing.
+                row.priceMinor === null ? (
+                  <span className="text-ink-subtle">—</span>
+                ) : (
+                  <span className="text-xxs font-normal text-ink-subtle">
+                    {t('market.notPricedIn', { currency: marketCurrency ?? '' })}
+                  </span>
+                )
               ) : (
                 <>
-                  <span className="font-medium">{minorToMajor(row.quotedMinor)}</span>
+                  {/* Formatted with its currency, unlike the override beside
+                      it: the two can be in different currencies, and a bare
+                      number would leave the reader to guess which. */}
+                  <span className="font-medium">{formatMoney(row.quoted)}</span>
                   {row.quotedTax !== null && (
                     <span className="ml-2 text-xxs text-ink-muted">
                       {row.quotedTax.inclusive
@@ -387,7 +413,7 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
       : []),
     {
       key: 'available',
-      header: 'Available',
+      header: t('label.available'),
       align: 'right',
       render: (row) => (
         // A variant nobody can buy is worth spotting from the product page,
@@ -401,7 +427,7 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
     },
     {
       key: 'status',
-      header: 'Status',
+      header: t('label.status'),
       render: (row) =>
         row.archivedAt !== null ? (
           <Badge dot tone="danger">
@@ -466,21 +492,21 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
         }
       >
         <DataTable
-          caption="Variants"
+          caption={t('label.variants')}
           columns={columns}
           rows={query.data?.variants}
           rowKey={(row) => row.id}
           isLoading={query.isPending}
           error={query.isError ? query.error : undefined}
-          loadingLabel="Loading variants"
+          loadingLabel={t('variants.loadingVariants')}
           // Wider with the preview column in, so the options badges keep their
           // line rather than the table cramming seven columns into six.
           minWidth={showsQuoted ? '58rem' : '52rem'}
           onRetry={() => {
             void query.refetch();
           }}
-          emptyTitle="No variants"
-          emptyDescription="This product is sold as a single item. Adding a variant switches it into variant mode."
+          emptyTitle={t('variants.noVariants')}
+          emptyDescription={t('variants.soldAsASingleItem')}
         />
       </Card>
 
@@ -505,8 +531,8 @@ export function VariantsPanel({ productId }: { productId: string }): React.JSX.E
         title={`Remove ${removing?.name ?? 'variant'}?`}
         confirmLabel={
           (removing?.orderCount ?? 0) > 0 || (removing?.onHandQty ?? 0) > 0
-            ? 'Archive variant'
-            : 'Delete variant'
+            ? t('variants.archiveVariant')
+            : t('variants.deleteVariant')
         }
         isDangerous
         isWorking={remove.isPending}

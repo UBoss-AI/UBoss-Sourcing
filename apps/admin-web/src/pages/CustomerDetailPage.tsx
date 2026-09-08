@@ -223,7 +223,7 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
       });
     },
     onSuccess: async () => {
-      toast.success('Limits saved.');
+      toast.success(t('customerDetail.limitsSaved'));
       setFormError(null);
       await queryClient.invalidateQueries({ queryKey: ['customer', customer.id] });
     },
@@ -231,7 +231,7 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
       setFormError(
         error instanceof ApiError || error instanceof Error
           ? error.message
-          : 'Those limits could not be saved.',
+          : t('customerDetail.thoseLimitsCouldNotBeSaved'),
       );
     },
   });
@@ -374,8 +374,8 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
                   label={`Approval above (${selected})`}
                   hint={
                     approval
-                      ? 'Blank means every order needs approval.'
-                      : 'Only used while approvals are on, which they are not.'
+                      ? t('customerDetail.blankMeansEveryOrderNeeds')
+                      : t('customerDetail.onlyUsedWhileApprovalsAreOn')
                   }
                 >
                   {({ inputId, describedBy }) => (
@@ -456,23 +456,23 @@ export function CustomerDetailPage(): React.JSX.Element {
   const invite = useMutation({
     mutationFn: () => api.post(`/admin/customers/${String(id)}/invite`),
     onSuccess: async () => {
-      toast.success('Invitation sent.');
+      toast.success(t('customerDetail.invitationSent'));
       await queryClient.invalidateQueries({ queryKey: ['customer', id] });
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : 'The invitation could not be sent.');
+      toast.error(error instanceof ApiError ? error.message : t('customerDetail.theInvitationCouldNotBeSent'));
     },
   });
 
   const approve = useMutation({
     mutationFn: () => api.post(`/admin/customers/${String(id)}/approve`, {}),
     onSuccess: async () => {
-      toast.success('Customer approved. They can sign in now.');
+      toast.success(t('customerDetail.customerApproved'));
       await queryClient.invalidateQueries({ queryKey: ['customer', id] });
       await queryClient.invalidateQueries({ queryKey: ['customers'] });
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : 'The customer could not be approved.');
+      toast.error(error instanceof ApiError ? error.message : t('customerDetail.theCustomerCouldNotBeApproved'));
     },
   });
 
@@ -480,13 +480,13 @@ export function CustomerDetailPage(): React.JSX.Element {
     mutationFn: (active: boolean) => api.patch(`/admin/customers/${String(id)}/status`, { active }),
     onSuccess: async (_result, active) => {
       setSuspending(false);
-      toast.success(active ? 'Customer reactivated.' : 'Customer suspended.');
+      toast.success(active ? t('customerDetail.customerReactivated') : t('customerDetail.customerSuspended'));
       await queryClient.invalidateQueries({ queryKey: ['customer', id] });
       await queryClient.invalidateQueries({ queryKey: ['customers'] });
     },
     onError: (error) => {
       setSuspending(false);
-      toast.error(error instanceof ApiError ? error.message : 'The status could not be changed.');
+      toast.error(error instanceof ApiError ? error.message : t('common.statusCouldNotBeChanged'));
     },
   });
 
@@ -495,7 +495,7 @@ export function CustomerDetailPage(): React.JSX.Element {
       <>
         <PageHeader
           title={t('customerDetail.customer')}
-          back={{ to: '/customers', label: 'Back to customers' }}
+          back={{ to: '/customers', label: t('customerDetail.backToCustomers') }}
         />
         <Card>
           <LoadingState label={t('customerDetail.loadingTheCustomer')} />
@@ -509,7 +509,7 @@ export function CustomerDetailPage(): React.JSX.Element {
       <>
         <PageHeader
           title={t('customerDetail.customer')}
-          back={{ to: '/customers', label: 'Back to customers' }}
+          back={{ to: '/customers', label: t('customerDetail.backToCustomers') }}
         />
         <Card>
           <ErrorState
@@ -531,7 +531,7 @@ export function CustomerDetailPage(): React.JSX.Element {
     <>
       <PageHeader
         title={customer.fullName ?? customer.email}
-        back={{ to: '/customers', label: 'Back to customers' }}
+        back={{ to: '/customers', label: t('customerDetail.backToCustomers') }}
         description={customer.organization ?? customer.email}
         meta={
           <Badge dot tone={customerStatusTone(customer.status)}>
@@ -546,13 +546,13 @@ export function CustomerDetailPage(): React.JSX.Element {
             <DescriptionList
               className="px-5 py-4"
               items={[
-                { label: 'Email', value: customer.email },
-                { label: 'Contact', value: customer.fullName ?? '—' },
-                { label: 'Organisation', value: customer.organization ?? '—' },
-                { label: 'Department', value: customer.department ?? '—' },
-                { label: 'Phone', value: customer.phone ?? '—' },
+                { label: t('label.email'), value: customer.email },
+                { label: t('label.contact'), value: customer.fullName ?? '—' },
+                { label: t('label.organisation'), value: customer.organization ?? '—' },
+                { label: t('label.department'), value: customer.department ?? '—' },
+                { label: t('label.phone'), value: customer.phone ?? '—' },
                 {
-                  label: 'GSTIN',
+                  label: t('label.gstin'),
                   value:
                     customer.gstin === null ? (
                       '—'
@@ -561,7 +561,7 @@ export function CustomerDetailPage(): React.JSX.Element {
                     ),
                 },
                 {
-                  label: 'EU VAT number',
+                  label: t('label.euVatNumber'),
                   value:
                     customer.vatNumber === null ? (
                       '—'
@@ -570,7 +570,7 @@ export function CustomerDetailPage(): React.JSX.Element {
                     ),
                 },
                 {
-                  label: 'Customer code',
+                  label: t('label.customerCode'),
                   value:
                     customer.customerCode === null ? (
                       '—'
@@ -578,9 +578,9 @@ export function CustomerDetailPage(): React.JSX.Element {
                       <span className="font-mono">{customer.customerCode}</span>
                     ),
                 },
-                { label: 'Invited', value: formatDateTime(customer.invitedAt) },
-                { label: 'Activated', value: formatDateTime(customer.activatedAt) },
-                { label: 'Last sign-in', value: formatDateTime(customer.lastLoginAt) },
+                { label: t('label.invited'), value: formatDateTime(customer.invitedAt) },
+                { label: t('label.activated'), value: formatDateTime(customer.activatedAt) },
+                { label: t('label.lastSignIn'), value: formatDateTime(customer.lastLoginAt) },
               ]}
             />
           </Card>
@@ -603,7 +603,7 @@ export function CustomerDetailPage(): React.JSX.Element {
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-sm font-medium text-ink">{address.contactName}</span>
                       <Badge>
-                        {address.kind === 'BOTH' ? 'Billing & shipping' : humanise(address.kind)}
+                        {address.kind === 'BOTH' ? t('customerDetail.billingAndShipping') : humanise(address.kind)}
                       </Badge>
                       {address.isDefaultShipping && (
                         <Badge tone="accent">{t('customerDetail.defaultShipping')}</Badge>
@@ -651,16 +651,13 @@ export function CustomerDetailPage(): React.JSX.Element {
                 <>
                   {customer.emailVerifiedAt === null && customer.status !== 'ACTIVE' && (
                     <Callout tone="warning">
-                      Signed up on the website and has not opened the confirmation link yet.
-                      There is nothing to approve until they do — until then we have no evidence
-                      the address belongs to whoever filled the form in.
+                      {t('customerDetail.signedUpNotConfirmed')}
                     </Callout>
                   )}
 
                   {customer.emailVerifiedAt !== null && customer.status === 'PENDING_APPROVAL' && (
                     <Callout tone="warning">
-                      Signed up on the website and confirmed their email. They cannot order until
-                      you approve them.
+                      {t('customerDetail.signedUpConfirmedNeedsApproval')}
                     </Callout>
                   )}
 
@@ -699,7 +696,7 @@ export function CustomerDetailPage(): React.JSX.Element {
                         invite.mutate();
                       }}
                     >
-                      {customer.invitedAt === null ? 'Send invitation' : 'Resend invitation'}
+                      {customer.invitedAt === null ? t('customerDetail.sendInvitation') : t('customerDetail.resendInvitation')}
                     </Button>
                   )}
                 </>
@@ -721,12 +718,12 @@ export function CustomerDetailPage(): React.JSX.Element {
                       else setStatus.mutate(true);
                     }}
                   >
-                    {isActive ? 'Suspend customer' : 'Reactivate customer'}
+                    {isActive ? t('customerDetail.suspendCustomer') : t('customerDetail.reactivateCustomer')}
                   </Button>
                   <p className="mt-2 text-xxs leading-relaxed text-ink-muted">
                     {isActive
-                      ? 'Stops them signing in and ordering. Existing orders and schedules are untouched.'
-                      : 'Lets them sign in and order again on the same terms as before.'}
+                      ? t('customerDetail.stopsThemSigningIn')
+                      : t('customerDetail.letsThemSignInAgain')}
                   </p>
                 </div>
               )}

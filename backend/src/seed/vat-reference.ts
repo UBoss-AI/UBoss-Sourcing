@@ -43,6 +43,19 @@ interface EuCountrySeed {
   name: string;
   currencyCode: string;
   phonePrefix: string;
+  /**
+   * The interface language an office here works in, absent where the panel
+   * ships no catalogue for it.
+   *
+   * The admin console adopts this for a member of staff whose sign-in resolved
+   * to this country. Absent is not English: it means their own choice is left
+   * where it was, which is the right answer for a Prague office when there is
+   * no Czech catalogue to switch them to.
+   *
+   * Only the eight the frontends ship appear below - `SUPPORTED_LANGUAGES` in
+   * the language service is the list this has to stay inside.
+   */
+  languageCode?: string;
   /** Standard rate. Every member state has one. */
   standard: string;
   /** Annex III bands, highest first. Empty where the state has none. */
@@ -59,29 +72,33 @@ interface EuCountrySeed {
  * cannot answer, and a catalogue manager who needs the lower one adds the row.
  */
 const EU_MEMBER_STATES: readonly EuCountrySeed[] = [
-  { code: 'AT', name: 'Austria', currencyCode: 'EUR', phonePrefix: '+43', standard: '20', reduced: '13' },
-  { code: 'BE', name: 'Belgium', currencyCode: 'EUR', phonePrefix: '+32', standard: '21', reduced: '12' },
+  { code: 'AT', name: 'Austria', currencyCode: 'EUR', phonePrefix: '+43', languageCode: 'de', standard: '20', reduced: '13' },
+  // Dutch here is a choice rather than a certainty: it is the larger of the
+  // two communities, and a Brussels office changes this one row to French.
+  { code: 'BE', name: 'Belgium', currencyCode: 'EUR', phonePrefix: '+32', languageCode: 'nl', standard: '21', reduced: '12' },
   { code: 'BG', name: 'Bulgaria', currencyCode: 'BGN', phonePrefix: '+359', standard: '20', reduced: '9' },
-  { code: 'CY', name: 'Cyprus', currencyCode: 'EUR', phonePrefix: '+357', standard: '19', reduced: '9' },
+  { code: 'CY', name: 'Cyprus', currencyCode: 'EUR', phonePrefix: '+357', languageCode: 'el', standard: '19', reduced: '9' },
   { code: 'CZ', name: 'Czechia', currencyCode: 'CZK', phonePrefix: '+420', standard: '21', reduced: '12' },
   // No reduced band at all. The absence is the data.
   { code: 'DK', name: 'Denmark', currencyCode: 'DKK', phonePrefix: '+45', standard: '25' },
-  { code: 'DE', name: 'Germany', currencyCode: 'EUR', phonePrefix: '+49', standard: '19', reduced: '7' },
+  { code: 'DE', name: 'Germany', currencyCode: 'EUR', phonePrefix: '+49', languageCode: 'de', standard: '19', reduced: '7' },
   { code: 'EE', name: 'Estonia', currencyCode: 'EUR', phonePrefix: '+372', standard: '24', reduced: '9' },
-  { code: 'ES', name: 'Spain', currencyCode: 'EUR', phonePrefix: '+34', standard: '21', reduced: '10', superReduced: '4' },
+  { code: 'ES', name: 'Spain', currencyCode: 'EUR', phonePrefix: '+34', languageCode: 'es', standard: '21', reduced: '10', superReduced: '4' },
   { code: 'FI', name: 'Finland', currencyCode: 'EUR', phonePrefix: '+358', standard: '25.5', reduced: '14' },
-  { code: 'FR', name: 'France', currencyCode: 'EUR', phonePrefix: '+33', standard: '20', reduced: '10', superReduced: '2.1' },
-  { code: 'GR', name: 'Greece', currencyCode: 'EUR', phonePrefix: '+30', standard: '24', reduced: '13' },
+  { code: 'FR', name: 'France', currencyCode: 'EUR', phonePrefix: '+33', languageCode: 'fr', standard: '20', reduced: '10', superReduced: '2.1' },
+  { code: 'GR', name: 'Greece', currencyCode: 'EUR', phonePrefix: '+30', languageCode: 'el', standard: '24', reduced: '13' },
   { code: 'HR', name: 'Croatia', currencyCode: 'EUR', phonePrefix: '+385', standard: '25', reduced: '13' },
   { code: 'HU', name: 'Hungary', currencyCode: 'HUF', phonePrefix: '+36', standard: '27', reduced: '18' },
-  { code: 'IE', name: 'Ireland', currencyCode: 'EUR', phonePrefix: '+353', standard: '23', reduced: '13.5', superReduced: '4.8' },
-  { code: 'IT', name: 'Italy', currencyCode: 'EUR', phonePrefix: '+39', standard: '22', reduced: '10', superReduced: '4' },
+  { code: 'IE', name: 'Ireland', currencyCode: 'EUR', phonePrefix: '+353', languageCode: 'en', standard: '23', reduced: '13.5', superReduced: '4.8' },
+  { code: 'IT', name: 'Italy', currencyCode: 'EUR', phonePrefix: '+39', languageCode: 'it', standard: '22', reduced: '10', superReduced: '4' },
   { code: 'LT', name: 'Lithuania', currencyCode: 'EUR', phonePrefix: '+370', standard: '21', reduced: '9' },
-  { code: 'LU', name: 'Luxembourg', currencyCode: 'EUR', phonePrefix: '+352', standard: '17', reduced: '8', superReduced: '3' },
+  // French rather than German or Luxembourgish: it is the language of the
+  // administration, and there is no Luxembourgish catalogue to offer.
+  { code: 'LU', name: 'Luxembourg', currencyCode: 'EUR', phonePrefix: '+352', languageCode: 'fr', standard: '17', reduced: '8', superReduced: '3' },
   { code: 'LV', name: 'Latvia', currencyCode: 'EUR', phonePrefix: '+371', standard: '21', reduced: '12' },
-  { code: 'MT', name: 'Malta', currencyCode: 'EUR', phonePrefix: '+356', standard: '18', reduced: '7' },
-  { code: 'NL', name: 'Netherlands', currencyCode: 'EUR', phonePrefix: '+31', standard: '21', reduced: '9' },
-  { code: 'PL', name: 'Poland', currencyCode: 'PLN', phonePrefix: '+48', standard: '23', reduced: '8' },
+  { code: 'MT', name: 'Malta', currencyCode: 'EUR', phonePrefix: '+356', languageCode: 'en', standard: '18', reduced: '7' },
+  { code: 'NL', name: 'Netherlands', currencyCode: 'EUR', phonePrefix: '+31', languageCode: 'nl', standard: '21', reduced: '9' },
+  { code: 'PL', name: 'Poland', currencyCode: 'PLN', phonePrefix: '+48', languageCode: 'pl', standard: '23', reduced: '8' },
   { code: 'PT', name: 'Portugal', currencyCode: 'EUR', phonePrefix: '+351', standard: '23', reduced: '13' },
   { code: 'RO', name: 'Romania', currencyCode: 'RON', phonePrefix: '+40', standard: '21', reduced: '11' },
   { code: 'SE', name: 'Sweden', currencyCode: 'SEK', phonePrefix: '+46', standard: '25', reduced: '12' },
@@ -219,9 +236,13 @@ export const EU_COUNTRY_SEEDS: readonly {
   name: string;
   currencyCode: string;
   phonePrefix: string;
+  languageCode?: string;
 }[] = EU_MEMBER_STATES.map((state) => ({
   code: state.code,
   name: state.name,
   currencyCode: state.currencyCode,
   phonePrefix: state.phonePrefix,
+  // Spread rather than assigned, so a state with no catalogue stays absent
+  // rather than arriving as an explicit undefined.
+  ...(state.languageCode === undefined ? {} : { languageCode: state.languageCode }),
 }));

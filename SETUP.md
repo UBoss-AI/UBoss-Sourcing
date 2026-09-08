@@ -278,25 +278,50 @@ Three things change once the app is reached from outside:
 3. **A free tunnel gives out one hostname**, and there are two frontends.
 
 `npm run dev:tunnel` handles the first two: it turns off the host check, fixes
-the hot-reload socket to the tunnel's port 443, binds the server to `127.0.0.1`
-(Windows resolves the *name* `localhost` to IPv6 `::1` first, and the ngrok
-agent dials IPv4 — so a name-bound server is invisible to it), and serves the
-admin panel under `/admin` so both fit behind one hostname.
+the hot-reload socket to the tunnel's port 443, and serves the admin panel
+under `/admin` so both fit behind one hostname.
 
-## One-time: point the frontends at a relative API path
+> The first of those is also settled permanently by `TUNNEL_HOST`, below, which
+> both dev servers honour in **every** mode. Set it once and starting the
+> ordinary `npm run dev` out of habit no longer greets you with *"Blocked
+> request"* — the page loads either way, and what you give up by not using
+> `dev:tunnel` is hot reload and the `/admin` proxy, not the whole site. The
+> host check itself stays on: that one hostname is added to it, nothing else.
+
+> Both dev servers bind `127.0.0.1` in **every** mode, not only under a
+> tunnel. Vite's default host is the *name* `localhost`, which Windows resolves
+> to IPv6 `::1` first — leaving the server answering on IPv6 only. A browser
+> asking for `http://localhost:5173` still gets through (it retries the other
+> family), but `http://127.0.0.1:5173` does not, and neither does the ngrok
+> agent, which dials IPv4 and reports the upstream as refused. Either way the
+> server is still loopback-only; `npm run dev -- --host` is what puts it on the
+> network.
+
+## One-time: the two settings the frontends need
 
 Create `.env.local` in **both** app folders:
 
 ```
 # apps/customer-web/.env.local  and  apps/admin-web/.env.local
 VITE_API_BASE_URL=/api/v1
+TUNNEL_HOST=your-reserved-name.ngrok-free.dev
 ```
 
-The committed `.env` uses an absolute `http://localhost:4000/api/v1`, which
-breaks for a remote visitor. A relative path is served from whatever origin the
-page came from, and the Vite dev server proxies `/api` and `/media` through to
-the API. `.env.local` is gitignored and overrides `.env`, so this does not
-affect anyone else.
+`VITE_API_BASE_URL` — the committed `.env` uses an absolute
+`http://localhost:4000/api/v1`, which breaks for a remote visitor. A relative
+path is served from whatever origin the page came from, and the Vite dev server
+proxies `/api` and `/media` through to the API.
+
+`TUNNEL_HOST` — the hostname each dev server will answer to besides
+`localhost`, which is what stops *"Blocked request. This host is not allowed."*
+A **bare hostname**: no `https://`, no trailing slash, no path. It is the domain
+you reserve in the next step, so come back and fill it in once you have it.
+Leave it out entirely on a machine that never tunnels and the host check simply
+stays at its default.
+
+`.env.local` is gitignored and overrides `.env`, so neither setting affects
+anyone else — which is also why the hostname belongs here rather than in the
+committed `.env`: it is yours, not the project's.
 
 ## One-time: reserve a domain and configure the agent
 
@@ -358,12 +383,16 @@ cd apps/customer-web && npm run dev:tunnel
 ngrok start shop
 ```
 
-Before moving on from step 4, confirm **both** of these in the Vite output:
+Before moving on from step 4, confirm the **tunnel badge** in the Vite output:
 
 ```
 VITE v6.4.3  tunnel  ready in 317 ms      <- the "tunnel" badge
-➜  Local:   http://127.0.0.1:5174/         <- 127.0.0.1, not localhost
+➜  Local:   http://127.0.0.1:5174/         <- printed in every mode now
 ```
+
+The badge is the whole signal. The `127.0.0.1` line used to be the other half
+of it, back when only tunnel mode bound that address; both modes bind it today,
+so it no longer tells you which one you are in.
 
 And in step 5:
 
@@ -406,7 +435,7 @@ before or after the tunnel.
 
 | What you see | What it means | What to do |
 |---|---|---|
-| `Blocked request. This host is not allowed.` | Vite is in plain `dev` mode | `Ctrl+C`, then `npm run dev:tunnel` |
+| `Blocked request. This host is not allowed.` | `TUNNEL_HOST` is unset, or does not match the hostname in the message | Set it in **both** `apps/*/.env.local`, bare hostname only. Vite restarts itself when you save |
 | `Port 5174 is already in use` | An older server is still alive | Run the stop commands in Part 2 |
 | `ERR_NGROK_3200` endpoint offline | No agent is running on that domain | Check terminal 5; check `domain:` in `ngrok.yml` |
 | `ERR_NGROK_8012` connection refused | Tunnel is up, but it cannot reach Vite | Is step 4 running? Did it print the `tunnel` badge? |

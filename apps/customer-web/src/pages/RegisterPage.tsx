@@ -45,6 +45,7 @@ import { useI18n } from '@/i18n/i18n-context';
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
 import { ApiError, NetworkError, api } from '@/lib/api';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { errorMessage } from '@/lib/errors';
 
 /**
  * Built per render, not once at module scope.
@@ -171,7 +172,7 @@ function RegistrationForm(): React.JSX.Element {
       setSubmitted({ email: values.email, requiresApproval: result.requiresApproval });
     } catch (error) {
       if (error instanceof NetworkError) {
-        setFormError(error.message);
+        setFormError(errorMessage(t, error));
         return;
       }
 
@@ -455,9 +456,7 @@ function CheckYourEmail({
       setResent(true);
     } catch (error) {
       setResendError(
-        error instanceof ApiError || error instanceof NetworkError
-          ? error.message
-          : t('auth.register.resendFailed'),
+        errorMessage(t, error, t('auth.register.resendFailed')),
       );
     } finally {
       setResending(false);

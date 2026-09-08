@@ -62,6 +62,12 @@ declare module 'fastify' {
       sessionHasLocation: boolean;
       /** Where this sign-in happened, ISO-3166-1 alpha-2. Null when unknown. */
       sessionCountry: string | null;
+      /**
+       * The same place as a person reads it - the geocoded name, or the
+       * coordinates where no geocoder answered. Null when the browser has said
+       * nothing. The panel shows it in the top bar.
+       */
+      sessionPlace: string | null;
     };
   }
 }
@@ -144,6 +150,7 @@ async function authenticate(
     sessionId: string;
     sessionHasLocation: boolean;
     sessionCountry: string | null;
+    sessionPlace: string | null;
   }
 > {
   const token = extractAccessToken(request, expectedKind);
@@ -185,6 +192,7 @@ async function authenticate(
     sessionId: claims.sid,
     sessionHasLocation: session.hasLocation,
     sessionCountry: session.country,
+    sessionPlace: session.place,
   };
 }
 
@@ -291,6 +299,7 @@ export function currentUser(
   sessionId: string;
   sessionHasLocation: boolean;
   sessionCountry: string | null;
+  sessionPlace: string | null;
 } {
   if (request.auth === undefined) {
     // A programming error - a handler read auth without declaring a guard.

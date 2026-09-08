@@ -66,7 +66,7 @@ export function CountryPicker(): React.JSX.Element | null {
 
   const save = async (): Promise<void> => {
     if (country === '') {
-      setError('Choose a country to continue.');
+      setError(t('countryPicker.chooseACountryToContinue'));
       return;
     }
 
@@ -76,7 +76,7 @@ export function CountryPicker(): React.JSX.Element | null {
     try {
       await locale.choose(country, effectiveCurrency === '' ? undefined : effectiveCurrency);
     } catch {
-      setError('That could not be saved. Please try again.');
+      setError(t('countryPicker.thatCouldNotBeSaved'));
     } finally {
       setSaving(false);
     }
@@ -97,7 +97,7 @@ export function CountryPicker(): React.JSX.Element | null {
             {t('countryPicker.notNow')}
           </Button>
           <Button onClick={() => void save()} disabled={saving || country === ''}>
-            {saving ? 'Saving…' : 'Continue'}
+            {saving ? t('countryPicker.savingEllipsis') : t('countryPicker.continue')}
           </Button>
         </div>
       }
@@ -147,15 +147,17 @@ export function CountryPicker(): React.JSX.Element | null {
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-xs text-ink-muted">
               {locale.detectedCountry === null
-                ? 'We could not tell where you are.'
-                : `Your browser suggests ${countryName(locale, locale.detectedCountry)}.`}
+                ? t('countryPicker.couldNotTellWhereYouAre')
+                : t('countryPicker.browserSuggests', {
+                    country: countryName(locale, locale.detectedCountry),
+                  })}
             </p>
             <Button
               variant="secondary"
               onClick={() => void requestPreciseLocation()}
               disabled={locating}
             >
-              {locating ? 'Checking…' : 'Use my location'}
+              {locating ? t('countryPicker.checkingEllipsis') : t('countryPicker.useMyLocation')}
             </Button>
           </div>
 
@@ -167,8 +169,9 @@ export function CountryPicker(): React.JSX.Element | null {
 
           {suggestionDiffers && (
             <p className="mt-2 text-xs text-warning">
-              Your browser suggests {countryName(locale, locale.detectedCountry ?? '')}, which does
-              not match your selection. Your choice is what we will use.
+              {t('countryPicker.browserSuggestsMismatch', {
+                country: countryName(locale, locale.detectedCountry ?? ''),
+              })}
             </p>
           )}
         </div>

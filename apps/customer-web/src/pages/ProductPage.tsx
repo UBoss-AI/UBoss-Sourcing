@@ -50,6 +50,8 @@ import type { Product, ProductDetailResponse, ProductVariant, TaxInfo } from '@/
 import { ProductSafetyPanel } from '@/components/ProductSafetyPanel';
 import { ProductDevicePanel } from '@/components/ProductDevicePanel';
 import { useI18n } from '@/i18n/i18n-context';
+import type { Translate } from '@/i18n/i18n-context';
+import { errorMessage } from '@/lib/errors';
 
 /**
  * The image gallery.
@@ -120,7 +122,10 @@ function Gallery({ product }: { product: Product }): React.JSX.Element {
                   onClick={() => {
                     setActiveIndex(index);
                   }}
-                  aria-label={`View image ${String(index + 1)} of ${String(images.length)}`}
+                  aria-label={t('product.viewImageOf', {
+                    index: String(index + 1),
+                    total: String(images.length),
+                  })}
                   aria-current={isActive}
                   // The selected thumbnail carries a ring as well as a border.
                   // A 2px border colour change alone is the kind of state that
@@ -227,16 +232,20 @@ interface OrderingFact {
  * there is no country and no rate to name, so it says so plainly instead of
  * printing "0%", which reads as a rounding error rather than as a rule.
  */
-function taxLine(tax: TaxInfo, countryNames: ReadonlyMap<string, string>): string {
+function taxLine(
+  t: Translate,
+  tax: TaxInfo,
+  countryNames: ReadonlyMap<string, string>,
+): string {
   if (tax.country === null) {
-    if (tax.treatment === 'EXPORT') return 'No VAT is charged on deliveries outside the EU.';
+    if (tax.treatment === 'EXPORT') return t('product.noVatOutsideEu');
     if (tax.treatment === 'INTRA_EU_REVERSE_CHARGE') {
-      return 'No VAT is charged; you account for it under the reverse charge.';
+      return t('product.reverseCharge');
     }
 
     return tax.inclusive
-      ? `Includes ${tax.ratePercent}% ${tax.code}.`
-      : `${tax.ratePercent}% ${tax.code} is added at checkout.`;
+      ? t('product.includesRate', { rate: tax.ratePercent, code: tax.code })
+      : t('product.rateAddedAtCheckout', { rate: tax.ratePercent, code: tax.code });
   }
 
   // The full name where the deployment has one for this country, the ISO code
@@ -245,8 +254,8 @@ function taxLine(tax: TaxInfo, countryNames: ReadonlyMap<string, string>): strin
   const where = countryNames.get(tax.country) ?? tax.country;
 
   return tax.inclusive
-    ? `Includes ${tax.ratePercent}% VAT (${where}).`
-    : `${tax.ratePercent}% VAT (${where}) is added at checkout.`;
+    ? t('product.includesVatWhere', { rate: tax.ratePercent, where })
+    : t('product.vatWhereAddedAtCheckout', { rate: tax.ratePercent, where });
 }
 
 /**
@@ -280,46 +289,48 @@ function OrderingInformation({
   facts.push({
     key: 'tax',
     icon: <CurrencyIcon className="h-4 w-4" />,
-    term: 'Tax',
+    term: t('product.tax'),
     detail: product.tax.inclusive
-      ? 'Included in the price shown.'
-      : `Added at checkout at ${product.tax.ratePercent}%.`,
+      ? t('product.includedInThePriceShown')
+      : t('product.addedAtCheckoutAtRate', { rate: product.tax.ratePercent }),
   });
 
   const quantityParts: string[] = [];
-  if (rules.minOrderQty > 1) quantityParts.push(`Minimum ${formatNumber(rules.minOrderQty)}`);
+  if (rules.minOrderQty > 1)
+    quantityParts.push(t('product.minimumQuantity', { quantity: formatNumber(rules.minOrderQty) }));
   if (rules.qtyIncrement > 1)
-    quantityParts.push(`in multiples of ${formatNumber(rules.qtyIncrement)}`);
-  if (rules.maxOrderQty !== null) quantityParts.push(`up to ${formatNumber(rules.maxOrderQty)}`);
+    quantityParts.push(t('product.inMultiplesOf', { step: formatNumber(rules.qtyIncrement) }));
+  if (rules.maxOrderQty !== null)
+    quantityParts.push(t('product.upToQuantity', { quantity: formatNumber(rules.maxOrderQty) }));
 
   facts.push({
     key: 'quantity',
     icon: <BoxIcon className="h-4 w-4" />,
-    term: 'Order quantity',
+    term: t('product.orderQuantity'),
     detail:
       quantityParts.length === 0
-        ? 'Any quantity, from one upwards.'
+        ? t('product.anyQuantityFromOne')
         : `${quantityParts.join(', ')}.`,
   });
 
   facts.push({
     key: 'availability',
     icon: <TruckIcon className="h-4 w-4" />,
-    term: 'Availability',
+    term: t('product.availability'),
     // Deliberately not a stock number. The public catalogue does not publish
     // quantities, and inventing "In stock" would be a claim this page cannot
     // back.
     detail: product.isStockTracked
-      ? 'Availability is confirmed when the item is added to your cart.'
-      : 'Made to order — lead time confirmed after your order is placed.',
+      ? t('product.availabilityConfirmedInCart')
+      : t('product.madeToOrder'),
   });
 
   if (canSchedule) {
     facts.push({
       key: 'recurring',
       icon: <RepeatIcon className="h-4 w-4" />,
-      term: 'Repeat purchase',
-      detail: 'Can be put on a repeating schedule instead of reordering by hand.',
+      term: t('product.repeatPurchase'),
+      detail: t('product.canBePutOnASchedule'),
     });
   }
 
@@ -407,11 +418,12 @@ export function ProductPage(): React.JSX.Element {
   const description =
     product === undefined
       ? null
-      : (product.shortDescription ?? `${product.name} — available from ${business.displayName}.`);
+      : (product.shortDescription ??
+        t('product.availableFrom', { product: product.name, store: business.displayName }));
 
   useDocumentMeta(
     {
-      title: product?.name ?? 'Product',
+      title: product?.name ?? t('product.productLabel'),
       ...(description === null ? {} : { description }),
     },
     business.displayName,
@@ -426,7 +438,7 @@ export function ProductPage(): React.JSX.Element {
       }),
     onSuccess: async () => {
       setAddError(null);
-      toast.success('Added to your cart.');
+      toast.success(t('product.addedToYourCart'));
       await queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
     onError: (error) => {
@@ -434,7 +446,7 @@ export function ProductPage(): React.JSX.Element {
       // stock shortfall, a spend cap. Replacing it with "could not add" throws
       // away the only thing that tells the customer what to change.
       setAddError(
-        error instanceof ApiError ? error.message : 'This item could not be added to your cart.',
+        errorMessage(t, error, t('product.couldNotBeAdded')),
       );
     },
   });
@@ -552,11 +564,13 @@ export function ProductPage(): React.JSX.Element {
               {hasDiscount && <Badge tone="action">{t('product.reducedPrice')}</Badge>}
             </p>
 
-            <p className="mt-1.5 text-sm text-ink-muted">{taxLine(product.tax, countryNames)}</p>
+            <p className="mt-1.5 text-sm text-ink-muted">
+              {taxLine(t, product.tax, countryNames)}
+            </p>
 
             {selectedVariant?.price != null && (
               <p className="mt-1 text-xs text-ink-subtle">
-                Price shown for {selectedVariant.name}.
+                {t('product.priceShownFor', { variant: selectedVariant.name })}
               </p>
             )}
           </div>

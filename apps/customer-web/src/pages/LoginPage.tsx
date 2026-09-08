@@ -22,6 +22,7 @@ import { useI18n } from '@/i18n/i18n-context';
 import { LanguageSwitcher, TranslationQualityNotice } from '@/i18n/LanguageSwitcher';
 import { ApiError, NetworkError } from '@/lib/api';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { errorMessage } from '@/lib/errors';
 
 /**
  * Built per render rather than once at module scope, because the messages
@@ -146,7 +147,7 @@ export function LoginPage(): React.JSX.Element {
       void navigate(from ?? '/', { replace: true });
     } catch (error) {
       if (error instanceof NetworkError) {
-        setFormError(error.message);
+        setFormError(errorMessage(t, error));
         return;
       }
 

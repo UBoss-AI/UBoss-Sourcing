@@ -43,19 +43,20 @@ import { Permission } from '@/lib/permissions';
 import type { AvailableTransition, OrderDetail, OrderTotals } from '@/lib/orders';
 import type { Money } from '@/lib/types';
 import { InvoicePanel } from '@/pages/order/InvoicePanel';
-import { useI18n } from '@/i18n/i18n-context';
+import { translateKey, useI18n } from '@/i18n/i18n-context';
+import type { TranslationKey } from '@/i18n/i18n-context';
 
 /** The same three-way reading of the totals the order queue shows. */
-function paymentState(totals: OrderTotals): { label: string; tone: BadgeTone } {
+function paymentState(totals: OrderTotals): { labelKey: TranslationKey; tone: BadgeTone } {
   const paid = BigInt(totals.paid.minor);
   const due = BigInt(totals.grandTotal.minor);
   const refunded = BigInt(totals.refunded.minor);
 
   if (refunded > 0n)
-    return { label: refunded >= paid ? 'Refunded' : 'Part refunded', tone: 'danger' };
-  if (paid <= 0n) return { label: 'Unpaid', tone: 'neutral' };
-  if (paid >= due) return { label: 'Paid', tone: 'success' };
-  return { label: 'Part paid', tone: 'warning' };
+    return { labelKey: refunded >= paid ? 'label.refunded' : 'label.partRefunded', tone: 'danger' };
+  if (paid <= 0n) return { labelKey: 'label.unpaid', tone: 'neutral' };
+  if (paid >= due) return { labelKey: 'label.paid', tone: 'success' };
+  return { labelKey: 'label.partPaid', tone: 'warning' };
 }
 
 function AddressBlock({
@@ -123,7 +124,7 @@ function TransitionDialog({
     onError: (apiError) => {
       // The state machine's refusal explains itself - "an order cannot ship
       // before it is packed" - and that is more use than a generic failure.
-      setError(apiError instanceof ApiError ? apiError.message : 'The order could not be moved.');
+      setError(apiError instanceof ApiError ? apiError.message : t('orderDetail.theOrderCouldNotBeMoved'));
     },
   });
 
@@ -133,7 +134,7 @@ function TransitionDialog({
     <Modal
       isOpen
       onClose={onClose}
-      title={transitionLabel(transition.to)}
+      title={transitionLabel(t, transition.to)}
       description={`${order.orderNumber} · currently ${humanise(order.status)}`}
       footer={
         <>
@@ -148,7 +149,7 @@ function TransitionDialog({
               mutation.mutate();
             }}
           >
-            {transitionLabel(transition.to)}
+            {transitionLabel(t, transition.to)}
           </Button>
         </>
       }
@@ -170,8 +171,8 @@ function TransitionDialog({
           label={t('orderDetail.reason')}
           hint={
             transition.requiresReason
-              ? 'Required. Recorded on the order timeline against your name.'
-              : 'Optional. Recorded on the order timeline.'
+              ? t('orderDetail.requiredRecordedOnTheTimeline')
+              : t('orderDetail.optionalRecordedOnTheTimeline')
           }
           required={transition.requiresReason}
         >
@@ -210,11 +211,11 @@ function InternalNote({ order }: { order: OrderDetail }): React.JSX.Element {
         internalNote: note.trim() === '' ? null : note,
       }),
     onSuccess: async () => {
-      toast.success('Note saved.');
+      toast.success(t('orderDetail.noteSaved'));
       await queryClient.invalidateQueries({ queryKey: ['order', order.id] });
     },
     onError: () => {
-      toast.error('The note could not be saved.');
+      toast.error(t('orderDetail.theNoteCouldNotBeSaved'));
     },
   });
 
@@ -236,7 +237,7 @@ function InternalNote({ order }: { order: OrderDetail }): React.JSX.Element {
           value={note}
           disabled={!canWrite}
           placeholder={
-            canWrite ? 'Anything the next person handling this order should know.' : undefined
+            canWrite ? t('orderDetail.anythingTheNextPerson') : undefined
           }
           onChange={(event) => {
             setNote(event.target.value);
@@ -290,14 +291,14 @@ export function OrderDetailPage(): React.JSX.Element {
         comment: approvalComment.trim() === '' ? undefined : approvalComment.trim(),
       }),
     onSuccess: async (_result, approved) => {
-      toast.success(approved ? 'Order approved.' : 'Order rejected.');
+      toast.success(approved ? t('orderDetail.orderApproved') : t('orderDetail.orderRejected'));
       setApprovalComment('');
       await queryClient.invalidateQueries({ queryKey: ['order', id] });
       await queryClient.invalidateQueries({ queryKey: ['orders'] });
     },
     onError: (error) => {
       toast.error(
-        error instanceof ApiError ? error.message : 'The decision could not be recorded.',
+        error instanceof ApiError ? error.message : t('orderDetail.theDecisionCouldNotBeRecorded'),
       );
     },
   });
@@ -307,7 +308,7 @@ export function OrderDetailPage(): React.JSX.Element {
       <>
         <PageHeader
           title={t('orderDetail.order')}
-          back={{ to: '/orders', label: 'Back to orders' }}
+          back={{ to: '/orders', label: t('orderDetail.backToOrders') }}
         />
         <Card>
           <LoadingState label={t('orderDetail.loadingTheOrder')} />
@@ -321,7 +322,7 @@ export function OrderDetailPage(): React.JSX.Element {
       <>
         <PageHeader
           title={t('orderDetail.order')}
-          back={{ to: '/orders', label: 'Back to orders' }}
+          back={{ to: '/orders', label: t('orderDetail.backToOrders') }}
         />
         <Card>
           <ErrorState
@@ -350,7 +351,7 @@ export function OrderDetailPage(): React.JSX.Element {
     <>
       <PageHeader
         title={order.orderNumber}
-        back={{ to: '/orders', label: 'Back to orders' }}
+        back={{ to: '/orders', label: t('orderDetail.backToOrders') }}
         description={`Placed ${formatDateTime(order.placedAt ?? order.createdAt)} · ${humanise(order.source)} · ${formatNumber(order.items.length)} line${order.items.length === 1 ? '' : 's'}`}
         meta={
           <>
@@ -358,7 +359,7 @@ export function OrderDetailPage(): React.JSX.Element {
               {humanise(order.status)}
             </Badge>
             <Badge dot tone={payment.tone}>
-              {payment.label}
+              {translateKey(t, payment.labelKey)}
             </Badge>
           </>
         }
@@ -510,10 +511,10 @@ export function OrderDetailPage(): React.JSX.Element {
             <dl className="space-y-1.5 border-t border-border bg-surface-sunken px-4 py-3 text-sm">
               {(
                 [
-                  ['Subtotal', order.totals.subtotal],
-                  ['Discount', order.totals.discount],
+                  [t('label.subtotal'), order.totals.subtotal],
+                  [t('label.discount'), order.totals.discount],
                   ['Tax', order.totals.tax],
-                  ['Shipping', order.totals.shipping],
+                  [t('label.shipping'), order.totals.shipping],
                 ] satisfies [string, Money][]
               ).map(([label, amount]) => (
                 <div key={label} className="flex justify-between gap-4">
@@ -641,7 +642,7 @@ export function OrderDetailPage(): React.JSX.Element {
                         setTransitionFor(transition);
                       }}
                     >
-                      {transitionLabel(transition.to)}
+                      {transitionLabel(t, transition.to)}
                     </Button>
                   ))}
 
@@ -659,7 +660,7 @@ export function OrderDetailPage(): React.JSX.Element {
                             setTransitionFor(transition);
                           }}
                         >
-                          {transitionLabel(transition.to)}
+                          {transitionLabel(t, transition.to)}
                         </Button>
                       ))}
                     </div>
@@ -690,7 +691,7 @@ export function OrderDetailPage(): React.JSX.Element {
                     to={`/customers/${order.customer.id}`}
                     className="font-medium text-ink hover:text-accent hover:underline"
                   >
-                    {order.customer.fullName ?? order.customer.email ?? 'Customer'}
+                    {order.customer.fullName ?? order.customer.email ?? t('label.customer')}
                   </Link>
                   {order.customer.organization !== null && (
                     <p className="text-xs text-ink-muted">{order.customer.organization}</p>
@@ -747,7 +748,7 @@ export function OrderDetailPage(): React.JSX.Element {
                         {link.usedAt !== null
                           ? `Used ${formatDateTime(link.usedAt)}`
                           : link.revokedAt !== null
-                            ? 'Revoked'
+                            ? t('label.revoked')
                             : `Expires ${formatDateTime(link.expiresAt)}`}
                       </p>
                     </div>

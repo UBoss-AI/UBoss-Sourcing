@@ -54,6 +54,14 @@ interface CountrySeed {
   name: string;
   currencyCode: string;
   phonePrefix: string;
+  /**
+   * The interface language an office here works in. Absent where the panel
+   * ships no catalogue for the local language, which is not the same as
+   * English: absent leaves whatever the person had chosen alone, and the admin
+   * console only switches somebody's language when there is a language to
+   * switch them to.
+   */
+  languageCode?: string;
   sortOrder?: number;
 }
 
@@ -63,23 +71,25 @@ interface CountrySeed {
  */
 /** Markets outside the EU VAT area. The twenty-seven come from the VAT seed. */
 const NON_EU_COUNTRIES: readonly CountrySeed[] = [
-  { code: 'IN', name: 'India', currencyCode: 'INR', phonePrefix: '+91', sortOrder: 1 },
+  { code: 'IN', name: 'India', currencyCode: 'INR', phonePrefix: '+91', languageCode: 'en', sortOrder: 1 },
 
   { code: 'AE', name: 'United Arab Emirates', currencyCode: 'AED', phonePrefix: '+971' },
-  { code: 'AU', name: 'Australia', currencyCode: 'USD', phonePrefix: '+61' },
-  { code: 'CA', name: 'Canada', currencyCode: 'USD', phonePrefix: '+1' },
-  { code: 'CH', name: 'Switzerland', currencyCode: 'EUR', phonePrefix: '+41' },
-  { code: 'GB', name: 'United Kingdom', currencyCode: 'GBP', phonePrefix: '+44' },
+  { code: 'AU', name: 'Australia', currencyCode: 'USD', phonePrefix: '+61', languageCode: 'en' },
+  { code: 'CA', name: 'Canada', currencyCode: 'USD', phonePrefix: '+1', languageCode: 'en' },
+  // German, as the largest of the four national languages. A Geneva or Lugano
+  // office corrects the row; there is no Romansh catalogue either way.
+  { code: 'CH', name: 'Switzerland', currencyCode: 'EUR', phonePrefix: '+41', languageCode: 'de' },
+  { code: 'GB', name: 'United Kingdom', currencyCode: 'GBP', phonePrefix: '+44', languageCode: 'en' },
   { code: 'JP', name: 'Japan', currencyCode: 'JPY', phonePrefix: '+81' },
   { code: 'KR', name: 'South Korea', currencyCode: 'KRW', phonePrefix: '+82' },
   { code: 'MY', name: 'Malaysia', currencyCode: 'SGD', phonePrefix: '+60' },
   { code: 'NO', name: 'Norway', currencyCode: 'EUR', phonePrefix: '+47' },
-  { code: 'NZ', name: 'New Zealand', currencyCode: 'USD', phonePrefix: '+64' },
+  { code: 'NZ', name: 'New Zealand', currencyCode: 'USD', phonePrefix: '+64', languageCode: 'en' },
   { code: 'OM', name: 'Oman', currencyCode: 'AED', phonePrefix: '+968' },
   { code: 'QA', name: 'Qatar', currencyCode: 'AED', phonePrefix: '+974' },
   { code: 'SA', name: 'Saudi Arabia', currencyCode: 'AED', phonePrefix: '+966' },
-  { code: 'SG', name: 'Singapore', currencyCode: 'SGD', phonePrefix: '+65' },
-  { code: 'US', name: 'United States', currencyCode: 'USD', phonePrefix: '+1' },
+  { code: 'SG', name: 'Singapore', currencyCode: 'SGD', phonePrefix: '+65', languageCode: 'en' },
+  { code: 'US', name: 'United States', currencyCode: 'USD', phonePrefix: '+1', languageCode: 'en' },
 ];
 
 /**
@@ -135,6 +145,11 @@ export async function seedReferenceData(): Promise<{
 
     await prisma.country.upsert({
       where: { code: country.code },
+      // languageCode is deliberately absent from `update`, for the same reason
+      // `isActive` is on the currency above: which language an office works in
+      // is a decision the deployment makes in the panel - Belgium and
+      // Switzerland are the rows most likely to have been corrected - and
+      // re-running the seed must not put our guess back.
       update: {
         name: country.name,
         currencyCode: country.currencyCode,
@@ -146,6 +161,7 @@ export async function seedReferenceData(): Promise<{
         name: country.name,
         currencyCode: country.currencyCode,
         phonePrefix: country.phonePrefix,
+        languageCode: country.languageCode ?? null,
         sortOrder,
       },
     });

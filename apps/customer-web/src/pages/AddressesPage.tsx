@@ -11,10 +11,11 @@ import { useStorefront } from '@/app/storefront-context';
 import { AddressForm } from '@/components/AddressForm';
 import { useToast } from '@/components/toast-context';
 import { Badge, Button, EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui';
-import { ApiError, api } from '@/lib/api';
+import { api } from '@/lib/api';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { Address } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
+import { errorMessage } from '@/lib/errors';
 
 export function AddressesPage(): React.JSX.Element {
   const { t } = useI18n();
@@ -25,7 +26,7 @@ export function AddressesPage(): React.JSX.Element {
 
   const [editing, setEditing] = useState<Address | null | undefined>(undefined);
 
-  useDocumentMeta({ title: 'Addresses', noIndex: true }, business.displayName);
+  useDocumentMeta({ title: t('addresses.addresses'), noIndex: true }, business.displayName);
 
   const query = useQuery({
     queryKey: ['addresses'],
@@ -35,11 +36,11 @@ export function AddressesPage(): React.JSX.Element {
   const archive = useMutation({
     mutationFn: (addressId: string) => api.delete(`/account/addresses/${addressId}`),
     onSuccess: async () => {
-      toast.success('Address removed.');
+      toast.success(t('addresses.addressRemoved'));
       await queryClient.invalidateQueries({ queryKey: ['addresses'] });
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : 'That address could not be removed.');
+      toast.error(errorMessage(t, error, t('addresses.couldNotBeRemoved')));
     },
   });
 
@@ -82,13 +83,13 @@ export function AddressesPage(): React.JSX.Element {
       {editing !== undefined && (
         <div className="mb-6 rounded-lg border border-border bg-surface p-5 shadow-card">
           <h2 className="mb-4 text-title-sm text-ink">
-            {editing === null ? 'New address' : 'Edit address'}
+            {editing === null ? t('addresses.newAddress') : t('addresses.editAddress')}
           </h2>
           <AddressForm
             {...(editing === null ? {} : { existing: editing })}
             onSaved={() => {
               setEditing(undefined);
-              toast.success('Address saved.');
+              toast.success(t('addresses.addressSaved'));
             }}
             onCancel={() => {
               setEditing(undefined);

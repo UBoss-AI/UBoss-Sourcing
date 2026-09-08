@@ -1,3 +1,4 @@
+import type { Translate } from '@/i18n/i18n-context';
 /**
  * Loading and opening the Razorpay hosted checkout.
  *
@@ -37,7 +38,7 @@ let loadPromise: Promise<RazorpayConstructor> | null = null;
  * A second call while the first is in flight waits on the same load rather
  * than injecting a second `<script>`.
  */
-export function loadRazorpay(): Promise<RazorpayConstructor> {
+export function loadRazorpay(t: Translate): Promise<RazorpayConstructor> {
   if (window.Razorpay !== undefined) return Promise.resolve(window.Razorpay);
 
   loadPromise ??= new Promise<RazorpayConstructor>((resolve, reject) => {
@@ -45,7 +46,7 @@ export function loadRazorpay(): Promise<RazorpayConstructor> {
 
     const onReady = (): void => {
       if (window.Razorpay === undefined) {
-        reject(new Error('The payment provider loaded but did not initialise.'));
+        reject(new Error(t('common.paymentProviderNotInitialised')));
         return;
       }
       resolve(window.Razorpay);
@@ -56,7 +57,7 @@ export function loadRazorpay(): Promise<RazorpayConstructor> {
       existing.addEventListener(
         'error',
         () => {
-          reject(new Error('The payment provider could not be reached.'));
+          reject(new Error(t('common.paymentProviderUnreachable')));
         },
         { once: true },
       );
@@ -74,7 +75,7 @@ export function loadRazorpay(): Promise<RazorpayConstructor> {
         // Reset, so a later attempt can retry rather than waiting forever on a
         // promise that will never settle.
         loadPromise = null;
-        reject(new Error('The payment provider could not be reached. Check your connection.'));
+        reject(new Error(t('common.paymentProviderUnreachableCheck')));
       },
       { once: true },
     );
@@ -93,8 +94,8 @@ export function loadRazorpay(): Promise<RazorpayConstructor> {
  * inside an event handler, and an exception there would leave the customer
  * looking at a spinner that never resolves.
  */
-function readFailureMessage(payload: unknown): string {
-  const fallback = 'The payment did not go through. No money has been taken.';
+function readFailureMessage(t: Translate, payload: unknown): string {
+  const fallback = t('common.paymentDidNotGoThrough');
 
   if (typeof payload !== 'object' || payload === null || !('error' in payload)) return fallback;
 
@@ -124,9 +125,10 @@ export type CheckoutOutcome =
  * order — a browser is not a trusted reporter of whether money moved.
  */
 export async function openRazorpayCheckout(
+  t: Translate,
   checkoutPayload: Record<string, string | number>,
 ): Promise<CheckoutOutcome> {
-  const Razorpay = await loadRazorpay();
+  const Razorpay = await loadRazorpay(t);
 
   return new Promise<CheckoutOutcome>((resolve) => {
     let settled = false;
@@ -186,7 +188,7 @@ export async function openRazorpayCheckout(
     });
 
     instance.on('payment.failed', (payload: unknown) => {
-      settle({ kind: 'failed', message: readFailureMessage(payload) });
+      settle({ kind: 'failed', message: readFailureMessage(t, payload) });
     });
 
     instance.open();

@@ -55,7 +55,9 @@ import { formatDateTime, majorToMinor, minorToMajor } from '@/lib/format';
 import { Permission } from '@/lib/permissions';
 import type { BadgeTone } from '@/components/ui';
 import type { CategoryNode } from '@/lib/types';
-import { useI18n } from '@/i18n/i18n-context';
+import { translateKey, useI18n } from '@/i18n/i18n-context';
+import type { Translate } from '@/i18n/i18n-context';
+import type { TranslationKey } from '@/i18n/i18n-context';
 
 interface TaxClass {
   id: string;
@@ -125,28 +127,29 @@ interface ProductDetail {
  * 45.549999999 and rejects nothing useful; a regex on the typed string is what
  * catches "Rs 45", "1,299.00" and "45.555" before they reach the server.
  */
-const moneyField = (label: string) =>
+const moneyField = (t: Translate, label: string) =>
   z
     .string()
     .trim()
-    .regex(/^\d+(\.\d{1,2})?$/, `${label} must be a number like 45.50, with no symbol or commas.`);
+    .regex(/^\d+(\.\d{1,2})?$/, t('validation.moneyFieldFormat', { field: label }));
 
-const productSchema = z
+function buildProductSchema(t: Translate) {
+  return z
   .object({
-    name: z.string().trim().min(1, 'Give the product a name.').max(255),
-    sku: z.string().trim().min(1, 'A SKU is required.').max(64),
-    categoryId: z.string().min(1, 'Choose a category.'),
+    name: z.string().trim().min(1, t('productDetail.giveTheProductAName')).max(255),
+    sku: z.string().trim().min(1, t('validation.skuRequired')).max(64),
+    categoryId: z.string().min(1, t('validation.categoryRequired')),
     slug: z.string().trim().max(255),
     shortDescription: z.string().max(1024),
     description: z.string().max(50_000),
-    taxClassCode: z.string().min(1, 'Choose a tax class.'),
-    price: moneyField('Price'),
-    compareAtPrice: z.union([moneyField('Compare-at price'), z.literal('')]),
+    taxClassCode: z.string().min(1, t('validation.taxClassRequired')),
+    price: moneyField(t, t('label.price')),
+    compareAtPrice: z.union([moneyField(t, t('productDetail.compareAtPrice')), z.literal('')]),
     isStockTracked: z.boolean(),
     reorderThreshold: z.coerce.number().int().min(0).max(1_000_000),
-    minOrderQty: z.coerce.number().int().min(1, 'At least 1.').max(1_000_000),
+    minOrderQty: z.coerce.number().int().min(1, t('productDetail.atLeastOne')).max(1_000_000),
     maxOrderQty: z.string().trim(),
-    qtyIncrement: z.coerce.number().int().min(1, 'At least 1.').max(1_000_000),
+    qtyIncrement: z.coerce.number().int().min(1, t('productDetail.atLeastOne')).max(1_000_000),
     isRecurringEligible: z.boolean(),
     weightGrams: z.string().trim(),
   })
@@ -159,7 +162,7 @@ const productSchema = z
           code: 'custom',
           path: ['compareAtPrice'],
           message:
-            'The compare-at price must be at least the price, or the discount reads negative.',
+            t('productDetail.compareAtMustBeAtLeast'),
         });
       }
     }
@@ -170,7 +173,7 @@ const productSchema = z
         ctx.addIssue({
           code: 'custom',
           path: ['maxOrderQty'],
-          message: 'Enter a whole number, or leave blank.',
+          message: t('productDetail.enterAWholeNumberOrBlank'),
         });
       } else if (max < values.minOrderQty) {
         // Otherwise no quantity satisfies both rules and nobody can buy it.
@@ -178,7 +181,7 @@ const productSchema = z
           code: 'custom',
           path: ['maxOrderQty'],
           message:
-            'The maximum cannot be below the minimum, or the product cannot be ordered at all.',
+            t('productDetail.theMaximumCannotBeBelow'),
         });
       }
     }
@@ -187,10 +190,11 @@ const productSchema = z
       ctx.addIssue({
         code: 'custom',
         path: ['weightGrams'],
-        message: 'Enter a whole number of grams.',
+        message: t('productDetail.enterAWholeNumberOfGrams'),
       });
     }
   });
+}
 
 /**
  * Input and output differ: `reorderThreshold`, `minOrderQty` and `qtyIncrement`
@@ -199,8 +203,8 @@ const productSchema = z
  * which is what lets `handleSubmit` deliver parsed values without lying about
  * what `register` is bound to.
  */
-type ProductFormInput = z.input<typeof productSchema>;
-type ProductForm = z.output<typeof productSchema>;
+type ProductFormInput = z.input<ReturnType<typeof buildProductSchema>>;
+type ProductForm = z.output<ReturnType<typeof buildProductSchema>>;
 
 const FORM_FIELDS = [
   'name',
@@ -230,10 +234,13 @@ function flatten(nodes: CategoryNode[], into: CategoryNode[] = []): CategoryNode
 }
 
 /** The same three labels and tones the product list uses, so they match. */
-const CATALOGUE_STATUS: Record<ProductDetail['status'], { label: string; tone: BadgeTone }> = {
-  ACTIVE: { label: 'Active', tone: 'success' },
-  DRAFT: { label: 'Draft', tone: 'neutral' },
-  INACTIVE: { label: 'Inactive', tone: 'warning' },
+const CATALOGUE_STATUS: Record<
+  ProductDetail['status'],
+  { labelKey: TranslationKey; tone: BadgeTone }
+> = {
+  ACTIVE: { labelKey: 'label.active', tone: 'success' },
+  DRAFT: { labelKey: 'label.draft', tone: 'neutral' },
+  INACTIVE: { labelKey: 'label.inactive', tone: 'warning' },
 };
 
 // ---------------------------------------------------------------------------
@@ -272,14 +279,14 @@ function MediaPanel({ product }: { product: ProductDetail }): React.JSX.Element 
     },
     onSuccess: async () => {
       setUploadError(null);
-      toast.success('Image added.');
+      toast.success(t('productDetail.imageAdded'));
       await queryClient.invalidateQueries({ queryKey: ['product', product.id] });
     },
     onError: (error) => {
       // The server sniffs magic bytes and refuses anything that is not a real
       // image, whatever the extension says. Its message explains which.
       setUploadError(
-        error instanceof ApiError ? error.message : 'The image could not be uploaded.',
+        error instanceof ApiError ? error.message : t('productDetail.imageCouldNotBeUploaded'),
       );
     },
   });
@@ -287,11 +294,11 @@ function MediaPanel({ product }: { product: ProductDetail }): React.JSX.Element 
   const remove = useMutation({
     mutationFn: (mediaId: string) => api.delete(`/admin/products/${product.id}/media/${mediaId}`),
     onSuccess: async () => {
-      toast.success('Image removed.');
+      toast.success(t('productDetail.imageRemoved'));
       await queryClient.invalidateQueries({ queryKey: ['product', product.id] });
     },
     onError: () => {
-      toast.error('The image could not be removed.');
+      toast.error(t('productDetail.imageCouldNotBeRemoved'));
     },
   });
 
@@ -429,6 +436,9 @@ async function uploadStagedImages(
   productId: string,
   images: StagedImage[],
   altText: string,
+  // Passed in rather than reached for: this runs outside a component, and the
+  // failure it reports is read by a person.
+  t: Translate,
 ): Promise<StagedUploadFailure[]> {
   const failures: StagedUploadFailure[] = [];
 
@@ -442,7 +452,7 @@ async function uploadStagedImages(
     } catch (error) {
       failures.push({
         fileName: image.file.name,
-        message: error instanceof ApiError ? error.message : 'The image could not be uploaded.',
+        message: error instanceof ApiError ? error.message : t('productDetail.imageCouldNotBeUploaded'),
       });
     }
   }
@@ -653,7 +663,7 @@ export function ProductDetailPage(): React.JSX.Element {
     setError,
     formState: { errors, isDirty },
   } = useForm<ProductFormInput, unknown, ProductForm>({
-    resolver: zodResolver(productSchema),
+    resolver: zodResolver(buildProductSchema(t)),
     defaultValues: {
       name: '',
       sku: '',
@@ -714,8 +724,8 @@ export function ProductDetailPage(): React.JSX.Element {
       if (basePriceMinor === null) {
         throw new ApiError(400, {
           code: 'VALIDATION_FAILED',
-          message: 'The price is not a valid amount.',
-          details: [{ field: 'price', message: 'Enter an amount like 45.50.' }],
+          message: t('productDetail.thePriceIsNotAValidAmount'),
+          details: [{ field: 'price', message: t('productDetail.enterAnAmountLike') }],
         });
       }
 
@@ -748,7 +758,7 @@ export function ProductDetailPage(): React.JSX.Element {
       // mutation so the Create button stays busy until the images have
       // actually landed, rather than claiming success while they are still on
       // their way.
-      const failures = await uploadStagedImages(created.id, stagedImages, values.name);
+      const failures = await uploadStagedImages(created.id, stagedImages, values.name, t);
 
       return { id: created.id, failures };
     },
@@ -773,14 +783,14 @@ export function ProductDetailPage(): React.JSX.Element {
           toast.error(
             `Product created, but ${result.failures.length} of ${attempted} images did not ` +
               `upload (${names}). ${result.failures[0]?.message ?? ''} ` +
-              'Add them again from the Images panel.',
+              t('productDetail.addThemAgainFromImages'),
           );
         } else if (attempted === 0) {
-          toast.success('Product created. Add an image, then publish it.');
+          toast.success(t('productDetail.productCreatedAddAnImage'));
         } else {
           toast.success(
             attempted === 1
-              ? 'Product created with its image. Publish it when it is ready.'
+              ? t('productDetail.productCreatedWithItsImage')
               : `Product created with ${attempted} images. Publish it when it is ready.`,
           );
         }
@@ -789,11 +799,11 @@ export function ProductDetailPage(): React.JSX.Element {
         return;
       }
 
-      toast.success('Product saved.');
+      toast.success(t('productDetail.productSaved'));
       await queryClient.invalidateQueries({ queryKey: ['product', id] });
     },
     onError: (error) => {
-      setFormError(applyApiErrors(error, setError, FORM_FIELDS));
+      setFormError(applyApiErrors(error, setError, FORM_FIELDS, t('common.theRequestFailed')));
     },
   });
 
@@ -801,12 +811,12 @@ export function ProductDetailPage(): React.JSX.Element {
     mutationFn: (status: 'DRAFT' | 'ACTIVE' | 'INACTIVE') =>
       api.patch(`/admin/products/${String(id)}/status`, { status }),
     onSuccess: async () => {
-      toast.success('Status updated.');
+      toast.success(t('productDetail.statusUpdated'));
       await queryClient.invalidateQueries({ queryKey: ['product', id] });
       await queryClient.invalidateQueries({ queryKey: ['products'] });
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : 'The status could not be changed.');
+      toast.error(error instanceof ApiError ? error.message : t('common.statusCouldNotBeChanged'));
     },
   });
 
@@ -815,7 +825,7 @@ export function ProductDetailPage(): React.JSX.Element {
       api.patch(`/admin/products/${String(id)}/publication`, { publish }),
     onSuccess: async (_result, publish) => {
       setPublishError(null);
-      toast.success(publish ? 'Product published.' : 'Product unpublished.');
+      toast.success(publish ? t('productDetail.productPublished') : t('productDetail.productUnpublished'));
       await queryClient.invalidateQueries({ queryKey: ['product', id] });
       await queryClient.invalidateQueries({ queryKey: ['products'] });
     },
@@ -823,7 +833,7 @@ export function ProductDetailPage(): React.JSX.Element {
       // The server checks the publication preconditions and names the one that
       // failed. Repeating that check here would be a second source of truth.
       setPublishError(
-        error instanceof ApiError ? error.message : 'The product could not be published.',
+        error instanceof ApiError ? error.message : t('productDetail.productCouldNotBePublished'),
       );
     },
   });
@@ -831,13 +841,13 @@ export function ProductDetailPage(): React.JSX.Element {
   const archive = useMutation({
     mutationFn: () => api.delete(`/admin/products/${String(id)}`),
     onSuccess: async () => {
-      toast.success('Product archived.');
+      toast.success(t('productDetail.productArchived'));
       await queryClient.invalidateQueries({ queryKey: ['products'] });
       void navigate('/products');
     },
     onError: (error) => {
       setIsArchiving(false);
-      toast.error(error instanceof ApiError ? error.message : 'The product could not be archived.');
+      toast.error(error instanceof ApiError ? error.message : t('productDetail.productCouldNotBeArchived'));
     },
   });
 
@@ -846,7 +856,7 @@ export function ProductDetailPage(): React.JSX.Element {
       <>
         <PageHeader
           title={t('productDetail.product')}
-          back={{ to: '/products', label: 'Back to products' }}
+          back={{ to: '/products', label: t('productDetail.backToProducts') }}
         />
         <Card>
           <LoadingState label={t('productDetail.loadingTheProduct')} />
@@ -860,7 +870,7 @@ export function ProductDetailPage(): React.JSX.Element {
       <>
         <PageHeader
           title={t('productDetail.product')}
-          back={{ to: '/products', label: 'Back to products' }}
+          back={{ to: '/products', label: t('productDetail.backToProducts') }}
         />
         <Card>
           <ErrorState
@@ -885,11 +895,11 @@ export function ProductDetailPage(): React.JSX.Element {
   return (
     <>
       <PageHeader
-        title={isNew ? 'New product' : (product?.name ?? 'Product')}
-        back={{ to: '/products', label: 'Back to products' }}
+        title={isNew ? t('productDetail.newProduct') : (product?.name ?? t('label.product'))}
+        back={{ to: '/products', label: t('productDetail.backToProducts') }}
         description={
           isNew
-            ? 'Fill in the details and add images, then create it. A new product starts as an unpublished draft.'
+            ? t('productDetail.fillInTheDetailsAndAdd')
             : `SKU ${product?.sku ?? ''} · last edited ${formatDateTime(product?.updatedAt)}`
         }
         // The two states that decide whether a customer can see this, beside
@@ -899,7 +909,7 @@ export function ProductDetailPage(): React.JSX.Element {
           isNew || product === undefined ? undefined : (
             <>
               <Badge dot tone={CATALOGUE_STATUS[product.status].tone}>
-                {CATALOGUE_STATUS[product.status].label}
+                {translateKey(t, CATALOGUE_STATUS[product.status].labelKey)}
               </Badge>
               {product.isPublished ? (
                 <Badge dot tone="success">
@@ -927,7 +937,7 @@ export function ProductDetailPage(): React.JSX.Element {
                 </span>
               )}
               <Button variant="primary" isLoading={save.isPending} onClick={submit}>
-                {isNew ? 'Create product' : 'Save changes'}
+                {isNew ? t('productDetail.createProduct') : t('common.saveChanges')}
               </Button>
             </>
           ) : undefined
@@ -964,7 +974,7 @@ export function ProductDetailPage(): React.JSX.Element {
                 </Field>
 
                 <Field
-                  label="SKU"
+                  label={t('label.sku')}
                   hint={t('productDetail.uniqueAcrossProductsAndVariants')}
                   error={errors.sku?.message}
                   required
@@ -1337,9 +1347,9 @@ export function ProductDetailPage(): React.JSX.Element {
                         <ul className="mt-1.5 space-y-1">
                           {(
                             [
-                              ['At least one image', product.media.length > 0],
-                              ['A price above zero', product.basePriceMinor !== '0'],
-                              ['An active category', product.category?.isActive === true],
+                              [t('productDetail.atLeastOneImage'), product.media.length > 0],
+                              [t('productDetail.aPriceAboveZero'), product.basePriceMinor !== '0'],
+                              [t('productDetail.anActiveCategory'), product.category?.isActive === true],
                             ] satisfies [string, boolean][]
                           ).map(([label, ok]) => (
                             <li key={label} className="flex items-start gap-1.5 text-xs">
@@ -1374,7 +1384,7 @@ export function ProductDetailPage(): React.JSX.Element {
                           setPublication.mutate(!(product?.isPublished ?? false));
                         }}
                       >
-                        {product?.isPublished === true ? 'Unpublish' : 'Publish'}
+                        {product?.isPublished === true ? t('productDetail.unpublish') : t('productDetail.publish')}
                       </Button>
                     )}
 

@@ -32,6 +32,7 @@ import {
   type StripeJs,
 } from '@/lib/stripe';
 import type { Money } from '@/lib/types';
+import { useI18n } from '@/i18n/i18n-context';
 
 /**
  * The customer's own message for a failure that is theirs to fix.
@@ -40,7 +41,9 @@ import type { Money } from '@/lib/types';
  * card's security code is incorrect" — and they are more useful than anything
  * this app could substitute.
  */
-const GENERIC_FAILURE = 'The payment did not go through. No money has been taken.';
+// A key rather than a string: this is module state, and the sentence it names
+// is read by whoever is standing at the payment form.
+const GENERIC_FAILURE = 'common.paymentDidNotGoThrough';
 
 interface StripePaymentDialogProps {
   /** The backend's `checkoutPayload`. Public values only; no secret key. */
@@ -57,6 +60,8 @@ export function StripePaymentDialog({
   orderNumber,
   onOutcome,
 }: StripePaymentDialogProps): React.JSX.Element {
+  const { t } = useI18n();
+
   const mountRef = useRef<HTMLDivElement>(null);
   const stripeRef = useRef<StripeJs | null>(null);
   const elementsRef = useRef<StripeElements | null>(null);
@@ -107,21 +112,21 @@ export function StripePaymentDialog({
       if (publishableKey.length === 0 || clientSecret.length === 0) {
         settle({
           kind: 'failed',
-          message: 'The payment session was incomplete. Please try again.',
+          message: t('payment.sessionIncomplete'),
         });
         return;
       }
 
       let factory;
       try {
-        factory = await loadStripeJs();
+        factory = await loadStripeJs(t);
       } catch (loadError) {
         settle({
           kind: 'failed',
           message:
             loadError instanceof Error
               ? loadError.message
-              : 'The payment provider could not be reached.',
+              : t('common.paymentProviderUnreachable'),
         });
         return;
       }
@@ -199,7 +204,7 @@ export function StripePaymentDialog({
       });
     } catch {
       setIsConfirming(false);
-      settle({ kind: 'failed', message: GENERIC_FAILURE });
+      settle({ kind: 'failed', message: t(GENERIC_FAILURE) });
       return;
     }
 
@@ -212,11 +217,11 @@ export function StripePaymentDialog({
       // blank. The form stays open so they can correct it in place, which is
       // the whole reason Elements is mounted here rather than on a hosted page.
       if (type === 'validation_error' || type === 'card_error') {
-        setError(message ?? GENERIC_FAILURE);
+        setError(message ?? t(GENERIC_FAILURE));
         return;
       }
 
-      settle({ kind: 'failed', message: message ?? GENERIC_FAILURE });
+      settle({ kind: 'failed', message: message ?? t(GENERIC_FAILURE) });
       return;
     }
 
@@ -225,7 +230,7 @@ export function StripePaymentDialog({
     // `requires_payment_method` means the attempt ended without one being
     // charged — the customer needs to choose again.
     if (status === 'requires_payment_method') {
-      setError('That payment method did not work. Please try another one.');
+      setError(t('payment.methodDidNotWork'));
       return;
     }
 
@@ -242,7 +247,7 @@ export function StripePaymentDialog({
       onClose={() => {
         settle({ kind: 'dismissed' });
       }}
-      title="Pay securely"
+      title={t('payment.paySecurely')}
       description={`Order ${orderNumber} · ${formatMoney(amount)}`}
       footer={
         <>
@@ -262,7 +267,9 @@ export function StripePaymentDialog({
             }}
             disabled={!isReady || isConfirming}
           >
-            {isConfirming ? 'Confirming…' : `Pay ${formatMoney(amount)}`}
+            {isConfirming
+              ? t('payment.confirmingEllipsis')
+              : t('payment.payAmount', { amount: formatMoney(amount) })}
           </Button>
         </>
       }
@@ -290,8 +297,7 @@ export function StripePaymentDialog({
       <div ref={mountRef} className={isReady ? '' : 'hidden'} />
 
       <p className="mt-4 text-xs leading-relaxed text-ink-subtle">
-        Card details are entered inside our payment provider&rsquo;s own secure fields and never
-        reach this site. Nothing is charged until you press Pay.
+        {t('payment.cardDetailsInSecureFields')}
       </p>
     </Modal>
   );

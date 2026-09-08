@@ -9,6 +9,14 @@
 import { describe, expect, it } from 'vitest';
 import { clampToRules, describeRules } from './quantity-rules';
 import type { PurchaseRules } from './types';
+import type { Translate } from '@/i18n/i18n-context';
+import en from '@/i18n/locales/en.json';
+
+const t = ((key: string, options?: Record<string, unknown>) =>
+  Object.entries(options ?? {}).reduce(
+    (text, [slot, value]) => text.replace(`{{${slot}}}`, String(value)),
+    (en as Record<string, string>)[key] ?? key,
+  )) as Translate;
 
 function rules(overrides: Partial<PurchaseRules> = {}): PurchaseRules {
   return {
@@ -80,17 +88,17 @@ describe('clampToRules', () => {
 
 describe('describeRules', () => {
   it('says nothing when there is nothing unusual', () => {
-    expect(describeRules(rules())).toBeNull();
+    expect(describeRules(t, rules())).toBeNull();
   });
 
   it('describes each rule that actually applies', () => {
-    expect(describeRules(rules({ minOrderQty: 10 }))).toBe('Ordered minimum 10.');
-    expect(describeRules(rules({ qtyIncrement: 5 }))).toBe('Ordered in multiples of 5.');
-    expect(describeRules(rules({ maxOrderQty: 100 }))).toBe('Ordered maximum 100.');
+    expect(describeRules(t, rules({ minOrderQty: 10 }))).toBe('Ordered minimum 10.');
+    expect(describeRules(t, rules({ qtyIncrement: 5 }))).toBe('Ordered in multiples of 5.');
+    expect(describeRules(t, rules({ maxOrderQty: 100 }))).toBe('Ordered maximum 100.');
   });
 
   it('combines them in one readable sentence', () => {
-    expect(describeRules(rules({ minOrderQty: 10, qtyIncrement: 5, maxOrderQty: 100 }))).toBe(
+    expect(describeRules(t, rules({ minOrderQty: 10, qtyIncrement: 5, maxOrderQty: 100 }))).toBe(
       'Ordered minimum 10, in multiples of 5, maximum 100.',
     );
   });

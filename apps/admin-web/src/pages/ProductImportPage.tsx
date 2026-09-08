@@ -141,7 +141,7 @@ export function ProductImportPage(): React.JSX.Element {
     },
     onError: (error) => {
       setPreview(null);
-      setUploadError(error instanceof ApiError ? error.message : 'The file could not be read.');
+      setUploadError(error instanceof ApiError ? error.message : t('productImport.theFileCouldNotBeRead'));
     },
   });
 
@@ -159,7 +159,7 @@ export function ProductImportPage(): React.JSX.Element {
     },
     onError: (error) => {
       setConfirmError(
-        error instanceof ApiError ? error.message : 'The import could not be applied.',
+        error instanceof ApiError ? error.message : t('productImport.theImportCouldNotBeApplied'),
       );
     },
   });
@@ -167,34 +167,34 @@ export function ProductImportPage(): React.JSX.Element {
   const errorColumns: Column<ImportRowError>[] = [
     {
       key: 'row',
-      header: 'Row',
+      header: t('label.row'),
       align: 'right',
       width: '5rem',
       render: (row) => <span className="font-medium">{row.rowNumber}</span>,
     },
     {
       key: 'field',
-      header: 'Column',
+      header: t('label.column'),
       nowrap: true,
       render: (row) => <span className="font-mono text-xxs">{row.field ?? '—'}</span>,
     },
-    { key: 'message', header: 'Problem', render: (row) => row.message },
+    { key: 'message', header: t('label.problem'), render: (row) => row.message },
   ];
 
   const historyColumns: Column<ImportJob>[] = [
     {
       key: 'file',
-      header: 'File',
+      header: t('label.file'),
       render: (row) => <span className="font-mono text-xs text-ink">{row.fileName}</span>,
     },
     {
       key: 'kind',
-      header: 'Kind',
-      render: (row) => <Badge>{row.isDryRun ? 'Preview' : 'Import'}</Badge>,
+      header: t('label.kind'),
+      render: (row) => <Badge>{row.isDryRun ? t('productImport.preview') : 'Import'}</Badge>,
     },
     {
       key: 'status',
-      header: 'Result',
+      header: t('label.result'),
       render: (row) => (
         <Badge dot tone={jobTone(row.status)}>
           {row.status}
@@ -203,7 +203,7 @@ export function ProductImportPage(): React.JSX.Element {
     },
     {
       key: 'rows',
-      header: 'Rows',
+      header: t('label.rows'),
       align: 'right',
       nowrap: true,
       render: (row) =>
@@ -213,7 +213,7 @@ export function ProductImportPage(): React.JSX.Element {
     },
     {
       key: 'when',
-      header: 'When',
+      header: t('label.when'),
       secondary: true,
       nowrap: true,
       render: (row) => <span className="text-ink-muted">{formatDateTime(row.createdAt)}</span>,
@@ -232,7 +232,7 @@ export function ProductImportPage(): React.JSX.Element {
     <>
       <PageHeader
         title={t('productImport.bulkProductImport')}
-        back={{ to: '/products', label: 'Back to products' }}
+        back={{ to: '/products', label: t('productImport.backToProducts') }}
         description={t('productImport.uploadASpreadsheetToCreate')}
       />
 
@@ -253,7 +253,7 @@ export function ProductImportPage(): React.JSX.Element {
                     '/admin/products/import/template',
                     'uboss-product-import-template.csv',
                   ).catch(() => {
-                    toast.error('The template could not be downloaded.');
+                    toast.error(t('productImport.theTemplateCouldNotBeDownloaded'));
                   });
                 }}
               >
@@ -321,7 +321,7 @@ export function ProductImportPage(): React.JSX.Element {
                   fileRef.current?.click();
                 }}
               >
-                {preview === null ? 'Choose a CSV file' : 'Choose a different file'}
+                {preview === null ? t('productImport.chooseACsvFile') : t('productImport.chooseADifferentFile')}
               </Button>
 
               {uploadError !== null && (
@@ -349,15 +349,15 @@ export function ProductImportPage(): React.JSX.Element {
                 <>
                   <SummaryTiles
                     items={[
-                      { label: 'Rows read', value: formatNumber(preview.totalRows) },
+                      { label: t('productImport.rowsRead'), value: formatNumber(preview.totalRows) },
                       {
-                        label: 'Will create',
+                        label: t('productImport.willCreate'),
                         value: formatNumber(preview.result?.creates ?? 0),
                         tone: 'success',
                       },
-                      { label: 'Will update', value: formatNumber(preview.result?.updates ?? 0) },
+                      { label: t('productImport.willUpdate'), value: formatNumber(preview.result?.updates ?? 0) },
                       {
-                        label: 'Rows with errors',
+                        label: t('productImport.rowsWithErrors'),
                         value: formatNumber(preview.errorRows),
                         tone: preview.errorRows > 0 ? 'danger' : 'default',
                       },
@@ -366,10 +366,12 @@ export function ProductImportPage(): React.JSX.Element {
 
                   {hasRowErrors && (
                     <div className="mt-4">
-                      <h3 className="mb-2 text-title-xs text-ink">Rows that will not import</h3>
+                      <h3 className="mb-2 text-title-xs text-ink">
+                        {t('productImport.rowsThatWillNotImport')}
+                      </h3>
                       <div className="overflow-hidden rounded-md border border-border">
                         <DataTable
-                          caption="Row errors"
+                          caption={t('productImport.rowErrors')}
                           columns={errorColumns}
                           rows={preview.rowErrors}
                           rowKey={(row) =>
@@ -403,7 +405,7 @@ export function ProductImportPage(): React.JSX.Element {
                 {...(applied === null
                   ? {
                       description:
-                        'This is the step that changes the catalogue. The file is re-checked first, so anything that changed since the preview is caught here.',
+                        t('productImport.thisIsTheStepThatChanges'),
                     }
                   : {})}
               />
@@ -488,15 +490,15 @@ export function ProductImportPage(): React.JSX.Element {
             />
           ) : (
             <DataTable
-              caption="Recent imports"
+              caption={t('productImport.recentImports')}
               columns={historyColumns}
               rows={history.data?.jobs}
               rowKey={(row) => row.id}
               isLoading={history.isPending}
-              loadingLabel="Loading recent imports"
+              loadingLabel={t('productImport.loadingRecentImports')}
               minWidth="48rem"
-              emptyTitle="No imports yet"
-              emptyDescription="Uploads and confirmed imports both appear here."
+              emptyTitle={t('productImport.noImportsYet')}
+              emptyDescription={t('productImport.uploadsAndConfirmedImports')}
             />
           )}
         </Card>

@@ -52,7 +52,7 @@ export function OrdersPage(): React.JSX.Element {
 
   const { business } = useStorefront();
 
-  useDocumentMeta({ title: 'Your orders', noIndex: true }, business.displayName);
+  useDocumentMeta({ title: t('orders.yourOrders'), noIndex: true }, business.displayName);
 
   const query = useQuery({
     queryKey: ['orders'],
@@ -95,7 +95,10 @@ export function OrdersPage(): React.JSX.Element {
     <>
       <PageHeader
         title={t('orders.yourOrders')}
-        description={`${formatNumber(orders.length)} order${orders.length === 1 ? '' : 's'}, newest first.`}
+        description={t('orderDetail.ordersNewestFirst', {
+          count: orders.length,
+          orders: formatNumber(orders.length),
+        })}
       />
 
       <ul className="space-y-3">
@@ -137,7 +140,7 @@ export function OrdersPage(): React.JSX.Element {
                       </Badge>
                     )}
                     <Badge tone={orderStatusTone(order.status)}>
-                      {orderStatusLabel(order.status)}
+                      {orderStatusLabel(t, order.status)}
                     </Badge>
                   </div>
                 </div>

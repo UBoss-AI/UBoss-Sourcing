@@ -198,8 +198,11 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
 
           <p className="mt-1 text-xxs text-ink-subtle">
             {product.tax.inclusive
-              ? 'Tax included'
-              : `+ ${product.tax.ratePercent}% ${product.tax.code}`}
+              ? t('productCard.taxIncluded')
+              : t('productCard.plusTaxRate', {
+                  rate: product.tax.ratePercent,
+                  code: product.tax.code,
+                })}
           </p>
 
           {hasRuleChips && (

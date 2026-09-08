@@ -49,7 +49,8 @@ import {
 import { Permission } from '@/lib/permissions';
 import type { BadgeTone } from '@/components/ui';
 import type { Money } from '@/lib/types';
-import { useI18n } from '@/i18n/i18n-context';
+import { translateKey, useI18n } from '@/i18n/i18n-context';
+import type { TranslationKey } from '@/i18n/i18n-context';
 
 interface SalesReport {
   summary: {
@@ -95,19 +96,19 @@ interface ExportJob {
 }
 
 const WINDOWS = [
-  { value: '7', label: 'Last 7 days' },
-  { value: '30', label: 'Last 30 days' },
-  { value: '90', label: 'Last 90 days' },
-  { value: '365', label: 'Last 12 months' },
-] as const;
+  { value: '7', labelKey: 'reports.last7Days' },
+  { value: '30', labelKey: 'reports.last30Days' },
+  { value: '90', labelKey: 'reports.last90Days' },
+  { value: '365', labelKey: 'reports.last12Months' },
+] as const satisfies readonly { value: string; labelKey: TranslationKey }[];
 
 const EXPORT_TYPES = [
-  { value: 'ORDERS', label: 'Orders' },
-  { value: 'PAYMENTS', label: 'Payments' },
-  { value: 'CUSTOMERS', label: 'Customers' },
-  { value: 'INVENTORY', label: 'Inventory' },
-  { value: 'PRODUCTS', label: 'Products' },
-] as const;
+  { value: 'ORDERS', labelKey: 'label.orders' },
+  { value: 'PAYMENTS', labelKey: 'label.payments' },
+  { value: 'CUSTOMERS', labelKey: 'label.customers' },
+  { value: 'INVENTORY', labelKey: 'label.inventory' },
+  { value: 'PRODUCTS', labelKey: 'label.products' },
+] as const satisfies readonly { value: string; labelKey: TranslationKey }[];
 
 function exportTone(status: string): BadgeTone {
   if (status === 'SUCCEEDED') return 'success';
@@ -141,11 +142,11 @@ function ExportsPanel(): React.JSX.Element {
   const create = useMutation({
     mutationFn: () => api.post<{ exportJobId: string }>('/admin/exports', { type }),
     onSuccess: async () => {
-      toast.success('Export queued. It appears below when it is ready.');
+      toast.success(t('reports.exportQueued'));
       await queryClient.invalidateQueries({ queryKey: ['exports'] });
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : 'The export could not be queued.');
+      toast.error(error instanceof ApiError ? error.message : t('reports.theExportCouldNotBeQueued'));
     },
   });
 
@@ -157,7 +158,7 @@ function ExportsPanel(): React.JSX.Element {
       await downloadFile(`/exports/download/${token}`, job.fileName ?? 'export.csv');
     },
     onError: (error) => {
-      toast.error(error instanceof ApiError ? error.message : 'The file could not be downloaded.');
+      toast.error(error instanceof ApiError ? error.message : t('reports.theFileCouldNotBeDownloaded'));
     },
   });
 
@@ -167,7 +168,7 @@ function ExportsPanel(): React.JSX.Element {
   const columns: Column<ExportJob>[] = [
     {
       key: 'type',
-      header: 'Export',
+      header: t('label.export'),
       render: (row) => (
         <div>
           <p className="font-medium text-ink">{humanise(row.type)}</p>
@@ -179,7 +180,7 @@ function ExportsPanel(): React.JSX.Element {
     },
     {
       key: 'status',
-      header: 'Status',
+      header: t('label.status'),
       render: (row) => (
         <Badge dot tone={exportTone(row.status)}>
           {humanise(row.status)}
@@ -188,7 +189,7 @@ function ExportsPanel(): React.JSX.Element {
     },
     {
       key: 'rows',
-      header: 'Rows',
+      header: t('label.rows'),
       align: 'right',
       secondary: true,
       render: (row) =>
@@ -200,7 +201,7 @@ function ExportsPanel(): React.JSX.Element {
     },
     {
       key: 'created',
-      header: 'Requested',
+      header: t('label.requested'),
       secondary: true,
       nowrap: true,
       render: (row) => <span className="text-ink-muted">{formatDateTime(row.createdAt)}</span>,
@@ -243,7 +244,7 @@ function ExportsPanel(): React.JSX.Element {
             >
               {EXPORT_TYPES.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {option.label}
+                  {translateKey(t, option.labelKey)}
                 </option>
               ))}
             </Select>
@@ -256,34 +257,34 @@ function ExportsPanel(): React.JSX.Element {
               create.mutate();
             }}
           >
-            Request export
+            {t('reports.requestExport')}
           </Button>
 
           <ToolbarActions>
             <p className="text-xs text-ink-muted">
-              An export covers everything, not the period chosen above.
+              {t('reports.anExportCoversEverything')}
             </p>
           </ToolbarActions>
         </Toolbar>
       )}
 
       <DataTable
-        caption="Exports"
+        caption={t('reports.exports')}
         columns={columns}
         rows={query.data?.exports}
         rowKey={(row) => row.id}
         isLoading={query.isPending}
         error={query.isError ? query.error : undefined}
-        loadingLabel="Loading exports"
+        loadingLabel={t('reports.loadingExports')}
         minWidth="46rem"
         onRetry={() => {
           void query.refetch();
         }}
-        emptyTitle="No exports yet"
+        emptyTitle={t('reports.noExportsYet')}
         emptyDescription={
           canCreate
-            ? 'Request one above. It is queued, and the download appears here when it is ready.'
-            : 'Nothing has been exported.'
+            ? t('reports.requestOneAbove')
+            : t('reports.nothingHasBeenExported')
         }
       />
     </Card>
@@ -319,18 +320,18 @@ export function ReportsPage(): React.JSX.Element {
   const statusColumns: Column<OrdersReport['byStatus'][number]>[] = [
     {
       key: 'status',
-      header: 'Status',
+      header: t('label.status'),
       render: (row) => <Badge dot>{humanise(row.status)}</Badge>,
     },
     {
       key: 'count',
-      header: 'Orders',
+      header: t('label.orders'),
       align: 'right',
       render: (row) => formatNumber(row.count),
     },
     {
       key: 'value',
-      header: 'Value',
+      header: t('label.value'),
       align: 'right',
       nowrap: true,
       render: (row) =>
@@ -339,11 +340,11 @@ export function ReportsPage(): React.JSX.Element {
   ];
 
   const ageingColumns: Column<OrdersReport['fulfilmentAgeing'][number]>[] = [
-    { key: 'bucket', header: 'Waiting', nowrap: true, render: (row) => row.bucket },
-    { key: 'count', header: 'Orders', align: 'right', render: (row) => formatNumber(row.count) },
+    { key: 'bucket', header: t('label.waiting'), nowrap: true, render: (row) => row.bucket },
+    { key: 'count', header: t('label.orders'), align: 'right', render: (row) => formatNumber(row.count) },
     {
       key: 'oldest',
-      header: 'Oldest',
+      header: t('label.oldest'),
       align: 'right',
       nowrap: true,
       render: (row) =>
@@ -389,7 +390,7 @@ export function ReportsPage(): React.JSX.Element {
               >
                 {WINDOWS.map((option) => (
                   <option key={option.value} value={option.value}>
-                    {option.label}
+                    {translateKey(t, option.labelKey)}
                   </option>
                 ))}
               </Select>
@@ -462,18 +463,18 @@ export function ReportsPage(): React.JSX.Element {
             description={t('reports.everyOrderPlacedInThe')}
           >
             <DataTable
-              caption="Orders by status"
+              caption={t('reports.ordersByStatus')}
               columns={statusColumns}
               rows={orders.data?.byStatus}
               rowKey={(row) => row.status}
               isLoading={orders.isPending}
               error={orders.isError ? orders.error : undefined}
-              loadingLabel="Loading orders by status"
+              loadingLabel={t('reports.loadingOrdersByStatus')}
               onRetry={() => {
                 void orders.refetch();
               }}
-              emptyTitle="No orders in this period"
-              emptyDescription="Widen the period to see more."
+              emptyTitle={t('reports.noOrdersInThisPeriod')}
+              emptyDescription={t('reports.widenThePeriod')}
             />
           </Card>
 
@@ -482,15 +483,15 @@ export function ReportsPage(): React.JSX.Element {
             description={t('reports.howLongConfirmedOrdersHave')}
           >
             <DataTable
-              caption="Fulfilment ageing"
+              caption={t('reports.fulfilmentAgeing')}
               columns={ageingColumns}
               rows={orders.data?.fulfilmentAgeing}
               rowKey={(row) => row.bucket}
               isLoading={orders.isPending}
               error={orders.isError ? orders.error : undefined}
-              loadingLabel="Loading fulfilment ageing"
-              emptyTitle="Nothing waiting"
-              emptyDescription="No confirmed order is sitting unshipped."
+              loadingLabel={t('reports.loadingFulfilmentAgeing')}
+              emptyTitle={t('reports.nothingWaiting')}
+              emptyDescription={t('reports.noConfirmedOrderWaiting')}
             />
           </Card>
         </div>

@@ -56,6 +56,47 @@ export async function getUserLanguage(userId: string): Promise<SupportedLanguage
   return isSupportedLanguage(stored) ? stored : null;
 }
 
+/**
+ * The language an office in this country works in, or null.
+ *
+ * This is what makes a sign-in from Berlin land on a German panel without
+ * anybody touching the picker. The console asks for it once per sign-in, with
+ * the country its own geocoder resolved, and adopts the answer.
+ *
+ * Three things it deliberately is not:
+ *
+ *   - **Not a fallback to English.** Null means "leave this person's language
+ *     alone", and it is the answer for every country whose language the panel
+ *     ships no catalogue for. Somebody in Prague who reads the panel in Polish
+ *     keeps Polish; throwing them into English because they are not in Warsaw
+ *     would be a worse answer than doing nothing.
+ *   - **Not a lock.** The picker still outranks it - see the provider in
+ *     apps/admin-web/src/i18n. This chooses a starting point for a sign-in,
+ *     once, and a member of staff who wants another language says so and is
+ *     believed.
+ *   - **Not a hard-coded map.** `countries.languageCode` is a row an operator
+ *     edits, because a Brussels office reads French where an Antwerp one reads
+ *     Dutch and no table shipped in a release can know which one bought this.
+ *
+ * A stored code the frontends no longer ship reads back as null, exactly as a
+ * withdrawn account preference does: handing the panel a language it has no
+ * catalogue for is not an improvement on handing it nothing.
+ */
+export async function languageForCountry(
+  country: string | null,
+): Promise<SupportedLanguage | null> {
+  if (country === null) return null;
+
+  const row = await prisma.country.findUnique({
+    where: { code: country.trim().toUpperCase() },
+    select: { languageCode: true },
+  });
+
+  const stored = row?.languageCode ?? null;
+
+  return isSupportedLanguage(stored) ? stored : null;
+}
+
 /** Save a choice. The caller is responsible for having validated it. */
 export async function setUserLanguage(
   userId: string,

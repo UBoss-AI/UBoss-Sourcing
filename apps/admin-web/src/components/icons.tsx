@@ -310,6 +310,23 @@ export function ClockIcon(props: IconProps): React.JSX.Element {
 }
 
 /**
+ * Where a sign-in came from.
+ *
+ * A map pin, and drawn as the outline plus a hole rather than a filled teardrop
+ * with a dot: at 14px beside a place name a solid pin reads as a smudge, and
+ * this one sits inside a chip in the top bar where it is the smallest mark on
+ * the screen.
+ */
+export function PinIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M12 21s-6.4-5.1-6.4-10.2a6.4 6.4 0 1 1 12.8 0C18.4 15.9 12 21 12 21" />
+      <circle cx="12" cy="10.6" r="2.3" />
+    </Icon>
+  );
+}
+
+/**
  * The console bell.
  *
  * Drawn without a clapper stroke inside the body: at 20px the extra line

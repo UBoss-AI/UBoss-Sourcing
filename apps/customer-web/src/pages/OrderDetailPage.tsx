@@ -30,13 +30,14 @@ import {
 import { Modal } from '@/components/Modal';
 import { GrandTotalRow, TotalRow } from '@/components/Totals';
 import { CheckIcon, DotIcon, RepeatIcon } from '@/components/icons';
-import { ApiError, api } from '@/lib/api';
+import { api } from '@/lib/api';
 import { cx } from '@/lib/cx';
 import { formatDateTime, formatMoney, formatNumber } from '@/lib/format';
 import { orderStatusExplanation, orderStatusLabel, orderStatusTone } from '@/lib/order-status';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { OrderAddress, OrderDetail } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
+import { errorMessage } from '@/lib/errors';
 
 function AddressBlock({
   title,
@@ -91,7 +92,7 @@ export function OrderDetailPage(): React.JSX.Element {
   });
 
   useDocumentMeta(
-    { title: query.data?.order.orderNumber ?? 'Order', noIndex: true },
+    { title: query.data?.order.orderNumber ?? t('orderDetail.orderLabel'), noIndex: true },
     business.displayName,
   );
 
@@ -100,7 +101,7 @@ export function OrderDetailPage(): React.JSX.Element {
     onSuccess: async () => {
       setIsCancelling(false);
       setCancelError(null);
-      toast.success('Your order has been cancelled.');
+      toast.success(t('orderDetail.orderCancelled'));
       await queryClient.invalidateQueries({ queryKey: ['order', id] });
       await queryClient.invalidateQueries({ queryKey: ['orders'] });
     },
@@ -109,7 +110,7 @@ export function OrderDetailPage(): React.JSX.Element {
       // order cannot be cancelled once it has shipped" — and repeating that
       // rule here would be a second copy waiting to drift.
       setCancelError(
-        error instanceof ApiError ? error.message : 'This order could not be cancelled.',
+        errorMessage(t, error, t('orderDetail.couldNotBeCancelled')),
       );
     },
   });
@@ -135,14 +136,12 @@ export function OrderDetailPage(): React.JSX.Element {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['cart'] });
-      toast.success('Added to your cart at current prices.');
+      toast.success(t('orderDetail.addedAtCurrentPrices'));
       void navigate('/cart');
     },
     onError: (error) => {
       toast.error(
-        error instanceof ApiError
-          ? error.message
-          : 'Some items could not be added. They may no longer be available.',
+        errorMessage(t, error, t('orderDetail.someItemsCouldNotBeAdded')),
       );
       void queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
@@ -162,7 +161,7 @@ export function OrderDetailPage(): React.JSX.Element {
   }
 
   const order = query.data.order;
-  const explanation = orderStatusExplanation(order.status, order.paymentMode);
+  const explanation = orderStatusExplanation(t, order.status, order.paymentMode);
   const isSettled = BigInt(order.totals.paid.minor) >= BigInt(order.totals.grandTotal.minor);
   const canPayNow = order.status === 'PENDING_PAYMENT' && order.paymentMode !== 'PAYMENT_LINK';
 
@@ -200,7 +199,7 @@ export function OrderDetailPage(): React.JSX.Element {
               {t('orderDetail.fromARepeatPurchase')}
             </Badge>
           )}
-          <Badge tone={orderStatusTone(order.status)}>{orderStatusLabel(order.status)}</Badge>
+          <Badge tone={orderStatusTone(order.status)}>{orderStatusLabel(t, order.status)}</Badge>
         </div>
       </header>
 
@@ -382,7 +381,7 @@ export function OrderDetailPage(): React.JSX.Element {
                       <p
                         className={cx('text-sm', isLatest ? 'font-semibold text-ink' : 'text-ink')}
                       >
-                        {orderStatusLabel(entry.to)}
+                        {orderStatusLabel(t, entry.to)}
                         {isLatest && <span className="sr-only"> — current status</span>}
                       </p>
                       <p className="mt-0.5 text-xs text-ink-subtle">{formatDateTime(entry.at)}</p>
@@ -431,7 +430,7 @@ export function OrderDetailPage(): React.JSX.Element {
                 <ul className="mt-2 space-y-2 text-sm">
                   {order.shipments.map((shipment, index) => (
                     <li key={`${shipment.trackingNumber ?? ''}:${String(index)}`}>
-                      <span className="text-ink">{shipment.carrier ?? 'Courier'}</span>
+                      <span className="text-ink">{shipment.carrier ?? t('orderDetail.courier')}</span>
                       {shipment.trackingNumber !== null && (
                         <span className="ml-2 font-mono text-xs text-ink-muted">
                           {shipment.trackingNumber}
@@ -538,7 +537,7 @@ export function OrderDetailPage(): React.JSX.Element {
         onClose={() => {
           setIsCancelling(false);
         }}
-        title={`Cancel ${order.orderNumber}?`}
+        title={t('orderDetail.cancelOrderQuestion', { order: order.orderNumber })}
         description={t('orderDetail.tellUsWhySoWe')}
         footer={
           <>

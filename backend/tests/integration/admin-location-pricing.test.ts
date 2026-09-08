@@ -21,6 +21,14 @@
  * judging it does not sell in. `inMarket` below is how a test says where the
  * signed-in member of staff is sitting.
  *
+ * That market decides the **currency** as much as the rate, and the two are
+ * separate claims: the country picks which of a product's per-currency price
+ * rows is being read, and then its VAT lands on that row. A customer in Poland
+ * is quoted the złoty row at 23%, not the euro row at 23% and not the złoty row
+ * at 21%. Where the product has no row in that currency it is not sold in that
+ * market at all, and the panel must say so rather than substitute a figure -
+ * quoting the euro number in złoty would be inventing a price.
+ *
  * The last block is everybody else's deployment: an Indian GST store has no
  * `vatCountry`, so a recorded country must be inert rather than merely
  * harmless.
@@ -54,25 +62,31 @@ interface Money {
 interface ListRow {
   sku: string;
   price: Money;
-  quoted: Money;
-  quotedTax: { ratePercent: string; inclusive: boolean };
+  /** Null where the product has no price in the market's currency. */
+  quoted: Money | null;
+  quotedTax: { ratePercent: string; inclusive: boolean } | null;
 }
 
 interface ListResponse {
   products: ListRow[];
   country: string | null;
+  /** The currency every quote is in. Null where no market named one. */
+  currency: string | null;
   taxNote: string;
 }
 
 interface VariantRow {
   sku: string;
   priceMinor: string | null;
-  quotedMinor: string | null;
+  /** Carries its own currency: it can differ from the override beside it. */
+  quoted: Money | null;
   quotedTax: { ratePercent: string; inclusive: boolean } | null;
 }
 
 interface PricesResponse {
   country: string | null;
+  /** Which of the rows below the console is quoting from. */
+  marketCurrency: string | null;
   taxNote: string;
   prices: {
     currency: { code: string };
@@ -122,11 +136,18 @@ async function variants(): Promise<VariantRow[]> {
   return response.json<{ variants: VariantRow[] }>().variants;
 }
 
-/** A variant with a price of its own, listed in the seller's own terms. */
-async function makeVariant(sku: string, listedMinor: bigint | null): Promise<void> {
+/**
+ * A variant with a price of its own, listed in the seller's own terms.
+ *
+ * Returns the id so a test can give it a price in another currency, which is
+ * how a variant reaches a market whose currency is not the seller's.
+ */
+async function makeVariant(sku: string, listedMinor: bigint | null): Promise<string> {
+  const id = newId();
+
   await prisma.productVariant.create({
     data: {
-      id: newId(),
+      id,
       productId,
       sku,
       name: sku,
@@ -134,6 +155,21 @@ async function makeVariant(sku: string, listedMinor: bigint | null): Promise<voi
       priceMinor: listedMinor,
       isActive: true,
     },
+  });
+
+  return id;
+}
+
+/**
+ * A real, staff-entered price in another currency.
+ *
+ * `variantKey` is the variant's id, or '' for the product itself - the same
+ * key the storefront reads. Never a converted figure: that is the whole point
+ * of the table.
+ */
+async function priceIn(currency: string, minor: bigint, variantKey = ''): Promise<void> {
+  await prisma.productPrice.create({
+    data: { id: newId(), productId, variantKey, currencyCode: currency, basePriceMinor: minor },
   });
 }
 
@@ -159,17 +195,31 @@ async function ensureReferenceData(): Promise<void> {
     create: { code: 'EUR', name: 'Euro', symbol: '€', exponent: 2, sortOrder: 30 },
   });
 
-  const countries: [string, string, boolean][] = [
-    ['NL', 'Netherlands', true],
-    ['DE', 'Germany', true],
-    ['CH', 'Switzerland', false],
+  // A member state with a currency of its own. Poland is the case the whole
+  // currency half of this file turns on: inside the EU VAT area, so a rate
+  // applies, and not on the euro, so the rate applies to a different row.
+  await prisma.currency.upsert({
+    where: { code: 'PLN' },
+    update: { isActive: true },
+    create: { code: 'PLN', name: 'Polish Złoty', symbol: 'zł', exponent: 2, sortOrder: 65 },
+  });
+
+  const countries: [string, string, string, boolean][] = [
+    ['NL', 'Netherlands', 'EUR', true],
+    ['DE', 'Germany', 'EUR', true],
+    ['CH', 'Switzerland', 'EUR', false],
+    ['PL', 'Poland', 'PLN', true],
   ];
 
-  for (const [code, name, isEuVat] of countries) {
+  for (const [code, name, currencyCode, isEuVat] of countries) {
     await prisma.country.upsert({
       where: { code },
-      update: { isEuVat, isActive: true },
-      create: { code, name, currencyCode: 'EUR', isActive: true, isEuVat },
+      // The currency is set on update as well as create: these rows are shared
+      // with every other file in this suite, and a PL row left on the euro by
+      // an earlier fixture would quietly turn the assertions below into a test
+      // of nothing.
+      update: { currencyCode, isEuVat, isActive: true },
+      create: { code, name, currencyCode, isActive: true, isEuVat },
     });
   }
 }
@@ -212,6 +262,8 @@ async function makeDutchSeller(): Promise<void> {
     ['NL', 'REDUCED', '9'],
     ['DE', 'STANDARD', '19'],
     ['DE', 'REDUCED', '7'],
+    ['PL', 'STANDARD', '23'],
+    ['PL', 'REDUCED', '8'],
   ];
 
   for (const [countryCode, category, ratePercent] of rates) {
@@ -349,8 +401,11 @@ describe('the product list, quoted for a market', () => {
     expect(listed.price.minor).toBe('12100');
 
     // The Dutch 21% comes out and German 19% goes on: EUR 100 net, EUR 119.
-    expect(listed.quoted.minor).toBe('11900');
+    expect(listed.quoted?.minor).toBe('11900');
     expect(listed.quotedTax).toMatchObject({ ratePercent: '19', inclusive: true });
+    // Germany is on the euro, so the row being read is the euro one - the same
+    // row the price beside it is authored in.
+    expect(listed.quoted?.currency).toBe('EUR');
   });
 
   it('names the market the figure was produced for', async () => {
@@ -373,8 +428,12 @@ describe('the product list, quoted for a market', () => {
     expect(country).toBeNull();
     // The same answer a shopper gets before entering a delivery address:
     // EUR 121 already is EUR 100 plus 21% Dutch VAT.
-    expect(listed.quoted.minor).toBe('12100');
-    expect(listed.quotedTax.ratePercent).toBe('21');
+    expect(listed.quoted?.minor).toBe('12100');
+    expect(listed.quotedTax?.ratePercent).toBe('21');
+    // And no market means no market currency: the row is quoted in the one its
+    // own price is authored in, which is what this console always did.
+    expect((await list()).currency).toBeNull();
+    expect(listed.quoted?.currency).toBe('EUR');
   });
 
   it('cannot be talked into quoting a market the session is not in', async () => {
@@ -389,8 +448,8 @@ describe('the product list, quoted for a market', () => {
     // reading it does not sell in - and the one figure they cannot check is
     // the one they would be checking.
     expect(country).toBe('NL');
-    expect(listed.quoted.minor).toBe('12100');
-    expect(listed.quotedTax.ratePercent).toBe('21');
+    expect(listed.quoted?.minor).toBe('12100');
+    expect(listed.quotedTax?.ratePercent).toBe('21');
   });
 
   it('drops the VAT for a customer outside the EU', async () => {
@@ -398,8 +457,8 @@ describe('the product list, quoted for a market', () => {
     const listed = await row();
 
     // Zero-rated as an export, so the figure staff read is the net one.
-    expect(listed.quoted.minor).toBe('10000');
-    expect(listed.quotedTax.ratePercent).toBe('0');
+    expect(listed.quoted?.minor).toBe('10000');
+    expect(listed.quotedTax?.ratePercent).toBe('0');
   });
 
   it('agrees with the per-currency panel on the same product', async () => {
@@ -413,9 +472,12 @@ describe('the product list, quoted for a market', () => {
     // apart, and a figure that changed on the way between them would leave
     // staff no way to tell which of the two the shop is using.
     expect(euro?.basePriceMinor).toBe(listed.price.minor);
-    expect(euro?.quoted?.minor).toBe(listed.quoted.minor);
-    expect(euro?.quotedTax?.ratePercent).toBe(listed.quotedTax.ratePercent);
+    expect(euro?.quoted?.minor).toBe(listed.quoted?.minor);
+    expect(euro?.quotedTax?.ratePercent).toBe(listed.quotedTax?.ratePercent);
     expect(panel.country).toBe('DE');
+    // And the panel says which of its rows the reader's own screens quote
+    // from, which on a euro market is the euro one.
+    expect(panel.marketCurrency).toBe('EUR');
   });
 
   it('quotes a variant’s own price at the destination’s rate', async () => {
@@ -429,7 +491,8 @@ describe('the product list, quoted for a market', () => {
     // jump the moment a shopper picked it, after the page had already quoted
     // them a German price for the product.
     expect(variant?.priceMinor).toBe('24200');
-    expect(variant?.quotedMinor).toBe('23800');
+    expect(variant?.quoted?.minor).toBe('23800');
+    expect(variant?.quoted?.currency).toBe('EUR');
     expect(variant?.quotedTax).toMatchObject({ ratePercent: '19', inclusive: true });
   });
 
@@ -443,7 +506,7 @@ describe('the product list, quoted for a market', () => {
     // card above. Repeating it here would read as an override that does not
     // exist - which is a price somebody would then go looking for.
     expect(variant?.priceMinor).toBeNull();
-    expect(variant?.quotedMinor).toBeNull();
+    expect(variant?.quoted).toBeNull();
     expect(variant?.quotedTax).toBeNull();
   });
 
@@ -457,7 +520,91 @@ describe('the product list, quoted for a market', () => {
     const [variant] = await variants();
     const listed = await row();
 
-    expect(variant?.quotedMinor).toBe(listed.quoted.minor);
+    expect(variant?.quoted?.minor).toBe(listed.quoted?.minor);
+  });
+
+  it('quotes the market’s own currency, from that currency’s price list', async () => {
+    // PLN 121 is the złoty row a member of staff typed. It is not a conversion
+    // of the euro row and nothing here can turn one into the other - which is
+    // why this figure is deliberately the same number in a different currency:
+    // if the response ever quoted EUR, the currency on it would be the only
+    // thing that gave it away.
+    await priceIn('PLN', 12_100n);
+    await inMarket('PL');
+
+    const { country, currency } = await list();
+    const listed = await row();
+
+    expect(country).toBe('PL');
+    expect(currency).toBe('PLN');
+
+    // The listed figure staff edit is untouched, and stays in the currency it
+    // was authored in. Two currencies on one row, each labelled.
+    expect(listed.price).toMatchObject({ minor: '12100', currency: 'EUR' });
+
+    // The Dutch 21% comes out of the złoty row and Poland's 23% goes on:
+    // PLN 100 net, PLN 123.
+    expect(listed.quoted).toMatchObject({ minor: '12300', currency: 'PLN' });
+    expect(listed.quotedTax).toMatchObject({ ratePercent: '23', inclusive: true });
+  });
+
+  it('quotes nothing where the product has no price in that currency', async () => {
+    // No złoty row at all: this product is not sold in Poland. The euro figure
+    // is not an answer to what a customer in Warsaw pays, and substituting it
+    // would put a number on screen that nobody could be charged.
+    await inMarket('PL');
+
+    const { currency } = await list();
+    const listed = await row();
+
+    expect(currency).toBe('PLN');
+    expect(listed.quoted).toBeNull();
+    expect(listed.quotedTax).toBeNull();
+    // The price list itself is still there to be read and edited.
+    expect(listed.price).toMatchObject({ minor: '12100', currency: 'EUR' });
+  });
+
+  it('names the market’s currency on the per-currency panel', async () => {
+    await priceIn('PLN', 12_100n);
+    await inMarket('PL');
+
+    const panel = await prices();
+    const zloty = panel.prices.find((entry) => entry.currency.code === 'PLN');
+
+    // Every currency stays on this screen - it is where prices are set, and a
+    // Polish market is no reason to hide the euro row from the person setting
+    // it. Exactly one of them is what a customer in front of the reader pays.
+    expect(panel.marketCurrency).toBe('PLN');
+    expect(zloty?.quoted).toMatchObject({ minor: '12300', currency: 'PLN' });
+  });
+
+  it('quotes a variant’s override from the market’s own currency', async () => {
+    const variantId = await makeVariant('GLV-ADMIN-100-PL', 24_200n);
+    // PLN 242 for the same pack: a second real figure, not a conversion.
+    await priceIn('PLN', 24_200n, variantId);
+    await inMarket('PL');
+
+    const [variant] = await variants();
+
+    // The override staff typed, in the currency they typed it in...
+    expect(variant?.priceMinor).toBe('24200');
+    // ...and what a customer in Warsaw pays for it: PLN 200 net at 23%.
+    expect(variant?.quoted).toMatchObject({ minor: '24600', currency: 'PLN' });
+    expect(variant?.quotedTax).toMatchObject({ ratePercent: '23', inclusive: true });
+  });
+
+  it('quotes nothing for a variant priced in every currency but the market’s', async () => {
+    // An override in euro and none in złoty. The variant carries a price, but
+    // not one anybody in Poland can be charged - and that is a different fact
+    // from "no override", which is why the panel words the two differently.
+    await makeVariant('GLV-ADMIN-100-XL', 24_200n);
+    await inMarket('PL');
+
+    const [variant] = await variants();
+
+    expect(variant?.priceMinor).toBe('24200');
+    expect(variant?.quoted).toBeNull();
+    expect(variant?.quotedTax).toBeNull();
   });
 
   it('leaves a catalogue authored net of tax at its listed figure', async () => {
@@ -470,7 +617,7 @@ describe('the product list, quoted for a market', () => {
 
     const listed = await row();
 
-    expect(listed.quoted.minor).toBe('12100');
+    expect(listed.quoted?.minor).toBe('12100');
     expect(listed.quotedTax).toMatchObject({ ratePercent: '19', inclusive: false });
   });
 });
@@ -504,7 +651,7 @@ describe('a deployment with no EU VAT configured', () => {
 
     const [variant] = await variants();
 
-    expect(variant?.quotedMinor).toBe('20000');
+    expect(variant?.quoted?.minor).toBe('20000');
     expect(variant?.quotedTax).toMatchObject({ ratePercent: '18', inclusive: false });
   });
 
@@ -517,7 +664,7 @@ describe('a deployment with no EU VAT configured', () => {
       // must not acquire German VAT because a console appended a query
       // parameter.
       expect(listed.price.minor).toBe('12100');
-      expect(listed.quoted.minor).toBe('12100');
+      expect(listed.quoted?.minor).toBe('12100');
       expect(listed.quotedTax).toMatchObject({ ratePercent: '18', inclusive: false });
     }
   });

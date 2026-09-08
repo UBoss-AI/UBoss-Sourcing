@@ -31,7 +31,8 @@ import { api } from '@/lib/api';
 import { formatDateTime, formatMoney, formatNumber, humanise } from '@/lib/format';
 import { ORDER_STATUSES, orderStatusTone } from '@/lib/orders';
 import type { OrderListItem, OrderListResponse, OrderTotals } from '@/lib/orders';
-import { useI18n } from '@/i18n/i18n-context';
+import { translateKey, useI18n } from '@/i18n/i18n-context';
+import type { TranslationKey } from '@/i18n/i18n-context';
 
 /**
  * Where the money is, in one word.
@@ -40,16 +41,16 @@ import { useI18n } from '@/i18n/i18n-context';
  * field: the backend's truth about payment is the totals, and a second
  * opinion computed here could only ever disagree with it.
  */
-function paymentState(totals: OrderTotals): { label: string; tone: BadgeTone } {
+function paymentState(totals: OrderTotals): { labelKey: TranslationKey; tone: BadgeTone } {
   const paid = BigInt(totals.paid.minor);
   const due = BigInt(totals.grandTotal.minor);
   const refunded = BigInt(totals.refunded.minor);
 
   if (refunded > 0n)
-    return { label: refunded >= paid ? 'Refunded' : 'Part refunded', tone: 'danger' };
-  if (paid <= 0n) return { label: 'Unpaid', tone: 'neutral' };
-  if (paid >= due) return { label: 'Paid', tone: 'success' };
-  return { label: 'Part paid', tone: 'warning' };
+    return { labelKey: refunded >= paid ? 'label.refunded' : 'label.partRefunded', tone: 'danger' };
+  if (paid <= 0n) return { labelKey: 'label.unpaid', tone: 'neutral' };
+  if (paid >= due) return { labelKey: 'label.paid', tone: 'success' };
+  return { labelKey: 'label.partPaid', tone: 'warning' };
 }
 
 export function OrdersPage(): React.JSX.Element {
@@ -119,7 +120,7 @@ export function OrdersPage(): React.JSX.Element {
   const columns: Column<OrderListItem>[] = [
     {
       key: 'order',
-      header: 'Order',
+      header: t('label.order'),
       nowrap: true,
       render: (row) => (
         <div>
@@ -138,7 +139,7 @@ export function OrdersPage(): React.JSX.Element {
     },
     {
       key: 'customer',
-      header: 'Customer',
+      header: t('label.customer'),
       render: (row) => (
         <div className="min-w-40">
           <p className="text-ink">{row.customer?.fullName ?? '—'}</p>
@@ -150,7 +151,7 @@ export function OrdersPage(): React.JSX.Element {
     },
     {
       key: 'status',
-      header: 'Fulfilment',
+      header: t('label.fulfilment'),
       render: (row) => (
         <Badge dot tone={orderStatusTone(row.status)}>
           {humanise(row.status)}
@@ -159,26 +160,26 @@ export function OrdersPage(): React.JSX.Element {
     },
     {
       key: 'payment',
-      header: 'Payment',
+      header: t('label.payment'),
       render: (row) => {
         const state = paymentState(row.totals);
         return (
           <Badge dot tone={state.tone}>
-            {state.label}
+            {translateKey(t, state.labelKey)}
           </Badge>
         );
       },
     },
     {
       key: 'total',
-      header: 'Total',
+      header: t('label.total'),
       align: 'right',
       nowrap: true,
       render: (row) => formatMoney(row.totals.grandTotal),
     },
     {
       key: 'paid',
-      header: 'Paid',
+      header: t('label.paid'),
       align: 'right',
       nowrap: true,
       render: (row) => {
@@ -202,7 +203,7 @@ export function OrdersPage(): React.JSX.Element {
     },
     {
       key: 'placed',
-      header: 'Placed',
+      header: t('label.placed'),
       secondary: true,
       nowrap: true,
       render: (row) => (
@@ -277,14 +278,14 @@ export function OrdersPage(): React.JSX.Element {
         </Toolbar>
 
         <DataTable
-          caption="Orders"
+          caption={t('label.orders')}
           columns={columns}
           rows={query.data?.orders}
           rowKey={(row) => row.id}
           isLoading={query.isPending}
           isRefreshing={query.isFetching && !query.isPending}
           error={query.isError ? query.error : undefined}
-          loadingLabel="Loading orders"
+          loadingLabel={t('orders.loadingOrders')}
           minWidth="64rem"
           onRetry={() => {
             void query.refetch();
@@ -292,11 +293,11 @@ export function OrdersPage(): React.JSX.Element {
           onRowClick={(row) => {
             void navigate(`/orders/${row.id}`);
           }}
-          emptyTitle={hasFilters ? 'Nothing matches these filters' : 'No orders yet'}
+          emptyTitle={hasFilters ? t('common.nothingMatchesFilters') : t('orders.noOrdersYet')}
           emptyDescription={
             hasFilters
-              ? 'Widen the search, or clear the filters to see the whole queue.'
-              : 'Orders appear here as customers place them.'
+              ? t('orders.widenTheSearch')
+              : t('orders.ordersAppearHere')
           }
           emptyAction={
             hasFilters ? (

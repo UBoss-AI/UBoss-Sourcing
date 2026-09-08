@@ -30,7 +30,12 @@ import {
   updateCategory,
 } from '../../modules/catalog/category.service.js';
 import { bulkPriceFromCurrency } from '../../modules/catalog/bulk-price.service.js';
-import { currenciesForProduct, writeProductPrices } from '../../modules/catalog/price.service.js';
+import {
+  currenciesForProduct,
+  loadPricesForCurrency,
+  priceKey,
+  writeProductPrices,
+} from '../../modules/catalog/price.service.js';
 import {
   attributeConditions,
   attributeFacetsFor,
@@ -38,7 +43,10 @@ import {
   inStockCondition,
   outOfStockCondition,
 } from '../../modules/catalog/product-filters.js';
-import { loadShelfContext, quoteShelfPrice } from '../../modules/catalog/location-price.service.js';
+import {
+  loadConsoleMarket,
+  quoteShelfPrice,
+} from '../../modules/catalog/location-price.service.js';
 import { getBaseCurrency, listActiveCurrencies } from '../../modules/settings/currency.service.js';
 import { fetchRates } from '../../modules/settings/fx-rate.service.js';
 import {
@@ -393,8 +401,18 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
    * not a shop window. Somebody who needs to see Germany's prices is somebody
    * signing in from Germany.
    *
+   * And that market decides the **currency** of the second figure as well as
+   * its tax, because a customer in Germany is not quoted rupees. The figure
+   * comes from that currency's own row in `product_prices` - a real,
+   * staff-entered price - and never from converting another currency's number,
+   * which is the one thing this catalogue has never done. A product with no
+   * row in the market's currency is not sold in that market, so `quoted` is
+   * `null` and the panel says so; substituting the listed figure there would
+   * quote a JPY 5,000 item as EUR 5,000.
+   *
    * Where no geocoder answered, or in a deployment with no EU VAT configured,
-   * `quoted` is the listed figure and the panel has nothing extra to show.
+   * the market is the seller's own: `quoted` is the listed figure in the base
+   * currency and the panel has nothing extra to show.
    */
   app.get(
     '/products',
@@ -403,7 +421,7 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
       const query = adminProductQuerySchema.parse(request.query);
       const where = adminProductWhere(query);
 
-      const [rows, total, shelf] = await Promise.all([
+      const [rows, total, market] = await Promise.all([
         prisma.product.findMany({
           where,
           // `id` as a tiebreaker keeps pagination stable across pages.
@@ -434,23 +452,64 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
         }),
         prisma.product.count({ where }),
         // Resolved once for the whole page rather than once per row: the VAT
-        // tables are the same for every line on it, and a lookup per product
-        // would turn a page of twenty-five into fifty round trips.
-        loadShelfContext(currentUser(request).sessionCountry),
+        // tables and the market currency are the same for every line on it,
+        // and a lookup per product would turn a page of twenty-five into fifty
+        // round trips.
+        loadConsoleMarket(currentUser(request).sessionCountry),
       ]);
+
+      // One query for the whole page's prices in the market's currency, and
+      // only the base product's - a variant's own override is quoted on the
+      // product's own screen, where there is room to say which variant.
+      //
+      // Skipped entirely where the market named no currency: every row is then
+      // quoted in the currency its own price is authored in, which needs no
+      // price rows at all.
+      const marketPrices =
+        market.currency === null
+          ? null
+          : await loadPricesForCurrency(
+              rows.map((row) => ({ productId: row.id, variantId: null })),
+              market.currency,
+            );
 
       return reply.status(200).send({
         products: rows.map((row) => {
-          const quote = quoteShelfPrice(
-            shelf.setup,
-            {
-              vatCategory: row.taxClass.vatCategory,
-              flatRatePercent: row.taxClass.ratePercent.toString(),
-              taxInclusive: row.taxClass.isInclusive,
-              productName: row.name,
-            },
-            row.basePriceMinor,
-          );
+          /**
+           * The listed figure the quote is made from, and the currency it is in.
+           *
+           * With no market currency, the product's own authored price in its
+           * own currency - the answer the console has always given, and the
+           * only sensible one when nobody has said which market is being asked
+           * about.
+           *
+           * With one, that currency's own row in `product_prices`; and where
+           * there is none, the authored figure, but only when the market is
+           * already being quoted in the currency that figure is in. That last
+           * case is the single-market deployment, where a product need not have
+           * a price row at all for this panel to have shown its price.
+           */
+          const quotedIn = market.currency ?? row.currency;
+
+          const listedInMarket =
+            market.currency === null
+              ? row.basePriceMinor
+              : (marketPrices?.get(priceKey(row.id, null))?.basePriceMinor ??
+                (market.currency === row.currency ? row.basePriceMinor : null));
+
+          const quote =
+            listedInMarket === null
+              ? null
+              : quoteShelfPrice(
+                  market.setup,
+                  {
+                    vatCategory: row.taxClass.vatCategory,
+                    flatRatePercent: row.taxClass.ratePercent.toString(),
+                    taxInclusive: row.taxClass.isInclusive,
+                    productName: row.name,
+                  },
+                  listedInMarket,
+                );
 
           return {
             id: row.id,
@@ -462,9 +521,17 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
             publishedAt: row.publishedAt?.toISOString() ?? null,
             /** The listed figure: what staff typed, and what they edit. */
             price: serialiseMoney(row.basePriceMinor, row.currency),
-            /** What a customer in `country` is charged for that figure. */
-            quoted: serialiseMoney(quote.unitPriceMinor, row.currency),
-            quotedTax: { ratePercent: quote.taxRatePercent, inclusive: quote.taxInclusive },
+            /**
+             * What a customer in `country` pays, in `currency`.
+             *
+             * Null where this product has no price in that currency, which is
+             * the honest answer: it is not sold in that market.
+             */
+            quoted: quote === null ? null : serialiseMoney(quote.unitPriceMinor, quotedIn),
+            quotedTax:
+              quote === null
+                ? null
+                : { ratePercent: quote.taxRatePercent, inclusive: quote.taxInclusive },
             isStockTracked: row.isStockTracked,
             reorderThreshold: row.reorderThreshold,
             archivedAt: row.archivedAt?.toISOString() ?? null,
@@ -475,9 +542,17 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
           };
         }),
         /** Which destination those quotes are for. Null when none was asked for. */
-        country: shelf.country,
+        country: market.country,
+        /**
+         * The currency every `quoted` above is in.
+         *
+         * Null where no market named one, and each row is then quoted in the
+         * currency of its own listed price - which is also the currency on the
+         * `price` beside it, so nothing on the screen is ambiguous.
+         */
+        currency: market.currency,
         /** Which rate applies there and on what basis, in one sentence. */
-        taxNote: shelf.setup.context.reason,
+        taxNote: market.setup.context.reason,
         pagination: {
           page: query.page,
           limit: query.limit,
@@ -662,9 +737,9 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
       });
       if (product === null) throw notFound('Product');
 
-      const [currencies, shelf] = await Promise.all([
+      const [currencies, market] = await Promise.all([
         listActiveCurrencies(),
-        loadShelfContext(country),
+        loadConsoleMarket(country),
       ]);
 
       const rows = await prisma.productPrice.findMany({
@@ -684,13 +759,23 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
         product: { id: product.id, name: product.name, sku: product.sku },
         baseCurrency: await getBaseCurrency(),
         /** Where the preview column is quoted for. Null when none was asked for. */
-        country: shelf.country,
+        country: market.country,
+        /**
+         * The row this console is actually quoting from.
+         *
+         * Every currency is listed here - this is the screen prices are set on,
+         * so every market has to be reachable whichever one staff are sitting
+         * in. But exactly one of these rows is the price a customer in front of
+         * them pays, and marking it is the difference between a price list and
+         * an answer.
+         */
+        marketCurrency: market.currency,
         /** Which rate applies there and why, in a sentence, because the panel prints it. */
-        taxNote: shelf.setup.context.reason,
+        taxNote: market.setup.context.reason,
         prices: currencies.map((currency) => {
           const row = byCurrency.get(currency.code);
           const quote =
-            row === undefined ? null : quoteShelfPrice(shelf.setup, line, row.basePriceMinor);
+            row === undefined ? null : quoteShelfPrice(market.setup, line, row.basePriceMinor);
 
           return {
             currency,

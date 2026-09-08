@@ -11,10 +11,11 @@
  */
 import type { Prisma } from '../../generated/prisma/client.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
+import { serialiseMoney } from '../../domain/money.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
-import { loadShelfContext, quoteShelfPrice } from './location-price.service.js';
+import { loadConsoleMarket, quoteShelfPrice } from './location-price.service.js';
 
 export interface VariantActor {
   userId: string;
@@ -77,12 +78,21 @@ function parseMinor(value: string, field: string): bigint {
  * repeated here would read as an override that does not exist. The tax class
  * is the product's either way: a variant is a form of the thing, not a
  * different supply.
+ *
+ * The market decides the currency as well as the rate, so the quote comes from
+ * the override this variant holds *in that currency* - its own row in
+ * `product_prices` - and never from converting the one beside it. A variant
+ * priced in rupees and not in euro has no euro figure to show a customer in
+ * Germany, and `quoted` is null. That is why it travels as a `Money` with its
+ * currency inside it rather than as bare minor units: the column next to it is
+ * the figure staff typed, in the currency they typed it in, and two amounts in
+ * two currencies must never sit side by side unlabelled.
  */
 export async function listVariants(
   productId: string,
   requestedCountry?: string | null,
 ): Promise<Record<string, unknown>[]> {
-  const [rows, product, shelf] = await Promise.all([
+  const [rows, product, market] = await Promise.all([
     prisma.productVariant.findMany({
       where: { productId },
       orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
@@ -98,13 +108,42 @@ export async function listVariants(
       where: { id: productId },
       select: {
         name: true,
+        // Which currency the overrides beside this list are authored in. It is
+        // what decides whether the market's currency needs a price row of its
+        // own or is already the one staff are typing in.
+        currency: true,
         taxClass: { select: { ratePercent: true, isInclusive: true, vatCategory: true } },
       },
     }),
     // Once for the whole list. Every variant of one product shares its tax
-    // class, so there is exactly one tax question to ask here.
-    loadShelfContext(requestedCountry),
+    // class and its market, so there is exactly one of each question here.
+    loadConsoleMarket(requestedCountry),
   ]);
+
+  // The overrides these variants hold in the market's currency. Their own rows
+  // only - `variantKey` is the variant's id, and the product's own row (key
+  // '') is deliberately not read here, because inheriting the product's price
+  // is what "no override" means and the card above already quotes it.
+  //
+  // Not read at all where the market named no currency: each override is then
+  // quoted in the currency it was authored in.
+  const marketOverrides = new Map<string, bigint>(
+    market.currency === null
+      ? []
+      : (
+          await prisma.productPrice.findMany({
+            where: {
+              productId,
+              currencyCode: market.currency,
+              variantKey: { in: rows.map((row) => row.id) },
+            },
+            select: { variantKey: true, basePriceMinor: true },
+          })
+        ).map((row) => [row.variantKey, row.basePriceMinor]),
+  );
+
+  /** The currency these quotes are in: the market's, or the product's own. */
+  const quotedIn = market.currency ?? product?.currency ?? null;
 
   const line =
     product === null
@@ -120,10 +159,26 @@ export async function listVariants(
     const onHand = row.inventoryBalances.reduce((total, balance) => total + balance.onHandQty, 0);
     const reserved = row.inventoryBalances.reduce((total, balance) => total + balance.reservedQty, 0);
 
-    const quote =
-      line === null || row.priceMinor === null
+    /**
+     * This variant's override, in the market's currency.
+     *
+     * The currency's own row where there is one; otherwise the authored figure,
+     * but only when the market is already being quoted in the currency that
+     * figure is in - the single-market case, where no `product_prices` row has
+     * to exist for this panel to have always shown a number.
+     */
+    const overrideInMarket =
+      row.priceMinor === null
         ? null
-        : quoteShelfPrice(shelf.setup, line, row.priceMinor);
+        : market.currency === null
+          ? row.priceMinor
+          : (marketOverrides.get(row.id) ??
+            (market.currency === product?.currency ? row.priceMinor : null));
+
+    const quote =
+      line === null || overrideInMarket === null
+        ? null
+        : quoteShelfPrice(market.setup, line, overrideInMarket);
 
     return {
       id: row.id,
@@ -132,11 +187,19 @@ export async function listVariants(
       options: row.optionsJson,
       priceMinor: row.priceMinor?.toString() ?? null,
       /**
-       * What a customer in `country` pays for that override. Null where the
-       * variant has none, and equal to `priceMinor` wherever location moves no
-       * price - no EU VAT configured, or a market on the seller's own rate.
+       * What a customer in `country` pays for that override, in that market's
+       * currency.
+       *
+       * Null in two different situations, and the panel says the same thing
+       * about both because there is nothing to quote either way: the variant
+       * has no override at all (it is sold at the product's price, quoted a
+       * card above), or it has one but not in this market's currency, which
+       * means it is not sold there.
        */
-      quotedMinor: quote?.unitPriceMinor.toString() ?? null,
+      quoted:
+        quote === null || quotedIn === null
+          ? null
+          : serialiseMoney(quote.unitPriceMinor, quotedIn),
       /** The rate that produced it, and whether it is inside the figure. */
       quotedTax:
         quote === null
