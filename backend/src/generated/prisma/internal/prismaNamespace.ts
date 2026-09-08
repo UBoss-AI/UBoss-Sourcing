@@ -439,6 +439,8 @@ export const ModelName = {
   RecurringSchedule: 'RecurringSchedule',
   RecurringScheduleItem: 'RecurringScheduleItem',
   ScheduleOccurrence: 'ScheduleOccurrence',
+  CustomerPaymentMethod: 'CustomerPaymentMethod',
+  ErpOrderPush: 'ErpOrderPush',
   Shipment: 'Shipment',
   ReturnRequest: 'ReturnRequest',
   IntegrationConnection: 'IntegrationConnection',
@@ -488,7 +490,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productMedia" | "productAttribute" | "inventoryLocation" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productMedia" | "productAttribute" | "inventoryLocation" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3264,6 +3266,138 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CustomerPaymentMethod: {
+      payload: Prisma.$CustomerPaymentMethodPayload<ExtArgs>
+      fields: Prisma.CustomerPaymentMethodFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerPaymentMethodFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPaymentMethodPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerPaymentMethodFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPaymentMethodPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerPaymentMethodFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPaymentMethodPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerPaymentMethodFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPaymentMethodPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerPaymentMethodFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPaymentMethodPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerPaymentMethodCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPaymentMethodPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerPaymentMethodCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CustomerPaymentMethodDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPaymentMethodPayload>
+        }
+        update: {
+          args: Prisma.CustomerPaymentMethodUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPaymentMethodPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerPaymentMethodDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerPaymentMethodUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CustomerPaymentMethodUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPaymentMethodPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerPaymentMethodAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerPaymentMethod>
+        }
+        groupBy: {
+          args: Prisma.CustomerPaymentMethodGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerPaymentMethodGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerPaymentMethodCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerPaymentMethodCountAggregateOutputType> | number
+        }
+      }
+    }
+    ErpOrderPush: {
+      payload: Prisma.$ErpOrderPushPayload<ExtArgs>
+      fields: Prisma.ErpOrderPushFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ErpOrderPushFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpOrderPushPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ErpOrderPushFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpOrderPushPayload>
+        }
+        findFirst: {
+          args: Prisma.ErpOrderPushFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpOrderPushPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ErpOrderPushFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpOrderPushPayload>
+        }
+        findMany: {
+          args: Prisma.ErpOrderPushFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpOrderPushPayload>[]
+        }
+        create: {
+          args: Prisma.ErpOrderPushCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpOrderPushPayload>
+        }
+        createMany: {
+          args: Prisma.ErpOrderPushCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ErpOrderPushDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpOrderPushPayload>
+        }
+        update: {
+          args: Prisma.ErpOrderPushUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpOrderPushPayload>
+        }
+        deleteMany: {
+          args: Prisma.ErpOrderPushDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ErpOrderPushUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ErpOrderPushUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpOrderPushPayload>
+        }
+        aggregate: {
+          args: Prisma.ErpOrderPushAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateErpOrderPush>
+        }
+        groupBy: {
+          args: Prisma.ErpOrderPushGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ErpOrderPushGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ErpOrderPushCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ErpOrderPushCountAggregateOutputType> | number
+        }
+      }
+    }
     Shipment: {
       payload: Prisma.$ShipmentPayload<ExtArgs>
       fields: Prisma.ShipmentFieldRefs
@@ -5965,6 +6099,7 @@ export const InventoryMovementScalarFieldEnum = {
   reason: 'reason',
   referenceType: 'referenceType',
   referenceId: 'referenceId',
+  dedupeKey: 'dedupeKey',
   actorUserId: 'actorUserId',
   actorType: 'actorType',
   createdAt: 'createdAt'
@@ -6307,6 +6442,8 @@ export const RecurringScheduleScalarFieldEnum = {
   customerProfileId: 'customerProfileId',
   name: 'name',
   status: 'status',
+  kind: 'kind',
+  runOnceAt: 'runOnceAt',
   frequency: 'frequency',
   intervalDays: 'intervalDays',
   weekday: 'weekday',
@@ -6323,12 +6460,23 @@ export const RecurringScheduleScalarFieldEnum = {
   mandateReference: 'mandateReference',
   mandateProvider: 'mandateProvider',
   payerEmail: 'payerEmail',
+  paymentMethodId: 'paymentMethodId',
   shippingAddressId: 'shippingAddressId',
   billingAddressId: 'billingAddressId',
   shippingMethodCode: 'shippingMethodCode',
   consentAcceptedAt: 'consentAcceptedAt',
   consentVersion: 'consentVersion',
   repriceApprovalThresholdMinor: 'repriceApprovalThresholdMinor',
+  priceTolerancePercent: 'priceTolerancePercent',
+  priceToleranceMinor: 'priceToleranceMinor',
+  editCutoffMinutes: 'editCutoffMinutes',
+  substitutionPolicy: 'substitutionPolicy',
+  fulfilmentRule: 'fulfilmentRule',
+  inventoryLocationId: 'inventoryLocationId',
+  cartSnapshotJson: 'cartSnapshotJson',
+  sourceCartId: 'sourceCartId',
+  activatedAt: 'activatedAt',
+  completedAt: 'completedAt',
   failureCount: 'failureCount',
   maxFailures: 'maxFailures',
   pausedAt: 'pausedAt',
@@ -6352,6 +6500,9 @@ export const RecurringScheduleItemScalarFieldEnum = {
   variantId: 'variantId',
   variantKey: 'variantKey',
   quantity: 'quantity',
+  substituteProductId: 'substituteProductId',
+  substituteVariantId: 'substituteVariantId',
+  substituteVariantKey: 'substituteVariantKey',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -6363,21 +6514,80 @@ export const ScheduleOccurrenceScalarFieldEnum = {
   id: 'id',
   scheduleId: 'scheduleId',
   plannedRunAt: 'plannedRunAt',
+  timezone: 'timezone',
   status: 'status',
   attemptCount: 'attemptCount',
   lastAttemptAt: 'lastAttemptAt',
   nextRetryAt: 'nextRetryAt',
+  paymentAttemptCount: 'paymentAttemptCount',
   quotedTotalMinor: 'quotedTotalMinor',
   actualTotalMinor: 'actualTotalMinor',
+  paymentReference: 'paymentReference',
+  erpOrderReference: 'erpOrderReference',
+  erpPushStatus: 'erpPushStatus',
+  idempotencyKey: 'idempotencyKey',
+  cartSnapshotJson: 'cartSnapshotJson',
+  skippedByUser: 'skippedByUser',
   failureCode: 'failureCode',
   failureMessage: 'failureMessage',
   skipReason: 'skipReason',
+  actionRequiredAt: 'actionRequiredAt',
   reminderSentAt: 'reminderSentAt',
   createdAt: 'createdAt',
   completedAt: 'completedAt'
 } as const
 
 export type ScheduleOccurrenceScalarFieldEnum = (typeof ScheduleOccurrenceScalarFieldEnum)[keyof typeof ScheduleOccurrenceScalarFieldEnum]
+
+
+export const CustomerPaymentMethodScalarFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  provider: 'provider',
+  providerCustomerId: 'providerCustomerId',
+  providerPaymentMethodId: 'providerPaymentMethodId',
+  setupIntentId: 'setupIntentId',
+  brand: 'brand',
+  last4: 'last4',
+  expMonth: 'expMonth',
+  expYear: 'expYear',
+  funding: 'funding',
+  country: 'country',
+  status: 'status',
+  consentAcceptedAt: 'consentAcceptedAt',
+  consentVersion: 'consentVersion',
+  consentIpHash: 'consentIpHash',
+  consentUserAgent: 'consentUserAgent',
+  isDefault: 'isDefault',
+  detachedAt: 'detachedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerPaymentMethodScalarFieldEnum = (typeof CustomerPaymentMethodScalarFieldEnum)[keyof typeof CustomerPaymentMethodScalarFieldEnum]
+
+
+export const ErpOrderPushScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  occurrenceId: 'occurrenceId',
+  connectionId: 'connectionId',
+  idempotencyKey: 'idempotencyKey',
+  status: 'status',
+  erpOrderReference: 'erpOrderReference',
+  attemptCount: 'attemptCount',
+  lastAttemptAt: 'lastAttemptAt',
+  nextRetryAt: 'nextRetryAt',
+  succeededAt: 'succeededAt',
+  lastErrorCode: 'lastErrorCode',
+  lastErrorMessage: 'lastErrorMessage',
+  requestJson: 'requestJson',
+  responseJson: 'responseJson',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ErpOrderPushScalarFieldEnum = (typeof ErpOrderPushScalarFieldEnum)[keyof typeof ErpOrderPushScalarFieldEnum]
 
 
 export const ShipmentScalarFieldEnum = {
@@ -7314,6 +7524,7 @@ export const InventoryMovementOrderByRelevanceFieldEnum = {
   reason: 'reason',
   referenceType: 'referenceType',
   referenceId: 'referenceId',
+  dedupeKey: 'dedupeKey',
   actorUserId: 'actorUserId'
 } as const
 
@@ -7548,10 +7759,13 @@ export const RecurringScheduleOrderByRelevanceFieldEnum = {
   timezone: 'timezone',
   mandateReference: 'mandateReference',
   payerEmail: 'payerEmail',
+  paymentMethodId: 'paymentMethodId',
   shippingAddressId: 'shippingAddressId',
   billingAddressId: 'billingAddressId',
   shippingMethodCode: 'shippingMethodCode',
   consentVersion: 'consentVersion',
+  inventoryLocationId: 'inventoryLocationId',
+  sourceCartId: 'sourceCartId',
   pausedReason: 'pausedReason',
   pausedById: 'pausedById',
   cancelReason: 'cancelReason',
@@ -7566,7 +7780,10 @@ export const RecurringScheduleItemOrderByRelevanceFieldEnum = {
   scheduleId: 'scheduleId',
   productId: 'productId',
   variantId: 'variantId',
-  variantKey: 'variantKey'
+  variantKey: 'variantKey',
+  substituteProductId: 'substituteProductId',
+  substituteVariantId: 'substituteVariantId',
+  substituteVariantKey: 'substituteVariantKey'
 } as const
 
 export type RecurringScheduleItemOrderByRelevanceFieldEnum = (typeof RecurringScheduleItemOrderByRelevanceFieldEnum)[keyof typeof RecurringScheduleItemOrderByRelevanceFieldEnum]
@@ -7575,12 +7792,48 @@ export type RecurringScheduleItemOrderByRelevanceFieldEnum = (typeof RecurringSc
 export const ScheduleOccurrenceOrderByRelevanceFieldEnum = {
   id: 'id',
   scheduleId: 'scheduleId',
+  timezone: 'timezone',
+  paymentReference: 'paymentReference',
+  erpOrderReference: 'erpOrderReference',
+  idempotencyKey: 'idempotencyKey',
   failureCode: 'failureCode',
   failureMessage: 'failureMessage',
   skipReason: 'skipReason'
 } as const
 
 export type ScheduleOccurrenceOrderByRelevanceFieldEnum = (typeof ScheduleOccurrenceOrderByRelevanceFieldEnum)[keyof typeof ScheduleOccurrenceOrderByRelevanceFieldEnum]
+
+
+export const CustomerPaymentMethodOrderByRelevanceFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  providerCustomerId: 'providerCustomerId',
+  providerPaymentMethodId: 'providerPaymentMethodId',
+  setupIntentId: 'setupIntentId',
+  brand: 'brand',
+  last4: 'last4',
+  funding: 'funding',
+  country: 'country',
+  consentVersion: 'consentVersion',
+  consentIpHash: 'consentIpHash',
+  consentUserAgent: 'consentUserAgent'
+} as const
+
+export type CustomerPaymentMethodOrderByRelevanceFieldEnum = (typeof CustomerPaymentMethodOrderByRelevanceFieldEnum)[keyof typeof CustomerPaymentMethodOrderByRelevanceFieldEnum]
+
+
+export const ErpOrderPushOrderByRelevanceFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  occurrenceId: 'occurrenceId',
+  connectionId: 'connectionId',
+  idempotencyKey: 'idempotencyKey',
+  erpOrderReference: 'erpOrderReference',
+  lastErrorCode: 'lastErrorCode',
+  lastErrorMessage: 'lastErrorMessage'
+} as const
+
+export type ErpOrderPushOrderByRelevanceFieldEnum = (typeof ErpOrderPushOrderByRelevanceFieldEnum)[keyof typeof ErpOrderPushOrderByRelevanceFieldEnum]
 
 
 export const ShipmentOrderByRelevanceFieldEnum = {
@@ -8222,6 +8475,13 @@ export type EnumScheduleStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$P
 
 
 /**
+ * Reference to a field of type 'ScheduleKind'
+ */
+export type EnumScheduleKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ScheduleKind'>
+    
+
+
+/**
  * Reference to a field of type 'ScheduleFrequency'
  */
 export type EnumScheduleFrequencyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ScheduleFrequency'>
@@ -8236,9 +8496,37 @@ export type EnumSchedulePaymentModeFieldRefInput<$PrismaModel> = FieldRefInputTy
 
 
 /**
+ * Reference to a field of type 'SubstitutionPolicy'
+ */
+export type EnumSubstitutionPolicyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubstitutionPolicy'>
+    
+
+
+/**
+ * Reference to a field of type 'ScheduleFulfilmentRule'
+ */
+export type EnumScheduleFulfilmentRuleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ScheduleFulfilmentRule'>
+    
+
+
+/**
  * Reference to a field of type 'OccurrenceStatus'
  */
 export type EnumOccurrenceStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OccurrenceStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ErpPushStatus'
+ */
+export type EnumErpPushStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ErpPushStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'StoredPaymentMethodStatus'
+ */
+export type EnumStoredPaymentMethodStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StoredPaymentMethodStatus'>
     
 
 
@@ -8560,6 +8848,8 @@ export type GlobalOmitConfig = {
   recurringSchedule?: Prisma.RecurringScheduleOmit
   recurringScheduleItem?: Prisma.RecurringScheduleItemOmit
   scheduleOccurrence?: Prisma.ScheduleOccurrenceOmit
+  customerPaymentMethod?: Prisma.CustomerPaymentMethodOmit
+  erpOrderPush?: Prisma.ErpOrderPushOmit
   shipment?: Prisma.ShipmentOmit
   returnRequest?: Prisma.ReturnRequestOmit
   integrationConnection?: Prisma.IntegrationConnectionOmit

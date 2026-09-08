@@ -14,13 +14,13 @@
  * client in a zone that does must still get their 06:00.
  */
 
-export type Frequency = 'EVERY_N_DAYS' | 'WEEKLY' | 'MONTHLY';
+export type Frequency = 'EVERY_N_DAYS' | 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY' | 'ONE_TIME';
 
 export interface RecurrenceRule {
   frequency: Frequency;
   /** EVERY_N_DAYS. The SOP's worked example is "every 7 days". */
   intervalDays?: number | null;
-  /** WEEKLY. ISO-8601: 1 = Monday .. 7 = Sunday. */
+  /** WEEKLY and BIWEEKLY. ISO-8601: 1 = Monday .. 7 = Sunday. */
   weekday?: number | null;
   /** MONTHLY. 1..31, clamped to the last valid day of a short month. */
   monthDay?: number | null;
@@ -28,6 +28,18 @@ export interface RecurrenceRule {
   timezone: string;
   /** Local time of day, minutes since local midnight. */
   runAtMinute: number;
+}
+
+/**
+ * Frequencies that repeat.
+ *
+ * ONE_TIME is a frequency for the sake of one code path, not because it is
+ * one. Anything that asks "when is the run after this one" has to exclude it,
+ * and doing that through a named predicate beats scattering
+ * `frequency !== 'ONE_TIME'` across four services.
+ */
+export function isRepeating(frequency: Frequency): boolean {
+  return frequency !== 'ONE_TIME';
 }
 
 export class RecurrenceError extends Error {
@@ -174,6 +186,7 @@ export function validateRule(rule: RecurrenceRule): void {
       break;
 
     case 'WEEKLY':
+    case 'BIWEEKLY':
       if (
         rule.weekday === null ||
         rule.weekday === undefined ||
@@ -183,6 +196,12 @@ export function validateRule(rule: RecurrenceRule): void {
       ) {
         throw new RecurrenceError('weekday must be 1 (Monday) through 7 (Sunday).');
       }
+      break;
+
+    case 'ONE_TIME':
+      // Nothing to validate. A one-shot plan carries its instant in
+      // `RecurringSchedule.runOnceAt`, not in a rule - there is no pattern to
+      // check, only a date, and the service checks that it is in the future.
       break;
 
     case 'MONTHLY':
@@ -229,6 +248,12 @@ export function nextRunAt(input: NextRunInput): Date | null {
   const after = input.after ?? new Date();
   const timeZone = rule.timezone;
 
+  // A one-shot plan has exactly one run, and it is not derived from a pattern.
+  // Returning null here rather than throwing is what lets the engine's
+  // "advance to the next slot" path stay uniform: it asks for the next run,
+  // gets null, and completes the plan.
+  if (rule.frequency === 'ONE_TIME') return null;
+
   // Never run before the start date, even if the schedule was created earlier.
   const startCalendar = zonedCalendarDate(input.startDate, timeZone);
   const startInstant = zonedTimeToUtc(
@@ -246,8 +271,13 @@ export function nextRunAt(input: NextRunInput): Date | null {
       return nextEveryNDays(rule, startInstant, input.lastRunAt ?? null, after);
     case 'WEEKLY':
       return nextWeekly(rule, after, timeZone);
+    case 'BIWEEKLY':
+      return nextBiweekly(rule, startInstant, after, timeZone);
     case 'MONTHLY':
       return nextMonthly(rule, after, timeZone);
+    // ONE_TIME is absent on purpose: it returned above, before the start-date
+    // comparison, so the compiler has already narrowed it out of this switch.
+    // Listing it here would be unreachable code that only looks reassuring.
     default: {
       const exhaustive: never = rule.frequency;
       throw new RecurrenceError(`Unknown frequency: ${String(exhaustive)}`);
@@ -350,6 +380,68 @@ function nextWeekly(rule: RecurrenceRule, after: Date, timeZone: string): Date {
 }
 
 /**
+ * Every second week, on a fixed weekday.
+ *
+ * The distinction from `EVERY_N_DAYS` with intervalDays = 14 is the anchor.
+ * That counts fourteen days from a run; this counts fourteen days from the
+ * START, so the parity of the week is a property of the schedule rather than
+ * of its history. A customer who skips one delivery still gets the next one on
+ * their Tuesday, and a plan paused for two months resumes on the same Tuesdays
+ * it would have used had it never paused.
+ *
+ * Parity is measured in whole local days between the start's calendar date and
+ * the candidate's, not in elapsed milliseconds: across a DST boundary the two
+ * differ by an hour, and dividing by 86_400_000 would eventually put a
+ * fortnightly schedule on the wrong week.
+ */
+function nextBiweekly(
+  rule: RecurrenceRule,
+  startInstant: Date,
+  after: Date,
+  timeZone: string,
+): Date {
+  const target = rule.weekday ?? 1;
+  const start = zonedCalendarDate(startInstant, timeZone);
+  const startDayNumber = Date.UTC(start.year, start.month - 1, start.day) / 86_400_000;
+
+  const today = zonedCalendarDate(after, timeZone);
+
+  // 28 days covers the worst case: the target weekday is tomorrow but on an
+  // odd week, so the answer is thirteen days later than the first match.
+  for (let offset = 0; offset <= 28; offset += 1) {
+    const candidateDate = new Date(Date.UTC(today.year, today.month - 1, today.day + offset));
+
+    const weekday = isoWeekday(
+      candidateDate.getUTCFullYear(),
+      candidateDate.getUTCMonth() + 1,
+      candidateDate.getUTCDate(),
+    );
+
+    if (weekday !== target) continue;
+
+    // Whole days since the start date, so only every second qualifying week is
+    // accepted. A negative difference cannot occur: nextRunAt has already
+    // returned the start instant for anything before it.
+    const candidateDayNumber = candidateDate.getTime() / 86_400_000;
+    const daysSinceStart = Math.round(candidateDayNumber - startDayNumber);
+    if (Math.abs(daysSinceStart % 14) >= 7) continue;
+
+    const candidate = zonedTimeToUtc(
+      candidateDate.getUTCFullYear(),
+      candidateDate.getUTCMonth() + 1,
+      candidateDate.getUTCDate(),
+      rule.runAtMinute,
+      timeZone,
+    );
+
+    // The right weekday on the right week may still be earlier today.
+    if (candidate.getTime() > after.getTime()) return candidate;
+  }
+
+  throw new RecurrenceError('Could not find the next fortnightly occurrence.');
+}
+
+/**
  * Monthly, clamped.
  *
  * A "31st of the month" schedule must still run in February. Clamping to the
@@ -406,6 +498,14 @@ export function describeRule(rule: RecurrenceRule): string {
 
     case 'WEEKLY':
       return `Every ${weekdayNames[(rule.weekday ?? 1) - 1] ?? 'Monday'} at ${time} (${rule.timezone})`;
+
+    case 'BIWEEKLY':
+      return `Every second ${weekdayNames[(rule.weekday ?? 1) - 1] ?? 'Monday'} at ${time} (${rule.timezone})`;
+
+    case 'ONE_TIME':
+      // No pattern to describe. The caller has the instant and formats it -
+      // this function only ever sees the rule.
+      return `Once, at ${time} (${rule.timezone})`;
 
     case 'MONTHLY': {
       const day = rule.monthDay ?? 1;

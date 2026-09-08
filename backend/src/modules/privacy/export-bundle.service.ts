@@ -54,6 +54,7 @@ export const SECTIONS = Object.freeze({
     'purchasingLimits',
     'orders',
     'recurringSchedules',
+    'savedPaymentMethods',
     'carts',
     'couponRedemptions',
     'chatEnquiries',
@@ -211,8 +212,17 @@ export async function buildCustomerBundle(subject: BundleSubject): Promise<Recor
     return envelope(subject, { account, profile: null, dataRequests });
   }
 
-  const [addresses, limits, orders, schedules, carts, redemptions, enquiries, sessions] =
-    await Promise.all([
+  const [
+    addresses,
+    limits,
+    orders,
+    schedules,
+    paymentMethods,
+    carts,
+    redemptions,
+    enquiries,
+    sessions,
+  ] = await Promise.all([
       prisma.address.findMany({
         where: { customerProfileId: profile.id },
         orderBy: { createdAt: 'asc' },
@@ -325,6 +335,49 @@ export async function buildCustomerBundle(subject: BundleSubject): Promise<Recor
           consentVersion: true,
           createdAt: true,
           cancelledAt: true,
+        },
+      }),
+
+      /**
+       * Saved cards, and the consent that lets them be charged.
+       *
+       * Disclosed because it is unambiguously the subject's data - which cards
+       * they saved, and when they agreed to automatic charges. That consent
+       * record is the part that matters most to them: it is the evidence for
+       * why money left their account while they were not looking.
+       *
+       * The columns NOT selected are the point of this block. The provider's
+       * customer and payment-method references are omitted entirely, because
+       * they are chargeable: anyone holding them and this deployment's Stripe
+       * key could take money. They are credentials about the subject rather
+       * than information about them, so they fall under the same Art. 15(4)
+       * reasoning as the password hash - and `credentials` on the withheld
+       * list already tells the subject that such values exist and are not
+       * being sent.
+       *
+       * `consentIpHash` is omitted too. It is a hash of an address the subject
+       * already knows, it identifies nobody else, and disclosing it would only
+       * hand back something they cannot read.
+       */
+      prisma.customerPaymentMethod.findMany({
+        where: { customerProfileId: profile.id },
+        orderBy: { createdAt: 'asc' },
+        select: {
+          id: true,
+          provider: true,
+          brand: true,
+          last4: true,
+          expMonth: true,
+          expYear: true,
+          funding: true,
+          country: true,
+          status: true,
+          isDefault: true,
+          consentAcceptedAt: true,
+          consentVersion: true,
+          consentUserAgent: true,
+          detachedAt: true,
+          createdAt: true,
         },
       }),
 
@@ -491,6 +544,13 @@ export async function buildCustomerBundle(subject: BundleSubject): Promise<Recor
       cancelledAt: iso(schedule.cancelledAt),
       // The fact, not the credential.
       paymentMandateOnFile: mandateReference !== null,
+    })),
+
+    savedPaymentMethods: paymentMethods.map((method) => ({
+      ...method,
+      consentAcceptedAt: iso(method.consentAcceptedAt),
+      detachedAt: iso(method.detachedAt),
+      createdAt: iso(method.createdAt),
     })),
 
     carts: carts.map((cart) => ({

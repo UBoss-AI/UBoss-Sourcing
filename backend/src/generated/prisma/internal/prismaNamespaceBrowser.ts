@@ -93,6 +93,8 @@ export const ModelName = {
   RecurringSchedule: 'RecurringSchedule',
   RecurringScheduleItem: 'RecurringScheduleItem',
   ScheduleOccurrence: 'ScheduleOccurrence',
+  CustomerPaymentMethod: 'CustomerPaymentMethod',
+  ErpOrderPush: 'ErpOrderPush',
   Shipment: 'Shipment',
   ReturnRequest: 'ReturnRequest',
   IntegrationConnection: 'IntegrationConnection',
@@ -563,6 +565,7 @@ export const InventoryMovementScalarFieldEnum = {
   reason: 'reason',
   referenceType: 'referenceType',
   referenceId: 'referenceId',
+  dedupeKey: 'dedupeKey',
   actorUserId: 'actorUserId',
   actorType: 'actorType',
   createdAt: 'createdAt'
@@ -905,6 +908,8 @@ export const RecurringScheduleScalarFieldEnum = {
   customerProfileId: 'customerProfileId',
   name: 'name',
   status: 'status',
+  kind: 'kind',
+  runOnceAt: 'runOnceAt',
   frequency: 'frequency',
   intervalDays: 'intervalDays',
   weekday: 'weekday',
@@ -921,12 +926,23 @@ export const RecurringScheduleScalarFieldEnum = {
   mandateReference: 'mandateReference',
   mandateProvider: 'mandateProvider',
   payerEmail: 'payerEmail',
+  paymentMethodId: 'paymentMethodId',
   shippingAddressId: 'shippingAddressId',
   billingAddressId: 'billingAddressId',
   shippingMethodCode: 'shippingMethodCode',
   consentAcceptedAt: 'consentAcceptedAt',
   consentVersion: 'consentVersion',
   repriceApprovalThresholdMinor: 'repriceApprovalThresholdMinor',
+  priceTolerancePercent: 'priceTolerancePercent',
+  priceToleranceMinor: 'priceToleranceMinor',
+  editCutoffMinutes: 'editCutoffMinutes',
+  substitutionPolicy: 'substitutionPolicy',
+  fulfilmentRule: 'fulfilmentRule',
+  inventoryLocationId: 'inventoryLocationId',
+  cartSnapshotJson: 'cartSnapshotJson',
+  sourceCartId: 'sourceCartId',
+  activatedAt: 'activatedAt',
+  completedAt: 'completedAt',
   failureCount: 'failureCount',
   maxFailures: 'maxFailures',
   pausedAt: 'pausedAt',
@@ -950,6 +966,9 @@ export const RecurringScheduleItemScalarFieldEnum = {
   variantId: 'variantId',
   variantKey: 'variantKey',
   quantity: 'quantity',
+  substituteProductId: 'substituteProductId',
+  substituteVariantId: 'substituteVariantId',
+  substituteVariantKey: 'substituteVariantKey',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -961,21 +980,80 @@ export const ScheduleOccurrenceScalarFieldEnum = {
   id: 'id',
   scheduleId: 'scheduleId',
   plannedRunAt: 'plannedRunAt',
+  timezone: 'timezone',
   status: 'status',
   attemptCount: 'attemptCount',
   lastAttemptAt: 'lastAttemptAt',
   nextRetryAt: 'nextRetryAt',
+  paymentAttemptCount: 'paymentAttemptCount',
   quotedTotalMinor: 'quotedTotalMinor',
   actualTotalMinor: 'actualTotalMinor',
+  paymentReference: 'paymentReference',
+  erpOrderReference: 'erpOrderReference',
+  erpPushStatus: 'erpPushStatus',
+  idempotencyKey: 'idempotencyKey',
+  cartSnapshotJson: 'cartSnapshotJson',
+  skippedByUser: 'skippedByUser',
   failureCode: 'failureCode',
   failureMessage: 'failureMessage',
   skipReason: 'skipReason',
+  actionRequiredAt: 'actionRequiredAt',
   reminderSentAt: 'reminderSentAt',
   createdAt: 'createdAt',
   completedAt: 'completedAt'
 } as const
 
 export type ScheduleOccurrenceScalarFieldEnum = (typeof ScheduleOccurrenceScalarFieldEnum)[keyof typeof ScheduleOccurrenceScalarFieldEnum]
+
+
+export const CustomerPaymentMethodScalarFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  provider: 'provider',
+  providerCustomerId: 'providerCustomerId',
+  providerPaymentMethodId: 'providerPaymentMethodId',
+  setupIntentId: 'setupIntentId',
+  brand: 'brand',
+  last4: 'last4',
+  expMonth: 'expMonth',
+  expYear: 'expYear',
+  funding: 'funding',
+  country: 'country',
+  status: 'status',
+  consentAcceptedAt: 'consentAcceptedAt',
+  consentVersion: 'consentVersion',
+  consentIpHash: 'consentIpHash',
+  consentUserAgent: 'consentUserAgent',
+  isDefault: 'isDefault',
+  detachedAt: 'detachedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerPaymentMethodScalarFieldEnum = (typeof CustomerPaymentMethodScalarFieldEnum)[keyof typeof CustomerPaymentMethodScalarFieldEnum]
+
+
+export const ErpOrderPushScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  occurrenceId: 'occurrenceId',
+  connectionId: 'connectionId',
+  idempotencyKey: 'idempotencyKey',
+  status: 'status',
+  erpOrderReference: 'erpOrderReference',
+  attemptCount: 'attemptCount',
+  lastAttemptAt: 'lastAttemptAt',
+  nextRetryAt: 'nextRetryAt',
+  succeededAt: 'succeededAt',
+  lastErrorCode: 'lastErrorCode',
+  lastErrorMessage: 'lastErrorMessage',
+  requestJson: 'requestJson',
+  responseJson: 'responseJson',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ErpOrderPushScalarFieldEnum = (typeof ErpOrderPushScalarFieldEnum)[keyof typeof ErpOrderPushScalarFieldEnum]
 
 
 export const ShipmentScalarFieldEnum = {
@@ -1912,6 +1990,7 @@ export const InventoryMovementOrderByRelevanceFieldEnum = {
   reason: 'reason',
   referenceType: 'referenceType',
   referenceId: 'referenceId',
+  dedupeKey: 'dedupeKey',
   actorUserId: 'actorUserId'
 } as const
 
@@ -2146,10 +2225,13 @@ export const RecurringScheduleOrderByRelevanceFieldEnum = {
   timezone: 'timezone',
   mandateReference: 'mandateReference',
   payerEmail: 'payerEmail',
+  paymentMethodId: 'paymentMethodId',
   shippingAddressId: 'shippingAddressId',
   billingAddressId: 'billingAddressId',
   shippingMethodCode: 'shippingMethodCode',
   consentVersion: 'consentVersion',
+  inventoryLocationId: 'inventoryLocationId',
+  sourceCartId: 'sourceCartId',
   pausedReason: 'pausedReason',
   pausedById: 'pausedById',
   cancelReason: 'cancelReason',
@@ -2164,7 +2246,10 @@ export const RecurringScheduleItemOrderByRelevanceFieldEnum = {
   scheduleId: 'scheduleId',
   productId: 'productId',
   variantId: 'variantId',
-  variantKey: 'variantKey'
+  variantKey: 'variantKey',
+  substituteProductId: 'substituteProductId',
+  substituteVariantId: 'substituteVariantId',
+  substituteVariantKey: 'substituteVariantKey'
 } as const
 
 export type RecurringScheduleItemOrderByRelevanceFieldEnum = (typeof RecurringScheduleItemOrderByRelevanceFieldEnum)[keyof typeof RecurringScheduleItemOrderByRelevanceFieldEnum]
@@ -2173,12 +2258,48 @@ export type RecurringScheduleItemOrderByRelevanceFieldEnum = (typeof RecurringSc
 export const ScheduleOccurrenceOrderByRelevanceFieldEnum = {
   id: 'id',
   scheduleId: 'scheduleId',
+  timezone: 'timezone',
+  paymentReference: 'paymentReference',
+  erpOrderReference: 'erpOrderReference',
+  idempotencyKey: 'idempotencyKey',
   failureCode: 'failureCode',
   failureMessage: 'failureMessage',
   skipReason: 'skipReason'
 } as const
 
 export type ScheduleOccurrenceOrderByRelevanceFieldEnum = (typeof ScheduleOccurrenceOrderByRelevanceFieldEnum)[keyof typeof ScheduleOccurrenceOrderByRelevanceFieldEnum]
+
+
+export const CustomerPaymentMethodOrderByRelevanceFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  providerCustomerId: 'providerCustomerId',
+  providerPaymentMethodId: 'providerPaymentMethodId',
+  setupIntentId: 'setupIntentId',
+  brand: 'brand',
+  last4: 'last4',
+  funding: 'funding',
+  country: 'country',
+  consentVersion: 'consentVersion',
+  consentIpHash: 'consentIpHash',
+  consentUserAgent: 'consentUserAgent'
+} as const
+
+export type CustomerPaymentMethodOrderByRelevanceFieldEnum = (typeof CustomerPaymentMethodOrderByRelevanceFieldEnum)[keyof typeof CustomerPaymentMethodOrderByRelevanceFieldEnum]
+
+
+export const ErpOrderPushOrderByRelevanceFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  occurrenceId: 'occurrenceId',
+  connectionId: 'connectionId',
+  idempotencyKey: 'idempotencyKey',
+  erpOrderReference: 'erpOrderReference',
+  lastErrorCode: 'lastErrorCode',
+  lastErrorMessage: 'lastErrorMessage'
+} as const
+
+export type ErpOrderPushOrderByRelevanceFieldEnum = (typeof ErpOrderPushOrderByRelevanceFieldEnum)[keyof typeof ErpOrderPushOrderByRelevanceFieldEnum]
 
 
 export const ShipmentOrderByRelevanceFieldEnum = {

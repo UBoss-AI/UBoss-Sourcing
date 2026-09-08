@@ -41,6 +41,9 @@ export type RecurringScheduleItemMinAggregateOutputType = {
   variantId: string | null
   variantKey: string | null
   quantity: number | null
+  substituteProductId: string | null
+  substituteVariantId: string | null
+  substituteVariantKey: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -52,6 +55,9 @@ export type RecurringScheduleItemMaxAggregateOutputType = {
   variantId: string | null
   variantKey: string | null
   quantity: number | null
+  substituteProductId: string | null
+  substituteVariantId: string | null
+  substituteVariantKey: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -63,6 +69,9 @@ export type RecurringScheduleItemCountAggregateOutputType = {
   variantId: number
   variantKey: number
   quantity: number
+  substituteProductId: number
+  substituteVariantId: number
+  substituteVariantKey: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -84,6 +93,9 @@ export type RecurringScheduleItemMinAggregateInputType = {
   variantId?: true
   variantKey?: true
   quantity?: true
+  substituteProductId?: true
+  substituteVariantId?: true
+  substituteVariantKey?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -95,6 +107,9 @@ export type RecurringScheduleItemMaxAggregateInputType = {
   variantId?: true
   variantKey?: true
   quantity?: true
+  substituteProductId?: true
+  substituteVariantId?: true
+  substituteVariantKey?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -106,6 +121,9 @@ export type RecurringScheduleItemCountAggregateInputType = {
   variantId?: true
   variantKey?: true
   quantity?: true
+  substituteProductId?: true
+  substituteVariantId?: true
+  substituteVariantKey?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -204,6 +222,9 @@ export type RecurringScheduleItemGroupByOutputType = {
   variantId: string | null
   variantKey: string
   quantity: number
+  substituteProductId: string | null
+  substituteVariantId: string | null
+  substituteVariantKey: string
   createdAt: Date
   updatedAt: Date
   _count: RecurringScheduleItemCountAggregateOutputType | null
@@ -238,11 +259,16 @@ export type RecurringScheduleItemWhereInput = {
   variantId?: Prisma.StringNullableFilter<"RecurringScheduleItem"> | string | null
   variantKey?: Prisma.StringFilter<"RecurringScheduleItem"> | string
   quantity?: Prisma.IntFilter<"RecurringScheduleItem"> | number
+  substituteProductId?: Prisma.StringNullableFilter<"RecurringScheduleItem"> | string | null
+  substituteVariantId?: Prisma.StringNullableFilter<"RecurringScheduleItem"> | string | null
+  substituteVariantKey?: Prisma.StringFilter<"RecurringScheduleItem"> | string
   createdAt?: Prisma.DateTimeFilter<"RecurringScheduleItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RecurringScheduleItem"> | Date | string
   schedule?: Prisma.XOR<Prisma.RecurringScheduleScalarRelationFilter, Prisma.RecurringScheduleWhereInput>
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   variant?: Prisma.XOR<Prisma.ProductVariantNullableScalarRelationFilter, Prisma.ProductVariantWhereInput> | null
+  substituteProduct?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
+  substituteVariant?: Prisma.XOR<Prisma.ProductVariantNullableScalarRelationFilter, Prisma.ProductVariantWhereInput> | null
 }
 
 export type RecurringScheduleItemOrderByWithRelationInput = {
@@ -252,11 +278,16 @@ export type RecurringScheduleItemOrderByWithRelationInput = {
   variantId?: Prisma.SortOrderInput | Prisma.SortOrder
   variantKey?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  substituteProductId?: Prisma.SortOrderInput | Prisma.SortOrder
+  substituteVariantId?: Prisma.SortOrderInput | Prisma.SortOrder
+  substituteVariantKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   schedule?: Prisma.RecurringScheduleOrderByWithRelationInput
   product?: Prisma.ProductOrderByWithRelationInput
   variant?: Prisma.ProductVariantOrderByWithRelationInput
+  substituteProduct?: Prisma.ProductOrderByWithRelationInput
+  substituteVariant?: Prisma.ProductVariantOrderByWithRelationInput
   _relevance?: Prisma.RecurringScheduleItemOrderByRelevanceInput
 }
 
@@ -271,11 +302,16 @@ export type RecurringScheduleItemWhereUniqueInput = Prisma.AtLeast<{
   variantId?: Prisma.StringNullableFilter<"RecurringScheduleItem"> | string | null
   variantKey?: Prisma.StringFilter<"RecurringScheduleItem"> | string
   quantity?: Prisma.IntFilter<"RecurringScheduleItem"> | number
+  substituteProductId?: Prisma.StringNullableFilter<"RecurringScheduleItem"> | string | null
+  substituteVariantId?: Prisma.StringNullableFilter<"RecurringScheduleItem"> | string | null
+  substituteVariantKey?: Prisma.StringFilter<"RecurringScheduleItem"> | string
   createdAt?: Prisma.DateTimeFilter<"RecurringScheduleItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RecurringScheduleItem"> | Date | string
   schedule?: Prisma.XOR<Prisma.RecurringScheduleScalarRelationFilter, Prisma.RecurringScheduleWhereInput>
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   variant?: Prisma.XOR<Prisma.ProductVariantNullableScalarRelationFilter, Prisma.ProductVariantWhereInput> | null
+  substituteProduct?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
+  substituteVariant?: Prisma.XOR<Prisma.ProductVariantNullableScalarRelationFilter, Prisma.ProductVariantWhereInput> | null
 }, "id" | "scheduleId_productId_variantKey">
 
 export type RecurringScheduleItemOrderByWithAggregationInput = {
@@ -285,6 +321,9 @@ export type RecurringScheduleItemOrderByWithAggregationInput = {
   variantId?: Prisma.SortOrderInput | Prisma.SortOrder
   variantKey?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  substituteProductId?: Prisma.SortOrderInput | Prisma.SortOrder
+  substituteVariantId?: Prisma.SortOrderInput | Prisma.SortOrder
+  substituteVariantKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.RecurringScheduleItemCountOrderByAggregateInput
@@ -304,6 +343,9 @@ export type RecurringScheduleItemScalarWhereWithAggregatesInput = {
   variantId?: Prisma.StringNullableWithAggregatesFilter<"RecurringScheduleItem"> | string | null
   variantKey?: Prisma.StringWithAggregatesFilter<"RecurringScheduleItem"> | string
   quantity?: Prisma.IntWithAggregatesFilter<"RecurringScheduleItem"> | number
+  substituteProductId?: Prisma.StringNullableWithAggregatesFilter<"RecurringScheduleItem"> | string | null
+  substituteVariantId?: Prisma.StringNullableWithAggregatesFilter<"RecurringScheduleItem"> | string | null
+  substituteVariantKey?: Prisma.StringWithAggregatesFilter<"RecurringScheduleItem"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"RecurringScheduleItem"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"RecurringScheduleItem"> | Date | string
 }
@@ -312,11 +354,14 @@ export type RecurringScheduleItemCreateInput = {
   id: string
   variantKey?: string
   quantity: number
+  substituteVariantKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   schedule: Prisma.RecurringScheduleCreateNestedOneWithoutItemsInput
   product: Prisma.ProductCreateNestedOneWithoutScheduleItemsInput
   variant?: Prisma.ProductVariantCreateNestedOneWithoutScheduleItemsInput
+  substituteProduct?: Prisma.ProductCreateNestedOneWithoutSubstituteForItemsInput
+  substituteVariant?: Prisma.ProductVariantCreateNestedOneWithoutSubstituteForItemsInput
 }
 
 export type RecurringScheduleItemUncheckedCreateInput = {
@@ -326,6 +371,9 @@ export type RecurringScheduleItemUncheckedCreateInput = {
   variantId?: string | null
   variantKey?: string
   quantity: number
+  substituteProductId?: string | null
+  substituteVariantId?: string | null
+  substituteVariantKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -334,11 +382,14 @@ export type RecurringScheduleItemUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedule?: Prisma.RecurringScheduleUpdateOneRequiredWithoutItemsNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutScheduleItemsNestedInput
   variant?: Prisma.ProductVariantUpdateOneWithoutScheduleItemsNestedInput
+  substituteProduct?: Prisma.ProductUpdateOneWithoutSubstituteForItemsNestedInput
+  substituteVariant?: Prisma.ProductVariantUpdateOneWithoutSubstituteForItemsNestedInput
 }
 
 export type RecurringScheduleItemUncheckedUpdateInput = {
@@ -348,6 +399,9 @@ export type RecurringScheduleItemUncheckedUpdateInput = {
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  substituteProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  substituteVariantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -359,6 +413,9 @@ export type RecurringScheduleItemCreateManyInput = {
   variantId?: string | null
   variantKey?: string
   quantity: number
+  substituteProductId?: string | null
+  substituteVariantId?: string | null
+  substituteVariantKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -367,6 +424,7 @@ export type RecurringScheduleItemUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -378,6 +436,9 @@ export type RecurringScheduleItemUncheckedUpdateManyInput = {
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  substituteProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  substituteVariantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -411,6 +472,9 @@ export type RecurringScheduleItemCountOrderByAggregateInput = {
   variantId?: Prisma.SortOrder
   variantKey?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  substituteProductId?: Prisma.SortOrder
+  substituteVariantId?: Prisma.SortOrder
+  substituteVariantKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -426,6 +490,9 @@ export type RecurringScheduleItemMaxOrderByAggregateInput = {
   variantId?: Prisma.SortOrder
   variantKey?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  substituteProductId?: Prisma.SortOrder
+  substituteVariantId?: Prisma.SortOrder
+  substituteVariantKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -437,6 +504,9 @@ export type RecurringScheduleItemMinOrderByAggregateInput = {
   variantId?: Prisma.SortOrder
   variantKey?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  substituteProductId?: Prisma.SortOrder
+  substituteVariantId?: Prisma.SortOrder
+  substituteVariantKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -452,10 +522,24 @@ export type RecurringScheduleItemCreateNestedManyWithoutProductInput = {
   connect?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
 }
 
+export type RecurringScheduleItemCreateNestedManyWithoutSubstituteProductInput = {
+  create?: Prisma.XOR<Prisma.RecurringScheduleItemCreateWithoutSubstituteProductInput, Prisma.RecurringScheduleItemUncheckedCreateWithoutSubstituteProductInput> | Prisma.RecurringScheduleItemCreateWithoutSubstituteProductInput[] | Prisma.RecurringScheduleItemUncheckedCreateWithoutSubstituteProductInput[]
+  connectOrCreate?: Prisma.RecurringScheduleItemCreateOrConnectWithoutSubstituteProductInput | Prisma.RecurringScheduleItemCreateOrConnectWithoutSubstituteProductInput[]
+  createMany?: Prisma.RecurringScheduleItemCreateManySubstituteProductInputEnvelope
+  connect?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
+}
+
 export type RecurringScheduleItemUncheckedCreateNestedManyWithoutProductInput = {
   create?: Prisma.XOR<Prisma.RecurringScheduleItemCreateWithoutProductInput, Prisma.RecurringScheduleItemUncheckedCreateWithoutProductInput> | Prisma.RecurringScheduleItemCreateWithoutProductInput[] | Prisma.RecurringScheduleItemUncheckedCreateWithoutProductInput[]
   connectOrCreate?: Prisma.RecurringScheduleItemCreateOrConnectWithoutProductInput | Prisma.RecurringScheduleItemCreateOrConnectWithoutProductInput[]
   createMany?: Prisma.RecurringScheduleItemCreateManyProductInputEnvelope
+  connect?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
+}
+
+export type RecurringScheduleItemUncheckedCreateNestedManyWithoutSubstituteProductInput = {
+  create?: Prisma.XOR<Prisma.RecurringScheduleItemCreateWithoutSubstituteProductInput, Prisma.RecurringScheduleItemUncheckedCreateWithoutSubstituteProductInput> | Prisma.RecurringScheduleItemCreateWithoutSubstituteProductInput[] | Prisma.RecurringScheduleItemUncheckedCreateWithoutSubstituteProductInput[]
+  connectOrCreate?: Prisma.RecurringScheduleItemCreateOrConnectWithoutSubstituteProductInput | Prisma.RecurringScheduleItemCreateOrConnectWithoutSubstituteProductInput[]
+  createMany?: Prisma.RecurringScheduleItemCreateManySubstituteProductInputEnvelope
   connect?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
 }
 
@@ -473,6 +557,20 @@ export type RecurringScheduleItemUpdateManyWithoutProductNestedInput = {
   deleteMany?: Prisma.RecurringScheduleItemScalarWhereInput | Prisma.RecurringScheduleItemScalarWhereInput[]
 }
 
+export type RecurringScheduleItemUpdateManyWithoutSubstituteProductNestedInput = {
+  create?: Prisma.XOR<Prisma.RecurringScheduleItemCreateWithoutSubstituteProductInput, Prisma.RecurringScheduleItemUncheckedCreateWithoutSubstituteProductInput> | Prisma.RecurringScheduleItemCreateWithoutSubstituteProductInput[] | Prisma.RecurringScheduleItemUncheckedCreateWithoutSubstituteProductInput[]
+  connectOrCreate?: Prisma.RecurringScheduleItemCreateOrConnectWithoutSubstituteProductInput | Prisma.RecurringScheduleItemCreateOrConnectWithoutSubstituteProductInput[]
+  upsert?: Prisma.RecurringScheduleItemUpsertWithWhereUniqueWithoutSubstituteProductInput | Prisma.RecurringScheduleItemUpsertWithWhereUniqueWithoutSubstituteProductInput[]
+  createMany?: Prisma.RecurringScheduleItemCreateManySubstituteProductInputEnvelope
+  set?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
+  disconnect?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
+  delete?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
+  connect?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
+  update?: Prisma.RecurringScheduleItemUpdateWithWhereUniqueWithoutSubstituteProductInput | Prisma.RecurringScheduleItemUpdateWithWhereUniqueWithoutSubstituteProductInput[]
+  updateMany?: Prisma.RecurringScheduleItemUpdateManyWithWhereWithoutSubstituteProductInput | Prisma.RecurringScheduleItemUpdateManyWithWhereWithoutSubstituteProductInput[]
+  deleteMany?: Prisma.RecurringScheduleItemScalarWhereInput | Prisma.RecurringScheduleItemScalarWhereInput[]
+}
+
 export type RecurringScheduleItemUncheckedUpdateManyWithoutProductNestedInput = {
   create?: Prisma.XOR<Prisma.RecurringScheduleItemCreateWithoutProductInput, Prisma.RecurringScheduleItemUncheckedCreateWithoutProductInput> | Prisma.RecurringScheduleItemCreateWithoutProductInput[] | Prisma.RecurringScheduleItemUncheckedCreateWithoutProductInput[]
   connectOrCreate?: Prisma.RecurringScheduleItemCreateOrConnectWithoutProductInput | Prisma.RecurringScheduleItemCreateOrConnectWithoutProductInput[]
@@ -487,6 +585,20 @@ export type RecurringScheduleItemUncheckedUpdateManyWithoutProductNestedInput = 
   deleteMany?: Prisma.RecurringScheduleItemScalarWhereInput | Prisma.RecurringScheduleItemScalarWhereInput[]
 }
 
+export type RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteProductNestedInput = {
+  create?: Prisma.XOR<Prisma.RecurringScheduleItemCreateWithoutSubstituteProductInput, Prisma.RecurringScheduleItemUncheckedCreateWithoutSubstituteProductInput> | Prisma.RecurringScheduleItemCreateWithoutSubstituteProductInput[] | Prisma.RecurringScheduleItemUncheckedCreateWithoutSubstituteProductInput[]
+  connectOrCreate?: Prisma.RecurringScheduleItemCreateOrConnectWithoutSubstituteProductInput | Prisma.RecurringScheduleItemCreateOrConnectWithoutSubstituteProductInput[]
+  upsert?: Prisma.RecurringScheduleItemUpsertWithWhereUniqueWithoutSubstituteProductInput | Prisma.RecurringScheduleItemUpsertWithWhereUniqueWithoutSubstituteProductInput[]
+  createMany?: Prisma.RecurringScheduleItemCreateManySubstituteProductInputEnvelope
+  set?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
+  disconnect?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
+  delete?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
+  connect?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
+  update?: Prisma.RecurringScheduleItemUpdateWithWhereUniqueWithoutSubstituteProductInput | Prisma.RecurringScheduleItemUpdateWithWhereUniqueWithoutSubstituteProductInput[]
+  updateMany?: Prisma.RecurringScheduleItemUpdateManyWithWhereWithoutSubstituteProductInput | Prisma.RecurringScheduleItemUpdateManyWithWhereWithoutSubstituteProductInput[]
+  deleteMany?: Prisma.RecurringScheduleItemScalarWhereInput | Prisma.RecurringScheduleItemScalarWhereInput[]
+}
+
 export type RecurringScheduleItemCreateNestedManyWithoutVariantInput = {
   create?: Prisma.XOR<Prisma.RecurringScheduleItemCreateWithoutVariantInput, Prisma.RecurringScheduleItemUncheckedCreateWithoutVariantInput> | Prisma.RecurringScheduleItemCreateWithoutVariantInput[] | Prisma.RecurringScheduleItemUncheckedCreateWithoutVariantInput[]
   connectOrCreate?: Prisma.RecurringScheduleItemCreateOrConnectWithoutVariantInput | Prisma.RecurringScheduleItemCreateOrConnectWithoutVariantInput[]
@@ -494,10 +606,24 @@ export type RecurringScheduleItemCreateNestedManyWithoutVariantInput = {
   connect?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
 }
 
+export type RecurringScheduleItemCreateNestedManyWithoutSubstituteVariantInput = {
+  create?: Prisma.XOR<Prisma.RecurringScheduleItemCreateWithoutSubstituteVariantInput, Prisma.RecurringScheduleItemUncheckedCreateWithoutSubstituteVariantInput> | Prisma.RecurringScheduleItemCreateWithoutSubstituteVariantInput[] | Prisma.RecurringScheduleItemUncheckedCreateWithoutSubstituteVariantInput[]
+  connectOrCreate?: Prisma.RecurringScheduleItemCreateOrConnectWithoutSubstituteVariantInput | Prisma.RecurringScheduleItemCreateOrConnectWithoutSubstituteVariantInput[]
+  createMany?: Prisma.RecurringScheduleItemCreateManySubstituteVariantInputEnvelope
+  connect?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
+}
+
 export type RecurringScheduleItemUncheckedCreateNestedManyWithoutVariantInput = {
   create?: Prisma.XOR<Prisma.RecurringScheduleItemCreateWithoutVariantInput, Prisma.RecurringScheduleItemUncheckedCreateWithoutVariantInput> | Prisma.RecurringScheduleItemCreateWithoutVariantInput[] | Prisma.RecurringScheduleItemUncheckedCreateWithoutVariantInput[]
   connectOrCreate?: Prisma.RecurringScheduleItemCreateOrConnectWithoutVariantInput | Prisma.RecurringScheduleItemCreateOrConnectWithoutVariantInput[]
   createMany?: Prisma.RecurringScheduleItemCreateManyVariantInputEnvelope
+  connect?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
+}
+
+export type RecurringScheduleItemUncheckedCreateNestedManyWithoutSubstituteVariantInput = {
+  create?: Prisma.XOR<Prisma.RecurringScheduleItemCreateWithoutSubstituteVariantInput, Prisma.RecurringScheduleItemUncheckedCreateWithoutSubstituteVariantInput> | Prisma.RecurringScheduleItemCreateWithoutSubstituteVariantInput[] | Prisma.RecurringScheduleItemUncheckedCreateWithoutSubstituteVariantInput[]
+  connectOrCreate?: Prisma.RecurringScheduleItemCreateOrConnectWithoutSubstituteVariantInput | Prisma.RecurringScheduleItemCreateOrConnectWithoutSubstituteVariantInput[]
+  createMany?: Prisma.RecurringScheduleItemCreateManySubstituteVariantInputEnvelope
   connect?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
 }
 
@@ -515,6 +641,20 @@ export type RecurringScheduleItemUpdateManyWithoutVariantNestedInput = {
   deleteMany?: Prisma.RecurringScheduleItemScalarWhereInput | Prisma.RecurringScheduleItemScalarWhereInput[]
 }
 
+export type RecurringScheduleItemUpdateManyWithoutSubstituteVariantNestedInput = {
+  create?: Prisma.XOR<Prisma.RecurringScheduleItemCreateWithoutSubstituteVariantInput, Prisma.RecurringScheduleItemUncheckedCreateWithoutSubstituteVariantInput> | Prisma.RecurringScheduleItemCreateWithoutSubstituteVariantInput[] | Prisma.RecurringScheduleItemUncheckedCreateWithoutSubstituteVariantInput[]
+  connectOrCreate?: Prisma.RecurringScheduleItemCreateOrConnectWithoutSubstituteVariantInput | Prisma.RecurringScheduleItemCreateOrConnectWithoutSubstituteVariantInput[]
+  upsert?: Prisma.RecurringScheduleItemUpsertWithWhereUniqueWithoutSubstituteVariantInput | Prisma.RecurringScheduleItemUpsertWithWhereUniqueWithoutSubstituteVariantInput[]
+  createMany?: Prisma.RecurringScheduleItemCreateManySubstituteVariantInputEnvelope
+  set?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
+  disconnect?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
+  delete?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
+  connect?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
+  update?: Prisma.RecurringScheduleItemUpdateWithWhereUniqueWithoutSubstituteVariantInput | Prisma.RecurringScheduleItemUpdateWithWhereUniqueWithoutSubstituteVariantInput[]
+  updateMany?: Prisma.RecurringScheduleItemUpdateManyWithWhereWithoutSubstituteVariantInput | Prisma.RecurringScheduleItemUpdateManyWithWhereWithoutSubstituteVariantInput[]
+  deleteMany?: Prisma.RecurringScheduleItemScalarWhereInput | Prisma.RecurringScheduleItemScalarWhereInput[]
+}
+
 export type RecurringScheduleItemUncheckedUpdateManyWithoutVariantNestedInput = {
   create?: Prisma.XOR<Prisma.RecurringScheduleItemCreateWithoutVariantInput, Prisma.RecurringScheduleItemUncheckedCreateWithoutVariantInput> | Prisma.RecurringScheduleItemCreateWithoutVariantInput[] | Prisma.RecurringScheduleItemUncheckedCreateWithoutVariantInput[]
   connectOrCreate?: Prisma.RecurringScheduleItemCreateOrConnectWithoutVariantInput | Prisma.RecurringScheduleItemCreateOrConnectWithoutVariantInput[]
@@ -526,6 +666,20 @@ export type RecurringScheduleItemUncheckedUpdateManyWithoutVariantNestedInput = 
   connect?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
   update?: Prisma.RecurringScheduleItemUpdateWithWhereUniqueWithoutVariantInput | Prisma.RecurringScheduleItemUpdateWithWhereUniqueWithoutVariantInput[]
   updateMany?: Prisma.RecurringScheduleItemUpdateManyWithWhereWithoutVariantInput | Prisma.RecurringScheduleItemUpdateManyWithWhereWithoutVariantInput[]
+  deleteMany?: Prisma.RecurringScheduleItemScalarWhereInput | Prisma.RecurringScheduleItemScalarWhereInput[]
+}
+
+export type RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteVariantNestedInput = {
+  create?: Prisma.XOR<Prisma.RecurringScheduleItemCreateWithoutSubstituteVariantInput, Prisma.RecurringScheduleItemUncheckedCreateWithoutSubstituteVariantInput> | Prisma.RecurringScheduleItemCreateWithoutSubstituteVariantInput[] | Prisma.RecurringScheduleItemUncheckedCreateWithoutSubstituteVariantInput[]
+  connectOrCreate?: Prisma.RecurringScheduleItemCreateOrConnectWithoutSubstituteVariantInput | Prisma.RecurringScheduleItemCreateOrConnectWithoutSubstituteVariantInput[]
+  upsert?: Prisma.RecurringScheduleItemUpsertWithWhereUniqueWithoutSubstituteVariantInput | Prisma.RecurringScheduleItemUpsertWithWhereUniqueWithoutSubstituteVariantInput[]
+  createMany?: Prisma.RecurringScheduleItemCreateManySubstituteVariantInputEnvelope
+  set?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
+  disconnect?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
+  delete?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
+  connect?: Prisma.RecurringScheduleItemWhereUniqueInput | Prisma.RecurringScheduleItemWhereUniqueInput[]
+  update?: Prisma.RecurringScheduleItemUpdateWithWhereUniqueWithoutSubstituteVariantInput | Prisma.RecurringScheduleItemUpdateWithWhereUniqueWithoutSubstituteVariantInput[]
+  updateMany?: Prisma.RecurringScheduleItemUpdateManyWithWhereWithoutSubstituteVariantInput | Prisma.RecurringScheduleItemUpdateManyWithWhereWithoutSubstituteVariantInput[]
   deleteMany?: Prisma.RecurringScheduleItemScalarWhereInput | Prisma.RecurringScheduleItemScalarWhereInput[]
 }
 
@@ -575,10 +729,13 @@ export type RecurringScheduleItemCreateWithoutProductInput = {
   id: string
   variantKey?: string
   quantity: number
+  substituteVariantKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   schedule: Prisma.RecurringScheduleCreateNestedOneWithoutItemsInput
   variant?: Prisma.ProductVariantCreateNestedOneWithoutScheduleItemsInput
+  substituteProduct?: Prisma.ProductCreateNestedOneWithoutSubstituteForItemsInput
+  substituteVariant?: Prisma.ProductVariantCreateNestedOneWithoutSubstituteForItemsInput
 }
 
 export type RecurringScheduleItemUncheckedCreateWithoutProductInput = {
@@ -587,6 +744,9 @@ export type RecurringScheduleItemUncheckedCreateWithoutProductInput = {
   variantId?: string | null
   variantKey?: string
   quantity: number
+  substituteProductId?: string | null
+  substituteVariantId?: string | null
+  substituteVariantKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -598,6 +758,42 @@ export type RecurringScheduleItemCreateOrConnectWithoutProductInput = {
 
 export type RecurringScheduleItemCreateManyProductInputEnvelope = {
   data: Prisma.RecurringScheduleItemCreateManyProductInput | Prisma.RecurringScheduleItemCreateManyProductInput[]
+  skipDuplicates?: boolean
+}
+
+export type RecurringScheduleItemCreateWithoutSubstituteProductInput = {
+  id: string
+  variantKey?: string
+  quantity: number
+  substituteVariantKey?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  schedule: Prisma.RecurringScheduleCreateNestedOneWithoutItemsInput
+  product: Prisma.ProductCreateNestedOneWithoutScheduleItemsInput
+  variant?: Prisma.ProductVariantCreateNestedOneWithoutScheduleItemsInput
+  substituteVariant?: Prisma.ProductVariantCreateNestedOneWithoutSubstituteForItemsInput
+}
+
+export type RecurringScheduleItemUncheckedCreateWithoutSubstituteProductInput = {
+  id: string
+  scheduleId: string
+  productId: string
+  variantId?: string | null
+  variantKey?: string
+  quantity: number
+  substituteVariantId?: string | null
+  substituteVariantKey?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type RecurringScheduleItemCreateOrConnectWithoutSubstituteProductInput = {
+  where: Prisma.RecurringScheduleItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.RecurringScheduleItemCreateWithoutSubstituteProductInput, Prisma.RecurringScheduleItemUncheckedCreateWithoutSubstituteProductInput>
+}
+
+export type RecurringScheduleItemCreateManySubstituteProductInputEnvelope = {
+  data: Prisma.RecurringScheduleItemCreateManySubstituteProductInput | Prisma.RecurringScheduleItemCreateManySubstituteProductInput[]
   skipDuplicates?: boolean
 }
 
@@ -627,18 +823,40 @@ export type RecurringScheduleItemScalarWhereInput = {
   variantId?: Prisma.StringNullableFilter<"RecurringScheduleItem"> | string | null
   variantKey?: Prisma.StringFilter<"RecurringScheduleItem"> | string
   quantity?: Prisma.IntFilter<"RecurringScheduleItem"> | number
+  substituteProductId?: Prisma.StringNullableFilter<"RecurringScheduleItem"> | string | null
+  substituteVariantId?: Prisma.StringNullableFilter<"RecurringScheduleItem"> | string | null
+  substituteVariantKey?: Prisma.StringFilter<"RecurringScheduleItem"> | string
   createdAt?: Prisma.DateTimeFilter<"RecurringScheduleItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RecurringScheduleItem"> | Date | string
+}
+
+export type RecurringScheduleItemUpsertWithWhereUniqueWithoutSubstituteProductInput = {
+  where: Prisma.RecurringScheduleItemWhereUniqueInput
+  update: Prisma.XOR<Prisma.RecurringScheduleItemUpdateWithoutSubstituteProductInput, Prisma.RecurringScheduleItemUncheckedUpdateWithoutSubstituteProductInput>
+  create: Prisma.XOR<Prisma.RecurringScheduleItemCreateWithoutSubstituteProductInput, Prisma.RecurringScheduleItemUncheckedCreateWithoutSubstituteProductInput>
+}
+
+export type RecurringScheduleItemUpdateWithWhereUniqueWithoutSubstituteProductInput = {
+  where: Prisma.RecurringScheduleItemWhereUniqueInput
+  data: Prisma.XOR<Prisma.RecurringScheduleItemUpdateWithoutSubstituteProductInput, Prisma.RecurringScheduleItemUncheckedUpdateWithoutSubstituteProductInput>
+}
+
+export type RecurringScheduleItemUpdateManyWithWhereWithoutSubstituteProductInput = {
+  where: Prisma.RecurringScheduleItemScalarWhereInput
+  data: Prisma.XOR<Prisma.RecurringScheduleItemUpdateManyMutationInput, Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteProductInput>
 }
 
 export type RecurringScheduleItemCreateWithoutVariantInput = {
   id: string
   variantKey?: string
   quantity: number
+  substituteVariantKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   schedule: Prisma.RecurringScheduleCreateNestedOneWithoutItemsInput
   product: Prisma.ProductCreateNestedOneWithoutScheduleItemsInput
+  substituteProduct?: Prisma.ProductCreateNestedOneWithoutSubstituteForItemsInput
+  substituteVariant?: Prisma.ProductVariantCreateNestedOneWithoutSubstituteForItemsInput
 }
 
 export type RecurringScheduleItemUncheckedCreateWithoutVariantInput = {
@@ -647,6 +865,9 @@ export type RecurringScheduleItemUncheckedCreateWithoutVariantInput = {
   productId: string
   variantKey?: string
   quantity: number
+  substituteProductId?: string | null
+  substituteVariantId?: string | null
+  substituteVariantKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -658,6 +879,42 @@ export type RecurringScheduleItemCreateOrConnectWithoutVariantInput = {
 
 export type RecurringScheduleItemCreateManyVariantInputEnvelope = {
   data: Prisma.RecurringScheduleItemCreateManyVariantInput | Prisma.RecurringScheduleItemCreateManyVariantInput[]
+  skipDuplicates?: boolean
+}
+
+export type RecurringScheduleItemCreateWithoutSubstituteVariantInput = {
+  id: string
+  variantKey?: string
+  quantity: number
+  substituteVariantKey?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  schedule: Prisma.RecurringScheduleCreateNestedOneWithoutItemsInput
+  product: Prisma.ProductCreateNestedOneWithoutScheduleItemsInput
+  variant?: Prisma.ProductVariantCreateNestedOneWithoutScheduleItemsInput
+  substituteProduct?: Prisma.ProductCreateNestedOneWithoutSubstituteForItemsInput
+}
+
+export type RecurringScheduleItemUncheckedCreateWithoutSubstituteVariantInput = {
+  id: string
+  scheduleId: string
+  productId: string
+  variantId?: string | null
+  variantKey?: string
+  quantity: number
+  substituteProductId?: string | null
+  substituteVariantKey?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type RecurringScheduleItemCreateOrConnectWithoutSubstituteVariantInput = {
+  where: Prisma.RecurringScheduleItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.RecurringScheduleItemCreateWithoutSubstituteVariantInput, Prisma.RecurringScheduleItemUncheckedCreateWithoutSubstituteVariantInput>
+}
+
+export type RecurringScheduleItemCreateManySubstituteVariantInputEnvelope = {
+  data: Prisma.RecurringScheduleItemCreateManySubstituteVariantInput | Prisma.RecurringScheduleItemCreateManySubstituteVariantInput[]
   skipDuplicates?: boolean
 }
 
@@ -677,14 +934,33 @@ export type RecurringScheduleItemUpdateManyWithWhereWithoutVariantInput = {
   data: Prisma.XOR<Prisma.RecurringScheduleItemUpdateManyMutationInput, Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutVariantInput>
 }
 
+export type RecurringScheduleItemUpsertWithWhereUniqueWithoutSubstituteVariantInput = {
+  where: Prisma.RecurringScheduleItemWhereUniqueInput
+  update: Prisma.XOR<Prisma.RecurringScheduleItemUpdateWithoutSubstituteVariantInput, Prisma.RecurringScheduleItemUncheckedUpdateWithoutSubstituteVariantInput>
+  create: Prisma.XOR<Prisma.RecurringScheduleItemCreateWithoutSubstituteVariantInput, Prisma.RecurringScheduleItemUncheckedCreateWithoutSubstituteVariantInput>
+}
+
+export type RecurringScheduleItemUpdateWithWhereUniqueWithoutSubstituteVariantInput = {
+  where: Prisma.RecurringScheduleItemWhereUniqueInput
+  data: Prisma.XOR<Prisma.RecurringScheduleItemUpdateWithoutSubstituteVariantInput, Prisma.RecurringScheduleItemUncheckedUpdateWithoutSubstituteVariantInput>
+}
+
+export type RecurringScheduleItemUpdateManyWithWhereWithoutSubstituteVariantInput = {
+  where: Prisma.RecurringScheduleItemScalarWhereInput
+  data: Prisma.XOR<Prisma.RecurringScheduleItemUpdateManyMutationInput, Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteVariantInput>
+}
+
 export type RecurringScheduleItemCreateWithoutScheduleInput = {
   id: string
   variantKey?: string
   quantity: number
+  substituteVariantKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutScheduleItemsInput
   variant?: Prisma.ProductVariantCreateNestedOneWithoutScheduleItemsInput
+  substituteProduct?: Prisma.ProductCreateNestedOneWithoutSubstituteForItemsInput
+  substituteVariant?: Prisma.ProductVariantCreateNestedOneWithoutSubstituteForItemsInput
 }
 
 export type RecurringScheduleItemUncheckedCreateWithoutScheduleInput = {
@@ -693,6 +969,9 @@ export type RecurringScheduleItemUncheckedCreateWithoutScheduleInput = {
   variantId?: string | null
   variantKey?: string
   quantity: number
+  substituteProductId?: string | null
+  substituteVariantId?: string | null
+  substituteVariantKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -729,6 +1008,22 @@ export type RecurringScheduleItemCreateManyProductInput = {
   variantId?: string | null
   variantKey?: string
   quantity: number
+  substituteProductId?: string | null
+  substituteVariantId?: string | null
+  substituteVariantKey?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type RecurringScheduleItemCreateManySubstituteProductInput = {
+  id: string
+  scheduleId: string
+  productId: string
+  variantId?: string | null
+  variantKey?: string
+  quantity: number
+  substituteVariantId?: string | null
+  substituteVariantKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -737,10 +1032,13 @@ export type RecurringScheduleItemUpdateWithoutProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedule?: Prisma.RecurringScheduleUpdateOneRequiredWithoutItemsNestedInput
   variant?: Prisma.ProductVariantUpdateOneWithoutScheduleItemsNestedInput
+  substituteProduct?: Prisma.ProductUpdateOneWithoutSubstituteForItemsNestedInput
+  substituteVariant?: Prisma.ProductVariantUpdateOneWithoutSubstituteForItemsNestedInput
 }
 
 export type RecurringScheduleItemUncheckedUpdateWithoutProductInput = {
@@ -749,6 +1047,9 @@ export type RecurringScheduleItemUncheckedUpdateWithoutProductInput = {
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  substituteProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  substituteVariantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -759,6 +1060,48 @@ export type RecurringScheduleItemUncheckedUpdateManyWithoutProductInput = {
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  substituteProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  substituteVariantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type RecurringScheduleItemUpdateWithoutSubstituteProductInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  schedule?: Prisma.RecurringScheduleUpdateOneRequiredWithoutItemsNestedInput
+  product?: Prisma.ProductUpdateOneRequiredWithoutScheduleItemsNestedInput
+  variant?: Prisma.ProductVariantUpdateOneWithoutScheduleItemsNestedInput
+  substituteVariant?: Prisma.ProductVariantUpdateOneWithoutSubstituteForItemsNestedInput
+}
+
+export type RecurringScheduleItemUncheckedUpdateWithoutSubstituteProductInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  substituteVariantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteProductInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  substituteVariantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -769,6 +1112,22 @@ export type RecurringScheduleItemCreateManyVariantInput = {
   productId: string
   variantKey?: string
   quantity: number
+  substituteProductId?: string | null
+  substituteVariantId?: string | null
+  substituteVariantKey?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type RecurringScheduleItemCreateManySubstituteVariantInput = {
+  id: string
+  scheduleId: string
+  productId: string
+  variantId?: string | null
+  variantKey?: string
+  quantity: number
+  substituteProductId?: string | null
+  substituteVariantKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -777,10 +1136,13 @@ export type RecurringScheduleItemUpdateWithoutVariantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedule?: Prisma.RecurringScheduleUpdateOneRequiredWithoutItemsNestedInput
   product?: Prisma.ProductUpdateOneRequiredWithoutScheduleItemsNestedInput
+  substituteProduct?: Prisma.ProductUpdateOneWithoutSubstituteForItemsNestedInput
+  substituteVariant?: Prisma.ProductVariantUpdateOneWithoutSubstituteForItemsNestedInput
 }
 
 export type RecurringScheduleItemUncheckedUpdateWithoutVariantInput = {
@@ -789,6 +1151,9 @@ export type RecurringScheduleItemUncheckedUpdateWithoutVariantInput = {
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  substituteProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  substituteVariantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -799,6 +1164,48 @@ export type RecurringScheduleItemUncheckedUpdateManyWithoutVariantInput = {
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  substituteProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  substituteVariantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type RecurringScheduleItemUpdateWithoutSubstituteVariantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  schedule?: Prisma.RecurringScheduleUpdateOneRequiredWithoutItemsNestedInput
+  product?: Prisma.ProductUpdateOneRequiredWithoutScheduleItemsNestedInput
+  variant?: Prisma.ProductVariantUpdateOneWithoutScheduleItemsNestedInput
+  substituteProduct?: Prisma.ProductUpdateOneWithoutSubstituteForItemsNestedInput
+}
+
+export type RecurringScheduleItemUncheckedUpdateWithoutSubstituteVariantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  substituteProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteVariantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantKey?: Prisma.StringFieldUpdateOperationsInput | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  substituteProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -809,6 +1216,9 @@ export type RecurringScheduleItemCreateManyScheduleInput = {
   variantId?: string | null
   variantKey?: string
   quantity: number
+  substituteProductId?: string | null
+  substituteVariantId?: string | null
+  substituteVariantKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -817,10 +1227,13 @@ export type RecurringScheduleItemUpdateWithoutScheduleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutScheduleItemsNestedInput
   variant?: Prisma.ProductVariantUpdateOneWithoutScheduleItemsNestedInput
+  substituteProduct?: Prisma.ProductUpdateOneWithoutSubstituteForItemsNestedInput
+  substituteVariant?: Prisma.ProductVariantUpdateOneWithoutSubstituteForItemsNestedInput
 }
 
 export type RecurringScheduleItemUncheckedUpdateWithoutScheduleInput = {
@@ -829,6 +1242,9 @@ export type RecurringScheduleItemUncheckedUpdateWithoutScheduleInput = {
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  substituteProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  substituteVariantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -839,6 +1255,9 @@ export type RecurringScheduleItemUncheckedUpdateManyWithoutScheduleInput = {
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  substituteProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  substituteVariantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -852,11 +1271,16 @@ export type RecurringScheduleItemSelect<ExtArgs extends runtime.Types.Extensions
   variantId?: boolean
   variantKey?: boolean
   quantity?: boolean
+  substituteProductId?: boolean
+  substituteVariantId?: boolean
+  substituteVariantKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   schedule?: boolean | Prisma.RecurringScheduleDefaultArgs<ExtArgs>
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   variant?: boolean | Prisma.RecurringScheduleItem$variantArgs<ExtArgs>
+  substituteProduct?: boolean | Prisma.RecurringScheduleItem$substituteProductArgs<ExtArgs>
+  substituteVariant?: boolean | Prisma.RecurringScheduleItem$substituteVariantArgs<ExtArgs>
 }, ExtArgs["result"]["recurringScheduleItem"]>
 
 
@@ -868,15 +1292,20 @@ export type RecurringScheduleItemSelectScalar = {
   variantId?: boolean
   variantKey?: boolean
   quantity?: boolean
+  substituteProductId?: boolean
+  substituteVariantId?: boolean
+  substituteVariantKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type RecurringScheduleItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scheduleId" | "productId" | "variantId" | "variantKey" | "quantity" | "createdAt" | "updatedAt", ExtArgs["result"]["recurringScheduleItem"]>
+export type RecurringScheduleItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scheduleId" | "productId" | "variantId" | "variantKey" | "quantity" | "substituteProductId" | "substituteVariantId" | "substituteVariantKey" | "createdAt" | "updatedAt", ExtArgs["result"]["recurringScheduleItem"]>
 export type RecurringScheduleItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   schedule?: boolean | Prisma.RecurringScheduleDefaultArgs<ExtArgs>
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   variant?: boolean | Prisma.RecurringScheduleItem$variantArgs<ExtArgs>
+  substituteProduct?: boolean | Prisma.RecurringScheduleItem$substituteProductArgs<ExtArgs>
+  substituteVariant?: boolean | Prisma.RecurringScheduleItem$substituteVariantArgs<ExtArgs>
 }
 
 export type $RecurringScheduleItemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -885,6 +1314,8 @@ export type $RecurringScheduleItemPayload<ExtArgs extends runtime.Types.Extensio
     schedule: Prisma.$RecurringSchedulePayload<ExtArgs>
     product: Prisma.$ProductPayload<ExtArgs>
     variant: Prisma.$ProductVariantPayload<ExtArgs> | null
+    substituteProduct: Prisma.$ProductPayload<ExtArgs> | null
+    substituteVariant: Prisma.$ProductVariantPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -893,6 +1324,18 @@ export type $RecurringScheduleItemPayload<ExtArgs extends runtime.Types.Extensio
     variantId: string | null
     variantKey: string
     quantity: number
+    /**
+     * The one product the customer agreed may stand in for this line.
+     * 
+     * Only ever consulted when the plan's `substitutionPolicy` is
+     * SAVED_PREFERENCE, and only for the exact SKU named here. There is no
+     * second choice and no category fallback, on purpose: a substitution the
+     * customer did not name is a substitution they did not authorise, and the
+     * engine holds the occurrence rather than reaching for something similar.
+     */
+    substituteProductId: string | null
+    substituteVariantId: string | null
+    substituteVariantKey: string
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["recurringScheduleItem"]>
@@ -1238,6 +1681,8 @@ export interface Prisma__RecurringScheduleItemClient<T, Null = never, ExtArgs ex
   schedule<T extends Prisma.RecurringScheduleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RecurringScheduleDefaultArgs<ExtArgs>>): Prisma.Prisma__RecurringScheduleClient<runtime.Types.Result.GetResult<Prisma.$RecurringSchedulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   product<T extends Prisma.ProductDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductClient<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   variant<T extends Prisma.RecurringScheduleItem$variantArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RecurringScheduleItem$variantArgs<ExtArgs>>): Prisma.Prisma__ProductVariantClient<runtime.Types.Result.GetResult<Prisma.$ProductVariantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  substituteProduct<T extends Prisma.RecurringScheduleItem$substituteProductArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RecurringScheduleItem$substituteProductArgs<ExtArgs>>): Prisma.Prisma__ProductClient<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  substituteVariant<T extends Prisma.RecurringScheduleItem$substituteVariantArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RecurringScheduleItem$substituteVariantArgs<ExtArgs>>): Prisma.Prisma__ProductVariantClient<runtime.Types.Result.GetResult<Prisma.$ProductVariantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1273,6 +1718,9 @@ export interface RecurringScheduleItemFieldRefs {
   readonly variantId: Prisma.FieldRef<"RecurringScheduleItem", 'String'>
   readonly variantKey: Prisma.FieldRef<"RecurringScheduleItem", 'String'>
   readonly quantity: Prisma.FieldRef<"RecurringScheduleItem", 'Int'>
+  readonly substituteProductId: Prisma.FieldRef<"RecurringScheduleItem", 'String'>
+  readonly substituteVariantId: Prisma.FieldRef<"RecurringScheduleItem", 'String'>
+  readonly substituteVariantKey: Prisma.FieldRef<"RecurringScheduleItem", 'String'>
   readonly createdAt: Prisma.FieldRef<"RecurringScheduleItem", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"RecurringScheduleItem", 'DateTime'>
 }
@@ -1626,6 +2074,44 @@ export type RecurringScheduleItemDeleteManyArgs<ExtArgs extends runtime.Types.Ex
  * RecurringScheduleItem.variant
  */
 export type RecurringScheduleItem$variantArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductVariant
+   */
+  select?: Prisma.ProductVariantSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductVariant
+   */
+  omit?: Prisma.ProductVariantOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductVariantInclude<ExtArgs> | null
+  where?: Prisma.ProductVariantWhereInput
+}
+
+/**
+ * RecurringScheduleItem.substituteProduct
+ */
+export type RecurringScheduleItem$substituteProductArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Product
+   */
+  select?: Prisma.ProductSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Product
+   */
+  omit?: Prisma.ProductOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductInclude<ExtArgs> | null
+  where?: Prisma.ProductWhereInput
+}
+
+/**
+ * RecurringScheduleItem.substituteVariant
+ */
+export type RecurringScheduleItem$substituteVariantArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the ProductVariant
    */

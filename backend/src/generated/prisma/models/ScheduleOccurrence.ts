@@ -28,12 +28,14 @@ export type AggregateScheduleOccurrence = {
 
 export type ScheduleOccurrenceAvgAggregateOutputType = {
   attemptCount: number | null
+  paymentAttemptCount: number | null
   quotedTotalMinor: number | null
   actualTotalMinor: number | null
 }
 
 export type ScheduleOccurrenceSumAggregateOutputType = {
   attemptCount: number | null
+  paymentAttemptCount: number | null
   quotedTotalMinor: bigint | null
   actualTotalMinor: bigint | null
 }
@@ -42,15 +44,23 @@ export type ScheduleOccurrenceMinAggregateOutputType = {
   id: string | null
   scheduleId: string | null
   plannedRunAt: Date | null
+  timezone: string | null
   status: $Enums.OccurrenceStatus | null
   attemptCount: number | null
   lastAttemptAt: Date | null
   nextRetryAt: Date | null
+  paymentAttemptCount: number | null
   quotedTotalMinor: bigint | null
   actualTotalMinor: bigint | null
+  paymentReference: string | null
+  erpOrderReference: string | null
+  erpPushStatus: $Enums.ErpPushStatus | null
+  idempotencyKey: string | null
+  skippedByUser: boolean | null
   failureCode: string | null
   failureMessage: string | null
   skipReason: string | null
+  actionRequiredAt: Date | null
   reminderSentAt: Date | null
   createdAt: Date | null
   completedAt: Date | null
@@ -60,15 +70,23 @@ export type ScheduleOccurrenceMaxAggregateOutputType = {
   id: string | null
   scheduleId: string | null
   plannedRunAt: Date | null
+  timezone: string | null
   status: $Enums.OccurrenceStatus | null
   attemptCount: number | null
   lastAttemptAt: Date | null
   nextRetryAt: Date | null
+  paymentAttemptCount: number | null
   quotedTotalMinor: bigint | null
   actualTotalMinor: bigint | null
+  paymentReference: string | null
+  erpOrderReference: string | null
+  erpPushStatus: $Enums.ErpPushStatus | null
+  idempotencyKey: string | null
+  skippedByUser: boolean | null
   failureCode: string | null
   failureMessage: string | null
   skipReason: string | null
+  actionRequiredAt: Date | null
   reminderSentAt: Date | null
   createdAt: Date | null
   completedAt: Date | null
@@ -78,15 +96,24 @@ export type ScheduleOccurrenceCountAggregateOutputType = {
   id: number
   scheduleId: number
   plannedRunAt: number
+  timezone: number
   status: number
   attemptCount: number
   lastAttemptAt: number
   nextRetryAt: number
+  paymentAttemptCount: number
   quotedTotalMinor: number
   actualTotalMinor: number
+  paymentReference: number
+  erpOrderReference: number
+  erpPushStatus: number
+  idempotencyKey: number
+  cartSnapshotJson: number
+  skippedByUser: number
   failureCode: number
   failureMessage: number
   skipReason: number
+  actionRequiredAt: number
   reminderSentAt: number
   createdAt: number
   completedAt: number
@@ -96,12 +123,14 @@ export type ScheduleOccurrenceCountAggregateOutputType = {
 
 export type ScheduleOccurrenceAvgAggregateInputType = {
   attemptCount?: true
+  paymentAttemptCount?: true
   quotedTotalMinor?: true
   actualTotalMinor?: true
 }
 
 export type ScheduleOccurrenceSumAggregateInputType = {
   attemptCount?: true
+  paymentAttemptCount?: true
   quotedTotalMinor?: true
   actualTotalMinor?: true
 }
@@ -110,15 +139,23 @@ export type ScheduleOccurrenceMinAggregateInputType = {
   id?: true
   scheduleId?: true
   plannedRunAt?: true
+  timezone?: true
   status?: true
   attemptCount?: true
   lastAttemptAt?: true
   nextRetryAt?: true
+  paymentAttemptCount?: true
   quotedTotalMinor?: true
   actualTotalMinor?: true
+  paymentReference?: true
+  erpOrderReference?: true
+  erpPushStatus?: true
+  idempotencyKey?: true
+  skippedByUser?: true
   failureCode?: true
   failureMessage?: true
   skipReason?: true
+  actionRequiredAt?: true
   reminderSentAt?: true
   createdAt?: true
   completedAt?: true
@@ -128,15 +165,23 @@ export type ScheduleOccurrenceMaxAggregateInputType = {
   id?: true
   scheduleId?: true
   plannedRunAt?: true
+  timezone?: true
   status?: true
   attemptCount?: true
   lastAttemptAt?: true
   nextRetryAt?: true
+  paymentAttemptCount?: true
   quotedTotalMinor?: true
   actualTotalMinor?: true
+  paymentReference?: true
+  erpOrderReference?: true
+  erpPushStatus?: true
+  idempotencyKey?: true
+  skippedByUser?: true
   failureCode?: true
   failureMessage?: true
   skipReason?: true
+  actionRequiredAt?: true
   reminderSentAt?: true
   createdAt?: true
   completedAt?: true
@@ -146,15 +191,24 @@ export type ScheduleOccurrenceCountAggregateInputType = {
   id?: true
   scheduleId?: true
   plannedRunAt?: true
+  timezone?: true
   status?: true
   attemptCount?: true
   lastAttemptAt?: true
   nextRetryAt?: true
+  paymentAttemptCount?: true
   quotedTotalMinor?: true
   actualTotalMinor?: true
+  paymentReference?: true
+  erpOrderReference?: true
+  erpPushStatus?: true
+  idempotencyKey?: true
+  cartSnapshotJson?: true
+  skippedByUser?: true
   failureCode?: true
   failureMessage?: true
   skipReason?: true
+  actionRequiredAt?: true
   reminderSentAt?: true
   createdAt?: true
   completedAt?: true
@@ -251,15 +305,24 @@ export type ScheduleOccurrenceGroupByOutputType = {
   id: string
   scheduleId: string
   plannedRunAt: Date
+  timezone: string
   status: $Enums.OccurrenceStatus
   attemptCount: number
   lastAttemptAt: Date | null
   nextRetryAt: Date | null
+  paymentAttemptCount: number
   quotedTotalMinor: bigint | null
   actualTotalMinor: bigint | null
+  paymentReference: string | null
+  erpOrderReference: string | null
+  erpPushStatus: $Enums.ErpPushStatus | null
+  idempotencyKey: string
+  cartSnapshotJson: runtime.JsonValue | null
+  skippedByUser: boolean
   failureCode: string | null
   failureMessage: string | null
   skipReason: string | null
+  actionRequiredAt: Date | null
   reminderSentAt: Date | null
   createdAt: Date
   completedAt: Date | null
@@ -292,80 +355,119 @@ export type ScheduleOccurrenceWhereInput = {
   id?: Prisma.StringFilter<"ScheduleOccurrence"> | string
   scheduleId?: Prisma.StringFilter<"ScheduleOccurrence"> | string
   plannedRunAt?: Prisma.DateTimeFilter<"ScheduleOccurrence"> | Date | string
+  timezone?: Prisma.StringFilter<"ScheduleOccurrence"> | string
   status?: Prisma.EnumOccurrenceStatusFilter<"ScheduleOccurrence"> | $Enums.OccurrenceStatus
   attemptCount?: Prisma.IntFilter<"ScheduleOccurrence"> | number
   lastAttemptAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
   nextRetryAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
+  paymentAttemptCount?: Prisma.IntFilter<"ScheduleOccurrence"> | number
   quotedTotalMinor?: Prisma.BigIntNullableFilter<"ScheduleOccurrence"> | bigint | number | null
   actualTotalMinor?: Prisma.BigIntNullableFilter<"ScheduleOccurrence"> | bigint | number | null
+  paymentReference?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
+  erpOrderReference?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
+  erpPushStatus?: Prisma.EnumErpPushStatusNullableFilter<"ScheduleOccurrence"> | $Enums.ErpPushStatus | null
+  idempotencyKey?: Prisma.StringFilter<"ScheduleOccurrence"> | string
+  cartSnapshotJson?: Prisma.JsonNullableFilter<"ScheduleOccurrence">
+  skippedByUser?: Prisma.BoolFilter<"ScheduleOccurrence"> | boolean
   failureCode?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
   failureMessage?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
   skipReason?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
+  actionRequiredAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
   reminderSentAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"ScheduleOccurrence"> | Date | string
   completedAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
   schedule?: Prisma.XOR<Prisma.RecurringScheduleScalarRelationFilter, Prisma.RecurringScheduleWhereInput>
   order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
+  erpPush?: Prisma.XOR<Prisma.ErpOrderPushNullableScalarRelationFilter, Prisma.ErpOrderPushWhereInput> | null
 }
 
 export type ScheduleOccurrenceOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   scheduleId?: Prisma.SortOrder
   plannedRunAt?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
   status?: Prisma.SortOrder
   attemptCount?: Prisma.SortOrder
   lastAttemptAt?: Prisma.SortOrderInput | Prisma.SortOrder
   nextRetryAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentAttemptCount?: Prisma.SortOrder
   quotedTotalMinor?: Prisma.SortOrderInput | Prisma.SortOrder
   actualTotalMinor?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentReference?: Prisma.SortOrderInput | Prisma.SortOrder
+  erpOrderReference?: Prisma.SortOrderInput | Prisma.SortOrder
+  erpPushStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrder
+  cartSnapshotJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  skippedByUser?: Prisma.SortOrder
   failureCode?: Prisma.SortOrderInput | Prisma.SortOrder
   failureMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   skipReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  actionRequiredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   reminderSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   schedule?: Prisma.RecurringScheduleOrderByWithRelationInput
   order?: Prisma.OrderOrderByWithRelationInput
+  erpPush?: Prisma.ErpOrderPushOrderByWithRelationInput
   _relevance?: Prisma.ScheduleOccurrenceOrderByRelevanceInput
 }
 
 export type ScheduleOccurrenceWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  idempotencyKey?: string
   scheduleId_plannedRunAt?: Prisma.ScheduleOccurrenceScheduleIdPlannedRunAtCompoundUniqueInput
   AND?: Prisma.ScheduleOccurrenceWhereInput | Prisma.ScheduleOccurrenceWhereInput[]
   OR?: Prisma.ScheduleOccurrenceWhereInput[]
   NOT?: Prisma.ScheduleOccurrenceWhereInput | Prisma.ScheduleOccurrenceWhereInput[]
   scheduleId?: Prisma.StringFilter<"ScheduleOccurrence"> | string
   plannedRunAt?: Prisma.DateTimeFilter<"ScheduleOccurrence"> | Date | string
+  timezone?: Prisma.StringFilter<"ScheduleOccurrence"> | string
   status?: Prisma.EnumOccurrenceStatusFilter<"ScheduleOccurrence"> | $Enums.OccurrenceStatus
   attemptCount?: Prisma.IntFilter<"ScheduleOccurrence"> | number
   lastAttemptAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
   nextRetryAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
+  paymentAttemptCount?: Prisma.IntFilter<"ScheduleOccurrence"> | number
   quotedTotalMinor?: Prisma.BigIntNullableFilter<"ScheduleOccurrence"> | bigint | number | null
   actualTotalMinor?: Prisma.BigIntNullableFilter<"ScheduleOccurrence"> | bigint | number | null
+  paymentReference?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
+  erpOrderReference?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
+  erpPushStatus?: Prisma.EnumErpPushStatusNullableFilter<"ScheduleOccurrence"> | $Enums.ErpPushStatus | null
+  cartSnapshotJson?: Prisma.JsonNullableFilter<"ScheduleOccurrence">
+  skippedByUser?: Prisma.BoolFilter<"ScheduleOccurrence"> | boolean
   failureCode?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
   failureMessage?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
   skipReason?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
+  actionRequiredAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
   reminderSentAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"ScheduleOccurrence"> | Date | string
   completedAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
   schedule?: Prisma.XOR<Prisma.RecurringScheduleScalarRelationFilter, Prisma.RecurringScheduleWhereInput>
   order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
-}, "id" | "scheduleId_plannedRunAt">
+  erpPush?: Prisma.XOR<Prisma.ErpOrderPushNullableScalarRelationFilter, Prisma.ErpOrderPushWhereInput> | null
+}, "id" | "idempotencyKey" | "scheduleId_plannedRunAt">
 
 export type ScheduleOccurrenceOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   scheduleId?: Prisma.SortOrder
   plannedRunAt?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
   status?: Prisma.SortOrder
   attemptCount?: Prisma.SortOrder
   lastAttemptAt?: Prisma.SortOrderInput | Prisma.SortOrder
   nextRetryAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentAttemptCount?: Prisma.SortOrder
   quotedTotalMinor?: Prisma.SortOrderInput | Prisma.SortOrder
   actualTotalMinor?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentReference?: Prisma.SortOrderInput | Prisma.SortOrder
+  erpOrderReference?: Prisma.SortOrderInput | Prisma.SortOrder
+  erpPushStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrder
+  cartSnapshotJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  skippedByUser?: Prisma.SortOrder
   failureCode?: Prisma.SortOrderInput | Prisma.SortOrder
   failureMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   skipReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  actionRequiredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   reminderSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -383,15 +485,24 @@ export type ScheduleOccurrenceScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"ScheduleOccurrence"> | string
   scheduleId?: Prisma.StringWithAggregatesFilter<"ScheduleOccurrence"> | string
   plannedRunAt?: Prisma.DateTimeWithAggregatesFilter<"ScheduleOccurrence"> | Date | string
+  timezone?: Prisma.StringWithAggregatesFilter<"ScheduleOccurrence"> | string
   status?: Prisma.EnumOccurrenceStatusWithAggregatesFilter<"ScheduleOccurrence"> | $Enums.OccurrenceStatus
   attemptCount?: Prisma.IntWithAggregatesFilter<"ScheduleOccurrence"> | number
   lastAttemptAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ScheduleOccurrence"> | Date | string | null
   nextRetryAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ScheduleOccurrence"> | Date | string | null
+  paymentAttemptCount?: Prisma.IntWithAggregatesFilter<"ScheduleOccurrence"> | number
   quotedTotalMinor?: Prisma.BigIntNullableWithAggregatesFilter<"ScheduleOccurrence"> | bigint | number | null
   actualTotalMinor?: Prisma.BigIntNullableWithAggregatesFilter<"ScheduleOccurrence"> | bigint | number | null
+  paymentReference?: Prisma.StringNullableWithAggregatesFilter<"ScheduleOccurrence"> | string | null
+  erpOrderReference?: Prisma.StringNullableWithAggregatesFilter<"ScheduleOccurrence"> | string | null
+  erpPushStatus?: Prisma.EnumErpPushStatusNullableWithAggregatesFilter<"ScheduleOccurrence"> | $Enums.ErpPushStatus | null
+  idempotencyKey?: Prisma.StringWithAggregatesFilter<"ScheduleOccurrence"> | string
+  cartSnapshotJson?: Prisma.JsonNullableWithAggregatesFilter<"ScheduleOccurrence">
+  skippedByUser?: Prisma.BoolWithAggregatesFilter<"ScheduleOccurrence"> | boolean
   failureCode?: Prisma.StringNullableWithAggregatesFilter<"ScheduleOccurrence"> | string | null
   failureMessage?: Prisma.StringNullableWithAggregatesFilter<"ScheduleOccurrence"> | string | null
   skipReason?: Prisma.StringNullableWithAggregatesFilter<"ScheduleOccurrence"> | string | null
+  actionRequiredAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ScheduleOccurrence"> | Date | string | null
   reminderSentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ScheduleOccurrence"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ScheduleOccurrence"> | Date | string
   completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ScheduleOccurrence"> | Date | string | null
@@ -400,92 +511,141 @@ export type ScheduleOccurrenceScalarWhereWithAggregatesInput = {
 export type ScheduleOccurrenceCreateInput = {
   id: string
   plannedRunAt: Date | string
+  timezone?: string
   status?: $Enums.OccurrenceStatus
   attemptCount?: number
   lastAttemptAt?: Date | string | null
   nextRetryAt?: Date | string | null
+  paymentAttemptCount?: number
   quotedTotalMinor?: bigint | number | null
   actualTotalMinor?: bigint | number | null
+  paymentReference?: string | null
+  erpOrderReference?: string | null
+  erpPushStatus?: $Enums.ErpPushStatus | null
+  idempotencyKey: string
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  skippedByUser?: boolean
   failureCode?: string | null
   failureMessage?: string | null
   skipReason?: string | null
+  actionRequiredAt?: Date | string | null
   reminderSentAt?: Date | string | null
   createdAt?: Date | string
   completedAt?: Date | string | null
   schedule: Prisma.RecurringScheduleCreateNestedOneWithoutOccurrencesInput
   order?: Prisma.OrderCreateNestedOneWithoutOccurrenceInput
+  erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOccurrenceInput
 }
 
 export type ScheduleOccurrenceUncheckedCreateInput = {
   id: string
   scheduleId: string
   plannedRunAt: Date | string
+  timezone?: string
   status?: $Enums.OccurrenceStatus
   attemptCount?: number
   lastAttemptAt?: Date | string | null
   nextRetryAt?: Date | string | null
+  paymentAttemptCount?: number
   quotedTotalMinor?: bigint | number | null
   actualTotalMinor?: bigint | number | null
+  paymentReference?: string | null
+  erpOrderReference?: string | null
+  erpPushStatus?: $Enums.ErpPushStatus | null
+  idempotencyKey: string
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  skippedByUser?: boolean
   failureCode?: string | null
   failureMessage?: string | null
   skipReason?: string | null
+  actionRequiredAt?: Date | string | null
   reminderSentAt?: Date | string | null
   createdAt?: Date | string
   completedAt?: Date | string | null
   order?: Prisma.OrderUncheckedCreateNestedOneWithoutOccurrenceInput
+  erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOccurrenceInput
 }
 
 export type ScheduleOccurrenceUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   plannedRunAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOccurrenceStatusFieldUpdateOperationsInput | $Enums.OccurrenceStatus
   attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextRetryAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentAttemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   quotedTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   actualTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  paymentReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpPushStatus?: Prisma.NullableEnumErpPushStatusFieldUpdateOperationsInput | $Enums.ErpPushStatus | null
+  idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  skippedByUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skipReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actionRequiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   schedule?: Prisma.RecurringScheduleUpdateOneRequiredWithoutOccurrencesNestedInput
   order?: Prisma.OrderUpdateOneWithoutOccurrenceNestedInput
+  erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOccurrenceNestedInput
 }
 
 export type ScheduleOccurrenceUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
   plannedRunAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOccurrenceStatusFieldUpdateOperationsInput | $Enums.OccurrenceStatus
   attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextRetryAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentAttemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   quotedTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   actualTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  paymentReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpPushStatus?: Prisma.NullableEnumErpPushStatusFieldUpdateOperationsInput | $Enums.ErpPushStatus | null
+  idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  skippedByUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skipReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actionRequiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order?: Prisma.OrderUncheckedUpdateOneWithoutOccurrenceNestedInput
+  erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOccurrenceNestedInput
 }
 
 export type ScheduleOccurrenceCreateManyInput = {
   id: string
   scheduleId: string
   plannedRunAt: Date | string
+  timezone?: string
   status?: $Enums.OccurrenceStatus
   attemptCount?: number
   lastAttemptAt?: Date | string | null
   nextRetryAt?: Date | string | null
+  paymentAttemptCount?: number
   quotedTotalMinor?: bigint | number | null
   actualTotalMinor?: bigint | number | null
+  paymentReference?: string | null
+  erpOrderReference?: string | null
+  erpPushStatus?: $Enums.ErpPushStatus | null
+  idempotencyKey: string
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  skippedByUser?: boolean
   failureCode?: string | null
   failureMessage?: string | null
   skipReason?: string | null
+  actionRequiredAt?: Date | string | null
   reminderSentAt?: Date | string | null
   createdAt?: Date | string
   completedAt?: Date | string | null
@@ -494,15 +654,24 @@ export type ScheduleOccurrenceCreateManyInput = {
 export type ScheduleOccurrenceUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   plannedRunAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOccurrenceStatusFieldUpdateOperationsInput | $Enums.OccurrenceStatus
   attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextRetryAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentAttemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   quotedTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   actualTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  paymentReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpPushStatus?: Prisma.NullableEnumErpPushStatusFieldUpdateOperationsInput | $Enums.ErpPushStatus | null
+  idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  skippedByUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skipReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actionRequiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -512,15 +681,24 @@ export type ScheduleOccurrenceUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
   plannedRunAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOccurrenceStatusFieldUpdateOperationsInput | $Enums.OccurrenceStatus
   attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextRetryAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentAttemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   quotedTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   actualTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  paymentReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpPushStatus?: Prisma.NullableEnumErpPushStatusFieldUpdateOperationsInput | $Enums.ErpPushStatus | null
+  idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  skippedByUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skipReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actionRequiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -556,15 +734,24 @@ export type ScheduleOccurrenceCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   scheduleId?: Prisma.SortOrder
   plannedRunAt?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
   status?: Prisma.SortOrder
   attemptCount?: Prisma.SortOrder
   lastAttemptAt?: Prisma.SortOrder
   nextRetryAt?: Prisma.SortOrder
+  paymentAttemptCount?: Prisma.SortOrder
   quotedTotalMinor?: Prisma.SortOrder
   actualTotalMinor?: Prisma.SortOrder
+  paymentReference?: Prisma.SortOrder
+  erpOrderReference?: Prisma.SortOrder
+  erpPushStatus?: Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrder
+  cartSnapshotJson?: Prisma.SortOrder
+  skippedByUser?: Prisma.SortOrder
   failureCode?: Prisma.SortOrder
   failureMessage?: Prisma.SortOrder
   skipReason?: Prisma.SortOrder
+  actionRequiredAt?: Prisma.SortOrder
   reminderSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
@@ -572,6 +759,7 @@ export type ScheduleOccurrenceCountOrderByAggregateInput = {
 
 export type ScheduleOccurrenceAvgOrderByAggregateInput = {
   attemptCount?: Prisma.SortOrder
+  paymentAttemptCount?: Prisma.SortOrder
   quotedTotalMinor?: Prisma.SortOrder
   actualTotalMinor?: Prisma.SortOrder
 }
@@ -580,15 +768,23 @@ export type ScheduleOccurrenceMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   scheduleId?: Prisma.SortOrder
   plannedRunAt?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
   status?: Prisma.SortOrder
   attemptCount?: Prisma.SortOrder
   lastAttemptAt?: Prisma.SortOrder
   nextRetryAt?: Prisma.SortOrder
+  paymentAttemptCount?: Prisma.SortOrder
   quotedTotalMinor?: Prisma.SortOrder
   actualTotalMinor?: Prisma.SortOrder
+  paymentReference?: Prisma.SortOrder
+  erpOrderReference?: Prisma.SortOrder
+  erpPushStatus?: Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrder
+  skippedByUser?: Prisma.SortOrder
   failureCode?: Prisma.SortOrder
   failureMessage?: Prisma.SortOrder
   skipReason?: Prisma.SortOrder
+  actionRequiredAt?: Prisma.SortOrder
   reminderSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
@@ -598,15 +794,23 @@ export type ScheduleOccurrenceMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   scheduleId?: Prisma.SortOrder
   plannedRunAt?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
   status?: Prisma.SortOrder
   attemptCount?: Prisma.SortOrder
   lastAttemptAt?: Prisma.SortOrder
   nextRetryAt?: Prisma.SortOrder
+  paymentAttemptCount?: Prisma.SortOrder
   quotedTotalMinor?: Prisma.SortOrder
   actualTotalMinor?: Prisma.SortOrder
+  paymentReference?: Prisma.SortOrder
+  erpOrderReference?: Prisma.SortOrder
+  erpPushStatus?: Prisma.SortOrder
+  idempotencyKey?: Prisma.SortOrder
+  skippedByUser?: Prisma.SortOrder
   failureCode?: Prisma.SortOrder
   failureMessage?: Prisma.SortOrder
   skipReason?: Prisma.SortOrder
+  actionRequiredAt?: Prisma.SortOrder
   reminderSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
@@ -614,6 +818,7 @@ export type ScheduleOccurrenceMinOrderByAggregateInput = {
 
 export type ScheduleOccurrenceSumOrderByAggregateInput = {
   attemptCount?: Prisma.SortOrder
+  paymentAttemptCount?: Prisma.SortOrder
   quotedTotalMinor?: Prisma.SortOrder
   actualTotalMinor?: Prisma.SortOrder
 }
@@ -680,40 +885,80 @@ export type EnumOccurrenceStatusFieldUpdateOperationsInput = {
   set?: $Enums.OccurrenceStatus
 }
 
+export type NullableEnumErpPushStatusFieldUpdateOperationsInput = {
+  set?: $Enums.ErpPushStatus | null
+}
+
+export type ScheduleOccurrenceCreateNestedOneWithoutErpPushInput = {
+  create?: Prisma.XOR<Prisma.ScheduleOccurrenceCreateWithoutErpPushInput, Prisma.ScheduleOccurrenceUncheckedCreateWithoutErpPushInput>
+  connectOrCreate?: Prisma.ScheduleOccurrenceCreateOrConnectWithoutErpPushInput
+  connect?: Prisma.ScheduleOccurrenceWhereUniqueInput
+}
+
+export type ScheduleOccurrenceUpdateOneWithoutErpPushNestedInput = {
+  create?: Prisma.XOR<Prisma.ScheduleOccurrenceCreateWithoutErpPushInput, Prisma.ScheduleOccurrenceUncheckedCreateWithoutErpPushInput>
+  connectOrCreate?: Prisma.ScheduleOccurrenceCreateOrConnectWithoutErpPushInput
+  upsert?: Prisma.ScheduleOccurrenceUpsertWithoutErpPushInput
+  disconnect?: Prisma.ScheduleOccurrenceWhereInput | boolean
+  delete?: Prisma.ScheduleOccurrenceWhereInput | boolean
+  connect?: Prisma.ScheduleOccurrenceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ScheduleOccurrenceUpdateToOneWithWhereWithoutErpPushInput, Prisma.ScheduleOccurrenceUpdateWithoutErpPushInput>, Prisma.ScheduleOccurrenceUncheckedUpdateWithoutErpPushInput>
+}
+
 export type ScheduleOccurrenceCreateWithoutOrderInput = {
   id: string
   plannedRunAt: Date | string
+  timezone?: string
   status?: $Enums.OccurrenceStatus
   attemptCount?: number
   lastAttemptAt?: Date | string | null
   nextRetryAt?: Date | string | null
+  paymentAttemptCount?: number
   quotedTotalMinor?: bigint | number | null
   actualTotalMinor?: bigint | number | null
+  paymentReference?: string | null
+  erpOrderReference?: string | null
+  erpPushStatus?: $Enums.ErpPushStatus | null
+  idempotencyKey: string
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  skippedByUser?: boolean
   failureCode?: string | null
   failureMessage?: string | null
   skipReason?: string | null
+  actionRequiredAt?: Date | string | null
   reminderSentAt?: Date | string | null
   createdAt?: Date | string
   completedAt?: Date | string | null
   schedule: Prisma.RecurringScheduleCreateNestedOneWithoutOccurrencesInput
+  erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOccurrenceInput
 }
 
 export type ScheduleOccurrenceUncheckedCreateWithoutOrderInput = {
   id: string
   scheduleId: string
   plannedRunAt: Date | string
+  timezone?: string
   status?: $Enums.OccurrenceStatus
   attemptCount?: number
   lastAttemptAt?: Date | string | null
   nextRetryAt?: Date | string | null
+  paymentAttemptCount?: number
   quotedTotalMinor?: bigint | number | null
   actualTotalMinor?: bigint | number | null
+  paymentReference?: string | null
+  erpOrderReference?: string | null
+  erpPushStatus?: $Enums.ErpPushStatus | null
+  idempotencyKey: string
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  skippedByUser?: boolean
   failureCode?: string | null
   failureMessage?: string | null
   skipReason?: string | null
+  actionRequiredAt?: Date | string | null
   reminderSentAt?: Date | string | null
   createdAt?: Date | string
   completedAt?: Date | string | null
+  erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOccurrenceInput
 }
 
 export type ScheduleOccurrenceCreateOrConnectWithoutOrderInput = {
@@ -735,73 +980,113 @@ export type ScheduleOccurrenceUpdateToOneWithWhereWithoutOrderInput = {
 export type ScheduleOccurrenceUpdateWithoutOrderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   plannedRunAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOccurrenceStatusFieldUpdateOperationsInput | $Enums.OccurrenceStatus
   attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextRetryAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentAttemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   quotedTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   actualTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  paymentReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpPushStatus?: Prisma.NullableEnumErpPushStatusFieldUpdateOperationsInput | $Enums.ErpPushStatus | null
+  idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  skippedByUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skipReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actionRequiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   schedule?: Prisma.RecurringScheduleUpdateOneRequiredWithoutOccurrencesNestedInput
+  erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOccurrenceNestedInput
 }
 
 export type ScheduleOccurrenceUncheckedUpdateWithoutOrderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
   plannedRunAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOccurrenceStatusFieldUpdateOperationsInput | $Enums.OccurrenceStatus
   attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextRetryAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentAttemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   quotedTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   actualTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  paymentReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpPushStatus?: Prisma.NullableEnumErpPushStatusFieldUpdateOperationsInput | $Enums.ErpPushStatus | null
+  idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  skippedByUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skipReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actionRequiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOccurrenceNestedInput
 }
 
 export type ScheduleOccurrenceCreateWithoutScheduleInput = {
   id: string
   plannedRunAt: Date | string
+  timezone?: string
   status?: $Enums.OccurrenceStatus
   attemptCount?: number
   lastAttemptAt?: Date | string | null
   nextRetryAt?: Date | string | null
+  paymentAttemptCount?: number
   quotedTotalMinor?: bigint | number | null
   actualTotalMinor?: bigint | number | null
+  paymentReference?: string | null
+  erpOrderReference?: string | null
+  erpPushStatus?: $Enums.ErpPushStatus | null
+  idempotencyKey: string
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  skippedByUser?: boolean
   failureCode?: string | null
   failureMessage?: string | null
   skipReason?: string | null
+  actionRequiredAt?: Date | string | null
   reminderSentAt?: Date | string | null
   createdAt?: Date | string
   completedAt?: Date | string | null
   order?: Prisma.OrderCreateNestedOneWithoutOccurrenceInput
+  erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOccurrenceInput
 }
 
 export type ScheduleOccurrenceUncheckedCreateWithoutScheduleInput = {
   id: string
   plannedRunAt: Date | string
+  timezone?: string
   status?: $Enums.OccurrenceStatus
   attemptCount?: number
   lastAttemptAt?: Date | string | null
   nextRetryAt?: Date | string | null
+  paymentAttemptCount?: number
   quotedTotalMinor?: bigint | number | null
   actualTotalMinor?: bigint | number | null
+  paymentReference?: string | null
+  erpOrderReference?: string | null
+  erpPushStatus?: $Enums.ErpPushStatus | null
+  idempotencyKey: string
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  skippedByUser?: boolean
   failureCode?: string | null
   failureMessage?: string | null
   skipReason?: string | null
+  actionRequiredAt?: Date | string | null
   reminderSentAt?: Date | string | null
   createdAt?: Date | string
   completedAt?: Date | string | null
   order?: Prisma.OrderUncheckedCreateNestedOneWithoutOccurrenceInput
+  erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOccurrenceInput
 }
 
 export type ScheduleOccurrenceCreateOrConnectWithoutScheduleInput = {
@@ -837,32 +1122,178 @@ export type ScheduleOccurrenceScalarWhereInput = {
   id?: Prisma.StringFilter<"ScheduleOccurrence"> | string
   scheduleId?: Prisma.StringFilter<"ScheduleOccurrence"> | string
   plannedRunAt?: Prisma.DateTimeFilter<"ScheduleOccurrence"> | Date | string
+  timezone?: Prisma.StringFilter<"ScheduleOccurrence"> | string
   status?: Prisma.EnumOccurrenceStatusFilter<"ScheduleOccurrence"> | $Enums.OccurrenceStatus
   attemptCount?: Prisma.IntFilter<"ScheduleOccurrence"> | number
   lastAttemptAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
   nextRetryAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
+  paymentAttemptCount?: Prisma.IntFilter<"ScheduleOccurrence"> | number
   quotedTotalMinor?: Prisma.BigIntNullableFilter<"ScheduleOccurrence"> | bigint | number | null
   actualTotalMinor?: Prisma.BigIntNullableFilter<"ScheduleOccurrence"> | bigint | number | null
+  paymentReference?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
+  erpOrderReference?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
+  erpPushStatus?: Prisma.EnumErpPushStatusNullableFilter<"ScheduleOccurrence"> | $Enums.ErpPushStatus | null
+  idempotencyKey?: Prisma.StringFilter<"ScheduleOccurrence"> | string
+  cartSnapshotJson?: Prisma.JsonNullableFilter<"ScheduleOccurrence">
+  skippedByUser?: Prisma.BoolFilter<"ScheduleOccurrence"> | boolean
   failureCode?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
   failureMessage?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
   skipReason?: Prisma.StringNullableFilter<"ScheduleOccurrence"> | string | null
+  actionRequiredAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
   reminderSentAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"ScheduleOccurrence"> | Date | string
   completedAt?: Prisma.DateTimeNullableFilter<"ScheduleOccurrence"> | Date | string | null
 }
 
-export type ScheduleOccurrenceCreateManyScheduleInput = {
+export type ScheduleOccurrenceCreateWithoutErpPushInput = {
   id: string
   plannedRunAt: Date | string
+  timezone?: string
   status?: $Enums.OccurrenceStatus
   attemptCount?: number
   lastAttemptAt?: Date | string | null
   nextRetryAt?: Date | string | null
+  paymentAttemptCount?: number
   quotedTotalMinor?: bigint | number | null
   actualTotalMinor?: bigint | number | null
+  paymentReference?: string | null
+  erpOrderReference?: string | null
+  erpPushStatus?: $Enums.ErpPushStatus | null
+  idempotencyKey: string
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  skippedByUser?: boolean
   failureCode?: string | null
   failureMessage?: string | null
   skipReason?: string | null
+  actionRequiredAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  createdAt?: Date | string
+  completedAt?: Date | string | null
+  schedule: Prisma.RecurringScheduleCreateNestedOneWithoutOccurrencesInput
+  order?: Prisma.OrderCreateNestedOneWithoutOccurrenceInput
+}
+
+export type ScheduleOccurrenceUncheckedCreateWithoutErpPushInput = {
+  id: string
+  scheduleId: string
+  plannedRunAt: Date | string
+  timezone?: string
+  status?: $Enums.OccurrenceStatus
+  attemptCount?: number
+  lastAttemptAt?: Date | string | null
+  nextRetryAt?: Date | string | null
+  paymentAttemptCount?: number
+  quotedTotalMinor?: bigint | number | null
+  actualTotalMinor?: bigint | number | null
+  paymentReference?: string | null
+  erpOrderReference?: string | null
+  erpPushStatus?: $Enums.ErpPushStatus | null
+  idempotencyKey: string
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  skippedByUser?: boolean
+  failureCode?: string | null
+  failureMessage?: string | null
+  skipReason?: string | null
+  actionRequiredAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  createdAt?: Date | string
+  completedAt?: Date | string | null
+  order?: Prisma.OrderUncheckedCreateNestedOneWithoutOccurrenceInput
+}
+
+export type ScheduleOccurrenceCreateOrConnectWithoutErpPushInput = {
+  where: Prisma.ScheduleOccurrenceWhereUniqueInput
+  create: Prisma.XOR<Prisma.ScheduleOccurrenceCreateWithoutErpPushInput, Prisma.ScheduleOccurrenceUncheckedCreateWithoutErpPushInput>
+}
+
+export type ScheduleOccurrenceUpsertWithoutErpPushInput = {
+  update: Prisma.XOR<Prisma.ScheduleOccurrenceUpdateWithoutErpPushInput, Prisma.ScheduleOccurrenceUncheckedUpdateWithoutErpPushInput>
+  create: Prisma.XOR<Prisma.ScheduleOccurrenceCreateWithoutErpPushInput, Prisma.ScheduleOccurrenceUncheckedCreateWithoutErpPushInput>
+  where?: Prisma.ScheduleOccurrenceWhereInput
+}
+
+export type ScheduleOccurrenceUpdateToOneWithWhereWithoutErpPushInput = {
+  where?: Prisma.ScheduleOccurrenceWhereInput
+  data: Prisma.XOR<Prisma.ScheduleOccurrenceUpdateWithoutErpPushInput, Prisma.ScheduleOccurrenceUncheckedUpdateWithoutErpPushInput>
+}
+
+export type ScheduleOccurrenceUpdateWithoutErpPushInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  plannedRunAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOccurrenceStatusFieldUpdateOperationsInput | $Enums.OccurrenceStatus
+  attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lastAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nextRetryAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentAttemptCount?: Prisma.IntFieldUpdateOperationsInput | number
+  quotedTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  actualTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  paymentReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpPushStatus?: Prisma.NullableEnumErpPushStatusFieldUpdateOperationsInput | $Enums.ErpPushStatus | null
+  idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  skippedByUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  skipReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actionRequiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  schedule?: Prisma.RecurringScheduleUpdateOneRequiredWithoutOccurrencesNestedInput
+  order?: Prisma.OrderUpdateOneWithoutOccurrenceNestedInput
+}
+
+export type ScheduleOccurrenceUncheckedUpdateWithoutErpPushInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
+  plannedRunAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOccurrenceStatusFieldUpdateOperationsInput | $Enums.OccurrenceStatus
+  attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lastAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nextRetryAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentAttemptCount?: Prisma.IntFieldUpdateOperationsInput | number
+  quotedTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  actualTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  paymentReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpPushStatus?: Prisma.NullableEnumErpPushStatusFieldUpdateOperationsInput | $Enums.ErpPushStatus | null
+  idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  skippedByUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  skipReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actionRequiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  order?: Prisma.OrderUncheckedUpdateOneWithoutOccurrenceNestedInput
+}
+
+export type ScheduleOccurrenceCreateManyScheduleInput = {
+  id: string
+  plannedRunAt: Date | string
+  timezone?: string
+  status?: $Enums.OccurrenceStatus
+  attemptCount?: number
+  lastAttemptAt?: Date | string | null
+  nextRetryAt?: Date | string | null
+  paymentAttemptCount?: number
+  quotedTotalMinor?: bigint | number | null
+  actualTotalMinor?: bigint | number | null
+  paymentReference?: string | null
+  erpOrderReference?: string | null
+  erpPushStatus?: $Enums.ErpPushStatus | null
+  idempotencyKey: string
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  skippedByUser?: boolean
+  failureCode?: string | null
+  failureMessage?: string | null
+  skipReason?: string | null
+  actionRequiredAt?: Date | string | null
   reminderSentAt?: Date | string | null
   createdAt?: Date | string
   completedAt?: Date | string | null
@@ -871,51 +1302,80 @@ export type ScheduleOccurrenceCreateManyScheduleInput = {
 export type ScheduleOccurrenceUpdateWithoutScheduleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   plannedRunAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOccurrenceStatusFieldUpdateOperationsInput | $Enums.OccurrenceStatus
   attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextRetryAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentAttemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   quotedTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   actualTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  paymentReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpPushStatus?: Prisma.NullableEnumErpPushStatusFieldUpdateOperationsInput | $Enums.ErpPushStatus | null
+  idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  skippedByUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skipReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actionRequiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order?: Prisma.OrderUpdateOneWithoutOccurrenceNestedInput
+  erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOccurrenceNestedInput
 }
 
 export type ScheduleOccurrenceUncheckedUpdateWithoutScheduleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   plannedRunAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOccurrenceStatusFieldUpdateOperationsInput | $Enums.OccurrenceStatus
   attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextRetryAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentAttemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   quotedTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   actualTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  paymentReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpPushStatus?: Prisma.NullableEnumErpPushStatusFieldUpdateOperationsInput | $Enums.ErpPushStatus | null
+  idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  skippedByUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skipReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actionRequiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   order?: Prisma.OrderUncheckedUpdateOneWithoutOccurrenceNestedInput
+  erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOccurrenceNestedInput
 }
 
 export type ScheduleOccurrenceUncheckedUpdateManyWithoutScheduleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   plannedRunAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumOccurrenceStatusFieldUpdateOperationsInput | $Enums.OccurrenceStatus
   attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nextRetryAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentAttemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   quotedTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   actualTotalMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  paymentReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpPushStatus?: Prisma.NullableEnumErpPushStatusFieldUpdateOperationsInput | $Enums.ErpPushStatus | null
+  idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  skippedByUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   failureCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   failureMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skipReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actionRequiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -927,20 +1387,30 @@ export type ScheduleOccurrenceSelect<ExtArgs extends runtime.Types.Extensions.In
   id?: boolean
   scheduleId?: boolean
   plannedRunAt?: boolean
+  timezone?: boolean
   status?: boolean
   attemptCount?: boolean
   lastAttemptAt?: boolean
   nextRetryAt?: boolean
+  paymentAttemptCount?: boolean
   quotedTotalMinor?: boolean
   actualTotalMinor?: boolean
+  paymentReference?: boolean
+  erpOrderReference?: boolean
+  erpPushStatus?: boolean
+  idempotencyKey?: boolean
+  cartSnapshotJson?: boolean
+  skippedByUser?: boolean
   failureCode?: boolean
   failureMessage?: boolean
   skipReason?: boolean
+  actionRequiredAt?: boolean
   reminderSentAt?: boolean
   createdAt?: boolean
   completedAt?: boolean
   schedule?: boolean | Prisma.RecurringScheduleDefaultArgs<ExtArgs>
   order?: boolean | Prisma.ScheduleOccurrence$orderArgs<ExtArgs>
+  erpPush?: boolean | Prisma.ScheduleOccurrence$erpPushArgs<ExtArgs>
 }, ExtArgs["result"]["scheduleOccurrence"]>
 
 
@@ -949,24 +1419,34 @@ export type ScheduleOccurrenceSelectScalar = {
   id?: boolean
   scheduleId?: boolean
   plannedRunAt?: boolean
+  timezone?: boolean
   status?: boolean
   attemptCount?: boolean
   lastAttemptAt?: boolean
   nextRetryAt?: boolean
+  paymentAttemptCount?: boolean
   quotedTotalMinor?: boolean
   actualTotalMinor?: boolean
+  paymentReference?: boolean
+  erpOrderReference?: boolean
+  erpPushStatus?: boolean
+  idempotencyKey?: boolean
+  cartSnapshotJson?: boolean
+  skippedByUser?: boolean
   failureCode?: boolean
   failureMessage?: boolean
   skipReason?: boolean
+  actionRequiredAt?: boolean
   reminderSentAt?: boolean
   createdAt?: boolean
   completedAt?: boolean
 }
 
-export type ScheduleOccurrenceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scheduleId" | "plannedRunAt" | "status" | "attemptCount" | "lastAttemptAt" | "nextRetryAt" | "quotedTotalMinor" | "actualTotalMinor" | "failureCode" | "failureMessage" | "skipReason" | "reminderSentAt" | "createdAt" | "completedAt", ExtArgs["result"]["scheduleOccurrence"]>
+export type ScheduleOccurrenceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scheduleId" | "plannedRunAt" | "timezone" | "status" | "attemptCount" | "lastAttemptAt" | "nextRetryAt" | "paymentAttemptCount" | "quotedTotalMinor" | "actualTotalMinor" | "paymentReference" | "erpOrderReference" | "erpPushStatus" | "idempotencyKey" | "cartSnapshotJson" | "skippedByUser" | "failureCode" | "failureMessage" | "skipReason" | "actionRequiredAt" | "reminderSentAt" | "createdAt" | "completedAt", ExtArgs["result"]["scheduleOccurrence"]>
 export type ScheduleOccurrenceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   schedule?: boolean | Prisma.RecurringScheduleDefaultArgs<ExtArgs>
   order?: boolean | Prisma.ScheduleOccurrence$orderArgs<ExtArgs>
+  erpPush?: boolean | Prisma.ScheduleOccurrence$erpPushArgs<ExtArgs>
 }
 
 export type $ScheduleOccurrencePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -974,6 +1454,7 @@ export type $ScheduleOccurrencePayload<ExtArgs extends runtime.Types.Extensions.
   objects: {
     schedule: Prisma.$RecurringSchedulePayload<ExtArgs>
     order: Prisma.$OrderPayload<ExtArgs> | null
+    erpPush: Prisma.$ErpOrderPushPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -983,18 +1464,86 @@ export type $ScheduleOccurrencePayload<ExtArgs extends runtime.Types.Extensions.
      * idempotency key for the whole recurring engine.
      */
     plannedRunAt: Date
+    /**
+     * The zone `plannedRunAt` was computed in, copied off the plan when this
+     * occurrence was materialised.
+     * 
+     * Stored per occurrence rather than read back off the plan, because a
+     * customer who moves country and changes their plan's timezone must not
+     * retroactively change what time last month's order was due. This is the
+     * zone the reminder and the customer's screen format against.
+     */
+    timezone: string
     status: $Enums.OccurrenceStatus
     attemptCount: number
     lastAttemptAt: Date | null
     nextRetryAt: Date | null
     /**
+     * Payment attempts, counted separately from `attemptCount`.
+     * 
+     * A validation failure that never reached Stripe must not consume a card's
+     * retry budget: banks read repeated declines as a signal about the card,
+     * and three "out of stock" holds followed by one real attempt should not
+     * look to them like four failed charges.
+     */
+    paymentAttemptCount: number
+    /**
      * Amount quoted to the customer in the reminder, so a reprice is detectable.
      */
     quotedTotalMinor: bigint | null
     actualTotalMinor: bigint | null
+    /**
+     * The provider's reference for the charge - a Stripe PaymentIntent id.
+     * 
+     * Written before the charge is confirmed, so a crash mid-call leaves a
+     * reference to reconcile against rather than an unexplained gap. Never a
+     * client secret: those are fetched from Stripe on demand and never stored.
+     */
+    paymentReference: string | null
+    /**
+     * The ERP's own identifier for the order it accepted.
+     * 
+     * Also on ErpOrderPush, which holds the retry state. Denormalised here
+     * because "what is this order called in the ERP" is asked by the customer's
+     * screen and by support, and neither should have to join through the push
+     * ledger to answer it.
+     */
+    erpOrderReference: string | null
+    erpPushStatus: $Enums.ErpPushStatus | null
+    /**
+     * The stable key every side effect of this occurrence is keyed on: the
+     * Stripe charge, the platform order, the ERP push, the inventory movement.
+     * 
+     * Derived from scheduleId + plannedRunAt, so a retry recomputes the same
+     * value rather than minting a new one. Unique, so it cannot be reused
+     * across occurrences even by a bug.
+     */
+    idempotencyKey: string
+    /**
+     * What the plan authorised, priced as at this occurrence.
+     * 
+     * The evidence behind `actualTotalMinor`: line prices, discounts, tax and
+     * delivery as they were on the day. The order carries its own immutable
+     * snapshot too; this one also exists for occurrences that never became an
+     * order, which is exactly when somebody asks what the amount would have
+     * been.
+     */
+    cartSnapshotJson: runtime.JsonValue | null
+    /**
+     * True when a person skipped this cycle, false when the engine did.
+     * 
+     * Both end in SKIPPED, and the customer is owed a different sentence for
+     * each: "you skipped this" against "we could not supply this".
+     */
+    skippedByUser: boolean
     failureCode: string | null
     failureMessage: string | null
     skipReason: string | null
+    /**
+     * When Stripe asked for the cardholder. Read by the reminder that chases
+     * an ACTION_REQUIRED occurrence before its window closes.
+     */
+    actionRequiredAt: Date | null
     reminderSentAt: Date | null
     createdAt: Date
     completedAt: Date | null
@@ -1340,6 +1889,7 @@ export interface Prisma__ScheduleOccurrenceClient<T, Null = never, ExtArgs exten
   readonly [Symbol.toStringTag]: "PrismaPromise"
   schedule<T extends Prisma.RecurringScheduleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RecurringScheduleDefaultArgs<ExtArgs>>): Prisma.Prisma__RecurringScheduleClient<runtime.Types.Result.GetResult<Prisma.$RecurringSchedulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   order<T extends Prisma.ScheduleOccurrence$orderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleOccurrence$orderArgs<ExtArgs>>): Prisma.Prisma__OrderClient<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  erpPush<T extends Prisma.ScheduleOccurrence$erpPushArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleOccurrence$erpPushArgs<ExtArgs>>): Prisma.Prisma__ErpOrderPushClient<runtime.Types.Result.GetResult<Prisma.$ErpOrderPushPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1372,15 +1922,24 @@ export interface ScheduleOccurrenceFieldRefs {
   readonly id: Prisma.FieldRef<"ScheduleOccurrence", 'String'>
   readonly scheduleId: Prisma.FieldRef<"ScheduleOccurrence", 'String'>
   readonly plannedRunAt: Prisma.FieldRef<"ScheduleOccurrence", 'DateTime'>
+  readonly timezone: Prisma.FieldRef<"ScheduleOccurrence", 'String'>
   readonly status: Prisma.FieldRef<"ScheduleOccurrence", 'OccurrenceStatus'>
   readonly attemptCount: Prisma.FieldRef<"ScheduleOccurrence", 'Int'>
   readonly lastAttemptAt: Prisma.FieldRef<"ScheduleOccurrence", 'DateTime'>
   readonly nextRetryAt: Prisma.FieldRef<"ScheduleOccurrence", 'DateTime'>
+  readonly paymentAttemptCount: Prisma.FieldRef<"ScheduleOccurrence", 'Int'>
   readonly quotedTotalMinor: Prisma.FieldRef<"ScheduleOccurrence", 'BigInt'>
   readonly actualTotalMinor: Prisma.FieldRef<"ScheduleOccurrence", 'BigInt'>
+  readonly paymentReference: Prisma.FieldRef<"ScheduleOccurrence", 'String'>
+  readonly erpOrderReference: Prisma.FieldRef<"ScheduleOccurrence", 'String'>
+  readonly erpPushStatus: Prisma.FieldRef<"ScheduleOccurrence", 'ErpPushStatus'>
+  readonly idempotencyKey: Prisma.FieldRef<"ScheduleOccurrence", 'String'>
+  readonly cartSnapshotJson: Prisma.FieldRef<"ScheduleOccurrence", 'Json'>
+  readonly skippedByUser: Prisma.FieldRef<"ScheduleOccurrence", 'Boolean'>
   readonly failureCode: Prisma.FieldRef<"ScheduleOccurrence", 'String'>
   readonly failureMessage: Prisma.FieldRef<"ScheduleOccurrence", 'String'>
   readonly skipReason: Prisma.FieldRef<"ScheduleOccurrence", 'String'>
+  readonly actionRequiredAt: Prisma.FieldRef<"ScheduleOccurrence", 'DateTime'>
   readonly reminderSentAt: Prisma.FieldRef<"ScheduleOccurrence", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"ScheduleOccurrence", 'DateTime'>
   readonly completedAt: Prisma.FieldRef<"ScheduleOccurrence", 'DateTime'>
@@ -1748,6 +2307,25 @@ export type ScheduleOccurrence$orderArgs<ExtArgs extends runtime.Types.Extension
    */
   include?: Prisma.OrderInclude<ExtArgs> | null
   where?: Prisma.OrderWhereInput
+}
+
+/**
+ * ScheduleOccurrence.erpPush
+ */
+export type ScheduleOccurrence$erpPushArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ErpOrderPush
+   */
+  select?: Prisma.ErpOrderPushSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ErpOrderPush
+   */
+  omit?: Prisma.ErpOrderPushOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ErpOrderPushInclude<ExtArgs> | null
+  where?: Prisma.ErpOrderPushWhereInput
 }
 
 /**

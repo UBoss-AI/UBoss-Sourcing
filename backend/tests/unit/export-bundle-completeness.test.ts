@@ -54,6 +54,7 @@ const DISPOSITION: Readonly<Record<string, string | null>> = Object.freeze({
   Order: 'orders',
   Cart: 'carts',
   RecurringSchedule: 'recurringSchedules',
+  CustomerPaymentMethod: 'savedPaymentMethods',
   CouponRedemption: 'couponRedemptions',
   CustomerLimit: 'purchasingLimits',
   AssistantConversation: 'chatEnquiries',

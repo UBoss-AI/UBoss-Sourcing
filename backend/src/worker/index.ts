@@ -173,12 +173,42 @@ async function maintenance(): Promise<void> {
       { dedupeKey: `payment_link_expire:${slot}` },
     );
 
+    // The exit from PAID_ERP_PENDING. On the ordinary beat rather than an
+    // hourly one because every row it retries is an order somebody has already
+    // paid for and cannot yet be dispatched; each row carries its own
+    // `nextRetryAt`, so a pass with nothing due is one indexed query.
+    await queue.enqueue(JobType.ERP_ORDER_RETRY, {}, { dedupeKey: `erp_order_retry:${slot}` });
 
-    // Reminders look 24h ahead, so an hourly sweep is ample.
+    // Cycles that failed before any money moved. Each carries its own retry
+    // time, so this is also one query when nothing is waiting.
+    await queue.enqueue(
+      JobType.SCHEDULE_OCCURRENCE_RETRY,
+      {},
+      { dedupeKey: `schedule_occurrence_retry:${slot}` },
+    );
+
+    // Reminders look ahead by SCHEDULE_REMINDER_LEAD_HOURS, so an hourly sweep
+    // is ample.
     await queue.enqueue(
       JobType.SCHEDULE_REMINDER,
       {},
       { dedupeKey: `schedule_reminder:${String(Math.floor(Date.now() / 3_600_000))}` },
+    );
+
+    // Authentication windows are measured in days, so hourly is plenty.
+    await queue.enqueue(
+      JobType.SCHEDULE_ACTION_EXPIRE,
+      {},
+      { dedupeKey: `schedule_action_expire:${String(Math.floor(Date.now() / 3_600_000))}` },
+    );
+
+    // The materialisation safety net. Daily: the engine already builds these
+    // rows as it advances each plan, and this only catches the plans that path
+    // does not reach.
+    await queue.enqueue(
+      JobType.SCHEDULE_MATERIALISE,
+      {},
+      { dedupeKey: `schedule_materialise:${new Date().toISOString().slice(0, 10)}` },
     );
 
     // Exchange rates settle once a day and every run rewrites catalogue prices,

@@ -11,7 +11,7 @@
  * without being reprocessed. Razorpay retries webhooks; without that index a
  * retry would confirm the order twice and commit the stock twice.
  */
-import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
+import { ErrorCode, badRequest, conflict, forbidden, notFound } from '../../domain/errors.js';
 import { serialiseMoney } from '../../domain/money.js';
 import { decryptSecret, encryptSecret, maskSecret } from '../../infra/crypto.js';
 import { newId } from '../../infra/ids.js';
@@ -27,8 +27,10 @@ import {
 import { transitionOrder } from '../orders/order.service.js';
 import { RazorpayAdapter } from './razorpay.adapter.js';
 import { StripeAdapter } from './stripe.adapter.js';
+import { assertChargeable, markPaymentMethodExpired } from './payment-method.service.js';
 import {
   PaymentProviderError,
+  supportsOffSession,
   modeForCredential,
   type CreatePaymentResult,
   type PaymentMethodHint,
@@ -625,6 +627,345 @@ export async function createOrderPayment(
   };
 }
 
+// ---------------------------------------------------------------------------
+// Off-session charging
+// ---------------------------------------------------------------------------
+
+export interface ChargeOffSessionInput {
+  orderId: string;
+  /** The stored instrument to charge. Never the provider's default. */
+  paymentMethodId: string;
+  /**
+   * Stable across every retry of this charge.
+   *
+   * Doing double duty: it is `payment_transactions.idempotencyKey` (unique, so
+   * a retry finds the first attempt instead of starting a second) and it is
+   * the key sent to the provider (so the provider itself de-duplicates). One
+   * value for both means the two cannot disagree about what "the same charge"
+   * means.
+   */
+  idempotencyKey: string;
+  scheduleId?: string | null;
+  occurrenceId?: string | null;
+  correlationId?: string | null;
+}
+
+export interface ChargeOffSessionResult {
+  outcome: 'CAPTURED' | 'ACTION_REQUIRED' | 'FAILED';
+  paymentTransactionId: string;
+  providerOrderId: string | null;
+  failureCode: string | null;
+  failureMessage: string | null;
+  /** True when an earlier attempt with this key had already charged. */
+  replayed: boolean;
+}
+
+/**
+ * Charge a stored instrument for an order, with nobody present.
+ *
+ * The path a subscription's money actually travels. Four properties matter,
+ * and each one is a bug that has bitten somebody else:
+ *
+ *   1. **A replay never charges twice.** The idempotency key is checked
+ *      against `payment_transactions` BEFORE the provider is called, and it
+ *      is also handed to the provider. A worker that dies between the charge
+ *      succeeding and the row being written retries into the same payment.
+ *
+ *   2. **Authentication-required is not a failure.** The bank asking for the
+ *      cardholder means the money has not moved and the payment is still open.
+ *      Reported as its own outcome so the caller holds and notifies instead of
+ *      failing the occurrence and cancelling the order.
+ *
+ *   3. **The capture is applied by the provider's authority, not ours.** On
+ *      success this defers to `reconcilePayment`, which re-reads the payment
+ *      from the provider and applies it through the same guarded code the
+ *      webhook uses. So there is exactly one place in this system that turns a
+ *      payment into a CONFIRMED order, and it is never a caller's belief about
+ *      what happened.
+ *
+ *   4. **A failure leaves the order payable, not cancelled.** Cancelling here
+ *      would release the stock and destroy the record the retry needs. The
+ *      caller decides what happens to the order, because only it knows whether
+ *      a human is waiting.
+ */
+export async function chargeOrderOffSession(
+  input: ChargeOffSessionInput,
+): Promise<ChargeOffSessionResult> {
+  const order = await prisma.order.findUnique({
+    where: { id: input.orderId },
+    include: { customerProfile: { include: { user: { select: { email: true } } } } },
+  });
+
+  if (order === null) throw notFound('Order');
+
+  const method = await prisma.customerPaymentMethod.findUnique({
+    where: { id: input.paymentMethodId },
+  });
+
+  if (method === null) {
+    throw badRequest(
+      ErrorCode.SCHEDULE_PAYMENT_METHOD_INVALID,
+      'The saved payment method for this order no longer exists.',
+    );
+  }
+
+  // Belongs to somebody else. Would be a serious mix-up, so it is refused
+  // rather than reconciled.
+  if (method.customerProfileId !== order.customerProfileId) {
+    logger.error(
+      { orderId: order.id, paymentMethodId: input.paymentMethodId },
+      'refusing to charge a payment method that belongs to a different customer',
+    );
+    throw forbidden(
+      ErrorCode.RESOURCE_OWNERSHIP_DENIED,
+      'That payment method does not belong to this order.',
+    );
+  }
+
+  assertChargeable(method);
+
+  // --- Replay check, before the provider is touched ----------------------
+  const existing = await prisma.paymentTransaction.findUnique({
+    where: { idempotencyKey: input.idempotencyKey },
+  });
+
+  if (existing !== null) {
+    if (existing.orderId !== order.id) {
+      throw conflict(
+        ErrorCode.IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_BODY,
+        'That request key has already been used for a different order.',
+      );
+    }
+
+    if (existing.status === 'CAPTURED') {
+      // Already paid. Returned as a replay so the caller does not treat it as
+      // a fresh success and repeat everything that follows a charge.
+      return {
+        outcome: 'CAPTURED',
+        paymentTransactionId: existing.id,
+        providerOrderId: existing.providerOrderId,
+        failureCode: null,
+        failureMessage: null,
+        replayed: true,
+      };
+    }
+
+    // A previous attempt that did not settle. Re-reading the provider is the
+    // only safe way to find out what really happened, and it is what
+    // reconciliation is for.
+    if (existing.providerOrderId !== null) {
+      const reconciled = await reconcilePayment(existing.id);
+
+      if (reconciled.status === 'CAPTURED') {
+        return {
+          outcome: 'CAPTURED',
+          paymentTransactionId: existing.id,
+          providerOrderId: existing.providerOrderId,
+          failureCode: null,
+          failureMessage: null,
+          replayed: true,
+        };
+      }
+    }
+  }
+
+  const outstanding = order.grandTotalMinor - order.paidMinor;
+
+  if (outstanding <= 0n) {
+    throw conflict(ErrorCode.ORDER_ALREADY_PAID, 'This order is already paid in full.');
+  }
+
+  const { provider, connectionId, kind } = await loadActiveProvider('STRIPE');
+
+  if (!supportsOffSession(provider)) {
+    throw badRequest(
+      ErrorCode.PAYMENT_PROVIDER_NOT_CONFIGURED,
+      `${kind} cannot charge a saved payment method without the customer present.`,
+    );
+  }
+
+  // The row exists before the charge, so a crash mid-call leaves a record with
+  // the idempotency key on it rather than an unexplained charge at the
+  // provider that nothing here can match.
+  const transactionId = existing?.id ?? newId();
+
+  if (existing === null) {
+    await prisma.paymentTransaction.create({
+      data: {
+        id: transactionId,
+        orderId: order.id,
+        connectionId,
+        provider: provider.kind,
+        mode: provider.mode,
+        status: 'CREATED',
+        amountMinor: outstanding,
+        currency: order.currency,
+        idempotencyKey: input.idempotencyKey,
+      },
+    });
+  }
+
+  let charge;
+
+  try {
+    charge = await provider.chargeOffSession({
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      amountMinor: outstanding,
+      currency: order.currency,
+      providerCustomerId: method.providerCustomerId,
+      providerPaymentMethodId: method.providerPaymentMethodId,
+      idempotencyKey: input.idempotencyKey,
+      scheduleId: input.scheduleId ?? null,
+      occurrenceId: input.occurrenceId ?? null,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'unknown provider error';
+    const code = error instanceof PaymentProviderError ? error.providerCode : null;
+
+    await prisma.paymentTransaction.update({
+      where: { id: transactionId },
+      data: {
+        status: 'FAILED',
+        failureCode: code,
+        failureMessage: message.slice(0, 500),
+        failedAt: new Date(),
+      },
+    });
+
+    // A card the provider says has expired is worth recording: the stored
+    // month and year were what it knew at enrolment, and a reissued card can
+    // lapse earlier than that. Left ACTIVE, it would be offered again.
+    if (code === 'expired_card') {
+      await markPaymentMethodExpired(input.paymentMethodId);
+    }
+
+    await recordAudit({
+      action: AuditAction.PAYMENT_FAILED,
+      resourceType: 'payment',
+      resourceId: transactionId,
+      actorType: 'SYSTEM',
+      after: {
+        orderId: order.id,
+        offSession: true,
+        providerCode: code,
+        message: message.slice(0, 300),
+      },
+      correlationId: input.correlationId ?? null,
+    });
+
+    return {
+      outcome: 'FAILED',
+      paymentTransactionId: transactionId,
+      providerOrderId: null,
+      failureCode: code,
+      failureMessage: message,
+      replayed: false,
+    };
+  }
+
+  await prisma.paymentTransaction.update({
+    where: { id: transactionId },
+    data: {
+      providerOrderId: charge.providerOrderId,
+      providerPaymentId: charge.providerPaymentId,
+      status: charge.requiresAction ? 'PENDING' : 'CREATED',
+    },
+  });
+
+  if (charge.requiresAction) {
+    await recordAudit({
+      action: AuditAction.PAYMENT_ACTION_REQUIRED,
+      resourceType: 'payment',
+      resourceId: transactionId,
+      actorType: 'SYSTEM',
+      after: { orderId: order.id, providerOrderId: charge.providerOrderId },
+      correlationId: input.correlationId ?? null,
+    });
+
+    return {
+      outcome: 'ACTION_REQUIRED',
+      paymentTransactionId: transactionId,
+      providerOrderId: charge.providerOrderId,
+      failureCode: 'authentication_required',
+      failureMessage: charge.failureMessage,
+      replayed: false,
+    };
+  }
+
+  if (charge.status === 'FAILED' || charge.status === 'CANCELLED') {
+    await prisma.paymentTransaction.update({
+      where: { id: transactionId },
+      data: {
+        status: 'FAILED',
+        failureCode: charge.failureCode,
+        failureMessage: charge.failureMessage?.slice(0, 500) ?? null,
+        failedAt: new Date(),
+      },
+    });
+
+    return {
+      outcome: 'FAILED',
+      paymentTransactionId: transactionId,
+      providerOrderId: charge.providerOrderId,
+      failureCode: charge.failureCode,
+      failureMessage: charge.failureMessage,
+      replayed: false,
+    };
+  }
+
+  // Captured, as far as the charge call is concerned. It is still applied
+  // through reconciliation rather than written here - see point 3 in the
+  // header. One code path turns a payment into a confirmed order.
+  const reconciled = await reconcilePayment(transactionId);
+
+  if (reconciled.status !== 'CAPTURED') {
+    // The charge returned a success the provider then did not confirm on
+    // re-read. Left PENDING rather than forced either way: the webhook and the
+    // reconcile sweep will settle it, and guessing here is how an order gets
+    // confirmed against a payment that did not happen.
+    logger.warn(
+      { transactionId, orderId: order.id, reconciledStatus: reconciled.status },
+      'an off-session charge reported success but did not reconcile as captured',
+    );
+
+    return {
+      outcome: 'ACTION_REQUIRED',
+      paymentTransactionId: transactionId,
+      providerOrderId: charge.providerOrderId,
+      failureCode: 'not_confirmed',
+      failureMessage: 'The payment has not been confirmed by the provider yet.',
+      replayed: false,
+    };
+  }
+
+  await recordAudit({
+    action: AuditAction.PAYMENT_OFF_SESSION_CHARGED,
+    resourceType: 'payment',
+    resourceId: transactionId,
+    actorType: 'SYSTEM',
+    after: {
+      orderId: order.id,
+      scheduleId: input.scheduleId ?? null,
+      occurrenceId: input.occurrenceId ?? null,
+      amountMinor: outstanding.toString(),
+      currency: order.currency,
+      // Which card, in the terms a person reads. Not the reference.
+      card: `${method.brand ?? 'card'} ****${method.last4 ?? '????'}`,
+    },
+    correlationId: input.correlationId ?? null,
+  });
+
+  return {
+    outcome: 'CAPTURED',
+    paymentTransactionId: transactionId,
+    providerOrderId: charge.providerOrderId,
+    failureCode: null,
+    failureMessage: null,
+    replayed: false,
+  };
+}
+
 export interface WebhookResult {
   accepted: boolean;
   duplicate: boolean;
@@ -745,6 +1086,35 @@ async function applyEvent(
     return { accepted: true, duplicate: false, reason: 'event type not actionable' };
   }
 
+  // --- Enrolment, which has no payment to match --------------------------
+  //
+  // Handled before the lookup below, because a SetupIntent has no
+  // PaymentTransaction and would otherwise fall through to "no matching
+  // payment transaction" - which is treated as a security signal and alerts
+  // finance. A customer saving a card is not a security signal.
+  //
+  // The enrolment itself is completed by the browser calling
+  // `completePaymentMethodEnrolment`, which re-reads the SetupIntent from the
+  // provider. This event is the backstop for the case where the customer
+  // closed the tab in between: the card is attached at the provider and this
+  // records that fact so support can see it.
+  if (event.intent === 'SETUP_COMPLETED') {
+    await prisma.paymentEvent.update({
+      where: { id: eventRowId },
+      data: { processingStatus: 'PROCESSED', processedAt: new Date() },
+    });
+
+    logger.info(
+      {
+        setupIntentId: event.providerSetupIntentId,
+        paymentMethodId: event.providerPaymentMethodId,
+      },
+      'a payment method finished setup at the provider',
+    );
+
+    return { accepted: true, duplicate: false };
+  }
+
   // --- 3. Match ----------------------------------------------------------
   const transaction =
     event.providerOrderId === null
@@ -787,9 +1157,22 @@ async function applyEvent(
     }
 
     // --- 4. Apply --------------------------------------------------------
-    await prisma.$transaction(async (tx) => {
-      await tx.paymentTransaction.update({
-        where: { id: transaction.id },
+    //
+    // The transaction is moved to CAPTURED with a conditional UPDATE, and
+    // `paidMinor` is credited only if that UPDATE actually matched a row.
+    //
+    // Without the guard, a capture applied twice credits the order twice.
+    // `payment_events` de-duplicates redelivery of the SAME event, but it
+    // cannot help when the capture arrives by two different routes - which is
+    // the ordinary case, not an edge one: an off-session charge is applied from
+    // Stripe's own synchronous response via `reconcilePayment`, and
+    // `payment_intent.succeeded` then arrives seconds later as a genuinely new
+    // event. That produced an order with `paidMinor` at twice its total, which
+    // reads as an overpayment and would invite a refund of money nobody paid.
+    const applied = await prisma.$transaction(async (tx) => {
+      const claimed = await tx.paymentTransaction.updateMany({
+        // The guard. Once this row is CAPTURED, it matches nothing.
+        where: { id: transaction.id, status: { not: 'CAPTURED' } },
         data: {
           status: 'CAPTURED',
           providerPaymentId: event.providerPaymentId,
@@ -799,10 +1182,12 @@ async function applyEvent(
         },
       });
 
-      await tx.order.update({
-        where: { id: order.id },
-        data: { paidMinor: { increment: event.amountMinor ?? transaction.amountMinor } },
-      });
+      if (claimed.count === 1) {
+        await tx.order.update({
+          where: { id: order.id },
+          data: { paidMinor: { increment: event.amountMinor ?? transaction.amountMinor } },
+        });
+      }
 
       await tx.paymentEvent.update({
         where: { id: eventRowId },
@@ -813,7 +1198,16 @@ async function applyEvent(
           paymentTransactionId: transaction.id,
         },
       });
+
+      return claimed.count === 1;
     });
+
+    if (!applied) {
+      logger.info(
+        { orderId: order.id, eventId: event.eventId },
+        'capture already applied by another route; acknowledged without crediting again',
+      );
+    }
 
     // The only path to CONFIRMED. SYSTEM actor, because the authority is the
     // verified provider event, not any human.
@@ -844,6 +1238,87 @@ async function applyEvent(
       },
       correlationId: correlationId ?? null,
     });
+
+    // --- 5. Everything that follows a confirmed payment -------------------
+    //
+    // Reached whether the money arrived by an interactive checkout, a payment
+    // link, or an off-session charge, and safe to reach twice: both branches
+    // below are idempotent, which is what keeps a redelivered webhook from
+    // producing a second ERP order.
+    //
+    // Deliberately after the audit record and outside the transaction above:
+    // an ERP that is slow or refusing must not roll back a payment this system
+    // has already accepted.
+    if (order.scheduleOccurrenceId !== null) {
+      // A scheduled delivery. Settlement covers the ERP push, the inventory
+      // reconciliation, the occurrence's own status and the plan's next slot.
+      const { settleOccurrenceForOrder } = await import('../recurring/occurrence.service.js');
+
+      await settleOccurrenceForOrder(order.id, correlationId).catch((error: unknown) => {
+        // The payment stands. An occurrence left mid-settlement is picked up
+        // by the retry sweep, and failing the webhook here would only make
+        // the provider redeliver something already applied.
+        logger.error(
+          { err: error, orderId: order.id },
+          'could not settle the scheduled occurrence behind a captured payment',
+        );
+      });
+    } else {
+      // An ordinary order. A no-op where no ERP is configured.
+      const { pushOrderToErp } = await import('../integrations/erp-order.service.js');
+
+      await pushOrderToErp({
+        orderId: order.id,
+        // Derived from the order, so every retry - and every redelivery of
+        // this webhook - sends the ERP the same idempotency key.
+        idempotencyKey: `erp:order:${order.id}`,
+        correlationId: correlationId ?? null,
+      }).catch((error: unknown) => {
+        logger.error(
+          { err: error, orderId: order.id },
+          'could not push a paid order to the ERP; it will be retried',
+        );
+      });
+    }
+
+    return { accepted: true, duplicate: false };
+  }
+
+  // Not a failure, and it must not be recorded as one: the money has not
+  // moved, the payment is still open, and only the customer can advance it.
+  // Marking the transaction FAILED here would let the retry path start a
+  // second charge for the same delivery.
+  if (event.intent === 'PAYMENT_ACTION_REQUIRED') {
+    await prisma.$transaction(async (tx) => {
+      await tx.paymentTransaction.updateMany({
+        // Never over a settled payment. A late-arriving requires_action for an
+        // intent that has since succeeded must change nothing.
+        where: { id: transaction.id, status: { notIn: ['CAPTURED', 'FAILED'] } },
+        data: { status: 'PENDING', failureCode: event.failureCode },
+      });
+
+      await tx.paymentEvent.update({
+        where: { id: eventRowId },
+        data: {
+          processingStatus: 'PROCESSED',
+          processedAt: new Date(),
+          orderId: order.id,
+          paymentTransactionId: transaction.id,
+        },
+      });
+    });
+
+    if (order.scheduleOccurrenceId !== null) {
+      await prisma.scheduleOccurrence.updateMany({
+        where: { id: order.scheduleOccurrenceId, status: 'PAYMENT_PENDING' },
+        data: {
+          status: 'ACTION_REQUIRED',
+          actionRequiredAt: new Date(),
+          failureCode: event.failureCode,
+          failureMessage: event.failureMessage?.slice(0, 500) ?? null,
+        },
+      });
+    }
 
     return { accepted: true, duplicate: false };
   }

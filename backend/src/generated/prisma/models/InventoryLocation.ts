@@ -316,6 +316,7 @@ export type InventoryLocationWhereInput = {
   balances?: Prisma.InventoryBalanceListRelationFilter
   movements?: Prisma.InventoryMovementListRelationFilter
   reservations?: Prisma.StockReservationListRelationFilter
+  schedules?: Prisma.RecurringScheduleListRelationFilter
 }
 
 export type InventoryLocationOrderByWithRelationInput = {
@@ -340,6 +341,7 @@ export type InventoryLocationOrderByWithRelationInput = {
   balances?: Prisma.InventoryBalanceOrderByRelationAggregateInput
   movements?: Prisma.InventoryMovementOrderByRelationAggregateInput
   reservations?: Prisma.StockReservationOrderByRelationAggregateInput
+  schedules?: Prisma.RecurringScheduleOrderByRelationAggregateInput
   _relevance?: Prisma.InventoryLocationOrderByRelevanceInput
 }
 
@@ -368,6 +370,7 @@ export type InventoryLocationWhereUniqueInput = Prisma.AtLeast<{
   balances?: Prisma.InventoryBalanceListRelationFilter
   movements?: Prisma.InventoryMovementListRelationFilter
   reservations?: Prisma.StockReservationListRelationFilter
+  schedules?: Prisma.RecurringScheduleListRelationFilter
 }, "id" | "code">
 
 export type InventoryLocationOrderByWithAggregationInput = {
@@ -439,6 +442,7 @@ export type InventoryLocationCreateInput = {
   balances?: Prisma.InventoryBalanceCreateNestedManyWithoutLocationInput
   movements?: Prisma.InventoryMovementCreateNestedManyWithoutLocationInput
   reservations?: Prisma.StockReservationCreateNestedManyWithoutLocationInput
+  schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutInventoryLocationInput
 }
 
 export type InventoryLocationUncheckedCreateInput = {
@@ -462,6 +466,7 @@ export type InventoryLocationUncheckedCreateInput = {
   balances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutLocationInput
   movements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutLocationInput
   reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutLocationInput
+  schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutInventoryLocationInput
 }
 
 export type InventoryLocationUpdateInput = {
@@ -485,6 +490,7 @@ export type InventoryLocationUpdateInput = {
   balances?: Prisma.InventoryBalanceUpdateManyWithoutLocationNestedInput
   movements?: Prisma.InventoryMovementUpdateManyWithoutLocationNestedInput
   reservations?: Prisma.StockReservationUpdateManyWithoutLocationNestedInput
+  schedules?: Prisma.RecurringScheduleUpdateManyWithoutInventoryLocationNestedInput
 }
 
 export type InventoryLocationUncheckedUpdateInput = {
@@ -508,6 +514,7 @@ export type InventoryLocationUncheckedUpdateInput = {
   balances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutLocationNestedInput
   movements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutLocationNestedInput
   reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutLocationNestedInput
+  schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutInventoryLocationNestedInput
 }
 
 export type InventoryLocationCreateManyInput = {
@@ -648,6 +655,11 @@ export type InventoryLocationScalarRelationFilter = {
   isNot?: Prisma.InventoryLocationWhereInput
 }
 
+export type InventoryLocationNullableScalarRelationFilter = {
+  is?: Prisma.InventoryLocationWhereInput | null
+  isNot?: Prisma.InventoryLocationWhereInput | null
+}
+
 export type InventoryLocationListRelationFilter = {
   every?: Prisma.InventoryLocationWhereInput
   some?: Prisma.InventoryLocationWhereInput
@@ -706,6 +718,22 @@ export type InventoryLocationUpdateOneRequiredWithoutReservationsNestedInput = {
   upsert?: Prisma.InventoryLocationUpsertWithoutReservationsInput
   connect?: Prisma.InventoryLocationWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.InventoryLocationUpdateToOneWithWhereWithoutReservationsInput, Prisma.InventoryLocationUpdateWithoutReservationsInput>, Prisma.InventoryLocationUncheckedUpdateWithoutReservationsInput>
+}
+
+export type InventoryLocationCreateNestedOneWithoutSchedulesInput = {
+  create?: Prisma.XOR<Prisma.InventoryLocationCreateWithoutSchedulesInput, Prisma.InventoryLocationUncheckedCreateWithoutSchedulesInput>
+  connectOrCreate?: Prisma.InventoryLocationCreateOrConnectWithoutSchedulesInput
+  connect?: Prisma.InventoryLocationWhereUniqueInput
+}
+
+export type InventoryLocationUpdateOneWithoutSchedulesNestedInput = {
+  create?: Prisma.XOR<Prisma.InventoryLocationCreateWithoutSchedulesInput, Prisma.InventoryLocationUncheckedCreateWithoutSchedulesInput>
+  connectOrCreate?: Prisma.InventoryLocationCreateOrConnectWithoutSchedulesInput
+  upsert?: Prisma.InventoryLocationUpsertWithoutSchedulesInput
+  disconnect?: Prisma.InventoryLocationWhereInput | boolean
+  delete?: Prisma.InventoryLocationWhereInput | boolean
+  connect?: Prisma.InventoryLocationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.InventoryLocationUpdateToOneWithWhereWithoutSchedulesInput, Prisma.InventoryLocationUpdateWithoutSchedulesInput>, Prisma.InventoryLocationUncheckedUpdateWithoutSchedulesInput>
 }
 
 export type InventoryLocationCreateNestedManyWithoutCountryInput = {
@@ -770,6 +798,7 @@ export type InventoryLocationCreateWithoutBalancesInput = {
   country?: Prisma.CountryCreateNestedOneWithoutWarehousesInput
   movements?: Prisma.InventoryMovementCreateNestedManyWithoutLocationInput
   reservations?: Prisma.StockReservationCreateNestedManyWithoutLocationInput
+  schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutInventoryLocationInput
 }
 
 export type InventoryLocationUncheckedCreateWithoutBalancesInput = {
@@ -792,6 +821,7 @@ export type InventoryLocationUncheckedCreateWithoutBalancesInput = {
   updatedAt?: Date | string
   movements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutLocationInput
   reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutLocationInput
+  schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutInventoryLocationInput
 }
 
 export type InventoryLocationCreateOrConnectWithoutBalancesInput = {
@@ -830,6 +860,7 @@ export type InventoryLocationUpdateWithoutBalancesInput = {
   country?: Prisma.CountryUpdateOneWithoutWarehousesNestedInput
   movements?: Prisma.InventoryMovementUpdateManyWithoutLocationNestedInput
   reservations?: Prisma.StockReservationUpdateManyWithoutLocationNestedInput
+  schedules?: Prisma.RecurringScheduleUpdateManyWithoutInventoryLocationNestedInput
 }
 
 export type InventoryLocationUncheckedUpdateWithoutBalancesInput = {
@@ -852,6 +883,7 @@ export type InventoryLocationUncheckedUpdateWithoutBalancesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutLocationNestedInput
   reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutLocationNestedInput
+  schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutInventoryLocationNestedInput
 }
 
 export type InventoryLocationCreateWithoutMovementsInput = {
@@ -874,6 +906,7 @@ export type InventoryLocationCreateWithoutMovementsInput = {
   country?: Prisma.CountryCreateNestedOneWithoutWarehousesInput
   balances?: Prisma.InventoryBalanceCreateNestedManyWithoutLocationInput
   reservations?: Prisma.StockReservationCreateNestedManyWithoutLocationInput
+  schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutInventoryLocationInput
 }
 
 export type InventoryLocationUncheckedCreateWithoutMovementsInput = {
@@ -896,6 +929,7 @@ export type InventoryLocationUncheckedCreateWithoutMovementsInput = {
   updatedAt?: Date | string
   balances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutLocationInput
   reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutLocationInput
+  schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutInventoryLocationInput
 }
 
 export type InventoryLocationCreateOrConnectWithoutMovementsInput = {
@@ -934,6 +968,7 @@ export type InventoryLocationUpdateWithoutMovementsInput = {
   country?: Prisma.CountryUpdateOneWithoutWarehousesNestedInput
   balances?: Prisma.InventoryBalanceUpdateManyWithoutLocationNestedInput
   reservations?: Prisma.StockReservationUpdateManyWithoutLocationNestedInput
+  schedules?: Prisma.RecurringScheduleUpdateManyWithoutInventoryLocationNestedInput
 }
 
 export type InventoryLocationUncheckedUpdateWithoutMovementsInput = {
@@ -956,6 +991,7 @@ export type InventoryLocationUncheckedUpdateWithoutMovementsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   balances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutLocationNestedInput
   reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutLocationNestedInput
+  schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutInventoryLocationNestedInput
 }
 
 export type InventoryLocationCreateWithoutReservationsInput = {
@@ -978,6 +1014,7 @@ export type InventoryLocationCreateWithoutReservationsInput = {
   country?: Prisma.CountryCreateNestedOneWithoutWarehousesInput
   balances?: Prisma.InventoryBalanceCreateNestedManyWithoutLocationInput
   movements?: Prisma.InventoryMovementCreateNestedManyWithoutLocationInput
+  schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutInventoryLocationInput
 }
 
 export type InventoryLocationUncheckedCreateWithoutReservationsInput = {
@@ -1000,6 +1037,7 @@ export type InventoryLocationUncheckedCreateWithoutReservationsInput = {
   updatedAt?: Date | string
   balances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutLocationInput
   movements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutLocationInput
+  schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutInventoryLocationInput
 }
 
 export type InventoryLocationCreateOrConnectWithoutReservationsInput = {
@@ -1038,6 +1076,7 @@ export type InventoryLocationUpdateWithoutReservationsInput = {
   country?: Prisma.CountryUpdateOneWithoutWarehousesNestedInput
   balances?: Prisma.InventoryBalanceUpdateManyWithoutLocationNestedInput
   movements?: Prisma.InventoryMovementUpdateManyWithoutLocationNestedInput
+  schedules?: Prisma.RecurringScheduleUpdateManyWithoutInventoryLocationNestedInput
 }
 
 export type InventoryLocationUncheckedUpdateWithoutReservationsInput = {
@@ -1060,6 +1099,115 @@ export type InventoryLocationUncheckedUpdateWithoutReservationsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   balances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutLocationNestedInput
   movements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutLocationNestedInput
+  schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutInventoryLocationNestedInput
+}
+
+export type InventoryLocationCreateWithoutSchedulesInput = {
+  id: string
+  code: string
+  name: string
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: boolean
+  isActive?: boolean
+  timezone?: string | null
+  operationalStatus?: $Enums.WarehouseOperationalStatus
+  erpExternalId?: string | null
+  erpSyncStatus?: $Enums.WarehouseErpSyncStatus
+  erpLastSyncAt?: Date | string | null
+  erpSyncMessage?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  country?: Prisma.CountryCreateNestedOneWithoutWarehousesInput
+  balances?: Prisma.InventoryBalanceCreateNestedManyWithoutLocationInput
+  movements?: Prisma.InventoryMovementCreateNestedManyWithoutLocationInput
+  reservations?: Prisma.StockReservationCreateNestedManyWithoutLocationInput
+}
+
+export type InventoryLocationUncheckedCreateWithoutSchedulesInput = {
+  id: string
+  code: string
+  name: string
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: boolean
+  isActive?: boolean
+  countryCode?: string | null
+  timezone?: string | null
+  operationalStatus?: $Enums.WarehouseOperationalStatus
+  erpExternalId?: string | null
+  erpSyncStatus?: $Enums.WarehouseErpSyncStatus
+  erpLastSyncAt?: Date | string | null
+  erpSyncMessage?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  balances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutLocationInput
+  movements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutLocationInput
+  reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutLocationInput
+}
+
+export type InventoryLocationCreateOrConnectWithoutSchedulesInput = {
+  where: Prisma.InventoryLocationWhereUniqueInput
+  create: Prisma.XOR<Prisma.InventoryLocationCreateWithoutSchedulesInput, Prisma.InventoryLocationUncheckedCreateWithoutSchedulesInput>
+}
+
+export type InventoryLocationUpsertWithoutSchedulesInput = {
+  update: Prisma.XOR<Prisma.InventoryLocationUpdateWithoutSchedulesInput, Prisma.InventoryLocationUncheckedUpdateWithoutSchedulesInput>
+  create: Prisma.XOR<Prisma.InventoryLocationCreateWithoutSchedulesInput, Prisma.InventoryLocationUncheckedCreateWithoutSchedulesInput>
+  where?: Prisma.InventoryLocationWhereInput
+}
+
+export type InventoryLocationUpdateToOneWithWhereWithoutSchedulesInput = {
+  where?: Prisma.InventoryLocationWhereInput
+  data: Prisma.XOR<Prisma.InventoryLocationUpdateWithoutSchedulesInput, Prisma.InventoryLocationUncheckedUpdateWithoutSchedulesInput>
+}
+
+export type InventoryLocationUpdateWithoutSchedulesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operationalStatus?: Prisma.EnumWarehouseOperationalStatusFieldUpdateOperationsInput | $Enums.WarehouseOperationalStatus
+  erpExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpSyncStatus?: Prisma.EnumWarehouseErpSyncStatusFieldUpdateOperationsInput | $Enums.WarehouseErpSyncStatus
+  erpLastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  country?: Prisma.CountryUpdateOneWithoutWarehousesNestedInput
+  balances?: Prisma.InventoryBalanceUpdateManyWithoutLocationNestedInput
+  movements?: Prisma.InventoryMovementUpdateManyWithoutLocationNestedInput
+  reservations?: Prisma.StockReservationUpdateManyWithoutLocationNestedInput
+}
+
+export type InventoryLocationUncheckedUpdateWithoutSchedulesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operationalStatus?: Prisma.EnumWarehouseOperationalStatusFieldUpdateOperationsInput | $Enums.WarehouseOperationalStatus
+  erpExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpSyncStatus?: Prisma.EnumWarehouseErpSyncStatusFieldUpdateOperationsInput | $Enums.WarehouseErpSyncStatus
+  erpLastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  balances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutLocationNestedInput
+  movements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutLocationNestedInput
+  reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutLocationNestedInput
 }
 
 export type InventoryLocationCreateWithoutCountryInput = {
@@ -1082,6 +1230,7 @@ export type InventoryLocationCreateWithoutCountryInput = {
   balances?: Prisma.InventoryBalanceCreateNestedManyWithoutLocationInput
   movements?: Prisma.InventoryMovementCreateNestedManyWithoutLocationInput
   reservations?: Prisma.StockReservationCreateNestedManyWithoutLocationInput
+  schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutInventoryLocationInput
 }
 
 export type InventoryLocationUncheckedCreateWithoutCountryInput = {
@@ -1104,6 +1253,7 @@ export type InventoryLocationUncheckedCreateWithoutCountryInput = {
   balances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutLocationInput
   movements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutLocationInput
   reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutLocationInput
+  schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutInventoryLocationInput
 }
 
 export type InventoryLocationCreateOrConnectWithoutCountryInput = {
@@ -1194,6 +1344,7 @@ export type InventoryLocationUpdateWithoutCountryInput = {
   balances?: Prisma.InventoryBalanceUpdateManyWithoutLocationNestedInput
   movements?: Prisma.InventoryMovementUpdateManyWithoutLocationNestedInput
   reservations?: Prisma.StockReservationUpdateManyWithoutLocationNestedInput
+  schedules?: Prisma.RecurringScheduleUpdateManyWithoutInventoryLocationNestedInput
 }
 
 export type InventoryLocationUncheckedUpdateWithoutCountryInput = {
@@ -1216,6 +1367,7 @@ export type InventoryLocationUncheckedUpdateWithoutCountryInput = {
   balances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutLocationNestedInput
   movements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutLocationNestedInput
   reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutLocationNestedInput
+  schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutInventoryLocationNestedInput
 }
 
 export type InventoryLocationUncheckedUpdateManyWithoutCountryInput = {
@@ -1246,12 +1398,14 @@ export type InventoryLocationCountOutputType = {
   balances: number
   movements: number
   reservations: number
+  schedules: number
 }
 
 export type InventoryLocationCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   balances?: boolean | InventoryLocationCountOutputTypeCountBalancesArgs
   movements?: boolean | InventoryLocationCountOutputTypeCountMovementsArgs
   reservations?: boolean | InventoryLocationCountOutputTypeCountReservationsArgs
+  schedules?: boolean | InventoryLocationCountOutputTypeCountSchedulesArgs
 }
 
 /**
@@ -1285,6 +1439,13 @@ export type InventoryLocationCountOutputTypeCountReservationsArgs<ExtArgs extend
   where?: Prisma.StockReservationWhereInput
 }
 
+/**
+ * InventoryLocationCountOutputType without action
+ */
+export type InventoryLocationCountOutputTypeCountSchedulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RecurringScheduleWhereInput
+}
+
 
 export type InventoryLocationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1308,6 +1469,7 @@ export type InventoryLocationSelect<ExtArgs extends runtime.Types.Extensions.Int
   balances?: boolean | Prisma.InventoryLocation$balancesArgs<ExtArgs>
   movements?: boolean | Prisma.InventoryLocation$movementsArgs<ExtArgs>
   reservations?: boolean | Prisma.InventoryLocation$reservationsArgs<ExtArgs>
+  schedules?: boolean | Prisma.InventoryLocation$schedulesArgs<ExtArgs>
   _count?: boolean | Prisma.InventoryLocationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["inventoryLocation"]>
 
@@ -1339,6 +1501,7 @@ export type InventoryLocationInclude<ExtArgs extends runtime.Types.Extensions.In
   balances?: boolean | Prisma.InventoryLocation$balancesArgs<ExtArgs>
   movements?: boolean | Prisma.InventoryLocation$movementsArgs<ExtArgs>
   reservations?: boolean | Prisma.InventoryLocation$reservationsArgs<ExtArgs>
+  schedules?: boolean | Prisma.InventoryLocation$schedulesArgs<ExtArgs>
   _count?: boolean | Prisma.InventoryLocationCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1349,6 +1512,7 @@ export type $InventoryLocationPayload<ExtArgs extends runtime.Types.Extensions.I
     balances: Prisma.$InventoryBalancePayload<ExtArgs>[]
     movements: Prisma.$InventoryMovementPayload<ExtArgs>[]
     reservations: Prisma.$StockReservationPayload<ExtArgs>[]
+    schedules: Prisma.$RecurringSchedulePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1767,6 +1931,7 @@ export interface Prisma__InventoryLocationClient<T, Null = never, ExtArgs extend
   balances<T extends Prisma.InventoryLocation$balancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryLocation$balancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryBalancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   movements<T extends Prisma.InventoryLocation$movementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryLocation$movementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryMovementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reservations<T extends Prisma.InventoryLocation$reservationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryLocation$reservationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  schedules<T extends Prisma.InventoryLocation$schedulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryLocation$schedulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecurringSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2249,6 +2414,30 @@ export type InventoryLocation$reservationsArgs<ExtArgs extends runtime.Types.Ext
   take?: number
   skip?: number
   distinct?: Prisma.StockReservationScalarFieldEnum | Prisma.StockReservationScalarFieldEnum[]
+}
+
+/**
+ * InventoryLocation.schedules
+ */
+export type InventoryLocation$schedulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RecurringSchedule
+   */
+  select?: Prisma.RecurringScheduleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RecurringSchedule
+   */
+  omit?: Prisma.RecurringScheduleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RecurringScheduleInclude<ExtArgs> | null
+  where?: Prisma.RecurringScheduleWhereInput
+  orderBy?: Prisma.RecurringScheduleOrderByWithRelationInput | Prisma.RecurringScheduleOrderByWithRelationInput[]
+  cursor?: Prisma.RecurringScheduleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RecurringScheduleScalarFieldEnum | Prisma.RecurringScheduleScalarFieldEnum[]
 }
 
 /**

@@ -857,6 +857,13 @@ export type EnumScheduleStatusFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumScheduleStatusFilter<$PrismaModel> | $Enums.ScheduleStatus
 }
 
+export type EnumScheduleKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.ScheduleKind | Prisma.EnumScheduleKindFieldRefInput<$PrismaModel>
+  in?: $Enums.ScheduleKind[]
+  notIn?: $Enums.ScheduleKind[]
+  not?: Prisma.NestedEnumScheduleKindFilter<$PrismaModel> | $Enums.ScheduleKind
+}
+
 export type EnumScheduleFrequencyFilter<$PrismaModel = never> = {
   equals?: $Enums.ScheduleFrequency | Prisma.EnumScheduleFrequencyFieldRefInput<$PrismaModel>
   in?: $Enums.ScheduleFrequency[]
@@ -871,6 +878,20 @@ export type EnumSchedulePaymentModeFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumSchedulePaymentModeFilter<$PrismaModel> | $Enums.SchedulePaymentMode
 }
 
+export type EnumSubstitutionPolicyFilter<$PrismaModel = never> = {
+  equals?: $Enums.SubstitutionPolicy | Prisma.EnumSubstitutionPolicyFieldRefInput<$PrismaModel>
+  in?: $Enums.SubstitutionPolicy[]
+  notIn?: $Enums.SubstitutionPolicy[]
+  not?: Prisma.NestedEnumSubstitutionPolicyFilter<$PrismaModel> | $Enums.SubstitutionPolicy
+}
+
+export type EnumScheduleFulfilmentRuleFilter<$PrismaModel = never> = {
+  equals?: $Enums.ScheduleFulfilmentRule | Prisma.EnumScheduleFulfilmentRuleFieldRefInput<$PrismaModel>
+  in?: $Enums.ScheduleFulfilmentRule[]
+  notIn?: $Enums.ScheduleFulfilmentRule[]
+  not?: Prisma.NestedEnumScheduleFulfilmentRuleFilter<$PrismaModel> | $Enums.ScheduleFulfilmentRule
+}
+
 export type EnumScheduleStatusWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ScheduleStatus | Prisma.EnumScheduleStatusFieldRefInput<$PrismaModel>
   in?: $Enums.ScheduleStatus[]
@@ -879,6 +900,16 @@ export type EnumScheduleStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumScheduleStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumScheduleStatusFilter<$PrismaModel>
+}
+
+export type EnumScheduleKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ScheduleKind | Prisma.EnumScheduleKindFieldRefInput<$PrismaModel>
+  in?: $Enums.ScheduleKind[]
+  notIn?: $Enums.ScheduleKind[]
+  not?: Prisma.NestedEnumScheduleKindWithAggregatesFilter<$PrismaModel> | $Enums.ScheduleKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumScheduleKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumScheduleKindFilter<$PrismaModel>
 }
 
 export type EnumScheduleFrequencyWithAggregatesFilter<$PrismaModel = never> = {
@@ -901,11 +932,38 @@ export type EnumSchedulePaymentModeWithAggregatesFilter<$PrismaModel = never> = 
   _max?: Prisma.NestedEnumSchedulePaymentModeFilter<$PrismaModel>
 }
 
+export type EnumSubstitutionPolicyWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SubstitutionPolicy | Prisma.EnumSubstitutionPolicyFieldRefInput<$PrismaModel>
+  in?: $Enums.SubstitutionPolicy[]
+  notIn?: $Enums.SubstitutionPolicy[]
+  not?: Prisma.NestedEnumSubstitutionPolicyWithAggregatesFilter<$PrismaModel> | $Enums.SubstitutionPolicy
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSubstitutionPolicyFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSubstitutionPolicyFilter<$PrismaModel>
+}
+
+export type EnumScheduleFulfilmentRuleWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ScheduleFulfilmentRule | Prisma.EnumScheduleFulfilmentRuleFieldRefInput<$PrismaModel>
+  in?: $Enums.ScheduleFulfilmentRule[]
+  notIn?: $Enums.ScheduleFulfilmentRule[]
+  not?: Prisma.NestedEnumScheduleFulfilmentRuleWithAggregatesFilter<$PrismaModel> | $Enums.ScheduleFulfilmentRule
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumScheduleFulfilmentRuleFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumScheduleFulfilmentRuleFilter<$PrismaModel>
+}
+
 export type EnumOccurrenceStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.OccurrenceStatus | Prisma.EnumOccurrenceStatusFieldRefInput<$PrismaModel>
   in?: $Enums.OccurrenceStatus[]
   notIn?: $Enums.OccurrenceStatus[]
   not?: Prisma.NestedEnumOccurrenceStatusFilter<$PrismaModel> | $Enums.OccurrenceStatus
+}
+
+export type EnumErpPushStatusNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpPushStatus | Prisma.EnumErpPushStatusFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ErpPushStatus[] | null
+  notIn?: $Enums.ErpPushStatus[] | null
+  not?: Prisma.NestedEnumErpPushStatusNullableFilter<$PrismaModel> | $Enums.ErpPushStatus | null
 }
 
 export type EnumOccurrenceStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -916,6 +974,50 @@ export type EnumOccurrenceStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumOccurrenceStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumOccurrenceStatusFilter<$PrismaModel>
+}
+
+export type EnumErpPushStatusNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpPushStatus | Prisma.EnumErpPushStatusFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ErpPushStatus[] | null
+  notIn?: $Enums.ErpPushStatus[] | null
+  not?: Prisma.NestedEnumErpPushStatusNullableWithAggregatesFilter<$PrismaModel> | $Enums.ErpPushStatus | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumErpPushStatusNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumErpPushStatusNullableFilter<$PrismaModel>
+}
+
+export type EnumStoredPaymentMethodStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.StoredPaymentMethodStatus | Prisma.EnumStoredPaymentMethodStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.StoredPaymentMethodStatus[]
+  notIn?: $Enums.StoredPaymentMethodStatus[]
+  not?: Prisma.NestedEnumStoredPaymentMethodStatusFilter<$PrismaModel> | $Enums.StoredPaymentMethodStatus
+}
+
+export type EnumStoredPaymentMethodStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StoredPaymentMethodStatus | Prisma.EnumStoredPaymentMethodStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.StoredPaymentMethodStatus[]
+  notIn?: $Enums.StoredPaymentMethodStatus[]
+  not?: Prisma.NestedEnumStoredPaymentMethodStatusWithAggregatesFilter<$PrismaModel> | $Enums.StoredPaymentMethodStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStoredPaymentMethodStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStoredPaymentMethodStatusFilter<$PrismaModel>
+}
+
+export type EnumErpPushStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpPushStatus | Prisma.EnumErpPushStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpPushStatus[]
+  notIn?: $Enums.ErpPushStatus[]
+  not?: Prisma.NestedEnumErpPushStatusFilter<$PrismaModel> | $Enums.ErpPushStatus
+}
+
+export type EnumErpPushStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpPushStatus | Prisma.EnumErpPushStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpPushStatus[]
+  notIn?: $Enums.ErpPushStatus[]
+  not?: Prisma.NestedEnumErpPushStatusWithAggregatesFilter<$PrismaModel> | $Enums.ErpPushStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumErpPushStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumErpPushStatusFilter<$PrismaModel>
 }
 
 export type EnumShipmentStatusFilter<$PrismaModel = never> = {
@@ -2030,6 +2132,13 @@ export type NestedEnumScheduleStatusFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumScheduleStatusFilter<$PrismaModel> | $Enums.ScheduleStatus
 }
 
+export type NestedEnumScheduleKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.ScheduleKind | Prisma.EnumScheduleKindFieldRefInput<$PrismaModel>
+  in?: $Enums.ScheduleKind[]
+  notIn?: $Enums.ScheduleKind[]
+  not?: Prisma.NestedEnumScheduleKindFilter<$PrismaModel> | $Enums.ScheduleKind
+}
+
 export type NestedEnumScheduleFrequencyFilter<$PrismaModel = never> = {
   equals?: $Enums.ScheduleFrequency | Prisma.EnumScheduleFrequencyFieldRefInput<$PrismaModel>
   in?: $Enums.ScheduleFrequency[]
@@ -2044,6 +2153,20 @@ export type NestedEnumSchedulePaymentModeFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumSchedulePaymentModeFilter<$PrismaModel> | $Enums.SchedulePaymentMode
 }
 
+export type NestedEnumSubstitutionPolicyFilter<$PrismaModel = never> = {
+  equals?: $Enums.SubstitutionPolicy | Prisma.EnumSubstitutionPolicyFieldRefInput<$PrismaModel>
+  in?: $Enums.SubstitutionPolicy[]
+  notIn?: $Enums.SubstitutionPolicy[]
+  not?: Prisma.NestedEnumSubstitutionPolicyFilter<$PrismaModel> | $Enums.SubstitutionPolicy
+}
+
+export type NestedEnumScheduleFulfilmentRuleFilter<$PrismaModel = never> = {
+  equals?: $Enums.ScheduleFulfilmentRule | Prisma.EnumScheduleFulfilmentRuleFieldRefInput<$PrismaModel>
+  in?: $Enums.ScheduleFulfilmentRule[]
+  notIn?: $Enums.ScheduleFulfilmentRule[]
+  not?: Prisma.NestedEnumScheduleFulfilmentRuleFilter<$PrismaModel> | $Enums.ScheduleFulfilmentRule
+}
+
 export type NestedEnumScheduleStatusWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ScheduleStatus | Prisma.EnumScheduleStatusFieldRefInput<$PrismaModel>
   in?: $Enums.ScheduleStatus[]
@@ -2052,6 +2175,16 @@ export type NestedEnumScheduleStatusWithAggregatesFilter<$PrismaModel = never> =
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumScheduleStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumScheduleStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumScheduleKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ScheduleKind | Prisma.EnumScheduleKindFieldRefInput<$PrismaModel>
+  in?: $Enums.ScheduleKind[]
+  notIn?: $Enums.ScheduleKind[]
+  not?: Prisma.NestedEnumScheduleKindWithAggregatesFilter<$PrismaModel> | $Enums.ScheduleKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumScheduleKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumScheduleKindFilter<$PrismaModel>
 }
 
 export type NestedEnumScheduleFrequencyWithAggregatesFilter<$PrismaModel = never> = {
@@ -2074,11 +2207,38 @@ export type NestedEnumSchedulePaymentModeWithAggregatesFilter<$PrismaModel = nev
   _max?: Prisma.NestedEnumSchedulePaymentModeFilter<$PrismaModel>
 }
 
+export type NestedEnumSubstitutionPolicyWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SubstitutionPolicy | Prisma.EnumSubstitutionPolicyFieldRefInput<$PrismaModel>
+  in?: $Enums.SubstitutionPolicy[]
+  notIn?: $Enums.SubstitutionPolicy[]
+  not?: Prisma.NestedEnumSubstitutionPolicyWithAggregatesFilter<$PrismaModel> | $Enums.SubstitutionPolicy
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSubstitutionPolicyFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSubstitutionPolicyFilter<$PrismaModel>
+}
+
+export type NestedEnumScheduleFulfilmentRuleWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ScheduleFulfilmentRule | Prisma.EnumScheduleFulfilmentRuleFieldRefInput<$PrismaModel>
+  in?: $Enums.ScheduleFulfilmentRule[]
+  notIn?: $Enums.ScheduleFulfilmentRule[]
+  not?: Prisma.NestedEnumScheduleFulfilmentRuleWithAggregatesFilter<$PrismaModel> | $Enums.ScheduleFulfilmentRule
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumScheduleFulfilmentRuleFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumScheduleFulfilmentRuleFilter<$PrismaModel>
+}
+
 export type NestedEnumOccurrenceStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.OccurrenceStatus | Prisma.EnumOccurrenceStatusFieldRefInput<$PrismaModel>
   in?: $Enums.OccurrenceStatus[]
   notIn?: $Enums.OccurrenceStatus[]
   not?: Prisma.NestedEnumOccurrenceStatusFilter<$PrismaModel> | $Enums.OccurrenceStatus
+}
+
+export type NestedEnumErpPushStatusNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpPushStatus | Prisma.EnumErpPushStatusFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ErpPushStatus[] | null
+  notIn?: $Enums.ErpPushStatus[] | null
+  not?: Prisma.NestedEnumErpPushStatusNullableFilter<$PrismaModel> | $Enums.ErpPushStatus | null
 }
 
 export type NestedEnumOccurrenceStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -2089,6 +2249,50 @@ export type NestedEnumOccurrenceStatusWithAggregatesFilter<$PrismaModel = never>
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumOccurrenceStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumOccurrenceStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumErpPushStatusNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpPushStatus | Prisma.EnumErpPushStatusFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ErpPushStatus[] | null
+  notIn?: $Enums.ErpPushStatus[] | null
+  not?: Prisma.NestedEnumErpPushStatusNullableWithAggregatesFilter<$PrismaModel> | $Enums.ErpPushStatus | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumErpPushStatusNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumErpPushStatusNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumStoredPaymentMethodStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.StoredPaymentMethodStatus | Prisma.EnumStoredPaymentMethodStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.StoredPaymentMethodStatus[]
+  notIn?: $Enums.StoredPaymentMethodStatus[]
+  not?: Prisma.NestedEnumStoredPaymentMethodStatusFilter<$PrismaModel> | $Enums.StoredPaymentMethodStatus
+}
+
+export type NestedEnumStoredPaymentMethodStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StoredPaymentMethodStatus | Prisma.EnumStoredPaymentMethodStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.StoredPaymentMethodStatus[]
+  notIn?: $Enums.StoredPaymentMethodStatus[]
+  not?: Prisma.NestedEnumStoredPaymentMethodStatusWithAggregatesFilter<$PrismaModel> | $Enums.StoredPaymentMethodStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStoredPaymentMethodStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStoredPaymentMethodStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumErpPushStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpPushStatus | Prisma.EnumErpPushStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpPushStatus[]
+  notIn?: $Enums.ErpPushStatus[]
+  not?: Prisma.NestedEnumErpPushStatusFilter<$PrismaModel> | $Enums.ErpPushStatus
+}
+
+export type NestedEnumErpPushStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpPushStatus | Prisma.EnumErpPushStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpPushStatus[]
+  notIn?: $Enums.ErpPushStatus[]
+  not?: Prisma.NestedEnumErpPushStatusWithAggregatesFilter<$PrismaModel> | $Enums.ErpPushStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumErpPushStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumErpPushStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumShipmentStatusFilter<$PrismaModel = never> = {

@@ -341,7 +341,15 @@ describe('duplicate prevention', () => {
     expect(second.result).toBe('DUPLICATE');
 
     expect(await prisma.order.count()).toBe(1);
-    expect(await prisma.scheduleOccurrence.count()).toBe(1);
+
+    // Exactly one occurrence for the slot that was served.
+    //
+    // Not a count of the whole table: upcoming deliveries are now materialised
+    // ahead of time so the customer has rows to skip and re-date, so a plan
+    // carries several SCHEDULED rows for dates in the future. The guarantee
+    // being tested is about the slot that ran.
+    expect(await prisma.scheduleOccurrence.count({ where: { plannedRunAt: slot } })).toBe(1);
+    expect(await prisma.scheduleOccurrence.count({ where: { order: { isNot: null } } })).toBe(1);
   });
 
   /** Ten workers, one slot. Exactly one order. */
@@ -359,7 +367,8 @@ describe('duplicate prevention', () => {
 
     expect(created).toHaveLength(1);
     expect(await prisma.order.count()).toBe(1);
-    expect(await prisma.scheduleOccurrence.count()).toBe(1);
+    // One row for the contested slot, however many workers reached for it.
+    expect(await prisma.scheduleOccurrence.count({ where: { plannedRunAt: slot } })).toBe(1);
   });
 
   /** The lease stops two workers even attempting the same schedule. */
@@ -415,7 +424,12 @@ describe('duplicate prevention', () => {
     const slot = await makeDue(schedule.scheduleId);
     await runOccurrence(schedule.scheduleId, slot);
 
-    const occurrence = await prisma.scheduleOccurrence.findFirstOrThrow();
+    // The occurrence that actually ran, not merely the first row in the
+    // table - a plan also carries materialised rows for future dates, and
+    // attaching an order to one of those would prove nothing.
+    const occurrence = await prisma.scheduleOccurrence.findFirstOrThrow({
+      where: { plannedRunAt: slot },
+    });
 
     await expect(
       prisma.order.create({
@@ -572,21 +586,56 @@ describe('running an occurrence', () => {
     expect(row.pausedReason).toContain('threshold');
   });
 
-  it('fails without an order when stock is short', async () => {
+  /**
+   * Short stock HOLDS the delivery; it does not fail it.
+   *
+   * The distinction is the customer's. Nothing went wrong and nothing was
+   * charged - the warehouse simply cannot supply this week, and the
+   * subscription carries on. So the occurrence is SKIPPED with a reason rather
+   * than FAILED, which is reserved for something that actually broke.
+   *
+   * The plan's failure streak still advances (see below), so a product that
+   * stays short for months stops the plan instead of emailing the customer
+   * every cycle for ever.
+   */
+  it('holds the delivery without an order when stock is short', async () => {
     const schedule = await makeSchedule();
     await prisma.inventoryBalance.updateMany({ where: { productId }, data: { onHandQty: 5 } });
 
     const slot = await makeDue(schedule.scheduleId);
     const outcome = await runOccurrence(schedule.scheduleId, slot);
 
-    expect(outcome.result).toBe('FAILED');
+    expect(outcome.result).toBe('SKIPPED');
     // Nothing half-written: no order, no items, no reservation.
     expect(await prisma.order.count()).toBe(0);
     expect(await prisma.orderItem.count()).toBe(0);
     expect(await prisma.stockReservation.count()).toBe(0);
+
+    // And the customer is told, without being told anything was substituted.
+    const notice = await prisma.notificationOutbox.findFirst({
+      where: { eventKey: 'schedule.stock_unavailable' },
+    });
+    expect(notice).not.toBeNull();
+
+    const held = await prisma.scheduleOccurrence.findFirstOrThrow({
+      where: { plannedRunAt: slot },
+    });
+    expect(held.status).toBe('SKIPPED');
+    // Not the customer's doing, so their screens say "we could not supply
+    // this" rather than "you skipped this".
+    expect(held.skippedByUser).toBe(false);
   });
 
-  it('stops at the occurrence limit', async () => {
+  /**
+   * A plan that reaches its limit is COMPLETED, not CANCELLED.
+   *
+   * The previous engine wrote CANCELLED here, and it was wrong in a way the
+   * customer could see: nobody cancelled anything, the subscription ran the
+   * number of times they asked for and finished. "This has finished" and "you
+   * cancelled this" are different sentences and the screens say different
+   * things for each.
+   */
+  it('completes at the occurrence limit', async () => {
     const schedule = await makeSchedule({ maxOccurrences: 1 });
     const slot = await makeDue(schedule.scheduleId);
 
@@ -595,8 +644,10 @@ describe('running an occurrence', () => {
     const row = await prisma.recurringSchedule.findUniqueOrThrow({
       where: { id: schedule.scheduleId },
     });
-    expect(row.status).toBe('CANCELLED');
+    expect(row.status).toBe('COMPLETED');
+    expect(row.completedAt).not.toBeNull();
     expect(row.cancelReason).toContain('occurrence limit');
+    expect(row.nextRunAt).toBeNull();
   });
 
   it('stops after the end date', async () => {

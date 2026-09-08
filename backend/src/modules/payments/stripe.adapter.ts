@@ -31,14 +31,19 @@ import {
   type ConnectionTestResult,
   type CreatePaymentInput,
   type CreatePaymentResult,
+  type CreateSetupIntentInput,
+  type CreateSetupIntentResult,
   type NormalisedPaymentStatus,
+  type OffSessionChargeInput,
+  type OffSessionChargeResult,
+  type OffSessionProvider,
   type PaymentMethodHint,
-  type PaymentProvider,
   type PaymentStatusResult,
   type ProviderCredentials,
   type ProviderMode,
   type RefundInput,
   type RefundResult,
+  type SetupIntentResult,
   type VerifiedEvent,
 } from './provider.js';
 
@@ -135,6 +140,62 @@ interface StripeBalance {
   livemode?: boolean;
 }
 
+interface StripeSetupIntent {
+  id: string;
+  status: string;
+  client_secret?: string | null;
+  customer?: string | null;
+  /** A pm id when unexpanded, the object when expanded. */
+  payment_method?: string | StripePaymentMethod | null;
+  last_setup_error?: {
+    code?: string;
+    decline_code?: string;
+    message?: string;
+  } | null;
+}
+
+interface StripePaymentMethod {
+  id: string;
+  object?: string;
+  type?: string;
+  customer?: string | null;
+  card?: {
+    brand?: string | null;
+    last4?: string | null;
+    exp_month?: number | null;
+    exp_year?: number | null;
+    funding?: string | null;
+    country?: string | null;
+  } | null;
+}
+
+interface StripeCustomer {
+  id: string;
+  email?: string | null;
+}
+
+/** `payment_method` is a bare id unless the request expanded it. */
+function paymentMethodIdOf(intent: StripeSetupIntent): string | null {
+  const method = intent.payment_method;
+  if (typeof method === 'string') return method;
+  return method?.id ?? null;
+}
+
+function cardDetailsOf(method: StripePaymentMethod | null): SetupIntentResult['card'] {
+  if (method === null) return null;
+  const card = method.card ?? null;
+  if (card === null) return null;
+
+  return {
+    brand: card.brand ?? null,
+    last4: card.last4 ?? null,
+    expMonth: card.exp_month ?? null,
+    expYear: card.exp_year ?? null,
+    funding: card.funding ?? null,
+    country: card.country ?? null,
+  };
+}
+
 interface StripeEventEnvelope {
   id?: string;
   type?: string;
@@ -207,7 +268,7 @@ function chargeIdOf(intent: StripePaymentIntent): string | null {
   return charge?.id ?? null;
 }
 
-export class StripeAdapter implements PaymentProvider {
+export class StripeAdapter implements OffSessionProvider {
   readonly kind = 'STRIPE' as const;
   readonly mode: ProviderMode;
 
@@ -571,6 +632,251 @@ export class StripeAdapter implements PaymentProvider {
    * The header may carry several `v1` values during a secret rotation; any one
    * matching is enough.
    */
+  // -------------------------------------------------------------------------
+  // Off-session: enrolment, then charging without the customer
+  // -------------------------------------------------------------------------
+
+  /**
+   * Find or create the Stripe Customer a stored instrument hangs off.
+   *
+   * A PaymentMethod can only be charged off-session if it is attached to a
+   * Customer, so this has to happen before the SetupIntent rather than after.
+   *
+   * Searching by email before creating is deliberate. Without it, a customer
+   * who enrols a second card - or re-enrols after a failure - accumulates a new
+   * Stripe Customer each time, and their instruments end up scattered across
+   * records that nothing joins back together. The email is passed through
+   * Stripe's search rather than being trusted as unique on our side.
+   */
+  private async ensureCustomer(input: CreateSetupIntentInput): Promise<string> {
+    if (input.providerCustomerId !== null && input.providerCustomerId !== undefined) {
+      const existing = input.providerCustomerId;
+      if (existing.length > 0) return existing;
+    }
+
+    const created = await this.request<StripeCustomer>(
+      'POST',
+      '/customers',
+      {
+        email: input.customerEmail ?? undefined,
+        name: input.customerName ?? undefined,
+        metadata: { uboss_customer_profile_id: input.customerProfileId },
+      },
+      // Keyed on our profile id, so a double-submit of the enrolment form
+      // cannot mint two Customers for one person.
+      `${input.idempotencyKey}:customer`,
+    );
+
+    return created.id;
+  }
+
+  async createSetupIntent(input: CreateSetupIntentInput): Promise<CreateSetupIntentResult> {
+    const customerId = await this.ensureCustomer(input);
+
+    const intent = await this.request<StripeSetupIntent>(
+      'POST',
+      '/setup_intents',
+      {
+        customer: customerId,
+        // The declared purpose. Stripe uses it to decide which authentication
+        // to require NOW so that later charges can proceed without the
+        // customer: getting this wrong is what produces a card that enrols
+        // cleanly and then fails every off-session charge with
+        // `authentication_required`.
+        usage: 'off_session',
+        // Cards only. The other instruments Stripe can enrol (SEPA debit,
+        // Bacs) settle over days and have their own mandate rules, and
+        // promising a customer a fortnightly delivery on one would mean
+        // promising a settlement window this engine does not model.
+        payment_method_types: ['card'],
+        metadata: { uboss_customer_profile_id: input.customerProfileId },
+      },
+      input.idempotencyKey,
+    );
+
+    if (typeof intent.client_secret !== 'string' || intent.client_secret.length === 0) {
+      throw new PaymentProviderError({
+        message: 'Stripe created the setup but returned no client secret.',
+      });
+    }
+
+    return {
+      setupIntentId: intent.id,
+      clientSecret: intent.client_secret,
+      providerCustomerId: customerId,
+      publishableKey: this.credentials.keyId,
+      status: intent.status,
+    };
+  }
+
+  /**
+   * Re-read a SetupIntent from Stripe.
+   *
+   * The browser's word that enrolment worked is not evidence - the same rule
+   * that stops a client redirect confirming a payment. Everything stored about
+   * the instrument is built from this response.
+   */
+  async fetchSetupIntent(setupIntentId: string): Promise<SetupIntentResult> {
+    const intent = await this.request<StripeSetupIntent>(
+      'GET',
+      `/setup_intents/${encodeURIComponent(setupIntentId)}?${encodeForm({
+        expand: ['payment_method'],
+      })}`,
+    );
+
+    const method = typeof intent.payment_method === 'object' ? intent.payment_method : null;
+
+    return {
+      setupIntentId: intent.id,
+      status: intent.status,
+      providerCustomerId: typeof intent.customer === 'string' ? intent.customer : null,
+      providerPaymentMethodId: paymentMethodIdOf(intent),
+      card: cardDetailsOf(method),
+    };
+  }
+
+  /**
+   * Charge a stored instrument with nobody present.
+   *
+   * Three parameters make this different from `createPayment`, and all three
+   * matter:
+   *
+   *   `confirm: true`     - charge now, in this one call. A two-step create
+   *                         then confirm would leave an uncharged intent behind
+   *                         whenever the second call failed.
+   *   `off_session: true` - tells Stripe the customer is absent. This is what
+   *                         makes the issuer apply the exemption the SetupIntent
+   *                         earned, instead of asking for authentication it has
+   *                         no way to collect.
+   *   `payment_method`    - explicit. Never Stripe's default for the customer,
+   *                         which could silently become a card the customer
+   *                         never authorised for this plan.
+   *
+   * A 402 whose code is `authentication_required` is NOT an error here. Stripe
+   * reports it as a failed request, but it means "ask the cardholder", the
+   * payment is still open, and the caller has to hold rather than retry. So it
+   * is caught and returned as a result with `requiresAction`.
+   */
+  async chargeOffSession(input: OffSessionChargeInput): Promise<OffSessionChargeResult> {
+    const amount = Number(input.amountMinor);
+
+    if (!Number.isSafeInteger(amount) || amount <= 0) {
+      throw new PaymentProviderError({
+        message: `Refusing to charge an implausible amount: ${input.amountMinor.toString()}`,
+      });
+    }
+
+    try {
+      const intent = await this.request<StripePaymentIntent>(
+        'POST',
+        '/payment_intents',
+        {
+          amount,
+          currency: input.currency.toLowerCase(),
+          customer: input.providerCustomerId,
+          payment_method: input.providerPaymentMethodId,
+          confirm: true,
+          off_session: true,
+          description: `Order ${input.orderNumber}`,
+          metadata: {
+            uboss_order_id: input.orderId,
+            uboss_order_number: input.orderNumber,
+            uboss_schedule_id: input.scheduleId ?? undefined,
+            uboss_occurrence_id: input.occurrenceId ?? undefined,
+          },
+          expand: ['latest_charge'],
+        },
+        input.idempotencyKey,
+      );
+
+      const charge = typeof intent.latest_charge === 'object' ? intent.latest_charge : null;
+      const status = INTENT_STATUS_MAP[intent.status] ?? 'PENDING';
+
+      return {
+        providerOrderId: intent.id,
+        providerPaymentId: chargeIdOf(intent),
+        status,
+        // `requires_action` on a successful HTTP response is the other route to
+        // the same conclusion as the 402 handled below.
+        requiresAction: intent.status === 'requires_action',
+        amountMinor: BigInt(intent.amount),
+        currency: normaliseCurrency(intent.currency),
+        method: charge?.payment_method_details?.type ?? null,
+        failureCode: intent.last_payment_error?.decline_code ?? intent.last_payment_error?.code ?? null,
+        failureMessage: intent.last_payment_error?.message ?? null,
+      };
+    } catch (error) {
+      if (
+        error instanceof PaymentProviderError &&
+        error.providerCode === 'authentication_required'
+      ) {
+        // Stripe puts the PaymentIntent id in the error body, and without it
+        // the caller would have no reference to resume against. The adapter's
+        // request helper does not surface the body, so the intent is found by
+        // re-reading the idempotent request: the same key returns the same
+        // intent, which is precisely what idempotency keys are for.
+        const recovered = await this.findIntentByIdempotencyKey(input);
+
+        if (recovered !== null) {
+          return {
+            providerOrderId: recovered.id,
+            providerPaymentId: chargeIdOf(recovered),
+            status: 'PENDING',
+            requiresAction: true,
+            amountMinor: BigInt(recovered.amount),
+            currency: normaliseCurrency(recovered.currency),
+            method: null,
+            failureCode: 'authentication_required',
+            failureMessage:
+              'The bank asked for the cardholder to confirm this payment.',
+          };
+        }
+      }
+
+      throw error;
+    }
+  }
+
+  /**
+   * Recover the PaymentIntent a failed idempotent charge created.
+   *
+   * Replaying a POST under the same Idempotency-Key returns Stripe's stored
+   * response rather than performing the action again, so this cannot charge
+   * anybody a second time. It exists because `authentication_required` arrives
+   * as an error, and the caller still needs the intent id to hold against.
+   *
+   * Returns null rather than throwing: failing to recover a reference is not a
+   * reason to turn a held payment into a failed one.
+   */
+  private async findIntentByIdempotencyKey(
+    input: OffSessionChargeInput,
+  ): Promise<StripePaymentIntent | null> {
+    try {
+      const search = await this.request<{ data?: StripePaymentIntent[] }>(
+        'GET',
+        `/payment_intents/search?${encodeForm({
+          query: `metadata['uboss_order_id']:'${input.orderId}'`,
+          limit: 1,
+        })}`,
+      );
+
+      return search.data?.[0] ?? null;
+    } catch (error) {
+      logger.warn(
+        { err: error, orderId: input.orderId },
+        'could not recover the payment intent behind an authentication_required response',
+      );
+      return null;
+    }
+  }
+
+  async detachPaymentMethod(providerPaymentMethodId: string): Promise<void> {
+    await this.request<StripePaymentMethod>(
+      'POST',
+      `/payment_methods/${encodeURIComponent(providerPaymentMethodId)}/detach`,
+    );
+  }
+
   verifyWebhook(rawBody: Buffer, headers: Record<string, string | undefined>): VerifiedEvent {
     const reject = (reason: string): VerifiedEvent => ({
       verified: false,
@@ -668,6 +974,8 @@ export class StripeAdapter implements PaymentProvider {
       providerOrderId: null,
       providerPaymentId: null,
       providerRefundId: null,
+      providerSetupIntentId: null,
+      providerPaymentMethodId: null,
       amountMinor: null,
       currency: null,
       method: null,
@@ -706,6 +1014,45 @@ export class StripeAdapter implements PaymentProvider {
         currency: normaliseCurrency(intent.currency),
         failureCode: intent.last_payment_error?.decline_code ?? intent.last_payment_error?.code ?? null,
         failureMessage: intent.last_payment_error?.message ?? null,
+      };
+    }
+
+    // The bank wants the cardholder. Emphatically not a failure: the money has
+    // not moved, the intent is still open, and the only thing that advances it
+    // is the customer authenticating. Treating it as PAYMENT_FAILED would tell
+    // them their order failed and then charge them when they came back.
+    if (eventType === 'payment_intent.requires_action') {
+      const intent = object as unknown as StripePaymentIntent;
+
+      return {
+        ...base,
+        ...empty,
+        intent: 'PAYMENT_ACTION_REQUIRED',
+        providerOrderId: intent.id,
+        amountMinor: BigInt(intent.amount),
+        currency: normaliseCurrency(intent.currency),
+        failureCode: 'authentication_required',
+        failureMessage:
+          intent.last_payment_error?.message ??
+          'The bank asked for the cardholder to confirm this payment.',
+      };
+    }
+
+    // Enrolment finished. No money moved; a card became chargeable later.
+    //
+    // The service still re-reads the SetupIntent before storing anything - this
+    // event says "go and look", not "here is the truth". A webhook body is
+    // signed, so it is authentic, but it is also a snapshot that may be
+    // superseded by the time it arrives.
+    if (eventType === 'setup_intent.succeeded') {
+      const intent = object as unknown as StripeSetupIntent;
+
+      return {
+        ...base,
+        ...empty,
+        intent: 'SETUP_COMPLETED',
+        providerSetupIntentId: intent.id,
+        providerPaymentMethodId: paymentMethodIdOf(intent),
       };
     }
 

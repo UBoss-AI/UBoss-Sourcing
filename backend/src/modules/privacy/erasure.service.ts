@@ -208,6 +208,16 @@ export async function executeErasure(input: {
   const pseudonym = `erased-${pseudonymId.toLowerCase()}@erased.invalid`;
   const now = new Date();
 
+  /**
+   * Provider payment-method references to detach once the erasure commits.
+   *
+   * Collected inside the transaction and acted on outside it, because
+   * detaching is a network call and holding a transaction open across one
+   * would be a bad idea for the same reason it is everywhere else in this
+   * codebase. Declared out here so it survives the closure.
+   */
+  const detachable: string[] = [];
+
   const result = await prisma.$transaction(async (tx) => {
     const deleted: Record<string, number> = {};
     const pseudonymised: Record<string, number> = {};
@@ -307,9 +317,17 @@ export async function executeErasure(input: {
       // Standing payment authorities are cancelled, not merely scrubbed. A
       // schedule left ACTIVE against an erased account would keep trying to
       // place orders for somebody who no longer exists.
+      //
+      // Only the ones that could still run. A plan that already reached
+      // COMPLETED is inert, and rewriting it to CANCELLED would replace a true
+      // record of what happened with a false one - the subject's last delivery
+      // did go out, and nobody cancelled it.
       pseudonymised.recurringSchedules = (
         await tx.recurringSchedule.updateMany({
-          where: { customerProfileId: profile.id, status: { not: 'CANCELLED' } },
+          where: {
+            customerProfileId: profile.id,
+            status: { in: ['DRAFT', 'ACTIVE', 'PAUSED', 'FAILED'] },
+          },
           data: {
             status: 'CANCELLED',
             cancelledAt: now,
@@ -319,6 +337,41 @@ export async function executeErasure(input: {
             payerEmail: null,
           },
         })
+      ).count;
+
+      // Every plan releases its stored card, whatever its status.
+      //
+      // Separate from the cancellation above and deliberately wider: the
+      // foreign key on `paymentMethodId` is RESTRICT, so the rows below cannot
+      // be deleted while any schedule - completed and cancelled ones included -
+      // still points at one.
+      await tx.recurringSchedule.updateMany({
+        where: { customerProfileId: profile.id, paymentMethodId: { not: null } },
+        data: { paymentMethodId: null },
+      });
+
+      // Saved cards are DELETED, not pseudonymised.
+      //
+      // This is the one table in the erasure where scrubbing would not be
+      // enough. The rows hold a provider customer id and a payment-method id,
+      // and those two together with this deployment's own Stripe key can take
+      // money. Blanking the display fields and keeping the references would
+      // leave a chargeable instrument belonging to an account that no longer
+      // exists, which is worse than the personal-data problem it was meant to
+      // solve.
+      //
+      // The references are read out first: once the rows are gone there is
+      // nothing left to tell the provider about. The telling happens after
+      // this transaction commits - see below.
+      const storedMethods = await tx.customerPaymentMethod.findMany({
+        where: { customerProfileId: profile.id },
+        select: { providerPaymentMethodId: true },
+      });
+
+      detachable.push(...storedMethods.map((method) => method.providerPaymentMethodId));
+
+      deleted.savedPaymentMethods = (
+        await tx.customerPaymentMethod.deleteMany({ where: { customerProfileId: profile.id } })
       ).count;
 
       // Orders that never became invoices carry no retention obligation, so
@@ -495,12 +548,61 @@ export async function executeErasure(input: {
     return { deleted, pseudonymised, retained, pseudonym };
   });
 
+  // --- Tell the provider, after the erasure has committed ----------------
+  //
+  // Deliberately after, and deliberately non-fatal. The erasure is the thing
+  // the subject is entitled to and it is already done; a provider that cannot
+  // be reached must not undo it or leave the request looking failed. The local
+  // rows are gone either way, so nothing here can charge anybody again through
+  // this system.
+  //
+  // A reference left attached at the provider is a loose end rather than an
+  // exposure, and it is logged loudly enough to be cleaned up by hand.
+  if (detachable.length > 0) {
+    await detachErasedPaymentMethods(detachable, input.userId);
+  }
+
   logger.info(
     { userId: input.userId, dataRequestId: input.dataRequestId },
     'erasure completed',
   );
 
   return result;
+}
+
+/**
+ * Detach payment methods at the provider after an erasure.
+ *
+ * Best effort by design. See the call site for why a failure here is a loose
+ * end rather than a reason to fail the erasure.
+ */
+async function detachErasedPaymentMethods(
+  providerPaymentMethodIds: readonly string[],
+  userId: string,
+): Promise<void> {
+  try {
+    const { loadActiveProvider } = await import('../payments/payment.service.js');
+    const { supportsOffSession } = await import('../payments/provider.js');
+
+    const { provider } = await loadActiveProvider('STRIPE');
+
+    if (!supportsOffSession(provider)) return;
+
+    for (const reference of providerPaymentMethodIds) {
+      await provider.detachPaymentMethod(reference).catch((error: unknown) => {
+        logger.error(
+          { err: error, userId, providerPaymentMethodId: reference },
+          'could not detach a payment method at the provider after an erasure; ' +
+            'the local record is deleted and this reference needs detaching by hand',
+        );
+      });
+    }
+  } catch (error) {
+    logger.error(
+      { err: error, userId, count: providerPaymentMethodIds.length },
+      'could not reach the payment provider to detach saved cards after an erasure',
+    );
+  }
 }
 
 /**

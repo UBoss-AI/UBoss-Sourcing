@@ -22,6 +22,9 @@ have to read separately — this *is* the explanation.
 7. [The database](#7-the-database)
 8. [The API](#8-the-api)
 9. [Complete flows, end to end](#9-complete-flows-end-to-end)
+   - [9.5 Scheduled orders — Buy Later and Subscribe & Reorder](#95-scheduled-orders--buy-later-and-subscribe--reorder)
+   - [9.5.1 Auto-pay: charging a card nobody is looking at](#951-auto-pay-charging-a-card-nobody-is-looking-at)
+   - [9.5.2 The ERP hand-off](#952-the-erp-hand-off)
 10. [Money — the most important rule](#10-money--the-most-important-rule)
 11. [The background worker](#11-the-background-worker)
 12. [Security](#12-security)
@@ -766,8 +769,9 @@ order. There is no "it works on mine".
 **After the sale**
 `shipments`, `return_requests`
 
-**Repeating orders**
-`recurring_schedules`, `recurring_schedule_items`, `schedule_occurrences`
+**Scheduled and repeating orders**
+`recurring_schedules`, `recurring_schedule_items`, `schedule_occurrences`,
+`customer_payment_methods`, `erp_order_pushes`
 
 **Machinery**
 `job_queue`, `notification_outbox`, `notification_deliveries`,
@@ -1232,28 +1236,438 @@ will accept.
 Every change appends a row to `order_status_history`. The order's past is never
 overwritten.
 
-## 9.5 Repeating orders
+## 9.5 Scheduled orders — Buy Later and Subscribe & Reorder
 
-A customer builds a schedule: these products, this quantity, every month on the
-5th.
+Checkout offers three things to do with a basket:
+
+| Option | What it means | What it creates |
+|---|---|---|
+| **Buy Now** | Pay now, as always | An order |
+| **Buy Later** | Deliver this basket once, on a date I pick | A ONE_TIME plan |
+| **Subscribe & Reorder** | Deliver this basket again and again | A RECURRING plan |
+
+The last two are the same machinery with a different frequency. Both are
+optional, and neither charges anybody until the customer has read a review
+screen and confirmed it.
+
+### The two records
+
+A **plan** (`recurring_schedules`) is the standing instruction: this basket,
+this often, to this address, on this card. An **occurrence**
+(`schedule_occurrences`) is one billing cycle of it. One plan, many
+occurrences — and every occurrence is priced, validated and charged on its own.
+
+### Plan statuses
+
+| Status | Meaning |
+|---|---|
+| `DRAFT` | Configured, not yet authorised. Charges nobody; `nextRunAt` is NULL, so the worker cannot see it |
+| `ACTIVE` | Live. The only status the worker will run |
+| `PAUSED` | Stopped by the customer, or by the engine because something needs them — a dead card, a withdrawn product |
+| `COMPLETED` | Ran its course: the end date passed, or the occurrence limit was reached. A Buy Later lands here after its one delivery |
+| `CANCELLED` | Somebody stopped it. Terminal |
+| `FAILED` | Too many consecutive failures. Suspended, not withdrawn — the customer can fix their card and resume |
+
+`COMPLETED` and `CANCELLED` are deliberately different. "This has finished"
+and "you cancelled this" are different sentences, and the customer's screen
+says a different thing for each.
+
+### Occurrence statuses
+
+| Status | Meaning |
+|---|---|
+| `SCHEDULED` | Created ahead of time so the customer has a row to skip, re-date or cancel |
+| `AWAITING_VALIDATION` | A worker has claimed it and is revalidating. No money has moved |
+| `PAYMENT_PENDING` | Priced and validated; a charge is in flight, or a payment link is out |
+| `ACTION_REQUIRED` | The bank wants the cardholder (3-D Secure). Nothing retries on its own |
+| `PROCESSING` | Paid. The order exists and is being handed on |
+| `PAID_ERP_PENDING` | **Paid, order real, ERP has not taken it.** Retries under the same key; never re-charges |
+| `COMPLETED` | Paid, ordered, ERP notified, customer told |
+| `SKIPPED` | Not run — the customer skipped it, or it could not be supplied |
+| `CANCELLED` | This cycle was cancelled |
+| `FAILED` | Something broke before payment. Bounded retries |
+
+`PENDING`, `ORDER_CREATED` and `PAID` also exist in the enum. Nothing writes
+them; they are kept so rows from the previous engine still read correctly.
+
+### The flow
 
 ```
-Customer creates a recurring_schedule with recurring_schedule_items
+Cart → POST /recurring-schedules/preview
+        │  prices the basket under the proposed schedule.
+        │  Writes nothing. Shows items, quantities, price,
+        │  discount, tax, delivery, total, address, payment
+        │  method, frequency and the next processing date.
+        ▼
+POST /recurring-schedules/from-cart  →  a DRAFT
+        │  the cart is untouched: an abandoned draft must not
+        │  cost the customer their basket
+        ▼
+POST /recurring-schedules/:id/activate
+        │  explicit consent, recorded and versioned.
+        │  The cart is emptied here, not before.
+        ▼  upcoming occurrences are materialised
+SCHEDULED rows the customer can skip, re-date or cancel
         │
-        ▼  the worker runs schedule.run on a beat
-For each schedule that is due, create a schedule_occurrence
+        ▼  worker: schedule.run, on a beat
+claim the plan (lease) → claim the slot (conditional UPDATE)
         │
-        ▼  unique(scheduleId, plannedRunAt) — a schedule can never
-           produce two occurrences for the same date
-Turn the occurrence into a real order
+        ▼  AWAITING_VALIDATION
+revalidate EVERYTHING: account, products, current prices,
+tax, delivery, platform stock, ERP stock, order limits,
+address, payment method
         │
-        ▼  unique(orders.scheduleOccurrenceId) — one occurrence can
-           never become two orders
-The customer is emailed a reminder before it runs
+        ▼  price tolerance checked against what was quoted
+PAYMENT_PENDING → create ONE order, hold the stock
+        │
+        ▼  off-session Stripe PaymentIntent
+      ┌─────────────┼─────────────┐
+      ▼             ▼             ▼
+  captured    requires_action   declined
+      │             │             │
+      │        ACTION_REQUIRED   FAILED
+      │        (customer told,   (order cancelled,
+      │         plan carries on)  stock released,
+      ▼                           plan carries on)
+  PROCESSING → push to ERP
+      │
+      ├── accepted → COMPLETED, inventory reconciled, customer told
+      └── refused  → PAID_ERP_PENDING, retried under the SAME key
 ```
 
-Two unique constraints, at two different levels. Because a *repeating* order
-that duplicates itself would keep duplicating, silently, forever.
+### The endpoints
+
+**Customer** — under `/api/v1`, all requiring a signed-in customer, all scoped
+to the caller's own profile. That scope *is* the where clause on every query, so
+one customer naming another's plan gets a 404 rather than a 403.
+
+| Method | Path | What it does |
+|---|---|---|
+| `POST` | `/recurring-schedules/preview` | The review screen. Prices the cart under a proposed schedule. Writes nothing |
+| `POST` | `/recurring-schedules/from-cart` | Creates a DRAFT from the cart |
+| `POST` | `/recurring-schedules/:id/activate` | Confirms it. Records consent, empties the cart |
+| `GET` | `/recurring-schedules` | The customer's plans. Filter by `status` and `kind` |
+| `GET` | `/recurring-schedules/:id` | One plan, with its items and recent deliveries |
+| `POST` | `/recurring-schedules` | Creates a plan from a product list rather than a cart |
+| `PATCH` | `/recurring-schedules/:id` | Date, frequency, quantities, address, card, tolerance |
+| `GET` | `/recurring-schedules/:id/occurrences` | The deliveries. `?upcomingOnly=true` for the future ones |
+| `POST` | `/recurring-schedules/:id/skip-next` | Skips the next delivery |
+| `POST` | `/recurring-schedules/occurrences/:id/skip` | Skips one named delivery |
+| `DELETE` | `/recurring-schedules/occurrences/:id` | Cancels one delivery |
+| `POST` | `/recurring-schedules/:id/pause` | Pauses the plan |
+| `POST` | `/recurring-schedules/:id/resume` | Resumes it, recomputing the next date from now |
+| `DELETE` | `/recurring-schedules/:id` | Cancels future runs. Placed orders are untouched |
+| `GET` | `/account/payment-methods` | Saved cards, display fields only |
+| `POST` | `/account/payment-methods/setup-intent` | Begins enrolment |
+| `POST` | `/account/payment-methods` | Finishes it. Re-reads Stripe; requires consent |
+| `POST` | `/account/payment-methods/:id/default` | Sets the default |
+| `DELETE` | `/account/payment-methods/:id` | Removes one. Refused while a live plan needs it |
+
+The payment-method routes are refused entirely unless
+`FEATURE_SUBSCRIPTION_AUTOPAY` is on. A stored card exists only to be charged
+off-session, and collecting a payment credential nothing can ever use is exactly
+what a deployment that turned the flag off decided not to do.
+
+**Admin** — under `/api/v1/admin`:
+
+| Method | Path | Permission |
+|---|---|---|
+| `GET` | `/schedules` | `schedule.read` |
+| `GET` | `/schedules/:id` | `schedule.read` |
+| `POST` | `/schedules/:id/pause` `/resume` | `schedule.write` |
+| `DELETE` | `/schedules/:id` | `schedule.write` |
+| `GET` | `/erp/order-pushes` | `integration.read` |
+| `POST` | `/erp/order-pushes/:orderId/retry` | `integration.write` |
+
+There is deliberately **no** "run this schedule now" endpoint. A manual trigger
+is the obvious route to a duplicate charge, and the engine already retries on
+its own.
+
+### Nothing about a two-week-old plan is assumed still true
+
+Every occurrence is repriced and revalidated from scratch. Prices move,
+products get withdrawn, VAT rates change on the first of the month, stock runs
+out, a card expires, a customer moves country and changes their tax treatment.
+
+`quoteSchedule` in `recurring/schedule-quote.service.ts` is the one function
+that answers "what does this basket cost". **The review screen and the worker
+both call it**, so the number the customer agreed to and the number they are
+charged come from the same code.
+
+It prices through exactly the path a cart is priced through —
+`loadPricesForCurrency` for the customer's own currency, `loadTaxContext`
+against the *delivery address's* country, `applyLineTax` per line. That matters:
+the previous engine priced from `products.basePriceMinor` and the deployment's
+default currency, so a Belgian customer on a monthly plan was charged the
+base-currency figure with the wrong VAT.
+
+### The price tolerance
+
+A total that has drifted from what the customer was last quoted is **not
+charged silently**. Two tests, and the more generous wins:
+
+- a percentage (`SCHEDULE_PRICE_TOLERANCE_PERCENT`, default 5%)
+- an absolute floor (`SCHEDULE_PRICE_TOLERANCE_MINOR`, default 500 minor units)
+
+A plan can override both. A price that has gone **down** is always within
+tolerance — stopping a delivery to ask whether the customer minds paying less
+would be absurd.
+
+Beyond tolerance: nothing is charged, the occurrence is held, and the customer
+gets an email whose first sentence is *"We have NOT charged you"*. Somebody
+reading "the price has changed" assumes they already paid it.
+
+### Substitution
+
+Never, unless asked for. The default `substitutionPolicy` is `NEVER`: an
+unfillable delivery is held and the customer is told. With
+`SAVED_PREFERENCE`, the **one** product the customer named for that exact line
+is used, and only if it is itself available. No second choice, no category
+fallback — a substitution the customer did not name is one they did not
+authorise.
+
+### Out of stock is not the same as withdrawn
+
+| Situation | What happens | Why |
+|---|---|---|
+| Out of stock | The delivery is held; the plan keeps running | Transient. Next month it probably can be supplied |
+| Unpublished, archived, or opted out of recurring | The plan is **paused** | Permanent. Holding for ever means emailing the customer every week and nobody finding out |
+
+Repeated holds still advance the plan's failure streak, so a product that stays
+short for months stops the plan rather than nagging for ever.
+
+### The customer can change things
+
+Up to the **edit cutoff** — `SCHEDULE_EDIT_CUTOFF_MINUTES`, default 24 hours
+before a delivery. Inside it the worker may already be pricing the order, and
+an edit would race the charge: the customer would see one basket and be billed
+for another. The refusal names the date they *can* change, because "too late"
+without one is not an answer. Administrators are not bound by it — somebody is
+usually on the phone.
+
+They can change the date, the frequency, quantities, the address, the card;
+skip the next delivery; pause and resume; or cancel. Cancelling stops future
+runs only — orders already placed keep their own lifecycle.
+
+### Reminders
+
+Sent `SCHEDULE_REMINDER_LEAD_HOURS` before a charge (default 48), against the
+materialised occurrence row — so the email names the exact delivery the
+customer can then go and skip. It records `quotedTotalMinor`, which is what the
+tolerance check later measures drift against: a reminder is a quote, and this is
+the system remembering what it told them.
+
+The lead time **must** exceed the edit cutoff. The process refuses to start
+otherwise, because a reminder that arrives after the window shut invites the
+customer to change something the API will then refuse.
+
+### Duplicate protection
+
+Six guards, none of which depend on the engine being careful:
+
+| Guard | Stops |
+|---|---|
+| `unique(scheduleId, plannedRunAt)` | Two occurrences for one slot |
+| `unique(schedule_occurrences.idempotencyKey)` | The same key on two occurrences |
+| `unique(orders.scheduleOccurrenceId)` | One occurrence becoming two orders |
+| `unique(payment_transactions.idempotencyKey)` | Two charges for one cycle |
+| `unique(erp_order_pushes.orderId)` | One order reaching the ERP twice |
+| A lease on the plan row | Two workers even trying at once |
+
+The occurrence's key is `occ:<plan ULID>:<YYYYMMDDHHMMSSmmm>` — a *pure
+function* of the plan and the slot, computed by `occurrenceIdempotencyKey`.
+Every downstream key derives from it (`:payment`, `:order`, `:erp`, `:stock`),
+so a retry recomputes the same values instead of minting new ones and they all
+collapse together rather than half of them repeating.
+
+Claiming uses a conditional `UPDATE` and an affected-rows check, not
+`FOR UPDATE SKIP LOCKED` — MariaDB 10.4 does not have it.
+
+## 9.5.1 Auto-pay: charging a card nobody is looking at
+
+Off by default (`FEATURE_SUBSCRIPTION_AUTOPAY`). Turning it on means this
+deployment takes money from people who are not present, which should be a
+decision somebody made rather than a behaviour inherited by installing the
+software.
+
+### Enrolment
+
+```
+POST /account/payment-methods/setup-intent
+        │  the server asks Stripe to begin, and answers with a
+        │  client secret and the publishable key
+        ▼
+the browser confirms the SetupIntent directly with Stripe
+        │  the card number goes from the customer to Stripe.
+        │  It never touches this process.
+        ▼
+POST /account/payment-methods
+        │  the server RE-READS the SetupIntent from Stripe and
+        │  stores what Stripe says — not what the browser claims
+        ▼
+customer_payment_methods row + the off-session consent record
+```
+
+The SetupIntent is created with `usage: 'off_session'`. Getting that wrong is
+what produces a card that enrols cleanly and then fails every later charge with
+`authentication_required`.
+
+### What is stored, and what is not
+
+**Stored:** the Stripe customer id, the Stripe payment-method id, and the six
+display fields Stripe returns so a person can tell which card they picked
+(brand, last four, expiry month and year, funding, issuing country). Plus the
+consent record: when they agreed, to which version of the terms, a **hash** of
+the IP, and the user agent.
+
+**Not stored:** any card number, any CVV, any client secret. A breach of that
+table yields nothing chargeable without the deployment's own Stripe secret key.
+
+The consent columns are not decoration. Charging off-session is only lawful
+because the customer agreed to it for a stated purpose, and `consentVersion`
+is what lets a change of terms demand a fresh agreement instead of quietly
+inheriting the old one. Stripe's own rules require the same record.
+
+### The charge
+
+A backend-created PaymentIntent with `confirm: true`, `off_session: true` and
+an explicit `payment_method` — never Stripe's default for the customer, which
+could silently become a card they never authorised for this plan.
+
+The application owns the scheduler. Stripe is the payment rail, not the
+subscription engine — which is the whole point: the basket, the prices, the
+warehouse stock and the customer's ERP rules are all rechecked by this system
+on every cycle, and none of that is something Stripe Subscriptions could
+decide.
+
+### Authentication required is not a failure
+
+A 402 whose code is `authentication_required` means the money has **not**
+moved, the payment is still open, and only the customer can advance it.
+Retrying it off-session gets the same answer every time and, on some issuers,
+counts against the card.
+
+So the occurrence holds at `ACTION_REQUIRED`, the customer is emailed a link to
+confirm, the order stays payable, and **the next delivery is not held hostage to
+it**. If the window (72 hours) closes unauthenticated, that one cycle is
+skipped and the plan carries on.
+
+### A failed charge never cancels a subscription
+
+One dead card is not consent to stop delivering. The order is cancelled — which
+releases the stock, since there is nobody present to retry against it — the
+customer is told, and the plan stays `ACTIVE`. Payments are attempted
+`SCHEDULE_MAX_PAYMENT_ATTEMPTS` times (default 3), counted **separately** from
+validation attempts: banks read repeated declines as a signal about the card, so
+three "out of stock" holds must not spend the card's budget.
+
+## 9.5.2 The ERP hand-off
+
+There is no named ERP in this repository, and that is deliberate: this software
+is bought by companies who already have one, and it is never the same one
+twice. So the connection is an `integration_connections` row an administrator
+creates — base URL, auth type, encrypted credentials — named by
+`ERP_ORDER_CONNECTION_NAME`. **With nothing configured the whole path is inert**
+and orders are created, paid and fulfilled exactly as they were before.
+
+### Order of operations
+
+1. **Ask the ERP whether it can supply**, before charging. Charging for
+   something the warehouse will refuse to ship is the worst available outcome.
+   An ERP that cannot be *reached* holds the delivery rather than charging on an
+   assumption — telling a customer their product is out of stock when the truth
+   is that our ERP is down is a lie they will act on.
+2. Charge the card.
+3. Create the platform order.
+4. Push it to the ERP with a stable idempotency key.
+5. Save the ERP's reference.
+6. Reconcile the inventory movement.
+7. Tell the customer.
+8. Generate the next occurrence.
+
+### The request
+
+A flat, boring JSON body — documented here so a deployment whose ERP wants a
+different shape can put a small translating proxy in front of it rather than
+needing this repository changed:
+
+```json
+{
+  "external_order_id": "01JB...",
+  "order_number": "UB-2026-000123",
+  "placed_at": "2026-09-08T06:00:00.000Z",
+  "source": "RECURRING",
+  "currency": "INR",
+  "totals": {
+    "subtotal_minor": "200000",
+    "discount_minor": "0",
+    "tax_minor": "36000",
+    "shipping_minor": "0",
+    "grand_total_minor": "236000"
+  },
+  "customer": {
+    "external_customer_id": "01JB...",
+    "erp_customer_code": "CUST-0042",
+    "name": "...", "company": "...", "email": "..."
+  },
+  "shipping_address": { },
+  "billing_address": { },
+  "shipping_method": "STD",
+  "lines": [
+    {
+      "sku": "GLV-M", "name": "...", "variant": null, "quantity": 10,
+      "unit_price_minor": "20000",
+      "tax_amount_minor": "36000",
+      "line_total_minor": "236000"
+    }
+  ],
+  "schedule": { "schedule_id": "...", "occurrence_id": "...", "due_at": "..." }
+}
+```
+
+Every money field is a **string**. A JSON number is a double, and a total that
+has been through one is no longer evidence of anything.
+
+`ERP_ORDER_REFERENCE_PATH` says where the ERP's own order id is found in its
+response, as a dotted path. ERPs disagree about this more than about anything
+else, which is why it is configuration.
+
+### Paid, and the ERP will not take it
+
+The worst state in the feature, and the one everything else here is shaped
+around. The money is gone, the order is real, the warehouse cannot see it. Every
+tempting response is wrong:
+
+- Failing the occurrence tells the customer their order did not happen, which is
+  false, and invites them to order again — now paying twice.
+- Refunding immediately throws away an order the ERP would probably have taken
+  thirty seconds later, and refunds are slow, visible and alarming.
+- Retrying without a stable key risks two ERP orders, which means two deliveries
+  and two stock movements for one payment.
+
+So the occurrence holds at `PAID_ERP_PENDING` and `erp_order.retry` retries it
+under the **same** idempotency key until the ERP takes it or a person is asked
+to look (`ERP_ORDER_MAX_ATTEMPTS`, default 8, with a widening backoff). The
+customer is emailed that their order is *confirmed* and dispatch may be late —
+never that anything failed, because nothing about their order did.
+
+A 409 from the ERP is treated as **success**: an ERP that honours the
+idempotency header answers a replay that way, and it carries the reference of
+the order it already made.
+
+Abandoned pushes appear at `GET /admin/erp/order-pushes`, and
+`POST /admin/erp/order-pushes/:orderId/retry` sends one again once somebody has
+fixed whatever was wrong. The key is **not** regenerated on a manual retry — it
+has to be the same request as the automatic ones, or the ERP could accept it as
+a second order.
+
+### Inventory
+
+The reservation commit already moved the stock when the order was created. What
+the ERP hand-off adds is a `SYNC_CORRECTION` row recording that the ERP agreed,
+keyed on `inventory_movements.dedupeKey` so a retried reconciliation collides on
+the unique index rather than posting a second delta. The ledger is append-only
+and has no reversal, so a double post would silently corrupt on-hand for ever.
 
 ## 9.6 A new member of staff
 
@@ -1351,8 +1765,12 @@ server.
 | Job | What it does |
 |---|---|
 | `notification.send` | Sends one email from the outbox |
-| `schedule.run` | Turns due repeating schedules into orders |
-| `schedule.reminder` | Warns a customer their repeating order is coming |
+| `schedule.run` | Turns due schedules into orders, and charges them |
+| `schedule.reminder` | Warns a customer their scheduled order is coming, and records the amount quoted |
+| `schedule.occurrence_retry` | Retries cycles that failed **before** any money moved |
+| `schedule.action_expire` | Closes out cycles the customer never authenticated |
+| `schedule.materialise` | Builds the upcoming rows customers skip and re-date |
+| `erp_order.retry` | Retries a **paid** order the ERP has not accepted. The exit from `PAID_ERP_PENDING` |
 | `payment.reconcile` | Re-checks a payment whose outcome is unclear |
 | `payment_link.expire` | Closes payment links nobody used |
 | `refund.poll` | Chases a refund's final state |
@@ -1624,7 +2042,9 @@ hostname adds it to that check, in every mode, and nothing else with it. See
 | `CUSTOMER_SELF_REGISTRATION_REQUIRES_APPROVAL` | `true` | A confirmed sign-up still waits for staff |
 | `FEATURE_STOCK_RESERVATIONS` | `true` | Reserve stock at checkout |
 | `FEATURE_ORDER_APPROVALS` | `false` | Route orders through approval |
-| `FEATURE_RECURRING_ORDERS` | `true` | Repeating orders |
+| `FEATURE_RECURRING_ORDERS` | `true` | Subscribe & Reorder |
+| `FEATURE_SCHEDULED_ORDERS` | `true` | Buy Later — one delivery, on a chosen date |
+| `FEATURE_SUBSCRIPTION_AUTOPAY` | `false` | Charging a saved card off-session. Needs Stripe |
 | `FEATURE_ADMIN_LOGIN_LOCATION` | `true` | Ask staff's browser for its location at sign-in |
 | `ASSISTANT_ENABLED` | — | The AI chat widget |
 
@@ -1724,6 +2144,13 @@ UBoss-Software/
 | Add or move a warehouse | `/warehouses` in the panel; `modules/inventory/location.service.ts` |
 | Put a background behind the warehouse map | `MAP_TILE_URL` in `backend/.env` |
 | Change what happens in the background | `src/worker/handlers.ts` |
+| Change what a scheduled order costs | `modules/recurring/schedule-quote.service.ts` — the review screen and the worker both use it |
+| Add a plan or occurrence status rule | `domain/schedule-state.ts` |
+| Change when a customer can still edit a delivery | `SCHEDULE_EDIT_CUTOFF_MINUTES` |
+| Change how far a price may drift before asking | `SCHEDULE_PRICE_TOLERANCE_*` |
+| Change what is sent to the ERP | `modules/integrations/erp-order.service.ts` (`buildPayload`) |
+| Point at a different ERP | `ERP_ORDER_CONNECTION_NAME` plus a connection in the panel |
+| Find a paid order the ERP refused | `GET /admin/erp/order-pushes` |
 | Turn a feature on or off | `backend/.env` |
 
 ---

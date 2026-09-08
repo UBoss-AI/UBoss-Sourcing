@@ -266,6 +266,40 @@ export type RecurringScheduleItem = Prisma.RecurringScheduleItemModel
  */
 export type ScheduleOccurrence = Prisma.ScheduleOccurrenceModel
 /**
+ * Model CustomerPaymentMethod
+ * A reusable payment instrument, plus the consent that makes it chargeable
+ * while the customer is not there.
+ * 
+ * What is stored is deliberately the smallest set that works: Stripe's
+ * customer id, its payment-method id, and the four display fields Stripe
+ * itself returns for showing somebody which card they picked. No PAN, no
+ * CVV, no expiry beyond the month and year already printed on every receipt,
+ * and no client secret. A breach of this table yields nothing chargeable
+ * without the deployment's own Stripe secret key.
+ * 
+ * The consent columns are not decoration. Charging off-session is only
+ * lawful because the customer agreed to it for a stated purpose, and
+ * `consentVersion` is what lets a change of terms force a fresh agreement
+ * instead of quietly inheriting the old one. Stripe's own rules require the
+ * same record.
+ */
+export type CustomerPaymentMethod = Prisma.CustomerPaymentMethodModel
+/**
+ * Model ErpOrderPush
+ * One order's hand-off to the ERP, and the state of its retries.
+ * 
+ * A separate table from the order because it has a different lifetime: the
+ * order is finished the moment it is paid, while this row can be retried for
+ * hours afterwards and has to remember what it already sent. It is also the
+ * answer to the single most dangerous case in the whole feature - money
+ * taken, ERP silent - and that answer should not be three nullable columns
+ * hanging off `orders`.
+ * 
+ * `orderId` is unique. That is the structural reason a retry cannot create a
+ * second ERP order, and it does not depend on the retry code being careful.
+ */
+export type ErpOrderPush = Prisma.ErpOrderPushModel
+/**
  * Model Shipment
  * 
  */

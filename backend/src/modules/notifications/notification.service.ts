@@ -47,6 +47,31 @@ export const NotificationEvent = {
   SCHEDULE_REMINDER: 'schedule.reminder',
   SCHEDULE_FAILED: 'schedule.failed',
   SCHEDULE_PAUSED: 'schedule.paused',
+  /// The plan is live and the first delivery is dated. Sent once, at the
+  /// moment consent takes effect, because that is when the customer has taken
+  /// on a commitment and is owed a record of it.
+  SCHEDULE_ACTIVATED: 'schedule.activated',
+  SCHEDULE_RESUMED: 'schedule.resumed',
+  SCHEDULE_CANCELLED: 'schedule.cancelled',
+  SCHEDULE_COMPLETED: 'schedule.completed',
+  /// The total moved beyond the approved tolerance. Nothing has been charged,
+  /// and the message says so first: a customer reading about a price change
+  /// assumes they have already paid it unless told otherwise.
+  SCHEDULE_PRICE_CHANGED: 'schedule.price_changed',
+  /// Something on the order cannot be supplied, so this delivery is on hold.
+  /// Never sent alongside a substitution - if a substitute was authorised and
+  /// used, the order simply went out.
+  SCHEDULE_STOCK_UNAVAILABLE: 'schedule.stock_unavailable',
+  /// The bank wants the cardholder. The one notification in this list that
+  /// asks the customer to do something within a deadline.
+  SCHEDULE_PAYMENT_ACTION_REQUIRED: 'schedule.payment_action_required',
+  /// This cycle was skipped. Two senders and two different sentences - see
+  /// `skippedByUser` on the occurrence.
+  SCHEDULE_OCCURRENCE_SKIPPED: 'schedule.occurrence_skipped',
+  /// Paid and ordered, but the warehouse system has not taken it yet. Sent
+  /// only once the delay is long enough to be worth mentioning, and it never
+  /// suggests the customer do anything: it is ours to fix.
+  SCHEDULE_ERP_DELAYED: 'schedule.erp_delayed',
   INVENTORY_LOW_STOCK: 'inventory.low_stock',
   /// The Art. 15 copy is built and waiting. Says when the link stops working,
   /// because the window is short on purpose.
@@ -248,7 +273,114 @@ const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string
         'Estimated amount: {{estimatedTotal}}.\n\n' +
         'The final amount is recalculated against current prices, tax, stock and ' +
         'your purchasing limits at the time the order is created.\n\n' +
+        'You can change, skip or cancel this delivery until {{editableUntil}}.\n\n' +
         'Manage this schedule:\n{{scheduleUrl}}\n',
+    },
+
+    [NotificationEvent.SCHEDULE_ACTIVATED]: {
+      subject: 'Your scheduled order "{{scheduleName}}" is set up',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Your scheduled order "{{scheduleName}}" is now active.\n\n' +
+        'Schedule: {{summary}}\n' +
+        'First delivery: {{nextDate}}\n' +
+        'Estimated amount each time: {{estimatedTotal}}\n' +
+        'Paying with: {{paymentDescription}}\n\n' +
+        'We will email you before each order is placed, and you can change, skip ' +
+        'or cancel it at any time up to {{cutoffDescription}} beforehand.\n\n' +
+        'Manage this schedule:\n{{scheduleUrl}}\n',
+    },
+
+    [NotificationEvent.SCHEDULE_RESUMED]: {
+      subject: 'Your scheduled order "{{scheduleName}}" has resumed',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Your scheduled order "{{scheduleName}}" has been resumed.\n' +
+        'Next delivery: {{nextDate}}\n\n' +
+        'Manage this schedule:\n{{scheduleUrl}}\n',
+    },
+
+    [NotificationEvent.SCHEDULE_CANCELLED]: {
+      subject: 'Your scheduled order "{{scheduleName}}" has been cancelled',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Your scheduled order "{{scheduleName}}" has been cancelled and nothing ' +
+        'further will be charged for it.\n\n' +
+        '{{reason}}\n',
+    },
+
+    [NotificationEvent.SCHEDULE_COMPLETED]: {
+      subject: 'Your scheduled order "{{scheduleName}}" has finished',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Your scheduled order "{{scheduleName}}" has run for the last time and is ' +
+        'now complete. Nothing further will be charged.\n\n' +
+        'Deliveries made: {{occurrenceCount}}\n',
+    },
+
+    // The order of the sentences here is deliberate. "We have not charged you"
+    // comes before the numbers, because a customer who reads "the price has
+    // changed" assumes they have already paid the new one.
+    [NotificationEvent.SCHEDULE_PRICE_CHANGED]: {
+      subject: 'Action needed: the price of your scheduled order has changed',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'We have NOT charged you, and this delivery is on hold.\n\n' +
+        'The amount for your scheduled order "{{scheduleName}}" has changed by ' +
+        'more than the {{allowedChange}} you approved:\n\n' +
+        '  Previously quoted: {{quotedTotal}}\n' +
+        '  Now:               {{estimatedTotal}}\n\n' +
+        'Please review and confirm the new amount to let this delivery go ahead:\n' +
+        '{{scheduleUrl}}\n',
+    },
+
+    [NotificationEvent.SCHEDULE_STOCK_UNAVAILABLE]: {
+      subject: 'Your scheduled order for {{dueDate}} is on hold',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'We have NOT charged you.\n\n' +
+        'Your scheduled order "{{scheduleName}}", due on {{dueDate}}, cannot be ' +
+        'supplied in full at the moment:\n\n' +
+        '{{reason}}\n\n' +
+        'We have not substituted anything, because your schedule does not ' +
+        'authorise it. Your subscription is still active and the next delivery ' +
+        'will go ahead as normal.\n\n' +
+        'To change the items, or to save a replacement product for next time:\n' +
+        '{{scheduleUrl}}\n',
+    },
+
+    [NotificationEvent.SCHEDULE_PAYMENT_ACTION_REQUIRED]: {
+      subject: 'Action needed: confirm the payment for your scheduled order',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Your bank has asked you to confirm the payment for your scheduled order ' +
+        '"{{scheduleName}}" ({{estimatedTotal}}).\n\n' +
+        'Until you do, this delivery is on hold. Nothing has been charged.\n\n' +
+        'Confirm the payment here:\n{{paymentUrl}}\n\n' +
+        'If it is not confirmed by {{expiresAt}}, this delivery will be skipped ' +
+        'and the next one will go ahead as normal.\n',
+    },
+
+    [NotificationEvent.SCHEDULE_OCCURRENCE_SKIPPED]: {
+      subject: 'Your delivery on {{dueDate}} was skipped',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        '{{reason}}\n\n' +
+        'Your scheduled order "{{scheduleName}}" is still active. The next ' +
+        'delivery is due on {{nextDate}}.\n\n' +
+        'Manage this schedule:\n{{scheduleUrl}}\n',
+    },
+
+    // Says nothing about the customer needing to act, because they do not.
+    [NotificationEvent.SCHEDULE_ERP_DELAYED]: {
+      subject: 'Your order {{orderNumber}} is confirmed - dispatch is delayed',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Your order {{orderNumber}} is paid and confirmed.\n\n' +
+        'Passing it to our warehouse system is taking longer than usual, so ' +
+        'dispatch may be later than normal. We are on it and there is nothing ' +
+        'you need to do.\n\n' +
+        'You can follow the order here:\n{{orderUrl}}\n',
     },
   },
 );

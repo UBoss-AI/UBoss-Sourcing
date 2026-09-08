@@ -48,6 +48,7 @@ export type InventoryMovementMinAggregateOutputType = {
   reason: string | null
   referenceType: string | null
   referenceId: string | null
+  dedupeKey: string | null
   actorUserId: string | null
   actorType: $Enums.ActorType | null
   createdAt: Date | null
@@ -65,6 +66,7 @@ export type InventoryMovementMaxAggregateOutputType = {
   reason: string | null
   referenceType: string | null
   referenceId: string | null
+  dedupeKey: string | null
   actorUserId: string | null
   actorType: $Enums.ActorType | null
   createdAt: Date | null
@@ -82,6 +84,7 @@ export type InventoryMovementCountAggregateOutputType = {
   reason: number
   referenceType: number
   referenceId: number
+  dedupeKey: number
   actorUserId: number
   actorType: number
   createdAt: number
@@ -111,6 +114,7 @@ export type InventoryMovementMinAggregateInputType = {
   reason?: true
   referenceType?: true
   referenceId?: true
+  dedupeKey?: true
   actorUserId?: true
   actorType?: true
   createdAt?: true
@@ -128,6 +132,7 @@ export type InventoryMovementMaxAggregateInputType = {
   reason?: true
   referenceType?: true
   referenceId?: true
+  dedupeKey?: true
   actorUserId?: true
   actorType?: true
   createdAt?: true
@@ -145,6 +150,7 @@ export type InventoryMovementCountAggregateInputType = {
   reason?: true
   referenceType?: true
   referenceId?: true
+  dedupeKey?: true
   actorUserId?: true
   actorType?: true
   createdAt?: true
@@ -249,6 +255,7 @@ export type InventoryMovementGroupByOutputType = {
   reason: string | null
   referenceType: string | null
   referenceId: string | null
+  dedupeKey: string | null
   actorUserId: string | null
   actorType: $Enums.ActorType
   createdAt: Date
@@ -289,6 +296,7 @@ export type InventoryMovementWhereInput = {
   reason?: Prisma.StringNullableFilter<"InventoryMovement"> | string | null
   referenceType?: Prisma.StringNullableFilter<"InventoryMovement"> | string | null
   referenceId?: Prisma.StringNullableFilter<"InventoryMovement"> | string | null
+  dedupeKey?: Prisma.StringNullableFilter<"InventoryMovement"> | string | null
   actorUserId?: Prisma.StringNullableFilter<"InventoryMovement"> | string | null
   actorType?: Prisma.EnumActorTypeFilter<"InventoryMovement"> | $Enums.ActorType
   createdAt?: Prisma.DateTimeFilter<"InventoryMovement"> | Date | string
@@ -309,6 +317,7 @@ export type InventoryMovementOrderByWithRelationInput = {
   reason?: Prisma.SortOrderInput | Prisma.SortOrder
   referenceType?: Prisma.SortOrderInput | Prisma.SortOrder
   referenceId?: Prisma.SortOrderInput | Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrderInput | Prisma.SortOrder
   actorUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   actorType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -320,6 +329,7 @@ export type InventoryMovementOrderByWithRelationInput = {
 
 export type InventoryMovementWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  dedupeKey?: string
   AND?: Prisma.InventoryMovementWhereInput | Prisma.InventoryMovementWhereInput[]
   OR?: Prisma.InventoryMovementWhereInput[]
   NOT?: Prisma.InventoryMovementWhereInput | Prisma.InventoryMovementWhereInput[]
@@ -339,7 +349,7 @@ export type InventoryMovementWhereUniqueInput = Prisma.AtLeast<{
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   variant?: Prisma.XOR<Prisma.ProductVariantNullableScalarRelationFilter, Prisma.ProductVariantWhereInput> | null
   location?: Prisma.XOR<Prisma.InventoryLocationScalarRelationFilter, Prisma.InventoryLocationWhereInput>
-}, "id">
+}, "id" | "dedupeKey">
 
 export type InventoryMovementOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -353,6 +363,7 @@ export type InventoryMovementOrderByWithAggregationInput = {
   reason?: Prisma.SortOrderInput | Prisma.SortOrder
   referenceType?: Prisma.SortOrderInput | Prisma.SortOrder
   referenceId?: Prisma.SortOrderInput | Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrderInput | Prisma.SortOrder
   actorUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   actorType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -378,6 +389,7 @@ export type InventoryMovementScalarWhereWithAggregatesInput = {
   reason?: Prisma.StringNullableWithAggregatesFilter<"InventoryMovement"> | string | null
   referenceType?: Prisma.StringNullableWithAggregatesFilter<"InventoryMovement"> | string | null
   referenceId?: Prisma.StringNullableWithAggregatesFilter<"InventoryMovement"> | string | null
+  dedupeKey?: Prisma.StringNullableWithAggregatesFilter<"InventoryMovement"> | string | null
   actorUserId?: Prisma.StringNullableWithAggregatesFilter<"InventoryMovement"> | string | null
   actorType?: Prisma.EnumActorTypeWithAggregatesFilter<"InventoryMovement"> | $Enums.ActorType
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"InventoryMovement"> | Date | string
@@ -392,6 +404,7 @@ export type InventoryMovementCreateInput = {
   reason?: string | null
   referenceType?: string | null
   referenceId?: string | null
+  dedupeKey?: string | null
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
@@ -412,6 +425,7 @@ export type InventoryMovementUncheckedCreateInput = {
   reason?: string | null
   referenceType?: string | null
   referenceId?: string | null
+  dedupeKey?: string | null
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
@@ -426,6 +440,7 @@ export type InventoryMovementUpdateInput = {
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -446,6 +461,7 @@ export type InventoryMovementUncheckedUpdateInput = {
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -463,6 +479,7 @@ export type InventoryMovementCreateManyInput = {
   reason?: string | null
   referenceType?: string | null
   referenceId?: string | null
+  dedupeKey?: string | null
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
@@ -477,6 +494,7 @@ export type InventoryMovementUpdateManyMutationInput = {
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -494,6 +512,7 @@ export type InventoryMovementUncheckedUpdateManyInput = {
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -527,6 +546,7 @@ export type InventoryMovementCountOrderByAggregateInput = {
   reason?: Prisma.SortOrder
   referenceType?: Prisma.SortOrder
   referenceId?: Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrder
   actorUserId?: Prisma.SortOrder
   actorType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -549,6 +569,7 @@ export type InventoryMovementMaxOrderByAggregateInput = {
   reason?: Prisma.SortOrder
   referenceType?: Prisma.SortOrder
   referenceId?: Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrder
   actorUserId?: Prisma.SortOrder
   actorType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -566,6 +587,7 @@ export type InventoryMovementMinOrderByAggregateInput = {
   reason?: Prisma.SortOrder
   referenceType?: Prisma.SortOrder
   referenceId?: Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrder
   actorUserId?: Prisma.SortOrder
   actorType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -719,6 +741,7 @@ export type InventoryMovementCreateWithoutProductInput = {
   reason?: string | null
   referenceType?: string | null
   referenceId?: string | null
+  dedupeKey?: string | null
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
@@ -737,6 +760,7 @@ export type InventoryMovementUncheckedCreateWithoutProductInput = {
   reason?: string | null
   referenceType?: string | null
   referenceId?: string | null
+  dedupeKey?: string | null
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
@@ -783,6 +807,7 @@ export type InventoryMovementScalarWhereInput = {
   reason?: Prisma.StringNullableFilter<"InventoryMovement"> | string | null
   referenceType?: Prisma.StringNullableFilter<"InventoryMovement"> | string | null
   referenceId?: Prisma.StringNullableFilter<"InventoryMovement"> | string | null
+  dedupeKey?: Prisma.StringNullableFilter<"InventoryMovement"> | string | null
   actorUserId?: Prisma.StringNullableFilter<"InventoryMovement"> | string | null
   actorType?: Prisma.EnumActorTypeFilter<"InventoryMovement"> | $Enums.ActorType
   createdAt?: Prisma.DateTimeFilter<"InventoryMovement"> | Date | string
@@ -797,6 +822,7 @@ export type InventoryMovementCreateWithoutVariantInput = {
   reason?: string | null
   referenceType?: string | null
   referenceId?: string | null
+  dedupeKey?: string | null
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
@@ -815,6 +841,7 @@ export type InventoryMovementUncheckedCreateWithoutVariantInput = {
   reason?: string | null
   referenceType?: string | null
   referenceId?: string | null
+  dedupeKey?: string | null
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
@@ -855,6 +882,7 @@ export type InventoryMovementCreateWithoutLocationInput = {
   reason?: string | null
   referenceType?: string | null
   referenceId?: string | null
+  dedupeKey?: string | null
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
@@ -873,6 +901,7 @@ export type InventoryMovementUncheckedCreateWithoutLocationInput = {
   reason?: string | null
   referenceType?: string | null
   referenceId?: string | null
+  dedupeKey?: string | null
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
@@ -915,6 +944,7 @@ export type InventoryMovementCreateManyProductInput = {
   reason?: string | null
   referenceType?: string | null
   referenceId?: string | null
+  dedupeKey?: string | null
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
@@ -929,6 +959,7 @@ export type InventoryMovementUpdateWithoutProductInput = {
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -947,6 +978,7 @@ export type InventoryMovementUncheckedUpdateWithoutProductInput = {
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -963,6 +995,7 @@ export type InventoryMovementUncheckedUpdateManyWithoutProductInput = {
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -979,6 +1012,7 @@ export type InventoryMovementCreateManyVariantInput = {
   reason?: string | null
   referenceType?: string | null
   referenceId?: string | null
+  dedupeKey?: string | null
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
@@ -993,6 +1027,7 @@ export type InventoryMovementUpdateWithoutVariantInput = {
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1011,6 +1046,7 @@ export type InventoryMovementUncheckedUpdateWithoutVariantInput = {
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1027,6 +1063,7 @@ export type InventoryMovementUncheckedUpdateManyWithoutVariantInput = {
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1043,6 +1080,7 @@ export type InventoryMovementCreateManyLocationInput = {
   reason?: string | null
   referenceType?: string | null
   referenceId?: string | null
+  dedupeKey?: string | null
   actorUserId?: string | null
   actorType?: $Enums.ActorType
   createdAt?: Date | string
@@ -1057,6 +1095,7 @@ export type InventoryMovementUpdateWithoutLocationInput = {
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1075,6 +1114,7 @@ export type InventoryMovementUncheckedUpdateWithoutLocationInput = {
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1091,6 +1131,7 @@ export type InventoryMovementUncheckedUpdateManyWithoutLocationInput = {
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorType?: Prisma.EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1110,6 +1151,7 @@ export type InventoryMovementSelect<ExtArgs extends runtime.Types.Extensions.Int
   reason?: boolean
   referenceType?: boolean
   referenceId?: boolean
+  dedupeKey?: boolean
   actorUserId?: boolean
   actorType?: boolean
   createdAt?: boolean
@@ -1132,12 +1174,13 @@ export type InventoryMovementSelectScalar = {
   reason?: boolean
   referenceType?: boolean
   referenceId?: boolean
+  dedupeKey?: boolean
   actorUserId?: boolean
   actorType?: boolean
   createdAt?: boolean
 }
 
-export type InventoryMovementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "variantId" | "variantKey" | "locationId" | "type" | "quantityDelta" | "resultingOnHand" | "reason" | "referenceType" | "referenceId" | "actorUserId" | "actorType" | "createdAt", ExtArgs["result"]["inventoryMovement"]>
+export type InventoryMovementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "variantId" | "variantKey" | "locationId" | "type" | "quantityDelta" | "resultingOnHand" | "reason" | "referenceType" | "referenceId" | "dedupeKey" | "actorUserId" | "actorType" | "createdAt", ExtArgs["result"]["inventoryMovement"]>
 export type InventoryMovementInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   variant?: boolean | Prisma.InventoryMovement$variantArgs<ExtArgs>
@@ -1169,6 +1212,20 @@ export type $InventoryMovementPayload<ExtArgs extends runtime.Types.Extensions.I
     reason: string | null
     referenceType: string | null
     referenceId: string | null
+    /**
+     * Optional caller-supplied key that makes a movement idempotent.
+     * 
+     * The ledger is append-only and a movement is not reversible, so a retried
+     * ERP sync or a redelivered webhook posting the same delta twice would
+     * silently corrupt on-hand. A caller that can name its intent passes a key
+     * and the second insert collides here instead.
+     * 
+     * Nullable, and MariaDB's treatment of NULL in a UNIQUE index is the point
+     * rather than a caveat: every movement written by hand or by an existing
+     * caller stays keyless and none of them collide with each other. Only
+     * callers that opt in get the guarantee.
+     */
+    dedupeKey: string | null
     actorUserId: string | null
     actorType: $Enums.ActorType
     createdAt: Date
@@ -1555,6 +1612,7 @@ export interface InventoryMovementFieldRefs {
   readonly reason: Prisma.FieldRef<"InventoryMovement", 'String'>
   readonly referenceType: Prisma.FieldRef<"InventoryMovement", 'String'>
   readonly referenceId: Prisma.FieldRef<"InventoryMovement", 'String'>
+  readonly dedupeKey: Prisma.FieldRef<"InventoryMovement", 'String'>
   readonly actorUserId: Prisma.FieldRef<"InventoryMovement", 'String'>
   readonly actorType: Prisma.FieldRef<"InventoryMovement", 'ActorType'>
   readonly createdAt: Prisma.FieldRef<"InventoryMovement", 'DateTime'>

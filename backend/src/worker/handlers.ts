@@ -11,6 +11,7 @@
  *      earn a retry.
  */
 import { email } from '../infra/email/index.js';
+import { env } from '../config/env.js';
 import { logger } from '../infra/logger.js';
 import { prisma } from '../infra/prisma.js';
 import { JobType, type ClaimedJob } from '../infra/queue/index.js';
@@ -36,9 +37,13 @@ import {
 } from '../modules/settings/fx-rate.service.js';
 import {
   claimDueSchedules,
+  expireActionRequiredOccurrences,
+  materialiseOccurrences,
+  retryFailedOccurrences,
   runOccurrence,
   sendUpcomingReminders,
 } from '../modules/recurring/occurrence.service.js';
+import { retryDueErpPushes } from '../modules/integrations/erp-order.service.js';
 
 /**
  * A failure that retrying cannot fix.
@@ -221,10 +226,78 @@ const runDueSchedules: JobHandler = async (_payload, job) => {
   }
 };
 
-/** Warn customers before a recurring order is placed, not after. */
+/**
+ * Warn customers before a recurring order is placed, not after.
+ *
+ * The lead time is configuration rather than a constant here, and startup
+ * refuses a value that is shorter than the edit cutoff - a reminder that
+ * arrives after the window has shut invites the customer to change something
+ * the API will then refuse.
+ */
 const scheduleReminders: JobHandler = async () => {
-  const sent = await sendUpcomingReminders(24);
-  if (sent > 0) logger.info({ sent }, 'queued recurring order reminders');
+  const sent = await sendUpcomingReminders(env.SCHEDULE_REMINDER_LEAD_HOURS);
+  if (sent > 0) logger.info({ sent }, 'queued scheduled order reminders');
+};
+
+/**
+ * Retry cycles that failed before payment.
+ *
+ * `retryFailedOccurrences` re-checks that no money moved before it touches
+ * anything, so a row that has since been paid is left alone even if its status
+ * has not caught up.
+ */
+const scheduleOccurrenceRetry: JobHandler = async () => {
+  const retried = await retryFailedOccurrences();
+  if (retried > 0) logger.info({ retried }, 'retried failed scheduled occurrences');
+};
+
+/** Close out occurrences the customer never authenticated. */
+const scheduleActionExpire: JobHandler = async () => {
+  const expired = await expireActionRequiredOccurrences();
+  if (expired > 0) {
+    logger.info({ expired }, 'expired occurrences awaiting payment authentication');
+  }
+};
+
+/**
+ * Build upcoming occurrence rows for every active plan.
+ *
+ * The safety net rather than the main path - the engine materialises as it
+ * advances each plan. This catches the plans that path does not reach: one
+ * resumed after a long pause, one whose horizon moved because a setting
+ * changed, or one whose materialisation failed on a bad day.
+ */
+const scheduleMaterialise: JobHandler = async () => {
+  const plans = await prisma.recurringSchedule.findMany({
+    where: { status: 'ACTIVE', kind: 'RECURRING' },
+    select: { id: true },
+    take: 500,
+  });
+
+  let created = 0;
+
+  for (const plan of plans) {
+    const result = await materialiseOccurrences(plan.id);
+    created += result.created;
+  }
+
+  if (created > 0) logger.info({ created, plans: plans.length }, 'materialised upcoming deliveries');
+};
+
+/**
+ * Retry orders the ERP has not taken.
+ *
+ * Every row here belongs to a customer who has already paid, which is why the
+ * retry budget is generous and why it runs on the ordinary maintenance beat
+ * rather than daily. A success also completes the occurrence that was waiting
+ * on it.
+ */
+const erpOrderRetry: JobHandler = async () => {
+  const result = await retryDueErpPushes();
+
+  if (result.attempted > 0) {
+    logger.info(result, 'retried ERP order pushes');
+  }
 };
 
 /** Mark links that quietly aged out, so an admin can see why they stopped working. */
@@ -356,6 +429,10 @@ export const HANDLERS: Readonly<Record<string, JobHandler>> = Object.freeze({
   [JobType.LOW_STOCK_CHECK]: lowStockCheck,
   [JobType.SCHEDULE_RUN]: runDueSchedules,
   [JobType.SCHEDULE_REMINDER]: scheduleReminders,
+  [JobType.SCHEDULE_OCCURRENCE_RETRY]: scheduleOccurrenceRetry,
+  [JobType.SCHEDULE_ACTION_EXPIRE]: scheduleActionExpire,
+  [JobType.SCHEDULE_MATERIALISE]: scheduleMaterialise,
+  [JobType.ERP_ORDER_RETRY]: erpOrderRetry,
   [JobType.PAYMENT_LINK_EXPIRE]: expireLinks,
   [JobType.EXPORT_GENERATE]: generateExportJob,
   [JobType.INTEGRATION_SYNC]: integrationSync,

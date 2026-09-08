@@ -49,6 +49,7 @@ import { registerAdminCustomerRoutes } from './routes/customers.admin.js';
 import { registerAdminInventoryRoutes } from './routes/inventory.admin.js';
 import { registerAdminSettingsRoutes } from './routes/settings.admin.js';
 import { registerAdminOrderRoutes, registerCustomerOrderRoutes } from './routes/orders.js';
+import { registerCustomerPaymentMethodRoutes } from './routes/payment-methods.customer.js';
 import { registerAdminPaymentRoutes, registerPaymentRoutes } from './routes/payments.js';
 import { registerAdminNotificationRoutes } from './routes/notifications.admin.js';
 import { registerAdminReportRoutes, registerExportDownloadRoute } from './routes/reports.admin.js';
@@ -382,6 +383,13 @@ export async function buildApp() {
   // is the signature over the raw body, captured in the content-type parser.
   await app.register(registerPaymentRoutes, { prefix: `${API_PREFIX}/payments` });
   await app.register(registerAdminPaymentRoutes, { prefix: `${API_PREFIX}/admin` });
+
+  // Saved cards. Under /account rather than /payments because they belong to
+  // the customer rather than to a transaction, and that is where the
+  // storefront's own screens for them live.
+  await app.register(registerCustomerPaymentMethodRoutes, {
+    prefix: `${API_PREFIX}/account/payment-methods`,
+  });
 
   await app.register(registerCustomerScheduleRoutes, {
     prefix: `${API_PREFIX}/recurring-schedules`,

@@ -155,6 +155,98 @@ const envSchema = z
     FEATURE_STOCK_RESERVATIONS: booleanFromString.default(true),
     FEATURE_ORDER_APPROVALS: booleanFromString.default(false),
     FEATURE_RECURRING_ORDERS: booleanFromString.default(true),
+    /// Buy Later: one delivery, on a date the customer picks.
+    ///
+    /// Separate from FEATURE_RECURRING_ORDERS because they are separate
+    /// promises to a customer. A deployment can offer "deliver this next
+    /// Tuesday" without offering a standing authority to charge, and plenty
+    /// will want to.
+    FEATURE_SCHEDULED_ORDERS: booleanFromString.default(true),
+    /// Auto-pay: charging a stored card while the customer is away.
+    ///
+    /// Off by default, and that default is the important part. Turning it on
+    /// means this deployment takes money from people who are not present, so
+    /// it should be a decision somebody made rather than a behaviour they
+    /// inherited by installing the software. It also needs Stripe connected -
+    /// the enrolment path refuses without it, rather than storing a card it
+    /// could never charge.
+    FEATURE_SUBSCRIPTION_AUTOPAY: booleanFromString.default(false),
+
+    // --- Scheduled and recurring orders ---
+    //
+    // How far the total may drift from what the customer was quoted before the
+    // charge needs re-confirming. Checked as a percentage AND as an absolute
+    // floor, and the more generous of the two wins: 2% of a small basket is a
+    // few minor units, and holding an occurrence over a rounding difference
+    // teaches customers to ignore the notification.
+    //
+    // A plan may override both. These are the deployment's defaults for plans
+    // that do not.
+    SCHEDULE_PRICE_TOLERANCE_PERCENT: z.coerce.number().min(0).max(100).default(5),
+    SCHEDULE_PRICE_TOLERANCE_MINOR: intFromString(0, 100_000_000).default(500),
+    /// How long before a run a plan stops accepting edits, in minutes.
+    ///
+    /// An edit inside this window would race the worker: the customer sees the
+    /// old basket while the engine is already pricing the new one.
+    SCHEDULE_EDIT_CUTOFF_MINUTES: intFromString(0, 20_160).default(1440),
+    /// How far ahead occurrences are materialised, in days.
+    ///
+    /// Rows have to exist before the customer can skip or edit them, so this
+    /// is what makes "skip my next delivery" possible at all. Kept short: a
+    /// year of pre-built rows would be a year of rows to migrate whenever a
+    /// plan changes.
+    SCHEDULE_MATERIALISE_AHEAD_DAYS: intFromString(1, 365).default(35),
+    /// How long before a charge the reminder goes out, in hours.
+    ///
+    /// Has to be comfortably longer than the edit cutoff, or the reminder
+    /// arrives telling the customer they can still change something they
+    /// cannot. Validated below.
+    SCHEDULE_REMINDER_LEAD_HOURS: intFromString(1, 720).default(48),
+    /// How many times one occurrence's PAYMENT may be attempted.
+    ///
+    /// Counted apart from validation attempts: banks read repeated declines as
+    /// a signal about the card, so a held occurrence must not spend the card's
+    /// budget. Three is Stripe's own guidance for off-session retries.
+    SCHEDULE_MAX_PAYMENT_ATTEMPTS: intFromString(1, 10).default(3),
+
+    // --- ERP order hand-off ---
+    //
+    // The connection an order is pushed to, by name, matching an
+    // IntegrationConnection row an administrator has created and activated.
+    // Empty means no ERP push, which is a working state: the platform order is
+    // created, paid and fulfilled exactly as it is today.
+    //
+    // A name rather than an id because the id is a ULID nobody can type, and
+    // this is configuration a person writes into a file.
+    ERP_ORDER_CONNECTION_NAME: z.string().default(''),
+    /// Path appended to that connection's base URL to create an order.
+    ERP_ORDER_PATH: z.string().default('/orders'),
+    /// Path asked whether the ERP can supply a set of SKUs, before charging.
+    ///
+    /// Empty switches the pre-charge check off, which is a legitimate choice
+    /// for an ERP whose stock this system already mirrors closely. Where it is
+    /// set, an unreachable ERP holds the occurrence rather than charging on an
+    /// assumption.
+    ERP_STOCK_PATH: z.string().default('/stock/availability'),
+    /// Where the ERP's identifier for the created order is found in its
+    /// response, as a dotted path. ERPs disagree about this more than about
+    /// anything else, so it is configuration rather than a guess.
+    ERP_ORDER_REFERENCE_PATH: z.string().default('id'),
+    /// The header the ERP reads an idempotency key from.
+    ERP_IDEMPOTENCY_HEADER: z.string().default('Idempotency-Key'),
+    /// How many times an ERP push is retried before it needs a person.
+    ///
+    /// Generous, because the occurrence is already paid when this runs: the
+    /// alternative to retrying is a customer whose money has gone and whose
+    /// order the warehouse cannot see.
+    ERP_ORDER_MAX_ATTEMPTS: intFromString(1, 50).default(8),
+    /// Whether stock must be confirmed against the ERP before a card is
+    /// charged.
+    ///
+    /// On where an ERP is connected: charging for something the ERP will refuse
+    /// to ship is the worst of the available outcomes. With no ERP configured
+    /// this has no effect.
+    ERP_VERIFY_STOCK_BEFORE_CHARGE: booleanFromString.default(true),
 
     // --- Admin sign-in location ---
     //
@@ -347,6 +439,55 @@ const envSchema = z
         code: z.ZodIssueCode.custom,
         path: ['SMTP_HOST'],
         message: 'required when EMAIL_DRIVER=smtp',
+      });
+    }
+
+    // --- Scheduled-order settings that only make sense together -----------
+    //
+    // A reminder that arrives after the edit window has shut is worse than no
+    // reminder: it tells the customer they can still change or skip the order,
+    // links them to a screen that then refuses, and the first thing they
+    // conclude is that the refusal is a bug. Caught at startup, because the
+    // symptom appears days later in somebody else's inbox.
+    if (value.SCHEDULE_REMINDER_LEAD_HOURS * 60 <= value.SCHEDULE_EDIT_CUTOFF_MINUTES) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['SCHEDULE_REMINDER_LEAD_HOURS'],
+        message:
+          `SCHEDULE_REMINDER_LEAD_HOURS (${String(value.SCHEDULE_REMINDER_LEAD_HOURS)}h) must be ` +
+          `longer than SCHEDULE_EDIT_CUTOFF_MINUTES (${String(value.SCHEDULE_EDIT_CUTOFF_MINUTES)}m). ` +
+          'Otherwise the reminder invites the customer to change an order that can no longer be changed.',
+      });
+    }
+
+    // Auto-pay charges people who are not present. Without Stripe there is no
+    // path that can do it, and a plan enrolled against nothing would sit ACTIVE
+    // and never deliver.
+    if (
+      value.FEATURE_SUBSCRIPTION_AUTOPAY &&
+      value.STRIPE_SECRET_KEY.length === 0 &&
+      value.NODE_ENV === 'production'
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['FEATURE_SUBSCRIPTION_AUTOPAY'],
+        message:
+          'FEATURE_SUBSCRIPTION_AUTOPAY is on but no Stripe secret key is configured. ' +
+          'Subscriptions would be created and then never charge. Connect Stripe, or turn the flag off.',
+      });
+    }
+
+    // Verifying stock against an ERP that was never named cannot be done, and
+    // silently not doing it would mean charging for stock nobody confirmed.
+    if (
+      value.ERP_VERIFY_STOCK_BEFORE_CHARGE &&
+      value.ERP_ORDER_CONNECTION_NAME.length > 0 &&
+      value.ERP_ORDER_PATH.length === 0
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['ERP_ORDER_PATH'],
+        message: 'required when ERP_ORDER_CONNECTION_NAME is set',
       });
     }
 

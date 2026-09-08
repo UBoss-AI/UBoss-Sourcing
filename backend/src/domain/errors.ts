@@ -147,6 +147,50 @@ export const ErrorCode = {
   SCHEDULE_MANDATE_INVALID: 'SCHEDULE_MANDATE_INVALID',
   OCCURRENCE_ALREADY_EXISTS: 'OCCURRENCE_ALREADY_EXISTS',
   RECURRENCE_RULE_INVALID: 'RECURRENCE_RULE_INVALID',
+  /// A plan status change the state machine does not define. Distinct from
+  /// SCHEDULE_NOT_ACTIVE, which is the specific case of acting on a plan that
+  /// is merely not running right now.
+  SCHEDULE_TRANSITION_NOT_ALLOWED: 'SCHEDULE_TRANSITION_NOT_ALLOWED',
+  OCCURRENCE_TRANSITION_NOT_ALLOWED: 'OCCURRENCE_TRANSITION_NOT_ALLOWED',
+  /// The plan is still a DRAFT: it has been configured but nobody has
+  /// confirmed the review screen, so it has no authority to charge anyone.
+  SCHEDULE_NOT_ACTIVATED: 'SCHEDULE_NOT_ACTIVATED',
+  /// Activation was attempted on a plan that is already running.
+  SCHEDULE_ALREADY_ACTIVATED: 'SCHEDULE_ALREADY_ACTIVATED',
+  /// The edit window closed. The message names the next date the customer can
+  /// change this plan, because "too late" without a date is not an answer.
+  SCHEDULE_EDIT_CUTOFF_PASSED: 'SCHEDULE_EDIT_CUTOFF_PASSED',
+  /// A date in the past, or a time that has already gone today.
+  SCHEDULE_DATE_IN_PAST: 'SCHEDULE_DATE_IN_PAST',
+  /// A frequency this deployment does not offer, or one whose parameters do
+  /// not fit it (WEEKLY without a weekday, a custom interval out of range).
+  SCHEDULE_FREQUENCY_NOT_SUPPORTED: 'SCHEDULE_FREQUENCY_NOT_SUPPORTED',
+  /// The total moved further than the approved tolerance since the customer
+  /// was quoted. Nothing is charged; the occurrence waits for them.
+  SCHEDULE_PRICE_CHANGED: 'SCHEDULE_PRICE_CHANGED',
+  /// Auto-pay was asked for with no reusable payment method chosen.
+  SCHEDULE_PAYMENT_METHOD_REQUIRED: 'SCHEDULE_PAYMENT_METHOD_REQUIRED',
+  /// The stored instrument is gone, detached at the provider, or expired.
+  SCHEDULE_PAYMENT_METHOD_INVALID: 'SCHEDULE_PAYMENT_METHOD_INVALID',
+  /// The bank wants the cardholder present - 3-D Secure, or a re-authorised
+  /// mandate. Nothing retries on its own; only the customer can clear it.
+  SCHEDULE_PAYMENT_AUTHENTICATION_REQUIRED: 'SCHEDULE_PAYMENT_AUTHENTICATION_REQUIRED',
+  /// This cycle has already been touched by the engine, so it can no longer be
+  /// skipped, edited or cancelled.
+  OCCURRENCE_NOT_MODIFIABLE: 'OCCURRENCE_NOT_MODIFIABLE',
+  /// A product is unavailable and the customer has saved no substitute for it,
+  /// so the occurrence is held rather than filled with something they did not
+  /// choose.
+  SUBSTITUTION_NOT_PERMITTED: 'SUBSTITUTION_NOT_PERMITTED',
+  /// Removing an instrument that live plans still depend on. The detail names
+  /// them, so the customer can decide rather than be refused blankly.
+  PAYMENT_METHOD_IN_USE: 'PAYMENT_METHOD_IN_USE',
+  /// The SetupIntent has not reached a state that yields a reusable
+  /// instrument, so there is nothing to store yet.
+  PAYMENT_SETUP_INCOMPLETE: 'PAYMENT_SETUP_INCOMPLETE',
+  /// Saving a payment method without the off-session consent that makes it
+  /// chargeable. Stripe's rules require the record, and so does the law.
+  PAYMENT_SETUP_CONSENT_REQUIRED: 'PAYMENT_SETUP_CONSENT_REQUIRED',
 
   // --- Localisation & currency ---
   CURRENCY_NOT_SUPPORTED: 'CURRENCY_NOT_SUPPORTED',
@@ -169,6 +213,18 @@ export const ErrorCode = {
   // --- Integrations ---
   CONNECTOR_TEST_FAILED: 'CONNECTOR_TEST_FAILED',
   CONNECTOR_CIRCUIT_OPEN: 'CONNECTOR_CIRCUIT_OPEN',
+  /// No ERP connection is configured for order push, or the one configured is
+  /// switched off. Checked BEFORE a card is charged, never after.
+  ERP_NOT_CONFIGURED: 'ERP_NOT_CONFIGURED',
+  /// The ERP refused the order, or could not be reached. When this happens
+  /// after a successful charge the occurrence holds at PAID_ERP_PENDING and
+  /// retries under the same idempotency key - it never re-charges.
+  ERP_ORDER_PUSH_FAILED: 'ERP_ORDER_PUSH_FAILED',
+  /// A line has no identifier in the ERP, so the ERP could not accept the
+  /// order even if it were sent. Caught during revalidation, before payment.
+  ERP_SKU_NOT_MAPPED: 'ERP_SKU_NOT_MAPPED',
+  /// The warehouse the order would ship from is not mapped to the ERP.
+  ERP_WAREHOUSE_NOT_MAPPED: 'ERP_WAREHOUSE_NOT_MAPPED',
   IMPORT_FILE_INVALID: 'IMPORT_FILE_INVALID',
   IMPORT_DRY_RUN_REQUIRED: 'IMPORT_DRY_RUN_REQUIRED',
   EXPORT_NOT_READY: 'EXPORT_NOT_READY',

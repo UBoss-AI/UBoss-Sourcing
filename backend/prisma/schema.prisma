@@ -696,6 +696,7 @@ model Product {
   cartItems          CartItem[]
   orderItems         OrderItem[]
   scheduleItems      RecurringScheduleItem[]
+  substituteForItems RecurringScheduleItem[] @relation("ScheduleItemSubstitute")
   prices             ProductPrice[]
   translations       ProductTranslation[]
 
@@ -742,6 +743,7 @@ model ProductVariant {
   cartItems          CartItem[]
   orderItems         OrderItem[]
   scheduleItems      RecurringScheduleItem[]
+  substituteForItems RecurringScheduleItem[] @relation("ScheduleItemSubstituteVariant")
   prices             ProductPrice[]
 
   @@index([productId, isActive, sortOrder], map: "ix_variant_product")
@@ -901,6 +903,7 @@ model InventoryLocation {
   balances     InventoryBalance[]
   movements    InventoryMovement[]
   reservations StockReservation[]
+  schedules    RecurringSchedule[]
 
   /// The map's own query: every active warehouse, ordered so the default
   /// comes first. Also serves the country filter on its leading column.
@@ -962,6 +965,19 @@ model InventoryMovement {
   reason        String? @db.VarChar(512)
   referenceType String? @db.VarChar(48)
   referenceId   String? @db.Char(26)
+
+  /// Optional caller-supplied key that makes a movement idempotent.
+  ///
+  /// The ledger is append-only and a movement is not reversible, so a retried
+  /// ERP sync or a redelivered webhook posting the same delta twice would
+  /// silently corrupt on-hand. A caller that can name its intent passes a key
+  /// and the second insert collides here instead.
+  ///
+  /// Nullable, and MariaDB's treatment of NULL in a UNIQUE index is the point
+  /// rather than a caveat: every movement written by hand or by an existing
+  /// caller stays keyless and none of them collide with each other. Only
+  /// callers that opt in get the guarantee.
+  dedupeKey String? @unique(map: "uq_inventory_movement_dedupe") @db.VarChar(120)
 
   actorUserId String?   @db.Char(26)
   actorType   ActorType @default(SYSTEM)
@@ -1088,6 +1104,8 @@ model CustomerProfile {
   carts     Cart[]
   orders    Order[]
   schedules RecurringSchedule[]
+
+  paymentMethods CustomerPaymentMethod[]
 
   couponRedemptions CouponRedemption[]
   limits            CustomerLimit[]
@@ -1331,6 +1349,7 @@ model Order {
 
   couponRedemption CouponRedemption?
   invoices         Invoice[]
+  erpPush          ErpOrderPush?
 
   @@index([customerProfileId, createdAt], map: "ix_order_customer_time")
   @@index([status, createdAt], map: "ix_order_status_time")
@@ -1719,9 +1738,21 @@ model Refund {
 // ===========================================================================
 
 enum ScheduleStatus {
+  /// Configured but not yet authorised. Nothing is ever charged from a DRAFT.
+  ///
+  /// The state a plan sits in between "the customer filled the form in" and
+  /// "the customer read the review screen and confirmed". `nextRunAt` stays
+  /// NULL here, which is what keeps a draft out of the worker's due query even
+  /// if it somehow acquired a run date.
+  DRAFT
   ACTIVE
   PAUSED
   CANCELLED
+  /// Ran to its natural end - the end date passed, or maxOccurrences was
+  /// reached. Distinct from CANCELLED, which is somebody deciding to stop it,
+  /// and the distinction belongs to the customer: "finished" and "you
+  /// cancelled this" are not the same sentence.
+  COMPLETED
   /// Auto-set after failureCount reaches maxFailures. Needs a human to resume.
   FAILED
 }
@@ -1729,7 +1760,55 @@ enum ScheduleStatus {
 enum ScheduleFrequency {
   EVERY_N_DAYS
   WEEKLY
+  /// Every fortnight, on a fixed weekday.
+  ///
+  /// Not the same thing as EVERY_N_DAYS with intervalDays = 14, which counts
+  /// forward from the last run and so drifts off the weekday whenever an
+  /// occurrence is skipped or held. BIWEEKLY is anchored to the start date's
+  /// week parity, so "alternate Tuesdays" stays on Tuesdays for ever.
+  BIWEEKLY
   MONTHLY
+  /// Buy Later: one delivery, on one date, and then the plan is COMPLETED.
+  ///
+  /// Modelled as a frequency rather than its own table because everything
+  /// else about it - revalidation, payment, ERP push, idempotency, the
+  /// customer's management screen - is identical to a recurring occurrence.
+  /// See `RecurringSchedule.kind`.
+  ONE_TIME
+}
+
+/// Whether a plan repeats, or fires once and finishes.
+///
+/// Redundant with `frequency == ONE_TIME` on purpose. This is the column the
+/// customer's scheduled-orders list filters and groups on, and a list query
+/// should not have to know that one enum member out of five means something
+/// structurally different from the other four.
+enum ScheduleKind {
+  ONE_TIME
+  RECURRING
+}
+
+/// What to do when a scheduled product cannot be supplied.
+///
+/// The default is deliberately NEVER. Substituting one medical-supply SKU for
+/// a near neighbour without being asked is the kind of helpfulness that ends
+/// up in an incident report, so an occurrence that cannot be filled as
+/// authorised is held and the customer is told.
+enum SubstitutionPolicy {
+  /// Hold the occurrence and notify. Never swap anything.
+  NEVER
+  /// Use the substitute saved against the schedule item, if one is set and is
+  /// itself available. Falls back to holding - never to guessing.
+  SAVED_PREFERENCE
+}
+
+/// Where a scheduled order is fulfilled from.
+enum ScheduleFulfilmentRule {
+  /// Let the inventory service pick, the way an ordinary checkout does.
+  AUTO
+  /// Always this warehouse. Held rather than moved even if another location
+  /// has more stock, because somebody chose it for a reason.
+  FIXED_LOCATION
 }
 
 enum SchedulePaymentMode {
@@ -1745,6 +1824,18 @@ model RecurringSchedule {
 
   name   String         @db.VarChar(128)
   status ScheduleStatus @default(ACTIVE)
+
+  /// Repeats, or fires once (Buy Later). See the enum.
+  kind ScheduleKind @default(RECURRING)
+
+  /// The single instant a ONE_TIME plan fires, in UTC.
+  ///
+  /// Held as well as `nextRunAt` rather than instead of it: nextRunAt is the
+  /// worker's mutable queue key and is cleared on pause, while this is the
+  /// customer's stated intention and never changes once authorised. Losing it
+  /// would mean a paused Buy Later could not be resumed to the date the
+  /// customer actually asked for.
+  runOnceAt DateTime? @db.DateTime(3)
 
   frequency    ScheduleFrequency
   /// Used when frequency = EVERY_N_DAYS. The doc calls out "every 7 days".
@@ -1772,10 +1863,21 @@ model RecurringSchedule {
 
   paymentMode      SchedulePaymentMode
   /// Provider mandate/token reference for AUTO_PAY. Never a card number.
+  ///
+  /// Retained for the Razorpay e-mandate path and for plans created before
+  /// stored payment methods existed. Stripe auto-pay uses `paymentMethodId`
+  /// below, which carries the consent record with it.
   mandateReference String?              @db.VarChar(128)
   mandateProvider  PaymentProviderKind?
   /// Approved payer for PAYMENT_LINK mode.
   payerEmail       String?              @db.VarChar(320)
+
+  /// The reusable instrument an AUTO_PAY plan charges off-session.
+  ///
+  /// Restrict on delete, not Cascade: a customer removing a card must not
+  /// silently delete the schedule that depends on it. The service refuses the
+  /// removal and names the plans instead, so the customer chooses.
+  paymentMethodId String? @db.Char(26)
 
   shippingAddressId  String  @db.Char(26)
   billingAddressId   String  @db.Char(26)
@@ -1786,7 +1888,52 @@ model RecurringSchedule {
   consentAcceptedAt             DateTime @db.DateTime(3)
   consentVersion                String   @db.VarChar(32)
   /// Occurrence total above which the run pauses for approval instead of charging.
+  ///
+  /// An absolute ceiling, set once. The two tolerance columns below are the
+  /// relative test, applied against what the customer was last quoted; both
+  /// are checked, and either one tripping holds the occurrence.
   repriceApprovalThresholdMinor BigInt?
+
+  /// How far the total may move from the quoted amount before the charge needs
+  /// re-confirming, as a percentage.
+  ///
+  /// Decimal, not Float: it is compared against money. Null means fall back to
+  /// the deployment's `SCHEDULE_PRICE_TOLERANCE_PERCENT` setting.
+  priceTolerancePercent Decimal? @db.Decimal(5, 2)
+  /// The same test as an absolute floor, so a tolerance of 5% on a small
+  /// basket does not hold an occurrence over a rounding difference. Whichever
+  /// of the two is more generous wins.
+  priceToleranceMinor   BigInt?
+
+  /// How long before a run the plan stops accepting edits, in minutes.
+  ///
+  /// Edits inside this window would race the worker: the customer sees the
+  /// old basket, the engine is already pricing the new one. Rejected with
+  /// SCHEDULE_EDIT_CUTOFF_PASSED, which names the next date they can edit.
+  editCutoffMinutes Int @default(1440)
+
+  substitutionPolicy SubstitutionPolicy @default(NEVER)
+
+  /// Where these orders ship from. NULL location with FIXED_LOCATION is
+  /// refused at write time - the two columns are set together.
+  fulfilmentRule      ScheduleFulfilmentRule @default(AUTO)
+  inventoryLocationId String?                @db.Char(26)
+
+  /// The cart the customer authorised, exactly as the review screen showed it.
+  ///
+  /// Kept for provenance, not for pricing. Every occurrence reprices against
+  /// today's catalogue - this is what "what did they actually agree to" is
+  /// answered from when a total is disputed months later, and what the
+  /// tolerance check measures drift against.
+  ///
+  /// NULL on plans built from a product list rather than a cart, which is
+  /// every plan created before Buy Later existed.
+  cartSnapshotJson Json?
+  sourceCartId     String? @db.Char(26)
+
+  /// When the customer confirmed the review screen. NULL while DRAFT.
+  activatedAt DateTime? @db.DateTime(3)
+  completedAt DateTime? @db.DateTime(3)
 
   failureCount Int @default(0)
   maxFailures  Int @default(3)
@@ -1808,6 +1955,9 @@ model RecurringSchedule {
   shippingAddress Address         @relation("ScheduleShippingAddress", fields: [shippingAddressId], references: [id], onDelete: Restrict)
   billingAddress  Address         @relation("ScheduleBillingAddress", fields: [billingAddressId], references: [id], onDelete: Restrict)
 
+  paymentMethod     CustomerPaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: Restrict)
+  inventoryLocation InventoryLocation?     @relation(fields: [inventoryLocationId], references: [id], onDelete: Restrict)
+
   items       RecurringScheduleItem[]
   occurrences ScheduleOccurrence[]
 
@@ -1815,6 +1965,10 @@ model RecurringSchedule {
   @@index([status, nextRunAt], map: "ix_schedule_due")
   @@index([customerProfileId, status], map: "ix_schedule_customer_status")
   @@index([leaseExpiresAt], map: "ix_schedule_lease")
+  /// The customer's list: their plans, one-time separated from recurring.
+  @@index([customerProfileId, kind, status], map: "ix_schedule_customer_kind")
+  @@index([paymentMethodId], map: "ix_schedule_payment_method")
+  @@index([inventoryLocationId], map: "ix_schedule_location")
   @@map("recurring_schedules")
 }
 
@@ -1827,6 +1981,17 @@ model RecurringScheduleItem {
 
   quantity Int
 
+  /// The one product the customer agreed may stand in for this line.
+  ///
+  /// Only ever consulted when the plan's `substitutionPolicy` is
+  /// SAVED_PREFERENCE, and only for the exact SKU named here. There is no
+  /// second choice and no category fallback, on purpose: a substitution the
+  /// customer did not name is a substitution they did not authorise, and the
+  /// engine holds the occurrence rather than reaching for something similar.
+  substituteProductId  String? @db.Char(26)
+  substituteVariantId  String? @db.Char(26)
+  substituteVariantKey String  @default("") @db.VarChar(26)
+
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
@@ -1834,18 +1999,82 @@ model RecurringScheduleItem {
   product  Product           @relation(fields: [productId], references: [id], onDelete: Restrict)
   variant  ProductVariant?   @relation(fields: [variantId], references: [id], onDelete: Restrict)
 
+  substituteProduct Product?        @relation("ScheduleItemSubstitute", fields: [substituteProductId], references: [id], onDelete: Restrict)
+  substituteVariant ProductVariant? @relation("ScheduleItemSubstituteVariant", fields: [substituteVariantId], references: [id], onDelete: Restrict)
+
   @@unique([scheduleId, productId, variantKey], map: "uq_schedule_item_sku")
   @@index([productId], map: "ix_schedule_item_product")
+  @@index([substituteProductId], map: "ix_schedule_item_substitute")
   @@map("recurring_schedule_items")
 }
 
+/// The life of one billing cycle.
+///
+/// The order below is the order an occurrence actually moves through, and
+/// `schedule-state.ts` is what enforces it - no service writes this column
+/// directly, for the same reason no service writes `orders.status`.
+///
+/// PENDING, ORDER_CREATED and PAID predate this vocabulary and are retained
+/// so rows written by the previous engine still read correctly. Nothing
+/// writes them any more; `LEGACY_STATUSES` in schedule-state.ts lists them.
 enum OccurrenceStatus {
+  /// Materialised ahead of time so the customer has a row to skip, edit or
+  /// cancel before it runs. Not yet touched by the worker.
+  SCHEDULED
+  /// Claimed by a worker and being revalidated - eligibility, prices, stock,
+  /// limits, address, ERP mapping. No money has moved.
+  AWAITING_VALIDATION
+  /// Revalidated and priced. A charge has been started but not confirmed:
+  /// either an off-session PaymentIntent is in flight, or a payment link is
+  /// out with the payer.
+  PAYMENT_PENDING
+  /// Stripe needs the cardholder present - 3-D Secure, or a mandate the bank
+  /// wants re-authenticated. The customer has been told; nothing retries on
+  /// its own, because only they can clear it.
+  ACTION_REQUIRED
+  /// Paid, and the platform order is being created and fulfilled.
+  PROCESSING
+  /// Paid and the platform order exists, but the ERP has not accepted it.
+  ///
+  /// The most important state in this enum. The customer's money is taken and
+  /// their order is real; only the ERP hand-off is outstanding. It retries
+  /// under the SAME idempotency key and never re-charges. See ErpOrderPush.
+  PAID_ERP_PENDING
+  /// Everything done: paid, ordered, ERP notified, customer told.
+  COMPLETED
+  /// Deliberately not run: product unpublished, stock short, limit breached,
+  /// or the customer skipped it.
+  SKIPPED
+  /// The customer or an administrator cancelled this cycle, or the whole plan
+  /// was cancelled before it ran. Distinct from SKIPPED, which the engine
+  /// also decides for itself.
+  CANCELLED
+  FAILED
+
+  /// --- Retained for rows written before the statuses above existed ---
   PENDING
   ORDER_CREATED
   PAID
-  /// Deliberately not run: product unpublished, stock short, limit breached.
-  SKIPPED
+}
+
+/// Where an order stands with the ERP.
+enum ErpPushStatus {
+  PENDING
+  SUCCEEDED
   FAILED
+  /// Retries exhausted. A person has to look at it; nothing will retry again
+  /// on its own, because a connector that has refused the same payload a
+  /// dozen times will refuse the thirteenth.
+  ABANDONED
+}
+
+/// A reusable payment instrument's usability.
+enum StoredPaymentMethodStatus {
+  ACTIVE
+  /// Detached at Stripe - by the customer here, or in Stripe's dashboard.
+  DETACHED
+  /// The card's expiry has passed, or Stripe reported it unusable.
+  EXPIRED
 }
 
 model ScheduleOccurrence {
@@ -1856,19 +2085,79 @@ model ScheduleOccurrence {
   /// idempotency key for the whole recurring engine.
   plannedRunAt DateTime @db.DateTime(3)
 
-  status OccurrenceStatus @default(PENDING)
+  /// The zone `plannedRunAt` was computed in, copied off the plan when this
+  /// occurrence was materialised.
+  ///
+  /// Stored per occurrence rather than read back off the plan, because a
+  /// customer who moves country and changes their plan's timezone must not
+  /// retroactively change what time last month's order was due. This is the
+  /// zone the reminder and the customer's screen format against.
+  timezone String @default("UTC") @db.VarChar(64)
+
+  status OccurrenceStatus @default(SCHEDULED)
 
   attemptCount  Int       @default(0)
   lastAttemptAt DateTime? @db.DateTime(3)
   nextRetryAt   DateTime? @db.DateTime(3)
 
+  /// Payment attempts, counted separately from `attemptCount`.
+  ///
+  /// A validation failure that never reached Stripe must not consume a card's
+  /// retry budget: banks read repeated declines as a signal about the card,
+  /// and three "out of stock" holds followed by one real attempt should not
+  /// look to them like four failed charges.
+  paymentAttemptCount Int @default(0)
+
   /// Amount quoted to the customer in the reminder, so a reprice is detectable.
   quotedTotalMinor BigInt?
   actualTotalMinor BigInt?
 
+  /// The provider's reference for the charge - a Stripe PaymentIntent id.
+  ///
+  /// Written before the charge is confirmed, so a crash mid-call leaves a
+  /// reference to reconcile against rather than an unexplained gap. Never a
+  /// client secret: those are fetched from Stripe on demand and never stored.
+  paymentReference String? @db.VarChar(128)
+
+  /// The ERP's own identifier for the order it accepted.
+  ///
+  /// Also on ErpOrderPush, which holds the retry state. Denormalised here
+  /// because "what is this order called in the ERP" is asked by the customer's
+  /// screen and by support, and neither should have to join through the push
+  /// ledger to answer it.
+  erpOrderReference String?        @db.VarChar(128)
+  erpPushStatus     ErpPushStatus?
+
+  /// The stable key every side effect of this occurrence is keyed on: the
+  /// Stripe charge, the platform order, the ERP push, the inventory movement.
+  ///
+  /// Derived from scheduleId + plannedRunAt, so a retry recomputes the same
+  /// value rather than minting a new one. Unique, so it cannot be reused
+  /// across occurrences even by a bug.
+  idempotencyKey String @unique(map: "uq_occurrence_idempotency") @db.VarChar(80)
+
+  /// What the plan authorised, priced as at this occurrence.
+  ///
+  /// The evidence behind `actualTotalMinor`: line prices, discounts, tax and
+  /// delivery as they were on the day. The order carries its own immutable
+  /// snapshot too; this one also exists for occurrences that never became an
+  /// order, which is exactly when somebody asks what the amount would have
+  /// been.
+  cartSnapshotJson Json?
+
+  /// True when a person skipped this cycle, false when the engine did.
+  ///
+  /// Both end in SKIPPED, and the customer is owed a different sentence for
+  /// each: "you skipped this" against "we could not supply this".
+  skippedByUser Boolean @default(false)
+
   failureCode    String? @db.VarChar(64)
   failureMessage String? @db.VarChar(512)
   skipReason     String? @db.VarChar(512)
+
+  /// When Stripe asked for the cardholder. Read by the reminder that chases
+  /// an ACTION_REQUIRED occurrence before its window closes.
+  actionRequiredAt DateTime? @db.DateTime(3)
 
   reminderSentAt DateTime? @db.DateTime(3)
   createdAt      DateTime  @default(now()) @db.DateTime(3)
@@ -1876,12 +2165,143 @@ model ScheduleOccurrence {
 
   schedule RecurringSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
   order    Order?
+  erpPush  ErpOrderPush?
 
   /// The structural duplicate guard. Do not remove.
   @@unique([scheduleId, plannedRunAt], map: "uq_occurrence_schedule_run")
   @@index([status, nextRetryAt], map: "ix_occurrence_retry")
   @@index([plannedRunAt], map: "ix_occurrence_planned")
+  /// The reminder sweep: upcoming, not yet reminded.
+  @@index([status, plannedRunAt, reminderSentAt], map: "ix_occurrence_reminder")
+  @@index([scheduleId, status], map: "ix_occurrence_schedule_status")
   @@map("schedule_occurrences")
+}
+
+/// A reusable payment instrument, plus the consent that makes it chargeable
+/// while the customer is not there.
+///
+/// What is stored is deliberately the smallest set that works: Stripe's
+/// customer id, its payment-method id, and the four display fields Stripe
+/// itself returns for showing somebody which card they picked. No PAN, no
+/// CVV, no expiry beyond the month and year already printed on every receipt,
+/// and no client secret. A breach of this table yields nothing chargeable
+/// without the deployment's own Stripe secret key.
+///
+/// The consent columns are not decoration. Charging off-session is only
+/// lawful because the customer agreed to it for a stated purpose, and
+/// `consentVersion` is what lets a change of terms force a fresh agreement
+/// instead of quietly inheriting the old one. Stripe's own rules require the
+/// same record.
+model CustomerPaymentMethod {
+  id                String              @id @db.Char(26)
+  customerProfileId String              @db.Char(26)
+  provider          PaymentProviderKind
+
+  /// Stripe's Customer id (cus_...). One per customer per provider, reused
+  /// across every plan they authorise.
+  providerCustomerId String @db.VarChar(128)
+  /// Stripe's PaymentMethod id (pm_...). The thing actually charged.
+  providerPaymentMethodId String @db.VarChar(128)
+  /// The SetupIntent that produced it, kept for reconciliation with Stripe.
+  setupIntentId String? @db.VarChar(128)
+
+  /// --- Display only. Stripe returns these; none of them can pay for anything.
+  brand     String? @db.VarChar(32)
+  last4     String? @db.VarChar(4)
+  expMonth  Int?
+  expYear   Int?
+  funding   String? @db.VarChar(16)
+  /// The card's issuing country, which is what some tax and SCA rules turn on.
+  country   String? @db.Char(2)
+
+  status StoredPaymentMethodStatus @default(ACTIVE)
+
+  /// --- Off-session consent (Stripe's requirement, and the law's) ---
+  consentAcceptedAt DateTime @db.DateTime(3)
+  consentVersion    String   @db.VarChar(32)
+  /// Hashed, never the address itself: it is evidence that consent came from
+  /// somewhere, and keeping the raw IP would make this table a worse thing to
+  /// leak than it needs to be.
+  consentIpHash     String?  @db.VarChar(64)
+  consentUserAgent  String?  @db.VarChar(256)
+
+  /// The customer's default for new plans. Enforced in the service, not the
+  /// schema: a partial unique index on (customerProfileId) WHERE isDefault is
+  /// not something MariaDB 10.4 offers.
+  isDefault Boolean @default(false)
+
+  detachedAt DateTime? @db.DateTime(3)
+  createdAt  DateTime  @default(now()) @db.DateTime(3)
+  updatedAt  DateTime  @updatedAt @db.DateTime(3)
+
+  customerProfile CustomerProfile @relation(fields: [customerProfileId], references: [id], onDelete: Cascade)
+
+  schedules RecurringSchedule[]
+
+  /// One row per instrument. A repeated SetupIntent confirmation collides here
+  /// rather than giving the customer the same card twice.
+  @@unique([provider, providerPaymentMethodId], map: "uq_payment_method_provider_ref")
+  @@index([customerProfileId, status], map: "ix_payment_method_customer")
+  @@map("customer_payment_methods")
+}
+
+/// One order's hand-off to the ERP, and the state of its retries.
+///
+/// A separate table from the order because it has a different lifetime: the
+/// order is finished the moment it is paid, while this row can be retried for
+/// hours afterwards and has to remember what it already sent. It is also the
+/// answer to the single most dangerous case in the whole feature - money
+/// taken, ERP silent - and that answer should not be three nullable columns
+/// hanging off `orders`.
+///
+/// `orderId` is unique. That is the structural reason a retry cannot create a
+/// second ERP order, and it does not depend on the retry code being careful.
+model ErpOrderPush {
+  id      String @id @db.Char(26)
+  orderId String @unique(map: "uq_erp_push_order") @db.Char(26)
+  /// The occurrence that caused it, when a schedule did. NULL for an ordinary
+  /// checkout pushed to the ERP.
+  occurrenceId String? @unique(map: "uq_erp_push_occurrence") @db.Char(26)
+  /// The connector used. NULL once a connection is deleted; the ledger row
+  /// outlives the configuration that made it.
+  connectionId String? @db.Char(26)
+
+  /// Sent to the ERP as its idempotency header, and unique here.
+  ///
+  /// The same value across every retry - that is the entire point. An ERP that
+  /// honours the header de-duplicates on its side; one that does not is still
+  /// protected by `orderId` above.
+  idempotencyKey String @unique(map: "uq_erp_push_idempotency") @db.VarChar(80)
+
+  status ErpPushStatus @default(PENDING)
+
+  /// The ERP's identifier for the order it created.
+  erpOrderReference String? @db.VarChar(128)
+
+  attemptCount  Int       @default(0)
+  lastAttemptAt DateTime? @db.DateTime(3)
+  nextRetryAt   DateTime? @db.DateTime(3)
+  succeededAt   DateTime? @db.DateTime(3)
+
+  lastErrorCode    String? @db.VarChar(64)
+  lastErrorMessage String? @db.VarChar(1024)
+
+  /// What was sent and what came back, for the argument that follows a
+  /// disagreement about an order. Credentials are redacted before either is
+  /// written.
+  requestJson  Json?
+  responseJson Json?
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  order      Order               @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  occurrence ScheduleOccurrence? @relation(fields: [occurrenceId], references: [id], onDelete: SetNull)
+
+  /// The retry sweep: due, not yet done.
+  @@index([status, nextRetryAt], map: "ix_erp_push_retry")
+  @@index([connectionId, createdAt], map: "ix_erp_push_connection_time")
+  @@map("erp_order_pushes")
 }
 
 // ===========================================================================

@@ -48,6 +48,27 @@ project is started changes.
 - **Error codes in `backend/src/domain/errors.ts` are a published contract.**
   Both frontends map each code to a message in eight languages. Add new codes;
   never repurpose an existing one.
+- **Plan and occurrence status is only ever changed through the assertions in
+  `backend/src/domain/schedule-state.ts`.** Same rule as order status, and it
+  matters more: an occurrence changes status inside a worker with nobody
+  watching, and the states it moves between decide whether a card is charged.
+- **A scheduled basket is priced by `quoteSchedule` and nothing else.** The
+  review screen the customer confirms and the worker that charges them weeks
+  later both call it, so the number they agreed to and the number they are
+  charged come from one place. A second implementation of "what does this
+  basket cost" is how a customer ends up disputing a total nobody can explain.
+- **Adding a member to `ScheduleFrequency` needs a migration for
+  `chk_schedule_frequency_field_present`.** That CHECK constraint names each
+  frequency and the column it depends on, so a new one that is not listed
+  matches no branch and every insert fails. It lives in
+  `20260902143000_add_check_constraints`, amended by
+  `20260908181000_scheduled_orders_check_constraints`.
+- **A new table with a `userId` or `customerProfileId` breaks
+  `tests/unit/export-bundle-completeness.test.ts` until the GDPR export
+  accounts for it.** That is the test working: it reads the schema and refuses
+  to let a table holding personal data be quietly absent from every Art. 15
+  copy. Add it to `SECTIONS` and disclose it, or list it as out of scope with
+  the reason.
 - **The development environment is Windows / PowerShell.** `VAR=1 npm run x` is
   a parse error there — never put that form in a script or in documentation.
 

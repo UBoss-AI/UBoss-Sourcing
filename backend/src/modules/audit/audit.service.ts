@@ -100,12 +100,46 @@ export const AuditAction = {
   REFUND_CREATED: 'refund.created',
   REFUND_COMPLETED: 'refund.completed',
 
+  // Stored payment instruments
+  //
+  // Auditing enrolment and removal, never the references themselves. An audit
+  // log is read by more people than the payment-method table is, and a
+  // chargeable token does not belong in one.
+  PAYMENT_METHOD_SETUP_STARTED: 'payment_method.setup_started',
+  PAYMENT_METHOD_SAVED: 'payment_method.saved',
+  PAYMENT_METHOD_UPDATED: 'payment_method.updated',
+  PAYMENT_METHOD_REMOVED: 'payment_method.removed',
+  /// An off-session charge against a stored instrument. Recorded separately
+  /// from PAYMENT_CREATED because nobody was present to authorise it, which is
+  /// the first thing anyone investigating a disputed charge needs to know.
+  PAYMENT_OFF_SESSION_CHARGED: 'payment.off_session_charged',
+  PAYMENT_ACTION_REQUIRED: 'payment.action_required',
+
   // Recurring
   SCHEDULE_CREATED: 'schedule.created',
   SCHEDULE_UPDATED: 'schedule.updated',
   SCHEDULE_PAUSED: 'schedule.paused',
   SCHEDULE_RESUMED: 'schedule.resumed',
   SCHEDULE_CANCELLED: 'schedule.cancelled',
+  /// A draft became a live authority to charge. The moment consent took
+  /// effect, and the one a dispute is measured from.
+  SCHEDULE_ACTIVATED: 'schedule.activated',
+  SCHEDULE_COMPLETED: 'schedule.completed',
+  /// One cycle, and what became of it.
+  OCCURRENCE_SKIPPED: 'occurrence.skipped',
+  OCCURRENCE_CANCELLED: 'occurrence.cancelled',
+  OCCURRENCE_HELD: 'occurrence.held',
+  OCCURRENCE_COMPLETED: 'occurrence.completed',
+
+  // ERP hand-off
+  //
+  // ERP_ORDER_PUSH_DEFERRED is the audit trail for the state where money has
+  // moved and the ERP has not taken the order. It is recorded every time, not
+  // only on the final failure, because the sequence of attempts is what
+  // reconstructs the incident afterwards.
+  ERP_ORDER_PUSHED: 'erp_order.pushed',
+  ERP_ORDER_PUSH_DEFERRED: 'erp_order.push_deferred',
+  ERP_ORDER_PUSH_ABANDONED: 'erp_order.push_abandoned',
 
   // Product safety
   //

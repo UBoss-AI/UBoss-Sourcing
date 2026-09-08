@@ -225,9 +225,11 @@ export type RefundStatus = (typeof RefundStatus)[keyof typeof RefundStatus]
 
 
 export const ScheduleStatus = {
+  DRAFT: 'DRAFT',
   ACTIVE: 'ACTIVE',
   PAUSED: 'PAUSED',
   CANCELLED: 'CANCELLED',
+  COMPLETED: 'COMPLETED',
   FAILED: 'FAILED'
 } as const
 
@@ -237,10 +239,36 @@ export type ScheduleStatus = (typeof ScheduleStatus)[keyof typeof ScheduleStatus
 export const ScheduleFrequency = {
   EVERY_N_DAYS: 'EVERY_N_DAYS',
   WEEKLY: 'WEEKLY',
-  MONTHLY: 'MONTHLY'
+  BIWEEKLY: 'BIWEEKLY',
+  MONTHLY: 'MONTHLY',
+  ONE_TIME: 'ONE_TIME'
 } as const
 
 export type ScheduleFrequency = (typeof ScheduleFrequency)[keyof typeof ScheduleFrequency]
+
+
+export const ScheduleKind = {
+  ONE_TIME: 'ONE_TIME',
+  RECURRING: 'RECURRING'
+} as const
+
+export type ScheduleKind = (typeof ScheduleKind)[keyof typeof ScheduleKind]
+
+
+export const SubstitutionPolicy = {
+  NEVER: 'NEVER',
+  SAVED_PREFERENCE: 'SAVED_PREFERENCE'
+} as const
+
+export type SubstitutionPolicy = (typeof SubstitutionPolicy)[keyof typeof SubstitutionPolicy]
+
+
+export const ScheduleFulfilmentRule = {
+  AUTO: 'AUTO',
+  FIXED_LOCATION: 'FIXED_LOCATION'
+} as const
+
+export type ScheduleFulfilmentRule = (typeof ScheduleFulfilmentRule)[keyof typeof ScheduleFulfilmentRule]
 
 
 export const SchedulePaymentMode = {
@@ -252,14 +280,41 @@ export type SchedulePaymentMode = (typeof SchedulePaymentMode)[keyof typeof Sche
 
 
 export const OccurrenceStatus = {
+  SCHEDULED: 'SCHEDULED',
+  AWAITING_VALIDATION: 'AWAITING_VALIDATION',
+  PAYMENT_PENDING: 'PAYMENT_PENDING',
+  ACTION_REQUIRED: 'ACTION_REQUIRED',
+  PROCESSING: 'PROCESSING',
+  PAID_ERP_PENDING: 'PAID_ERP_PENDING',
+  COMPLETED: 'COMPLETED',
+  SKIPPED: 'SKIPPED',
+  CANCELLED: 'CANCELLED',
+  FAILED: 'FAILED',
   PENDING: 'PENDING',
   ORDER_CREATED: 'ORDER_CREATED',
-  PAID: 'PAID',
-  SKIPPED: 'SKIPPED',
-  FAILED: 'FAILED'
+  PAID: 'PAID'
 } as const
 
 export type OccurrenceStatus = (typeof OccurrenceStatus)[keyof typeof OccurrenceStatus]
+
+
+export const ErpPushStatus = {
+  PENDING: 'PENDING',
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+  ABANDONED: 'ABANDONED'
+} as const
+
+export type ErpPushStatus = (typeof ErpPushStatus)[keyof typeof ErpPushStatus]
+
+
+export const StoredPaymentMethodStatus = {
+  ACTIVE: 'ACTIVE',
+  DETACHED: 'DETACHED',
+  EXPIRED: 'EXPIRED'
+} as const
+
+export type StoredPaymentMethodStatus = (typeof StoredPaymentMethodStatus)[keyof typeof StoredPaymentMethodStatus]
 
 
 export const ShipmentStatus = {

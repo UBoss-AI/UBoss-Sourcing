@@ -271,6 +271,7 @@ export type ProductVariantWhereInput = {
   cartItems?: Prisma.CartItemListRelationFilter
   orderItems?: Prisma.OrderItemListRelationFilter
   scheduleItems?: Prisma.RecurringScheduleItemListRelationFilter
+  substituteForItems?: Prisma.RecurringScheduleItemListRelationFilter
   prices?: Prisma.ProductPriceListRelationFilter
 }
 
@@ -293,6 +294,7 @@ export type ProductVariantOrderByWithRelationInput = {
   cartItems?: Prisma.CartItemOrderByRelationAggregateInput
   orderItems?: Prisma.OrderItemOrderByRelationAggregateInput
   scheduleItems?: Prisma.RecurringScheduleItemOrderByRelationAggregateInput
+  substituteForItems?: Prisma.RecurringScheduleItemOrderByRelationAggregateInput
   prices?: Prisma.ProductPriceOrderByRelationAggregateInput
   _relevance?: Prisma.ProductVariantOrderByRelevanceInput
 }
@@ -319,6 +321,7 @@ export type ProductVariantWhereUniqueInput = Prisma.AtLeast<{
   cartItems?: Prisma.CartItemListRelationFilter
   orderItems?: Prisma.OrderItemListRelationFilter
   scheduleItems?: Prisma.RecurringScheduleItemListRelationFilter
+  substituteForItems?: Prisma.RecurringScheduleItemListRelationFilter
   prices?: Prisma.ProductPriceListRelationFilter
 }, "id" | "sku">
 
@@ -376,6 +379,7 @@ export type ProductVariantCreateInput = {
   cartItems?: Prisma.CartItemCreateNestedManyWithoutVariantInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutVariantInput
   scheduleItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutVariantInput
+  substituteForItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutSubstituteVariantInput
   prices?: Prisma.ProductPriceCreateNestedManyWithoutVariantInput
 }
 
@@ -397,6 +401,7 @@ export type ProductVariantUncheckedCreateInput = {
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutVariantInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutVariantInput
   scheduleItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutVariantInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutSubstituteVariantInput
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutVariantInput
 }
 
@@ -418,6 +423,7 @@ export type ProductVariantUpdateInput = {
   cartItems?: Prisma.CartItemUpdateManyWithoutVariantNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutVariantNestedInput
   scheduleItems?: Prisma.RecurringScheduleItemUpdateManyWithoutVariantNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUpdateManyWithoutSubstituteVariantNestedInput
   prices?: Prisma.ProductPriceUpdateManyWithoutVariantNestedInput
 }
 
@@ -439,6 +445,7 @@ export type ProductVariantUncheckedUpdateInput = {
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutVariantNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutVariantNestedInput
   scheduleItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutVariantNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteVariantNestedInput
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutVariantNestedInput
 }
 
@@ -682,6 +689,12 @@ export type ProductVariantCreateNestedOneWithoutScheduleItemsInput = {
   connect?: Prisma.ProductVariantWhereUniqueInput
 }
 
+export type ProductVariantCreateNestedOneWithoutSubstituteForItemsInput = {
+  create?: Prisma.XOR<Prisma.ProductVariantCreateWithoutSubstituteForItemsInput, Prisma.ProductVariantUncheckedCreateWithoutSubstituteForItemsInput>
+  connectOrCreate?: Prisma.ProductVariantCreateOrConnectWithoutSubstituteForItemsInput
+  connect?: Prisma.ProductVariantWhereUniqueInput
+}
+
 export type ProductVariantUpdateOneWithoutScheduleItemsNestedInput = {
   create?: Prisma.XOR<Prisma.ProductVariantCreateWithoutScheduleItemsInput, Prisma.ProductVariantUncheckedCreateWithoutScheduleItemsInput>
   connectOrCreate?: Prisma.ProductVariantCreateOrConnectWithoutScheduleItemsInput
@@ -690,6 +703,16 @@ export type ProductVariantUpdateOneWithoutScheduleItemsNestedInput = {
   delete?: Prisma.ProductVariantWhereInput | boolean
   connect?: Prisma.ProductVariantWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductVariantUpdateToOneWithWhereWithoutScheduleItemsInput, Prisma.ProductVariantUpdateWithoutScheduleItemsInput>, Prisma.ProductVariantUncheckedUpdateWithoutScheduleItemsInput>
+}
+
+export type ProductVariantUpdateOneWithoutSubstituteForItemsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductVariantCreateWithoutSubstituteForItemsInput, Prisma.ProductVariantUncheckedCreateWithoutSubstituteForItemsInput>
+  connectOrCreate?: Prisma.ProductVariantCreateOrConnectWithoutSubstituteForItemsInput
+  upsert?: Prisma.ProductVariantUpsertWithoutSubstituteForItemsInput
+  disconnect?: Prisma.ProductVariantWhereInput | boolean
+  delete?: Prisma.ProductVariantWhereInput | boolean
+  connect?: Prisma.ProductVariantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductVariantUpdateToOneWithWhereWithoutSubstituteForItemsInput, Prisma.ProductVariantUpdateWithoutSubstituteForItemsInput>, Prisma.ProductVariantUncheckedUpdateWithoutSubstituteForItemsInput>
 }
 
 export type ProductVariantCreateNestedOneWithoutPricesInput = {
@@ -725,6 +748,7 @@ export type ProductVariantCreateWithoutProductInput = {
   cartItems?: Prisma.CartItemCreateNestedManyWithoutVariantInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutVariantInput
   scheduleItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutVariantInput
+  substituteForItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutSubstituteVariantInput
   prices?: Prisma.ProductPriceCreateNestedManyWithoutVariantInput
 }
 
@@ -745,6 +769,7 @@ export type ProductVariantUncheckedCreateWithoutProductInput = {
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutVariantInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutVariantInput
   scheduleItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutVariantInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutSubstituteVariantInput
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutVariantInput
 }
 
@@ -808,6 +833,7 @@ export type ProductVariantCreateWithoutInventoryBalancesInput = {
   cartItems?: Prisma.CartItemCreateNestedManyWithoutVariantInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutVariantInput
   scheduleItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutVariantInput
+  substituteForItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutSubstituteVariantInput
   prices?: Prisma.ProductPriceCreateNestedManyWithoutVariantInput
 }
 
@@ -828,6 +854,7 @@ export type ProductVariantUncheckedCreateWithoutInventoryBalancesInput = {
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutVariantInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutVariantInput
   scheduleItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutVariantInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutSubstituteVariantInput
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutVariantInput
 }
 
@@ -864,6 +891,7 @@ export type ProductVariantUpdateWithoutInventoryBalancesInput = {
   cartItems?: Prisma.CartItemUpdateManyWithoutVariantNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutVariantNestedInput
   scheduleItems?: Prisma.RecurringScheduleItemUpdateManyWithoutVariantNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUpdateManyWithoutSubstituteVariantNestedInput
   prices?: Prisma.ProductPriceUpdateManyWithoutVariantNestedInput
 }
 
@@ -884,6 +912,7 @@ export type ProductVariantUncheckedUpdateWithoutInventoryBalancesInput = {
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutVariantNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutVariantNestedInput
   scheduleItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutVariantNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteVariantNestedInput
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutVariantNestedInput
 }
 
@@ -904,6 +933,7 @@ export type ProductVariantCreateWithoutInventoryMovementsInput = {
   cartItems?: Prisma.CartItemCreateNestedManyWithoutVariantInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutVariantInput
   scheduleItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutVariantInput
+  substituteForItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutSubstituteVariantInput
   prices?: Prisma.ProductPriceCreateNestedManyWithoutVariantInput
 }
 
@@ -924,6 +954,7 @@ export type ProductVariantUncheckedCreateWithoutInventoryMovementsInput = {
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutVariantInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutVariantInput
   scheduleItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutVariantInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutSubstituteVariantInput
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutVariantInput
 }
 
@@ -960,6 +991,7 @@ export type ProductVariantUpdateWithoutInventoryMovementsInput = {
   cartItems?: Prisma.CartItemUpdateManyWithoutVariantNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutVariantNestedInput
   scheduleItems?: Prisma.RecurringScheduleItemUpdateManyWithoutVariantNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUpdateManyWithoutSubstituteVariantNestedInput
   prices?: Prisma.ProductPriceUpdateManyWithoutVariantNestedInput
 }
 
@@ -980,6 +1012,7 @@ export type ProductVariantUncheckedUpdateWithoutInventoryMovementsInput = {
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutVariantNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutVariantNestedInput
   scheduleItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutVariantNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteVariantNestedInput
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutVariantNestedInput
 }
 
@@ -1000,6 +1033,7 @@ export type ProductVariantCreateWithoutStockReservationsInput = {
   cartItems?: Prisma.CartItemCreateNestedManyWithoutVariantInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutVariantInput
   scheduleItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutVariantInput
+  substituteForItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutSubstituteVariantInput
   prices?: Prisma.ProductPriceCreateNestedManyWithoutVariantInput
 }
 
@@ -1020,6 +1054,7 @@ export type ProductVariantUncheckedCreateWithoutStockReservationsInput = {
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutVariantInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutVariantInput
   scheduleItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutVariantInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutSubstituteVariantInput
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutVariantInput
 }
 
@@ -1056,6 +1091,7 @@ export type ProductVariantUpdateWithoutStockReservationsInput = {
   cartItems?: Prisma.CartItemUpdateManyWithoutVariantNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutVariantNestedInput
   scheduleItems?: Prisma.RecurringScheduleItemUpdateManyWithoutVariantNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUpdateManyWithoutSubstituteVariantNestedInput
   prices?: Prisma.ProductPriceUpdateManyWithoutVariantNestedInput
 }
 
@@ -1076,6 +1112,7 @@ export type ProductVariantUncheckedUpdateWithoutStockReservationsInput = {
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutVariantNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutVariantNestedInput
   scheduleItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutVariantNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteVariantNestedInput
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutVariantNestedInput
 }
 
@@ -1096,6 +1133,7 @@ export type ProductVariantCreateWithoutCartItemsInput = {
   stockReservations?: Prisma.StockReservationCreateNestedManyWithoutVariantInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutVariantInput
   scheduleItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutVariantInput
+  substituteForItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutSubstituteVariantInput
   prices?: Prisma.ProductPriceCreateNestedManyWithoutVariantInput
 }
 
@@ -1116,6 +1154,7 @@ export type ProductVariantUncheckedCreateWithoutCartItemsInput = {
   stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutVariantInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutVariantInput
   scheduleItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutVariantInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutSubstituteVariantInput
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutVariantInput
 }
 
@@ -1152,6 +1191,7 @@ export type ProductVariantUpdateWithoutCartItemsInput = {
   stockReservations?: Prisma.StockReservationUpdateManyWithoutVariantNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutVariantNestedInput
   scheduleItems?: Prisma.RecurringScheduleItemUpdateManyWithoutVariantNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUpdateManyWithoutSubstituteVariantNestedInput
   prices?: Prisma.ProductPriceUpdateManyWithoutVariantNestedInput
 }
 
@@ -1172,6 +1212,7 @@ export type ProductVariantUncheckedUpdateWithoutCartItemsInput = {
   stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutVariantNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutVariantNestedInput
   scheduleItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutVariantNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteVariantNestedInput
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutVariantNestedInput
 }
 
@@ -1192,6 +1233,7 @@ export type ProductVariantCreateWithoutOrderItemsInput = {
   stockReservations?: Prisma.StockReservationCreateNestedManyWithoutVariantInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutVariantInput
   scheduleItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutVariantInput
+  substituteForItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutSubstituteVariantInput
   prices?: Prisma.ProductPriceCreateNestedManyWithoutVariantInput
 }
 
@@ -1212,6 +1254,7 @@ export type ProductVariantUncheckedCreateWithoutOrderItemsInput = {
   stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutVariantInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutVariantInput
   scheduleItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutVariantInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutSubstituteVariantInput
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutVariantInput
 }
 
@@ -1248,6 +1291,7 @@ export type ProductVariantUpdateWithoutOrderItemsInput = {
   stockReservations?: Prisma.StockReservationUpdateManyWithoutVariantNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutVariantNestedInput
   scheduleItems?: Prisma.RecurringScheduleItemUpdateManyWithoutVariantNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUpdateManyWithoutSubstituteVariantNestedInput
   prices?: Prisma.ProductPriceUpdateManyWithoutVariantNestedInput
 }
 
@@ -1268,6 +1312,7 @@ export type ProductVariantUncheckedUpdateWithoutOrderItemsInput = {
   stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutVariantNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutVariantNestedInput
   scheduleItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutVariantNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteVariantNestedInput
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutVariantNestedInput
 }
 
@@ -1288,6 +1333,7 @@ export type ProductVariantCreateWithoutScheduleItemsInput = {
   stockReservations?: Prisma.StockReservationCreateNestedManyWithoutVariantInput
   cartItems?: Prisma.CartItemCreateNestedManyWithoutVariantInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutVariantInput
+  substituteForItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutSubstituteVariantInput
   prices?: Prisma.ProductPriceCreateNestedManyWithoutVariantInput
 }
 
@@ -1308,12 +1354,60 @@ export type ProductVariantUncheckedCreateWithoutScheduleItemsInput = {
   stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutVariantInput
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutVariantInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutVariantInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutSubstituteVariantInput
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutVariantInput
 }
 
 export type ProductVariantCreateOrConnectWithoutScheduleItemsInput = {
   where: Prisma.ProductVariantWhereUniqueInput
   create: Prisma.XOR<Prisma.ProductVariantCreateWithoutScheduleItemsInput, Prisma.ProductVariantUncheckedCreateWithoutScheduleItemsInput>
+}
+
+export type ProductVariantCreateWithoutSubstituteForItemsInput = {
+  id: string
+  sku: string
+  name: string
+  optionsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  priceMinor?: bigint | number | null
+  isActive?: boolean
+  sortOrder?: number
+  archivedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  product: Prisma.ProductCreateNestedOneWithoutVariantsInput
+  inventoryBalances?: Prisma.InventoryBalanceCreateNestedManyWithoutVariantInput
+  inventoryMovements?: Prisma.InventoryMovementCreateNestedManyWithoutVariantInput
+  stockReservations?: Prisma.StockReservationCreateNestedManyWithoutVariantInput
+  cartItems?: Prisma.CartItemCreateNestedManyWithoutVariantInput
+  orderItems?: Prisma.OrderItemCreateNestedManyWithoutVariantInput
+  scheduleItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutVariantInput
+  prices?: Prisma.ProductPriceCreateNestedManyWithoutVariantInput
+}
+
+export type ProductVariantUncheckedCreateWithoutSubstituteForItemsInput = {
+  id: string
+  productId: string
+  sku: string
+  name: string
+  optionsJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  priceMinor?: bigint | number | null
+  isActive?: boolean
+  sortOrder?: number
+  archivedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutVariantInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutVariantInput
+  stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutVariantInput
+  cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutVariantInput
+  orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutVariantInput
+  scheduleItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutVariantInput
+  prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutVariantInput
+}
+
+export type ProductVariantCreateOrConnectWithoutSubstituteForItemsInput = {
+  where: Prisma.ProductVariantWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductVariantCreateWithoutSubstituteForItemsInput, Prisma.ProductVariantUncheckedCreateWithoutSubstituteForItemsInput>
 }
 
 export type ProductVariantUpsertWithoutScheduleItemsInput = {
@@ -1344,6 +1438,7 @@ export type ProductVariantUpdateWithoutScheduleItemsInput = {
   stockReservations?: Prisma.StockReservationUpdateManyWithoutVariantNestedInput
   cartItems?: Prisma.CartItemUpdateManyWithoutVariantNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutVariantNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUpdateManyWithoutSubstituteVariantNestedInput
   prices?: Prisma.ProductPriceUpdateManyWithoutVariantNestedInput
 }
 
@@ -1364,6 +1459,60 @@ export type ProductVariantUncheckedUpdateWithoutScheduleItemsInput = {
   stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutVariantNestedInput
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutVariantNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutVariantNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteVariantNestedInput
+  prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutVariantNestedInput
+}
+
+export type ProductVariantUpsertWithoutSubstituteForItemsInput = {
+  update: Prisma.XOR<Prisma.ProductVariantUpdateWithoutSubstituteForItemsInput, Prisma.ProductVariantUncheckedUpdateWithoutSubstituteForItemsInput>
+  create: Prisma.XOR<Prisma.ProductVariantCreateWithoutSubstituteForItemsInput, Prisma.ProductVariantUncheckedCreateWithoutSubstituteForItemsInput>
+  where?: Prisma.ProductVariantWhereInput
+}
+
+export type ProductVariantUpdateToOneWithWhereWithoutSubstituteForItemsInput = {
+  where?: Prisma.ProductVariantWhereInput
+  data: Prisma.XOR<Prisma.ProductVariantUpdateWithoutSubstituteForItemsInput, Prisma.ProductVariantUncheckedUpdateWithoutSubstituteForItemsInput>
+}
+
+export type ProductVariantUpdateWithoutSubstituteForItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  sku?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  optionsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  priceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  product?: Prisma.ProductUpdateOneRequiredWithoutVariantsNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUpdateManyWithoutVariantNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUpdateManyWithoutVariantNestedInput
+  stockReservations?: Prisma.StockReservationUpdateManyWithoutVariantNestedInput
+  cartItems?: Prisma.CartItemUpdateManyWithoutVariantNestedInput
+  orderItems?: Prisma.OrderItemUpdateManyWithoutVariantNestedInput
+  scheduleItems?: Prisma.RecurringScheduleItemUpdateManyWithoutVariantNestedInput
+  prices?: Prisma.ProductPriceUpdateManyWithoutVariantNestedInput
+}
+
+export type ProductVariantUncheckedUpdateWithoutSubstituteForItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  sku?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  optionsJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  priceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutVariantNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutVariantNestedInput
+  stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutVariantNestedInput
+  cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutVariantNestedInput
+  orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutVariantNestedInput
+  scheduleItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutVariantNestedInput
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutVariantNestedInput
 }
 
@@ -1385,6 +1534,7 @@ export type ProductVariantCreateWithoutPricesInput = {
   cartItems?: Prisma.CartItemCreateNestedManyWithoutVariantInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutVariantInput
   scheduleItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutVariantInput
+  substituteForItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutSubstituteVariantInput
 }
 
 export type ProductVariantUncheckedCreateWithoutPricesInput = {
@@ -1405,6 +1555,7 @@ export type ProductVariantUncheckedCreateWithoutPricesInput = {
   cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutVariantInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutVariantInput
   scheduleItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutVariantInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutSubstituteVariantInput
 }
 
 export type ProductVariantCreateOrConnectWithoutPricesInput = {
@@ -1441,6 +1592,7 @@ export type ProductVariantUpdateWithoutPricesInput = {
   cartItems?: Prisma.CartItemUpdateManyWithoutVariantNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutVariantNestedInput
   scheduleItems?: Prisma.RecurringScheduleItemUpdateManyWithoutVariantNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUpdateManyWithoutSubstituteVariantNestedInput
 }
 
 export type ProductVariantUncheckedUpdateWithoutPricesInput = {
@@ -1461,6 +1613,7 @@ export type ProductVariantUncheckedUpdateWithoutPricesInput = {
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutVariantNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutVariantNestedInput
   scheduleItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutVariantNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteVariantNestedInput
 }
 
 export type ProductVariantCreateManyProductInput = {
@@ -1493,6 +1646,7 @@ export type ProductVariantUpdateWithoutProductInput = {
   cartItems?: Prisma.CartItemUpdateManyWithoutVariantNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutVariantNestedInput
   scheduleItems?: Prisma.RecurringScheduleItemUpdateManyWithoutVariantNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUpdateManyWithoutSubstituteVariantNestedInput
   prices?: Prisma.ProductPriceUpdateManyWithoutVariantNestedInput
 }
 
@@ -1513,6 +1667,7 @@ export type ProductVariantUncheckedUpdateWithoutProductInput = {
   cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutVariantNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutVariantNestedInput
   scheduleItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutVariantNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteVariantNestedInput
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutVariantNestedInput
 }
 
@@ -1541,6 +1696,7 @@ export type ProductVariantCountOutputType = {
   cartItems: number
   orderItems: number
   scheduleItems: number
+  substituteForItems: number
   prices: number
 }
 
@@ -1551,6 +1707,7 @@ export type ProductVariantCountOutputTypeSelect<ExtArgs extends runtime.Types.Ex
   cartItems?: boolean | ProductVariantCountOutputTypeCountCartItemsArgs
   orderItems?: boolean | ProductVariantCountOutputTypeCountOrderItemsArgs
   scheduleItems?: boolean | ProductVariantCountOutputTypeCountScheduleItemsArgs
+  substituteForItems?: boolean | ProductVariantCountOutputTypeCountSubstituteForItemsArgs
   prices?: boolean | ProductVariantCountOutputTypeCountPricesArgs
 }
 
@@ -1609,6 +1766,13 @@ export type ProductVariantCountOutputTypeCountScheduleItemsArgs<ExtArgs extends 
 /**
  * ProductVariantCountOutputType without action
  */
+export type ProductVariantCountOutputTypeCountSubstituteForItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RecurringScheduleItemWhereInput
+}
+
+/**
+ * ProductVariantCountOutputType without action
+ */
 export type ProductVariantCountOutputTypeCountPricesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ProductPriceWhereInput
 }
@@ -1633,6 +1797,7 @@ export type ProductVariantSelect<ExtArgs extends runtime.Types.Extensions.Intern
   cartItems?: boolean | Prisma.ProductVariant$cartItemsArgs<ExtArgs>
   orderItems?: boolean | Prisma.ProductVariant$orderItemsArgs<ExtArgs>
   scheduleItems?: boolean | Prisma.ProductVariant$scheduleItemsArgs<ExtArgs>
+  substituteForItems?: boolean | Prisma.ProductVariant$substituteForItemsArgs<ExtArgs>
   prices?: boolean | Prisma.ProductVariant$pricesArgs<ExtArgs>
   _count?: boolean | Prisma.ProductVariantCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productVariant"]>
@@ -1662,6 +1827,7 @@ export type ProductVariantInclude<ExtArgs extends runtime.Types.Extensions.Inter
   cartItems?: boolean | Prisma.ProductVariant$cartItemsArgs<ExtArgs>
   orderItems?: boolean | Prisma.ProductVariant$orderItemsArgs<ExtArgs>
   scheduleItems?: boolean | Prisma.ProductVariant$scheduleItemsArgs<ExtArgs>
+  substituteForItems?: boolean | Prisma.ProductVariant$substituteForItemsArgs<ExtArgs>
   prices?: boolean | Prisma.ProductVariant$pricesArgs<ExtArgs>
   _count?: boolean | Prisma.ProductVariantCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1676,6 +1842,7 @@ export type $ProductVariantPayload<ExtArgs extends runtime.Types.Extensions.Inte
     cartItems: Prisma.$CartItemPayload<ExtArgs>[]
     orderItems: Prisma.$OrderItemPayload<ExtArgs>[]
     scheduleItems: Prisma.$RecurringScheduleItemPayload<ExtArgs>[]
+    substituteForItems: Prisma.$RecurringScheduleItemPayload<ExtArgs>[]
     prices: Prisma.$ProductPricePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -2043,6 +2210,7 @@ export interface Prisma__ProductVariantClient<T, Null = never, ExtArgs extends r
   cartItems<T extends Prisma.ProductVariant$cartItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVariant$cartItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CartItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   orderItems<T extends Prisma.ProductVariant$orderItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVariant$orderItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   scheduleItems<T extends Prisma.ProductVariant$scheduleItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVariant$scheduleItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecurringScheduleItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  substituteForItems<T extends Prisma.ProductVariant$substituteForItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVariant$substituteForItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecurringScheduleItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   prices<T extends Prisma.ProductVariant$pricesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVariant$pricesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductPricePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2555,6 +2723,30 @@ export type ProductVariant$orderItemsArgs<ExtArgs extends runtime.Types.Extensio
  * ProductVariant.scheduleItems
  */
 export type ProductVariant$scheduleItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RecurringScheduleItem
+   */
+  select?: Prisma.RecurringScheduleItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RecurringScheduleItem
+   */
+  omit?: Prisma.RecurringScheduleItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RecurringScheduleItemInclude<ExtArgs> | null
+  where?: Prisma.RecurringScheduleItemWhereInput
+  orderBy?: Prisma.RecurringScheduleItemOrderByWithRelationInput | Prisma.RecurringScheduleItemOrderByWithRelationInput[]
+  cursor?: Prisma.RecurringScheduleItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RecurringScheduleItemScalarFieldEnum | Prisma.RecurringScheduleItemScalarFieldEnum[]
+}
+
+/**
+ * ProductVariant.substituteForItems
+ */
+export type ProductVariant$substituteForItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the RecurringScheduleItem
    */

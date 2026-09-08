@@ -119,6 +119,8 @@ worth knowing about now, because they change what you see later:
 | `EMAIL_DRIVER` | `log` | Emails are **printed into the worker terminal**, not sent. Fine for development — and that terminal is where you will find confirmation links and temporary passwords while testing. Set to `smtp` and fill the `SMTP_*` block to send real mail. |
 | `FEATURE_CUSTOMER_SELF_REGISTRATION` | `false` | With this off the storefront shows "accounts are by invitation" instead of a sign-up form. Turn it on to let customers register themselves. |
 | `MAP_TILE_URL` | *(empty)* | With this empty the admin panel's Warehouses map plots its markers on a plain ground, with no map behind them. That is a working state, and it is the private one — nothing is requested from a tile service until you set this. See below. |
+| `FEATURE_SUBSCRIPTION_AUTOPAY` | `false` | With this off, customers can still schedule an order for a future date and still subscribe — each delivery is paid through a link emailed to them. Turn it on to let them save a card that is charged automatically, which needs Stripe connected. Storefront screens for saving a card are refused entirely while it is off. |
+| `ERP_ORDER_CONNECTION_NAME` | *(empty)* | With this empty, no order is pushed to an ERP. That is a working state: orders are created, paid and fulfilled exactly as they are with one. Set it to the **name** of an integration connection you have created and activated in the admin panel. |
 
 Leaving `MAP_TILE_URL` empty is a deliberate default rather than something to
 tidy up. A tile request tells whoever serves it which part of the world is

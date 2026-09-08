@@ -15,6 +15,32 @@ export const JobType = {
   NOTIFICATION_SEND: 'notification.send',
   SCHEDULE_RUN: 'schedule.run',
   SCHEDULE_REMINDER: 'schedule.reminder',
+  /// Retry occurrences whose earlier attempt failed BEFORE any money moved.
+  ///
+  /// Separate from SCHEDULE_RUN because the two ask different questions:
+  /// SCHEDULE_RUN looks for plans that are due, this looks for cycles that
+  /// were due, tried, and did not get there. A plan can be perfectly
+  /// up-to-date and still have a failed cycle waiting for another go.
+  SCHEDULE_OCCURRENCE_RETRY: 'schedule.occurrence_retry',
+  /// Close out occurrences whose 3-D Secure window has passed.
+  ///
+  /// Without it an ACTION_REQUIRED cycle would wait for ever, and eventually
+  /// charge for a delivery the customer had stopped expecting at a price
+  /// quoted weeks earlier.
+  SCHEDULE_ACTION_EXPIRE: 'schedule.action_expire',
+  /// Build the SCHEDULED rows customers skip and re-date.
+  ///
+  /// The engine does this as it advances each plan, so this is the safety net
+  /// for plans that were paused across the horizon, or whose materialisation
+  /// failed. A pass with nothing to do costs one indexed query.
+  SCHEDULE_MATERIALISE: 'schedule.materialise',
+  /// Retry an order the ERP has not accepted yet.
+  ///
+  /// The exit from PAID-ERP-PENDING, and the most important retry in the
+  /// system: every row it touches is an order the customer has already paid
+  /// for. Runs under the occurrence's original idempotency key, so it can
+  /// never produce a second ERP order or a second charge.
+  ERP_ORDER_RETRY: 'erp_order.retry',
   PAYMENT_RECONCILE: 'payment.reconcile',
   PAYMENT_LINK_EXPIRE: 'payment_link.expire',
   REFUND_POLL: 'refund.poll',

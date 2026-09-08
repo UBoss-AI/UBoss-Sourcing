@@ -34,6 +34,9 @@ export type RecurringScheduleAvgAggregateOutputType = {
   maxOccurrences: number | null
   occurrenceCount: number | null
   repriceApprovalThresholdMinor: number | null
+  priceTolerancePercent: runtime.Decimal | null
+  priceToleranceMinor: number | null
+  editCutoffMinutes: number | null
   failureCount: number | null
   maxFailures: number | null
 }
@@ -46,6 +49,9 @@ export type RecurringScheduleSumAggregateOutputType = {
   maxOccurrences: number | null
   occurrenceCount: number | null
   repriceApprovalThresholdMinor: bigint | null
+  priceTolerancePercent: runtime.Decimal | null
+  priceToleranceMinor: bigint | null
+  editCutoffMinutes: number | null
   failureCount: number | null
   maxFailures: number | null
 }
@@ -55,6 +61,8 @@ export type RecurringScheduleMinAggregateOutputType = {
   customerProfileId: string | null
   name: string | null
   status: $Enums.ScheduleStatus | null
+  kind: $Enums.ScheduleKind | null
+  runOnceAt: Date | null
   frequency: $Enums.ScheduleFrequency | null
   intervalDays: number | null
   weekday: number | null
@@ -71,12 +79,22 @@ export type RecurringScheduleMinAggregateOutputType = {
   mandateReference: string | null
   mandateProvider: $Enums.PaymentProviderKind | null
   payerEmail: string | null
+  paymentMethodId: string | null
   shippingAddressId: string | null
   billingAddressId: string | null
   shippingMethodCode: string | null
   consentAcceptedAt: Date | null
   consentVersion: string | null
   repriceApprovalThresholdMinor: bigint | null
+  priceTolerancePercent: runtime.Decimal | null
+  priceToleranceMinor: bigint | null
+  editCutoffMinutes: number | null
+  substitutionPolicy: $Enums.SubstitutionPolicy | null
+  fulfilmentRule: $Enums.ScheduleFulfilmentRule | null
+  inventoryLocationId: string | null
+  sourceCartId: string | null
+  activatedAt: Date | null
+  completedAt: Date | null
   failureCount: number | null
   maxFailures: number | null
   pausedAt: Date | null
@@ -95,6 +113,8 @@ export type RecurringScheduleMaxAggregateOutputType = {
   customerProfileId: string | null
   name: string | null
   status: $Enums.ScheduleStatus | null
+  kind: $Enums.ScheduleKind | null
+  runOnceAt: Date | null
   frequency: $Enums.ScheduleFrequency | null
   intervalDays: number | null
   weekday: number | null
@@ -111,12 +131,22 @@ export type RecurringScheduleMaxAggregateOutputType = {
   mandateReference: string | null
   mandateProvider: $Enums.PaymentProviderKind | null
   payerEmail: string | null
+  paymentMethodId: string | null
   shippingAddressId: string | null
   billingAddressId: string | null
   shippingMethodCode: string | null
   consentAcceptedAt: Date | null
   consentVersion: string | null
   repriceApprovalThresholdMinor: bigint | null
+  priceTolerancePercent: runtime.Decimal | null
+  priceToleranceMinor: bigint | null
+  editCutoffMinutes: number | null
+  substitutionPolicy: $Enums.SubstitutionPolicy | null
+  fulfilmentRule: $Enums.ScheduleFulfilmentRule | null
+  inventoryLocationId: string | null
+  sourceCartId: string | null
+  activatedAt: Date | null
+  completedAt: Date | null
   failureCount: number | null
   maxFailures: number | null
   pausedAt: Date | null
@@ -135,6 +165,8 @@ export type RecurringScheduleCountAggregateOutputType = {
   customerProfileId: number
   name: number
   status: number
+  kind: number
+  runOnceAt: number
   frequency: number
   intervalDays: number
   weekday: number
@@ -151,12 +183,23 @@ export type RecurringScheduleCountAggregateOutputType = {
   mandateReference: number
   mandateProvider: number
   payerEmail: number
+  paymentMethodId: number
   shippingAddressId: number
   billingAddressId: number
   shippingMethodCode: number
   consentAcceptedAt: number
   consentVersion: number
   repriceApprovalThresholdMinor: number
+  priceTolerancePercent: number
+  priceToleranceMinor: number
+  editCutoffMinutes: number
+  substitutionPolicy: number
+  fulfilmentRule: number
+  inventoryLocationId: number
+  cartSnapshotJson: number
+  sourceCartId: number
+  activatedAt: number
+  completedAt: number
   failureCount: number
   maxFailures: number
   pausedAt: number
@@ -180,6 +223,9 @@ export type RecurringScheduleAvgAggregateInputType = {
   maxOccurrences?: true
   occurrenceCount?: true
   repriceApprovalThresholdMinor?: true
+  priceTolerancePercent?: true
+  priceToleranceMinor?: true
+  editCutoffMinutes?: true
   failureCount?: true
   maxFailures?: true
 }
@@ -192,6 +238,9 @@ export type RecurringScheduleSumAggregateInputType = {
   maxOccurrences?: true
   occurrenceCount?: true
   repriceApprovalThresholdMinor?: true
+  priceTolerancePercent?: true
+  priceToleranceMinor?: true
+  editCutoffMinutes?: true
   failureCount?: true
   maxFailures?: true
 }
@@ -201,6 +250,8 @@ export type RecurringScheduleMinAggregateInputType = {
   customerProfileId?: true
   name?: true
   status?: true
+  kind?: true
+  runOnceAt?: true
   frequency?: true
   intervalDays?: true
   weekday?: true
@@ -217,12 +268,22 @@ export type RecurringScheduleMinAggregateInputType = {
   mandateReference?: true
   mandateProvider?: true
   payerEmail?: true
+  paymentMethodId?: true
   shippingAddressId?: true
   billingAddressId?: true
   shippingMethodCode?: true
   consentAcceptedAt?: true
   consentVersion?: true
   repriceApprovalThresholdMinor?: true
+  priceTolerancePercent?: true
+  priceToleranceMinor?: true
+  editCutoffMinutes?: true
+  substitutionPolicy?: true
+  fulfilmentRule?: true
+  inventoryLocationId?: true
+  sourceCartId?: true
+  activatedAt?: true
+  completedAt?: true
   failureCount?: true
   maxFailures?: true
   pausedAt?: true
@@ -241,6 +302,8 @@ export type RecurringScheduleMaxAggregateInputType = {
   customerProfileId?: true
   name?: true
   status?: true
+  kind?: true
+  runOnceAt?: true
   frequency?: true
   intervalDays?: true
   weekday?: true
@@ -257,12 +320,22 @@ export type RecurringScheduleMaxAggregateInputType = {
   mandateReference?: true
   mandateProvider?: true
   payerEmail?: true
+  paymentMethodId?: true
   shippingAddressId?: true
   billingAddressId?: true
   shippingMethodCode?: true
   consentAcceptedAt?: true
   consentVersion?: true
   repriceApprovalThresholdMinor?: true
+  priceTolerancePercent?: true
+  priceToleranceMinor?: true
+  editCutoffMinutes?: true
+  substitutionPolicy?: true
+  fulfilmentRule?: true
+  inventoryLocationId?: true
+  sourceCartId?: true
+  activatedAt?: true
+  completedAt?: true
   failureCount?: true
   maxFailures?: true
   pausedAt?: true
@@ -281,6 +354,8 @@ export type RecurringScheduleCountAggregateInputType = {
   customerProfileId?: true
   name?: true
   status?: true
+  kind?: true
+  runOnceAt?: true
   frequency?: true
   intervalDays?: true
   weekday?: true
@@ -297,12 +372,23 @@ export type RecurringScheduleCountAggregateInputType = {
   mandateReference?: true
   mandateProvider?: true
   payerEmail?: true
+  paymentMethodId?: true
   shippingAddressId?: true
   billingAddressId?: true
   shippingMethodCode?: true
   consentAcceptedAt?: true
   consentVersion?: true
   repriceApprovalThresholdMinor?: true
+  priceTolerancePercent?: true
+  priceToleranceMinor?: true
+  editCutoffMinutes?: true
+  substitutionPolicy?: true
+  fulfilmentRule?: true
+  inventoryLocationId?: true
+  cartSnapshotJson?: true
+  sourceCartId?: true
+  activatedAt?: true
+  completedAt?: true
   failureCount?: true
   maxFailures?: true
   pausedAt?: true
@@ -408,6 +494,8 @@ export type RecurringScheduleGroupByOutputType = {
   customerProfileId: string
   name: string
   status: $Enums.ScheduleStatus
+  kind: $Enums.ScheduleKind
+  runOnceAt: Date | null
   frequency: $Enums.ScheduleFrequency
   intervalDays: number | null
   weekday: number | null
@@ -424,12 +512,23 @@ export type RecurringScheduleGroupByOutputType = {
   mandateReference: string | null
   mandateProvider: $Enums.PaymentProviderKind | null
   payerEmail: string | null
+  paymentMethodId: string | null
   shippingAddressId: string
   billingAddressId: string
   shippingMethodCode: string | null
   consentAcceptedAt: Date
   consentVersion: string
   repriceApprovalThresholdMinor: bigint | null
+  priceTolerancePercent: runtime.Decimal | null
+  priceToleranceMinor: bigint | null
+  editCutoffMinutes: number
+  substitutionPolicy: $Enums.SubstitutionPolicy
+  fulfilmentRule: $Enums.ScheduleFulfilmentRule
+  inventoryLocationId: string | null
+  cartSnapshotJson: runtime.JsonValue | null
+  sourceCartId: string | null
+  activatedAt: Date | null
+  completedAt: Date | null
   failureCount: number
   maxFailures: number
   pausedAt: Date | null
@@ -471,6 +570,8 @@ export type RecurringScheduleWhereInput = {
   customerProfileId?: Prisma.StringFilter<"RecurringSchedule"> | string
   name?: Prisma.StringFilter<"RecurringSchedule"> | string
   status?: Prisma.EnumScheduleStatusFilter<"RecurringSchedule"> | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFilter<"RecurringSchedule"> | $Enums.ScheduleKind
+  runOnceAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
   frequency?: Prisma.EnumScheduleFrequencyFilter<"RecurringSchedule"> | $Enums.ScheduleFrequency
   intervalDays?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
   weekday?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
@@ -487,12 +588,23 @@ export type RecurringScheduleWhereInput = {
   mandateReference?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
   mandateProvider?: Prisma.EnumPaymentProviderKindNullableFilter<"RecurringSchedule"> | $Enums.PaymentProviderKind | null
   payerEmail?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
+  paymentMethodId?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
   shippingAddressId?: Prisma.StringFilter<"RecurringSchedule"> | string
   billingAddressId?: Prisma.StringFilter<"RecurringSchedule"> | string
   shippingMethodCode?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
   consentAcceptedAt?: Prisma.DateTimeFilter<"RecurringSchedule"> | Date | string
   consentVersion?: Prisma.StringFilter<"RecurringSchedule"> | string
   repriceApprovalThresholdMinor?: Prisma.BigIntNullableFilter<"RecurringSchedule"> | bigint | number | null
+  priceTolerancePercent?: Prisma.DecimalNullableFilter<"RecurringSchedule"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.BigIntNullableFilter<"RecurringSchedule"> | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFilter<"RecurringSchedule"> | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFilter<"RecurringSchedule"> | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFilter<"RecurringSchedule"> | $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
+  cartSnapshotJson?: Prisma.JsonNullableFilter<"RecurringSchedule">
+  sourceCartId?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
+  activatedAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
+  completedAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
   failureCount?: Prisma.IntFilter<"RecurringSchedule"> | number
   maxFailures?: Prisma.IntFilter<"RecurringSchedule"> | number
   pausedAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
@@ -507,6 +619,8 @@ export type RecurringScheduleWhereInput = {
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
   shippingAddress?: Prisma.XOR<Prisma.AddressScalarRelationFilter, Prisma.AddressWhereInput>
   billingAddress?: Prisma.XOR<Prisma.AddressScalarRelationFilter, Prisma.AddressWhereInput>
+  paymentMethod?: Prisma.XOR<Prisma.CustomerPaymentMethodNullableScalarRelationFilter, Prisma.CustomerPaymentMethodWhereInput> | null
+  inventoryLocation?: Prisma.XOR<Prisma.InventoryLocationNullableScalarRelationFilter, Prisma.InventoryLocationWhereInput> | null
   items?: Prisma.RecurringScheduleItemListRelationFilter
   occurrences?: Prisma.ScheduleOccurrenceListRelationFilter
 }
@@ -516,6 +630,8 @@ export type RecurringScheduleOrderByWithRelationInput = {
   customerProfileId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
+  runOnceAt?: Prisma.SortOrderInput | Prisma.SortOrder
   frequency?: Prisma.SortOrder
   intervalDays?: Prisma.SortOrderInput | Prisma.SortOrder
   weekday?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -532,12 +648,23 @@ export type RecurringScheduleOrderByWithRelationInput = {
   mandateReference?: Prisma.SortOrderInput | Prisma.SortOrder
   mandateProvider?: Prisma.SortOrderInput | Prisma.SortOrder
   payerEmail?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentMethodId?: Prisma.SortOrderInput | Prisma.SortOrder
   shippingAddressId?: Prisma.SortOrder
   billingAddressId?: Prisma.SortOrder
   shippingMethodCode?: Prisma.SortOrderInput | Prisma.SortOrder
   consentAcceptedAt?: Prisma.SortOrder
   consentVersion?: Prisma.SortOrder
   repriceApprovalThresholdMinor?: Prisma.SortOrderInput | Prisma.SortOrder
+  priceTolerancePercent?: Prisma.SortOrderInput | Prisma.SortOrder
+  priceToleranceMinor?: Prisma.SortOrderInput | Prisma.SortOrder
+  editCutoffMinutes?: Prisma.SortOrder
+  substitutionPolicy?: Prisma.SortOrder
+  fulfilmentRule?: Prisma.SortOrder
+  inventoryLocationId?: Prisma.SortOrderInput | Prisma.SortOrder
+  cartSnapshotJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceCartId?: Prisma.SortOrderInput | Prisma.SortOrder
+  activatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   failureCount?: Prisma.SortOrder
   maxFailures?: Prisma.SortOrder
   pausedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -552,6 +679,8 @@ export type RecurringScheduleOrderByWithRelationInput = {
   customerProfile?: Prisma.CustomerProfileOrderByWithRelationInput
   shippingAddress?: Prisma.AddressOrderByWithRelationInput
   billingAddress?: Prisma.AddressOrderByWithRelationInput
+  paymentMethod?: Prisma.CustomerPaymentMethodOrderByWithRelationInput
+  inventoryLocation?: Prisma.InventoryLocationOrderByWithRelationInput
   items?: Prisma.RecurringScheduleItemOrderByRelationAggregateInput
   occurrences?: Prisma.ScheduleOccurrenceOrderByRelationAggregateInput
   _relevance?: Prisma.RecurringScheduleOrderByRelevanceInput
@@ -565,6 +694,8 @@ export type RecurringScheduleWhereUniqueInput = Prisma.AtLeast<{
   customerProfileId?: Prisma.StringFilter<"RecurringSchedule"> | string
   name?: Prisma.StringFilter<"RecurringSchedule"> | string
   status?: Prisma.EnumScheduleStatusFilter<"RecurringSchedule"> | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFilter<"RecurringSchedule"> | $Enums.ScheduleKind
+  runOnceAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
   frequency?: Prisma.EnumScheduleFrequencyFilter<"RecurringSchedule"> | $Enums.ScheduleFrequency
   intervalDays?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
   weekday?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
@@ -581,12 +712,23 @@ export type RecurringScheduleWhereUniqueInput = Prisma.AtLeast<{
   mandateReference?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
   mandateProvider?: Prisma.EnumPaymentProviderKindNullableFilter<"RecurringSchedule"> | $Enums.PaymentProviderKind | null
   payerEmail?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
+  paymentMethodId?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
   shippingAddressId?: Prisma.StringFilter<"RecurringSchedule"> | string
   billingAddressId?: Prisma.StringFilter<"RecurringSchedule"> | string
   shippingMethodCode?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
   consentAcceptedAt?: Prisma.DateTimeFilter<"RecurringSchedule"> | Date | string
   consentVersion?: Prisma.StringFilter<"RecurringSchedule"> | string
   repriceApprovalThresholdMinor?: Prisma.BigIntNullableFilter<"RecurringSchedule"> | bigint | number | null
+  priceTolerancePercent?: Prisma.DecimalNullableFilter<"RecurringSchedule"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.BigIntNullableFilter<"RecurringSchedule"> | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFilter<"RecurringSchedule"> | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFilter<"RecurringSchedule"> | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFilter<"RecurringSchedule"> | $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
+  cartSnapshotJson?: Prisma.JsonNullableFilter<"RecurringSchedule">
+  sourceCartId?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
+  activatedAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
+  completedAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
   failureCount?: Prisma.IntFilter<"RecurringSchedule"> | number
   maxFailures?: Prisma.IntFilter<"RecurringSchedule"> | number
   pausedAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
@@ -601,6 +743,8 @@ export type RecurringScheduleWhereUniqueInput = Prisma.AtLeast<{
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
   shippingAddress?: Prisma.XOR<Prisma.AddressScalarRelationFilter, Prisma.AddressWhereInput>
   billingAddress?: Prisma.XOR<Prisma.AddressScalarRelationFilter, Prisma.AddressWhereInput>
+  paymentMethod?: Prisma.XOR<Prisma.CustomerPaymentMethodNullableScalarRelationFilter, Prisma.CustomerPaymentMethodWhereInput> | null
+  inventoryLocation?: Prisma.XOR<Prisma.InventoryLocationNullableScalarRelationFilter, Prisma.InventoryLocationWhereInput> | null
   items?: Prisma.RecurringScheduleItemListRelationFilter
   occurrences?: Prisma.ScheduleOccurrenceListRelationFilter
 }, "id">
@@ -610,6 +754,8 @@ export type RecurringScheduleOrderByWithAggregationInput = {
   customerProfileId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
+  runOnceAt?: Prisma.SortOrderInput | Prisma.SortOrder
   frequency?: Prisma.SortOrder
   intervalDays?: Prisma.SortOrderInput | Prisma.SortOrder
   weekday?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -626,12 +772,23 @@ export type RecurringScheduleOrderByWithAggregationInput = {
   mandateReference?: Prisma.SortOrderInput | Prisma.SortOrder
   mandateProvider?: Prisma.SortOrderInput | Prisma.SortOrder
   payerEmail?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentMethodId?: Prisma.SortOrderInput | Prisma.SortOrder
   shippingAddressId?: Prisma.SortOrder
   billingAddressId?: Prisma.SortOrder
   shippingMethodCode?: Prisma.SortOrderInput | Prisma.SortOrder
   consentAcceptedAt?: Prisma.SortOrder
   consentVersion?: Prisma.SortOrder
   repriceApprovalThresholdMinor?: Prisma.SortOrderInput | Prisma.SortOrder
+  priceTolerancePercent?: Prisma.SortOrderInput | Prisma.SortOrder
+  priceToleranceMinor?: Prisma.SortOrderInput | Prisma.SortOrder
+  editCutoffMinutes?: Prisma.SortOrder
+  substitutionPolicy?: Prisma.SortOrder
+  fulfilmentRule?: Prisma.SortOrder
+  inventoryLocationId?: Prisma.SortOrderInput | Prisma.SortOrder
+  cartSnapshotJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceCartId?: Prisma.SortOrderInput | Prisma.SortOrder
+  activatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   failureCount?: Prisma.SortOrder
   maxFailures?: Prisma.SortOrder
   pausedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -658,6 +815,8 @@ export type RecurringScheduleScalarWhereWithAggregatesInput = {
   customerProfileId?: Prisma.StringWithAggregatesFilter<"RecurringSchedule"> | string
   name?: Prisma.StringWithAggregatesFilter<"RecurringSchedule"> | string
   status?: Prisma.EnumScheduleStatusWithAggregatesFilter<"RecurringSchedule"> | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindWithAggregatesFilter<"RecurringSchedule"> | $Enums.ScheduleKind
+  runOnceAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RecurringSchedule"> | Date | string | null
   frequency?: Prisma.EnumScheduleFrequencyWithAggregatesFilter<"RecurringSchedule"> | $Enums.ScheduleFrequency
   intervalDays?: Prisma.IntNullableWithAggregatesFilter<"RecurringSchedule"> | number | null
   weekday?: Prisma.IntNullableWithAggregatesFilter<"RecurringSchedule"> | number | null
@@ -674,12 +833,23 @@ export type RecurringScheduleScalarWhereWithAggregatesInput = {
   mandateReference?: Prisma.StringNullableWithAggregatesFilter<"RecurringSchedule"> | string | null
   mandateProvider?: Prisma.EnumPaymentProviderKindNullableWithAggregatesFilter<"RecurringSchedule"> | $Enums.PaymentProviderKind | null
   payerEmail?: Prisma.StringNullableWithAggregatesFilter<"RecurringSchedule"> | string | null
+  paymentMethodId?: Prisma.StringNullableWithAggregatesFilter<"RecurringSchedule"> | string | null
   shippingAddressId?: Prisma.StringWithAggregatesFilter<"RecurringSchedule"> | string
   billingAddressId?: Prisma.StringWithAggregatesFilter<"RecurringSchedule"> | string
   shippingMethodCode?: Prisma.StringNullableWithAggregatesFilter<"RecurringSchedule"> | string | null
   consentAcceptedAt?: Prisma.DateTimeWithAggregatesFilter<"RecurringSchedule"> | Date | string
   consentVersion?: Prisma.StringWithAggregatesFilter<"RecurringSchedule"> | string
   repriceApprovalThresholdMinor?: Prisma.BigIntNullableWithAggregatesFilter<"RecurringSchedule"> | bigint | number | null
+  priceTolerancePercent?: Prisma.DecimalNullableWithAggregatesFilter<"RecurringSchedule"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.BigIntNullableWithAggregatesFilter<"RecurringSchedule"> | bigint | number | null
+  editCutoffMinutes?: Prisma.IntWithAggregatesFilter<"RecurringSchedule"> | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyWithAggregatesFilter<"RecurringSchedule"> | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleWithAggregatesFilter<"RecurringSchedule"> | $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: Prisma.StringNullableWithAggregatesFilter<"RecurringSchedule"> | string | null
+  cartSnapshotJson?: Prisma.JsonNullableWithAggregatesFilter<"RecurringSchedule">
+  sourceCartId?: Prisma.StringNullableWithAggregatesFilter<"RecurringSchedule"> | string | null
+  activatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RecurringSchedule"> | Date | string | null
+  completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RecurringSchedule"> | Date | string | null
   failureCount?: Prisma.IntWithAggregatesFilter<"RecurringSchedule"> | number
   maxFailures?: Prisma.IntWithAggregatesFilter<"RecurringSchedule"> | number
   pausedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RecurringSchedule"> | Date | string | null
@@ -697,6 +867,8 @@ export type RecurringScheduleCreateInput = {
   id: string
   name: string
   status?: $Enums.ScheduleStatus
+  kind?: $Enums.ScheduleKind
+  runOnceAt?: Date | string | null
   frequency: $Enums.ScheduleFrequency
   intervalDays?: number | null
   weekday?: number | null
@@ -717,6 +889,15 @@ export type RecurringScheduleCreateInput = {
   consentAcceptedAt: Date | string
   consentVersion: string
   repriceApprovalThresholdMinor?: bigint | number | null
+  priceTolerancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: bigint | number | null
+  editCutoffMinutes?: number
+  substitutionPolicy?: $Enums.SubstitutionPolicy
+  fulfilmentRule?: $Enums.ScheduleFulfilmentRule
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: string | null
+  activatedAt?: Date | string | null
+  completedAt?: Date | string | null
   failureCount?: number
   maxFailures?: number
   pausedAt?: Date | string | null
@@ -731,6 +912,8 @@ export type RecurringScheduleCreateInput = {
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutSchedulesInput
   shippingAddress: Prisma.AddressCreateNestedOneWithoutShippingSchedulesInput
   billingAddress: Prisma.AddressCreateNestedOneWithoutBillingSchedulesInput
+  paymentMethod?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutSchedulesInput
+  inventoryLocation?: Prisma.InventoryLocationCreateNestedOneWithoutSchedulesInput
   items?: Prisma.RecurringScheduleItemCreateNestedManyWithoutScheduleInput
   occurrences?: Prisma.ScheduleOccurrenceCreateNestedManyWithoutScheduleInput
 }
@@ -740,6 +923,8 @@ export type RecurringScheduleUncheckedCreateInput = {
   customerProfileId: string
   name: string
   status?: $Enums.ScheduleStatus
+  kind?: $Enums.ScheduleKind
+  runOnceAt?: Date | string | null
   frequency: $Enums.ScheduleFrequency
   intervalDays?: number | null
   weekday?: number | null
@@ -756,12 +941,23 @@ export type RecurringScheduleUncheckedCreateInput = {
   mandateReference?: string | null
   mandateProvider?: $Enums.PaymentProviderKind | null
   payerEmail?: string | null
+  paymentMethodId?: string | null
   shippingAddressId: string
   billingAddressId: string
   shippingMethodCode?: string | null
   consentAcceptedAt: Date | string
   consentVersion: string
   repriceApprovalThresholdMinor?: bigint | number | null
+  priceTolerancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: bigint | number | null
+  editCutoffMinutes?: number
+  substitutionPolicy?: $Enums.SubstitutionPolicy
+  fulfilmentRule?: $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: string | null
+  activatedAt?: Date | string | null
+  completedAt?: Date | string | null
   failureCount?: number
   maxFailures?: number
   pausedAt?: Date | string | null
@@ -781,6 +977,8 @@ export type RecurringScheduleUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFieldUpdateOperationsInput | $Enums.ScheduleKind
+  runOnceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frequency?: Prisma.EnumScheduleFrequencyFieldUpdateOperationsInput | $Enums.ScheduleFrequency
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -801,6 +999,15 @@ export type RecurringScheduleUpdateInput = {
   consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
   repriceApprovalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  priceTolerancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFieldUpdateOperationsInput | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFieldUpdateOperationsInput | $Enums.ScheduleFulfilmentRule
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureCount?: Prisma.IntFieldUpdateOperationsInput | number
   maxFailures?: Prisma.IntFieldUpdateOperationsInput | number
   pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -815,6 +1022,8 @@ export type RecurringScheduleUpdateInput = {
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutSchedulesNestedInput
   shippingAddress?: Prisma.AddressUpdateOneRequiredWithoutShippingSchedulesNestedInput
   billingAddress?: Prisma.AddressUpdateOneRequiredWithoutBillingSchedulesNestedInput
+  paymentMethod?: Prisma.CustomerPaymentMethodUpdateOneWithoutSchedulesNestedInput
+  inventoryLocation?: Prisma.InventoryLocationUpdateOneWithoutSchedulesNestedInput
   items?: Prisma.RecurringScheduleItemUpdateManyWithoutScheduleNestedInput
   occurrences?: Prisma.ScheduleOccurrenceUpdateManyWithoutScheduleNestedInput
 }
@@ -824,6 +1033,8 @@ export type RecurringScheduleUncheckedUpdateInput = {
   customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFieldUpdateOperationsInput | $Enums.ScheduleKind
+  runOnceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frequency?: Prisma.EnumScheduleFrequencyFieldUpdateOperationsInput | $Enums.ScheduleFrequency
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -840,12 +1051,23 @@ export type RecurringScheduleUncheckedUpdateInput = {
   mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mandateProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   payerEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
   billingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
   repriceApprovalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  priceTolerancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFieldUpdateOperationsInput | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFieldUpdateOperationsInput | $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureCount?: Prisma.IntFieldUpdateOperationsInput | number
   maxFailures?: Prisma.IntFieldUpdateOperationsInput | number
   pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -866,6 +1088,8 @@ export type RecurringScheduleCreateManyInput = {
   customerProfileId: string
   name: string
   status?: $Enums.ScheduleStatus
+  kind?: $Enums.ScheduleKind
+  runOnceAt?: Date | string | null
   frequency: $Enums.ScheduleFrequency
   intervalDays?: number | null
   weekday?: number | null
@@ -882,12 +1106,23 @@ export type RecurringScheduleCreateManyInput = {
   mandateReference?: string | null
   mandateProvider?: $Enums.PaymentProviderKind | null
   payerEmail?: string | null
+  paymentMethodId?: string | null
   shippingAddressId: string
   billingAddressId: string
   shippingMethodCode?: string | null
   consentAcceptedAt: Date | string
   consentVersion: string
   repriceApprovalThresholdMinor?: bigint | number | null
+  priceTolerancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: bigint | number | null
+  editCutoffMinutes?: number
+  substitutionPolicy?: $Enums.SubstitutionPolicy
+  fulfilmentRule?: $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: string | null
+  activatedAt?: Date | string | null
+  completedAt?: Date | string | null
   failureCount?: number
   maxFailures?: number
   pausedAt?: Date | string | null
@@ -905,6 +1140,8 @@ export type RecurringScheduleUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFieldUpdateOperationsInput | $Enums.ScheduleKind
+  runOnceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frequency?: Prisma.EnumScheduleFrequencyFieldUpdateOperationsInput | $Enums.ScheduleFrequency
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -925,6 +1162,15 @@ export type RecurringScheduleUpdateManyMutationInput = {
   consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
   repriceApprovalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  priceTolerancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFieldUpdateOperationsInput | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFieldUpdateOperationsInput | $Enums.ScheduleFulfilmentRule
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureCount?: Prisma.IntFieldUpdateOperationsInput | number
   maxFailures?: Prisma.IntFieldUpdateOperationsInput | number
   pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -943,6 +1189,8 @@ export type RecurringScheduleUncheckedUpdateManyInput = {
   customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFieldUpdateOperationsInput | $Enums.ScheduleKind
+  runOnceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frequency?: Prisma.EnumScheduleFrequencyFieldUpdateOperationsInput | $Enums.ScheduleFrequency
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -959,12 +1207,23 @@ export type RecurringScheduleUncheckedUpdateManyInput = {
   mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mandateProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   payerEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
   billingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
   repriceApprovalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  priceTolerancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFieldUpdateOperationsInput | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFieldUpdateOperationsInput | $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureCount?: Prisma.IntFieldUpdateOperationsInput | number
   maxFailures?: Prisma.IntFieldUpdateOperationsInput | number
   pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -999,6 +1258,8 @@ export type RecurringScheduleCountOrderByAggregateInput = {
   customerProfileId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
+  runOnceAt?: Prisma.SortOrder
   frequency?: Prisma.SortOrder
   intervalDays?: Prisma.SortOrder
   weekday?: Prisma.SortOrder
@@ -1015,12 +1276,23 @@ export type RecurringScheduleCountOrderByAggregateInput = {
   mandateReference?: Prisma.SortOrder
   mandateProvider?: Prisma.SortOrder
   payerEmail?: Prisma.SortOrder
+  paymentMethodId?: Prisma.SortOrder
   shippingAddressId?: Prisma.SortOrder
   billingAddressId?: Prisma.SortOrder
   shippingMethodCode?: Prisma.SortOrder
   consentAcceptedAt?: Prisma.SortOrder
   consentVersion?: Prisma.SortOrder
   repriceApprovalThresholdMinor?: Prisma.SortOrder
+  priceTolerancePercent?: Prisma.SortOrder
+  priceToleranceMinor?: Prisma.SortOrder
+  editCutoffMinutes?: Prisma.SortOrder
+  substitutionPolicy?: Prisma.SortOrder
+  fulfilmentRule?: Prisma.SortOrder
+  inventoryLocationId?: Prisma.SortOrder
+  cartSnapshotJson?: Prisma.SortOrder
+  sourceCartId?: Prisma.SortOrder
+  activatedAt?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
   failureCount?: Prisma.SortOrder
   maxFailures?: Prisma.SortOrder
   pausedAt?: Prisma.SortOrder
@@ -1042,6 +1314,9 @@ export type RecurringScheduleAvgOrderByAggregateInput = {
   maxOccurrences?: Prisma.SortOrder
   occurrenceCount?: Prisma.SortOrder
   repriceApprovalThresholdMinor?: Prisma.SortOrder
+  priceTolerancePercent?: Prisma.SortOrder
+  priceToleranceMinor?: Prisma.SortOrder
+  editCutoffMinutes?: Prisma.SortOrder
   failureCount?: Prisma.SortOrder
   maxFailures?: Prisma.SortOrder
 }
@@ -1051,6 +1326,8 @@ export type RecurringScheduleMaxOrderByAggregateInput = {
   customerProfileId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
+  runOnceAt?: Prisma.SortOrder
   frequency?: Prisma.SortOrder
   intervalDays?: Prisma.SortOrder
   weekday?: Prisma.SortOrder
@@ -1067,12 +1344,22 @@ export type RecurringScheduleMaxOrderByAggregateInput = {
   mandateReference?: Prisma.SortOrder
   mandateProvider?: Prisma.SortOrder
   payerEmail?: Prisma.SortOrder
+  paymentMethodId?: Prisma.SortOrder
   shippingAddressId?: Prisma.SortOrder
   billingAddressId?: Prisma.SortOrder
   shippingMethodCode?: Prisma.SortOrder
   consentAcceptedAt?: Prisma.SortOrder
   consentVersion?: Prisma.SortOrder
   repriceApprovalThresholdMinor?: Prisma.SortOrder
+  priceTolerancePercent?: Prisma.SortOrder
+  priceToleranceMinor?: Prisma.SortOrder
+  editCutoffMinutes?: Prisma.SortOrder
+  substitutionPolicy?: Prisma.SortOrder
+  fulfilmentRule?: Prisma.SortOrder
+  inventoryLocationId?: Prisma.SortOrder
+  sourceCartId?: Prisma.SortOrder
+  activatedAt?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
   failureCount?: Prisma.SortOrder
   maxFailures?: Prisma.SortOrder
   pausedAt?: Prisma.SortOrder
@@ -1091,6 +1378,8 @@ export type RecurringScheduleMinOrderByAggregateInput = {
   customerProfileId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
+  runOnceAt?: Prisma.SortOrder
   frequency?: Prisma.SortOrder
   intervalDays?: Prisma.SortOrder
   weekday?: Prisma.SortOrder
@@ -1107,12 +1396,22 @@ export type RecurringScheduleMinOrderByAggregateInput = {
   mandateReference?: Prisma.SortOrder
   mandateProvider?: Prisma.SortOrder
   payerEmail?: Prisma.SortOrder
+  paymentMethodId?: Prisma.SortOrder
   shippingAddressId?: Prisma.SortOrder
   billingAddressId?: Prisma.SortOrder
   shippingMethodCode?: Prisma.SortOrder
   consentAcceptedAt?: Prisma.SortOrder
   consentVersion?: Prisma.SortOrder
   repriceApprovalThresholdMinor?: Prisma.SortOrder
+  priceTolerancePercent?: Prisma.SortOrder
+  priceToleranceMinor?: Prisma.SortOrder
+  editCutoffMinutes?: Prisma.SortOrder
+  substitutionPolicy?: Prisma.SortOrder
+  fulfilmentRule?: Prisma.SortOrder
+  inventoryLocationId?: Prisma.SortOrder
+  sourceCartId?: Prisma.SortOrder
+  activatedAt?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
   failureCount?: Prisma.SortOrder
   maxFailures?: Prisma.SortOrder
   pausedAt?: Prisma.SortOrder
@@ -1134,6 +1433,9 @@ export type RecurringScheduleSumOrderByAggregateInput = {
   maxOccurrences?: Prisma.SortOrder
   occurrenceCount?: Prisma.SortOrder
   repriceApprovalThresholdMinor?: Prisma.SortOrder
+  priceTolerancePercent?: Prisma.SortOrder
+  priceToleranceMinor?: Prisma.SortOrder
+  editCutoffMinutes?: Prisma.SortOrder
   failureCount?: Prisma.SortOrder
   maxFailures?: Prisma.SortOrder
 }
@@ -1141,6 +1443,48 @@ export type RecurringScheduleSumOrderByAggregateInput = {
 export type RecurringScheduleScalarRelationFilter = {
   is?: Prisma.RecurringScheduleWhereInput
   isNot?: Prisma.RecurringScheduleWhereInput
+}
+
+export type RecurringScheduleCreateNestedManyWithoutInventoryLocationInput = {
+  create?: Prisma.XOR<Prisma.RecurringScheduleCreateWithoutInventoryLocationInput, Prisma.RecurringScheduleUncheckedCreateWithoutInventoryLocationInput> | Prisma.RecurringScheduleCreateWithoutInventoryLocationInput[] | Prisma.RecurringScheduleUncheckedCreateWithoutInventoryLocationInput[]
+  connectOrCreate?: Prisma.RecurringScheduleCreateOrConnectWithoutInventoryLocationInput | Prisma.RecurringScheduleCreateOrConnectWithoutInventoryLocationInput[]
+  createMany?: Prisma.RecurringScheduleCreateManyInventoryLocationInputEnvelope
+  connect?: Prisma.RecurringScheduleWhereUniqueInput | Prisma.RecurringScheduleWhereUniqueInput[]
+}
+
+export type RecurringScheduleUncheckedCreateNestedManyWithoutInventoryLocationInput = {
+  create?: Prisma.XOR<Prisma.RecurringScheduleCreateWithoutInventoryLocationInput, Prisma.RecurringScheduleUncheckedCreateWithoutInventoryLocationInput> | Prisma.RecurringScheduleCreateWithoutInventoryLocationInput[] | Prisma.RecurringScheduleUncheckedCreateWithoutInventoryLocationInput[]
+  connectOrCreate?: Prisma.RecurringScheduleCreateOrConnectWithoutInventoryLocationInput | Prisma.RecurringScheduleCreateOrConnectWithoutInventoryLocationInput[]
+  createMany?: Prisma.RecurringScheduleCreateManyInventoryLocationInputEnvelope
+  connect?: Prisma.RecurringScheduleWhereUniqueInput | Prisma.RecurringScheduleWhereUniqueInput[]
+}
+
+export type RecurringScheduleUpdateManyWithoutInventoryLocationNestedInput = {
+  create?: Prisma.XOR<Prisma.RecurringScheduleCreateWithoutInventoryLocationInput, Prisma.RecurringScheduleUncheckedCreateWithoutInventoryLocationInput> | Prisma.RecurringScheduleCreateWithoutInventoryLocationInput[] | Prisma.RecurringScheduleUncheckedCreateWithoutInventoryLocationInput[]
+  connectOrCreate?: Prisma.RecurringScheduleCreateOrConnectWithoutInventoryLocationInput | Prisma.RecurringScheduleCreateOrConnectWithoutInventoryLocationInput[]
+  upsert?: Prisma.RecurringScheduleUpsertWithWhereUniqueWithoutInventoryLocationInput | Prisma.RecurringScheduleUpsertWithWhereUniqueWithoutInventoryLocationInput[]
+  createMany?: Prisma.RecurringScheduleCreateManyInventoryLocationInputEnvelope
+  set?: Prisma.RecurringScheduleWhereUniqueInput | Prisma.RecurringScheduleWhereUniqueInput[]
+  disconnect?: Prisma.RecurringScheduleWhereUniqueInput | Prisma.RecurringScheduleWhereUniqueInput[]
+  delete?: Prisma.RecurringScheduleWhereUniqueInput | Prisma.RecurringScheduleWhereUniqueInput[]
+  connect?: Prisma.RecurringScheduleWhereUniqueInput | Prisma.RecurringScheduleWhereUniqueInput[]
+  update?: Prisma.RecurringScheduleUpdateWithWhereUniqueWithoutInventoryLocationInput | Prisma.RecurringScheduleUpdateWithWhereUniqueWithoutInventoryLocationInput[]
+  updateMany?: Prisma.RecurringScheduleUpdateManyWithWhereWithoutInventoryLocationInput | Prisma.RecurringScheduleUpdateManyWithWhereWithoutInventoryLocationInput[]
+  deleteMany?: Prisma.RecurringScheduleScalarWhereInput | Prisma.RecurringScheduleScalarWhereInput[]
+}
+
+export type RecurringScheduleUncheckedUpdateManyWithoutInventoryLocationNestedInput = {
+  create?: Prisma.XOR<Prisma.RecurringScheduleCreateWithoutInventoryLocationInput, Prisma.RecurringScheduleUncheckedCreateWithoutInventoryLocationInput> | Prisma.RecurringScheduleCreateWithoutInventoryLocationInput[] | Prisma.RecurringScheduleUncheckedCreateWithoutInventoryLocationInput[]
+  connectOrCreate?: Prisma.RecurringScheduleCreateOrConnectWithoutInventoryLocationInput | Prisma.RecurringScheduleCreateOrConnectWithoutInventoryLocationInput[]
+  upsert?: Prisma.RecurringScheduleUpsertWithWhereUniqueWithoutInventoryLocationInput | Prisma.RecurringScheduleUpsertWithWhereUniqueWithoutInventoryLocationInput[]
+  createMany?: Prisma.RecurringScheduleCreateManyInventoryLocationInputEnvelope
+  set?: Prisma.RecurringScheduleWhereUniqueInput | Prisma.RecurringScheduleWhereUniqueInput[]
+  disconnect?: Prisma.RecurringScheduleWhereUniqueInput | Prisma.RecurringScheduleWhereUniqueInput[]
+  delete?: Prisma.RecurringScheduleWhereUniqueInput | Prisma.RecurringScheduleWhereUniqueInput[]
+  connect?: Prisma.RecurringScheduleWhereUniqueInput | Prisma.RecurringScheduleWhereUniqueInput[]
+  update?: Prisma.RecurringScheduleUpdateWithWhereUniqueWithoutInventoryLocationInput | Prisma.RecurringScheduleUpdateWithWhereUniqueWithoutInventoryLocationInput[]
+  updateMany?: Prisma.RecurringScheduleUpdateManyWithWhereWithoutInventoryLocationInput | Prisma.RecurringScheduleUpdateManyWithWhereWithoutInventoryLocationInput[]
+  deleteMany?: Prisma.RecurringScheduleScalarWhereInput | Prisma.RecurringScheduleScalarWhereInput[]
 }
 
 export type RecurringScheduleCreateNestedManyWithoutCustomerProfileInput = {
@@ -1273,12 +1617,24 @@ export type EnumScheduleStatusFieldUpdateOperationsInput = {
   set?: $Enums.ScheduleStatus
 }
 
+export type EnumScheduleKindFieldUpdateOperationsInput = {
+  set?: $Enums.ScheduleKind
+}
+
 export type EnumScheduleFrequencyFieldUpdateOperationsInput = {
   set?: $Enums.ScheduleFrequency
 }
 
 export type EnumSchedulePaymentModeFieldUpdateOperationsInput = {
   set?: $Enums.SchedulePaymentMode
+}
+
+export type EnumSubstitutionPolicyFieldUpdateOperationsInput = {
+  set?: $Enums.SubstitutionPolicy
+}
+
+export type EnumScheduleFulfilmentRuleFieldUpdateOperationsInput = {
+  set?: $Enums.ScheduleFulfilmentRule
 }
 
 export type RecurringScheduleCreateNestedOneWithoutItemsInput = {
@@ -1309,10 +1665,54 @@ export type RecurringScheduleUpdateOneRequiredWithoutOccurrencesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.RecurringScheduleUpdateToOneWithWhereWithoutOccurrencesInput, Prisma.RecurringScheduleUpdateWithoutOccurrencesInput>, Prisma.RecurringScheduleUncheckedUpdateWithoutOccurrencesInput>
 }
 
-export type RecurringScheduleCreateWithoutCustomerProfileInput = {
+export type RecurringScheduleCreateNestedManyWithoutPaymentMethodInput = {
+  create?: Prisma.XOR<Prisma.RecurringScheduleCreateWithoutPaymentMethodInput, Prisma.RecurringScheduleUncheckedCreateWithoutPaymentMethodInput> | Prisma.RecurringScheduleCreateWithoutPaymentMethodInput[] | Prisma.RecurringScheduleUncheckedCreateWithoutPaymentMethodInput[]
+  connectOrCreate?: Prisma.RecurringScheduleCreateOrConnectWithoutPaymentMethodInput | Prisma.RecurringScheduleCreateOrConnectWithoutPaymentMethodInput[]
+  createMany?: Prisma.RecurringScheduleCreateManyPaymentMethodInputEnvelope
+  connect?: Prisma.RecurringScheduleWhereUniqueInput | Prisma.RecurringScheduleWhereUniqueInput[]
+}
+
+export type RecurringScheduleUncheckedCreateNestedManyWithoutPaymentMethodInput = {
+  create?: Prisma.XOR<Prisma.RecurringScheduleCreateWithoutPaymentMethodInput, Prisma.RecurringScheduleUncheckedCreateWithoutPaymentMethodInput> | Prisma.RecurringScheduleCreateWithoutPaymentMethodInput[] | Prisma.RecurringScheduleUncheckedCreateWithoutPaymentMethodInput[]
+  connectOrCreate?: Prisma.RecurringScheduleCreateOrConnectWithoutPaymentMethodInput | Prisma.RecurringScheduleCreateOrConnectWithoutPaymentMethodInput[]
+  createMany?: Prisma.RecurringScheduleCreateManyPaymentMethodInputEnvelope
+  connect?: Prisma.RecurringScheduleWhereUniqueInput | Prisma.RecurringScheduleWhereUniqueInput[]
+}
+
+export type RecurringScheduleUpdateManyWithoutPaymentMethodNestedInput = {
+  create?: Prisma.XOR<Prisma.RecurringScheduleCreateWithoutPaymentMethodInput, Prisma.RecurringScheduleUncheckedCreateWithoutPaymentMethodInput> | Prisma.RecurringScheduleCreateWithoutPaymentMethodInput[] | Prisma.RecurringScheduleUncheckedCreateWithoutPaymentMethodInput[]
+  connectOrCreate?: Prisma.RecurringScheduleCreateOrConnectWithoutPaymentMethodInput | Prisma.RecurringScheduleCreateOrConnectWithoutPaymentMethodInput[]
+  upsert?: Prisma.RecurringScheduleUpsertWithWhereUniqueWithoutPaymentMethodInput | Prisma.RecurringScheduleUpsertWithWhereUniqueWithoutPaymentMethodInput[]
+  createMany?: Prisma.RecurringScheduleCreateManyPaymentMethodInputEnvelope
+  set?: Prisma.RecurringScheduleWhereUniqueInput | Prisma.RecurringScheduleWhereUniqueInput[]
+  disconnect?: Prisma.RecurringScheduleWhereUniqueInput | Prisma.RecurringScheduleWhereUniqueInput[]
+  delete?: Prisma.RecurringScheduleWhereUniqueInput | Prisma.RecurringScheduleWhereUniqueInput[]
+  connect?: Prisma.RecurringScheduleWhereUniqueInput | Prisma.RecurringScheduleWhereUniqueInput[]
+  update?: Prisma.RecurringScheduleUpdateWithWhereUniqueWithoutPaymentMethodInput | Prisma.RecurringScheduleUpdateWithWhereUniqueWithoutPaymentMethodInput[]
+  updateMany?: Prisma.RecurringScheduleUpdateManyWithWhereWithoutPaymentMethodInput | Prisma.RecurringScheduleUpdateManyWithWhereWithoutPaymentMethodInput[]
+  deleteMany?: Prisma.RecurringScheduleScalarWhereInput | Prisma.RecurringScheduleScalarWhereInput[]
+}
+
+export type RecurringScheduleUncheckedUpdateManyWithoutPaymentMethodNestedInput = {
+  create?: Prisma.XOR<Prisma.RecurringScheduleCreateWithoutPaymentMethodInput, Prisma.RecurringScheduleUncheckedCreateWithoutPaymentMethodInput> | Prisma.RecurringScheduleCreateWithoutPaymentMethodInput[] | Prisma.RecurringScheduleUncheckedCreateWithoutPaymentMethodInput[]
+  connectOrCreate?: Prisma.RecurringScheduleCreateOrConnectWithoutPaymentMethodInput | Prisma.RecurringScheduleCreateOrConnectWithoutPaymentMethodInput[]
+  upsert?: Prisma.RecurringScheduleUpsertWithWhereUniqueWithoutPaymentMethodInput | Prisma.RecurringScheduleUpsertWithWhereUniqueWithoutPaymentMethodInput[]
+  createMany?: Prisma.RecurringScheduleCreateManyPaymentMethodInputEnvelope
+  set?: Prisma.RecurringScheduleWhereUniqueInput | Prisma.RecurringScheduleWhereUniqueInput[]
+  disconnect?: Prisma.RecurringScheduleWhereUniqueInput | Prisma.RecurringScheduleWhereUniqueInput[]
+  delete?: Prisma.RecurringScheduleWhereUniqueInput | Prisma.RecurringScheduleWhereUniqueInput[]
+  connect?: Prisma.RecurringScheduleWhereUniqueInput | Prisma.RecurringScheduleWhereUniqueInput[]
+  update?: Prisma.RecurringScheduleUpdateWithWhereUniqueWithoutPaymentMethodInput | Prisma.RecurringScheduleUpdateWithWhereUniqueWithoutPaymentMethodInput[]
+  updateMany?: Prisma.RecurringScheduleUpdateManyWithWhereWithoutPaymentMethodInput | Prisma.RecurringScheduleUpdateManyWithWhereWithoutPaymentMethodInput[]
+  deleteMany?: Prisma.RecurringScheduleScalarWhereInput | Prisma.RecurringScheduleScalarWhereInput[]
+}
+
+export type RecurringScheduleCreateWithoutInventoryLocationInput = {
   id: string
   name: string
   status?: $Enums.ScheduleStatus
+  kind?: $Enums.ScheduleKind
+  runOnceAt?: Date | string | null
   frequency: $Enums.ScheduleFrequency
   intervalDays?: number | null
   weekday?: number | null
@@ -1333,6 +1733,205 @@ export type RecurringScheduleCreateWithoutCustomerProfileInput = {
   consentAcceptedAt: Date | string
   consentVersion: string
   repriceApprovalThresholdMinor?: bigint | number | null
+  priceTolerancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: bigint | number | null
+  editCutoffMinutes?: number
+  substitutionPolicy?: $Enums.SubstitutionPolicy
+  fulfilmentRule?: $Enums.ScheduleFulfilmentRule
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: string | null
+  activatedAt?: Date | string | null
+  completedAt?: Date | string | null
+  failureCount?: number
+  maxFailures?: number
+  pausedAt?: Date | string | null
+  pausedReason?: string | null
+  pausedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutSchedulesInput
+  shippingAddress: Prisma.AddressCreateNestedOneWithoutShippingSchedulesInput
+  billingAddress: Prisma.AddressCreateNestedOneWithoutBillingSchedulesInput
+  paymentMethod?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutSchedulesInput
+  items?: Prisma.RecurringScheduleItemCreateNestedManyWithoutScheduleInput
+  occurrences?: Prisma.ScheduleOccurrenceCreateNestedManyWithoutScheduleInput
+}
+
+export type RecurringScheduleUncheckedCreateWithoutInventoryLocationInput = {
+  id: string
+  customerProfileId: string
+  name: string
+  status?: $Enums.ScheduleStatus
+  kind?: $Enums.ScheduleKind
+  runOnceAt?: Date | string | null
+  frequency: $Enums.ScheduleFrequency
+  intervalDays?: number | null
+  weekday?: number | null
+  monthDay?: number | null
+  timezone: string
+  runAtMinute?: number
+  startDate: Date | string
+  endDate?: Date | string | null
+  maxOccurrences?: number | null
+  occurrenceCount?: number
+  nextRunAt?: Date | string | null
+  lastRunAt?: Date | string | null
+  paymentMode: $Enums.SchedulePaymentMode
+  mandateReference?: string | null
+  mandateProvider?: $Enums.PaymentProviderKind | null
+  payerEmail?: string | null
+  paymentMethodId?: string | null
+  shippingAddressId: string
+  billingAddressId: string
+  shippingMethodCode?: string | null
+  consentAcceptedAt: Date | string
+  consentVersion: string
+  repriceApprovalThresholdMinor?: bigint | number | null
+  priceTolerancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: bigint | number | null
+  editCutoffMinutes?: number
+  substitutionPolicy?: $Enums.SubstitutionPolicy
+  fulfilmentRule?: $Enums.ScheduleFulfilmentRule
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: string | null
+  activatedAt?: Date | string | null
+  completedAt?: Date | string | null
+  failureCount?: number
+  maxFailures?: number
+  pausedAt?: Date | string | null
+  pausedReason?: string | null
+  pausedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  items?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutScheduleInput
+  occurrences?: Prisma.ScheduleOccurrenceUncheckedCreateNestedManyWithoutScheduleInput
+}
+
+export type RecurringScheduleCreateOrConnectWithoutInventoryLocationInput = {
+  where: Prisma.RecurringScheduleWhereUniqueInput
+  create: Prisma.XOR<Prisma.RecurringScheduleCreateWithoutInventoryLocationInput, Prisma.RecurringScheduleUncheckedCreateWithoutInventoryLocationInput>
+}
+
+export type RecurringScheduleCreateManyInventoryLocationInputEnvelope = {
+  data: Prisma.RecurringScheduleCreateManyInventoryLocationInput | Prisma.RecurringScheduleCreateManyInventoryLocationInput[]
+  skipDuplicates?: boolean
+}
+
+export type RecurringScheduleUpsertWithWhereUniqueWithoutInventoryLocationInput = {
+  where: Prisma.RecurringScheduleWhereUniqueInput
+  update: Prisma.XOR<Prisma.RecurringScheduleUpdateWithoutInventoryLocationInput, Prisma.RecurringScheduleUncheckedUpdateWithoutInventoryLocationInput>
+  create: Prisma.XOR<Prisma.RecurringScheduleCreateWithoutInventoryLocationInput, Prisma.RecurringScheduleUncheckedCreateWithoutInventoryLocationInput>
+}
+
+export type RecurringScheduleUpdateWithWhereUniqueWithoutInventoryLocationInput = {
+  where: Prisma.RecurringScheduleWhereUniqueInput
+  data: Prisma.XOR<Prisma.RecurringScheduleUpdateWithoutInventoryLocationInput, Prisma.RecurringScheduleUncheckedUpdateWithoutInventoryLocationInput>
+}
+
+export type RecurringScheduleUpdateManyWithWhereWithoutInventoryLocationInput = {
+  where: Prisma.RecurringScheduleScalarWhereInput
+  data: Prisma.XOR<Prisma.RecurringScheduleUpdateManyMutationInput, Prisma.RecurringScheduleUncheckedUpdateManyWithoutInventoryLocationInput>
+}
+
+export type RecurringScheduleScalarWhereInput = {
+  AND?: Prisma.RecurringScheduleScalarWhereInput | Prisma.RecurringScheduleScalarWhereInput[]
+  OR?: Prisma.RecurringScheduleScalarWhereInput[]
+  NOT?: Prisma.RecurringScheduleScalarWhereInput | Prisma.RecurringScheduleScalarWhereInput[]
+  id?: Prisma.StringFilter<"RecurringSchedule"> | string
+  customerProfileId?: Prisma.StringFilter<"RecurringSchedule"> | string
+  name?: Prisma.StringFilter<"RecurringSchedule"> | string
+  status?: Prisma.EnumScheduleStatusFilter<"RecurringSchedule"> | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFilter<"RecurringSchedule"> | $Enums.ScheduleKind
+  runOnceAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
+  frequency?: Prisma.EnumScheduleFrequencyFilter<"RecurringSchedule"> | $Enums.ScheduleFrequency
+  intervalDays?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
+  weekday?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
+  monthDay?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
+  timezone?: Prisma.StringFilter<"RecurringSchedule"> | string
+  runAtMinute?: Prisma.IntFilter<"RecurringSchedule"> | number
+  startDate?: Prisma.DateTimeFilter<"RecurringSchedule"> | Date | string
+  endDate?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
+  maxOccurrences?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
+  occurrenceCount?: Prisma.IntFilter<"RecurringSchedule"> | number
+  nextRunAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
+  lastRunAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
+  paymentMode?: Prisma.EnumSchedulePaymentModeFilter<"RecurringSchedule"> | $Enums.SchedulePaymentMode
+  mandateReference?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
+  mandateProvider?: Prisma.EnumPaymentProviderKindNullableFilter<"RecurringSchedule"> | $Enums.PaymentProviderKind | null
+  payerEmail?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
+  paymentMethodId?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
+  shippingAddressId?: Prisma.StringFilter<"RecurringSchedule"> | string
+  billingAddressId?: Prisma.StringFilter<"RecurringSchedule"> | string
+  shippingMethodCode?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
+  consentAcceptedAt?: Prisma.DateTimeFilter<"RecurringSchedule"> | Date | string
+  consentVersion?: Prisma.StringFilter<"RecurringSchedule"> | string
+  repriceApprovalThresholdMinor?: Prisma.BigIntNullableFilter<"RecurringSchedule"> | bigint | number | null
+  priceTolerancePercent?: Prisma.DecimalNullableFilter<"RecurringSchedule"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.BigIntNullableFilter<"RecurringSchedule"> | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFilter<"RecurringSchedule"> | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFilter<"RecurringSchedule"> | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFilter<"RecurringSchedule"> | $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
+  cartSnapshotJson?: Prisma.JsonNullableFilter<"RecurringSchedule">
+  sourceCartId?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
+  activatedAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
+  completedAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
+  failureCount?: Prisma.IntFilter<"RecurringSchedule"> | number
+  maxFailures?: Prisma.IntFilter<"RecurringSchedule"> | number
+  pausedAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
+  pausedReason?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
+  pausedById?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
+  cancelledAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
+  cancelReason?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
+  leaseOwner?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
+  leaseExpiresAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"RecurringSchedule"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"RecurringSchedule"> | Date | string
+}
+
+export type RecurringScheduleCreateWithoutCustomerProfileInput = {
+  id: string
+  name: string
+  status?: $Enums.ScheduleStatus
+  kind?: $Enums.ScheduleKind
+  runOnceAt?: Date | string | null
+  frequency: $Enums.ScheduleFrequency
+  intervalDays?: number | null
+  weekday?: number | null
+  monthDay?: number | null
+  timezone: string
+  runAtMinute?: number
+  startDate: Date | string
+  endDate?: Date | string | null
+  maxOccurrences?: number | null
+  occurrenceCount?: number
+  nextRunAt?: Date | string | null
+  lastRunAt?: Date | string | null
+  paymentMode: $Enums.SchedulePaymentMode
+  mandateReference?: string | null
+  mandateProvider?: $Enums.PaymentProviderKind | null
+  payerEmail?: string | null
+  shippingMethodCode?: string | null
+  consentAcceptedAt: Date | string
+  consentVersion: string
+  repriceApprovalThresholdMinor?: bigint | number | null
+  priceTolerancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: bigint | number | null
+  editCutoffMinutes?: number
+  substitutionPolicy?: $Enums.SubstitutionPolicy
+  fulfilmentRule?: $Enums.ScheduleFulfilmentRule
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: string | null
+  activatedAt?: Date | string | null
+  completedAt?: Date | string | null
   failureCount?: number
   maxFailures?: number
   pausedAt?: Date | string | null
@@ -1346,6 +1945,8 @@ export type RecurringScheduleCreateWithoutCustomerProfileInput = {
   updatedAt?: Date | string
   shippingAddress: Prisma.AddressCreateNestedOneWithoutShippingSchedulesInput
   billingAddress: Prisma.AddressCreateNestedOneWithoutBillingSchedulesInput
+  paymentMethod?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutSchedulesInput
+  inventoryLocation?: Prisma.InventoryLocationCreateNestedOneWithoutSchedulesInput
   items?: Prisma.RecurringScheduleItemCreateNestedManyWithoutScheduleInput
   occurrences?: Prisma.ScheduleOccurrenceCreateNestedManyWithoutScheduleInput
 }
@@ -1354,6 +1955,8 @@ export type RecurringScheduleUncheckedCreateWithoutCustomerProfileInput = {
   id: string
   name: string
   status?: $Enums.ScheduleStatus
+  kind?: $Enums.ScheduleKind
+  runOnceAt?: Date | string | null
   frequency: $Enums.ScheduleFrequency
   intervalDays?: number | null
   weekday?: number | null
@@ -1370,12 +1973,23 @@ export type RecurringScheduleUncheckedCreateWithoutCustomerProfileInput = {
   mandateReference?: string | null
   mandateProvider?: $Enums.PaymentProviderKind | null
   payerEmail?: string | null
+  paymentMethodId?: string | null
   shippingAddressId: string
   billingAddressId: string
   shippingMethodCode?: string | null
   consentAcceptedAt: Date | string
   consentVersion: string
   repriceApprovalThresholdMinor?: bigint | number | null
+  priceTolerancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: bigint | number | null
+  editCutoffMinutes?: number
+  substitutionPolicy?: $Enums.SubstitutionPolicy
+  fulfilmentRule?: $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: string | null
+  activatedAt?: Date | string | null
+  completedAt?: Date | string | null
   failureCount?: number
   maxFailures?: number
   pausedAt?: Date | string | null
@@ -1417,53 +2031,12 @@ export type RecurringScheduleUpdateManyWithWhereWithoutCustomerProfileInput = {
   data: Prisma.XOR<Prisma.RecurringScheduleUpdateManyMutationInput, Prisma.RecurringScheduleUncheckedUpdateManyWithoutCustomerProfileInput>
 }
 
-export type RecurringScheduleScalarWhereInput = {
-  AND?: Prisma.RecurringScheduleScalarWhereInput | Prisma.RecurringScheduleScalarWhereInput[]
-  OR?: Prisma.RecurringScheduleScalarWhereInput[]
-  NOT?: Prisma.RecurringScheduleScalarWhereInput | Prisma.RecurringScheduleScalarWhereInput[]
-  id?: Prisma.StringFilter<"RecurringSchedule"> | string
-  customerProfileId?: Prisma.StringFilter<"RecurringSchedule"> | string
-  name?: Prisma.StringFilter<"RecurringSchedule"> | string
-  status?: Prisma.EnumScheduleStatusFilter<"RecurringSchedule"> | $Enums.ScheduleStatus
-  frequency?: Prisma.EnumScheduleFrequencyFilter<"RecurringSchedule"> | $Enums.ScheduleFrequency
-  intervalDays?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
-  weekday?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
-  monthDay?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
-  timezone?: Prisma.StringFilter<"RecurringSchedule"> | string
-  runAtMinute?: Prisma.IntFilter<"RecurringSchedule"> | number
-  startDate?: Prisma.DateTimeFilter<"RecurringSchedule"> | Date | string
-  endDate?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
-  maxOccurrences?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
-  occurrenceCount?: Prisma.IntFilter<"RecurringSchedule"> | number
-  nextRunAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
-  lastRunAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
-  paymentMode?: Prisma.EnumSchedulePaymentModeFilter<"RecurringSchedule"> | $Enums.SchedulePaymentMode
-  mandateReference?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
-  mandateProvider?: Prisma.EnumPaymentProviderKindNullableFilter<"RecurringSchedule"> | $Enums.PaymentProviderKind | null
-  payerEmail?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
-  shippingAddressId?: Prisma.StringFilter<"RecurringSchedule"> | string
-  billingAddressId?: Prisma.StringFilter<"RecurringSchedule"> | string
-  shippingMethodCode?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
-  consentAcceptedAt?: Prisma.DateTimeFilter<"RecurringSchedule"> | Date | string
-  consentVersion?: Prisma.StringFilter<"RecurringSchedule"> | string
-  repriceApprovalThresholdMinor?: Prisma.BigIntNullableFilter<"RecurringSchedule"> | bigint | number | null
-  failureCount?: Prisma.IntFilter<"RecurringSchedule"> | number
-  maxFailures?: Prisma.IntFilter<"RecurringSchedule"> | number
-  pausedAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
-  pausedReason?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
-  pausedById?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
-  cancelledAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
-  cancelReason?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
-  leaseOwner?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
-  leaseExpiresAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
-  createdAt?: Prisma.DateTimeFilter<"RecurringSchedule"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"RecurringSchedule"> | Date | string
-}
-
 export type RecurringScheduleCreateWithoutShippingAddressInput = {
   id: string
   name: string
   status?: $Enums.ScheduleStatus
+  kind?: $Enums.ScheduleKind
+  runOnceAt?: Date | string | null
   frequency: $Enums.ScheduleFrequency
   intervalDays?: number | null
   weekday?: number | null
@@ -1484,6 +2057,15 @@ export type RecurringScheduleCreateWithoutShippingAddressInput = {
   consentAcceptedAt: Date | string
   consentVersion: string
   repriceApprovalThresholdMinor?: bigint | number | null
+  priceTolerancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: bigint | number | null
+  editCutoffMinutes?: number
+  substitutionPolicy?: $Enums.SubstitutionPolicy
+  fulfilmentRule?: $Enums.ScheduleFulfilmentRule
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: string | null
+  activatedAt?: Date | string | null
+  completedAt?: Date | string | null
   failureCount?: number
   maxFailures?: number
   pausedAt?: Date | string | null
@@ -1497,6 +2079,8 @@ export type RecurringScheduleCreateWithoutShippingAddressInput = {
   updatedAt?: Date | string
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutSchedulesInput
   billingAddress: Prisma.AddressCreateNestedOneWithoutBillingSchedulesInput
+  paymentMethod?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutSchedulesInput
+  inventoryLocation?: Prisma.InventoryLocationCreateNestedOneWithoutSchedulesInput
   items?: Prisma.RecurringScheduleItemCreateNestedManyWithoutScheduleInput
   occurrences?: Prisma.ScheduleOccurrenceCreateNestedManyWithoutScheduleInput
 }
@@ -1506,6 +2090,8 @@ export type RecurringScheduleUncheckedCreateWithoutShippingAddressInput = {
   customerProfileId: string
   name: string
   status?: $Enums.ScheduleStatus
+  kind?: $Enums.ScheduleKind
+  runOnceAt?: Date | string | null
   frequency: $Enums.ScheduleFrequency
   intervalDays?: number | null
   weekday?: number | null
@@ -1522,11 +2108,22 @@ export type RecurringScheduleUncheckedCreateWithoutShippingAddressInput = {
   mandateReference?: string | null
   mandateProvider?: $Enums.PaymentProviderKind | null
   payerEmail?: string | null
+  paymentMethodId?: string | null
   billingAddressId: string
   shippingMethodCode?: string | null
   consentAcceptedAt: Date | string
   consentVersion: string
   repriceApprovalThresholdMinor?: bigint | number | null
+  priceTolerancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: bigint | number | null
+  editCutoffMinutes?: number
+  substitutionPolicy?: $Enums.SubstitutionPolicy
+  fulfilmentRule?: $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: string | null
+  activatedAt?: Date | string | null
+  completedAt?: Date | string | null
   failureCount?: number
   maxFailures?: number
   pausedAt?: Date | string | null
@@ -1556,6 +2153,8 @@ export type RecurringScheduleCreateWithoutBillingAddressInput = {
   id: string
   name: string
   status?: $Enums.ScheduleStatus
+  kind?: $Enums.ScheduleKind
+  runOnceAt?: Date | string | null
   frequency: $Enums.ScheduleFrequency
   intervalDays?: number | null
   weekday?: number | null
@@ -1576,6 +2175,15 @@ export type RecurringScheduleCreateWithoutBillingAddressInput = {
   consentAcceptedAt: Date | string
   consentVersion: string
   repriceApprovalThresholdMinor?: bigint | number | null
+  priceTolerancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: bigint | number | null
+  editCutoffMinutes?: number
+  substitutionPolicy?: $Enums.SubstitutionPolicy
+  fulfilmentRule?: $Enums.ScheduleFulfilmentRule
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: string | null
+  activatedAt?: Date | string | null
+  completedAt?: Date | string | null
   failureCount?: number
   maxFailures?: number
   pausedAt?: Date | string | null
@@ -1589,6 +2197,8 @@ export type RecurringScheduleCreateWithoutBillingAddressInput = {
   updatedAt?: Date | string
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutSchedulesInput
   shippingAddress: Prisma.AddressCreateNestedOneWithoutShippingSchedulesInput
+  paymentMethod?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutSchedulesInput
+  inventoryLocation?: Prisma.InventoryLocationCreateNestedOneWithoutSchedulesInput
   items?: Prisma.RecurringScheduleItemCreateNestedManyWithoutScheduleInput
   occurrences?: Prisma.ScheduleOccurrenceCreateNestedManyWithoutScheduleInput
 }
@@ -1598,6 +2208,8 @@ export type RecurringScheduleUncheckedCreateWithoutBillingAddressInput = {
   customerProfileId: string
   name: string
   status?: $Enums.ScheduleStatus
+  kind?: $Enums.ScheduleKind
+  runOnceAt?: Date | string | null
   frequency: $Enums.ScheduleFrequency
   intervalDays?: number | null
   weekday?: number | null
@@ -1614,11 +2226,22 @@ export type RecurringScheduleUncheckedCreateWithoutBillingAddressInput = {
   mandateReference?: string | null
   mandateProvider?: $Enums.PaymentProviderKind | null
   payerEmail?: string | null
+  paymentMethodId?: string | null
   shippingAddressId: string
   shippingMethodCode?: string | null
   consentAcceptedAt: Date | string
   consentVersion: string
   repriceApprovalThresholdMinor?: bigint | number | null
+  priceTolerancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: bigint | number | null
+  editCutoffMinutes?: number
+  substitutionPolicy?: $Enums.SubstitutionPolicy
+  fulfilmentRule?: $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: string | null
+  activatedAt?: Date | string | null
+  completedAt?: Date | string | null
   failureCount?: number
   maxFailures?: number
   pausedAt?: Date | string | null
@@ -1680,6 +2303,8 @@ export type RecurringScheduleCreateWithoutItemsInput = {
   id: string
   name: string
   status?: $Enums.ScheduleStatus
+  kind?: $Enums.ScheduleKind
+  runOnceAt?: Date | string | null
   frequency: $Enums.ScheduleFrequency
   intervalDays?: number | null
   weekday?: number | null
@@ -1700,6 +2325,15 @@ export type RecurringScheduleCreateWithoutItemsInput = {
   consentAcceptedAt: Date | string
   consentVersion: string
   repriceApprovalThresholdMinor?: bigint | number | null
+  priceTolerancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: bigint | number | null
+  editCutoffMinutes?: number
+  substitutionPolicy?: $Enums.SubstitutionPolicy
+  fulfilmentRule?: $Enums.ScheduleFulfilmentRule
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: string | null
+  activatedAt?: Date | string | null
+  completedAt?: Date | string | null
   failureCount?: number
   maxFailures?: number
   pausedAt?: Date | string | null
@@ -1714,6 +2348,8 @@ export type RecurringScheduleCreateWithoutItemsInput = {
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutSchedulesInput
   shippingAddress: Prisma.AddressCreateNestedOneWithoutShippingSchedulesInput
   billingAddress: Prisma.AddressCreateNestedOneWithoutBillingSchedulesInput
+  paymentMethod?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutSchedulesInput
+  inventoryLocation?: Prisma.InventoryLocationCreateNestedOneWithoutSchedulesInput
   occurrences?: Prisma.ScheduleOccurrenceCreateNestedManyWithoutScheduleInput
 }
 
@@ -1722,6 +2358,8 @@ export type RecurringScheduleUncheckedCreateWithoutItemsInput = {
   customerProfileId: string
   name: string
   status?: $Enums.ScheduleStatus
+  kind?: $Enums.ScheduleKind
+  runOnceAt?: Date | string | null
   frequency: $Enums.ScheduleFrequency
   intervalDays?: number | null
   weekday?: number | null
@@ -1738,12 +2376,23 @@ export type RecurringScheduleUncheckedCreateWithoutItemsInput = {
   mandateReference?: string | null
   mandateProvider?: $Enums.PaymentProviderKind | null
   payerEmail?: string | null
+  paymentMethodId?: string | null
   shippingAddressId: string
   billingAddressId: string
   shippingMethodCode?: string | null
   consentAcceptedAt: Date | string
   consentVersion: string
   repriceApprovalThresholdMinor?: bigint | number | null
+  priceTolerancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: bigint | number | null
+  editCutoffMinutes?: number
+  substitutionPolicy?: $Enums.SubstitutionPolicy
+  fulfilmentRule?: $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: string | null
+  activatedAt?: Date | string | null
+  completedAt?: Date | string | null
   failureCount?: number
   maxFailures?: number
   pausedAt?: Date | string | null
@@ -1778,6 +2427,8 @@ export type RecurringScheduleUpdateWithoutItemsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFieldUpdateOperationsInput | $Enums.ScheduleKind
+  runOnceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frequency?: Prisma.EnumScheduleFrequencyFieldUpdateOperationsInput | $Enums.ScheduleFrequency
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1798,6 +2449,15 @@ export type RecurringScheduleUpdateWithoutItemsInput = {
   consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
   repriceApprovalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  priceTolerancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFieldUpdateOperationsInput | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFieldUpdateOperationsInput | $Enums.ScheduleFulfilmentRule
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureCount?: Prisma.IntFieldUpdateOperationsInput | number
   maxFailures?: Prisma.IntFieldUpdateOperationsInput | number
   pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1812,6 +2472,8 @@ export type RecurringScheduleUpdateWithoutItemsInput = {
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutSchedulesNestedInput
   shippingAddress?: Prisma.AddressUpdateOneRequiredWithoutShippingSchedulesNestedInput
   billingAddress?: Prisma.AddressUpdateOneRequiredWithoutBillingSchedulesNestedInput
+  paymentMethod?: Prisma.CustomerPaymentMethodUpdateOneWithoutSchedulesNestedInput
+  inventoryLocation?: Prisma.InventoryLocationUpdateOneWithoutSchedulesNestedInput
   occurrences?: Prisma.ScheduleOccurrenceUpdateManyWithoutScheduleNestedInput
 }
 
@@ -1820,6 +2482,8 @@ export type RecurringScheduleUncheckedUpdateWithoutItemsInput = {
   customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFieldUpdateOperationsInput | $Enums.ScheduleKind
+  runOnceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frequency?: Prisma.EnumScheduleFrequencyFieldUpdateOperationsInput | $Enums.ScheduleFrequency
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1836,12 +2500,23 @@ export type RecurringScheduleUncheckedUpdateWithoutItemsInput = {
   mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mandateProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   payerEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
   billingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
   repriceApprovalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  priceTolerancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFieldUpdateOperationsInput | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFieldUpdateOperationsInput | $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureCount?: Prisma.IntFieldUpdateOperationsInput | number
   maxFailures?: Prisma.IntFieldUpdateOperationsInput | number
   pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1860,6 +2535,8 @@ export type RecurringScheduleCreateWithoutOccurrencesInput = {
   id: string
   name: string
   status?: $Enums.ScheduleStatus
+  kind?: $Enums.ScheduleKind
+  runOnceAt?: Date | string | null
   frequency: $Enums.ScheduleFrequency
   intervalDays?: number | null
   weekday?: number | null
@@ -1880,6 +2557,15 @@ export type RecurringScheduleCreateWithoutOccurrencesInput = {
   consentAcceptedAt: Date | string
   consentVersion: string
   repriceApprovalThresholdMinor?: bigint | number | null
+  priceTolerancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: bigint | number | null
+  editCutoffMinutes?: number
+  substitutionPolicy?: $Enums.SubstitutionPolicy
+  fulfilmentRule?: $Enums.ScheduleFulfilmentRule
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: string | null
+  activatedAt?: Date | string | null
+  completedAt?: Date | string | null
   failureCount?: number
   maxFailures?: number
   pausedAt?: Date | string | null
@@ -1894,6 +2580,8 @@ export type RecurringScheduleCreateWithoutOccurrencesInput = {
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutSchedulesInput
   shippingAddress: Prisma.AddressCreateNestedOneWithoutShippingSchedulesInput
   billingAddress: Prisma.AddressCreateNestedOneWithoutBillingSchedulesInput
+  paymentMethod?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutSchedulesInput
+  inventoryLocation?: Prisma.InventoryLocationCreateNestedOneWithoutSchedulesInput
   items?: Prisma.RecurringScheduleItemCreateNestedManyWithoutScheduleInput
 }
 
@@ -1902,6 +2590,8 @@ export type RecurringScheduleUncheckedCreateWithoutOccurrencesInput = {
   customerProfileId: string
   name: string
   status?: $Enums.ScheduleStatus
+  kind?: $Enums.ScheduleKind
+  runOnceAt?: Date | string | null
   frequency: $Enums.ScheduleFrequency
   intervalDays?: number | null
   weekday?: number | null
@@ -1918,12 +2608,23 @@ export type RecurringScheduleUncheckedCreateWithoutOccurrencesInput = {
   mandateReference?: string | null
   mandateProvider?: $Enums.PaymentProviderKind | null
   payerEmail?: string | null
+  paymentMethodId?: string | null
   shippingAddressId: string
   billingAddressId: string
   shippingMethodCode?: string | null
   consentAcceptedAt: Date | string
   consentVersion: string
   repriceApprovalThresholdMinor?: bigint | number | null
+  priceTolerancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: bigint | number | null
+  editCutoffMinutes?: number
+  substitutionPolicy?: $Enums.SubstitutionPolicy
+  fulfilmentRule?: $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: string | null
+  activatedAt?: Date | string | null
+  completedAt?: Date | string | null
   failureCount?: number
   maxFailures?: number
   pausedAt?: Date | string | null
@@ -1958,6 +2659,8 @@ export type RecurringScheduleUpdateWithoutOccurrencesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFieldUpdateOperationsInput | $Enums.ScheduleKind
+  runOnceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frequency?: Prisma.EnumScheduleFrequencyFieldUpdateOperationsInput | $Enums.ScheduleFrequency
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1978,6 +2681,15 @@ export type RecurringScheduleUpdateWithoutOccurrencesInput = {
   consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
   repriceApprovalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  priceTolerancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFieldUpdateOperationsInput | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFieldUpdateOperationsInput | $Enums.ScheduleFulfilmentRule
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureCount?: Prisma.IntFieldUpdateOperationsInput | number
   maxFailures?: Prisma.IntFieldUpdateOperationsInput | number
   pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1992,6 +2704,8 @@ export type RecurringScheduleUpdateWithoutOccurrencesInput = {
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutSchedulesNestedInput
   shippingAddress?: Prisma.AddressUpdateOneRequiredWithoutShippingSchedulesNestedInput
   billingAddress?: Prisma.AddressUpdateOneRequiredWithoutBillingSchedulesNestedInput
+  paymentMethod?: Prisma.CustomerPaymentMethodUpdateOneWithoutSchedulesNestedInput
+  inventoryLocation?: Prisma.InventoryLocationUpdateOneWithoutSchedulesNestedInput
   items?: Prisma.RecurringScheduleItemUpdateManyWithoutScheduleNestedInput
 }
 
@@ -2000,6 +2714,8 @@ export type RecurringScheduleUncheckedUpdateWithoutOccurrencesInput = {
   customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFieldUpdateOperationsInput | $Enums.ScheduleKind
+  runOnceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frequency?: Prisma.EnumScheduleFrequencyFieldUpdateOperationsInput | $Enums.ScheduleFrequency
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2016,12 +2732,23 @@ export type RecurringScheduleUncheckedUpdateWithoutOccurrencesInput = {
   mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mandateProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   payerEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
   billingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
   repriceApprovalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  priceTolerancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFieldUpdateOperationsInput | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFieldUpdateOperationsInput | $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureCount?: Prisma.IntFieldUpdateOperationsInput | number
   maxFailures?: Prisma.IntFieldUpdateOperationsInput | number
   pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2036,10 +2763,67 @@ export type RecurringScheduleUncheckedUpdateWithoutOccurrencesInput = {
   items?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutScheduleNestedInput
 }
 
-export type RecurringScheduleCreateManyCustomerProfileInput = {
+export type RecurringScheduleCreateWithoutPaymentMethodInput = {
   id: string
   name: string
   status?: $Enums.ScheduleStatus
+  kind?: $Enums.ScheduleKind
+  runOnceAt?: Date | string | null
+  frequency: $Enums.ScheduleFrequency
+  intervalDays?: number | null
+  weekday?: number | null
+  monthDay?: number | null
+  timezone: string
+  runAtMinute?: number
+  startDate: Date | string
+  endDate?: Date | string | null
+  maxOccurrences?: number | null
+  occurrenceCount?: number
+  nextRunAt?: Date | string | null
+  lastRunAt?: Date | string | null
+  paymentMode: $Enums.SchedulePaymentMode
+  mandateReference?: string | null
+  mandateProvider?: $Enums.PaymentProviderKind | null
+  payerEmail?: string | null
+  shippingMethodCode?: string | null
+  consentAcceptedAt: Date | string
+  consentVersion: string
+  repriceApprovalThresholdMinor?: bigint | number | null
+  priceTolerancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: bigint | number | null
+  editCutoffMinutes?: number
+  substitutionPolicy?: $Enums.SubstitutionPolicy
+  fulfilmentRule?: $Enums.ScheduleFulfilmentRule
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: string | null
+  activatedAt?: Date | string | null
+  completedAt?: Date | string | null
+  failureCount?: number
+  maxFailures?: number
+  pausedAt?: Date | string | null
+  pausedReason?: string | null
+  pausedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutSchedulesInput
+  shippingAddress: Prisma.AddressCreateNestedOneWithoutShippingSchedulesInput
+  billingAddress: Prisma.AddressCreateNestedOneWithoutBillingSchedulesInput
+  inventoryLocation?: Prisma.InventoryLocationCreateNestedOneWithoutSchedulesInput
+  items?: Prisma.RecurringScheduleItemCreateNestedManyWithoutScheduleInput
+  occurrences?: Prisma.ScheduleOccurrenceCreateNestedManyWithoutScheduleInput
+}
+
+export type RecurringScheduleUncheckedCreateWithoutPaymentMethodInput = {
+  id: string
+  customerProfileId: string
+  name: string
+  status?: $Enums.ScheduleStatus
+  kind?: $Enums.ScheduleKind
+  runOnceAt?: Date | string | null
   frequency: $Enums.ScheduleFrequency
   intervalDays?: number | null
   weekday?: number | null
@@ -2062,6 +2846,308 @@ export type RecurringScheduleCreateManyCustomerProfileInput = {
   consentAcceptedAt: Date | string
   consentVersion: string
   repriceApprovalThresholdMinor?: bigint | number | null
+  priceTolerancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: bigint | number | null
+  editCutoffMinutes?: number
+  substitutionPolicy?: $Enums.SubstitutionPolicy
+  fulfilmentRule?: $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: string | null
+  activatedAt?: Date | string | null
+  completedAt?: Date | string | null
+  failureCount?: number
+  maxFailures?: number
+  pausedAt?: Date | string | null
+  pausedReason?: string | null
+  pausedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  items?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutScheduleInput
+  occurrences?: Prisma.ScheduleOccurrenceUncheckedCreateNestedManyWithoutScheduleInput
+}
+
+export type RecurringScheduleCreateOrConnectWithoutPaymentMethodInput = {
+  where: Prisma.RecurringScheduleWhereUniqueInput
+  create: Prisma.XOR<Prisma.RecurringScheduleCreateWithoutPaymentMethodInput, Prisma.RecurringScheduleUncheckedCreateWithoutPaymentMethodInput>
+}
+
+export type RecurringScheduleCreateManyPaymentMethodInputEnvelope = {
+  data: Prisma.RecurringScheduleCreateManyPaymentMethodInput | Prisma.RecurringScheduleCreateManyPaymentMethodInput[]
+  skipDuplicates?: boolean
+}
+
+export type RecurringScheduleUpsertWithWhereUniqueWithoutPaymentMethodInput = {
+  where: Prisma.RecurringScheduleWhereUniqueInput
+  update: Prisma.XOR<Prisma.RecurringScheduleUpdateWithoutPaymentMethodInput, Prisma.RecurringScheduleUncheckedUpdateWithoutPaymentMethodInput>
+  create: Prisma.XOR<Prisma.RecurringScheduleCreateWithoutPaymentMethodInput, Prisma.RecurringScheduleUncheckedCreateWithoutPaymentMethodInput>
+}
+
+export type RecurringScheduleUpdateWithWhereUniqueWithoutPaymentMethodInput = {
+  where: Prisma.RecurringScheduleWhereUniqueInput
+  data: Prisma.XOR<Prisma.RecurringScheduleUpdateWithoutPaymentMethodInput, Prisma.RecurringScheduleUncheckedUpdateWithoutPaymentMethodInput>
+}
+
+export type RecurringScheduleUpdateManyWithWhereWithoutPaymentMethodInput = {
+  where: Prisma.RecurringScheduleScalarWhereInput
+  data: Prisma.XOR<Prisma.RecurringScheduleUpdateManyMutationInput, Prisma.RecurringScheduleUncheckedUpdateManyWithoutPaymentMethodInput>
+}
+
+export type RecurringScheduleCreateManyInventoryLocationInput = {
+  id: string
+  customerProfileId: string
+  name: string
+  status?: $Enums.ScheduleStatus
+  kind?: $Enums.ScheduleKind
+  runOnceAt?: Date | string | null
+  frequency: $Enums.ScheduleFrequency
+  intervalDays?: number | null
+  weekday?: number | null
+  monthDay?: number | null
+  timezone: string
+  runAtMinute?: number
+  startDate: Date | string
+  endDate?: Date | string | null
+  maxOccurrences?: number | null
+  occurrenceCount?: number
+  nextRunAt?: Date | string | null
+  lastRunAt?: Date | string | null
+  paymentMode: $Enums.SchedulePaymentMode
+  mandateReference?: string | null
+  mandateProvider?: $Enums.PaymentProviderKind | null
+  payerEmail?: string | null
+  paymentMethodId?: string | null
+  shippingAddressId: string
+  billingAddressId: string
+  shippingMethodCode?: string | null
+  consentAcceptedAt: Date | string
+  consentVersion: string
+  repriceApprovalThresholdMinor?: bigint | number | null
+  priceTolerancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: bigint | number | null
+  editCutoffMinutes?: number
+  substitutionPolicy?: $Enums.SubstitutionPolicy
+  fulfilmentRule?: $Enums.ScheduleFulfilmentRule
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: string | null
+  activatedAt?: Date | string | null
+  completedAt?: Date | string | null
+  failureCount?: number
+  maxFailures?: number
+  pausedAt?: Date | string | null
+  pausedReason?: string | null
+  pausedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type RecurringScheduleUpdateWithoutInventoryLocationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFieldUpdateOperationsInput | $Enums.ScheduleKind
+  runOnceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  frequency?: Prisma.EnumScheduleFrequencyFieldUpdateOperationsInput | $Enums.ScheduleFrequency
+  intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  maxOccurrences?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  occurrenceCount?: Prisma.IntFieldUpdateOperationsInput | number
+  nextRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentMode?: Prisma.EnumSchedulePaymentModeFieldUpdateOperationsInput | $Enums.SchedulePaymentMode
+  mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mandateProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  payerEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  repriceApprovalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  priceTolerancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFieldUpdateOperationsInput | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFieldUpdateOperationsInput | $Enums.ScheduleFulfilmentRule
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failureCount?: Prisma.IntFieldUpdateOperationsInput | number
+  maxFailures?: Prisma.IntFieldUpdateOperationsInput | number
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutSchedulesNestedInput
+  shippingAddress?: Prisma.AddressUpdateOneRequiredWithoutShippingSchedulesNestedInput
+  billingAddress?: Prisma.AddressUpdateOneRequiredWithoutBillingSchedulesNestedInput
+  paymentMethod?: Prisma.CustomerPaymentMethodUpdateOneWithoutSchedulesNestedInput
+  items?: Prisma.RecurringScheduleItemUpdateManyWithoutScheduleNestedInput
+  occurrences?: Prisma.ScheduleOccurrenceUpdateManyWithoutScheduleNestedInput
+}
+
+export type RecurringScheduleUncheckedUpdateWithoutInventoryLocationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFieldUpdateOperationsInput | $Enums.ScheduleKind
+  runOnceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  frequency?: Prisma.EnumScheduleFrequencyFieldUpdateOperationsInput | $Enums.ScheduleFrequency
+  intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  maxOccurrences?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  occurrenceCount?: Prisma.IntFieldUpdateOperationsInput | number
+  nextRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentMode?: Prisma.EnumSchedulePaymentModeFieldUpdateOperationsInput | $Enums.SchedulePaymentMode
+  mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mandateProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  payerEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
+  billingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  repriceApprovalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  priceTolerancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFieldUpdateOperationsInput | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFieldUpdateOperationsInput | $Enums.ScheduleFulfilmentRule
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failureCount?: Prisma.IntFieldUpdateOperationsInput | number
+  maxFailures?: Prisma.IntFieldUpdateOperationsInput | number
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  items?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutScheduleNestedInput
+  occurrences?: Prisma.ScheduleOccurrenceUncheckedUpdateManyWithoutScheduleNestedInput
+}
+
+export type RecurringScheduleUncheckedUpdateManyWithoutInventoryLocationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFieldUpdateOperationsInput | $Enums.ScheduleKind
+  runOnceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  frequency?: Prisma.EnumScheduleFrequencyFieldUpdateOperationsInput | $Enums.ScheduleFrequency
+  intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  maxOccurrences?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  occurrenceCount?: Prisma.IntFieldUpdateOperationsInput | number
+  nextRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentMode?: Prisma.EnumSchedulePaymentModeFieldUpdateOperationsInput | $Enums.SchedulePaymentMode
+  mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mandateProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  payerEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
+  billingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  repriceApprovalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  priceTolerancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFieldUpdateOperationsInput | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFieldUpdateOperationsInput | $Enums.ScheduleFulfilmentRule
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failureCount?: Prisma.IntFieldUpdateOperationsInput | number
+  maxFailures?: Prisma.IntFieldUpdateOperationsInput | number
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type RecurringScheduleCreateManyCustomerProfileInput = {
+  id: string
+  name: string
+  status?: $Enums.ScheduleStatus
+  kind?: $Enums.ScheduleKind
+  runOnceAt?: Date | string | null
+  frequency: $Enums.ScheduleFrequency
+  intervalDays?: number | null
+  weekday?: number | null
+  monthDay?: number | null
+  timezone: string
+  runAtMinute?: number
+  startDate: Date | string
+  endDate?: Date | string | null
+  maxOccurrences?: number | null
+  occurrenceCount?: number
+  nextRunAt?: Date | string | null
+  lastRunAt?: Date | string | null
+  paymentMode: $Enums.SchedulePaymentMode
+  mandateReference?: string | null
+  mandateProvider?: $Enums.PaymentProviderKind | null
+  payerEmail?: string | null
+  paymentMethodId?: string | null
+  shippingAddressId: string
+  billingAddressId: string
+  shippingMethodCode?: string | null
+  consentAcceptedAt: Date | string
+  consentVersion: string
+  repriceApprovalThresholdMinor?: bigint | number | null
+  priceTolerancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: bigint | number | null
+  editCutoffMinutes?: number
+  substitutionPolicy?: $Enums.SubstitutionPolicy
+  fulfilmentRule?: $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: string | null
+  activatedAt?: Date | string | null
+  completedAt?: Date | string | null
   failureCount?: number
   maxFailures?: number
   pausedAt?: Date | string | null
@@ -2079,6 +3165,8 @@ export type RecurringScheduleUpdateWithoutCustomerProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFieldUpdateOperationsInput | $Enums.ScheduleKind
+  runOnceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frequency?: Prisma.EnumScheduleFrequencyFieldUpdateOperationsInput | $Enums.ScheduleFrequency
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2099,6 +3187,15 @@ export type RecurringScheduleUpdateWithoutCustomerProfileInput = {
   consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
   repriceApprovalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  priceTolerancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFieldUpdateOperationsInput | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFieldUpdateOperationsInput | $Enums.ScheduleFulfilmentRule
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureCount?: Prisma.IntFieldUpdateOperationsInput | number
   maxFailures?: Prisma.IntFieldUpdateOperationsInput | number
   pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2112,6 +3209,8 @@ export type RecurringScheduleUpdateWithoutCustomerProfileInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shippingAddress?: Prisma.AddressUpdateOneRequiredWithoutShippingSchedulesNestedInput
   billingAddress?: Prisma.AddressUpdateOneRequiredWithoutBillingSchedulesNestedInput
+  paymentMethod?: Prisma.CustomerPaymentMethodUpdateOneWithoutSchedulesNestedInput
+  inventoryLocation?: Prisma.InventoryLocationUpdateOneWithoutSchedulesNestedInput
   items?: Prisma.RecurringScheduleItemUpdateManyWithoutScheduleNestedInput
   occurrences?: Prisma.ScheduleOccurrenceUpdateManyWithoutScheduleNestedInput
 }
@@ -2120,6 +3219,8 @@ export type RecurringScheduleUncheckedUpdateWithoutCustomerProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFieldUpdateOperationsInput | $Enums.ScheduleKind
+  runOnceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frequency?: Prisma.EnumScheduleFrequencyFieldUpdateOperationsInput | $Enums.ScheduleFrequency
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2136,12 +3237,23 @@ export type RecurringScheduleUncheckedUpdateWithoutCustomerProfileInput = {
   mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mandateProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   payerEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
   billingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
   repriceApprovalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  priceTolerancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFieldUpdateOperationsInput | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFieldUpdateOperationsInput | $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureCount?: Prisma.IntFieldUpdateOperationsInput | number
   maxFailures?: Prisma.IntFieldUpdateOperationsInput | number
   pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2161,6 +3273,8 @@ export type RecurringScheduleUncheckedUpdateManyWithoutCustomerProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFieldUpdateOperationsInput | $Enums.ScheduleKind
+  runOnceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frequency?: Prisma.EnumScheduleFrequencyFieldUpdateOperationsInput | $Enums.ScheduleFrequency
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2177,12 +3291,23 @@ export type RecurringScheduleUncheckedUpdateManyWithoutCustomerProfileInput = {
   mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mandateProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   payerEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
   billingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
   repriceApprovalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  priceTolerancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFieldUpdateOperationsInput | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFieldUpdateOperationsInput | $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureCount?: Prisma.IntFieldUpdateOperationsInput | number
   maxFailures?: Prisma.IntFieldUpdateOperationsInput | number
   pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2201,6 +3326,8 @@ export type RecurringScheduleCreateManyShippingAddressInput = {
   customerProfileId: string
   name: string
   status?: $Enums.ScheduleStatus
+  kind?: $Enums.ScheduleKind
+  runOnceAt?: Date | string | null
   frequency: $Enums.ScheduleFrequency
   intervalDays?: number | null
   weekday?: number | null
@@ -2217,11 +3344,22 @@ export type RecurringScheduleCreateManyShippingAddressInput = {
   mandateReference?: string | null
   mandateProvider?: $Enums.PaymentProviderKind | null
   payerEmail?: string | null
+  paymentMethodId?: string | null
   billingAddressId: string
   shippingMethodCode?: string | null
   consentAcceptedAt: Date | string
   consentVersion: string
   repriceApprovalThresholdMinor?: bigint | number | null
+  priceTolerancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: bigint | number | null
+  editCutoffMinutes?: number
+  substitutionPolicy?: $Enums.SubstitutionPolicy
+  fulfilmentRule?: $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: string | null
+  activatedAt?: Date | string | null
+  completedAt?: Date | string | null
   failureCount?: number
   maxFailures?: number
   pausedAt?: Date | string | null
@@ -2240,6 +3378,8 @@ export type RecurringScheduleCreateManyBillingAddressInput = {
   customerProfileId: string
   name: string
   status?: $Enums.ScheduleStatus
+  kind?: $Enums.ScheduleKind
+  runOnceAt?: Date | string | null
   frequency: $Enums.ScheduleFrequency
   intervalDays?: number | null
   weekday?: number | null
@@ -2256,11 +3396,22 @@ export type RecurringScheduleCreateManyBillingAddressInput = {
   mandateReference?: string | null
   mandateProvider?: $Enums.PaymentProviderKind | null
   payerEmail?: string | null
+  paymentMethodId?: string | null
   shippingAddressId: string
   shippingMethodCode?: string | null
   consentAcceptedAt: Date | string
   consentVersion: string
   repriceApprovalThresholdMinor?: bigint | number | null
+  priceTolerancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: bigint | number | null
+  editCutoffMinutes?: number
+  substitutionPolicy?: $Enums.SubstitutionPolicy
+  fulfilmentRule?: $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: string | null
+  activatedAt?: Date | string | null
+  completedAt?: Date | string | null
   failureCount?: number
   maxFailures?: number
   pausedAt?: Date | string | null
@@ -2278,6 +3429,8 @@ export type RecurringScheduleUpdateWithoutShippingAddressInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFieldUpdateOperationsInput | $Enums.ScheduleKind
+  runOnceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frequency?: Prisma.EnumScheduleFrequencyFieldUpdateOperationsInput | $Enums.ScheduleFrequency
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2298,6 +3451,15 @@ export type RecurringScheduleUpdateWithoutShippingAddressInput = {
   consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
   repriceApprovalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  priceTolerancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFieldUpdateOperationsInput | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFieldUpdateOperationsInput | $Enums.ScheduleFulfilmentRule
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureCount?: Prisma.IntFieldUpdateOperationsInput | number
   maxFailures?: Prisma.IntFieldUpdateOperationsInput | number
   pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2311,6 +3473,8 @@ export type RecurringScheduleUpdateWithoutShippingAddressInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutSchedulesNestedInput
   billingAddress?: Prisma.AddressUpdateOneRequiredWithoutBillingSchedulesNestedInput
+  paymentMethod?: Prisma.CustomerPaymentMethodUpdateOneWithoutSchedulesNestedInput
+  inventoryLocation?: Prisma.InventoryLocationUpdateOneWithoutSchedulesNestedInput
   items?: Prisma.RecurringScheduleItemUpdateManyWithoutScheduleNestedInput
   occurrences?: Prisma.ScheduleOccurrenceUpdateManyWithoutScheduleNestedInput
 }
@@ -2320,6 +3484,8 @@ export type RecurringScheduleUncheckedUpdateWithoutShippingAddressInput = {
   customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFieldUpdateOperationsInput | $Enums.ScheduleKind
+  runOnceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frequency?: Prisma.EnumScheduleFrequencyFieldUpdateOperationsInput | $Enums.ScheduleFrequency
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2336,11 +3502,22 @@ export type RecurringScheduleUncheckedUpdateWithoutShippingAddressInput = {
   mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mandateProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   payerEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
   repriceApprovalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  priceTolerancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFieldUpdateOperationsInput | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFieldUpdateOperationsInput | $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureCount?: Prisma.IntFieldUpdateOperationsInput | number
   maxFailures?: Prisma.IntFieldUpdateOperationsInput | number
   pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2361,6 +3538,8 @@ export type RecurringScheduleUncheckedUpdateManyWithoutShippingAddressInput = {
   customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFieldUpdateOperationsInput | $Enums.ScheduleKind
+  runOnceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frequency?: Prisma.EnumScheduleFrequencyFieldUpdateOperationsInput | $Enums.ScheduleFrequency
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2377,11 +3556,22 @@ export type RecurringScheduleUncheckedUpdateManyWithoutShippingAddressInput = {
   mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mandateProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   payerEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   billingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
   repriceApprovalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  priceTolerancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFieldUpdateOperationsInput | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFieldUpdateOperationsInput | $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureCount?: Prisma.IntFieldUpdateOperationsInput | number
   maxFailures?: Prisma.IntFieldUpdateOperationsInput | number
   pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2399,6 +3589,8 @@ export type RecurringScheduleUpdateWithoutBillingAddressInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFieldUpdateOperationsInput | $Enums.ScheduleKind
+  runOnceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frequency?: Prisma.EnumScheduleFrequencyFieldUpdateOperationsInput | $Enums.ScheduleFrequency
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2419,6 +3611,15 @@ export type RecurringScheduleUpdateWithoutBillingAddressInput = {
   consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
   repriceApprovalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  priceTolerancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFieldUpdateOperationsInput | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFieldUpdateOperationsInput | $Enums.ScheduleFulfilmentRule
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureCount?: Prisma.IntFieldUpdateOperationsInput | number
   maxFailures?: Prisma.IntFieldUpdateOperationsInput | number
   pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2432,6 +3633,8 @@ export type RecurringScheduleUpdateWithoutBillingAddressInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutSchedulesNestedInput
   shippingAddress?: Prisma.AddressUpdateOneRequiredWithoutShippingSchedulesNestedInput
+  paymentMethod?: Prisma.CustomerPaymentMethodUpdateOneWithoutSchedulesNestedInput
+  inventoryLocation?: Prisma.InventoryLocationUpdateOneWithoutSchedulesNestedInput
   items?: Prisma.RecurringScheduleItemUpdateManyWithoutScheduleNestedInput
   occurrences?: Prisma.ScheduleOccurrenceUpdateManyWithoutScheduleNestedInput
 }
@@ -2441,6 +3644,8 @@ export type RecurringScheduleUncheckedUpdateWithoutBillingAddressInput = {
   customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFieldUpdateOperationsInput | $Enums.ScheduleKind
+  runOnceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frequency?: Prisma.EnumScheduleFrequencyFieldUpdateOperationsInput | $Enums.ScheduleFrequency
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2457,11 +3662,22 @@ export type RecurringScheduleUncheckedUpdateWithoutBillingAddressInput = {
   mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mandateProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   payerEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
   repriceApprovalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  priceTolerancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFieldUpdateOperationsInput | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFieldUpdateOperationsInput | $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureCount?: Prisma.IntFieldUpdateOperationsInput | number
   maxFailures?: Prisma.IntFieldUpdateOperationsInput | number
   pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2482,6 +3698,166 @@ export type RecurringScheduleUncheckedUpdateManyWithoutBillingAddressInput = {
   customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFieldUpdateOperationsInput | $Enums.ScheduleKind
+  runOnceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  frequency?: Prisma.EnumScheduleFrequencyFieldUpdateOperationsInput | $Enums.ScheduleFrequency
+  intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  maxOccurrences?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  occurrenceCount?: Prisma.IntFieldUpdateOperationsInput | number
+  nextRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentMode?: Prisma.EnumSchedulePaymentModeFieldUpdateOperationsInput | $Enums.SchedulePaymentMode
+  mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mandateProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  payerEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  repriceApprovalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  priceTolerancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFieldUpdateOperationsInput | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFieldUpdateOperationsInput | $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failureCount?: Prisma.IntFieldUpdateOperationsInput | number
+  maxFailures?: Prisma.IntFieldUpdateOperationsInput | number
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type RecurringScheduleCreateManyPaymentMethodInput = {
+  id: string
+  customerProfileId: string
+  name: string
+  status?: $Enums.ScheduleStatus
+  kind?: $Enums.ScheduleKind
+  runOnceAt?: Date | string | null
+  frequency: $Enums.ScheduleFrequency
+  intervalDays?: number | null
+  weekday?: number | null
+  monthDay?: number | null
+  timezone: string
+  runAtMinute?: number
+  startDate: Date | string
+  endDate?: Date | string | null
+  maxOccurrences?: number | null
+  occurrenceCount?: number
+  nextRunAt?: Date | string | null
+  lastRunAt?: Date | string | null
+  paymentMode: $Enums.SchedulePaymentMode
+  mandateReference?: string | null
+  mandateProvider?: $Enums.PaymentProviderKind | null
+  payerEmail?: string | null
+  shippingAddressId: string
+  billingAddressId: string
+  shippingMethodCode?: string | null
+  consentAcceptedAt: Date | string
+  consentVersion: string
+  repriceApprovalThresholdMinor?: bigint | number | null
+  priceTolerancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: bigint | number | null
+  editCutoffMinutes?: number
+  substitutionPolicy?: $Enums.SubstitutionPolicy
+  fulfilmentRule?: $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: string | null
+  activatedAt?: Date | string | null
+  completedAt?: Date | string | null
+  failureCount?: number
+  maxFailures?: number
+  pausedAt?: Date | string | null
+  pausedReason?: string | null
+  pausedById?: string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  leaseOwner?: string | null
+  leaseExpiresAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type RecurringScheduleUpdateWithoutPaymentMethodInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFieldUpdateOperationsInput | $Enums.ScheduleKind
+  runOnceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  frequency?: Prisma.EnumScheduleFrequencyFieldUpdateOperationsInput | $Enums.ScheduleFrequency
+  intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  maxOccurrences?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  occurrenceCount?: Prisma.IntFieldUpdateOperationsInput | number
+  nextRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentMode?: Prisma.EnumSchedulePaymentModeFieldUpdateOperationsInput | $Enums.SchedulePaymentMode
+  mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mandateProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  payerEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  repriceApprovalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  priceTolerancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFieldUpdateOperationsInput | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFieldUpdateOperationsInput | $Enums.ScheduleFulfilmentRule
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failureCount?: Prisma.IntFieldUpdateOperationsInput | number
+  maxFailures?: Prisma.IntFieldUpdateOperationsInput | number
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutSchedulesNestedInput
+  shippingAddress?: Prisma.AddressUpdateOneRequiredWithoutShippingSchedulesNestedInput
+  billingAddress?: Prisma.AddressUpdateOneRequiredWithoutBillingSchedulesNestedInput
+  inventoryLocation?: Prisma.InventoryLocationUpdateOneWithoutSchedulesNestedInput
+  items?: Prisma.RecurringScheduleItemUpdateManyWithoutScheduleNestedInput
+  occurrences?: Prisma.ScheduleOccurrenceUpdateManyWithoutScheduleNestedInput
+}
+
+export type RecurringScheduleUncheckedUpdateWithoutPaymentMethodInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFieldUpdateOperationsInput | $Enums.ScheduleKind
+  runOnceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frequency?: Prisma.EnumScheduleFrequencyFieldUpdateOperationsInput | $Enums.ScheduleFrequency
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2499,10 +3875,75 @@ export type RecurringScheduleUncheckedUpdateManyWithoutBillingAddressInput = {
   mandateProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   payerEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
+  billingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
   repriceApprovalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  priceTolerancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFieldUpdateOperationsInput | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFieldUpdateOperationsInput | $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failureCount?: Prisma.IntFieldUpdateOperationsInput | number
+  maxFailures?: Prisma.IntFieldUpdateOperationsInput | number
+  pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pausedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  items?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutScheduleNestedInput
+  occurrences?: Prisma.ScheduleOccurrenceUncheckedUpdateManyWithoutScheduleNestedInput
+}
+
+export type RecurringScheduleUncheckedUpdateManyWithoutPaymentMethodInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  kind?: Prisma.EnumScheduleKindFieldUpdateOperationsInput | $Enums.ScheduleKind
+  runOnceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  frequency?: Prisma.EnumScheduleFrequencyFieldUpdateOperationsInput | $Enums.ScheduleFrequency
+  intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  maxOccurrences?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  occurrenceCount?: Prisma.IntFieldUpdateOperationsInput | number
+  nextRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastRunAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentMode?: Prisma.EnumSchedulePaymentModeFieldUpdateOperationsInput | $Enums.SchedulePaymentMode
+  mandateReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mandateProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  payerEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
+  billingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  repriceApprovalThresholdMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  priceTolerancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  priceToleranceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  editCutoffMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  substitutionPolicy?: Prisma.EnumSubstitutionPolicyFieldUpdateOperationsInput | $Enums.SubstitutionPolicy
+  fulfilmentRule?: Prisma.EnumScheduleFulfilmentRuleFieldUpdateOperationsInput | $Enums.ScheduleFulfilmentRule
+  inventoryLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cartSnapshotJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sourceCartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failureCount?: Prisma.IntFieldUpdateOperationsInput | number
   maxFailures?: Prisma.IntFieldUpdateOperationsInput | number
   pausedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2561,6 +4002,8 @@ export type RecurringScheduleSelect<ExtArgs extends runtime.Types.Extensions.Int
   customerProfileId?: boolean
   name?: boolean
   status?: boolean
+  kind?: boolean
+  runOnceAt?: boolean
   frequency?: boolean
   intervalDays?: boolean
   weekday?: boolean
@@ -2577,12 +4020,23 @@ export type RecurringScheduleSelect<ExtArgs extends runtime.Types.Extensions.Int
   mandateReference?: boolean
   mandateProvider?: boolean
   payerEmail?: boolean
+  paymentMethodId?: boolean
   shippingAddressId?: boolean
   billingAddressId?: boolean
   shippingMethodCode?: boolean
   consentAcceptedAt?: boolean
   consentVersion?: boolean
   repriceApprovalThresholdMinor?: boolean
+  priceTolerancePercent?: boolean
+  priceToleranceMinor?: boolean
+  editCutoffMinutes?: boolean
+  substitutionPolicy?: boolean
+  fulfilmentRule?: boolean
+  inventoryLocationId?: boolean
+  cartSnapshotJson?: boolean
+  sourceCartId?: boolean
+  activatedAt?: boolean
+  completedAt?: boolean
   failureCount?: boolean
   maxFailures?: boolean
   pausedAt?: boolean
@@ -2597,6 +4051,8 @@ export type RecurringScheduleSelect<ExtArgs extends runtime.Types.Extensions.Int
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   shippingAddress?: boolean | Prisma.AddressDefaultArgs<ExtArgs>
   billingAddress?: boolean | Prisma.AddressDefaultArgs<ExtArgs>
+  paymentMethod?: boolean | Prisma.RecurringSchedule$paymentMethodArgs<ExtArgs>
+  inventoryLocation?: boolean | Prisma.RecurringSchedule$inventoryLocationArgs<ExtArgs>
   items?: boolean | Prisma.RecurringSchedule$itemsArgs<ExtArgs>
   occurrences?: boolean | Prisma.RecurringSchedule$occurrencesArgs<ExtArgs>
   _count?: boolean | Prisma.RecurringScheduleCountOutputTypeDefaultArgs<ExtArgs>
@@ -2609,6 +4065,8 @@ export type RecurringScheduleSelectScalar = {
   customerProfileId?: boolean
   name?: boolean
   status?: boolean
+  kind?: boolean
+  runOnceAt?: boolean
   frequency?: boolean
   intervalDays?: boolean
   weekday?: boolean
@@ -2625,12 +4083,23 @@ export type RecurringScheduleSelectScalar = {
   mandateReference?: boolean
   mandateProvider?: boolean
   payerEmail?: boolean
+  paymentMethodId?: boolean
   shippingAddressId?: boolean
   billingAddressId?: boolean
   shippingMethodCode?: boolean
   consentAcceptedAt?: boolean
   consentVersion?: boolean
   repriceApprovalThresholdMinor?: boolean
+  priceTolerancePercent?: boolean
+  priceToleranceMinor?: boolean
+  editCutoffMinutes?: boolean
+  substitutionPolicy?: boolean
+  fulfilmentRule?: boolean
+  inventoryLocationId?: boolean
+  cartSnapshotJson?: boolean
+  sourceCartId?: boolean
+  activatedAt?: boolean
+  completedAt?: boolean
   failureCount?: boolean
   maxFailures?: boolean
   pausedAt?: boolean
@@ -2644,11 +4113,13 @@ export type RecurringScheduleSelectScalar = {
   updatedAt?: boolean
 }
 
-export type RecurringScheduleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerProfileId" | "name" | "status" | "frequency" | "intervalDays" | "weekday" | "monthDay" | "timezone" | "runAtMinute" | "startDate" | "endDate" | "maxOccurrences" | "occurrenceCount" | "nextRunAt" | "lastRunAt" | "paymentMode" | "mandateReference" | "mandateProvider" | "payerEmail" | "shippingAddressId" | "billingAddressId" | "shippingMethodCode" | "consentAcceptedAt" | "consentVersion" | "repriceApprovalThresholdMinor" | "failureCount" | "maxFailures" | "pausedAt" | "pausedReason" | "pausedById" | "cancelledAt" | "cancelReason" | "leaseOwner" | "leaseExpiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["recurringSchedule"]>
+export type RecurringScheduleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerProfileId" | "name" | "status" | "kind" | "runOnceAt" | "frequency" | "intervalDays" | "weekday" | "monthDay" | "timezone" | "runAtMinute" | "startDate" | "endDate" | "maxOccurrences" | "occurrenceCount" | "nextRunAt" | "lastRunAt" | "paymentMode" | "mandateReference" | "mandateProvider" | "payerEmail" | "paymentMethodId" | "shippingAddressId" | "billingAddressId" | "shippingMethodCode" | "consentAcceptedAt" | "consentVersion" | "repriceApprovalThresholdMinor" | "priceTolerancePercent" | "priceToleranceMinor" | "editCutoffMinutes" | "substitutionPolicy" | "fulfilmentRule" | "inventoryLocationId" | "cartSnapshotJson" | "sourceCartId" | "activatedAt" | "completedAt" | "failureCount" | "maxFailures" | "pausedAt" | "pausedReason" | "pausedById" | "cancelledAt" | "cancelReason" | "leaseOwner" | "leaseExpiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["recurringSchedule"]>
 export type RecurringScheduleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   shippingAddress?: boolean | Prisma.AddressDefaultArgs<ExtArgs>
   billingAddress?: boolean | Prisma.AddressDefaultArgs<ExtArgs>
+  paymentMethod?: boolean | Prisma.RecurringSchedule$paymentMethodArgs<ExtArgs>
+  inventoryLocation?: boolean | Prisma.RecurringSchedule$inventoryLocationArgs<ExtArgs>
   items?: boolean | Prisma.RecurringSchedule$itemsArgs<ExtArgs>
   occurrences?: boolean | Prisma.RecurringSchedule$occurrencesArgs<ExtArgs>
   _count?: boolean | Prisma.RecurringScheduleCountOutputTypeDefaultArgs<ExtArgs>
@@ -2660,6 +4131,8 @@ export type $RecurringSchedulePayload<ExtArgs extends runtime.Types.Extensions.I
     customerProfile: Prisma.$CustomerProfilePayload<ExtArgs>
     shippingAddress: Prisma.$AddressPayload<ExtArgs>
     billingAddress: Prisma.$AddressPayload<ExtArgs>
+    paymentMethod: Prisma.$CustomerPaymentMethodPayload<ExtArgs> | null
+    inventoryLocation: Prisma.$InventoryLocationPayload<ExtArgs> | null
     items: Prisma.$RecurringScheduleItemPayload<ExtArgs>[]
     occurrences: Prisma.$ScheduleOccurrencePayload<ExtArgs>[]
   }
@@ -2668,6 +4141,20 @@ export type $RecurringSchedulePayload<ExtArgs extends runtime.Types.Extensions.I
     customerProfileId: string
     name: string
     status: $Enums.ScheduleStatus
+    /**
+     * Repeats, or fires once (Buy Later). See the enum.
+     */
+    kind: $Enums.ScheduleKind
+    /**
+     * The single instant a ONE_TIME plan fires, in UTC.
+     * 
+     * Held as well as `nextRunAt` rather than instead of it: nextRunAt is the
+     * worker's mutable queue key and is cleared on pause, while this is the
+     * customer's stated intention and never changes once authorised. Losing it
+     * would mean a paused Buy Later could not be resumed to the date the
+     * customer actually asked for.
+     */
+    runOnceAt: Date | null
     frequency: $Enums.ScheduleFrequency
     /**
      * Used when frequency = EVERY_N_DAYS. The doc calls out "every 7 days".
@@ -2705,6 +4192,10 @@ export type $RecurringSchedulePayload<ExtArgs extends runtime.Types.Extensions.I
     paymentMode: $Enums.SchedulePaymentMode
     /**
      * Provider mandate/token reference for AUTO_PAY. Never a card number.
+     * 
+     * Retained for the Razorpay e-mandate path and for plans created before
+     * stored payment methods existed. Stripe auto-pay uses `paymentMethodId`
+     * below, which carries the consent record with it.
      */
     mandateReference: string | null
     mandateProvider: $Enums.PaymentProviderKind | null
@@ -2712,6 +4203,14 @@ export type $RecurringSchedulePayload<ExtArgs extends runtime.Types.Extensions.I
      * Approved payer for PAYMENT_LINK mode.
      */
     payerEmail: string | null
+    /**
+     * The reusable instrument an AUTO_PAY plan charges off-session.
+     * 
+     * Restrict on delete, not Cascade: a customer removing a card must not
+     * silently delete the schedule that depends on it. The service refuses the
+     * removal and names the plans instead, so the customer chooses.
+     */
+    paymentMethodId: string | null
     shippingAddressId: string
     billingAddressId: string
     shippingMethodCode: string | null
@@ -2723,8 +4222,59 @@ export type $RecurringSchedulePayload<ExtArgs extends runtime.Types.Extensions.I
     consentVersion: string
     /**
      * Occurrence total above which the run pauses for approval instead of charging.
+     * 
+     * An absolute ceiling, set once. The two tolerance columns below are the
+     * relative test, applied against what the customer was last quoted; both
+     * are checked, and either one tripping holds the occurrence.
      */
     repriceApprovalThresholdMinor: bigint | null
+    /**
+     * How far the total may move from the quoted amount before the charge needs
+     * re-confirming, as a percentage.
+     * 
+     * Decimal, not Float: it is compared against money. Null means fall back to
+     * the deployment's `SCHEDULE_PRICE_TOLERANCE_PERCENT` setting.
+     */
+    priceTolerancePercent: runtime.Decimal | null
+    /**
+     * The same test as an absolute floor, so a tolerance of 5% on a small
+     * basket does not hold an occurrence over a rounding difference. Whichever
+     * of the two is more generous wins.
+     */
+    priceToleranceMinor: bigint | null
+    /**
+     * How long before a run the plan stops accepting edits, in minutes.
+     * 
+     * Edits inside this window would race the worker: the customer sees the
+     * old basket, the engine is already pricing the new one. Rejected with
+     * SCHEDULE_EDIT_CUTOFF_PASSED, which names the next date they can edit.
+     */
+    editCutoffMinutes: number
+    substitutionPolicy: $Enums.SubstitutionPolicy
+    /**
+     * Where these orders ship from. NULL location with FIXED_LOCATION is
+     * refused at write time - the two columns are set together.
+     */
+    fulfilmentRule: $Enums.ScheduleFulfilmentRule
+    inventoryLocationId: string | null
+    /**
+     * The cart the customer authorised, exactly as the review screen showed it.
+     * 
+     * Kept for provenance, not for pricing. Every occurrence reprices against
+     * today's catalogue - this is what "what did they actually agree to" is
+     * answered from when a total is disputed months later, and what the
+     * tolerance check measures drift against.
+     * 
+     * NULL on plans built from a product list rather than a cart, which is
+     * every plan created before Buy Later existed.
+     */
+    cartSnapshotJson: runtime.JsonValue | null
+    sourceCartId: string | null
+    /**
+     * When the customer confirmed the review screen. NULL while DRAFT.
+     */
+    activatedAt: Date | null
+    completedAt: Date | null
     failureCount: number
     maxFailures: number
     pausedAt: Date | null
@@ -3082,6 +4632,8 @@ export interface Prisma__RecurringScheduleClient<T, Null = never, ExtArgs extend
   customerProfile<T extends Prisma.CustomerProfileDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfileDefaultArgs<ExtArgs>>): Prisma.Prisma__CustomerProfileClient<runtime.Types.Result.GetResult<Prisma.$CustomerProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   shippingAddress<T extends Prisma.AddressDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AddressDefaultArgs<ExtArgs>>): Prisma.Prisma__AddressClient<runtime.Types.Result.GetResult<Prisma.$AddressPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   billingAddress<T extends Prisma.AddressDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AddressDefaultArgs<ExtArgs>>): Prisma.Prisma__AddressClient<runtime.Types.Result.GetResult<Prisma.$AddressPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  paymentMethod<T extends Prisma.RecurringSchedule$paymentMethodArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RecurringSchedule$paymentMethodArgs<ExtArgs>>): Prisma.Prisma__CustomerPaymentMethodClient<runtime.Types.Result.GetResult<Prisma.$CustomerPaymentMethodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  inventoryLocation<T extends Prisma.RecurringSchedule$inventoryLocationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RecurringSchedule$inventoryLocationArgs<ExtArgs>>): Prisma.Prisma__InventoryLocationClient<runtime.Types.Result.GetResult<Prisma.$InventoryLocationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   items<T extends Prisma.RecurringSchedule$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RecurringSchedule$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecurringScheduleItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   occurrences<T extends Prisma.RecurringSchedule$occurrencesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RecurringSchedule$occurrencesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScheduleOccurrencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -3117,6 +4669,8 @@ export interface RecurringScheduleFieldRefs {
   readonly customerProfileId: Prisma.FieldRef<"RecurringSchedule", 'String'>
   readonly name: Prisma.FieldRef<"RecurringSchedule", 'String'>
   readonly status: Prisma.FieldRef<"RecurringSchedule", 'ScheduleStatus'>
+  readonly kind: Prisma.FieldRef<"RecurringSchedule", 'ScheduleKind'>
+  readonly runOnceAt: Prisma.FieldRef<"RecurringSchedule", 'DateTime'>
   readonly frequency: Prisma.FieldRef<"RecurringSchedule", 'ScheduleFrequency'>
   readonly intervalDays: Prisma.FieldRef<"RecurringSchedule", 'Int'>
   readonly weekday: Prisma.FieldRef<"RecurringSchedule", 'Int'>
@@ -3133,12 +4687,23 @@ export interface RecurringScheduleFieldRefs {
   readonly mandateReference: Prisma.FieldRef<"RecurringSchedule", 'String'>
   readonly mandateProvider: Prisma.FieldRef<"RecurringSchedule", 'PaymentProviderKind'>
   readonly payerEmail: Prisma.FieldRef<"RecurringSchedule", 'String'>
+  readonly paymentMethodId: Prisma.FieldRef<"RecurringSchedule", 'String'>
   readonly shippingAddressId: Prisma.FieldRef<"RecurringSchedule", 'String'>
   readonly billingAddressId: Prisma.FieldRef<"RecurringSchedule", 'String'>
   readonly shippingMethodCode: Prisma.FieldRef<"RecurringSchedule", 'String'>
   readonly consentAcceptedAt: Prisma.FieldRef<"RecurringSchedule", 'DateTime'>
   readonly consentVersion: Prisma.FieldRef<"RecurringSchedule", 'String'>
   readonly repriceApprovalThresholdMinor: Prisma.FieldRef<"RecurringSchedule", 'BigInt'>
+  readonly priceTolerancePercent: Prisma.FieldRef<"RecurringSchedule", 'Decimal'>
+  readonly priceToleranceMinor: Prisma.FieldRef<"RecurringSchedule", 'BigInt'>
+  readonly editCutoffMinutes: Prisma.FieldRef<"RecurringSchedule", 'Int'>
+  readonly substitutionPolicy: Prisma.FieldRef<"RecurringSchedule", 'SubstitutionPolicy'>
+  readonly fulfilmentRule: Prisma.FieldRef<"RecurringSchedule", 'ScheduleFulfilmentRule'>
+  readonly inventoryLocationId: Prisma.FieldRef<"RecurringSchedule", 'String'>
+  readonly cartSnapshotJson: Prisma.FieldRef<"RecurringSchedule", 'Json'>
+  readonly sourceCartId: Prisma.FieldRef<"RecurringSchedule", 'String'>
+  readonly activatedAt: Prisma.FieldRef<"RecurringSchedule", 'DateTime'>
+  readonly completedAt: Prisma.FieldRef<"RecurringSchedule", 'DateTime'>
   readonly failureCount: Prisma.FieldRef<"RecurringSchedule", 'Int'>
   readonly maxFailures: Prisma.FieldRef<"RecurringSchedule", 'Int'>
   readonly pausedAt: Prisma.FieldRef<"RecurringSchedule", 'DateTime'>
@@ -3495,6 +5060,44 @@ export type RecurringScheduleDeleteManyArgs<ExtArgs extends runtime.Types.Extens
    * Limit how many RecurringSchedules to delete.
    */
   limit?: number
+}
+
+/**
+ * RecurringSchedule.paymentMethod
+ */
+export type RecurringSchedule$paymentMethodArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerPaymentMethod
+   */
+  select?: Prisma.CustomerPaymentMethodSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerPaymentMethod
+   */
+  omit?: Prisma.CustomerPaymentMethodOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerPaymentMethodInclude<ExtArgs> | null
+  where?: Prisma.CustomerPaymentMethodWhereInput
+}
+
+/**
+ * RecurringSchedule.inventoryLocation
+ */
+export type RecurringSchedule$inventoryLocationArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the InventoryLocation
+   */
+  select?: Prisma.InventoryLocationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the InventoryLocation
+   */
+  omit?: Prisma.InventoryLocationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryLocationInclude<ExtArgs> | null
+  where?: Prisma.InventoryLocationWhereInput
 }
 
 /**
