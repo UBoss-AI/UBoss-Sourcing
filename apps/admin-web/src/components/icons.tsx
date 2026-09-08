@@ -94,6 +94,24 @@ export function InventoryIcon(props: IconProps): React.JSX.Element {
   );
 }
 
+/**
+ * Warehouses.
+ *
+ * A pitched roof over two bays, which has to be distinguishable from
+ * `InventoryIcon` directly above it in the same sidebar group - that one is a
+ * lidded box, this one is a building. The roofline is the whole difference at
+ * 20px, so it is the one stroke drawn full width.
+ */
+export function WarehouseIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M3.2 20.4V9.4L12 4.6l8.8 4.8v11" />
+      <path d="M8.4 20.4v-6.2h7.2v6.2" />
+      <path d="M2.4 20.4h19.2" />
+    </Icon>
+  );
+}
+
 export function CouponsIcon(props: IconProps): React.JSX.Element {
   return (
     <Icon {...props}>

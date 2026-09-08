@@ -172,6 +172,13 @@ async function seedBusinessConfiguration(): Promise<void> {
     },
   });
 
+  // The default warehouse, and deliberately the plain one: it carries no
+  // country, no coordinates and no ERP mapping, which is exactly the state
+  // every warehouse in an installation that predates those columns is in. The
+  // Warehouses screen has to keep working for it, so the seed keeps one.
+  //
+  // The four real ones are in `seedWarehouses`, which runs after the country
+  // reference data it has a foreign key into.
   await prisma.inventoryLocation.upsert({
     where: { code: 'MAIN' },
     update: {},
@@ -349,6 +356,144 @@ async function seedCustomers(): Promise<void> {
   console.log(`  customers: ${String(SEED_CUSTOMERS.length)} (1 active, 1 pending invitation)`);
 }
 
+/**
+ * The warehouses.
+ *
+ * Development fixtures, like every other account and address in this file, and
+ * they are here rather than in a migration for the reason the whole product is
+ * built on: **this software is bought and run by other companies, so where the
+ * warehouses are is never a fact the repository gets to assert.** A real
+ * deployment creates its own on the Warehouses screen, or loads them through
+ * the API. What these four buy is a fresh clone that comes up with a map worth
+ * looking at instead of one empty rectangle.
+ *
+ * The statuses are varied on purpose, the same way `invited@zenith.local` is
+ * left waiting on an invitation: between them the four cover every operational
+ * badge, every ERP sync state that can be reached, a warehouse that is not
+ * mapped to the ERP at all, and one that is retired - so the filters and the
+ * marker colours can be seen working without anybody having to set them up
+ * first.
+ *
+ * Runs after `seedReferenceData`, and has to: `countryCode` is a foreign key
+ * into `countries`, and the four member states below only exist once the
+ * reference data has been installed.
+ */
+interface WarehouseSeed {
+  code: string;
+  name: string;
+  countryCode: string;
+  timezone: string;
+  latitude: string;
+  longitude: string;
+  address: { line1: string; city: string; postalCode: string };
+  operationalStatus: 'OPERATIONAL' | 'LIMITED' | 'MAINTENANCE' | 'SUSPENDED';
+  erpExternalId: string | null;
+  erpSyncStatus: 'NEVER_SYNCED' | 'SYNCED' | 'PENDING' | 'FAILED';
+  /** Hours before now, so a re-seed always produces a recent-looking time. */
+  erpSyncedHoursAgo: number | null;
+  erpSyncMessage: string | null;
+  isActive?: boolean;
+}
+
+const SEED_WAREHOUSES: readonly WarehouseSeed[] = [
+  {
+    code: 'BE-ANR',
+    name: 'Antwerp distribution centre',
+    countryCode: 'BE',
+    timezone: 'Europe/Brussels',
+    latitude: '51.219400',
+    longitude: '4.402500',
+    address: { line1: 'Noorderlaan 127', city: 'Antwerpen', postalCode: '2030' },
+    operationalStatus: 'OPERATIONAL',
+    erpExternalId: 'WH-ANR-01',
+    erpSyncStatus: 'SYNCED',
+    erpSyncedHoursAgo: 2,
+    erpSyncMessage: '1,284 SKUs reconciled.',
+  },
+  {
+    code: 'ES-BCN',
+    name: 'Barcelona Zona Franca',
+    countryCode: 'ES',
+    timezone: 'Europe/Madrid',
+    latitude: '41.351000',
+    longitude: '2.129000',
+    address: { line1: "Carrer A, 41, Zona Franca", city: 'Barcelona', postalCode: '08040' },
+    operationalStatus: 'OPERATIONAL',
+    erpExternalId: 'WH-BCN-01',
+    erpSyncStatus: 'SYNCED',
+    erpSyncedHoursAgo: 5,
+    erpSyncMessage: '903 SKUs reconciled.',
+  },
+  {
+    code: 'GR-ATH',
+    name: 'Athens west hub',
+    countryCode: 'GR',
+    timezone: 'Europe/Athens',
+    latitude: '38.064000',
+    longitude: '23.596000',
+    address: { line1: 'Leoforos NATO 22', city: 'Aspropyrgos', postalCode: '19300' },
+    // Running, but not at full capacity - which is precisely the state
+    // `isActive` could never express on its own.
+    operationalStatus: 'LIMITED',
+    erpExternalId: 'WH-ATH-01',
+    erpSyncStatus: 'PENDING',
+    // PENDING carries no completion time of its own: the last *finished* sync
+    // is still whenever it was, which is what `recordErpSync` enforces.
+    erpSyncedHoursAgo: 26,
+    erpSyncMessage: 'Reconciliation queued behind a stock count.',
+  },
+  {
+    code: 'PL-GDN',
+    name: 'Gdańsk port warehouse',
+    countryCode: 'PL',
+    timezone: 'Europe/Warsaw',
+    latitude: '54.352000',
+    longitude: '18.646600',
+    address: { line1: 'ul. Kontenerowa 7', city: 'Gdańsk', postalCode: '80-601' },
+    operationalStatus: 'MAINTENANCE',
+    erpExternalId: 'WH-GDN-01',
+    erpSyncStatus: 'FAILED',
+    erpSyncedHoursAgo: 73,
+    erpSyncMessage: 'ERP rejected 4 SKUs: unit of measure mismatch.',
+  },
+];
+
+async function seedWarehouses(): Promise<number> {
+  for (const warehouse of SEED_WAREHOUSES) {
+    const erpLastSyncAt =
+      warehouse.erpSyncedHoursAgo === null
+        ? null
+        : new Date(Date.now() - warehouse.erpSyncedHoursAgo * 60 * 60 * 1000);
+
+    const shared = {
+      name: warehouse.name,
+      countryCode: warehouse.countryCode,
+      timezone: warehouse.timezone,
+      latitude: warehouse.latitude,
+      longitude: warehouse.longitude,
+      addressJson: warehouse.address,
+      operationalStatus: warehouse.operationalStatus,
+      erpExternalId: warehouse.erpExternalId,
+      erpSyncStatus: warehouse.erpSyncStatus,
+      erpLastSyncAt,
+      erpSyncMessage: warehouse.erpSyncMessage,
+      isActive: warehouse.isActive ?? true,
+    };
+
+    await prisma.inventoryLocation.upsert({
+      where: { code: warehouse.code },
+      // Updated as well as created, so re-running the seed refreshes the sync
+      // times rather than leaving a fixture that says "last synced in March".
+      // `isDefault` is never touched here - whichever warehouse the deployment
+      // has promoted stays promoted.
+      update: shared,
+      create: { id: newId(), code: warehouse.code, isDefault: false, ...shared },
+    });
+  }
+
+  return SEED_WAREHOUSES.length;
+}
+
 async function main(): Promise<void> {
   if (isProduction) {
     throw new Error(
@@ -369,6 +514,11 @@ async function main(): Promise<void> {
       `${String(reference.countries)} countries, ` +
       `${String(reference.backfilledPrices)} prices backfilled`,
   );
+  // After the reference data, not before: `inventory_locations.countryCode` is
+  // a foreign key into `countries`, and the four member states these sit in
+  // only exist once that has run.
+  const warehouses = await seedWarehouses();
+  console.log(`  warehouses: ${String(warehouses)} seeded (plus the default)`);
   await seedStaff();
   await seedCustomers();
 

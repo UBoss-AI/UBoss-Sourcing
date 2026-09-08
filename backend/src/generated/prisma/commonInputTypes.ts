@@ -497,6 +497,40 @@ export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
   _max?: Prisma.NestedJsonFilter<$PrismaModel>
 }
 
+export type EnumWarehouseOperationalStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.WarehouseOperationalStatus | Prisma.EnumWarehouseOperationalStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.WarehouseOperationalStatus[]
+  notIn?: $Enums.WarehouseOperationalStatus[]
+  not?: Prisma.NestedEnumWarehouseOperationalStatusFilter<$PrismaModel> | $Enums.WarehouseOperationalStatus
+}
+
+export type EnumWarehouseErpSyncStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.WarehouseErpSyncStatus | Prisma.EnumWarehouseErpSyncStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.WarehouseErpSyncStatus[]
+  notIn?: $Enums.WarehouseErpSyncStatus[]
+  not?: Prisma.NestedEnumWarehouseErpSyncStatusFilter<$PrismaModel> | $Enums.WarehouseErpSyncStatus
+}
+
+export type EnumWarehouseOperationalStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.WarehouseOperationalStatus | Prisma.EnumWarehouseOperationalStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.WarehouseOperationalStatus[]
+  notIn?: $Enums.WarehouseOperationalStatus[]
+  not?: Prisma.NestedEnumWarehouseOperationalStatusWithAggregatesFilter<$PrismaModel> | $Enums.WarehouseOperationalStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumWarehouseOperationalStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumWarehouseOperationalStatusFilter<$PrismaModel>
+}
+
+export type EnumWarehouseErpSyncStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.WarehouseErpSyncStatus | Prisma.EnumWarehouseErpSyncStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.WarehouseErpSyncStatus[]
+  notIn?: $Enums.WarehouseErpSyncStatus[]
+  not?: Prisma.NestedEnumWarehouseErpSyncStatusWithAggregatesFilter<$PrismaModel> | $Enums.WarehouseErpSyncStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumWarehouseErpSyncStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumWarehouseErpSyncStatusFilter<$PrismaModel>
+}
+
 export type EnumInventoryMovementTypeFilter<$PrismaModel = never> = {
   equals?: $Enums.InventoryMovementType | Prisma.EnumInventoryMovementTypeFieldRefInput<$PrismaModel>
   in?: $Enums.InventoryMovementType[]
@@ -1634,6 +1668,40 @@ export type NestedJsonFilterBase<$PrismaModel = never> = {
   gt?: runtime.InputJsonValue
   gte?: runtime.InputJsonValue
   not?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel> | Prisma.JsonNullValueFilter
+}
+
+export type NestedEnumWarehouseOperationalStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.WarehouseOperationalStatus | Prisma.EnumWarehouseOperationalStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.WarehouseOperationalStatus[]
+  notIn?: $Enums.WarehouseOperationalStatus[]
+  not?: Prisma.NestedEnumWarehouseOperationalStatusFilter<$PrismaModel> | $Enums.WarehouseOperationalStatus
+}
+
+export type NestedEnumWarehouseErpSyncStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.WarehouseErpSyncStatus | Prisma.EnumWarehouseErpSyncStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.WarehouseErpSyncStatus[]
+  notIn?: $Enums.WarehouseErpSyncStatus[]
+  not?: Prisma.NestedEnumWarehouseErpSyncStatusFilter<$PrismaModel> | $Enums.WarehouseErpSyncStatus
+}
+
+export type NestedEnumWarehouseOperationalStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.WarehouseOperationalStatus | Prisma.EnumWarehouseOperationalStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.WarehouseOperationalStatus[]
+  notIn?: $Enums.WarehouseOperationalStatus[]
+  not?: Prisma.NestedEnumWarehouseOperationalStatusWithAggregatesFilter<$PrismaModel> | $Enums.WarehouseOperationalStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumWarehouseOperationalStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumWarehouseOperationalStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumWarehouseErpSyncStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.WarehouseErpSyncStatus | Prisma.EnumWarehouseErpSyncStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.WarehouseErpSyncStatus[]
+  notIn?: $Enums.WarehouseErpSyncStatus[]
+  not?: Prisma.NestedEnumWarehouseErpSyncStatusWithAggregatesFilter<$PrismaModel> | $Enums.WarehouseErpSyncStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumWarehouseErpSyncStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumWarehouseErpSyncStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumInventoryMovementTypeFilter<$PrismaModel = never> = {

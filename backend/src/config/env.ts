@@ -181,6 +181,41 @@ const envSchema = z
       .default('https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=14&lat={lat}&lon={lon}'),
     GEOCODE_TIMEOUT_MS: intFromString(500, 30_000).default(5000),
 
+    // --- Warehouse map ---
+    //
+    // The console can draw its warehouses on a map. Two settings, and the
+    // defaults are chosen so that an installation nobody has configured shows
+    // something honest rather than something broken.
+    //
+    // MAP_TILE_URL is empty by default, and empty is a working state: the
+    // Warehouses screen plots its markers on a plain grid with no tiles behind
+    // them. That default is deliberate rather than lazy. A tile request carries
+    // the coordinates being looked at to whoever serves it, and this software is
+    // installed and run by the company that bought it - so where a deployment's
+    // warehouses are is not a fact this repository gets to send to a third
+    // party on that company's behalf. Set it and the tiles appear.
+    //
+    // Any XYZ raster tile service works; the {z}/{x}/{y} placeholders are
+    // substituted by the browser. OpenStreetMap's own is
+    // https://tile.openstreetmap.org/{z}/{x}/{y}.png, whose tile usage policy
+    // requires attribution and forbids bulk downloading - so a deployment that
+    // points here must also set MAP_TILE_ATTRIBUTION, and an installation with
+    // many staff should use its own tile server or a commercial one.
+    MAP_TILE_URL: z.string().default(''),
+    // Rendered in the corner of the map, as every tile licence requires. Kept
+    // as free text rather than a lookup table of known providers: the operator
+    // knows what their provider asks for, and this software cannot.
+    MAP_TILE_ATTRIBUTION: z.string().default(''),
+
+    // Address to coordinates, for the "find this address" button on a
+    // warehouse. The mirror of GEOCODE_REVERSE_URL above and best-effort in
+    // exactly the same way: unreachable, unconfigured or slow leaves the
+    // coordinates alone for somebody to type, and never blocks the save.
+    // {query} is the URL-encoded address. Shares GEOCODE_TIMEOUT_MS.
+    GEOCODE_FORWARD_URL: z
+      .string()
+      .default('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q={query}'),
+
     // --- Storefront assistant ---
     //
     // The key stays here, server-side. The browser never sees it: the widget

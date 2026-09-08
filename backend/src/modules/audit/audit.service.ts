@@ -69,6 +69,17 @@ export const AuditAction = {
   // Inventory
   INVENTORY_RECEIVED: 'inventory.received',
   INVENTORY_ADJUSTED: 'inventory.adjusted',
+  /// A warehouse was opened, or its details changed. Separate from the two
+  /// above because it is master data, not stock: the trail has to be able to
+  /// answer "when did this place move, and who moved it" without that
+  /// question being buried under every receipt booked against it.
+  INVENTORY_LOCATION_CREATED: 'inventory_location.created',
+  INVENTORY_LOCATION_UPDATED: 'inventory_location.updated',
+  /// A connector reported where a warehouse stands with the ERP. Its own
+  /// action rather than an `updated`, because these rows are written by
+  /// machinery on a schedule and would otherwise bury the handful of entries
+  /// where a person actually changed something about the place.
+  INVENTORY_LOCATION_ERP_SYNCED: 'inventory_location.erp_synced',
 
   // Orders
   ORDER_CREATED: 'order.created',

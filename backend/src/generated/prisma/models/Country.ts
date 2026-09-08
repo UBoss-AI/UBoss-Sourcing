@@ -257,6 +257,7 @@ export type CountryWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Country"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Country"> | Date | string
   currency?: Prisma.XOR<Prisma.CurrencyScalarRelationFilter, Prisma.CurrencyWhereInput>
+  warehouses?: Prisma.InventoryLocationListRelationFilter
 }
 
 export type CountryOrderByWithRelationInput = {
@@ -271,6 +272,7 @@ export type CountryOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   currency?: Prisma.CurrencyOrderByWithRelationInput
+  warehouses?: Prisma.InventoryLocationOrderByRelationAggregateInput
   _relevance?: Prisma.CountryOrderByRelevanceInput
 }
 
@@ -289,6 +291,7 @@ export type CountryWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Country"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Country"> | Date | string
   currency?: Prisma.XOR<Prisma.CurrencyScalarRelationFilter, Prisma.CurrencyWhereInput>
+  warehouses?: Prisma.InventoryLocationListRelationFilter
 }, "code">
 
 export type CountryOrderByWithAggregationInput = {
@@ -336,6 +339,7 @@ export type CountryCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   currency: Prisma.CurrencyCreateNestedOneWithoutCountriesInput
+  warehouses?: Prisma.InventoryLocationCreateNestedManyWithoutCountryInput
 }
 
 export type CountryUncheckedCreateInput = {
@@ -349,6 +353,7 @@ export type CountryUncheckedCreateInput = {
   sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  warehouses?: Prisma.InventoryLocationUncheckedCreateNestedManyWithoutCountryInput
 }
 
 export type CountryUpdateInput = {
@@ -362,6 +367,7 @@ export type CountryUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   currency?: Prisma.CurrencyUpdateOneRequiredWithoutCountriesNestedInput
+  warehouses?: Prisma.InventoryLocationUpdateManyWithoutCountryNestedInput
 }
 
 export type CountryUncheckedUpdateInput = {
@@ -375,6 +381,7 @@ export type CountryUncheckedUpdateInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  warehouses?: Prisma.InventoryLocationUncheckedUpdateManyWithoutCountryNestedInput
 }
 
 export type CountryCreateManyInput = {
@@ -413,6 +420,11 @@ export type CountryUncheckedUpdateManyInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CountryNullableScalarRelationFilter = {
+  is?: Prisma.CountryWhereInput | null
+  isNot?: Prisma.CountryWhereInput | null
 }
 
 export type CountryListRelationFilter = {
@@ -478,6 +490,22 @@ export type CountrySumOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
 }
 
+export type CountryCreateNestedOneWithoutWarehousesInput = {
+  create?: Prisma.XOR<Prisma.CountryCreateWithoutWarehousesInput, Prisma.CountryUncheckedCreateWithoutWarehousesInput>
+  connectOrCreate?: Prisma.CountryCreateOrConnectWithoutWarehousesInput
+  connect?: Prisma.CountryWhereUniqueInput
+}
+
+export type CountryUpdateOneWithoutWarehousesNestedInput = {
+  create?: Prisma.XOR<Prisma.CountryCreateWithoutWarehousesInput, Prisma.CountryUncheckedCreateWithoutWarehousesInput>
+  connectOrCreate?: Prisma.CountryCreateOrConnectWithoutWarehousesInput
+  upsert?: Prisma.CountryUpsertWithoutWarehousesInput
+  disconnect?: Prisma.CountryWhereInput | boolean
+  delete?: Prisma.CountryWhereInput | boolean
+  connect?: Prisma.CountryWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CountryUpdateToOneWithWhereWithoutWarehousesInput, Prisma.CountryUpdateWithoutWarehousesInput>, Prisma.CountryUncheckedUpdateWithoutWarehousesInput>
+}
+
 export type CountryCreateNestedManyWithoutCurrencyInput = {
   create?: Prisma.XOR<Prisma.CountryCreateWithoutCurrencyInput, Prisma.CountryUncheckedCreateWithoutCurrencyInput> | Prisma.CountryCreateWithoutCurrencyInput[] | Prisma.CountryUncheckedCreateWithoutCurrencyInput[]
   connectOrCreate?: Prisma.CountryCreateOrConnectWithoutCurrencyInput | Prisma.CountryCreateOrConnectWithoutCurrencyInput[]
@@ -520,6 +548,74 @@ export type CountryUncheckedUpdateManyWithoutCurrencyNestedInput = {
   deleteMany?: Prisma.CountryScalarWhereInput | Prisma.CountryScalarWhereInput[]
 }
 
+export type CountryCreateWithoutWarehousesInput = {
+  code: string
+  name: string
+  phonePrefix?: string | null
+  languageCode?: string | null
+  isEuVat?: boolean
+  isActive?: boolean
+  sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  currency: Prisma.CurrencyCreateNestedOneWithoutCountriesInput
+}
+
+export type CountryUncheckedCreateWithoutWarehousesInput = {
+  code: string
+  name: string
+  currencyCode: string
+  phonePrefix?: string | null
+  languageCode?: string | null
+  isEuVat?: boolean
+  isActive?: boolean
+  sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CountryCreateOrConnectWithoutWarehousesInput = {
+  where: Prisma.CountryWhereUniqueInput
+  create: Prisma.XOR<Prisma.CountryCreateWithoutWarehousesInput, Prisma.CountryUncheckedCreateWithoutWarehousesInput>
+}
+
+export type CountryUpsertWithoutWarehousesInput = {
+  update: Prisma.XOR<Prisma.CountryUpdateWithoutWarehousesInput, Prisma.CountryUncheckedUpdateWithoutWarehousesInput>
+  create: Prisma.XOR<Prisma.CountryCreateWithoutWarehousesInput, Prisma.CountryUncheckedCreateWithoutWarehousesInput>
+  where?: Prisma.CountryWhereInput
+}
+
+export type CountryUpdateToOneWithWhereWithoutWarehousesInput = {
+  where?: Prisma.CountryWhereInput
+  data: Prisma.XOR<Prisma.CountryUpdateWithoutWarehousesInput, Prisma.CountryUncheckedUpdateWithoutWarehousesInput>
+}
+
+export type CountryUpdateWithoutWarehousesInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  phonePrefix?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languageCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isEuVat?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  currency?: Prisma.CurrencyUpdateOneRequiredWithoutCountriesNestedInput
+}
+
+export type CountryUncheckedUpdateWithoutWarehousesInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  phonePrefix?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languageCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isEuVat?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type CountryCreateWithoutCurrencyInput = {
   code: string
   name: string
@@ -530,6 +626,7 @@ export type CountryCreateWithoutCurrencyInput = {
   sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  warehouses?: Prisma.InventoryLocationCreateNestedManyWithoutCountryInput
 }
 
 export type CountryUncheckedCreateWithoutCurrencyInput = {
@@ -542,6 +639,7 @@ export type CountryUncheckedCreateWithoutCurrencyInput = {
   sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  warehouses?: Prisma.InventoryLocationUncheckedCreateNestedManyWithoutCountryInput
 }
 
 export type CountryCreateOrConnectWithoutCurrencyInput = {
@@ -608,6 +706,7 @@ export type CountryUpdateWithoutCurrencyInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  warehouses?: Prisma.InventoryLocationUpdateManyWithoutCountryNestedInput
 }
 
 export type CountryUncheckedUpdateWithoutCurrencyInput = {
@@ -620,6 +719,7 @@ export type CountryUncheckedUpdateWithoutCurrencyInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  warehouses?: Prisma.InventoryLocationUncheckedUpdateManyWithoutCountryNestedInput
 }
 
 export type CountryUncheckedUpdateManyWithoutCurrencyInput = {
@@ -635,6 +735,35 @@ export type CountryUncheckedUpdateManyWithoutCurrencyInput = {
 }
 
 
+/**
+ * Count Type CountryCountOutputType
+ */
+
+export type CountryCountOutputType = {
+  warehouses: number
+}
+
+export type CountryCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  warehouses?: boolean | CountryCountOutputTypeCountWarehousesArgs
+}
+
+/**
+ * CountryCountOutputType without action
+ */
+export type CountryCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CountryCountOutputType
+   */
+  select?: Prisma.CountryCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * CountryCountOutputType without action
+ */
+export type CountryCountOutputTypeCountWarehousesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.InventoryLocationWhereInput
+}
+
 
 export type CountrySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   code?: boolean
@@ -648,6 +777,8 @@ export type CountrySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   createdAt?: boolean
   updatedAt?: boolean
   currency?: boolean | Prisma.CurrencyDefaultArgs<ExtArgs>
+  warehouses?: boolean | Prisma.Country$warehousesArgs<ExtArgs>
+  _count?: boolean | Prisma.CountryCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["country"]>
 
 
@@ -668,12 +799,15 @@ export type CountrySelectScalar = {
 export type CountryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"code" | "name" | "currencyCode" | "phonePrefix" | "languageCode" | "isEuVat" | "isActive" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["country"]>
 export type CountryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   currency?: boolean | Prisma.CurrencyDefaultArgs<ExtArgs>
+  warehouses?: boolean | Prisma.Country$warehousesArgs<ExtArgs>
+  _count?: boolean | Prisma.CountryCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $CountryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Country"
   objects: {
     currency: Prisma.$CurrencyPayload<ExtArgs>
+    warehouses: Prisma.$InventoryLocationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     /**
@@ -1058,6 +1192,7 @@ readonly fields: CountryFieldRefs;
 export interface Prisma__CountryClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   currency<T extends Prisma.CurrencyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CurrencyDefaultArgs<ExtArgs>>): Prisma.Prisma__CurrencyClient<runtime.Types.Result.GetResult<Prisma.$CurrencyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  warehouses<T extends Prisma.Country$warehousesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Country$warehousesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryLocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1442,6 +1577,30 @@ export type CountryDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Limit how many Countries to delete.
    */
   limit?: number
+}
+
+/**
+ * Country.warehouses
+ */
+export type Country$warehousesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the InventoryLocation
+   */
+  select?: Prisma.InventoryLocationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the InventoryLocation
+   */
+  omit?: Prisma.InventoryLocationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryLocationInclude<ExtArgs> | null
+  where?: Prisma.InventoryLocationWhereInput
+  orderBy?: Prisma.InventoryLocationOrderByWithRelationInput | Prisma.InventoryLocationOrderByWithRelationInput[]
+  cursor?: Prisma.InventoryLocationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.InventoryLocationScalarFieldEnum | Prisma.InventoryLocationScalarFieldEnum[]
 }
 
 /**

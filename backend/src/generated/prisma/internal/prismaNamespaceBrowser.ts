@@ -520,6 +520,15 @@ export const InventoryLocationScalarFieldEnum = {
   addressJson: 'addressJson',
   isDefault: 'isDefault',
   isActive: 'isActive',
+  countryCode: 'countryCode',
+  timezone: 'timezone',
+  operationalStatus: 'operationalStatus',
+  erpExternalId: 'erpExternalId',
+  erpSyncStatus: 'erpSyncStatus',
+  erpLastSyncAt: 'erpLastSyncAt',
+  erpSyncMessage: 'erpSyncMessage',
+  latitude: 'latitude',
+  longitude: 'longitude',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1873,7 +1882,11 @@ export type ProductAttributeOrderByRelevanceFieldEnum = (typeof ProductAttribute
 export const InventoryLocationOrderByRelevanceFieldEnum = {
   id: 'id',
   code: 'code',
-  name: 'name'
+  name: 'name',
+  countryCode: 'countryCode',
+  timezone: 'timezone',
+  erpExternalId: 'erpExternalId',
+  erpSyncMessage: 'erpSyncMessage'
 } as const
 
 export type InventoryLocationOrderByRelevanceFieldEnum = (typeof InventoryLocationOrderByRelevanceFieldEnum)[keyof typeof InventoryLocationOrderByRelevanceFieldEnum]

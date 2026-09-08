@@ -84,7 +84,7 @@ Those are not decorations; they are built into the database and the code.
 |---|---|---|
 | A buyer at a hospital or clinic | Storefront | Find supplies, order them, repeat the order monthly |
 | Catalog Manager | Admin panel | Add products, set prices, publish them |
-| Inventory Manager | Admin panel | Record stock arriving, fix stock counts |
+| Inventory Manager | Admin panel | Record stock arriving, fix stock counts, keep the warehouses |
 | Order Manager | Admin panel | Process orders, ship them, handle returns |
 | Finance / Approver | Admin panel | Approve large orders, issue refunds, watch payments |
 | Business Owner | Admin panel | Everything, plus staff accounts and settings |
@@ -344,6 +344,7 @@ name, their currencies and their features appear.
 | `/products/import` | Bulk import | Upload a spreadsheet of products |
 | `/coupons` | Coupons | Discount codes and their rules |
 | `/inventory` | Inventory | Stock per location, receipts, adjustments |
+| `/warehouses` | Warehouses | The places stock is held, drawn on a map, with search and filters |
 | `/orders` | Orders | Every order, filterable |
 | `/orders/:id` | Order detail | Items, payments, shipments, status actions |
 | `/payments` | Payments | Transactions, refunds, payment links |
@@ -359,16 +360,150 @@ name, their currencies and their features appear.
 | `/staff` | Staff | Staff accounts and their roles |
 | `/settings` | Settings | Business profile, tax, shipping, currencies, notifications |
 
+## Warehouses, and the map
+
+`/warehouses` is where a business describes the buildings its stock sits in.
+Every balance, movement and reservation in the system already carried a
+location; this is the screen that creates and corrects them.
+
+**Four rules, all enforced on the server.**
+
+1. **A warehouse is never deleted, only retired.** Every stock movement ever
+   booked against it points at that row, so deleting it would orphan the ledger
+   that explains where stock went. Retiring takes it out of the receipt and
+   adjustment pickers and leaves all of its history readable.
+2. **Retiring is refused while it still holds stock**, and the refusal says how
+   many units. Retiring a full warehouse would not move the stock — it would
+   hide it, by removing the only place from which it could be adjusted back
+   out.
+3. **There is always exactly one default, and it is always active.** Stock
+   received without a warehouse named lands in the default. Promoting another
+   one demotes the previous holder in the same write; demoting the only default
+   is refused, because a deployment with no default cannot book a receipt at
+   all. The first warehouse ever created becomes the default whatever the form
+   said.
+4. **A code belongs to one warehouse forever, in practice.** It is stamped on
+   every movement, and the codes are stored in capitals because MariaDB's
+   collation is case-insensitive — `main` and `MAIN` would collide anyway.
+
+**What a warehouse record holds.**
+
+| Field | Notes |
+|---|---|
+| `code`, `name` | The code is stamped on every stock movement, and is unique |
+| `addressJson` | Street, city, region, postcode. Free text, read by people |
+| `countryCode` | A column with a foreign key to `countries`, **not** a field inside the address — the console filters and searches on it |
+| `timezone` | IANA, e.g. `Europe/Brussels`. Stored rather than derived: Spain spans two zones |
+| `latitude`, `longitude` | `DECIMAL(9,6)`, about 11cm |
+| `operationalStatus` | `OPERATIONAL` / `LIMITED` / `MAINTENANCE` / `SUSPENDED` |
+| `isDefault`, `isActive` | Where unqualified receipts land; whether the record is retired |
+| `erpExternalId` | The warehouse's id in the ERP. Master data a person enters |
+| `erpSyncStatus`, `erpLastSyncAt`, `erpSyncMessage` | Written **only** by the connector, through `PUT .../erp-status` |
+
+**Active and operational are different questions**, and conflating them is the
+mistake the second field exists to prevent. `isActive` asks whether the place
+is part of the business at all — retiring one archives it and takes it out of
+every stock picker. `operationalStatus` asks whether one that *is* can move a
+box today. A warehouse closed for a roof repair is thoroughly active and cannot
+ship a thing.
+
+**The ERP fields are a per-warehouse view, not the run history.** `sync_runs`
+records what a job did; one ERP connection syncs many warehouses, and "when did
+Antwerp last agree with the ERP" is a different question with a different
+reader. `erpLastSyncAt` moves only on a terminal outcome — a `PENDING` leaves
+it where it was, because stamping the time when a job *starts* would make a
+warehouse that has been failing for a week look freshly synced.
+
+**Where a warehouse is.** Both coordinates are nullable, and **null is an
+ordinary state**: a warehouse with no coordinates works exactly like the others
+and is simply listed under the map rather than drawn on it. A database CHECK
+constraint holds the pair together, so there is no such thing as a latitude
+with no longitude — that names a line around the planet, not a place.
+
+The API reports a third case as well. A pair that is *stored* and cannot be
+drawn — a latitude of 999, a lone axis — comes back with null coordinates and
+`coordinatesInvalid: true`, and the panel names those warehouses instead of
+quietly showing a shorter list. That state is unreachable through the API,
+which is exactly why it is carried: MariaDB enforces CHECK constraints, **MySQL
+5.7 parses them and silently ignores them**, and this software is installed by
+whoever buys it.
+
+The panel offers to look coordinates up from the typed address, and fills the
+two fields in for the reader to check rather than saving silently. A geocoder
+that is switched off, firewalled or simply wrong about a town must never be
+able to stop somebody recording a building.
+
+**The map's background is the operator's decision, and the default is none.**
+With no `MAP_TILE_URL` set the map still works — it pans, zooms, carries a
+scale bar and places every marker correctly relative to the others — it just
+has no picture of the ground behind it, and the screen says so. That default is
+deliberate: a tile request tells whoever serves it which part of the world is
+being looked at, and in a self-hosted product that is where the buyer's
+warehouses are. Nothing is sent anywhere until the operator asks for it. See
+[Configuration](#14-configuration).
+
+**What the screen deliberately does not show is a valuation per warehouse.**
+Product prices here are per currency, so adding up the SKUs in one building
+would put rupees and euros in the same total and print it as though it meant
+something. Units are what a warehouse holds; money belongs on the screens that
+know which currency they are quoting.
+
+Leaflet draws the map, loaded by a dynamic `import()` inside the map component
+so it lands in its own chunk. Somebody who opens this screen to correct a
+postcode never downloads it.
+
+**Finding one.** The search matches the name, the code **and the country's
+name** — somebody hunting for the Greek warehouse types "greece", not "GR" —
+and it runs on the server, which is the only place that join is available.
+Alongside it are an operational-status filter and a country filter. All three
+live in the URL, the way the Dashboard's reporting window does, so a colleague
+can be sent the address bar.
+
+**Clicking a marker opens a side panel** with the whole record: the address,
+the coordinates, the local time at that warehouse, the stock roll-up, and where
+it stands with the ERP. A panel rather than a map popup, because a popup has to
+fit inside the map and would either cover the markers around it or truncate
+what it says. On a desktop it sits beside the map; below `lg` the page stacks
+and it lands underneath.
+
+**Every state on the screen has a message.** Loading, no warehouses at all, no
+warehouse matching the filters (with a button to clear them), coordinates that
+cannot be drawn, and a failed request — the last of those puts one error region
+with a **Try again** on it in place of the map and the table, rather than two
+retries for one failure.
+
+**Access.** The route is behind `RequirePermission` with `inventory.read`, and
+every endpoint behind it is behind `requireAdmin`, which authenticates as
+`ADMIN`, refuses an account still on a temporary password, refuses a session
+that has not said where it signed in from, and then checks the permission.
+Editing needs `inventory.location.write` on top. The frontend guard only
+decides what is *shown*; the server decides what is allowed.
+
+**The endpoints.** All under `/api/v1/admin`.
+
+| Method and path | Permission | What it does |
+|---|---|---|
+| `GET /inventory/warehouses` | `inventory.read` | Every warehouse with its stock roll-up, plus the tile source. Takes `q`, `countryCode`, `status` (repeatable) and `includeInactive` |
+| `POST /inventory/warehouses` | `inventory.location.write` | Opens one. Country required |
+| `PATCH /inventory/warehouses/:id` | `inventory.location.write` | Corrects, moves, retires or promotes one. Absent fields are left alone |
+| `PUT /inventory/warehouses/:id/erp-status` | `inventory.location.write` | The connector reports where the warehouse stands with the ERP |
+| `POST /inventory/warehouses/geocode` | `inventory.location.write` | An address to coordinates. A POST so the address stays out of access logs |
+| `GET /inventory/warehouse-countries` | `inventory.read` | The countries a warehouse may be in, for the pickers |
+| `GET /inventory/locations` | `inventory.read` | The *pickers'* list — active only, no stock roll-up. Deliberately not the same endpoint |
+
+There is no `DELETE`, and there will not be one: movements reference the
+location with `onDelete: Restrict`.
+
 ## The five staff roles
 
 A member of staff has a role, and a role is a fixed bundle of permissions.
-There are about 45 permission keys, like `product.write` or `order.approve`.
+There are about 50 permission keys, like `product.write` or `order.approve`.
 
 | Role | Can do |
 |---|---|
 | **Business Owner / Super Admin** | Everything, including staff and settings |
 | **Catalog Manager** | Categories, products, media, pricing, publishing |
-| **Inventory Manager** | Stock receipts, adjustments, reservations, alerts |
+| **Inventory Manager** | Stock receipts, adjustments, reservations, warehouses, alerts |
 | **Order Manager** | Orders, fulfilment, cancellation, returns |
 | **Finance / Approver** | Payment review, payment links, refunds, high-value approvals |
 
@@ -1423,6 +1558,27 @@ hostname adds it to that check, in every mode, and nothing else with it. See
 | `FEATURE_ADMIN_LOGIN_LOCATION` | `true` | Ask staff's browser for its location at sign-in |
 | `ASSISTANT_ENABLED` | — | The AI chat widget |
 
+## The warehouse map
+
+| Variable | Default | Effect |
+|---|---|---|
+| `MAP_TILE_URL` | *(empty)* | The XYZ raster tile template behind the Warehouses map. Empty means no tiles: markers are plotted on a plain ground and everything else on the screen works unchanged |
+| `MAP_TILE_ATTRIBUTION` | *(empty)* | Shown in the corner of the map. Every tile licence requires it |
+| `GEOCODE_FORWARD_URL` | Nominatim | Turns a typed address into coordinates for the "look up" button. `{query}` is substituted. Empty switches it off |
+
+Empty is the default for the tile URL **and it is the private one**. A tile
+request discloses which part of the world is being looked at, and in this
+product that is where the buyer's warehouses are — so nothing is requested
+until the operator sets this. OpenStreetMap's own tiles are
+`https://tile.openstreetmap.org/{z}/{x}/{y}.png`; read their tile usage policy
+before pointing at them, because attribution is required and an installation
+with many staff is expected to run its own tile server or pay a provider.
+
+`GEOCODE_FORWARD_URL` is the mirror of `GEOCODE_REVERSE_URL` (used by the
+sign-in location check) and shares its `GEOCODE_TIMEOUT_MS`. Both are
+best-effort: unreachable, slow or unconfigured, and the panel reports that it
+found nothing and lets somebody type the coordinates. Neither can block a save.
+
 ## Pluggable adapters
 
 Each of these is an interface with more than one implementation, chosen by a
@@ -1453,13 +1609,13 @@ UBoss-Software/
 ├── backend/
 │   ├── prisma/
 │   │   ├── schema.prisma           ← THE DATABASE SHAPE. 76 models.
-│   │   └── migrations/             18 numbered, committed SQL steps
+│   │   └── migrations/             21 numbered, committed SQL steps
 │   ├── src/
 │   │   ├── config/env.ts           ← Every setting, validated at boot
 │   │   ├── domain/                 Pure rules, no I/O
 │   │   │   ├── money.ts            BigInt arithmetic, rounding
-│   │   │   ├── errors.ts           ← The 106 error codes
-│   │   │   ├── permissions.ts      ← Roles and ~45 permissions
+│   │   │   ├── errors.ts           ← The 108 error codes
+│   │   │   ├── permissions.ts      ← Roles and ~50 permissions
 │   │   │   └── order-state-machine.ts  ← Legal order transitions
 │   │   ├── infra/                  Database, crypto, ids, queue, email, storage
 │   │   ├── http/
@@ -1495,7 +1651,8 @@ UBoss-Software/
 | Add an error code | `domain/errors.ts`, then map it in both frontends |
 | Change a page's look | `apps/*/src/pages/` |
 | Change which language a country's staff read | the `countries` row's `languageCode` |
-| Change which language a country's staff read | the `countries` row's `languageCode` |
+| Add or move a warehouse | `/warehouses` in the panel; `modules/inventory/location.service.ts` |
+| Put a background behind the warehouse map | `MAP_TILE_URL` in `backend/.env` |
 | Change what happens in the background | `src/worker/handlers.ts` |
 | Turn a feature on or off | `backend/.env` |
 

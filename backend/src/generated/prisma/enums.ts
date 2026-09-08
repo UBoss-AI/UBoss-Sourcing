@@ -53,6 +53,26 @@ export const CatalogStatus = {
 export type CatalogStatus = (typeof CatalogStatus)[keyof typeof CatalogStatus]
 
 
+export const WarehouseOperationalStatus = {
+  OPERATIONAL: 'OPERATIONAL',
+  LIMITED: 'LIMITED',
+  MAINTENANCE: 'MAINTENANCE',
+  SUSPENDED: 'SUSPENDED'
+} as const
+
+export type WarehouseOperationalStatus = (typeof WarehouseOperationalStatus)[keyof typeof WarehouseOperationalStatus]
+
+
+export const WarehouseErpSyncStatus = {
+  NEVER_SYNCED: 'NEVER_SYNCED',
+  SYNCED: 'SYNCED',
+  PENDING: 'PENDING',
+  FAILED: 'FAILED'
+} as const
+
+export type WarehouseErpSyncStatus = (typeof WarehouseErpSyncStatus)[keyof typeof WarehouseErpSyncStatus]
+
+
 export const InventoryMovementType = {
   RECEIPT: 'RECEIPT',
   ADJUSTMENT: 'ADJUSTMENT',

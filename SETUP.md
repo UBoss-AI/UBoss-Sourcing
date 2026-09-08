@@ -118,6 +118,21 @@ worth knowing about now, because they change what you see later:
 |---|---|---|
 | `EMAIL_DRIVER` | `log` | Emails are **printed into the worker terminal**, not sent. Fine for development — and that terminal is where you will find confirmation links and temporary passwords while testing. Set to `smtp` and fill the `SMTP_*` block to send real mail. |
 | `FEATURE_CUSTOMER_SELF_REGISTRATION` | `false` | With this off the storefront shows "accounts are by invitation" instead of a sign-up form. Turn it on to let customers register themselves. |
+| `MAP_TILE_URL` | *(empty)* | With this empty the admin panel's Warehouses map plots its markers on a plain ground, with no map behind them. That is a working state, and it is the private one — nothing is requested from a tile service until you set this. See below. |
+
+Leaving `MAP_TILE_URL` empty is a deliberate default rather than something to
+tidy up. A tile request tells whoever serves it which part of the world is
+being looked at, and that is where your warehouses are — so this software does
+not disclose it on your behalf. To put a background behind the map, set both:
+
+```
+MAP_TILE_URL=https://tile.openstreetmap.org/{z}/{x}/{y}.png
+MAP_TILE_ATTRIBUTION=© OpenStreetMap contributors
+```
+
+Read OpenStreetMap's tile usage policy before pointing at theirs: attribution
+is required, and an installation with many staff is expected to run its own
+tile server or use a commercial provider rather than lean on the volunteer one.
 
 ## 5. Build the database
 
@@ -125,7 +140,7 @@ worth knowing about now, because they change what you see later:
 cd backend
 npm run db:migrate:deploy    # create the tables
 npm run db:reference         # currencies and countries
-npm run db:seed              # dev logins, sample catalogue, prices
+npm run db:seed              # dev logins, sample catalogue, prices, warehouses
 ```
 
 **`db:reference` is not optional.** Currencies and countries are reference
@@ -144,6 +159,50 @@ cd backend && PRISMA_TARGET_TEST_DB=1 npx prisma migrate deploy
 # PowerShell
 cd backend
 $env:PRISMA_TARGET_TEST_DB = '1'; npx prisma migrate deploy; Remove-Item Env:\PRISMA_TARGET_TEST_DB
+```
+
+### Updating a database you already have
+
+Pulling changes and finding a column missing, or a member of staff refused
+something their role is meant to allow, is almost always one of these two steps
+not having been run.
+
+```bash
+cd backend
+npm run db:migrate:deploy    # apply any new migrations. Never prompts, never drops anything
+npm run db:seed              # re-install roles and permissions
+```
+
+`db:seed` also installs the development warehouses — four European ones with
+coordinates, time zones and varied operating and ERP-sync states, so the
+Warehouses map has something on it — alongside the plain default one. They are
+fixtures, not defaults: a real deployment creates its own on the Warehouses
+screen, and this repository never asserts where anybody's buildings are.
+
+**`db:seed` is how new permissions reach an existing database.** Roles and
+permission keys live in `src/domain/permissions.ts` and are installed by the
+seed, which is idempotent — it upserts each permission and rebuilds each role's
+grants, so running it again converges rather than duplicating. A change that
+adds a permission key therefore does nothing at all until the seed is re-run,
+and the symptom is a screen answering `PERMISSION_DENIED` to somebody whose
+role clearly ought to have it.
+
+The test database needs both steps too, and it takes the connection string
+rather than the `PRISMA_TARGET_TEST_DB` flag, which only the Prisma CLI reads:
+
+```bash
+# bash / Git Bash
+cd backend
+PRISMA_TARGET_TEST_DB=1 npx prisma migrate deploy
+# The seed reads DATABASE_URL, so paste your TEST_DATABASE_URL value here
+DATABASE_URL="mysql://root:@127.0.0.1:3306/uboss_test" npx tsx src/seed/index.ts
+```
+```powershell
+# PowerShell
+cd backend
+$env:PRISMA_TARGET_TEST_DB = '1'; npx prisma migrate deploy; Remove-Item Env:\PRISMA_TARGET_TEST_DB
+$testUrl = (Get-Content .env | Select-String '^TEST_DATABASE_URL=').Line -replace '^TEST_DATABASE_URL=','' -replace '"',''
+$env:DATABASE_URL = $testUrl; npx tsx src/seed/index.ts; Remove-Item Env:\DATABASE_URL
 ```
 
 ## 6. Install the frontends

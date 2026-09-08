@@ -51,6 +51,12 @@ export const Permission = {
   INVENTORY_RECEIVE: 'inventory.receive',
   /// Adjustments can conjure or destroy stock, so they are their own grant.
   INVENTORY_ADJUST: 'inventory.adjust',
+  /// Adding or editing a warehouse - its code, its name, where it is, whether
+  /// it is the default. Held apart from receiving and adjusting because it is
+  /// master data rather than stock: the code appears on every movement ever
+  /// recorded against the place, and retiring the default location is what
+  /// stops the next receipt finding anywhere to go.
+  INVENTORY_LOCATION_WRITE: 'inventory.location.write',
 
   // --- Customers ---
   CUSTOMER_READ: 'customer.read',
@@ -181,7 +187,7 @@ export const ROLE_DEFINITIONS: readonly RoleDefinition[] = Object.freeze([
   {
     key: Role.INVENTORY_MANAGER,
     name: 'Inventory Manager',
-    description: 'Stock receipts, adjustments, reservations and alerts.',
+    description: 'Stock receipts, adjustments, reservations, warehouses and alerts.',
     permissions: Object.freeze([
       Permission.SETTINGS_READ,
       Permission.CATEGORY_READ,
@@ -189,6 +195,10 @@ export const ROLE_DEFINITIONS: readonly RoleDefinition[] = Object.freeze([
       Permission.INVENTORY_READ,
       Permission.INVENTORY_RECEIVE,
       Permission.INVENTORY_ADJUST,
+      // Opening a second warehouse is this role's job, not the business
+      // owner's - it is the person receiving the stock who knows a new one
+      // exists, and who is standing in it when they find out.
+      Permission.INVENTORY_LOCATION_WRITE,
       Permission.ORDER_READ,
       Permission.REPORT_READ,
       Permission.EXPORT_CREATE,

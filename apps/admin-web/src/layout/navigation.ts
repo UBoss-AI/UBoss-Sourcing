@@ -27,6 +27,7 @@ import {
   ReportsIcon,
   SettingsIcon,
   StaffIcon,
+  WarehouseIcon,
 } from '@/components/icons';
 import { Permission } from '@/lib/permissions';
 import type { ParseKeys } from 'i18next';
@@ -87,6 +88,16 @@ export const NAVIGATION: NavGroup[] = [
         labelKey: 'nav.inventory',
         to: '/inventory',
         icon: InventoryIcon,
+        permissions: [Permission.INVENTORY_READ],
+        matchPrefix: true,
+      },
+      {
+        // Directly under Inventory, because the two are read together: the
+        // stock figures on that screen are per warehouse, and this is where
+        // the warehouses themselves come from.
+        labelKey: 'nav.warehouses',
+        to: '/warehouses',
+        icon: WarehouseIcon,
         permissions: [Permission.INVENTORY_READ],
         matchPrefix: true,
       },

@@ -86,6 +86,14 @@ export const ErrorCode = {
   RESERVATION_EXPIRED: 'RESERVATION_EXPIRED',
   ADJUSTMENT_REASON_REQUIRED: 'ADJUSTMENT_REASON_REQUIRED',
   INVENTORY_BALANCE_NOT_EDITABLE: 'INVENTORY_BALANCE_NOT_EDITABLE',
+  /// Two warehouses cannot share a code. The code is stamped on every movement
+  /// ever recorded against the place, so a duplicate would make the ledger
+  /// ambiguous about where stock went.
+  LOCATION_CODE_EXISTS: 'LOCATION_CODE_EXISTS',
+  /// Retiring this warehouse would leave stock somewhere the console no longer
+  /// offers, or leave the deployment with no default for the next receipt to
+  /// land in. The message names which of the two it is and the count behind it.
+  LOCATION_STILL_IN_USE: 'LOCATION_STILL_IN_USE',
 
   // --- Cart and purchasing limits ---
   CART_EMPTY: 'CART_EMPTY',

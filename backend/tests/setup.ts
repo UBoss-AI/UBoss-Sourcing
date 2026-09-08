@@ -38,6 +38,17 @@ process.env.DATABASE_URL = testUrl;
 // a supported deployment setting - the notification then carries coordinates.
 process.env.GEOCODE_REVERSE_URL = '';
 
+// The same for the forward direction, which the warehouse form's "look up this
+// address" button calls. Empty means "no geocoder", a supported setting: the
+// endpoint answers `{ result: null }` and somebody types the coordinates.
+process.env.GEOCODE_FORWARD_URL = '';
+
+// No tiles either, and this one is about determinism rather than politeness. A
+// developer who has pointed MAP_TILE_URL at a tile server in their own .env
+// would otherwise see the warehouse tests disagree with CI about whether the
+// map has a tile source.
+process.env.MAP_TILE_URL = '';
+
 // No VIES either. Checking a VAT number reaches a member state's own register
 // through the Commission's service, which is slow, offline as often as not,
 // and rude to call from a test suite. Empty means "cannot check", which is a

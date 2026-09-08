@@ -109,6 +109,15 @@ export const router = createBrowserRouter([
         ]),
       },
       {
+        // Its own path rather than `inventory/warehouses`, so it gets its own
+        // highlighted row in the sidebar - `locateRoute` resolves the longest
+        // match, and a nested path would keep Inventory lit instead.
+        path: 'warehouses',
+        ...lazyRoute(() => import('@/pages/WarehousesPage').then((m) => m.WarehousesPage), [
+          Permission.INVENTORY_READ,
+        ]),
+      },
+      {
         path: 'orders',
         ...lazyRoute(() => import('@/pages/OrdersPage').then((m) => m.OrdersPage), [Permission.ORDER_READ]),
       },

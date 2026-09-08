@@ -5922,6 +5922,15 @@ export const InventoryLocationScalarFieldEnum = {
   addressJson: 'addressJson',
   isDefault: 'isDefault',
   isActive: 'isActive',
+  countryCode: 'countryCode',
+  timezone: 'timezone',
+  operationalStatus: 'operationalStatus',
+  erpExternalId: 'erpExternalId',
+  erpSyncStatus: 'erpSyncStatus',
+  erpLastSyncAt: 'erpLastSyncAt',
+  erpSyncMessage: 'erpSyncMessage',
+  latitude: 'latitude',
+  longitude: 'longitude',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -7275,7 +7284,11 @@ export type ProductAttributeOrderByRelevanceFieldEnum = (typeof ProductAttribute
 export const InventoryLocationOrderByRelevanceFieldEnum = {
   id: 'id',
   code: 'code',
-  name: 'name'
+  name: 'name',
+  countryCode: 'countryCode',
+  timezone: 'timezone',
+  erpExternalId: 'erpExternalId',
+  erpSyncMessage: 'erpSyncMessage'
 } as const
 
 export type InventoryLocationOrderByRelevanceFieldEnum = (typeof InventoryLocationOrderByRelevanceFieldEnum)[keyof typeof InventoryLocationOrderByRelevanceFieldEnum]
@@ -8072,6 +8085,20 @@ export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 
  * Reference to a field of type 'CatalogStatus'
  */
 export type EnumCatalogStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CatalogStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'WarehouseOperationalStatus'
+ */
+export type EnumWarehouseOperationalStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WarehouseOperationalStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'WarehouseErpSyncStatus'
+ */
+export type EnumWarehouseErpSyncStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WarehouseErpSyncStatus'>
     
 
 

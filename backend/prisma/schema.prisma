@@ -793,6 +793,43 @@ model ProductAttribute {
 // inside the confirming transaction (no SKIP LOCKED on 10.4).
 // ===========================================================================
 
+/// Whether a warehouse is currently shipping, and how well.
+///
+/// Deliberately not the same axis as `isActive`, and confusing the two is the
+/// mistake this enum exists to prevent. `isActive` answers "is this place part
+/// of the business at all" - a retired warehouse is archived master data and
+/// disappears from every picker. This answers "of the places that are, can
+/// this one move a box today". A warehouse under a roof repair is thoroughly
+/// active and cannot ship a thing.
+enum WarehouseOperationalStatus {
+  /// Running normally.
+  OPERATIONAL
+  /// Running, but not at full capacity - short staffed, one dock closed.
+  LIMITED
+  /// Temporarily not dispatching. Planned, and expected back.
+  MAINTENANCE
+  /// Not dispatching, and not by plan - a flood, a strike, a lost lease.
+  SUSPENDED
+}
+
+/// Where a warehouse stands with the ERP that owns its stock figures.
+///
+/// A per-warehouse view, which is not the same thing as the per-connection
+/// history in `SyncRun`: one ERP connection syncs many warehouses, and "when
+/// did *Antwerp* last agree with the ERP" is the question somebody standing in
+/// Antwerp asks. The run history answers "what did the last job do", which is
+/// a different question with a different reader.
+enum WarehouseErpSyncStatus {
+  /// No sync has ever been attempted. The honest default.
+  NEVER_SYNCED
+  /// The last attempt succeeded.
+  SYNCED
+  /// An attempt is in flight, or one is queued.
+  PENDING
+  /// The last attempt failed. `erpSyncMessage` says what the connector said.
+  FAILED
+}
+
 model InventoryLocation {
   id          String  @id @db.Char(26)
   code        String  @unique(map: "uq_inventory_location_code") @db.VarChar(32)
@@ -801,13 +838,74 @@ model InventoryLocation {
   isDefault   Boolean @default(false)
   isActive    Boolean @default(true)
 
+  /// The country this warehouse is in. ISO-3166-1 alpha-2.
+  ///
+  /// A column with a foreign key rather than a field inside `addressJson`,
+  /// because it is asked questions the JSON cannot answer: the console filters
+  /// and searches on it, and the reference table is what already decides a
+  /// country's currency, its interface language and whether it is inside the
+  /// EU VAT area. A warehouse in a country the deployment has never heard of
+  /// is a typo, and the FK is what catches it.
+  ///
+  /// Nullable only because warehouses existed before this column did. Every
+  /// warehouse created through the panel has one - the API requires it.
+  countryCode String? @db.Char(2)
+
+  /// The IANA zone the people working here read a clock in, e.g.
+  /// "Europe/Brussels".
+  ///
+  /// Not derivable from the country, which is the reason it is stored: Spain
+  /// spans two zones, and every deployment with a warehouse in the Canaries
+  /// and one in Madrid needs them to disagree. The same reasoning as
+  /// `RecurringSchedule.timezone` - a wall-clock fact carries its own zone.
+  timezone String? @db.VarChar(64)
+
+  /// Can this place ship today? See the enum for why it is not `isActive`.
+  operationalStatus WarehouseOperationalStatus @default(OPERATIONAL)
+
+  /// This warehouse's identifier in the ERP, when one owns its stock.
+  ///
+  /// Master data a person enters, unlike the three fields below it, which the
+  /// connector writes. Null means this warehouse is not mapped to anything.
+  erpExternalId String? @db.VarChar(64)
+
+  /// Written by whatever syncs with the ERP, through
+  /// `PUT /admin/inventory/warehouses/:id/erp-status`. Never edited by hand on
+  /// the warehouse form: a sync state somebody typed is a sync state that
+  /// lies.
+  erpSyncStatus  WarehouseErpSyncStatus @default(NEVER_SYNCED)
+  erpLastSyncAt  DateTime?              @db.DateTime(3)
+  /// What the connector said about the last attempt. Carries the reason on a
+  /// FAILED, and a note like "412 SKUs reconciled" on a SYNCED.
+  erpSyncMessage String?                @db.VarChar(512)
+
+  /// Where this warehouse is, so the console can draw it on a map.
+  ///
+  /// Decimal rather than Float, for the same reason money is BigInt: a
+  /// coordinate is a stored fact that has to read back exactly as it was
+  /// written. Decimal(9,6) holds the full range of both axes at ~11cm, which
+  /// is finer than any postal address resolves to.
+  ///
+  /// Nullable, and NULL is an ordinary state here rather than a missing value.
+  /// Every warehouse in a deployment that is already running predates this
+  /// column, and one whose address nobody has geocoded yet is still a
+  /// warehouse holding stock. The map lists those separately instead of
+  /// dropping them or inventing a position for them.
+  latitude  Decimal? @db.Decimal(9, 6)
+  longitude Decimal? @db.Decimal(9, 6)
+
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
+  country      Country?            @relation(fields: [countryCode], references: [code], onDelete: Restrict)
   balances     InventoryBalance[]
   movements    InventoryMovement[]
   reservations StockReservation[]
 
+  /// The map's own query: every active warehouse, ordered so the default
+  /// comes first. Also serves the country filter on its leading column.
+  @@index([isActive, countryCode], map: "ix_inventory_location_active_country")
+  @@index([operationalStatus], map: "ix_inventory_location_operational")
   @@map("inventory_locations")
 }
 
@@ -2444,7 +2542,8 @@ model Country {
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
-  currency Currency @relation(fields: [currencyCode], references: [code], onDelete: Restrict)
+  currency   Currency            @relation(fields: [currencyCode], references: [code], onDelete: Restrict)
+  warehouses InventoryLocation[]
 
   @@index([isActive, sortOrder], map: "ix_country_active_sort")
   @@index([currencyCode], map: "ix_country_currency")

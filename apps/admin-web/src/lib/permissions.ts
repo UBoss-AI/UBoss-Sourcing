@@ -33,6 +33,7 @@ export const Permission = {
   INVENTORY_READ: 'inventory.read',
   INVENTORY_RECEIVE: 'inventory.receive',
   INVENTORY_ADJUST: 'inventory.adjust',
+  INVENTORY_LOCATION_WRITE: 'inventory.location.write',
 
   CUSTOMER_READ: 'customer.read',
   CUSTOMER_WRITE: 'customer.write',

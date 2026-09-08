@@ -22,12 +22,71 @@ import {
   getAvailability,
   receiveStock,
 } from '../../modules/inventory/inventory.service.js';
+import {
+  ERP_SYNC_STATUSES,
+  OPERATIONAL_STATUSES,
+  createWarehouse,
+  forwardGeocode,
+  listWarehouses,
+  mapTiles,
+  recordErpSync,
+  updateWarehouse,
+} from '../../modules/inventory/location.service.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
 
 const stockKeySchema = z.object({
   productId: z.string().length(26),
   variantId: z.string().length(26).nullable().optional(),
   locationId: z.string().length(26).optional(),
+});
+
+/**
+ * A warehouse's street address. Free text: it is written to be read.
+ *
+ * The country is not in here - it is a top-level field with a foreign key to
+ * `countries`, because the console filters and searches on it. See the
+ * 20260908140000 migration.
+ */
+const warehouseAddressSchema = z.object({
+  line1: z.string().trim().max(160).nullable().optional(),
+  line2: z.string().trim().max(160).nullable().optional(),
+  city: z.string().trim().max(120).nullable().optional(),
+  region: z.string().trim().max(120).nullable().optional(),
+  postalCode: z.string().trim().max(32).nullable().optional(),
+});
+
+const operationalStatusSchema = z.enum(OPERATIONAL_STATUSES);
+
+/**
+ * A warehouse, as create sends it. `.partial()` of this is what update takes.
+ *
+ * Every coordinate field is nullable *and* optional, and the two do not mean
+ * the same thing: absent leaves the position alone, explicit null unplaces the
+ * warehouse. Without that distinction a PATCH that renamed a building would
+ * silently take it off the map.
+ *
+ * The ranges are checked here, again in the service, and again by a CHECK
+ * constraint. The duplication is deliberate - this is the only one of the
+ * three that can put the message on the field somebody typed in.
+ */
+const warehouseSchema = z.object({
+  code: z.string().trim().min(1).max(32),
+  name: z.string().trim().min(1).max(128),
+  address: warehouseAddressSchema.nullable().optional(),
+  // Two letters here, and checked against the `countries` table in the
+  // service. "XX" passes this and names nothing, which is why the shape is not
+  // the whole test.
+  countryCode: z.string().trim().length(2).toUpperCase().nullable().optional(),
+  // An IANA zone name. Validated against ICU in the service, because a list of
+  // zone names in this file would be out of date the next time a country
+  // changes its rules.
+  timezone: z.string().trim().max(64).nullable().optional(),
+  latitude: z.number().min(-90).max(90).nullable().optional(),
+  longitude: z.number().min(-180).max(180).nullable().optional(),
+  operationalStatus: operationalStatusSchema.optional(),
+  erpExternalId: z.string().trim().max(64).nullable().optional(),
+  isDefault: z.boolean().optional(),
+  isActive: z.boolean().optional(),
 });
 
 function actorFrom(request: FastifyRequest): {
@@ -377,6 +436,229 @@ export function registerAdminInventoryRoutes(app: FastifyInstance): Promise<void
       });
 
       return reply.status(200).send({ locations });
+    },
+  );
+
+  /**
+   * Warehouses, for the screen that manages them and draws them on a map.
+   *
+   * Deliberately not the same endpoint as `/inventory/locations` above, which
+   * fills the pickers on the Inventory screen. That one answers "where may I
+   * send this stock" and must never offer a retired warehouse; this one
+   * answers "what warehouses does this business have", and has to include the
+   * retired ones or bringing one back would be impossible from the panel.
+   * They also cost different amounts - the stock roll-up here is three
+   * aggregate queries, and a dropdown should not pay for them.
+   *
+   * The tile source travels with the warehouses rather than sitting behind a
+   * request of its own. One response fills the whole screen, and the
+   * alternative is a map that renders bare and reflows when a second request
+   * lands.
+   */
+  app.get(
+    '/inventory/warehouses',
+    { preHandler: requireAdmin(Permission.INVENTORY_READ) },
+    async (request, reply) => {
+      const query = z
+        .object({
+          includeInactive: z.enum(['true', 'false']).default('true'),
+          /** Matched against name, code and the country's name. */
+          q: z.string().trim().max(120).optional(),
+          countryCode: z.string().trim().length(2).toUpperCase().optional(),
+          /**
+           * Repeatable, so `?status=OPERATIONAL&status=LIMITED` narrows to
+           * two. Fastify hands a single occurrence over as a string and
+           * several as an array; both are coerced to an array here so the
+           * service sees one shape.
+           */
+          status: z
+            .union([z.enum(OPERATIONAL_STATUSES), z.array(z.enum(OPERATIONAL_STATUSES))])
+            .optional(),
+        })
+        .parse(request.query);
+
+      const warehouses = await listWarehouses({
+        includeInactive: query.includeInactive === 'true',
+        ...(query.q === undefined ? {} : { search: query.q }),
+        ...(query.countryCode === undefined ? {} : { countryCode: query.countryCode }),
+        ...(query.status === undefined
+          ? {}
+          : { operationalStatus: Array.isArray(query.status) ? query.status : [query.status] }),
+      });
+
+      return reply.status(200).send({
+        warehouses,
+        // Null where the operator has set no MAP_TILE_URL, which the panel
+        // reads as "plot the markers on a plain grid". See location.service.ts
+        // for why that is the default rather than a fallback.
+        tiles: mapTiles(),
+      });
+    },
+  );
+
+  /**
+   * Open a warehouse.
+   *
+   * Its own permission rather than INVENTORY_RECEIVE: this is master data, and
+   * the code created here is stamped on every movement ever booked against the
+   * place. See `INVENTORY_LOCATION_WRITE` in domain/permissions.ts.
+   */
+  app.post(
+    '/inventory/warehouses',
+    { preHandler: requireAdmin(Permission.INVENTORY_LOCATION_WRITE) },
+    async (request, reply) => {
+      const body = warehouseSchema.parse(request.body);
+
+      const warehouse = await createWarehouse(
+        {
+          code: body.code,
+          name: body.name,
+          ...(body.address === undefined ? {} : { address: body.address }),
+          ...(body.countryCode === undefined ? {} : { countryCode: body.countryCode }),
+          ...(body.timezone === undefined ? {} : { timezone: body.timezone }),
+          ...(body.latitude === undefined ? {} : { latitude: body.latitude }),
+          ...(body.longitude === undefined ? {} : { longitude: body.longitude }),
+          ...(body.operationalStatus === undefined
+            ? {}
+            : { operationalStatus: body.operationalStatus }),
+          ...(body.erpExternalId === undefined ? {} : { erpExternalId: body.erpExternalId }),
+          ...(body.isDefault === undefined ? {} : { isDefault: body.isDefault }),
+          ...(body.isActive === undefined ? {} : { isActive: body.isActive }),
+        },
+        actorFrom(request),
+      );
+
+      return reply.status(201).send({ warehouse });
+    },
+  );
+
+  /**
+   * Correct a warehouse, move it, retire it, or make it the default.
+   *
+   * There is no DELETE, and there will not be one. Movements reference the
+   * location with `onDelete: Restrict`, so deleting the row would orphan the
+   * ledger that explains where stock went. Retiring is `isActive: false`, and
+   * it is refused while the place still holds stock - see `assertRetirable`
+   * in the service.
+   */
+  app.patch(
+    '/inventory/warehouses/:id',
+    { preHandler: requireAdmin(Permission.INVENTORY_LOCATION_WRITE) },
+    async (request, reply) => {
+      const params = z.object({ id: z.string().length(26) }).parse(request.params);
+      const body = warehouseSchema.partial().parse(request.body);
+
+      const warehouse = await updateWarehouse(
+        params.id,
+        {
+          ...(body.code === undefined ? {} : { code: body.code }),
+          ...(body.name === undefined ? {} : { name: body.name }),
+          ...(body.address === undefined ? {} : { address: body.address }),
+          ...(body.countryCode === undefined ? {} : { countryCode: body.countryCode }),
+          ...(body.timezone === undefined ? {} : { timezone: body.timezone }),
+          ...(body.latitude === undefined ? {} : { latitude: body.latitude }),
+          ...(body.longitude === undefined ? {} : { longitude: body.longitude }),
+          ...(body.operationalStatus === undefined
+            ? {}
+            : { operationalStatus: body.operationalStatus }),
+          ...(body.erpExternalId === undefined ? {} : { erpExternalId: body.erpExternalId }),
+          ...(body.isDefault === undefined ? {} : { isDefault: body.isDefault }),
+          ...(body.isActive === undefined ? {} : { isActive: body.isActive }),
+        },
+        actorFrom(request),
+      );
+
+      return reply.status(200).send({ warehouse });
+    },
+  );
+
+  /**
+   * The countries a warehouse may be in, for the form and the filter.
+   *
+   * Read from `countries` rather than shipped as a list in the frontend: that
+   * table is what already decides a country's currency, its interface
+   * language and whether it is inside the EU VAT area, and a second list in
+   * the browser is a second list to get wrong.
+   */
+  app.get(
+    '/inventory/warehouse-countries',
+    { preHandler: requireAdmin(Permission.INVENTORY_READ) },
+    async (_request, reply) => {
+      const countries = await prisma.country.findMany({
+        where: { isActive: true },
+        orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
+        select: { code: true, name: true },
+      });
+
+      return reply.status(200).send({ countries });
+    },
+  );
+
+  /**
+   * Where a warehouse stands with the ERP.
+   *
+   * A separate route because it has a separate writer: this is called by
+   * whatever syncs stock with the ERP, and the warehouse form deliberately
+   * cannot reach these columns. A sync state somebody typed into a form is a
+   * sync state that lies - the whole value of the field is that the thing
+   * which did the syncing is what wrote it.
+   *
+   * PUT rather than PATCH: a report replaces the warehouse's sync state
+   * outright. There is no merging two connectors' opinions about it.
+   */
+  app.put(
+    '/inventory/warehouses/:id/erp-status',
+    { preHandler: requireAdmin(Permission.INVENTORY_LOCATION_WRITE) },
+    async (request, reply) => {
+      const params = z.object({ id: z.string().length(26) }).parse(request.params);
+
+      const body = z
+        .object({
+          status: z.enum(ERP_SYNC_STATUSES),
+          message: z.string().trim().max(512).nullable().optional(),
+          /** When the work actually happened, for a connector that batches. */
+          syncedAt: z.string().datetime().optional(),
+        })
+        .parse(request.body);
+
+      const warehouse = await recordErpSync(
+        params.id,
+        {
+          status: body.status,
+          ...(body.message === undefined ? {} : { message: body.message }),
+          ...(body.syncedAt === undefined ? {} : { syncedAt: new Date(body.syncedAt) }),
+        },
+        actorFrom(request),
+      );
+
+      return reply.status(200).send({ warehouse });
+    },
+  );
+
+  /**
+   * An address to coordinates, so nobody has to look up a warehouse's
+   * latitude by hand.
+   *
+   * A POST rather than a GET with a query parameter, even though it changes
+   * nothing here: the address would otherwise sit in this server's access log
+   * and in any proxy's in front of it, and a body keeps it out of both.
+   *
+   * Answers 200 with `{ result: null }` when nothing was found, when no
+   * geocoder is configured, and when the one that is configured did not answer
+   * in time. None of those is an error for this endpoint - the caller is a
+   * convenience button beside two fields somebody can always type - and a 502
+   * for a slow third party would put a red banner on a screen that is working
+   * exactly as intended.
+   */
+  app.post(
+    '/inventory/warehouses/geocode',
+    { preHandler: requireAdmin(Permission.INVENTORY_LOCATION_WRITE) },
+    async (request, reply) => {
+      const body = z.object({ query: z.string().trim().min(1).max(512) }).parse(request.body);
+
+      const result = await forwardGeocode(body.query);
+
+      return reply.status(200).send({ result });
     },
   );
 
