@@ -40,10 +40,20 @@ export interface AssistantResult extends AssistantUsage {
 }
 
 export interface AssistantRequest {
-  /** Stable across visitors, so a provider that caches prefixes can. */
+  /** Stable across customers, so a provider that caches prefixes can. */
   systemPrompt: string;
   /** The catalogue. Second half of the cacheable prefix. */
   catalogue: string;
+  /**
+   * What this particular customer's account already says about them, so the
+   * assistant never has to ask.
+   *
+   * Goes LAST in the system prompt, after everything cacheable, and both
+   * providers must keep it there: it is the one part that differs per caller,
+   * and a per-caller byte anywhere earlier would miss the prefix cache for
+   * every request on the deployment.
+   */
+  customer?: string | undefined;
   turns: AssistantTurn[];
   maxTokens: number;
   signal?: AbortSignal | undefined;

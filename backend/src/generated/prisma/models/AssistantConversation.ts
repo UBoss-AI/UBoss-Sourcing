@@ -229,11 +229,11 @@ export type AssistantConversationGroupByArgs<ExtArgs extends runtime.Types.Exten
 
 export type AssistantConversationGroupByOutputType = {
   id: string
-  visitorName: string
-  visitorPhone: string
-  visitorEmail: string
-  visitorEmailNormalized: string
-  sessionTokenHash: string
+  visitorName: string | null
+  visitorPhone: string | null
+  visitorEmail: string | null
+  visitorEmailNormalized: string | null
+  sessionTokenHash: string | null
   customerProfileId: string | null
   messageCount: number
   lastMessageAt: Date | null
@@ -268,11 +268,11 @@ export type AssistantConversationWhereInput = {
   OR?: Prisma.AssistantConversationWhereInput[]
   NOT?: Prisma.AssistantConversationWhereInput | Prisma.AssistantConversationWhereInput[]
   id?: Prisma.StringFilter<"AssistantConversation"> | string
-  visitorName?: Prisma.StringFilter<"AssistantConversation"> | string
-  visitorPhone?: Prisma.StringFilter<"AssistantConversation"> | string
-  visitorEmail?: Prisma.StringFilter<"AssistantConversation"> | string
-  visitorEmailNormalized?: Prisma.StringFilter<"AssistantConversation"> | string
-  sessionTokenHash?: Prisma.StringFilter<"AssistantConversation"> | string
+  visitorName?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
+  visitorPhone?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
+  visitorEmail?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
+  visitorEmailNormalized?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
+  sessionTokenHash?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
   customerProfileId?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
   messageCount?: Prisma.IntFilter<"AssistantConversation"> | number
   lastMessageAt?: Prisma.DateTimeNullableFilter<"AssistantConversation"> | Date | string | null
@@ -286,11 +286,11 @@ export type AssistantConversationWhereInput = {
 
 export type AssistantConversationOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  visitorName?: Prisma.SortOrder
-  visitorPhone?: Prisma.SortOrder
-  visitorEmail?: Prisma.SortOrder
-  visitorEmailNormalized?: Prisma.SortOrder
-  sessionTokenHash?: Prisma.SortOrder
+  visitorName?: Prisma.SortOrderInput | Prisma.SortOrder
+  visitorPhone?: Prisma.SortOrderInput | Prisma.SortOrder
+  visitorEmail?: Prisma.SortOrderInput | Prisma.SortOrder
+  visitorEmailNormalized?: Prisma.SortOrderInput | Prisma.SortOrder
+  sessionTokenHash?: Prisma.SortOrderInput | Prisma.SortOrder
   customerProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   messageCount?: Prisma.SortOrder
   lastMessageAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -308,11 +308,11 @@ export type AssistantConversationWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.AssistantConversationWhereInput | Prisma.AssistantConversationWhereInput[]
   OR?: Prisma.AssistantConversationWhereInput[]
   NOT?: Prisma.AssistantConversationWhereInput | Prisma.AssistantConversationWhereInput[]
-  visitorName?: Prisma.StringFilter<"AssistantConversation"> | string
-  visitorPhone?: Prisma.StringFilter<"AssistantConversation"> | string
-  visitorEmail?: Prisma.StringFilter<"AssistantConversation"> | string
-  visitorEmailNormalized?: Prisma.StringFilter<"AssistantConversation"> | string
-  sessionTokenHash?: Prisma.StringFilter<"AssistantConversation"> | string
+  visitorName?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
+  visitorPhone?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
+  visitorEmail?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
+  visitorEmailNormalized?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
+  sessionTokenHash?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
   customerProfileId?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
   messageCount?: Prisma.IntFilter<"AssistantConversation"> | number
   lastMessageAt?: Prisma.DateTimeNullableFilter<"AssistantConversation"> | Date | string | null
@@ -326,11 +326,11 @@ export type AssistantConversationWhereUniqueInput = Prisma.AtLeast<{
 
 export type AssistantConversationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  visitorName?: Prisma.SortOrder
-  visitorPhone?: Prisma.SortOrder
-  visitorEmail?: Prisma.SortOrder
-  visitorEmailNormalized?: Prisma.SortOrder
-  sessionTokenHash?: Prisma.SortOrder
+  visitorName?: Prisma.SortOrderInput | Prisma.SortOrder
+  visitorPhone?: Prisma.SortOrderInput | Prisma.SortOrder
+  visitorEmail?: Prisma.SortOrderInput | Prisma.SortOrder
+  visitorEmailNormalized?: Prisma.SortOrderInput | Prisma.SortOrder
+  sessionTokenHash?: Prisma.SortOrderInput | Prisma.SortOrder
   customerProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   messageCount?: Prisma.SortOrder
   lastMessageAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -350,11 +350,11 @@ export type AssistantConversationScalarWhereWithAggregatesInput = {
   OR?: Prisma.AssistantConversationScalarWhereWithAggregatesInput[]
   NOT?: Prisma.AssistantConversationScalarWhereWithAggregatesInput | Prisma.AssistantConversationScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"AssistantConversation"> | string
-  visitorName?: Prisma.StringWithAggregatesFilter<"AssistantConversation"> | string
-  visitorPhone?: Prisma.StringWithAggregatesFilter<"AssistantConversation"> | string
-  visitorEmail?: Prisma.StringWithAggregatesFilter<"AssistantConversation"> | string
-  visitorEmailNormalized?: Prisma.StringWithAggregatesFilter<"AssistantConversation"> | string
-  sessionTokenHash?: Prisma.StringWithAggregatesFilter<"AssistantConversation"> | string
+  visitorName?: Prisma.StringNullableWithAggregatesFilter<"AssistantConversation"> | string | null
+  visitorPhone?: Prisma.StringNullableWithAggregatesFilter<"AssistantConversation"> | string | null
+  visitorEmail?: Prisma.StringNullableWithAggregatesFilter<"AssistantConversation"> | string | null
+  visitorEmailNormalized?: Prisma.StringNullableWithAggregatesFilter<"AssistantConversation"> | string | null
+  sessionTokenHash?: Prisma.StringNullableWithAggregatesFilter<"AssistantConversation"> | string | null
   customerProfileId?: Prisma.StringNullableWithAggregatesFilter<"AssistantConversation"> | string | null
   messageCount?: Prisma.IntWithAggregatesFilter<"AssistantConversation"> | number
   lastMessageAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AssistantConversation"> | Date | string | null
@@ -366,11 +366,11 @@ export type AssistantConversationScalarWhereWithAggregatesInput = {
 
 export type AssistantConversationCreateInput = {
   id: string
-  visitorName: string
-  visitorPhone: string
-  visitorEmail: string
-  visitorEmailNormalized: string
-  sessionTokenHash: string
+  visitorName?: string | null
+  visitorPhone?: string | null
+  visitorEmail?: string | null
+  visitorEmailNormalized?: string | null
+  sessionTokenHash?: string | null
   messageCount?: number
   lastMessageAt?: Date | string | null
   ipAddress?: string | null
@@ -383,11 +383,11 @@ export type AssistantConversationCreateInput = {
 
 export type AssistantConversationUncheckedCreateInput = {
   id: string
-  visitorName: string
-  visitorPhone: string
-  visitorEmail: string
-  visitorEmailNormalized: string
-  sessionTokenHash: string
+  visitorName?: string | null
+  visitorPhone?: string | null
+  visitorEmail?: string | null
+  visitorEmailNormalized?: string | null
+  sessionTokenHash?: string | null
   customerProfileId?: string | null
   messageCount?: number
   lastMessageAt?: Date | string | null
@@ -400,11 +400,11 @@ export type AssistantConversationUncheckedCreateInput = {
 
 export type AssistantConversationUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorName?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorPhone?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorEmail?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorEmailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
-  sessionTokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  visitorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   messageCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -417,11 +417,11 @@ export type AssistantConversationUpdateInput = {
 
 export type AssistantConversationUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorName?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorPhone?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorEmail?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorEmailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
-  sessionTokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  visitorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   messageCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -434,11 +434,11 @@ export type AssistantConversationUncheckedUpdateInput = {
 
 export type AssistantConversationCreateManyInput = {
   id: string
-  visitorName: string
-  visitorPhone: string
-  visitorEmail: string
-  visitorEmailNormalized: string
-  sessionTokenHash: string
+  visitorName?: string | null
+  visitorPhone?: string | null
+  visitorEmail?: string | null
+  visitorEmailNormalized?: string | null
+  sessionTokenHash?: string | null
   customerProfileId?: string | null
   messageCount?: number
   lastMessageAt?: Date | string | null
@@ -450,11 +450,11 @@ export type AssistantConversationCreateManyInput = {
 
 export type AssistantConversationUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorName?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorPhone?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorEmail?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorEmailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
-  sessionTokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  visitorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   messageCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -465,11 +465,11 @@ export type AssistantConversationUpdateManyMutationInput = {
 
 export type AssistantConversationUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorName?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorPhone?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorEmail?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorEmailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
-  sessionTokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  visitorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   messageCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -614,11 +614,11 @@ export type AssistantConversationUpdateOneRequiredWithoutMessagesNestedInput = {
 
 export type AssistantConversationCreateWithoutCustomerProfileInput = {
   id: string
-  visitorName: string
-  visitorPhone: string
-  visitorEmail: string
-  visitorEmailNormalized: string
-  sessionTokenHash: string
+  visitorName?: string | null
+  visitorPhone?: string | null
+  visitorEmail?: string | null
+  visitorEmailNormalized?: string | null
+  sessionTokenHash?: string | null
   messageCount?: number
   lastMessageAt?: Date | string | null
   ipAddress?: string | null
@@ -630,11 +630,11 @@ export type AssistantConversationCreateWithoutCustomerProfileInput = {
 
 export type AssistantConversationUncheckedCreateWithoutCustomerProfileInput = {
   id: string
-  visitorName: string
-  visitorPhone: string
-  visitorEmail: string
-  visitorEmailNormalized: string
-  sessionTokenHash: string
+  visitorName?: string | null
+  visitorPhone?: string | null
+  visitorEmail?: string | null
+  visitorEmailNormalized?: string | null
+  sessionTokenHash?: string | null
   messageCount?: number
   lastMessageAt?: Date | string | null
   ipAddress?: string | null
@@ -675,11 +675,11 @@ export type AssistantConversationScalarWhereInput = {
   OR?: Prisma.AssistantConversationScalarWhereInput[]
   NOT?: Prisma.AssistantConversationScalarWhereInput | Prisma.AssistantConversationScalarWhereInput[]
   id?: Prisma.StringFilter<"AssistantConversation"> | string
-  visitorName?: Prisma.StringFilter<"AssistantConversation"> | string
-  visitorPhone?: Prisma.StringFilter<"AssistantConversation"> | string
-  visitorEmail?: Prisma.StringFilter<"AssistantConversation"> | string
-  visitorEmailNormalized?: Prisma.StringFilter<"AssistantConversation"> | string
-  sessionTokenHash?: Prisma.StringFilter<"AssistantConversation"> | string
+  visitorName?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
+  visitorPhone?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
+  visitorEmail?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
+  visitorEmailNormalized?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
+  sessionTokenHash?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
   customerProfileId?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
   messageCount?: Prisma.IntFilter<"AssistantConversation"> | number
   lastMessageAt?: Prisma.DateTimeNullableFilter<"AssistantConversation"> | Date | string | null
@@ -691,11 +691,11 @@ export type AssistantConversationScalarWhereInput = {
 
 export type AssistantConversationCreateWithoutMessagesInput = {
   id: string
-  visitorName: string
-  visitorPhone: string
-  visitorEmail: string
-  visitorEmailNormalized: string
-  sessionTokenHash: string
+  visitorName?: string | null
+  visitorPhone?: string | null
+  visitorEmail?: string | null
+  visitorEmailNormalized?: string | null
+  sessionTokenHash?: string | null
   messageCount?: number
   lastMessageAt?: Date | string | null
   ipAddress?: string | null
@@ -707,11 +707,11 @@ export type AssistantConversationCreateWithoutMessagesInput = {
 
 export type AssistantConversationUncheckedCreateWithoutMessagesInput = {
   id: string
-  visitorName: string
-  visitorPhone: string
-  visitorEmail: string
-  visitorEmailNormalized: string
-  sessionTokenHash: string
+  visitorName?: string | null
+  visitorPhone?: string | null
+  visitorEmail?: string | null
+  visitorEmailNormalized?: string | null
+  sessionTokenHash?: string | null
   customerProfileId?: string | null
   messageCount?: number
   lastMessageAt?: Date | string | null
@@ -739,11 +739,11 @@ export type AssistantConversationUpdateToOneWithWhereWithoutMessagesInput = {
 
 export type AssistantConversationUpdateWithoutMessagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorName?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorPhone?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorEmail?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorEmailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
-  sessionTokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  visitorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   messageCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -755,11 +755,11 @@ export type AssistantConversationUpdateWithoutMessagesInput = {
 
 export type AssistantConversationUncheckedUpdateWithoutMessagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorName?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorPhone?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorEmail?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorEmailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
-  sessionTokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  visitorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   messageCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -771,11 +771,11 @@ export type AssistantConversationUncheckedUpdateWithoutMessagesInput = {
 
 export type AssistantConversationCreateManyCustomerProfileInput = {
   id: string
-  visitorName: string
-  visitorPhone: string
-  visitorEmail: string
-  visitorEmailNormalized: string
-  sessionTokenHash: string
+  visitorName?: string | null
+  visitorPhone?: string | null
+  visitorEmail?: string | null
+  visitorEmailNormalized?: string | null
+  sessionTokenHash?: string | null
   messageCount?: number
   lastMessageAt?: Date | string | null
   ipAddress?: string | null
@@ -786,11 +786,11 @@ export type AssistantConversationCreateManyCustomerProfileInput = {
 
 export type AssistantConversationUpdateWithoutCustomerProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorName?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorPhone?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorEmail?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorEmailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
-  sessionTokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  visitorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   messageCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -802,11 +802,11 @@ export type AssistantConversationUpdateWithoutCustomerProfileInput = {
 
 export type AssistantConversationUncheckedUpdateWithoutCustomerProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorName?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorPhone?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorEmail?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorEmailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
-  sessionTokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  visitorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   messageCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -818,11 +818,11 @@ export type AssistantConversationUncheckedUpdateWithoutCustomerProfileInput = {
 
 export type AssistantConversationUncheckedUpdateManyWithoutCustomerProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorName?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorPhone?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorEmail?: Prisma.StringFieldUpdateOperationsInput | string
-  visitorEmailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
-  sessionTokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  visitorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visitorEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessionTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   messageCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -915,28 +915,43 @@ export type $AssistantConversationPayload<ExtArgs extends runtime.Types.Extensio
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     /**
-     * What the visitor typed. Contact details, captured as given - never
-     * treated as verified, because nothing here is confirmed by an email or an
-     * OTP.
+     * HISTORICAL ONLY. The widget used to ask a visitor for a name, a mobile
+     * number and an email before it would answer anything. It no longer does,
+     * and nothing written from here on fills these in.
+     * 
+     * Nullable rather than dropped: the rows that already carry them are
+     * somebody's enquiry, and deleting personal data ahead of its retention
+     * window is not a migration's decision to make. The sweep in
+     * `retention.service.ts` is what clears them, on the schedule it always had.
+     * 
+     * Never verified even where present - nothing was ever confirmed by an
+     * email or an OTP. Who a conversation belongs to is now `customerProfileId`
+     * below, which is an authenticated fact rather than a typed claim.
      */
-    visitorName: string
-    visitorPhone: string
-    visitorEmail: string
+    visitorName: string | null
+    visitorPhone: string | null
+    visitorEmail: string | null
     /**
      * Lowercased/trimmed, for grouping repeat enquiries from one address.
      * Not unique: the same buyer may come back with a different question.
      */
-    visitorEmailNormalized: string
+    visitorEmailNormalized: string | null
     /**
-     * SHA-256 of the token the widget holds. The raw value is returned once, to
-     * the browser that started the conversation, and never stored - so a
-     * database dump carries nothing that could be used to append to or read a
-     * stranger's conversation.
+     * HISTORICAL ONLY, for the same reason. SHA-256 of the opaque token the old
+     * guest widget held - the one thing that separated one anonymous visitor's
+     * conversation from another's on an endpoint with no session. The endpoint
+     * has a session now, so the owner below is the authorisation and no second
+     * bearer secret is minted.
      */
-    sessionTokenHash: string
+    sessionTokenHash: string | null
     /**
-     * Set at capture time when the email already belongs to a customer. Null
-     * means "not a registered address", not "not a customer".
+     * Who this conversation belongs to. Set on every row the signed-in widget
+     * creates, and the only thing `/assistant/chat` authorises against.
+     * 
+     * Still nullable, and it has to be: a historical row from the guest widget
+     * has no owner unless the typed address happened to match an account, and
+     * the foreign key is ON DELETE SET NULL so erasing a customer does not take
+     * the record that an enquiry happened with them.
      */
     customerProfileId: string | null
     /**

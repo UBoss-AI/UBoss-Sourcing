@@ -1,29 +1,44 @@
 /**
- * Storefront assistant chat.
+ * Storefront assistant chat. Signed-in customers only.
  *
- * Unauthenticated by design: the widget is for visitors who have not signed
- * in — that is most of the traffic on a catalogue. What stands in for auth:
+ * This endpoint used to be unauthenticated, with a lead-capture form standing
+ * in for a sign-in: a visitor typed a name, a mobile number and an email, and
+ * that was the whole of "who is asking". Nothing about it was verified, and it
+ * bought the deployment friction rather than safety. It is gone. Every route
+ * here now runs behind `requireCustomer`, which is where the guarantees come
+ * from:
+ *
+ *   - **A valid access token, for THIS surface.** An expired or tampered token
+ *     is a 401; an admin token presented here is a 403, checked against both
+ *     the claim and the database row.
+ *   - **A live session.** Logout, a password change and a deactivation revoke
+ *     it server-side and take effect on the very next request rather than at
+ *     the next token expiry — so a signed-out browser cannot keep chatting on
+ *     a token it still holds.
+ *   - **An active, activated account.** A deactivated user is a 401; a
+ *     customer with no profile is a 403. Neither can buy a provider call.
+ *   - **CSRF.** These are cookie-authenticated POSTs, so the double-submit
+ *     check applies here like it does everywhere else.
+ *
+ * What the sign-in does not replace, and which therefore stays:
  *
  *   - The endpoint is a **proxy, not a passthrough.** The request body cannot
  *     name a model, a system prompt, a token budget or any other API
- *     parameter. Everything except the visitor's message is decided here.
- *     Without that, a public endpoint holding an API key is an open relay:
- *     somebody points a script at it and bills your account for their own
- *     workload.
- *   - A per-IP rate limit, tighter than the global one.
+ *     parameter. Everything except the message is decided here. Authentication
+ *     bounds who may spend the deployment's provider budget; it does not stop
+ *     one signed-in account from driving the endpoint as a general-purpose
+ *     relay, and only the fixed parameters do that.
+ *   - Rate limits, tighter than the global one, on both routes.
  *   - Hard caps on turns and per-message length, enforced before a single
  *     token is bought.
- *   - **The visitor identifies themselves first.** `POST /start` takes a name,
- *     a mobile number and an email address and returns a conversation id and
- *     an opaque token; `/chat` will not answer without them. That is a lead
- *     capture rather than an authentication — nothing is verified — but it
- *     also means one visitor cannot read or extend another's conversation.
+ *   - **Ownership on every conversation.** The id in the body is checked
+ *     against the caller's own profile, so one customer cannot read or extend
+ *     another's conversation.
  *
- * The transcript lives in the database, not in the request body. The client
- * used to post the whole history back on every turn; now it posts one message
- * and the server replays what it recorded. Two reasons: what an administrator
- * reads is then what the model was actually sent, and a browser cannot inflate
- * a request by claiming a conversation it did not have.
+ * Nothing sensitive is logged. The conversation id, the model and the token
+ * counts go to the log; the question, the reply and the customer's details do
+ * not. A transcript belongs in the database, where the retention sweep can
+ * reach it and an erasure request can delete it — a log file is neither.
  *
  * The reply streams back as Server-Sent Events. The alternative is a panel
  * that sits blank for several seconds; the model's first token arrives long
@@ -40,39 +55,15 @@ import {
 } from '../../modules/assistant/assistant.service.js';
 import {
   appendMessage,
-  authenticateConversation,
+  authoriseConversation,
   conversationHistory,
+  customerContext,
   startConversation,
 } from '../../modules/assistant/conversation.service.js';
+import { currentUser, requireCustomer } from '../plugins/auth.js';
 
 /** Roughly 1,500 words. Long enough for a real question, short enough to bound cost. */
 const MAX_MESSAGE_CHARS = 8_000;
-
-/*
- * Mobile numbers arrive as people write them: +91 98765 43210,
- * (022) 4567-8900, 09876543210.
- *
- * The check is deliberately loose about punctuation and strict about content —
- * between 7 and 15 digits, which is the E.164 range — because this store sells
- * across borders and a pattern built around one country's numbering plan
- * rejects a real customer. It is a sanity check on a self-declared number, not
- * a verification: nothing here proves the line exists.
- */
-const phoneSchema = z
-  .string()
-  .trim()
-  .min(7)
-  .max(32)
-  // A leading "(" is allowed as well as "+" and a digit: an area code in
-  // brackets is how a landline is written in half the world.
-  .regex(/^[+(0-9][0-9\s()./-]*$/, 'Enter a phone number using digits.')
-  .refine(
-    (value) => {
-      const digits = value.replace(/\D/g, '').length;
-      return digits >= 7 && digits <= 15;
-    },
-    { message: 'Enter a mobile number with 7 to 15 digits.' },
-  );
 
 /*
  * `.strict()` on every object, deliberately.
@@ -81,20 +72,18 @@ const phoneSchema = z
  * which is safe, since the handler never reads them, but it also means
  * somebody probing for a passthrough gets a 200 and no trace in the logs.
  * Rejecting the request says no out loud and leaves a 400 to notice.
+ *
+ * `/start` takes no fields at all any more, and the empty strict object is the
+ * point rather than an oversight: a body carrying a name, a phone number or an
+ * email is now a 400. The old client posted exactly those three, so a stale
+ * bundle fails loudly instead of quietly recording details this system has
+ * stopped collecting.
  */
-const startBody = z
-  .object({
-    name: z.string().trim().min(2, 'Enter your name.').max(120),
-    phone: phoneSchema,
-    email: z.string().trim().min(3).max(320).email('Enter a valid email address.'),
-  })
-  .strict();
+const startBody = z.object({}).strict();
 
 const chatBody = z
   .object({
     conversationId: z.string().length(26),
-    /** Returned by `/start`. base64url of 24 random bytes. */
-    token: z.string().min(16).max(128),
     message: z.string().trim().min(1).max(MAX_MESSAGE_CHARS),
   })
   .strict();
@@ -111,39 +100,67 @@ const chatBody = z
  * test, because curl does not enforce CORS.
  *
  * The origin is matched against the same allowlist the plugin uses and echoed
- * only on an exact hit — never reflected back unchecked. No
- * `allow-credentials`: the widget sends no cookies, and this endpoint must not
- * start accepting them by accident.
+ * only on an exact hit — never reflected back unchecked.
+ *
+ * `allow-credentials` is set here, and now has to be: the panel authenticates
+ * by cookie, and a credentialed request whose response omits that header is
+ * dropped by the browser even when the origin matches. It is safe for the same
+ * reason the cookie flow is safe everywhere else in this API — the origin was
+ * matched against a fixed allowlist, never reflected.
  */
 function corsHeaders(origin: string | undefined): Record<string, string> {
   if (origin === undefined || !allowedOrigins.includes(origin)) return {};
-  return { 'access-control-allow-origin': origin, vary: 'Origin' };
+  return {
+    'access-control-allow-origin': origin,
+    'access-control-allow-credentials': 'true',
+    vary: 'Origin',
+  };
 }
 
 export function registerAssistantRoutes(app: FastifyInstance): Promise<void> {
   /**
    * Open a conversation.
    *
-   * Rate limited harder than the chat itself: a visitor starts one
-   * conversation and then asks several questions, so anything beyond a handful
-   * of these from one address is a script filling the enquiry table rather
-   * than a buyer with questions.
+   * Takes nothing and asks nothing. The customer is already known, so this is
+   * one row and an id — the panel calls it the moment it opens and goes
+   * straight to the composer.
+   *
+   * Still rate limited. Not against lead spam, which is no longer a thing that
+   * can happen here, but because a script holding one valid session should not
+   * be able to fill the table with empty conversations. The allowance is
+   * generous enough for a procurement office behind a single NAT address,
+   * where a dozen people share an IP and each of them opens the panel.
    */
   app.post(
     '/start',
-    { config: { rateLimit: { max: 10, timeWindow: '15 minutes' } } },
+    {
+      preHandler: requireCustomer,
+      config: { rateLimit: { max: 30, timeWindow: '15 minutes' } },
+    },
     async (request, reply) => {
       if (!isAssistantConfigured()) throw notFound('Assistant');
 
-      const visitor = startBody.parse(request.body);
+      startBody.parse(request.body ?? {});
 
-      const started = await startConversation(visitor, {
-        ipAddress: request.ip,
-        // Truncated to the column width. A browser that sends a 2KB UA string
-        // must not fail the insert on a lead we would otherwise have kept.
-        userAgent: (request.headers['user-agent'] ?? '').slice(0, 512) || null,
-      });
+      // Non-null by the guard: `requireCustomer` refuses a customer with no
+      // profile before this handler runs. Narrowed rather than asserted, so a
+      // future change to that guard fails the typecheck instead of the request.
+      const { customerProfileId } = currentUser(request);
+      if (customerProfileId === null) throw notFound('Assistant');
 
+      const started = await startConversation(
+        { customerProfileId },
+        {
+          ipAddress: request.ip,
+          // Truncated to the column width. A browser that sends a 2KB UA
+          // string must not fail the insert.
+          userAgent: (request.headers['user-agent'] ?? '').slice(0, 512) || null,
+        },
+      );
+
+      // The id and nothing else. No name, no address, no message text: this
+      // line exists to tie a support question to a transcript, and a log is
+      // the wrong home for personal data.
       request.log.info(
         { conversationId: started.conversationId },
         'assistant conversation started',
@@ -156,6 +173,7 @@ export function registerAssistantRoutes(app: FastifyInstance): Promise<void> {
   app.post(
     '/chat',
     {
+      preHandler: requireCustomer,
       config: {
         rateLimit: {
           max: env.ASSISTANT_RATE_LIMIT_PER_5MIN,
@@ -171,11 +189,14 @@ export function registerAssistantRoutes(app: FastifyInstance): Promise<void> {
 
       const body = chatBody.parse(request.body);
 
-      // 404 for both a wrong id and a wrong token, so probing tells an
-      // attacker nothing about which conversations exist. The widget treats it
-      // as "start again", which is the right recovery for a visitor whose
-      // stored conversation was cleared server-side.
-      const conversation = await authenticateConversation(body.conversationId, body.token);
+      const { customerProfileId } = currentUser(request);
+      if (customerProfileId === null) throw notFound('Assistant');
+
+      // 404 for both a conversation that does not exist and one belonging to
+      // somebody else, so an id tells a caller nothing about whose it is. The
+      // widget reads it as "start again", which is the right recovery for a
+      // browser holding an id the retention sweep has since taken.
+      const conversation = await authoriseConversation(body.conversationId, customerProfileId);
       if (conversation === null) throw notFound('Conversation');
 
       // One turn is a question and an answer, so the message ceiling is twice
@@ -188,18 +209,28 @@ export function registerAssistantRoutes(app: FastifyInstance): Promise<void> {
         );
       }
 
+      const [history, customer] = await Promise.all([
+        conversationHistory(conversation.id),
+        // What the account already says about them. Read here, under the
+        // session that just authenticated, and never taken from the body: this
+        // is the whole of the personalisation, and it is why the panel no
+        // longer has to ask anybody for anything.
+        customerContext(customerProfileId),
+      ]);
+
       // Recorded before the provider is called, so a question survives a
       // failed or abandoned answer. The question is the part that tells staff
-      // what the enquiry was about.
-      const history = await conversationHistory(conversation.id);
+      // what was being asked for.
       await appendMessage(conversation.id, 'VISITOR', body.message);
 
       const log = request.log;
 
       // From here the handler owns the socket. Without `hijack()` Fastify
       // would also try to serialise and send a reply, on top of the SSE frames
-      // written below. Every validation failure above this line still goes
-      // through the normal error handler, which is why the caps come first.
+      // written below. Everything above this line still goes through the
+      // normal error handler, which is why the guard, the ownership check and
+      // the caps all come first: a 401 has to arrive as a 401 the client can
+      // act on, not as an error frame buried in a 200 stream.
       reply.hijack();
 
       // Headers before the first token. `x-accel-buffering: no` is for nginx,
@@ -218,16 +249,16 @@ export function registerAssistantRoutes(app: FastifyInstance): Promise<void> {
         reply.raw.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
       };
 
-      // The visitor closing the panel must stop the generation we are paying
-      // for, not leave it running to completion into a dead socket.
+      // Closing the panel must stop the generation we are paying for, not
+      // leave it running to completion into a dead socket.
       const abort = new AbortController();
       reply.raw.on('close', () => {
         abort.abort();
       });
 
-      // Accumulated as it streams so the answer can be recorded even when the
-      // visitor walks away part-way through: half an answer is what they saw,
-      // and the transcript should say the same thing.
+      // Accumulated as it streams, so the answer can be recorded even when
+      // they walk away part-way through: half an answer is what they saw, and
+      // the transcript should say the same thing.
       let answer = '';
 
       try {
@@ -239,7 +270,7 @@ export function registerAssistantRoutes(app: FastifyInstance): Promise<void> {
               send('delta', { text: delta });
             },
           },
-          abort.signal,
+          { customer, signal: abort.signal },
         );
 
         // A refusal is a legitimate outcome, not an error: the model declined
@@ -252,6 +283,8 @@ export function registerAssistantRoutes(app: FastifyInstance): Promise<void> {
 
         send('done', { finishReason: result.finishReason });
 
+        // Counts and identifiers only. Not the question, not the answer, and
+        // nothing about who asked beyond a conversation id.
         log.info(
           {
             conversationId: conversation.id,
@@ -269,10 +302,10 @@ export function registerAssistantRoutes(app: FastifyInstance): Promise<void> {
         );
       } catch (error) {
         if (abort.signal.aborted) {
-          // The visitor left. Nothing to report and nobody to report it to.
+          // They left. Nothing to report and nobody to report it to.
           log.debug('assistant stream abandoned by the client');
         } else {
-          // The provider's own message is not shown to a visitor — it names
+          // The provider's own message is not shown to a customer — it names
           // quota metrics and internal detail — but it is logged in full,
           // because "out of quota" and "briefly overloaded" need different
           // actions from whoever runs this deployment.
@@ -291,7 +324,7 @@ export function registerAssistantRoutes(app: FastifyInstance): Promise<void> {
 
         // Outside the try: the transcript is written whether the answer
         // finished, failed or was cut off. A write failure here must not take
-        // the socket down with it — the visitor already has their answer.
+        // the socket down with it — they already have their answer.
         if (answer.trim().length > 0) {
           try {
             await appendMessage(conversation.id, 'ASSISTANT', answer);

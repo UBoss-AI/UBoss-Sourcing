@@ -1,25 +1,33 @@
 /**
- * Storefront chat: lead capture and transcripts - integration.
+ * Storefront chat: who may use it, and what staff read afterwards.
  *
- * The widget asks a visitor for a name, a mobile number and an email before it
- * answers anything, and staff read the enquiry afterwards. What has to hold:
+ * The assistant used to be open to anyone, with a form asking for a name, a
+ * mobile number and an email standing in for a sign-in. Both halves of that
+ * changed at once, and this file is where the change is held down:
  *
- *   - The details are validated at the edge. A phone field that accepts
- *     "call me" produces a lead nobody can ring.
- *   - The conversation token is what separates one visitor from another on an
- *     endpoint with no session, and a wrong one is indistinguishable from a
- *     conversation that does not exist.
- *   - The transcript is server-side and complete, so what an administrator
- *     reads is what was actually asked and answered.
- *   - The admin surface is behind its own permission, and a role without it is
- *     refused - reading a stranger's conversation is not implied by any other
- *     grant.
+ *   - **Nobody unauthenticated gets an answer.** No session is a 401, an
+ *     expired or revoked one is a 401, an admin credential is a 403, and a
+ *     customer with no profile is a 403. None of them buys a provider call.
+ *   - **Nobody else's conversation, either.** The id in the body is checked
+ *     against the caller's own account, and a conversation belonging to
+ *     somebody else is indistinguishable from one that does not exist.
+ *   - **The three details are gone from the write path.** A conversation is
+ *     created with none of them, and a request that still sends them is
+ *     refused rather than quietly recorded.
+ *   - **But not from the rows that already had them.** A historical guest
+ *     enquiry still reads, still searches and still carries what was typed.
+ *     Removing a field from a form is not a reason to destroy what people
+ *     already gave; the retention sweep is what takes those, on its own
+ *     schedule.
+ *   - **Staff read one screen for both eras**, and it says which era a row is.
  *
- * Nothing here calls the AI provider. `/chat` streams from a paid API, so the
- * turns are appended through the service the route uses, which is the same
+ * Nothing here calls the AI provider. `/chat` streams from a paid API, so every
+ * request to it in this file is one that fails before the provider is reached,
+ * and the turns are appended through the service the route uses - the same
  * write path without the bill.
  */
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
+import type { LightMyRequestResponse } from 'fastify';
 import { signInAdmin } from '../support/admin-session.js';
 import { ROLE_DEFINITIONS, Permission, Role } from '../../src/domain/permissions.js';
 import { buildApp } from '../../src/http/app.js';
@@ -28,7 +36,7 @@ import { newId } from '../../src/infra/ids.js';
 import { prisma } from '../../src/infra/prisma.js';
 import {
   appendMessage,
-  authenticateConversation,
+  authoriseConversation,
 } from '../../src/modules/assistant/conversation.service.js';
 
 const PASSWORD = 'OwnerTestPass!2026';
@@ -78,31 +86,142 @@ async function createAdmin(email: string, roleKey: string): Promise<void> {
   });
 }
 
-async function signIn(email: string): Promise<string> {
+async function signInStaff(email: string): Promise<string> {
   return (await signInAdmin(app, { email, password: PASSWORD })).cookies;
 }
 
-/** Start a conversation the way the widget does. */
-async function start(
-  payload: Record<string, unknown> = {
-    name: 'Priya Nair',
-    phone: '+91 98765 43210',
-    email: 'priya.nair@hospital.test',
-  },
-): Promise<{ statusCode: number; body: { conversationId: string; token: string } }> {
-  const response = await app.inject({
-    method: 'POST',
-    url: '/api/v1/assistant/start',
-    payload,
+// ---------------------------------------------------------------------------
+// Customers
+// ---------------------------------------------------------------------------
+
+interface CustomerSession {
+  profileId: string | null;
+  cookies: string;
+  csrfToken: string;
+}
+
+/**
+ * A customer account, and a browser signed in to it.
+ *
+ * `withProfile: false` builds the one account shape that can hold a session and
+ * still not chat: active, correct surface, no CustomerProfile. It exists here
+ * because that is a 403 rather than a 401, and the difference is the whole
+ * point of the distinction.
+ */
+async function createCustomer(
+  email: string,
+  options: { fullName?: string; organization?: string; phone?: string; withProfile?: boolean } = {},
+): Promise<CustomerSession> {
+  const role = await prisma.role.findUniqueOrThrow({ where: { key: Role.CUSTOMER } });
+
+  const user = await prisma.user.create({
+    data: {
+      id: newId(),
+      type: 'CUSTOMER',
+      email,
+      emailNormalized: email.toLowerCase(),
+      passwordHash: await hashPassword(PASSWORD),
+      status: 'ACTIVE',
+      emailVerifiedAt: new Date(),
+      roles: { create: { roleId: role.id } },
+    },
   });
 
+  let profileId: string | null = null;
+
+  if (options.withProfile !== false) {
+    const profile = await prisma.customerProfile.create({
+      data: {
+        id: newId(),
+        userId: user.id,
+        fullName: options.fullName ?? 'Test Buyer',
+        ...(options.organization === undefined ? {} : { organization: options.organization }),
+        ...(options.phone === undefined ? {} : { phone: options.phone }),
+        activatedAt: new Date(),
+      },
+    });
+    profileId = profile.id;
+  }
+
+  const signIn = await app.inject({
+    method: 'POST',
+    url: '/api/v1/auth/login',
+    payload: { email, password: PASSWORD },
+  });
+
+  expect(signIn.statusCode, signIn.body).toBe(200);
+
+  const jar = signIn.cookies as { name: string; value: string }[];
+
   return {
-    statusCode: response.statusCode,
-    body:
-      response.statusCode === 201
-        ? (JSON.parse(response.body) as { conversationId: string; token: string })
-        : { conversationId: '', token: '' },
+    profileId,
+    cookies: jar.map((cookie) => `${cookie.name}=${cookie.value}`).join('; '),
+    csrfToken: jar.find((cookie) => cookie.name === 'uboss_shop_csrf')?.value ?? '',
   };
+}
+
+/** Start a conversation the way the widget does: signed in, and with no body. */
+async function start(
+  session: CustomerSession,
+  payload: Record<string, unknown> = {},
+): Promise<LightMyRequestResponse> {
+  return app.inject({
+    method: 'POST',
+    url: '/api/v1/assistant/start',
+    headers: { cookie: session.cookies, 'x-csrf-token': session.csrfToken },
+    payload,
+  });
+}
+
+async function startedId(session: CustomerSession): Promise<string> {
+  const response = await start(session);
+  expect(response.statusCode, response.body).toBe(201);
+  return (JSON.parse(response.body) as { conversationId: string }).conversationId;
+}
+
+async function chat(
+  session: CustomerSession,
+  payload: Record<string, unknown>,
+): Promise<LightMyRequestResponse> {
+  return app.inject({
+    method: 'POST',
+    url: '/api/v1/assistant/chat',
+    headers: { cookie: session.cookies, 'x-csrf-token': session.csrfToken },
+    payload,
+  });
+}
+
+/**
+ * A conversation from before the sign-in gate, written the way the old widget
+ * wrote one: typed contact details, a guest session-token hash, and no owner.
+ *
+ * Inserted directly because there is no longer any code path that produces one
+ * - which is the point. These rows exist in every deployment that ran the old
+ * widget, and everything staff-facing still has to work on them.
+ */
+async function seedHistoricalGuestConversation(details: {
+  name: string;
+  phone: string;
+  email: string;
+  customerProfileId?: string;
+}): Promise<string> {
+  const id = newId();
+
+  await prisma.assistantConversation.create({
+    data: {
+      id,
+      visitorName: details.name,
+      visitorPhone: details.phone,
+      visitorEmail: details.email,
+      visitorEmailNormalized: details.email.toLowerCase(),
+      sessionTokenHash: 'f'.repeat(64),
+      ...(details.customerProfileId === undefined
+        ? {}
+        : { customerProfileId: details.customerProfileId }),
+    },
+  });
+
+  return id;
 }
 
 beforeEach(async () => {
@@ -116,176 +235,229 @@ afterAll(async () => {
   await app.close();
 });
 
-describe('capturing the visitor', () => {
-  it('records the three details and hands back a token', async () => {
-    const started = await start();
+// ---------------------------------------------------------------------------
 
-    expect(started.statusCode).toBe(201);
-    expect(started.body.conversationId).toHaveLength(26);
-    expect(started.body.token.length).toBeGreaterThan(16);
+describe('who may use the assistant', () => {
+  it('refuses a guest outright, on both routes', async () => {
+    const started = await app.inject({ method: 'POST', url: '/api/v1/assistant/start' });
+    expect(started.statusCode).toBe(401);
 
-    const row = await prisma.assistantConversation.findUniqueOrThrow({
-      where: { id: started.body.conversationId },
+    const message = await app.inject({
+      method: 'POST',
+      url: '/api/v1/assistant/chat',
+      payload: { conversationId: newId(), message: 'Do you stock 22G safety cannulae?' },
     });
 
-    expect(row.visitorName).toBe('Priya Nair');
-    expect(row.visitorPhone).toBe('+91 98765 43210');
-    expect(row.visitorEmail).toBe('priya.nair@hospital.test');
-    expect(row.visitorEmailNormalized).toBe('priya.nair@hospital.test');
+    // 401 and not 400: the body is never even looked at. A guest must not be
+    // able to learn what shape a valid request has, let alone reach the
+    // provider by guessing it.
+    expect(message.statusCode).toBe(401);
+  });
+
+  it('lets a signed-in customer start, and asks them for nothing', async () => {
+    const buyer = await createCustomer('buyer@hospital.test');
+
+    const response = await start(buyer);
+    expect(response.statusCode, response.body).toBe(201);
+
+    const body = JSON.parse(response.body) as Record<string, unknown>;
+
+    expect(body.conversationId).toHaveLength(26);
+    // No token in the answer either. Ownership is the authorisation now, and a
+    // second bearer secret would only be one more thing to leak.
+    expect(Object.keys(body)).toEqual(['conversationId']);
+  });
+
+  it('records no name, phone, email or guest token on the new conversation', async () => {
+    const buyer = await createCustomer('buyer@hospital.test');
+    const id = await startedId(buyer);
+
+    const row = await prisma.assistantConversation.findUniqueOrThrow({ where: { id } });
+
+    expect(row.visitorName).toBeNull();
+    expect(row.visitorPhone).toBeNull();
+    expect(row.visitorEmail).toBeNull();
+    expect(row.visitorEmailNormalized).toBeNull();
+    expect(row.sessionTokenHash).toBeNull();
+
+    // What it does record: whose it is.
+    expect(row.customerProfileId).toBe(buyer.profileId);
     expect(row.messageCount).toBe(0);
   });
 
   /*
-   * The raw token must not be recoverable from the database. It is the only
-   * thing standing between one visitor's conversation and another's, and a
-   * dump that contains usable ones is a dump that reads them all.
+   * A stale bundle still posting the three fields must fail loudly. Stripping
+   * them silently would give a 201 and leave nobody any the wiser that a
+   * deployment is running an old frontend against a new API.
    */
-  it('stores a hash of the token, never the token', async () => {
-    const started = await start();
+  it.each([
+    ['a name', { name: 'Priya Nair' }],
+    ['a phone number', { phone: '+91 98765 43210' }],
+    ['an email address', { email: 'priya.nair@hospital.test' }],
+    [
+      'all three at once',
+      { name: 'Priya Nair', phone: '+91 98765 43210', email: 'priya.nair@hospital.test' },
+    ],
+  ])('refuses a start that still sends %s', async (_case, payload) => {
+    const buyer = await createCustomer('buyer@hospital.test');
 
-    const row = await prisma.assistantConversation.findUniqueOrThrow({
-      where: { id: started.body.conversationId },
-    });
+    const response = await start(buyer, payload);
+    expect(response.statusCode).toBe(400);
 
-    expect(row.sessionTokenHash).toHaveLength(64);
-    expect(row.sessionTokenHash).not.toContain(started.body.token);
+    expect(await prisma.assistantConversation.count()).toBe(0);
   });
 
-  it('refuses a message until the details are given', async () => {
+  it('refuses a staff credential presented to the storefront widget', async () => {
+    await createAdmin('owner@test.local', Role.BUSINESS_OWNER);
+    const cookies = await signInStaff('owner@test.local');
+    const csrfToken = /uboss_admin_csrf=([^;]+)/.exec(cookies)?.[1] ?? '';
+
     const response = await app.inject({
       method: 'POST',
-      url: '/api/v1/assistant/chat',
-      payload: { message: 'Do you stock 22G safety cannulae?' },
+      url: '/api/v1/assistant/start',
+      headers: { cookie: cookies, 'x-csrf-token': csrfToken },
+      payload: {},
+    });
+
+    // 401, not 403: the admin cookies are named apart from the customer ones,
+    // so nothing this browser holds is even offered to the customer surface.
+    expect(response.statusCode).toBe(401);
+  });
+
+  /*
+   * Signed in, correct surface, and still refused - an ACTIVE customer with no
+   * CustomerProfile cannot own a conversation, so there is nothing for the
+   * ownership check downstream to succeed against. 403 rather than 401,
+   * because the credential is fine and the account is not.
+   */
+  it('refuses a customer whose account has no profile', async () => {
+    const halfSetUp = await createCustomer('half@hospital.test', { withProfile: false });
+
+    const response = await start(halfSetUp);
+    expect(response.statusCode).toBe(403);
+  });
+
+  it('refuses a cookie session with no CSRF header', async () => {
+    const buyer = await createCustomer('buyer@hospital.test');
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/assistant/start',
+      headers: { cookie: buyer.cookies },
+      payload: {},
+    });
+
+    expect(response.statusCode).toBe(403);
+  });
+
+  /*
+   * The reason the access token is not the whole story. Signing out revokes
+   * the session server-side, and the very next assistant request has to notice
+   * - not at the next token expiry, which could be minutes away on a shared
+   * machine somebody has just walked away from.
+   */
+  it('refuses a request on a session that has been signed out', async () => {
+    const buyer = await createCustomer('buyer@hospital.test');
+    const id = await startedId(buyer);
+
+    const logout = await app.inject({
+      method: 'POST',
+      url: '/api/v1/auth/logout',
+      headers: { cookie: buyer.cookies, 'x-csrf-token': buyer.csrfToken },
+    });
+    expect(logout.statusCode, logout.body).toBe(204);
+
+    const response = await chat(buyer, { conversationId: id, message: 'Still there?' });
+    expect(response.statusCode).toBe(401);
+  });
+
+  it('refuses a request once the account is deactivated', async () => {
+    const buyer = await createCustomer('buyer@hospital.test');
+    const id = await startedId(buyer);
+
+    await prisma.user.update({
+      where: { emailNormalized: 'buyer@hospital.test' },
+      data: { status: 'DEACTIVATED' },
+    });
+
+    const response = await chat(buyer, { conversationId: id, message: 'Still there?' });
+    expect(response.statusCode).toBe(401);
+  });
+});
+
+describe('whose conversation it is', () => {
+  it('admits the customer who started it', async () => {
+    const buyer = await createCustomer('buyer@hospital.test');
+    const id = await startedId(buyer);
+
+    const conversation = await authoriseConversation(id, buyer.profileId ?? '');
+
+    expect(conversation?.id).toBe(id);
+    expect(conversation?.messageCount).toBe(0);
+  });
+
+  it('refuses another customer, and a conversation that does not exist', async () => {
+    const buyer = await createCustomer('buyer@hospital.test');
+    const other = await createCustomer('other@clinic.test');
+    const id = await startedId(buyer);
+
+    expect(await authoriseConversation(id, other.profileId ?? '')).toBeNull();
+    expect(await authoriseConversation(newId(), buyer.profileId ?? '')).toBeNull();
+  });
+
+  /*
+   * 404 for somebody else's conversation, not 403. A 403 would confirm the id
+   * names a real conversation, which is exactly what an id-guesser wants to
+   * learn. The widget reads a 404 as "start again", which is the right
+   * recovery for a browser holding an id the retention sweep has taken.
+   */
+  it('answers another customer over HTTP with a 404, not a 403', async () => {
+    const buyer = await createCustomer('buyer@hospital.test');
+    const other = await createCustomer('other@clinic.test');
+    const id = await startedId(buyer);
+
+    const response = await chat(other, { conversationId: id, message: 'What did they ask?' });
+    expect(response.statusCode).toBe(404);
+  });
+
+  it('refuses a historical guest conversation nobody owns', async () => {
+    const buyer = await createCustomer('buyer@hospital.test');
+    const id = await seedHistoricalGuestConversation({
+      name: 'Priya Nair',
+      phone: '+91 98765 43210',
+      email: 'priya.nair@hospital.test',
+    });
+
+    const response = await chat(buyer, { conversationId: id, message: 'Carry on from here' });
+    expect(response.statusCode).toBe(404);
+  });
+
+  it('rejects a body carrying anything the endpoint did not ask for', async () => {
+    const buyer = await createCustomer('buyer@hospital.test');
+    const id = await startedId(buyer);
+
+    // A signed-in caller must not be able to name a model, a system prompt or
+    // a token budget either. Authentication says who is spending the
+    // deployment's provider budget; it does not say they may choose how.
+    const response = await chat(buyer, {
+      conversationId: id,
+      message: 'Hello',
+      model: 'something-expensive',
+      maxTokens: 100_000,
     });
 
     expect(response.statusCode).toBe(400);
   });
 
-  it.each([
-    ['a name of one character', { name: 'P', phone: '9876543210', email: 'a@b.test' }],
-    ['a phone that is not a number', { name: 'Priya', phone: 'call me', email: 'a@b.test' }],
-    ['a phone too short to dial', { name: 'Priya', phone: '12345', email: 'a@b.test' }],
-    ['a phone longer than E.164', { name: 'Priya', phone: '1234567890123456', email: 'a@b.test' }],
-    ['an email with no domain', { name: 'Priya', phone: '9876543210', email: 'priya@' }],
-    ['a missing phone', { name: 'Priya', email: 'a@b.test' }],
-  ])('rejects %s', async (_case, payload) => {
-    const started = await start(payload);
-    expect(started.statusCode).toBe(400);
-  });
+  /* The old shape, now that there is no token to send. */
+  it('rejects a body that still sends a conversation token', async () => {
+    const buyer = await createCustomer('buyer@hospital.test');
+    const id = await startedId(buyer);
 
-  /* Punctuation varies by country; the digits are what matter. */
-  it.each(['+91 98765 43210', '(022) 4567-8900', '09876543210', '+1 415 555 2671'])(
-    'accepts %s',
-    async (phone) => {
-      const started = await start({ name: 'Priya Nair', phone, email: 'priya@hospital.test' });
-      expect(started.statusCode).toBe(201);
-    },
-  );
-
-  it('links the enquiry to a registered customer with that address', async () => {
-    const userId = newId();
-    const profileId = newId();
-
-    await prisma.user.create({
-      data: {
-        id: userId,
-        type: 'CUSTOMER',
-        email: 'Buyer@Hospital.Test',
-        emailNormalized: 'buyer@hospital.test',
-        status: 'ACTIVE',
-        customerProfile: { create: { id: profileId, fullName: 'Existing Buyer' } },
-      },
-    });
-
-    // Typed with different capitalisation, as somebody would.
-    const started = await start({
-      name: 'Existing Buyer',
-      phone: '9876543210',
-      email: 'BUYER@hospital.test',
-    });
-
-    const row = await prisma.assistantConversation.findUniqueOrThrow({
-      where: { id: started.body.conversationId },
-    });
-
-    expect(row.customerProfileId).toBe(profileId);
-  });
-
-  /*
-   * Somebody who has never bought here is the normal case on a catalogue, and
-   * the enquiry is the whole point. It must not create an account either.
-   */
-  it('keeps an enquiry from a stranger, and creates no account for them', async () => {
-    const started = await start({
-      name: 'Nobody Known',
-      phone: '9812345678',
-      email: 'nobody@elsewhere.test',
-    });
-
-    const row = await prisma.assistantConversation.findUniqueOrThrow({
-      where: { id: started.body.conversationId },
-    });
-
-    expect(row.customerProfileId).toBeNull();
-    expect(await prisma.user.count({ where: { emailNormalized: 'nobody@elsewhere.test' } })).toBe(0);
-  });
-});
-
-describe('the conversation token', () => {
-  it('admits the browser that started the conversation', async () => {
-    const started = await start();
-
-    const conversation = await authenticateConversation(
-      started.body.conversationId,
-      started.body.token,
-    );
-
-    expect(conversation?.visitorName).toBe('Priya Nair');
-  });
-
-  it('refuses a wrong token, and a conversation that does not exist', async () => {
-    const started = await start();
-
-    expect(await authenticateConversation(started.body.conversationId, 'not-the-token')).toBeNull();
-    expect(await authenticateConversation(newId(), started.body.token)).toBeNull();
-  });
-
-  /*
-   * 404 for both, so probing tells an attacker nothing about which
-   * conversations exist. The widget reads it as "start again", which is the
-   * only recovery that leads anywhere.
-   */
-  it('answers a wrong token over HTTP with a 404, not a 401', async () => {
-    const started = await start();
-
-    const response = await app.inject({
-      method: 'POST',
-      url: '/api/v1/assistant/chat',
-      payload: {
-        conversationId: started.body.conversationId,
-        token: 'aaaaaaaaaaaaaaaaaaaa',
-        message: 'Do you stock 22G safety cannulae?',
-      },
-    });
-
-    expect(response.statusCode).toBe(404);
-  });
-
-  it('rejects a body carrying anything the endpoint did not ask for', async () => {
-    const started = await start();
-
-    // A public endpoint holding a provider key must not accept a model, a
-    // system prompt or a token budget from the caller.
-    const response = await app.inject({
-      method: 'POST',
-      url: '/api/v1/assistant/chat',
-      payload: {
-        conversationId: started.body.conversationId,
-        token: started.body.token,
-        message: 'Hello',
-        model: 'something-expensive',
-        maxTokens: 100_000,
-      },
+    const response = await chat(buyer, {
+      conversationId: id,
+      token: 'aaaaaaaaaaaaaaaaaaaa',
+      message: 'Hello',
     });
 
     expect(response.statusCode).toBe(400);
@@ -293,76 +465,123 @@ describe('the conversation token', () => {
 });
 
 describe('what staff can read', () => {
-  async function seedConversation(): Promise<string> {
-    const started = await start();
+  interface EnquiryRow {
+    id: string;
+    name: string | null;
+    phone: string | null;
+    email: string | null;
+    isVerifiedContact: boolean;
+    customerProfileId: string | null;
+    customerName: string | null;
+    messageCount: number;
+    firstQuestion: string | null;
+  }
 
-    await appendMessage(started.body.conversationId, 'VISITOR', 'Do you stock 22G safety cannula?');
+  async function seedSignedInConversation(): Promise<{ id: string; buyer: CustomerSession }> {
+    const buyer = await createCustomer('priya.nair@hospital.test', {
+      fullName: 'Priya Nair',
+      organization: 'City General',
+      phone: '+91 98765 43210',
+    });
+
+    const id = await startedId(buyer);
+
+    await appendMessage(id, 'VISITOR', 'Do you stock 22G safety cannula?');
     await appendMessage(
-      started.body.conversationId,
+      id,
       'ASSISTANT',
       'Yes. SPM-CAN-22G, INR 24.00 each. See /product/safety-iv-cannula-22g.',
     );
 
-    return started.body.conversationId;
+    return { id, buyer };
   }
 
-  it('lists the enquiry with the contact details and the opening question', async () => {
-    const id = await seedConversation();
-    await createAdmin('owner@test.local', Role.BUSINESS_OWNER);
-    const cookie = await signIn('owner@test.local');
-
+  async function listAs(cookie: string, query = ''): Promise<EnquiryRow[]> {
     const response = await app.inject({
       method: 'GET',
-      url: '/api/v1/admin/assistant/conversations',
+      url: `/api/v1/admin/assistant/conversations${query}`,
       headers: { cookie },
     });
 
-    expect(response.statusCode).toBe(200);
+    expect(response.statusCode, response.body).toBe(200);
+    return (JSON.parse(response.body) as { conversations: EnquiryRow[] }).conversations;
+  }
 
-    const body = JSON.parse(response.body) as {
-      conversations: {
-        id: string;
-        visitorName: string;
-        visitorPhone: string;
-        visitorEmail: string;
-        messageCount: number;
-        firstQuestion: string | null;
-      }[];
-      pagination: { total: number };
-    };
+  it('takes the contact details off the account, and says they are verified', async () => {
+    const { id, buyer } = await seedSignedInConversation();
+    await createAdmin('owner@test.local', Role.BUSINESS_OWNER);
+    const cookie = await signInStaff('owner@test.local');
 
-    expect(body.pagination.total).toBe(1);
-    expect(body.conversations[0]?.id).toBe(id);
-    expect(body.conversations[0]?.visitorName).toBe('Priya Nair');
-    expect(body.conversations[0]?.visitorPhone).toBe('+91 98765 43210');
-    expect(body.conversations[0]?.visitorEmail).toBe('priya.nair@hospital.test');
-    expect(body.conversations[0]?.messageCount).toBe(2);
-    expect(body.conversations[0]?.firstQuestion).toBe('Do you stock 22G safety cannula?');
+    const [row] = await listAs(cookie);
+
+    expect(row?.id).toBe(id);
+    expect(row?.name).toBe('Priya Nair');
+    expect(row?.email).toBe('priya.nair@hospital.test');
+    expect(row?.phone).toBe('+91 98765 43210');
+    expect(row?.isVerifiedContact).toBe(true);
+    expect(row?.customerProfileId).toBe(buyer.profileId);
+    expect(row?.messageCount).toBe(2);
+    expect(row?.firstQuestion).toBe('Do you stock 22G safety cannula?');
   });
 
   /*
-   * A visitor who filled in the form and left without asking anything is not a
-   * conversation. Listing them would bury the enquiries that are.
+   * The rows that predate the sign-in gate. Making the columns nullable did
+   * not blank them and no migration deleted them: they read exactly as they
+   * always did, and they are marked as the unverified claims they always were.
    */
-  it('leaves out a conversation nobody asked a question in', async () => {
-    await start();
-    await createAdmin('owner@test.local', Role.BUSINESS_OWNER);
-    const cookie = await signIn('owner@test.local');
-
-    const response = await app.inject({
-      method: 'GET',
-      url: '/api/v1/admin/assistant/conversations',
-      headers: { cookie },
+  it('still reads a historical guest enquiry, and marks it unverified', async () => {
+    const id = await seedHistoricalGuestConversation({
+      name: 'Rohit Desai',
+      phone: '9820011223',
+      email: 'rohit@clinic.test',
     });
+    await appendMessage(id, 'VISITOR', 'What is in the feeding tube pack?');
 
-    const body = JSON.parse(response.body) as { pagination: { total: number } };
-    expect(body.pagination.total).toBe(0);
+    await createAdmin('owner@test.local', Role.BUSINESS_OWNER);
+    const cookie = await signInStaff('owner@test.local');
+
+    const [row] = await listAs(cookie);
+
+    expect(row?.name).toBe('Rohit Desai');
+    expect(row?.email).toBe('rohit@clinic.test');
+    expect(row?.phone).toBe('9820011223');
+    expect(row?.isVerifiedContact).toBe(false);
+    expect(row?.customerProfileId).toBeNull();
+  });
+
+  /*
+   * A customer who need not have given a phone number. The screen has to cope
+   * with an empty field rather than with an empty string that looks dialable.
+   */
+  it('reports a missing phone number as null rather than inventing one', async () => {
+    const buyer = await createCustomer('nophone@hospital.test', { fullName: 'No Phone Buyer' });
+    const id = await startedId(buyer);
+    await appendMessage(id, 'VISITOR', 'Which packs are sterile?');
+
+    await createAdmin('owner@test.local', Role.BUSINESS_OWNER);
+    const cookie = await signInStaff('owner@test.local');
+
+    const [row] = await listAs(cookie);
+
+    expect(row?.name).toBe('No Phone Buyer');
+    expect(row?.phone).toBeNull();
+    expect(row?.isVerifiedContact).toBe(true);
+  });
+
+  it('leaves out a conversation nobody asked a question in', async () => {
+    const buyer = await createCustomer('buyer@hospital.test');
+    await startedId(buyer);
+
+    await createAdmin('owner@test.local', Role.BUSINESS_OWNER);
+    const cookie = await signInStaff('owner@test.local');
+
+    expect(await listAs(cookie)).toEqual([]);
   });
 
   it('returns the whole transcript in order', async () => {
-    const id = await seedConversation();
+    const { id } = await seedSignedInConversation();
     await createAdmin('owner@test.local', Role.BUSINESS_OWNER);
-    const cookie = await signIn('owner@test.local');
+    const cookie = await signInStaff('owner@test.local');
 
     const response = await app.inject({
       method: 'GET',
@@ -373,17 +592,19 @@ describe('what staff can read', () => {
     expect(response.statusCode).toBe(200);
 
     const body = JSON.parse(response.body) as {
+      name: string | null;
       messages: { role: string; content: string }[];
     };
 
+    expect(body.name).toBe('Priya Nair');
     expect(body.messages.map((message) => message.role)).toEqual(['VISITOR', 'ASSISTANT']);
     expect(body.messages[0]?.content).toBe('Do you stock 22G safety cannula?');
   });
 
-  it('never returns the conversation token to staff either', async () => {
-    const id = await seedConversation();
+  it('never returns a session token hash to staff', async () => {
+    const { id } = await seedSignedInConversation();
     await createAdmin('owner@test.local', Role.BUSINESS_OWNER);
-    const cookie = await signIn('owner@test.local');
+    const cookie = await signInStaff('owner@test.local');
 
     const response = await app.inject({
       method: 'GET',
@@ -396,16 +617,16 @@ describe('what staff can read', () => {
   });
 
   it('refuses a role that does not hold assistant_chat.read', async () => {
-    await seedConversation();
+    await seedSignedInConversation();
 
-    // Catalog Manager is the role with no reason to read a lead's chat, and
-    // the assertion states that rather than assuming it.
+    // Catalog Manager is the role with no reason to read a customer's chat,
+    // and the assertion states that rather than assuming it.
     expect(
       ROLE_DEFINITIONS.find((role) => role.key === Role.CATALOG_MANAGER)?.permissions,
     ).not.toContain(Permission.ASSISTANT_CHAT_READ);
 
     await createAdmin('catalog@test.local', Role.CATALOG_MANAGER);
-    const cookie = await signIn('catalog@test.local');
+    const cookie = await signInStaff('catalog@test.local');
 
     const response = await app.inject({
       method: 'GET',
@@ -417,7 +638,7 @@ describe('what staff can read', () => {
   });
 
   it('refuses an unauthenticated read outright', async () => {
-    await seedConversation();
+    await seedSignedInConversation();
 
     const response = await app.inject({
       method: 'GET',
@@ -427,35 +648,38 @@ describe('what staff can read', () => {
     expect(response.statusCode).toBe(401);
   });
 
-  it('searches by name, email and phone', async () => {
-    await seedConversation();
+  /*
+   * One search box, both eras. The signed-in rows carry their name and address
+   * on the account and null in the columns the old search matched, so a search
+   * that only looked at the columns would silently return nothing for every
+   * conversation since the sign-in gate.
+   */
+  it('searches the account behind a conversation, and the old typed details', async () => {
+    await seedSignedInConversation();
 
-    const other = await start({
+    const historical = await seedHistoricalGuestConversation({
       name: 'Rohit Desai',
       phone: '9820011223',
       email: 'rohit@clinic.test',
     });
-    await appendMessage(other.body.conversationId, 'VISITOR', 'What is in the feeding tube pack?');
+    await appendMessage(historical, 'VISITOR', 'What is in the feeding tube pack?');
 
     await createAdmin('owner@test.local', Role.BUSINESS_OWNER);
-    const cookie = await signIn('owner@test.local');
+    const cookie = await signInStaff('owner@test.local');
 
-    const matches = async (q: string): Promise<string[]> => {
-      const response = await app.inject({
-        method: 'GET',
-        url: `/api/v1/admin/assistant/conversations?q=${encodeURIComponent(q)}`,
-        headers: { cookie },
-      });
+    const matches = async (q: string): Promise<(string | null)[]> =>
+      (await listAs(cookie, `?q=${encodeURIComponent(q)}`)).map((row) => row.name);
 
-      const body = JSON.parse(response.body) as { conversations: { visitorName: string }[] };
-      return body.conversations.map((conversation) => conversation.visitorName);
-    };
-
-    expect(await matches('Rohit')).toEqual(['Rohit Desai']);
-    // Searching an address typed in capitals must still find it: the column
-    // being matched is the normalised one.
+    // The signed-in customer, found through their account.
+    expect(await matches('Priya')).toEqual(['Priya Nair']);
+    // Typed in capitals, matched against the normalised column either way.
     expect(await matches('PRIYA.NAIR@hospital.test')).toEqual(['Priya Nair']);
+    expect(await matches('98765')).toEqual(['Priya Nair']);
+
+    // The historical guest, found through the columns nothing writes any more.
+    expect(await matches('Rohit')).toEqual(['Rohit Desai']);
     expect(await matches('9820011223')).toEqual(['Rohit Desai']);
+
     expect(await matches('nobody-by-this-name')).toEqual([]);
   });
 });

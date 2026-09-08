@@ -1,29 +1,30 @@
 /**
- * Chat conversations, and the visitor behind each one.
+ * Chat conversations, and the customer behind each one.
  *
- * The widget asks for a name, a mobile number and an email address before it
- * answers anything, and this module is where that goes. Three decisions worth
- * stating:
+ * The widget used to ask a visitor for a name, a mobile number and an email
+ * before it would answer anything. It no longer asks for any of the three: the
+ * assistant is behind the customer session now, so who is asking is something
+ * the request already proves. Three decisions worth stating:
  *
- *   1. **The contact details are captured, not verified.** Nothing is
- *      confirmed by an email or an OTP, so a row here says "somebody typed
- *      this", never "this person is who they say". Staff following up a lead
- *      need to know which of the two they are looking at, which is why the
- *      admin screen labels it an enquiry and not a customer.
+ *   1. **The owner is authenticated, not typed.** `customerProfileId` comes
+ *      from the session guard on the route, never from the request body, and
+ *      it is the only thing `/assistant/chat` authorises against. A row here
+ *      says "this customer asked this", which is a stronger claim than
+ *      anything the old capture form could make — it never verified a single
+ *      character of what somebody typed into it.
  *
  *   2. **The transcript is server-side.** The browser holds a conversation id
- *      and an opaque token; the turns live in the database. Before this, the
+ *      and nothing else; the turns live in the database. Before this, the
  *      client posted the whole history back on every turn — fine for a
  *      stateless endpoint, useless as a record: an administrator would be
  *      reading whatever the browser chose to send.
  *
- *   3. **A conversation is not an account.** No User and no CustomerProfile is
- *      created. `customerProfileId` is filled in only when the address already
- *      belongs to a customer, so an enquiry from an existing buyer is
- *      recognisable without inventing an account for one who is not.
+ *   3. **Nothing here deletes history.** The `visitor*` columns are nullable
+ *      and no longer written, but the rows that have them keep them until the
+ *      retention sweep or an erasure request takes them. See the model
+ *      comments in `schema.prisma`.
  */
 import { AssistantMessageRole } from '../../generated/prisma/client.js';
-import { generateToken, safeCompare, sha256Hex } from '../../infra/crypto.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import type { AssistantTurn } from './provider.js';
@@ -37,86 +38,108 @@ import type { AssistantTurn } from './provider.js';
  */
 const HISTORY_TURNS = 20;
 
-export interface VisitorDetails {
-  name: string;
-  phone: string;
-  email: string;
-}
-
 export interface StartedConversation {
   conversationId: string;
-  /** Returned exactly once, to the browser that started it. Never stored raw. */
-  token: string;
-}
-
-/** Trimmed and lowercased, matching how `users.emailNormalized` is built. */
-function normaliseEmail(email: string): string {
-  return email.trim().toLowerCase();
 }
 
 /**
- * Open a conversation for a visitor who has just given their details.
+ * Open a conversation for the signed-in customer.
  *
- * The customer lookup is a courtesy and never a gate: a visitor whose address
- * matches no account is the normal case on a catalogue, and refusing to chat
- * with them would be refusing the lead.
+ * Nothing is asked of them first. The old flow took a name, a mobile number
+ * and an email before it would answer a question; all three are either already
+ * known from the account or not needed to answer one, and asking a customer
+ * who has just signed in to type their own email is friction that buys
+ * nothing.
+ *
+ * `customerProfileId` is required rather than optional. It comes from the
+ * route's session guard, and it is what every later read and write on this
+ * conversation is checked against — there is no unowned conversation for an
+ * ownership check to fall through.
  */
 export async function startConversation(
-  visitor: VisitorDetails,
+  owner: { customerProfileId: string },
   context: { ipAddress: string | null; userAgent: string | null },
 ): Promise<StartedConversation> {
-  const emailNormalized = normaliseEmail(visitor.email);
-
-  const existing = await prisma.user.findUnique({
-    where: { emailNormalized },
-    select: { customerProfile: { select: { id: true } } },
-  });
-
-  const { token, tokenHash } = generateToken(24);
   const id = newId();
 
   await prisma.assistantConversation.create({
     data: {
       id,
-      visitorName: visitor.name.trim(),
-      visitorPhone: visitor.phone.trim(),
-      visitorEmail: visitor.email.trim(),
-      visitorEmailNormalized: emailNormalized,
-      sessionTokenHash: tokenHash,
-      customerProfileId: existing?.customerProfile?.id ?? null,
+      customerProfileId: owner.customerProfileId,
       ipAddress: context.ipAddress,
       userAgent: context.userAgent,
     },
   });
 
-  return { conversationId: id, token };
+  return { conversationId: id };
 }
 
 /**
- * The conversation this id and token identify, or null.
+ * The conversation, if it is this customer's.
  *
- * Compared against the stored hash in constant time. The token is what
- * separates one visitor's conversation from another's on an endpoint that has
- * no session and no cookie, so a near-miss must not be distinguishable from a
- * wild guess by how long the answer took.
+ * Ownership is the whole check. There is no opaque per-conversation token any
+ * more: that existed because the endpoint had no session and something had to
+ * separate one anonymous visitor from another. A session does that now, and
+ * minting a second bearer secret alongside it would only be one more thing to
+ * leak.
+ *
+ * Null covers both "no such conversation" and "not yours", and the route turns
+ * both into a 404 — an owner mismatch must not be distinguishable from a
+ * missing row, or the id becomes a way to ask whether somebody else's
+ * conversation exists.
  */
-export async function authenticateConversation(
+export async function authoriseConversation(
   conversationId: string,
-  token: string,
-): Promise<{ id: string; visitorName: string; messageCount: number } | null> {
+  customerProfileId: string,
+): Promise<{ id: string; messageCount: number } | null> {
   const conversation = await prisma.assistantConversation.findUnique({
     where: { id: conversationId },
-    select: { id: true, visitorName: true, messageCount: true, sessionTokenHash: true },
+    select: { id: true, messageCount: true, customerProfileId: true },
   });
 
   if (conversation === null) return null;
-  if (!safeCompare(conversation.sessionTokenHash, sha256Hex(token))) return null;
+  if (conversation.customerProfileId !== customerProfileId) return null;
 
-  return {
-    id: conversation.id,
-    visitorName: conversation.visitorName,
-    messageCount: conversation.messageCount,
-  };
+  return { id: conversation.id, messageCount: conversation.messageCount };
+}
+
+/**
+ * What the assistant may know about the customer without asking them.
+ *
+ * Read from the account, under the session that just authenticated — never
+ * from anything the browser sent. It is what replaces the three questions the
+ * widget used to open with: the answers were always weaker than this, because
+ * nothing typed into that form was verified.
+ *
+ * Null for a profile that has been deleted between the guard and this read,
+ * which is a race rather than a state; the assistant then answers without
+ * personalisation, which is the correct degradation.
+ */
+export interface AssistantCustomerContext {
+  fullName: string;
+  organization: string | null;
+  department: string | null;
+  customerCode: string | null;
+  preferredCurrency: string | null;
+  preferredCountry: string | null;
+}
+
+export async function customerContext(
+  customerProfileId: string,
+): Promise<AssistantCustomerContext | null> {
+  const profile = await prisma.customerProfile.findUnique({
+    where: { id: customerProfileId },
+    select: {
+      fullName: true,
+      organization: true,
+      department: true,
+      customerCode: true,
+      preferredCurrency: true,
+      preferredCountry: true,
+    },
+  });
+
+  return profile;
 }
 
 /** The tail of the transcript, oldest first, in the shape the provider takes. */
@@ -143,9 +166,9 @@ export async function conversationHistory(conversationId: string): Promise<Assis
  *
  * Called twice per turn — once for the question, before the provider is
  * asked, and once for the answer. Writing the question first is deliberate: a
- * visitor who closes the panel mid-answer, or a provider that fails, still
+ * customer who closes the panel mid-answer, or a provider that fails, still
  * leaves the question on the record, and the question is the part that tells
- * staff what the lead wanted.
+ * staff what was being asked for.
  */
 export async function appendMessage(
   conversationId: string,
@@ -176,15 +199,74 @@ export async function appendMessage(
 // Admin reads
 // ---------------------------------------------------------------------------
 
-export interface ConversationSummary {
+/**
+ * Who a conversation was with, as staff need to read it.
+ *
+ * Two eras answer this differently and the screen must not care which one it
+ * is looking at:
+ *
+ *   - A conversation started since the assistant moved behind the sign-in has
+ *     an owning account, and the name, email and phone come from that account.
+ *     They are verified, in the sense that whoever asked held the credentials.
+ *   - A conversation from the old guest widget carries whatever was typed into
+ *     the capture form, and nothing about it was ever checked.
+ *
+ * `isVerifiedContact` says which of the two a row is, because a phone number
+ * nobody confirmed and a phone number on an account are different things to
+ * act on. Every field is nullable: a customer need not have given a phone, and
+ * a historical row loses its typed details to the retention sweep.
+ */
+export interface ConversationContact {
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+  isVerifiedContact: boolean;
+}
+
+/** The columns both admin reads select, so the mapping below has one home. */
+const CONTACT_SELECT = {
+  visitorName: true,
+  visitorEmail: true,
+  visitorPhone: true,
+  customerProfile: {
+    select: { fullName: true, phone: true, user: { select: { email: true } } },
+  },
+} as const;
+
+interface ContactColumns {
+  visitorName: string | null;
+  visitorEmail: string | null;
+  visitorPhone: string | null;
+  customerProfile: { fullName: string; phone: string | null; user: { email: string } } | null;
+}
+
+function contactOf(row: ContactColumns): ConversationContact {
+  // The account wins wherever there is one. A row can carry both - a guest
+  // enquiry whose typed address happened to match an account - and the account
+  // is the half that was proved.
+  if (row.customerProfile !== null) {
+    return {
+      name: row.customerProfile.fullName,
+      email: row.customerProfile.user.email,
+      phone: row.customerProfile.phone,
+      isVerifiedContact: true,
+    };
+  }
+
+  return {
+    name: row.visitorName,
+    email: row.visitorEmail,
+    phone: row.visitorPhone,
+    isVerifiedContact: false,
+  };
+}
+
+export interface ConversationSummary extends ConversationContact {
   id: string;
-  visitorName: string;
-  visitorPhone: string;
-  visitorEmail: string;
   customerProfileId: string | null;
   customerName: string | null;
   messageCount: number;
-  /** The visitor's opening question, for a list that reads without a click. */
+  /** The opening question, for a list that reads without a click. */
   firstQuestion: string | null;
   lastMessageAt: string | null;
   createdAt: string;
@@ -199,23 +281,29 @@ export async function listConversations(query: {
   page: number;
   limit: number;
   search?: string | undefined;
-  /** Only enquiries from an address that belongs to a registered customer. */
+  /** Only conversations that belong to a registered customer. */
   customersOnly?: boolean | undefined;
 }): Promise<ConversationListResult> {
   const search = query.search?.trim() ?? '';
 
   const where = {
-    // An enquiry with no message is a form that was filled in and abandoned
-    // before a question was asked. It is not a conversation and it is not what
-    // this screen is for.
+    // A conversation with no message is a panel somebody opened and closed
+    // again. It is not a conversation and it is not what this screen is for.
     messageCount: { gt: 0 },
     ...(query.customersOnly === true ? { customerProfileId: { not: null } } : {}),
     ...(search.length > 0
       ? {
+          // Both eras, through one search box. The first three branches find a
+          // historical guest enquiry; the account branches find everything
+          // since, where those columns are null and the name and the address
+          // live on the profile instead.
           OR: [
             { visitorName: { contains: search } },
             { visitorEmailNormalized: { contains: search.toLowerCase() } },
             { visitorPhone: { contains: search } },
+            { customerProfile: { fullName: { contains: search } } },
+            { customerProfile: { phone: { contains: search } } },
+            { customerProfile: { user: { emailNormalized: { contains: search.toLowerCase() } } } },
           ],
         }
       : {}),
@@ -224,21 +312,18 @@ export async function listConversations(query: {
   const [rows, total] = await Promise.all([
     prisma.assistantConversation.findMany({
       where,
-      // Most recently active first: a lead that asked a question a minute ago
+      // Most recently active first: somebody who asked a question a minute ago
       // is the one worth answering.
       orderBy: [{ lastMessageAt: 'desc' }, { id: 'desc' }],
       skip: (query.page - 1) * query.limit,
       take: query.limit,
       select: {
         id: true,
-        visitorName: true,
-        visitorPhone: true,
-        visitorEmail: true,
+        ...CONTACT_SELECT,
         customerProfileId: true,
         messageCount: true,
         lastMessageAt: true,
         createdAt: true,
-        customerProfile: { select: { fullName: true } },
         messages: {
           where: { role: AssistantMessageRole.VISITOR },
           orderBy: { createdAt: 'asc' },
@@ -253,9 +338,7 @@ export async function listConversations(query: {
   return {
     conversations: rows.map((row) => ({
       id: row.id,
-      visitorName: row.visitorName,
-      visitorPhone: row.visitorPhone,
-      visitorEmail: row.visitorEmail,
+      ...contactOf(row),
       customerProfileId: row.customerProfileId,
       customerName: row.customerProfile?.fullName ?? null,
       messageCount: row.messageCount,
@@ -284,16 +367,13 @@ export async function getConversation(id: string): Promise<ConversationDetail | 
     where: { id },
     select: {
       id: true,
-      visitorName: true,
-      visitorPhone: true,
-      visitorEmail: true,
+      ...CONTACT_SELECT,
       customerProfileId: true,
       messageCount: true,
       lastMessageAt: true,
       createdAt: true,
       ipAddress: true,
       userAgent: true,
-      customerProfile: { select: { fullName: true } },
       messages: {
         orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
         select: { id: true, role: true, content: true, createdAt: true },
@@ -308,9 +388,7 @@ export async function getConversation(id: string): Promise<ConversationDetail | 
 
   return {
     id: row.id,
-    visitorName: row.visitorName,
-    visitorPhone: row.visitorPhone,
-    visitorEmail: row.visitorEmail,
+    ...contactOf(row),
     customerProfileId: row.customerProfileId,
     customerName: row.customerProfile?.fullName ?? null,
     messageCount: row.messageCount,

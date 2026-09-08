@@ -40,10 +40,16 @@ export const anthropicProvider: AssistantProvider = {
             type: 'text',
             text: `CATALOGUE — the complete published product list for this store.\n\n${request.catalogue}`,
             // The whole prefix above this point is byte-identical for every
-            // visitor, which is what makes the cache hit rate a function of
+            // customer, which is what makes the cache hit rate a function of
             // traffic and nothing else.
             cache_control: { type: 'ephemeral' },
           },
+          // Below the cache breakpoint on purpose: this block is the one part
+          // that differs per caller, and putting it any earlier would cost the
+          // deployment its prefix cache on every single request.
+          ...(request.customer === undefined
+            ? []
+            : [{ type: 'text' as const, text: request.customer }]),
         ],
         // Storefront Q&A over a catalogue that is handed to the model does not
         // repay deep reasoning.

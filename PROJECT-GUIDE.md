@@ -290,6 +290,12 @@ at the front door — because the backend puts it there too. A visitor can see
 the whole catalogue and prices, and is only asked to identify themselves when
 they want to actually buy.
 
+**The AI chat widget is the second thing behind that wall.** A guest sees the
+launcher and, on pressing it, a "Sign in to use AI" panel — never a composer.
+Signing in from there returns them to the page they were on with the panel
+already open. See *The AI assistant* in section 8 for why the API insists on it
+too.
+
 ## How a page is built
 
 Every page follows the same three-layer pattern:
@@ -351,7 +357,7 @@ name, their currencies and their features appear.
 | `/recurring` | Recurring | Customers' repeating-order schedules |
 | `/customers` | Customers | Accounts, including "awaiting approval" |
 | `/customers/:id` | Customer detail | Their prices, limits, addresses, orders |
-| `/chat-enquiries` | Chat enquiries | Transcripts from the AI widget |
+| `/chat-enquiries` | Chat enquiries | Transcripts from the AI widget, and whose account each one belongs to |
 | `/reports` | Reports | Sales, stock and tax reports; exports |
 | `/data-requests` | Data requests | GDPR access and erasure requests |
 | `/manufacturers` | Manufacturers | Economic operators required by EU product law |
@@ -683,7 +689,7 @@ Each folder under `src/modules/` owns one area:
 | `reports` | Reports and exports |
 | `privacy` | GDPR access, export and erasure; data retention |
 | `integrations` | External connectors and sync runs |
-| `assistant` | The AI chat widget on the storefront |
+| `assistant` | The AI chat widget on the storefront, for signed-in customers |
 | `audit` | The record of who changed what |
 
 ## What happens to a request, step by step
@@ -824,8 +830,8 @@ Base path: `/api/v1`. About 22 route files.
 
 | Zone | Prefix | Who may call it |
 |---|---|---|
-| **Public** | `/api/v1/config`, `/api/v1/catalog`, `/api/v1/assistant` | Anyone, no login |
-| **Customer** | `/api/v1/auth`, `/account`, `/cart`, `/orders`, `/recurring-schedules` | A signed-in customer |
+| **Public** | `/api/v1/config`, `/api/v1/catalog` | Anyone, no login |
+| **Customer** | `/api/v1/auth`, `/account`, `/cart`, `/orders`, `/recurring-schedules`, `/assistant` | A signed-in customer |
 | **Admin** | `/api/v1/admin/*` | A signed-in member of staff with the right permission |
 
 ## Two design decisions in the routing
@@ -846,6 +852,70 @@ exists on the other.
 `/api/v1/account/orders` derives the customer from the session cookie. There is
 no `/api/v1/orders/:someoneElsesId` to forget an ownership check on — the class
 of bug is designed out rather than guarded against.
+
+## The AI assistant
+
+Two endpoints, both in the **Customer** zone.
+
+| Endpoint | Body | Answers |
+|---|---|---|
+| `POST /api/v1/assistant/start` | *(empty)* | `{ conversationId }` |
+| `POST /api/v1/assistant/chat` | `{ conversationId, message }` | A Server-Sent Event stream |
+
+**It used to be public, and it is not any more.** The widget opened with a form
+asking for a name, a mobile number and an email, and that form was the only
+answer to "who is asking". Nothing typed into it was verified, so it bought
+friction rather than safety. Both the form and the anonymous access are gone.
+
+What every request is now checked for, before a single token is bought:
+
+| Check | Failure |
+|---|---|
+| An access token for the **customer** surface | `401 UNAUTHENTICATED` |
+| A token that verifies and has not expired | `401 SESSION_EXPIRED` |
+| A session that has not been revoked (logout, password change, deactivation) | `401 SESSION_EXPIRED` |
+| An account that is still `ACTIVE` and not archived | `401 ACCOUNT_DEACTIVATED` |
+| A staff credential presented here | `403 FORBIDDEN` |
+| A customer with no `CustomerProfile` | `403 ACCOUNT_NOT_ACTIVATED` |
+| The CSRF double-submit header | `403 FORBIDDEN` |
+| The conversation belongs to **this** account | `404 NOT_FOUND` |
+
+The 404 on the last row is deliberate: somebody else's conversation must not be
+distinguishable from one that never existed, or a conversation id becomes a way
+to ask whose it is.
+
+**Rate limits stay.** `/start` allows 30 per 15 minutes per address —
+deliberately generous, because a procurement office is often a dozen people
+behind one NAT address. `/chat` uses `ASSISTANT_RATE_LIMIT_PER_5MIN`.
+Authentication says *who* may spend the deployment's provider budget; it does
+not say how much, and it does not stop one signed-in account from driving the
+endpoint as a general-purpose relay. Only the fixed parameters do that: the
+request body cannot name a model, a system prompt or a token budget, and a body
+carrying one is a `400`.
+
+**What the assistant knows about the customer.** Because the caller is
+authenticated, it never has to ask. The system prompt carries a few lines read
+from their account under that session — full name, organisation, department,
+account number, preferred currency and country — and nothing else. No address,
+no order history, no VAT or GST number, no internal note. The test for a field
+is not "could it help" but "would an answer be wrong without it", because every
+line is sent to the AI provider on every turn. Those lines go **last** in the
+prompt, below the catalogue snapshot, so the cacheable prefix stays identical
+for every customer.
+
+**Nothing sensitive is logged.** The conversation id, the model and the token
+counts go to the log. The question, the reply and the customer's details do
+not: a transcript belongs in the database, where the retention sweep can reach
+it and an erasure request can delete it.
+
+**The old columns are still there.** `assistant_conversations` keeps
+`visitorName`, `visitorPhone`, `visitorEmail`, `visitorEmailNormalized` and
+`sessionTokenHash`, now nullable and never written. The rows that already have
+them are somebody's enquiry, and they leave on the schedule
+`RETENTION_ASSISTANT_CONVERSATION_DAYS` has always set for them. The Chat enquiries screen
+reads both eras and labels which is which — details from an account are marked
+verified; details typed into the old form are marked as the unchecked claims
+they always were.
 
 ## The webhook exception
 

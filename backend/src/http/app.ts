@@ -353,9 +353,12 @@ export async function buildApp() {
   await app.register(registerPublicConfigRoutes, { prefix: API_PREFIX });
   await app.register(registerPublicCatalogRoutes, { prefix: `${API_PREFIX}/catalog` });
 
-  // Also unauthenticated: the chat widget is for visitors who have not signed
-  // in. The endpoint is a proxy with every API parameter fixed server-side, so
-  // it cannot be driven as an open relay for the deployment's Anthropic key.
+  // NOT public, despite sitting outside the customer block below. The chat
+  // widget used to be open to anyone, with a contact form standing in for a
+  // sign-in; both routes are behind `requireCustomer` now. It keeps its own
+  // prefix because the widget is storefront chrome rather than account
+  // self-service, and every parameter of the provider call is still fixed
+  // server-side so a signed-in caller cannot drive it as an open relay.
   await app.register(registerAssistantRoutes, { prefix: `${API_PREFIX}/assistant` });
 
   // The transcripts those conversations leave behind, and the contact details

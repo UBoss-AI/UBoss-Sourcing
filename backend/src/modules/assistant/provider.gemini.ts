@@ -119,6 +119,10 @@ export const geminiProvider: AssistantProvider = {
             parts: [
               { text: `CATALOGUE — the complete published product list for this store.\n\n${request.catalogue}` },
               { text: request.systemPrompt },
+              // Last, after both stable halves. Gemini's cache is implicit and
+              // prefix-based, so a per-caller part placed earlier would break
+              // the hit for everybody.
+              ...(request.customer === undefined ? [] : [{ text: request.customer }]),
             ],
           },
           maxOutputTokens: request.maxTokens,

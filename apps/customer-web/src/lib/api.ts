@@ -330,6 +330,58 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   throw toApiError(response.status, payload, response.headers.get('retry-after'));
 }
 
+/**
+ * A POST whose response is read as a stream rather than parsed.
+ *
+ * `request` above cannot serve this: it reads the whole body before it
+ * returns, which for Server-Sent Events means waiting for the last token to
+ * arrive before showing the first. The assistant panel needs the raw
+ * `Response` so it can read `response.body` frame by frame.
+ *
+ * Everything else this module promises still applies, and that is the reason
+ * this lives here rather than in the caller: `credentials: 'include'`, the
+ * double-submit CSRF header, and one shared refresh on a 401 with the session
+ * announced as ended when the refresh fails. A component doing its own
+ * `fetch` would quietly opt out of all three - and a streaming endpoint
+ * behind a sign-in is exactly where a missed refresh looks like a dropped
+ * connection instead of an expired session.
+ *
+ * Returns the response whatever its status. A streaming caller has to see the
+ * 401 itself: it may have a half-typed message to keep hold of, which no
+ * thrown error could carry back.
+ */
+export async function requestStream(
+  path: string,
+  options: { body: unknown; signal?: AbortSignal; retryOnUnauthorised?: boolean },
+): Promise<Response> {
+  const csrf = readCsrfToken();
+
+  const response = await fetch(buildUrl(path, undefined), {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(csrf === null ? {} : { [CSRF_HEADER]: csrf }),
+    },
+    body: JSON.stringify(options.body),
+    ...(options.signal === undefined ? {} : { signal: options.signal }),
+  });
+
+  if (response.status !== 401 || options.retryOnUnauthorised === false) return response;
+
+  // Same one-refresh-at-a-time path every other request uses, so a stream
+  // starting at the moment an access token expires does not race a refresh
+  // already in flight and rotate the refresh token twice.
+  const refreshed = await refreshSession();
+
+  if (!refreshed) {
+    announceSessionEnded();
+    return response;
+  }
+
+  return requestStream(path, { ...options, retryOnUnauthorised: false });
+}
+
 export const api = {
   get: <T>(path: string, options?: Omit<RequestOptions, 'method' | 'body'>): Promise<T> =>
     request<T>(path, { ...options, method: 'GET' }),

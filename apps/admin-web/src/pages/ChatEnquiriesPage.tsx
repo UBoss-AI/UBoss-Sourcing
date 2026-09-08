@@ -1,19 +1,21 @@
 /**
  * Chat enquiries.
  *
- * Everyone who used the storefront chat widget, with the name, mobile number
- * and email they gave before their first question — and the transcript of what
- * they asked.
+ * Everyone who used the storefront chat widget, who they are, and the
+ * transcript of what they asked.
  *
- * Two things the screen says out loud, because acting on either without
- * knowing is a mistake:
+ * The screen reads two eras of row and says which is which, because acting on
+ * one as though it were the other is a mistake:
  *
- *   - **The details are unverified.** The widget asks; it does not confirm by
- *     email or OTP. A number here is what somebody typed into a chat panel.
- *   - **A matched customer is a different thing.** Where the email belongs to
- *     a registered account the row links to it. Where it does not, this person
- *     has no account — and creating one is a decision for the Customers screen,
- *     not a side effect of having chatted.
+ *   - **A conversation with a signed-in customer.** Everything since the
+ *     widget moved behind the sign-in. The name, the email and the phone come
+ *     off the account, so they are as good as anything else in this panel, and
+ *     the row links to the customer.
+ *   - **A historical guest enquiry.** The widget used to open with a form
+ *     asking for a name, a mobile number and an email, and nothing typed into
+ *     it was ever confirmed by an email or an OTP. Those rows are marked, and
+ *     they are the only ones where a contact detail is somebody's unchecked
+ *     claim. They leave on their own, with the retention sweep.
  *
  * Read-only by design: there is no edit, no note field and no delete. The
  * transcript is evidence of what was asked and answered.
@@ -44,9 +46,16 @@ import { useI18n } from '@/i18n/i18n-context';
 
 interface ChatEnquiry {
   id: string;
-  visitorName: string;
-  visitorPhone: string;
-  visitorEmail: string;
+  /**
+   * Off the customer's account where there is one, and otherwise whatever was
+   * typed into the old guest form. `isVerifiedContact` says which, and every
+   * field is nullable — a customer need not have given a phone number, and a
+   * guest row loses its typed details to the retention sweep.
+   */
+  name: string | null;
+  phone: string | null;
+  email: string | null;
+  isVerifiedContact: boolean;
   customerProfileId: string | null;
   customerName: string | null;
   messageCount: number;
@@ -99,8 +108,12 @@ function TranscriptDialog({
     <Modal
       isOpen={enquiryId !== null}
       onClose={onClose}
-      title={enquiry === undefined ? t('chatEnquiries.chatTranscript') : `Chat with ${enquiry.visitorName}`}
-      description={t('chatEnquiries.whatTheVisitorAskedAnd')}
+      title={
+        enquiry === undefined || enquiry.name === null
+          ? t('chatEnquiries.chatTranscript')
+          : t('chatEnquiries.chatWith', { name: enquiry.name })
+      }
+      description={t('chatEnquiries.transcriptDescription')}
       size="lg"
       footer={<Button onClick={onClose}>{t('chatEnquiries.close')}</Button>}
     >
@@ -115,26 +128,33 @@ function TranscriptDialog({
         />
       ) : enquiry === undefined ? null : (
         <div className="space-y-4">
-          {/* Contact block. The first thing anybody opening this needs, and the
-              reason the enquiry was captured at all. */}
+          {/* Contact block. The first thing anybody opening this needs, and on
+              a signed-in conversation it comes off the account rather than out
+              of a form. Every field can be empty, so each one is guarded: a
+              `tel:` link built from a missing number dials nothing and looks
+              like it should. */}
           <dl className="grid grid-cols-1 gap-3 rounded-md border border-border bg-surface-sunken p-3 text-sm sm:grid-cols-3">
             <div>
               <dt className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
                 {t('chatEnquiries.name')}
               </dt>
-              <dd className="mt-0.5 text-ink">{enquiry.visitorName}</dd>
+              <dd className="mt-0.5 text-ink">{enquiry.name ?? t('chatEnquiries.notGiven')}</dd>
             </div>
             <div>
               <dt className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
                 {t('chatEnquiries.mobile')}
               </dt>
               <dd className="mt-0.5">
-                <a
-                  href={`tel:${enquiry.visitorPhone.replace(/[^+\d]/g, '')}`}
-                  className="font-medium text-brand underline underline-offset-2"
-                >
-                  {enquiry.visitorPhone}
-                </a>
+                {enquiry.phone === null ? (
+                  <span className="text-ink-subtle">{t('chatEnquiries.notGiven')}</span>
+                ) : (
+                  <a
+                    href={`tel:${enquiry.phone.replace(/[^+\d]/g, '')}`}
+                    className="font-medium text-brand underline underline-offset-2"
+                  >
+                    {enquiry.phone}
+                  </a>
+                )}
               </dd>
             </div>
             <div className="min-w-0">
@@ -142,15 +162,28 @@ function TranscriptDialog({
                 {t('chatEnquiries.email')}
               </dt>
               <dd className="mt-0.5 truncate">
-                <a
-                  href={`mailto:${enquiry.visitorEmail}`}
-                  className="font-medium text-brand underline underline-offset-2"
-                >
-                  {enquiry.visitorEmail}
-                </a>
+                {enquiry.email === null ? (
+                  <span className="text-ink-subtle">{t('chatEnquiries.notGiven')}</span>
+                ) : (
+                  <a
+                    href={`mailto:${enquiry.email}`}
+                    className="font-medium text-brand underline underline-offset-2"
+                  >
+                    {enquiry.email}
+                  </a>
+                )}
               </dd>
             </div>
           </dl>
+
+          {/* Only on a historical guest row. Saying "unverified" under details
+              that came off an account would be false, and a warning that is
+              always on is a warning nobody reads. */}
+          {!enquiry.isVerifiedContact && (
+            <p className="rounded-md border border-warning/30 bg-warning-soft px-3 py-2 text-xs text-ink">
+              {t('chatEnquiries.unverifiedDetails')}
+            </p>
+          )}
 
           <p className="text-xs text-ink-muted">
             Started {formatDateTime(enquiry.createdAt)}
@@ -179,7 +212,9 @@ function TranscriptDialog({
               >
                 <div className="max-w-[85%]">
                   <p className="mb-1 text-xxs text-ink-subtle">
-                    {message.role === 'VISITOR' ? enquiry.visitorName : t('chatEnquiries.assistant')}
+                    {message.role === 'VISITOR'
+                      ? (enquiry.name ?? t('label.visitor'))
+                      : t('chatEnquiries.assistant')}
                     {' · '}
                     {formatDateTime(message.createdAt)}
                   </p>
@@ -258,7 +293,7 @@ export function ChatEnquiriesPage(): React.JSX.Element {
       header: t('label.visitor'),
       render: (row) => (
         <div className="min-w-40">
-          <p className="font-medium text-ink">{row.visitorName}</p>
+          <p className="font-medium text-ink">{row.name ?? t('chatEnquiries.notGiven')}</p>
           {row.customerProfileId === null ? (
             <p className="mt-0.5 text-xxs text-ink-subtle">
               {t('chatEnquiries.notARegisteredAccount')}
@@ -279,18 +314,24 @@ export function ChatEnquiriesPage(): React.JSX.Element {
       header: t('label.contact'),
       render: (row) => (
         <div className="min-w-44">
-          <a
-            href={`tel:${row.visitorPhone.replace(/[^+\d]/g, '')}`}
-            className="block text-ink underline decoration-border-strong underline-offset-2 hover:decoration-ink"
-          >
-            {row.visitorPhone}
-          </a>
-          <a
-            href={`mailto:${row.visitorEmail}`}
-            className="mt-0.5 block truncate text-xxs text-ink-muted underline decoration-border underline-offset-2 hover:text-ink"
-          >
-            {row.visitorEmail}
-          </a>
+          {row.phone === null ? (
+            <p className="text-ink-subtle">{t('chatEnquiries.notGiven')}</p>
+          ) : (
+            <a
+              href={`tel:${row.phone.replace(/[^+\d]/g, '')}`}
+              className="block text-ink underline decoration-border-strong underline-offset-2 hover:decoration-ink"
+            >
+              {row.phone}
+            </a>
+          )}
+          {row.email !== null && (
+            <a
+              href={`mailto:${row.email}`}
+              className="mt-0.5 block truncate text-xxs text-ink-muted underline decoration-border underline-offset-2 hover:text-ink"
+            >
+              {row.email}
+            </a>
+          )}
         </div>
       ),
     },
@@ -341,7 +382,7 @@ export function ChatEnquiriesPage(): React.JSX.Element {
     <>
       <PageHeader
         title={t('chatEnquiries.chatEnquiries')}
-        description={t('chatEnquiries.visitorsWhoUsedTheStorefront')}
+        description={t('chatEnquiries.pageDescription')}
       />
 
       <Card>
@@ -408,7 +449,7 @@ export function ChatEnquiriesPage(): React.JSX.Element {
           emptyDescription={
             hasFilters
               ? t('chatEnquiries.searchMatchesPartOf')
-              : t('chatEnquiries.aRowAppearsHere')
+              : t('chatEnquiries.aRowAppearsAfterAQuestion')
           }
           emptyAction={
             hasFilters ? (

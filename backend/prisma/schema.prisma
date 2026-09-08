@@ -2790,24 +2790,39 @@ model CustomerLimit {
 model AssistantConversation {
   id String @id @db.Char(26)
 
-  /// What the visitor typed. Contact details, captured as given - never
-  /// treated as verified, because nothing here is confirmed by an email or an
-  /// OTP.
-  visitorName            String @db.VarChar(120)
-  visitorPhone           String @db.VarChar(32)
-  visitorEmail           String @db.VarChar(320)
+  /// HISTORICAL ONLY. The widget used to ask a visitor for a name, a mobile
+  /// number and an email before it would answer anything. It no longer does,
+  /// and nothing written from here on fills these in.
+  ///
+  /// Nullable rather than dropped: the rows that already carry them are
+  /// somebody's enquiry, and deleting personal data ahead of its retention
+  /// window is not a migration's decision to make. The sweep in
+  /// `retention.service.ts` is what clears them, on the schedule it always had.
+  ///
+  /// Never verified even where present - nothing was ever confirmed by an
+  /// email or an OTP. Who a conversation belongs to is now `customerProfileId`
+  /// below, which is an authenticated fact rather than a typed claim.
+  visitorName            String? @db.VarChar(120)
+  visitorPhone           String? @db.VarChar(32)
+  visitorEmail           String? @db.VarChar(320)
   /// Lowercased/trimmed, for grouping repeat enquiries from one address.
   /// Not unique: the same buyer may come back with a different question.
-  visitorEmailNormalized String @db.VarChar(320)
+  visitorEmailNormalized String? @db.VarChar(320)
 
-  /// SHA-256 of the token the widget holds. The raw value is returned once, to
-  /// the browser that started the conversation, and never stored - so a
-  /// database dump carries nothing that could be used to append to or read a
-  /// stranger's conversation.
-  sessionTokenHash String @db.Char(64)
+  /// HISTORICAL ONLY, for the same reason. SHA-256 of the opaque token the old
+  /// guest widget held - the one thing that separated one anonymous visitor's
+  /// conversation from another's on an endpoint with no session. The endpoint
+  /// has a session now, so the owner below is the authorisation and no second
+  /// bearer secret is minted.
+  sessionTokenHash String? @db.Char(64)
 
-  /// Set at capture time when the email already belongs to a customer. Null
-  /// means "not a registered address", not "not a customer".
+  /// Who this conversation belongs to. Set on every row the signed-in widget
+  /// creates, and the only thing `/assistant/chat` authorises against.
+  ///
+  /// Still nullable, and it has to be: a historical row from the guest widget
+  /// has no owner unless the typed address happened to match an account, and
+  /// the foreign key is ON DELETE SET NULL so erasing a customer does not take
+  /// the record that an enquiry happened with them.
   customerProfileId String? @db.Char(26)
 
   /// Denormalised so the enquiry list can be ordered and read without loading
