@@ -62,15 +62,15 @@ model User {
   /// Set when the account was opened with a system-issued temporary password.
   /// While it is true the session may sign in and do exactly one thing: choose
   /// a real password. Every other admin route refuses it.
-  mustChangePassword Boolean @default(false)
+  mustChangePassword         Boolean   @default(false)
   /// When that temporary password stops working. A password emailed in
   /// plaintext sits in an inbox forever otherwise; this is what stops it being
   /// a permanent key. Null once the holder has chosen their own.
   temporaryPasswordExpiresAt DateTime? @db.DateTime(3)
 
   /// TOTP secret, AES-256-GCM encrypted. Null until an admin enrols in MFA.
-  mfaSecretEnc  String?   @db.Text
-  mfaEnabledAt  DateTime? @db.DateTime(3)
+  mfaSecretEnc String?   @db.Text
+  mfaEnabledAt DateTime? @db.DateTime(3)
 
   /// The language the interface is rendered in for this account, as a BCP-47
   /// primary subtag ("pl", "el", "nl"). Deliberately on `User` rather than on
@@ -102,11 +102,11 @@ model User {
   /// cleared - it is the evidence the erasure happened.
   erasedAt DateTime? @db.DateTime(3)
 
-  roles           UserRole[]
-  sessions        Session[]
-  authTokens      AuthToken[]
-  customerProfile CustomerProfile?
-  auditLogs       AuditLog[]
+  roles             UserRole[]
+  sessions          Session[]
+  authTokens        AuthToken[]
+  customerProfile   CustomerProfile?
+  auditLogs         AuditLog[]
   /// Which console notifications this member of staff has already opened.
   notificationReads AdminNotificationRead[]
 
@@ -187,12 +187,12 @@ model Session {
   ///
   /// Six decimal places is roughly a tenth of a metre, which is finer than any
   /// browser fix and leaves no rounding to explain away.
-  locationLatitude  Decimal? @db.Decimal(9, 6)
-  locationLongitude Decimal? @db.Decimal(9, 6)
+  locationLatitude   Decimal?  @db.Decimal(9, 6)
+  locationLongitude  Decimal?  @db.Decimal(9, 6)
   /// The radius the device claimed, in metres. A wifi fix is a few hundred, a
   /// GPS fix single digits - shown alongside the place so a coarse fix is not
   /// read as a precise one.
-  locationAccuracyM Int?
+  locationAccuracyM  Int?
   /// The reverse-geocoded place, when a lookup was possible. Null falls back to
   /// the coordinates, which are always present whenever this section is filled.
   locationLabel      String?   @db.VarChar(255)
@@ -205,10 +205,10 @@ model Session {
   locationCountry    String?   @db.Char(2)
   locationCapturedAt DateTime? @db.DateTime(3)
 
-  expiresAt          DateTime  @db.DateTime(3)
-  revokedAt          DateTime? @db.DateTime(3)
-  revokedReason      String?   @db.VarChar(128)
-  replacedBySessionId String?  @db.Char(26)
+  expiresAt           DateTime  @db.DateTime(3)
+  revokedAt           DateTime? @db.DateTime(3)
+  revokedReason       String?   @db.VarChar(128)
+  replacedBySessionId String?   @db.Char(26)
 
   createdAt  DateTime @default(now()) @db.DateTime(3)
   lastUsedAt DateTime @default(now()) @db.DateTime(3)
@@ -319,9 +319,9 @@ model BusinessProfile {
 
   policyLinksJson Json?
 
-  createdAt   DateTime  @default(now()) @db.DateTime(3)
-  updatedAt   DateTime  @updatedAt @db.DateTime(3)
-  updatedById String?   @db.Char(26)
+  createdAt   DateTime @default(now()) @db.DateTime(3)
+  updatedAt   DateTime @updatedAt @db.DateTime(3)
+  updatedById String?  @db.Char(26)
 
   logoMedia MediaAsset? @relation(fields: [logoMediaId], references: [id], onDelete: SetNull)
 
@@ -334,7 +334,7 @@ model TaxClass {
   name String @db.VarChar(128)
 
   /// Percent, e.g. 18.000000 for 18% GST. Decimal, never Float.
-  ratePercent Decimal @db.Decimal(9, 6)
+  ratePercent Decimal      @db.Decimal(9, 6)
   /// Which EU rate band this class falls in. Null means "this class has no EU
   /// meaning": the flat `ratePercent` above is used wherever it is sold, which
   /// is the correct behaviour for GST and for any deployment with no VAT rates
@@ -575,8 +575,8 @@ model Category {
   createdById String?   @db.Char(26)
   updatedById String?   @db.Char(26)
 
-  parent   Category?   @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Restrict)
-  children Category[]  @relation("CategoryTree")
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Restrict)
+  children Category[] @relation("CategoryTree")
   products Product[]
 
   couponCategories CouponCategory[]
@@ -610,9 +610,9 @@ model Product {
   /// Set when publication is scheduled ahead of time.
   publishFrom DateTime?     @db.DateTime(3)
 
-  taxClassId     String @db.Char(26)
-  basePriceMinor BigInt
-  currency       String @db.Char(3)
+  taxClassId          String  @db.Char(26)
+  basePriceMinor      BigInt
+  currency            String  @db.Char(3)
   /// Optional strike-through / list price for display. Must be >= basePriceMinor.
   compareAtPriceMinor BigInt?
 
@@ -620,14 +620,14 @@ model Product {
   reorderThreshold Int     @default(0)
 
   /// Purchasing rules enforced server-side on every cart mutation and at checkout.
-  minOrderQty  Int @default(1)
+  minOrderQty  Int  @default(1)
   maxOrderQty  Int?
-  qtyIncrement Int @default(1)
+  qtyIncrement Int  @default(1)
 
   isRecurringEligible Boolean @default(false)
   hasVariants         Boolean @default(false)
 
-  weightGrams Int?
+  weightGrams     Int?
   metaTitle       String? @db.VarChar(255)
   metaDescription String? @db.VarChar(512)
 
@@ -672,8 +672,8 @@ model Product {
   createdById String?   @db.Char(26)
   updatedById String?   @db.Char(26)
 
-  category  Category  @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  taxClass  TaxClass  @relation(fields: [taxClassId], references: [id], onDelete: Restrict)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  taxClass TaxClass @relation(fields: [taxClassId], references: [id], onDelete: Restrict)
 
   /// Restrict on both: an operator named on a published listing cannot be
   /// deleted out from under it, because the listing would then be offering a
@@ -687,17 +687,17 @@ model Product {
   manufacturer  EconomicOperator? @relation("ProductManufacturer", fields: [manufacturerId], references: [id], onDelete: Restrict)
   euResponsible EconomicOperator? @relation("ProductEuResponsible", fields: [euResponsibleId], references: [id], onDelete: Restrict)
 
-  variants            ProductVariant[]
-  media               ProductMedia[]
-  attributes          ProductAttribute[]
-  inventoryBalances   InventoryBalance[]
-  inventoryMovements  InventoryMovement[]
-  stockReservations   StockReservation[]
-  cartItems           CartItem[]
-  orderItems          OrderItem[]
-  scheduleItems       RecurringScheduleItem[]
-  prices              ProductPrice[]
-  translations        ProductTranslation[]
+  variants           ProductVariant[]
+  media              ProductMedia[]
+  attributes         ProductAttribute[]
+  inventoryBalances  InventoryBalance[]
+  inventoryMovements InventoryMovement[]
+  stockReservations  StockReservation[]
+  cartItems          CartItem[]
+  orderItems         OrderItem[]
+  scheduleItems      RecurringScheduleItem[]
+  prices             ProductPrice[]
+  translations       ProductTranslation[]
 
   @@index([categoryId, status, isPublished], map: "ix_product_category_visibility")
   @@index([status, isPublished, archivedAt], map: "ix_product_visibility")
@@ -770,9 +770,9 @@ model ProductAttribute {
   id        String @id @db.Char(26)
   productId String @db.Char(26)
 
-  name      String @db.VarChar(128)
-  value     String @db.VarChar(512)
-  sortOrder Int    @default(0)
+  name         String  @db.VarChar(128)
+  value        String  @db.VarChar(512)
+  sortOrder    Int     @default(0)
   /// Attributes drive faceted filtering when true.
   isFilterable Boolean @default(false)
 
@@ -855,9 +855,9 @@ model InventoryMovement {
   variantKey String  @default("") @db.VarChar(26)
   locationId String  @db.Char(26)
 
-  type InventoryMovementType
+  type            InventoryMovementType
   /// Signed: positive adds to on-hand, negative removes. Never zero.
-  quantityDelta Int
+  quantityDelta   Int
   /// On-hand value immediately after this movement, for ledger reconciliation.
   resultingOnHand Int
 
@@ -947,13 +947,13 @@ model CustomerProfile {
   /// as invalid: a check that could not be made leaves this null and the sale
   /// is taxed rather than zero-rated, because Art. 138(1)(b) puts the burden of
   /// the customer's status on the seller.
-  vatNumberValid       Boolean?
-  vatNumberCheckedAt   DateTime? @db.DateTime(3)
+  vatNumberValid     Boolean?
+  vatNumberCheckedAt DateTime? @db.DateTime(3)
   /// The VIES consultation reference for the last successful check. Evidence
   /// under Art. 31 of Reg. 904/2010 that the seller relied on an official
   /// answer, which is what stands between a mis-zero-rated supply and the
   /// seller paying the tax themselves.
-  vatNumberReference   String?   @db.VarChar(64)
+  vatNumberReference String?   @db.VarChar(64)
 
   /// Whether this account needs sign-off at all. The amounts that decide when
   /// live in `customer_limits`, one row per currency - see that model.
@@ -964,15 +964,15 @@ model CustomerProfile {
   /// Where the shopper says they are, and what they want to be quoted in.
   /// Asked once on first sign-in and changeable afterwards from the header.
   /// Null preferredCurrency means "not chosen yet" - the storefront then asks.
-  preferredCountry  String? @db.Char(2)
-  preferredCurrency String? @db.Char(3)
+  preferredCountry  String?   @db.Char(2)
+  preferredCurrency String?   @db.Char(3)
   localeChosenAt    DateTime? @db.DateTime(3)
 
   /// What the browser's geolocation resolved to, kept separately from the
   /// stated country so the two can be compared rather than one overwriting the
   /// other. Null when permission was refused or never asked.
-  detectedCountry   String?   @db.Char(2)
-  detectedAt        DateTime? @db.DateTime(3)
+  detectedCountry String?   @db.Char(2)
+  detectedAt      DateTime? @db.DateTime(3)
 
   consentAcceptedAt DateTime? @db.DateTime(3)
   consentVersion    String?   @db.VarChar(32)
@@ -1155,7 +1155,7 @@ model Order {
 
   status OrderStatus @default(DRAFT)
 
-  currency String @db.Char(3)
+  currency        String @db.Char(3)
   /// Every amount is BigInt minor units. grandTotal = subtotal - discount + tax + shipping.
   subtotalMinor   BigInt @default(0)
   discountMinor   BigInt @default(0)
@@ -1170,8 +1170,8 @@ model Order {
   billingAddressJson  Json
   shippingAddressJson Json
 
-  shippingMethodCode String? @db.VarChar(32)
-  shippingMethodName String? @db.VarChar(128)
+  shippingMethodCode String?           @db.VarChar(32)
+  shippingMethodName String?           @db.VarChar(128)
   paymentMode        PaymentIntentMode @default(ONLINE)
 
   /// What the customer chose at checkout when there was more than one gateway
@@ -1229,7 +1229,7 @@ model Order {
   returnRequests ReturnRequest[]
   reservations   StockReservation[]
   paymentEvents  PaymentEvent[]
-  occurrence     ScheduleOccurrence? @relation(fields: [scheduleOccurrenceId], references: [id], onDelete: SetNull)
+  occurrence     ScheduleOccurrence?  @relation(fields: [scheduleOccurrenceId], references: [id], onDelete: SetNull)
 
   couponRedemption CouponRedemption?
   invoices         Invoice[]
@@ -1254,14 +1254,14 @@ model OrderItem {
   taxClassCodeSnapshot String  @db.VarChar(32)
   imageUrlSnapshot     String? @db.VarChar(1024)
 
-  unitPriceMinor   BigInt
-  quantity         Int
+  unitPriceMinor    BigInt
+  quantity          Int
   lineSubtotalMinor BigInt
-  taxRatePercent   Decimal @db.Decimal(9, 6)
-  taxInclusive     Boolean @default(false)
-  taxAmountMinor   BigInt
-  discountMinor    BigInt  @default(0)
-  lineTotalMinor   BigInt
+  taxRatePercent    Decimal @db.Decimal(9, 6)
+  taxInclusive      Boolean @default(false)
+  taxAmountMinor    BigInt
+  discountMinor     BigInt  @default(0)
+  lineTotalMinor    BigInt
 
   isRecurringEligibleSnapshot Boolean @default(false)
 
@@ -1328,14 +1328,14 @@ model IdempotencyRecord {
   id String @id @db.Char(26)
 
   /// Logical operation, e.g. `checkout.submit`, `payment.create`, `refund.create`.
-  scope String @db.VarChar(64)
+  scope       String @db.VarChar(64)
   /// Client-supplied Idempotency-Key header value.
-  key   String @db.VarChar(128)
+  key         String @db.VarChar(128)
   /// SHA-256 of the canonical request body. A replay with a DIFFERENT body under
   /// the same key is rejected rather than silently returning the old response.
   requestHash String @db.Char(64)
 
-  status       String  @db.VarChar(16)
+  status       String @db.VarChar(16)
   responseJson Json?
   httpStatus   Int?
 
@@ -1648,7 +1648,7 @@ model RecurringSchedule {
   name   String         @db.VarChar(128)
   status ScheduleStatus @default(ACTIVE)
 
-  frequency ScheduleFrequency
+  frequency    ScheduleFrequency
   /// Used when frequency = EVERY_N_DAYS. The doc calls out "every 7 days".
   intervalDays Int?
   /// Used when frequency = WEEKLY. 1 = Monday .. 7 = Sunday (ISO-8601).
@@ -1658,35 +1658,35 @@ model RecurringSchedule {
 
   /// IANA zone the wall-clock run time is interpreted in. The server timezone
   /// is deliberately not trusted for this.
-  timezone   String @db.VarChar(64)
+  timezone    String @db.VarChar(64)
   /// Local time-of-day for the run, minutes since local midnight.
-  runAtMinute Int   @default(360)
+  runAtMinute Int    @default(360)
 
-  startDate DateTime  @db.Date
-  endDate   DateTime? @db.Date
+  startDate       DateTime  @db.Date
+  endDate         DateTime? @db.Date
   /// Optional cap on total orders produced. Null = until cancelled.
   maxOccurrences  Int?
-  occurrenceCount Int  @default(0)
+  occurrenceCount Int       @default(0)
 
   /// Next planned instant, in UTC. Also the queue key the worker polls.
   nextRunAt DateTime? @db.DateTime(3)
   lastRunAt DateTime? @db.DateTime(3)
 
-  paymentMode SchedulePaymentMode
+  paymentMode      SchedulePaymentMode
   /// Provider mandate/token reference for AUTO_PAY. Never a card number.
-  mandateReference String? @db.VarChar(128)
+  mandateReference String?              @db.VarChar(128)
   mandateProvider  PaymentProviderKind?
   /// Approved payer for PAYMENT_LINK mode.
-  payerEmail       String? @db.VarChar(320)
+  payerEmail       String?              @db.VarChar(320)
 
-  shippingAddressId String @db.Char(26)
-  billingAddressId  String @db.Char(26)
+  shippingAddressId  String  @db.Char(26)
+  billingAddressId   String  @db.Char(26)
   shippingMethodCode String? @db.VarChar(32)
 
   /// Explicit consent is required before activation, and is re-checked at every
   /// occurrence. Storing the version lets a policy change force re-consent.
-  consentAcceptedAt DateTime @db.DateTime(3)
-  consentVersion    String   @db.VarChar(32)
+  consentAcceptedAt             DateTime @db.DateTime(3)
+  consentVersion                String   @db.VarChar(32)
   /// Occurrence total above which the run pauses for approval instead of charging.
   repriceApprovalThresholdMinor BigInt?
 
@@ -1848,8 +1848,8 @@ model ReturnRequest {
   /// quarantined split that drives the restock movements.
   itemsJson Json
 
-  requestedById String  @db.Char(26)
-  decidedById   String? @db.Char(26)
+  requestedById String    @db.Char(26)
+  decidedById   String?   @db.Char(26)
   decidedAt     DateTime? @db.DateTime(3)
   decisionNote  String?   @db.VarChar(512)
 
@@ -1901,10 +1901,10 @@ model IntegrationConnection {
   name    String @db.VarChar(128)
   baseUrl String @db.VarChar(1024)
 
-  authType IntegrationAuthType @default(NONE)
+  authType        IntegrationAuthType @default(NONE)
   /// AES-256-GCM ciphertext. Never returned by any API.
-  credentialsEnc  String? @db.Text
-  credentialsMask String? @db.VarChar(64)
+  credentialsEnc  String?             @db.Text
+  credentialsMask String?             @db.VarChar(64)
 
   /// External field -> UBOSS field mapping, validated at save time.
   fieldMappingJson Json
@@ -1920,10 +1920,10 @@ model IntegrationConnection {
   circuitOpenedAt     DateTime?    @db.DateTime(3)
   consecutiveFailures Int          @default(0)
 
-  isActive      Boolean   @default(false)
-  lastSuccessAt DateTime? @db.DateTime(3)
-  lastTestedAt  DateTime? @db.DateTime(3)
-  lastTestStatus String?  @db.VarChar(32)
+  isActive       Boolean   @default(false)
+  lastSuccessAt  DateTime? @db.DateTime(3)
+  lastTestedAt   DateTime? @db.DateTime(3)
+  lastTestStatus String?   @db.VarChar(32)
 
   alertRecipientsJson Json?
 
@@ -2114,15 +2114,15 @@ model NotificationOutbox {
   recipientPhone String? @db.VarChar(32)
   recipientName  String? @db.VarChar(255)
 
-  subject String  @db.VarChar(255)
-  body    String  @db.LongText
+  subject     String @db.VarChar(255)
+  body        String @db.LongText
   /// Template variables, already redacted of secrets and payment payloads.
   payloadJson Json?
 
-  status       OutboxStatus @default(PENDING)
-  attemptCount Int          @default(0)
-  maxAttempts  Int          @default(5)
-  nextAttemptAt DateTime    @default(now()) @db.DateTime(3)
+  status        OutboxStatus @default(PENDING)
+  attemptCount  Int          @default(0)
+  maxAttempts   Int          @default(5)
+  nextAttemptAt DateTime     @default(now()) @db.DateTime(3)
 
   /// Stops a retried business operation from emailing the same person twice.
   dedupeKey String? @unique(map: "uq_outbox_dedupe_key") @db.VarChar(191)
@@ -2250,8 +2250,8 @@ model AdminNotificationRead {
 // ===========================================================================
 
 model JobQueue {
-  id    String @id @db.Char(26)
-  queue String @default("default") @db.VarChar(48)
+  id      String @id @db.Char(26)
+  queue   String @default("default") @db.VarChar(48)
   /// e.g. notification.send, schedule.run, import.process, payment.reconcile.
   jobType String @db.VarChar(64)
 
@@ -2350,11 +2350,11 @@ model AuditLog {
 
 model NumberSequence {
   /// e.g. order:2026, invoice:2026.
-  key    String @id @db.VarChar(64)
-  value  BigInt @default(0)
-  prefix String @db.VarChar(16)
+  key     String @id @db.VarChar(64)
+  value   BigInt @default(0)
+  prefix  String @db.VarChar(16)
   /// Zero-padding width for the numeric part.
-  padding Int   @default(6)
+  padding Int    @default(6)
 
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
@@ -2396,10 +2396,10 @@ model Currency {
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
-  countries       Country[]
-  productPrices   ProductPrice[]
-  couponMinimums  CouponMinimum[]
-  customerLimits  CustomerLimit[]
+  countries      Country[]
+  productPrices  ProductPrice[]
+  couponMinimums CouponMinimum[]
+  customerLimits CustomerLimit[]
 
   @@index([isActive, sortOrder], map: "ix_currency_active_sort")
   @@map("currencies")
@@ -2534,7 +2534,7 @@ model Coupon {
   code String @unique(map: "uq_coupon_code") @db.VarChar(32)
 
   /// Internal label for the admin list. Not shown to customers.
-  name String @db.VarChar(128)
+  name        String  @db.VarChar(128)
   /// Customer-facing line in the "available coupons" list on the cart.
   description String? @db.VarChar(255)
 
@@ -2553,9 +2553,9 @@ model Coupon {
   validUntil DateTime? @db.DateTime(3)
 
   /// Null = unlimited. `usageCount` is maintained alongside redemptions.
-  usageLimit        Int?
-  perCustomerLimit  Int?
-  usageCount        Int  @default(0)
+  usageLimit       Int?
+  perCustomerLimit Int?
+  usageCount       Int  @default(0)
 
   createdAt   DateTime  @default(now()) @db.DateTime(3)
   updatedAt   DateTime  @updatedAt @db.DateTime(3)
@@ -2633,18 +2633,15 @@ model CouponRedemption {
 
 /**
  * Purchasing limits, per currency.
- *
  * These are plain amounts, and an amount means nothing without the currency it
  * is counted in: a 5,000 rupee minimum read against a dollar cart becomes a
  * 5,000 dollar one. They used to live as bare columns on `customer_profiles`,
  * implicitly in the base currency, which was correct only while the catalogue
  * sold in one.
- *
  * A row per market a customer is allowed to buy in. No row means no agreed
  * terms in that currency, and an account that carries limits anywhere may only
  * order where it has them - dropping a credit control because the shopper
  * switched currency is worse than refusing the order.
- *
  * `requiresOrderApproval` stays on the profile: whether an account needs
  * sign-off is a policy about the account, not an amount.
  */
@@ -2653,9 +2650,9 @@ model CustomerLimit {
   currencyCode      String @db.Char(3)
 
   /// Null on any of these means that particular rule imposes no limit here.
-  perOrderMinMinor     BigInt?
-  perOrderMaxMinor     BigInt?
-  monthlySpendCapMinor BigInt?
+  perOrderMinMinor       BigInt?
+  perOrderMaxMinor       BigInt?
+  monthlySpendCapMinor   BigInt?
   /// Order total at or above which approval is required, when approvals are on.
   approvalThresholdMinor BigInt?
 
@@ -2697,9 +2694,9 @@ model AssistantConversation {
   /// What the visitor typed. Contact details, captured as given - never
   /// treated as verified, because nothing here is confirmed by an email or an
   /// OTP.
-  visitorName  String @db.VarChar(120)
-  visitorPhone String @db.VarChar(32)
-  visitorEmail String @db.VarChar(320)
+  visitorName            String @db.VarChar(120)
+  visitorPhone           String @db.VarChar(32)
+  visitorEmail           String @db.VarChar(320)
   /// Lowercased/trimmed, for grouping repeat enquiries from one address.
   /// Not unique: the same buyer may come back with a different question.
   visitorEmailNormalized String @db.VarChar(320)
@@ -2771,7 +2768,7 @@ model ProductTranslation {
   productId String @db.Char(26)
 
   /// BCP-47 primary subtag, matching the interface languages.
-  language  String @db.VarChar(10)
+  language String @db.VarChar(10)
 
   name             String  @db.VarChar(255)
   shortDescription String? @db.VarChar(1024)
@@ -3244,8 +3241,8 @@ model EconomicOperator {
   /// Art. 19(a) again: the "electronic address". Not optional, and not the
   /// shop's own support address - the point of the field is that a buyer can
   /// reach the manufacturer directly.
-  email String  @db.VarChar(320)
-  phone String? @db.VarChar(32)
+  email   String  @db.VarChar(320)
+  phone   String? @db.VarChar(32)
   website String? @db.VarChar(512)
 
   /// The Single Registration Number Eudamed issues to an actor under MDR
