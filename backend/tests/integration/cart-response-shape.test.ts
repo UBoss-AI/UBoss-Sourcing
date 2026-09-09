@@ -162,6 +162,26 @@ describe('cart response shape', () => {
     expect(body.cart?.itemCount).toBe(2);
   });
 
+  it('answers a bulk add with the whole cart, like its five siblings', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/cart/items/bulk',
+      headers: { cookie: cookieHeader, 'x-csrf-token': csrfToken },
+      payload: { items: [{ productId, quantity: 2 }] },
+    });
+
+    // The newest route on this prefix, and the reason this file says what it
+    // says: the storefront writes any cart response straight into the
+    // `['cart']` cache that the cart page and the header basket both read, so
+    // a route answering a delta here white-screens the whole storefront.
+    expect(response.statusCode, response.body).toBe(201);
+
+    const body = parse(response);
+    expect(body.cart, response.body).toBeDefined();
+    expect(body.cart?.lines).toHaveLength(1);
+    expect(body.cart?.itemCount).toBe(4);
+  });
+
   it('answers an emptied cart with the whole cart, not a count', async () => {
     // Something has to be in it, or the regression cannot show: the old code
     // answered `{ removed: 0 }` here, which is falsy-looking but still the

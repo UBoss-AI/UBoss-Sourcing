@@ -204,6 +204,17 @@ function LineRow({
                 {line.name}
               </Link>
             </h3>
+
+            {/* The option, in the same weight as the price beside it rather
+                than as another grey footnote. A cart can now hold the 3 ml and
+                the 5 ml of one product as two lines, and those two lines carry
+                the same name and the same photograph — this is the only thing
+                on the row that says which is which, so it cannot be the
+                quietest thing on it. */}
+            {line.variantName !== null && (
+              <p className="mt-1 text-sm font-medium text-ink-muted">{line.variantName}</p>
+            )}
+
             <p className="mt-1 font-mono text-xxs text-ink-subtle">{line.sku}</p>
           </div>
 
@@ -240,6 +251,9 @@ function LineRow({
             rules={rules}
             label={t('cart.quantity')}
             disabled={isBusy}
+            // Two lines of one product mean two steppers a screen reader would
+            // otherwise hear as "Increase quantity by 5" twice over.
+            itemName={line.variantName ?? line.name}
           />
 
           {/*
@@ -258,7 +272,11 @@ function LineRow({
           >
             <TrashIcon className="h-4 w-4" />
             {t('cart.remove')}
-            <span className="sr-only"> {line.name} from your cart</span>
+            <span className="sr-only">
+              {' '}
+              {line.variantName === null ? line.name : `${line.name} ${line.variantName}`} from
+              your cart
+            </span>
           </Button>
         </div>
 

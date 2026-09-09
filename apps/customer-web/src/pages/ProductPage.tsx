@@ -38,7 +38,7 @@ import { useStorefront } from '@/app/storefront-context';
 import { useLocale } from '@/app/locale-context';
 import { useToast } from '@/components/toast-context';
 import { QuantityInput } from '@/components/QuantityInput';
-import { clampToRules } from '@/lib/quantity-rules';
+import { clampToRules, describeRules } from '@/lib/quantity-rules';
 import { Badge, Button, ButtonLink, ErrorState, LoadingState } from '@/components/ui';
 import { BoxIcon, CurrencyIcon, TruckIcon } from '@/components/icons';
 import { ApiError, api } from '@/lib/api';
@@ -46,7 +46,14 @@ import { formatMoney, formatNumber } from '@/lib/format';
 import { SafeHtml } from '@/lib/safe-html';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { NotFoundPage } from './NotFoundPage';
-import type { Product, ProductDetailResponse, ProductVariant, TaxInfo } from '@/lib/types';
+import type {
+  Money,
+  Product,
+  ProductDetailResponse,
+  ProductVariant,
+  PurchaseRules,
+  TaxInfo,
+} from '@/lib/types';
 import { ProductSafetyPanel } from '@/components/ProductSafetyPanel';
 import { ProductDevicePanel } from '@/components/ProductDevicePanel';
 import { useI18n } from '@/i18n/i18n-context';
@@ -156,57 +163,147 @@ function Gallery({ product }: { product: Product }): React.JSX.Element {
 }
 
 /**
- * Variant picker.
+ * Variant picker — a multiple choice, not a single one.
  *
- * Grouped by option name ("Size", "Pack") so the choices read the way a
- * catalogue reads, rather than as a flat list of SKU names.
+ * A hospital buyer does not choose between 3 ml and 5 ml syringes; they need
+ * both, and until this page let them say so the only way to buy both was to
+ * add one, navigate back, and add the other. So every option can be turned on,
+ * and each one that is on carries its own quantity beside it — "two boxes of
+ * the 3 ml and ten of the 5 ml" is the ordinary request in this trade, not the
+ * unusual one.
+ *
+ * Each option's own price is printed in its row. The panel above can show only
+ * one figure, and the moment two options are chosen that figure is a band, so
+ * the per-option price has to live somewhere — and the row it belongs to is
+ * where it is looked for.
+ *
+ * Toggle buttons with `aria-pressed` rather than checkboxes: each row holds a
+ * number input of its own, and a checkbox whose label contains a spinbutton is
+ * not a shape assistive technology reads well.
+ *
+ * The purchasing rules are stated once, under the legend, rather than under
+ * every stepper. They are the product's, so they are the same on each row; the
+ * same grey sentence four times is noise where one copy of it was guidance.
  */
 function VariantPicker({
   variants,
-  selectedId,
-  onSelect,
+  chosen,
+  rules,
+  onToggle,
+  onQuantityChange,
 }: {
   variants: ProductVariant[];
-  selectedId: string | null;
-  onSelect: (variant: ProductVariant) => void;
+  /** Option id to the quantity wanted. An absent id is an option not chosen. */
+  chosen: ReadonlyMap<string, number>;
+  rules: PurchaseRules;
+  onToggle: (variant: ProductVariant) => void;
+  onQuantityChange: (variant: ProductVariant, quantity: number) => void;
 }): React.JSX.Element {
   const { t } = useI18n();
+
+  const ruleText = describeRules(t, rules);
 
   return (
     <fieldset>
       <legend className="text-sm font-medium text-ink">{t('product.chooseAnOption')}</legend>
 
-      <div className="mt-2 flex flex-wrap gap-2">
+      <p className="mt-1 text-xs text-ink-muted">{t('product.pickAsManyAsYouNeed')}</p>
+      {ruleText !== null && <p className="mt-0.5 text-xs text-ink-muted">{ruleText}</p>}
+
+      <ul className="mt-2.5 space-y-2">
         {variants.map((variant) => {
-          const isSelected = variant.id === selectedId;
+          const wanted = chosen.get(variant.id);
+          const isChosen = wanted !== undefined;
           const optionText = Object.entries(variant.options)
             .map(([key, value]) => `${key}: ${value}`)
             .join(', ');
 
           return (
-            <button
+            <li
               key={variant.id}
-              type="button"
-              // A radio group in spirit; aria-pressed carries the state that
-              // the border colour shows sighted users.
-              aria-pressed={isSelected}
-              onClick={() => {
-                onSelect(variant);
-              }}
-              className={`rounded-md border px-3.5 py-2 text-left text-sm transition-colors ${
-                isSelected
-                  ? 'border-brand bg-brand-soft text-brand ring-1 ring-inset ring-brand/30'
-                  : 'border-border-strong bg-surface text-ink hover:border-brand/40 hover:bg-surface-hover'
+              className={`rounded-lg border transition-colors ${
+                isChosen
+                  ? 'border-brand bg-brand-soft ring-1 ring-inset ring-brand/30'
+                  : 'border-border-strong bg-surface hover:border-brand/40 hover:bg-surface-hover'
               }`}
             >
-              <span className="block font-medium">{variant.name}</span>
-              {optionText !== '' && (
-                <span className="mt-0.5 block text-xxs text-ink-muted">{optionText}</span>
-              )}
-            </button>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-3 p-2.5 sm:flex-nowrap">
+                <button
+                  type="button"
+                  aria-pressed={isChosen}
+                  onClick={() => {
+                    onToggle(variant);
+                  }}
+                  className="flex min-w-0 flex-1 items-center gap-3 rounded text-left"
+                >
+                  {/* A box that fills, rather than a tick that appears. With
+                      five options on screen, "which of these are on?" has to
+                      be answerable from the corner of the eye. */}
+                  <span
+                    aria-hidden="true"
+                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 ${
+                      isChosen
+                        ? 'border-brand bg-brand text-white'
+                        : 'border-border-strong bg-surface'
+                    }`}
+                  >
+                    {isChosen && (
+                      <svg
+                        viewBox="0 0 16 16"
+                        className="h-3.5 w-3.5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                      >
+                        <path
+                          d="m3 8.5 3.5 3.5L13 5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    )}
+                  </span>
+
+                  <span className="min-w-0">
+                    <span
+                      className={`block text-sm font-medium ${isChosen ? 'text-brand' : 'text-ink'}`}
+                    >
+                      {variant.name}
+                    </span>
+                    {optionText !== '' && (
+                      <span className="mt-0.5 block text-xxs text-ink-muted">{optionText}</span>
+                    )}
+                  </span>
+
+                  {variant.price !== null && (
+                    <span className="ml-auto shrink-0 pl-2 text-sm tabular text-ink-muted">
+                      {formatMoney(variant.price)}
+                    </span>
+                  )}
+                </button>
+
+                {/* Beside the option it counts, not in one box below the list:
+                    with two options chosen, a single quantity field cannot say
+                    which of the two numbers belongs to which. */}
+                {isChosen && (
+                  <div className="w-full border-t border-border-subtle pt-3 sm:w-auto sm:border-l sm:border-t-0 sm:pl-4 sm:pt-0">
+                    <QuantityInput
+                      value={wanted}
+                      onChange={(next) => {
+                        onQuantityChange(variant, next);
+                      }}
+                      rules={rules}
+                      label={t('product.quantityFor', { variant: variant.name })}
+                      itemName={variant.name}
+                      ruleHint={false}
+                    />
+                  </div>
+                )}
+              </div>
+            </li>
           );
         })}
-      </div>
+      </ul>
     </fieldset>
   );
 }
@@ -372,7 +469,16 @@ export function ProductPage(): React.JSX.Element {
   const { isCustomer } = useSession();
   const { business, features } = useStorefront();
 
-  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
+  /**
+   * The options turned on, and how many of each.
+   *
+   * A map rather than one selected id, because the whole point of this page is
+   * that a customer can want the 3 ml *and* the 5 ml, and each of those needs
+   * a number of its own. Insertion order is never read — the picker renders in
+   * catalogue order, so the list does not reshuffle as options are clicked.
+   */
+  const [chosen, setChosen] = useState<ReadonlyMap<string, number>>(new Map());
+  /** The quantity for a product that has no options to choose between. */
   const [quantity, setQuantity] = useState(1);
   const [addError, setAddError] = useState<string | null>(null);
 
@@ -400,16 +506,21 @@ export function ProductPage(): React.JSX.Element {
 
   const product = query.data?.product;
 
-  // Set the opening quantity to the lowest the rules allow, and preselect the
-  // only variant when there is exactly one — an unnecessary choice is friction.
+  // Set the opening quantity to the lowest the rules allow, and turn on the
+  // only option when there is exactly one — an unnecessary choice is friction.
+  //
+  // Nothing is turned on when there are several. With a single choice a
+  // preselection saves a click; with a multiple choice it is a decision made
+  // on the customer's behalf, and the one it would make is "you want the first
+  // one", which is a guess.
   useEffect(() => {
     if (product === undefined) return;
 
-    setQuantity(clampToRules(product.purchaseRules.minOrderQty, product.purchaseRules));
+    const opening = clampToRules(product.purchaseRules.minOrderQty, product.purchaseRules);
+    setQuantity(opening);
 
-    if (product.variants.length === 1) {
-      setSelectedVariantId(product.variants[0]?.id ?? null);
-    }
+    const only = product.variants.length === 1 ? product.variants[0] : undefined;
+    setChosen(only === undefined ? new Map() : new Map([[only.id, opening]]));
   }, [product]);
 
   // `exactOptionalPropertyTypes` means an absent description is an absent key,
@@ -428,16 +539,46 @@ export function ProductPage(): React.JSX.Element {
     business.displayName,
   );
 
+  /**
+   * What Add to Cart is going to send.
+   *
+   * One entry per option turned on, or a single entry with no option for a
+   * product that has none. Derived once and read by the request, the button
+   * label, the price panel and the schedule link, so there is one description
+   * of "what the customer chose" rather than four that can disagree.
+   */
+  const chosenLines = useMemo((): { variantId: string | null; quantity: number }[] => {
+    if (product === undefined) return [];
+
+    if (!product.hasVariants || product.variants.length === 0) {
+      return [{ variantId: null, quantity }];
+    }
+
+    return product.variants.flatMap((variant) => {
+      const wanted = chosen.get(variant.id);
+      return wanted === undefined ? [] : [{ variantId: variant.id, quantity: wanted }];
+    });
+  }, [product, chosen, quantity]);
+
   const addToCart = useMutation({
+    // The bulk route even for a single line. It takes the same shape either
+    // way, and one code path is one thing that can be wrong — a second,
+    // single-line path would be the one that quietly stops matching this one.
     mutationFn: () =>
-      api.post('/cart/items', {
-        productId: product?.id,
-        variantId: selectedVariantId,
-        quantity,
+      api.post('/cart/items/bulk', {
+        items: chosenLines.map((line) => ({
+          productId: product?.id,
+          variantId: line.variantId,
+          quantity: line.quantity,
+        })),
       }),
     onSuccess: async () => {
       setAddError(null);
-      toast.success(t('product.addedToYourCart'));
+      toast.success(
+        chosenLines.length > 1
+          ? t('product.optionsAddedToYourCart', { options: formatNumber(chosenLines.length) })
+          : t('product.addedToYourCart'),
+      );
       await queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
     onError: (error) => {
@@ -471,18 +612,75 @@ export function ProductPage(): React.JSX.Element {
 
   if (product === undefined) return <NotFoundPage />;
 
-  const selectedVariant = product.variants.find((variant) => variant.id === selectedVariantId);
-  const displayPrice = selectedVariant?.price ?? product.price;
   const needsVariant = product.hasVariants && product.variants.length > 0;
-  const isReady = !needsVariant || selectedVariantId !== null;
+  const chosenVariants = product.variants.filter((variant) => chosen.has(variant.id));
+  const isReady = chosenLines.length > 0;
 
+  const rules = product.purchaseRules;
+
+  const toggleVariant = (variant: ProductVariant): void => {
+    setChosen((current) => {
+      const next = new Map(current);
+      if (next.has(variant.id)) next.delete(variant.id);
+      else next.set(variant.id, clampToRules(rules.minOrderQty, rules));
+      return next;
+    });
+    setAddError(null);
+  };
+
+  const setVariantQuantity = (variant: ProductVariant, wanted: number): void => {
+    setChosen((current) => new Map(current).set(variant.id, wanted));
+    setAddError(null);
+  };
+
+  /*
+   * The figure in the price panel.
+   *
+   * Nothing chosen shows the product's own price and one option chosen shows
+   * that option's, both as before. Several options chosen shows a band: the
+   * lowest and the highest of the figures the SERVER sent for them, picked by
+   * comparing, never by adding up.
+   *
+   * A total across the chosen options is the one thing this must not print. It
+   * would be a second pricing engine on a page whose whole rule is that it has
+   * none — no tax, no discount, no line total — and the number it produced
+   * would eventually disagree with the cart, which is the only place that
+   * total is actually worked out.
+   */
+  const chosenPrices: Money[] = chosenVariants.map((variant) => variant.price ?? product.price);
+  const openingPrice = chosenPrices[0] ?? product.price;
+  const lowestPrice = chosenPrices.reduce(
+    (lowest, price) => (BigInt(price.minor) < BigInt(lowest.minor) ? price : lowest),
+    openingPrice,
+  );
+  const highestPrice = chosenPrices.reduce(
+    (highest, price) => (BigInt(price.minor) > BigInt(highest.minor) ? price : highest),
+    openingPrice,
+  );
+
+  const displayPrice = chosenPrices.length === 0 ? product.price : lowestPrice;
+  const isPriceRange = BigInt(highestPrice.minor) > BigInt(lowestPrice.minor);
+  const onlyChosen = chosenVariants.length === 1 ? chosenVariants[0] : undefined;
+
+  // Against the lowest of the chosen options, which is the figure printed
+  // beside it. A strike-through over the top of a band is not a comparison.
   const hasDiscount =
     product.compareAtPrice !== null &&
     BigInt(product.compareAtPrice.minor) > BigInt(displayPrice.minor);
 
   // The schedule path is offered only where it can actually be walked: the
   // store has the feature on, and this product is eligible for it.
-  const canSchedule = features.recurringOrders && product.purchaseRules.isRecurringEligible;
+  const canSchedule = features.recurringOrders && rules.isRecurringEligible;
+
+  /**
+   * The one line the schedule builder can be handed.
+   *
+   * `/schedules/new?productId=...` builds a plan around one product and one
+   * option, so it can only be offered where the customer has chosen exactly
+   * one thing. Undefined otherwise - the panel then says which way round to do
+   * it, rather than a link that would quietly drop an option.
+   */
+  const scheduleLine = chosenLines.length === 1 ? chosenLines[0] : undefined;
 
   const hasDetail =
     product.description !== null ||
@@ -552,7 +750,12 @@ export function ProductPage(): React.JSX.Element {
           <div className="mt-5 rounded-lg border border-border bg-surface px-4 py-4 shadow-card">
             <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <span className="text-3xl font-semibold tabular tracking-tight text-ink">
-                {formatMoney(displayPrice)}
+                {isPriceRange
+                  ? t('product.priceFromTo', {
+                      from: formatMoney(lowestPrice),
+                      to: formatMoney(highestPrice),
+                    })
+                  : formatMoney(displayPrice)}
               </span>
               {hasDiscount && product.compareAtPrice !== null && (
                 <span className="text-base tabular text-ink-subtle">
@@ -567,9 +770,17 @@ export function ProductPage(): React.JSX.Element {
               {taxLine(t, product.tax, countryNames)}
             </p>
 
-            {selectedVariant?.price != null && (
+            {onlyChosen?.price != null && (
               <p className="mt-1 text-xs text-ink-subtle">
-                {t('product.priceShownFor', { variant: selectedVariant.name })}
+                {t('product.priceShownFor', { variant: onlyChosen.name })}
+              </p>
+            )}
+
+            {isPriceRange && (
+              <p className="mt-1 text-xs text-ink-subtle">
+                {t('product.priceShownForOptions', {
+                  options: formatNumber(chosenVariants.length),
+                })}
               </p>
             )}
           </div>
@@ -580,25 +791,28 @@ export function ProductPage(): React.JSX.Element {
               the gallery, so it has to read as one task. */}
           <div className="mt-5 rounded-lg border border-border bg-surface px-4 py-4 shadow-card sm:px-5 sm:py-5">
             <div className="space-y-5">
-              {needsVariant && (
+              {needsVariant ? (
                 <VariantPicker
                   variants={product.variants}
-                  selectedId={selectedVariantId}
-                  onSelect={(variant) => {
-                    setSelectedVariantId(variant.id);
+                  chosen={chosen}
+                  rules={rules}
+                  onToggle={toggleVariant}
+                  onQuantityChange={setVariantQuantity}
+                />
+              ) : (
+                // Only where there is nothing to choose between. Where there
+                // is, every quantity lives in the picker beside the option it
+                // counts, and a second box here would be a number with no
+                // option attached to it.
+                <QuantityInput
+                  value={quantity}
+                  onChange={(next) => {
+                    setQuantity(next);
                     setAddError(null);
                   }}
+                  rules={rules}
                 />
               )}
-
-              <QuantityInput
-                value={quantity}
-                onChange={(next) => {
-                  setQuantity(next);
-                  setAddError(null);
-                }}
-                rules={product.purchaseRules}
-              />
 
               {addError !== null && (
                 <p
@@ -624,16 +838,20 @@ export function ProductPage(): React.JSX.Element {
                       // action beside nothing reads as unfinished.
                       className="w-full sm:w-auto"
                     >
-                      {t('product.addToCart')}
+                      {chosenLines.length > 1
+                        ? t('product.addOptionsToCart', {
+                            options: formatNumber(chosenLines.length),
+                          })
+                        : t('product.addToCart')}
                     </Button>
 
-                    {canSchedule && (
+                    {canSchedule && scheduleLine !== undefined && (
                       // Teal, beside the orange Add to Cart: two real choices,
                       // each visibly its own kind of commitment, and neither
                       // mistakable for the other.
                       <ButtonLink
-                        to={`/schedules/new?productId=${product.id}&quantity=${String(quantity)}${
-                          selectedVariantId === null ? '' : `&variantId=${selectedVariantId}`
+                        to={`/schedules/new?productId=${product.id}&quantity=${String(scheduleLine.quantity)}${
+                          scheduleLine.variantId === null ? '' : `&variantId=${scheduleLine.variantId}`
                         }`}
                         variant="operational"
                         size="lg"
@@ -647,6 +865,17 @@ export function ProductPage(): React.JSX.Element {
                   {!isReady && (
                     <p className="text-sm text-ink-muted">
                       {t('product.chooseAnOptionToContinue')}
+                    </p>
+                  )}
+
+                  {/* The schedule builder takes one product and one option, so
+                      with two options chosen there is no link to offer that
+                      would not silently drop one of them. It says which way
+                      round to do it instead of disappearing: the cart holds
+                      both, and a whole cart can be scheduled from there. */}
+                  {canSchedule && scheduleLine === undefined && isReady && (
+                    <p className="text-sm text-ink-muted">
+                      {t('product.scheduleOneOptionAtATime')}
                     </p>
                   )}
                 </div>

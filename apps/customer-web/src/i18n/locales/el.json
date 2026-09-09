@@ -309,7 +309,7 @@
   "product.loadingTheProduct": "Φόρτωση του προϊόντος",
   "product.breadcrumb": "Διαδρομή πλοήγησης",
   "product.noImageYet": "Δεν υπάρχει ακόμη εικόνα",
-  "product.chooseAnOption": "Επιλέξτε μια επιλογή",
+  "product.chooseAnOption": "Επιλέξτε τις επιλογές σας",
   "product.orderingInformation": "Πληροφορίες παραγγελίας",
   "product.home": "Αρχική σελίδα",
   "product.products": "Προϊόντα",
@@ -1007,5 +1007,15 @@
   "autopay.saved": "Αποθηκεύτηκε.",
   "autopay.authorisedOn": "Χορηγήθηκε άδεια: {{date}} ({{version}})",
   "common.edit": "Επεξεργασία",
-  "common.delete": "Διαγραφή"
+  "common.delete": "Διαγραφή",
+
+  "product.pickAsManyAsYouNeed": "Επιλέξτε όσες χρειάζεστε — κάθε μία έχει τη δική της ποσότητα.",
+  "product.quantityFor": "Ποσότητα: {{variant}}",
+  "product.increaseNamedQuantityBy": "Αύξηση της ποσότητας για {{name}} κατά {{step}}",
+  "product.decreaseNamedQuantityBy": "Μείωση της ποσότητας για {{name}} κατά {{step}}",
+  "product.addOptionsToCart": "Προσθήκη {{options}} επιλογών στο καλάθι",
+  "product.optionsAddedToYourCart": "{{options}} επιλογές προστέθηκαν στο καλάθι σας.",
+  "product.priceFromTo": "{{from}} έως {{to}}",
+  "product.priceShownForOptions": "Η χαμηλότερη και η υψηλότερη τιμή από τις {{options}} επιλογές που κάνατε.",
+  "product.scheduleOneOptionAtATime": "Μια επαναλαμβανόμενη αγορά καλύπτει μία επιλογή κάθε φορά. Προσθέστε τις στο καλάθι και προγραμματίστε ολόκληρο το καλάθι."
 }

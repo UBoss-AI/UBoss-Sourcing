@@ -314,7 +314,7 @@
   "product.loadingTheProduct": "Caricamento del prodotto",
   "product.breadcrumb": "Percorso di navigazione",
   "product.noImageYet": "Non è ancora disponibile alcuna immagine",
-  "product.chooseAnOption": "Selezioni un'opzione",
+  "product.chooseAnOption": "Selezioni le sue opzioni",
   "product.orderingInformation": "Informazioni sugli ordini",
   "product.home": "Home",
   "product.products": "Prodotti",
@@ -1019,5 +1019,15 @@
   "autopay.saved": "Salvato.",
   "autopay.authorisedOn": "Autorizzazione concessa: {{date}} ({{version}})",
   "common.edit": "Modifica",
-  "common.delete": "Elimina"
+  "common.delete": "Elimina",
+
+  "product.pickAsManyAsYouNeed": "Ne selezioni quante le servono: ognuna ha la propria quantità.",
+  "product.quantityFor": "Quantità di {{variant}}",
+  "product.increaseNamedQuantityBy": "Aumenta di {{step}} la quantità di {{name}}",
+  "product.decreaseNamedQuantityBy": "Riduci di {{step}} la quantità di {{name}}",
+  "product.addOptionsToCart": "Aggiungi {{options}} opzioni al carrello",
+  "product.optionsAddedToYourCart": "{{options}} opzioni aggiunte al carrello.",
+  "product.priceFromTo": "Da {{from}} a {{to}}",
+  "product.priceShownForOptions": "Il prezzo più basso e quello più alto tra le {{options}} opzioni selezionate.",
+  "product.scheduleOneOptionAtATime": "Un riacquisto ricorrente riguarda una sola opzione per volta. Le aggiunga al carrello e poi programmi l’intero carrello."
 }

@@ -23,6 +23,24 @@ interface QuantityInputProps {
   rules: PurchaseRules;
   label?: string;
   disabled?: boolean;
+  /**
+   * What is being counted, for the stepper labels.
+   *
+   * A product page where a customer has chosen three options has three of
+   * these on it, and "Increase quantity by 5" three times is not three labels
+   * — it is the same label three times, which leaves a screen reader with no
+   * way to tell the 3 ml stepper from the 5 ml one. Where this is given, the
+   * name goes into the button labels.
+   */
+  itemName?: string;
+  /**
+   * Whether to restate the purchasing rules under the field. On by default.
+   *
+   * The variant picker turns it off: it prints the rules once above a list of
+   * steppers that all share them, and the same grey sentence repeated under
+   * every row is noise where one copy of it was guidance.
+   */
+  ruleHint?: boolean;
 }
 
 export function QuantityInput({
@@ -34,6 +52,8 @@ export function QuantityInput({
   // not pass one.
   label,
   disabled = false,
+  itemName,
+  ruleHint = true,
 }: QuantityInputProps): React.JSX.Element {
   const { t } = useI18n();
   const inputId = useId();
@@ -41,7 +61,7 @@ export function QuantityInput({
 
   const step = Math.max(1, rules.qtyIncrement);
   const min = Math.max(1, rules.minOrderQty);
-  const description = describeRules(t, rules);
+  const description = ruleHint ? describeRules(t, rules) : null;
 
   const canDecrease = !disabled && value > min;
   const canIncrease =
@@ -57,7 +77,11 @@ export function QuantityInput({
         <Button
           size="md"
           disabled={!canDecrease}
-          aria-label={t('product.decreaseQuantityBy', { step: String(step) })}
+          aria-label={
+            itemName === undefined
+              ? t('product.decreaseQuantityBy', { step: String(step) })
+              : t('product.decreaseNamedQuantityBy', { name: itemName, step: String(step) })
+          }
           onClick={() => {
             onChange(clampToRules(value - step, rules));
           }}
@@ -92,7 +116,11 @@ export function QuantityInput({
         <Button
           size="md"
           disabled={!canIncrease}
-          aria-label={t('product.increaseQuantityBy', { step: String(step) })}
+          aria-label={
+            itemName === undefined
+              ? t('product.increaseQuantityBy', { step: String(step) })
+              : t('product.increaseNamedQuantityBy', { name: itemName, step: String(step) })
+          }
           onClick={() => {
             onChange(clampToRules(value + step, rules));
           }}

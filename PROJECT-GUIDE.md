@@ -442,6 +442,75 @@ order: the orb stays as a smaller graphic and the nodes drop into a grid under
 it — one column on a phone, two from `sm`. A radial layout that merely scaled
 down would put one node's label on top of another's.
 
+## The product page: choosing more than one option
+
+A product with options — sizes, pack quantities — used to be a single choice:
+pick 3 ml, pick a quantity, add to cart. A buyer who needed the 3 ml **and**
+the 5 ml had to add one, navigate back, and add the other.
+
+So the picker is a **multiple** choice. Every option can be switched on, and
+each one that is on carries **its own quantity beside it**, because "two boxes
+of the 3 ml and ten of the 5 ml" is the ordinary request in this trade rather
+than the unusual one.
+
+```
+Choose your options
+Pick as many as you need — each one gets its own quantity.
+Ordered minimum 10, in multiples of 5.
+
+┌────────────────────────────────────┬───────────────────────┐
+│ [x]  3 ml            Size: 3 ml    │  Quantity of 3 ml     │
+│                          ₹10.00    │  [ − ]  10  [ + ]     │
+├────────────────────────────────────┼───────────────────────┤
+│ [x]  5 ml            Size: 5 ml    │  Quantity of 5 ml     │
+│                          ₹14.50    │  [ − ]  25  [ + ]     │
+├────────────────────────────────────┴───────────────────────┤
+│ [ ]  10 ml           Size: 10 ml         ₹19.00            │
+└────────────────────────────────────────────────────────────┘
+
+              ₹10.00 to ₹14.50
+              The lowest and the highest of the 2 options you chose.
+
+              [ Add 2 options to cart ]
+```
+
+Four rules hold this together.
+
+**One request, not one per option.** Add to Cart sends
+`POST /api/v1/cart/items/bulk` with every chosen option in one body, and the
+backend writes them in a single transaction. Two requests would mean a customer
+could be shown "added to your cart" with only half of what they chose actually
+in it — and a customer whose *first* cart is being created could have two adds
+race into two separate carts.
+
+**The price panel never adds anything up.** With one option chosen it shows
+that option's price, as it always did. With several it shows a **band** — the
+lowest and the highest of the figures the server sent, chosen by comparing
+them. A total across the options would be a second pricing engine on the one
+page whose rule is that it has none, and it would eventually disagree with the
+cart, which is where a total is actually worked out. Each option's own price is
+printed in its own row instead.
+
+**Only a single option preselects itself.** A product with exactly one option
+has it switched on when the page opens, because a choice with one candidate is
+not a choice. A product with several opens with none on: with a multiple
+choice, a preselection is a decision made on the customer's behalf, and the one
+it would make is "you want the first one".
+
+**A repeat purchase still takes one option at a time.** `/schedules/new` builds
+a plan around one product and one option, so the "Schedule your Cart" button
+appears only where exactly one thing is chosen. Where two are chosen the page
+says so and points at the path that does work — put them in the cart, then
+schedule the whole cart.
+
+Each chosen option becomes **its own cart line**. That was always true of the
+database: `unique(cartId, productId, variantKey)` gives every option a row of
+its own. What is new is that a cart line now publishes `variantName`, and the
+cart page prints it under the product name. Two lines of one product carry the
+same name and the same photograph, so the option name is the only thing on the
+row that says which is which — and a cart that cannot be read is a cart that
+gets ordered wrong.
+
 ## How a page is built
 
 Every page follows the same three-layer pattern:
@@ -1275,9 +1344,14 @@ This is the most important flow in the system.
 
 ```
 ┌── 1. ADD TO CART ────────────────────────────────────────────┐
-│ POST /api/v1/cart/items  { productId, quantity }             │
-│ Checks: is it published? is the quantity above the product's │
-│ minimum? is there stock?                                     │
+│ One option:   POST /api/v1/cart/items                        │
+│                 { productId, variantId, quantity }           │
+│ Two or more:  POST /api/v1/cart/items/bulk                   │
+│                 { items: [ { productId, variantId, qty } ] } │
+│               ONE transaction: all of it, or none of it      │
+│                                                              │
+│ Checks: is it published? does the option belong to that      │
+│ product? is the quantity above the product's minimum?        │
 └──────────────────────────────────────────────────────────────┘
                             ▼
 ┌── 2. CHECKOUT SUBMITTED ─────────────────────────────────────┐

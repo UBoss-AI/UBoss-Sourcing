@@ -364,6 +364,14 @@ export interface CartLine {
   productId: string;
   variantId: string | null;
   name: string;
+  /**
+   * The chosen option's own name — "3 ml", "Box of 100" — or null where the
+   * product has no options.
+   *
+   * A customer can buy two options of one product, and those are two lines
+   * whose `name` is the same word. This is what tells them apart on the page.
+   */
+  variantName: string | null;
   slug: string;
   /** The variant's SKU when one is chosen, otherwise the product's. */
   sku: string;

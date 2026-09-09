@@ -11,6 +11,7 @@ import { z } from 'zod';
 import { ErrorCode, badRequest } from '../../domain/errors.js';
 import {
   addItem,
+  addItems,
   applyCoupon,
   clearCart,
   removeCoupon,
@@ -30,6 +31,17 @@ const addItemSchema = z.object({
   productId: z.string().length(26),
   variantId: z.string().length(26).nullable().optional(),
   quantity: z.number().int().min(1).max(1_000_000),
+});
+
+/**
+ * Several options at once.
+ *
+ * The cap is enforced twice on purpose: Zod refuses an oversized array before
+ * anything is queried, and the service refuses it again for callers that do
+ * not come through this route.
+ */
+const addItemsSchema = z.object({
+  items: z.array(addItemSchema).min(1).max(50),
 });
 
 const updateQuantitySchema = z.object({
@@ -83,6 +95,25 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
 
     // Repriced and revalidated, so the client sees immediately if the line it
     // just added has a stock or limit problem.
+    const resolved = await resolveCart(auth.customerProfileId ?? '');
+    return reply.status(201).send({ cart: toCartView(resolved) });
+  });
+
+  /**
+   * Add several options in one request.
+   *
+   * A customer who wants 3 ml *and* 5 ml of the same syringe picks both on the
+   * product page and gets one request, not two. It matters that it is one:
+   * both lines are written in a single transaction, so "added to your cart"
+   * is never true of only half of what they chose, and a customer whose first
+   * cart is being created cannot have two adds race into two carts.
+   */
+  app.post('/items/bulk', async (request, reply) => {
+    const auth = currentUser(request);
+    const body = addItemsSchema.parse(request.body);
+
+    await addItems(auth.customerProfileId ?? '', body.items);
+
     const resolved = await resolveCart(auth.customerProfileId ?? '');
     return reply.status(201).send({ cart: toCartView(resolved) });
   });

@@ -309,7 +309,7 @@
   "product.loadingTheProduct": "Het product wordt geladen",
   "product.breadcrumb": "Navigatiepad",
   "product.noImageYet": "Nog geen afbeelding",
-  "product.chooseAnOption": "Kies een optie",
+  "product.chooseAnOption": "Kies uw opties",
   "product.orderingInformation": "Bestelinformatie",
   "product.home": "Home",
   "product.products": "Producten",
@@ -1007,5 +1007,15 @@
   "autopay.saved": "Opgeslagen.",
   "autopay.authorisedOn": "Toestemming verleend: {{date}} ({{version}})",
   "common.edit": "Bewerken",
-  "common.delete": "Verwijderen"
+  "common.delete": "Verwijderen",
+
+  "product.pickAsManyAsYouNeed": "Kies er zoveel als u nodig hebt — elke optie krijgt zijn eigen aantal.",
+  "product.quantityFor": "Aantal {{variant}}",
+  "product.increaseNamedQuantityBy": "Aantal van {{name}} verhogen met {{step}}",
+  "product.decreaseNamedQuantityBy": "Aantal van {{name}} verlagen met {{step}}",
+  "product.addOptionsToCart": "{{options}} opties in winkelwagen plaatsen",
+  "product.optionsAddedToYourCart": "{{options}} opties toegevoegd aan uw winkelwagen.",
+  "product.priceFromTo": "{{from}} tot {{to}}",
+  "product.priceShownForOptions": "De laagste en de hoogste prijs van de {{options}} gekozen opties.",
+  "product.scheduleOneOptionAtATime": "Een herhaalaankoop geldt voor één optie per keer. Plaats ze in uw winkelwagen en plan daarna de hele winkelwagen."
 }

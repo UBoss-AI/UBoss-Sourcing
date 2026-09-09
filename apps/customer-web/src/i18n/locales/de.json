@@ -309,7 +309,7 @@
   "product.loadingTheProduct": "Das Produkt wird geladen",
   "product.breadcrumb": "Navigationspfad",
   "product.noImageYet": "Noch kein Bild",
-  "product.chooseAnOption": "Wählen Sie eine Option aus",
+  "product.chooseAnOption": "Wählen Sie Ihre Optionen aus",
   "product.orderingInformation": "Bestellinformationen",
   "product.home": "Startseite",
   "product.products": "Produkte",
@@ -1007,5 +1007,15 @@
   "autopay.saved": "Gespeichert.",
   "autopay.authorisedOn": "Genehmigung erteilt: {{date}} ({{version}})",
   "common.edit": "Bearbeiten",
-  "common.delete": "Löschen"
+  "common.delete": "Löschen",
+
+  "product.pickAsManyAsYouNeed": "Wählen Sie so viele aus, wie Sie benötigen — jede erhält ihre eigene Menge.",
+  "product.quantityFor": "Menge: {{variant}}",
+  "product.increaseNamedQuantityBy": "Menge von {{name}} um {{step}} erhöhen",
+  "product.decreaseNamedQuantityBy": "Menge von {{name}} um {{step}} verringern",
+  "product.addOptionsToCart": "{{options}} Optionen in den Warenkorb legen",
+  "product.optionsAddedToYourCart": "{{options}} Optionen zum Warenkorb hinzugefügt.",
+  "product.priceFromTo": "{{from}} bis {{to}}",
+  "product.priceShownForOptions": "Der niedrigste und der höchste Preis der {{options}} gewählten Optionen.",
+  "product.scheduleOneOptionAtATime": "Ein Wiederkauf umfasst jeweils nur eine Option. Legen Sie diese in den Warenkorb und planen Sie dann den gesamten Warenkorb."
 }

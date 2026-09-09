@@ -56,6 +56,15 @@ export interface CartLine {
   productId: string;
   variantId: string | null;
   name: string;
+  /**
+   * The chosen option's own name - "3 ml", "Box of 100" - or null where the
+   * product has no options.
+   *
+   * Not decoration. A customer who buys two options of one product gets two
+   * lines whose `name` is the same word, and without it the only thing
+   * telling them apart is the SKU, in mono at the size of a footnote.
+   */
+  variantName: string | null;
   sku: string;
   slug: string;
   imageUrl: string | null;
@@ -499,6 +508,7 @@ export async function resolveCart(
       productId: meta.productId,
       variantId: meta.variantId,
       name: priced?.nameSnapshot ?? '',
+      variantName: priced?.variantNameSnapshot ?? null,
       sku: priced?.skuSnapshot ?? '',
       slug: meta.slug,
       imageUrl: meta.imageUrl,
@@ -732,6 +742,36 @@ export interface AddItemInput {
   quantity: number;
 }
 
+export interface AddedLine {
+  itemId: string;
+  productId: string;
+  variantId: string | null;
+  quantity: number;
+}
+
+/**
+ * How a per-line field is named when an add is refused.
+ *
+ * `POST /cart/items` carries one item at the top level of its body, so
+ * `variantId` is the name of the field the caller actually sent. The batch
+ * route carries an array, where "which one was wrong?" is half the answer -
+ * so it says `items.1.variantId`, the same shape the purchasing-limit
+ * violations already use.
+ */
+type FieldNamer = (index: number, field: string) => string;
+
+const PLAIN_FIELD: FieldNamer = (_index, field) => field;
+const INDEXED_FIELD: FieldNamer = (index, field) => `items.${String(index)}.${field}`;
+
+/**
+ * The most options one request may add.
+ *
+ * A customer picking sizes off a product page reaches a handful. A request
+ * claiming fifty-one is a script, and it would hold a write transaction open
+ * for as many round trips.
+ */
+const MAX_LINES_PER_ADD = 50;
+
 /**
  * Add to cart.
  *
@@ -743,86 +783,211 @@ export async function addItem(
   customerProfileId: string,
   input: AddItemInput,
 ): Promise<{ itemId: string; quantity: number }> {
-  if (!Number.isInteger(input.quantity) || input.quantity <= 0) {
-    throw badRequest(ErrorCode.VALIDATION_FAILED, 'Quantity must be a positive whole number.', [
-      { field: 'quantity', code: 'INVALID' },
+  const [line] = await addLines(customerProfileId, [input], PLAIN_FIELD);
+
+  // `addLines` returns one line per distinct SKU it was given, and it was
+  // given exactly one. The check is here so the caller gets a defined line
+  // rather than TypeScript's `undefined` for an index it cannot prove.
+  if (line === undefined) throw new Error('addLines returned nothing for a single add');
+
+  return { itemId: line.itemId, quantity: line.quantity };
+}
+
+/**
+ * Add several options of one product - or several products - in one go.
+ *
+ * This exists because of one thing a customer does constantly and could not do
+ * until now: buy 3 ml *and* 5 ml of the same syringe. Each option is its own
+ * cart line, which the unique `(cartId, productId, variantKey)` index already
+ * allowed; what was missing was a way to ask for all of them at once.
+ *
+ * Doing it in one request rather than one per option is not an optimisation:
+ *
+ *   - **It is all or nothing.** A customer who chose two options, saw "added
+ *     to your cart", and finds one of them there has been told a half-truth.
+ *     Every line is written inside one transaction.
+ *   - **It cannot split a cart in two.** `getOrCreateCart` reads for an
+ *     ACTIVE cart and creates one when there is none, so two adds racing for
+ *     a customer's first cart can each create one and land their line in a
+ *     different basket. One request cannot race itself.
+ *   - **The cart is repriced once.** Every cart read reprices from the
+ *     catalogue, resolves VAT, evaluates the coupon and checks purchasing
+ *     limits. Four options added one at a time is four of those.
+ *
+ * The same SKU twice in one request is added up rather than refused: that is
+ * what a client retrying half a batch looks like, and "six" is what a customer
+ * who asked for three and three meant.
+ */
+export async function addItems(
+  customerProfileId: string,
+  inputs: AddItemInput[],
+): Promise<AddedLine[]> {
+  return addLines(customerProfileId, inputs, INDEXED_FIELD);
+}
+
+/** One SKU's worth of a request, after validation and after de-duplication. */
+interface WantedLine {
+  productId: string;
+  variantId: string | null;
+  variantKey: string;
+  quantity: number;
+  minOrderQty: number;
+}
+
+async function addLines(
+  customerProfileId: string,
+  inputs: AddItemInput[],
+  nameField: FieldNamer,
+): Promise<AddedLine[]> {
+  if (inputs.length === 0) {
+    throw badRequest(ErrorCode.VALIDATION_FAILED, 'Choose something to add to the cart.', [
+      { field: 'items', code: 'REQUIRED' },
     ]);
+  }
+
+  if (inputs.length > MAX_LINES_PER_ADD) {
+    throw badRequest(
+      ErrorCode.VALIDATION_FAILED,
+      `Add at most ${String(MAX_LINES_PER_ADD)} options at a time.`,
+      [{ field: 'items', code: 'TOO_MANY' }],
+    );
+  }
+
+  for (const [index, input] of inputs.entries()) {
+    if (!Number.isInteger(input.quantity) || input.quantity <= 0) {
+      throw badRequest(ErrorCode.VALIDATION_FAILED, 'Quantity must be a positive whole number.', [
+        { field: nameField(index, 'quantity'), code: 'INVALID' },
+      ]);
+    }
+  }
+
+  // Two queries for the whole request rather than two per line. The products
+  // are looked up through `publicProductWhere()`, so an unpublished one is
+  // simply absent from the result and refused below.
+  const products = await prisma.product.findMany({
+    where: {
+      ...publicProductWhere(),
+      id: { in: [...new Set(inputs.map((input) => input.productId))] },
+    },
+    select: { id: true, hasVariants: true, minOrderQty: true },
+  });
+  const productById = new Map(products.map((product) => [product.id, product]));
+
+  const variantIds = [
+    ...new Set(
+      inputs
+        .map((input) => input.variantId)
+        .filter((variantId): variantId is string => variantId !== null && variantId !== undefined),
+    ),
+  ];
+
+  const variants =
+    variantIds.length === 0
+      ? []
+      : await prisma.productVariant.findMany({
+          where: { id: { in: variantIds }, isActive: true, archivedAt: null },
+          select: { id: true, productId: true },
+        });
+  const variantById = new Map(variants.map((variant) => [variant.id, variant]));
+
+  // Keyed by SKU, so the same option twice in one request is one line.
+  const wanted = new Map<string, WantedLine>();
+
+  for (const [index, input] of inputs.entries()) {
+    const product = productById.get(input.productId);
+
+    // Covers both "no such product" and "not published". The customer must not
+    // be able to tell those apart.
+    if (product === undefined) throw notFound('Product');
+
+    const variantId = input.variantId ?? null;
+
+    if (variantId !== null) {
+      const variant = variantById.get(variantId);
+
+      // The variant has to belong to the product named on the same line - an
+      // active variant id of some other product is still the wrong option.
+      if (variant === undefined || variant.productId !== product.id) {
+        throw badRequest(
+          ErrorCode.VARIANT_MISMATCH,
+          'That option is not available for this product.',
+          [{ field: nameField(index, 'variantId'), code: 'NOT_FOUND' }],
+        );
+      }
+    } else if (product.hasVariants) {
+      throw badRequest(
+        ErrorCode.VARIANT_MISMATCH,
+        'Choose an option before adding this to the cart.',
+        [{ field: nameField(index, 'variantId'), code: 'REQUIRED' }],
+      );
+    }
+
+    const variantKey = variantKeyOf(variantId);
+    const key = `${product.id}:${variantKey}`;
+    const already = wanted.get(key);
+
+    wanted.set(key, {
+      productId: product.id,
+      variantId,
+      variantKey,
+      quantity: (already?.quantity ?? 0) + input.quantity,
+      minOrderQty: product.minOrderQty,
+    });
   }
 
   const cartId = await getOrCreateCart(customerProfileId);
 
-  const product = await prisma.product.findFirst({
-    where: { ...publicProductWhere(), id: input.productId },
-    select: {
-      id: true,
-      name: true,
-      hasVariants: true,
-      minOrderQty: true,
-      maxOrderQty: true,
-      qtyIncrement: true,
-    },
-  });
+  return prisma.$transaction(async (tx) => {
+    const added: AddedLine[] = [];
 
-  // Covers both "no such product" and "not published". The customer must not be
-  // able to tell those apart.
-  if (product === null) throw notFound('Product');
+    for (const line of wanted.values()) {
+      // Re-adding an option already in the cart increases its quantity rather
+      // than creating a second line, which is what the unique
+      // (cartId, productId, variantKey) index enforces anyway.
+      const existing = await tx.cartItem.findUnique({
+        where: {
+          cartId_productId_variantKey: {
+            cartId,
+            productId: line.productId,
+            variantKey: line.variantKey,
+          },
+        },
+      });
 
-  if (input.variantId !== null && input.variantId !== undefined) {
-    const variant = await prisma.productVariant.findFirst({
-      where: {
-        id: input.variantId,
-        productId: input.productId,
-        isActive: true,
-        archivedAt: null,
-      },
-      select: { id: true },
-    });
-    if (variant === null) {
-      throw badRequest(ErrorCode.VARIANT_MISMATCH, 'That option is not available for this product.', [
-        { field: 'variantId', code: 'NOT_FOUND' },
-      ]);
+      if (existing !== null) {
+        const quantity = existing.quantity + line.quantity;
+        await tx.cartItem.update({ where: { id: existing.id }, data: { quantity } });
+        added.push({
+          itemId: existing.id,
+          productId: line.productId,
+          variantId: line.variantId,
+          quantity,
+        });
+        continue;
+      }
+
+      // A brand-new line starts at the product minimum when the request asks
+      // for less - a B2B product with a minimum of 10 should not sit in the
+      // cart at 1 and fail only at checkout.
+      const quantity = Math.max(line.quantity, line.minOrderQty);
+      const itemId = newId();
+
+      await tx.cartItem.create({
+        data: {
+          id: itemId,
+          cartId,
+          productId: line.productId,
+          variantId: line.variantId,
+          variantKey: line.variantKey,
+          quantity,
+        },
+      });
+
+      added.push({ itemId, productId: line.productId, variantId: line.variantId, quantity });
     }
-  } else if (product.hasVariants) {
-    throw badRequest(ErrorCode.VARIANT_MISMATCH, 'Choose an option before adding this to the cart.', [
-      { field: 'variantId', code: 'REQUIRED' },
-    ]);
-  }
 
-  const variantKey = variantKeyOf(input.variantId ?? null);
-
-  // Re-adding the same SKU increases the quantity rather than creating a second
-  // line, which is what the unique(cartId, productId, variantKey) index enforces.
-  const existing = await prisma.cartItem.findUnique({
-    where: { cartId_productId_variantKey: { cartId, productId: input.productId, variantKey } },
+    return added;
   });
-
-  if (existing !== null) {
-    const nextQuantity = existing.quantity + input.quantity;
-    await prisma.cartItem.update({
-      where: { id: existing.id },
-      data: { quantity: nextQuantity },
-    });
-    return { itemId: existing.id, quantity: nextQuantity };
-  }
-
-  // A brand-new line starts at the product minimum when the request asks for
-  // less - a B2B product with a minimum of 10 should not sit in the cart at 1
-  // and fail only at checkout.
-  const quantity = Math.max(input.quantity, product.minOrderQty);
-  const itemId = newId();
-
-  await prisma.cartItem.create({
-    data: {
-      id: itemId,
-      cartId,
-      productId: input.productId,
-      variantId: input.variantId ?? null,
-      variantKey,
-      quantity,
-    },
-  });
-
-  return { itemId, quantity };
 }
 
 export async function updateItemQuantity(

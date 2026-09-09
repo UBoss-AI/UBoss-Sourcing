@@ -319,7 +319,7 @@
   "product.loadingTheProduct": "Ładowanie produktu",
   "product.breadcrumb": "Ścieżka nawigacyjna",
   "product.noImageYet": "Brak zdjęcia",
-  "product.chooseAnOption": "Proszę wybrać opcję",
+  "product.chooseAnOption": "Proszę wybrać opcje",
   "product.orderingInformation": "Informacje dotyczące zamówień",
   "product.home": "Strona główna",
   "product.products": "Produkty",
@@ -1031,5 +1031,15 @@
   "autopay.saved": "Zapisano.",
   "autopay.authorisedOn": "Udzielono zezwolenia: {{date}} ({{version}})",
   "common.edit": "Edytuj",
-  "common.delete": "Usuń"
+  "common.delete": "Usuń",
+
+  "product.pickAsManyAsYouNeed": "Proszę wybrać tyle opcji, ile potrzeba — każda ma własną ilość.",
+  "product.quantityFor": "Ilość: {{variant}}",
+  "product.increaseNamedQuantityBy": "Zwiększ ilość {{name}} o {{step}}",
+  "product.decreaseNamedQuantityBy": "Zmniejsz ilość {{name}} o {{step}}",
+  "product.addOptionsToCart": "Dodaj {{options}} opcje do koszyka",
+  "product.optionsAddedToYourCart": "Dodano {{options}} opcje do koszyka.",
+  "product.priceFromTo": "{{from}} do {{to}}",
+  "product.priceShownForOptions": "Najniższa i najwyższa cena z {{options}} wybranych opcji.",
+  "product.scheduleOneOptionAtATime": "Zakup cykliczny obejmuje jedną opcję naraz. Proszę dodać je do koszyka, a następnie zaplanować cały koszyk."
 }

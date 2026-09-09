@@ -314,7 +314,7 @@
   "product.loadingTheProduct": "Chargement du produit",
   "product.breadcrumb": "Fil d'Ariane",
   "product.noImageYet": "Pas encore d'image",
-  "product.chooseAnOption": "Choisissez une option",
+  "product.chooseAnOption": "Choisissez vos options",
   "product.orderingInformation": "Informations relatives à la commande",
   "product.home": "Accueil",
   "product.products": "Produits",
@@ -1019,5 +1019,15 @@
   "autopay.saved": "Enregistré.",
   "autopay.authorisedOn": "Autorisation accordée : {{date}} ({{version}})",
   "common.edit": "Modifier",
-  "common.delete": "Supprimer"
+  "common.delete": "Supprimer",
+
+  "product.pickAsManyAsYouNeed": "Choisissez-en autant que nécessaire : chacune a sa propre quantité.",
+  "product.quantityFor": "Quantité de {{variant}}",
+  "product.increaseNamedQuantityBy": "Augmenter de {{step}} la quantité de {{name}}",
+  "product.decreaseNamedQuantityBy": "Diminuer de {{step}} la quantité de {{name}}",
+  "product.addOptionsToCart": "Ajouter {{options}} options au panier",
+  "product.optionsAddedToYourCart": "{{options}} options ajoutées à votre panier.",
+  "product.priceFromTo": "{{from}} à {{to}}",
+  "product.priceShownForOptions": "Le prix le plus bas et le plus élevé des {{options}} options choisies.",
+  "product.scheduleOneOptionAtATime": "Un achat récurrent ne porte que sur une option à la fois. Ajoutez-les au panier, puis planifiez le panier entier."
 }

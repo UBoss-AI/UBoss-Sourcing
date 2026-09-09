@@ -314,7 +314,7 @@
   "product.loadingTheProduct": "Cargando el producto",
   "product.breadcrumb": "Ruta de navegación",
   "product.noImageYet": "Aún no hay ninguna imagen",
-  "product.chooseAnOption": "Elija una opción",
+  "product.chooseAnOption": "Elija sus opciones",
   "product.orderingInformation": "Información sobre pedidos",
   "product.home": "Inicio",
   "product.products": "Productos",
@@ -1019,5 +1019,15 @@
   "autopay.saved": "Guardado.",
   "autopay.authorisedOn": "Autorización concedida: {{date}} ({{version}})",
   "common.edit": "Editar",
-  "common.delete": "Eliminar"
+  "common.delete": "Eliminar",
+
+  "product.pickAsManyAsYouNeed": "Elija todas las que necesite: cada una tiene su propia cantidad.",
+  "product.quantityFor": "Cantidad de {{variant}}",
+  "product.increaseNamedQuantityBy": "Aumentar en {{step}} la cantidad de {{name}}",
+  "product.decreaseNamedQuantityBy": "Reducir en {{step}} la cantidad de {{name}}",
+  "product.addOptionsToCart": "Añadir {{options}} opciones al carrito",
+  "product.optionsAddedToYourCart": "Se han añadido {{options}} opciones a su carrito.",
+  "product.priceFromTo": "{{from}} a {{to}}",
+  "product.priceShownForOptions": "El precio más bajo y el más alto de las {{options}} opciones elegidas.",
+  "product.scheduleOneOptionAtATime": "Una compra recurrente abarca una sola opción cada vez. Añádalas al carrito y programe el carrito completo."
 }

@@ -324,7 +324,7 @@
   "product.loadingTheProduct": "Loading the product",
   "product.breadcrumb": "Breadcrumb",
   "product.noImageYet": "No image yet",
-  "product.chooseAnOption": "Choose an option",
+  "product.chooseAnOption": "Choose your options",
   "product.orderingInformation": "Ordering information",
   "product.home": "Home",
   "product.products": "Products",
@@ -1121,5 +1121,15 @@
   "greeting.task.autopayOfferBody": "You can authorise a card once, with your own limits on it, so a scheduled order is paid without anybody being at a desk.",
   "greeting.task.autopayCta": "Open Autopay",
   "greeting.task.erpTitle": "ERP integration",
-  "greeting.task.erpBody": "Orders on this account can be handed straight to your own system. An administrator creates that connection under Settings → ERP; nothing on this page can do it for you."
+  "greeting.task.erpBody": "Orders on this account can be handed straight to your own system. An administrator creates that connection under Settings → ERP; nothing on this page can do it for you.",
+
+  "product.pickAsManyAsYouNeed": "Pick as many as you need — each one gets its own quantity.",
+  "product.quantityFor": "Quantity of {{variant}}",
+  "product.increaseNamedQuantityBy": "Increase the quantity of {{name}} by {{step}}",
+  "product.decreaseNamedQuantityBy": "Reduce the quantity of {{name}} by {{step}}",
+  "product.addOptionsToCart": "Add {{options}} options to cart",
+  "product.optionsAddedToYourCart": "{{options}} options added to your cart.",
+  "product.priceFromTo": "{{from}} to {{to}}",
+  "product.priceShownForOptions": "The lowest and the highest of the {{options}} options you chose.",
+  "product.scheduleOneOptionAtATime": "A repeat purchase covers one option at a time. Add these to your cart, then schedule the whole cart."
 }

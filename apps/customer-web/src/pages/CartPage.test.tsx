@@ -267,7 +267,7 @@ describe('CartPage', () => {
 
     renderWithProviders(<CartPage />);
 
-    const increase = await screen.findByRole('button', { name: /increase quantity/i });
+    const increase = await screen.findByRole('button', { name: /increase the quantity/i });
     await user.click(increase);
 
     // The control is disabled while the first change is unresolved, so a
@@ -326,7 +326,7 @@ describe('CartPage', () => {
 
     renderWithProviders(<CartPage />);
 
-    await user.click(await screen.findByRole('button', { name: /increase quantity/i }));
+    await user.click(await screen.findByRole('button', { name: /increase the quantity/i }));
 
     const alerts = await screen.findAllByRole('alert');
     expect(within(alerts[0] as HTMLElement).getByText('Only 12 left in stock.')).toBeInTheDocument();

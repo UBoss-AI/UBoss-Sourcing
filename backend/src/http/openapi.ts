@@ -291,6 +291,18 @@ const OPERATIONS: Readonly<Record<string, OperationDoc>> = Object.freeze({
     requestBody: ref('AddCartItemRequest'),
     responses: { '201': ok(ref('CartResponse')) },
   },
+  'POST /api/v1/cart/items/bulk': {
+    summary: 'Add several options in one request',
+    description:
+      'For a customer buying more than one option of the same product - 3 ml and 5 ml of one ' +
+      'syringe. Each option becomes its own cart line, and all of them are written in one ' +
+      'transaction: either every line lands or none does. The same option twice in one request ' +
+      'is added up rather than refused. At most 50 items.',
+    tags: ['Cart'],
+    auth: 'customer',
+    requestBody: ref('AddCartItemsRequest'),
+    responses: { '201': ok(ref('CartResponse')) },
+  },
   'PATCH /api/v1/cart/items/:itemId': {
     summary: 'Change quantity (0 removes the line)',
     tags: ['Cart'],
@@ -1257,6 +1269,13 @@ const SCHEMAS: Readonly<Record<string, unknown>> = Object.freeze({
       itemId: { type: 'string' },
       productId: { type: 'string' },
       name: { type: 'string' },
+      variantName: {
+        type: 'string',
+        nullable: true,
+        description:
+          "The chosen option's own name, or null where the product has no options. Two lines " +
+          'of one product share a name and differ only here and in the SKU.',
+      },
       quantity: { type: 'integer' },
       unitPrice: ref('Money'),
       lineTotal: ref('Money'),
@@ -1293,6 +1312,19 @@ const SCHEMAS: Readonly<Record<string, unknown>> = Object.freeze({
           requiresApproval: { type: 'boolean' },
           itemCount: { type: 'integer' },
         },
+      },
+    },
+  },
+
+  AddCartItemsRequest: {
+    type: 'object',
+    required: ['items'],
+    properties: {
+      items: {
+        type: 'array',
+        minItems: 1,
+        maxItems: 50,
+        items: ref('AddCartItemRequest'),
       },
     },
   },
