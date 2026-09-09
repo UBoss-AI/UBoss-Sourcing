@@ -1455,10 +1455,26 @@ const SCHEMAS: Readonly<Record<string, unknown>> = Object.freeze({
     ],
     properties: {
       name: { type: 'string' },
-      frequency: { type: 'string', enum: ['EVERY_N_DAYS', 'WEEKLY', 'MONTHLY'] },
+      frequency: {
+        type: 'string',
+        enum: ['EVERY_N_DAYS', 'WEEKLY', 'BIWEEKLY', 'MONTHLY', 'EVERY_N_MONTHS', 'ONE_TIME'],
+      },
       intervalDays: { type: 'integer', nullable: true, description: 'Required for EVERY_N_DAYS.' },
-      weekday: { type: 'integer', nullable: true, description: '1=Mon..7=Sun. Required for WEEKLY.' },
+      weekday: {
+        type: 'integer',
+        nullable: true,
+        description: '1=Mon..7=Sun. Required for WEEKLY and BIWEEKLY.',
+      },
       monthDay: { type: 'integer', nullable: true, description: 'Required for MONTHLY.' },
+      intervalMonths: {
+        type: 'integer',
+        minimum: 2,
+        maximum: 24,
+        nullable: true,
+        description:
+          'Required for EVERY_N_MONTHS. 2, 3, 6 and 12 are what the storefront offers. ' +
+          'The day of the month comes from startDate, not from monthDay.',
+      },
       timezone: { type: 'string', example: 'Asia/Kolkata' },
       runAtMinute: { type: 'integer', default: 360, description: 'Local minutes since midnight.' },
       startDate: { type: 'string', pattern: '^\\d{4}-\\d{2}-\\d{2}$' },

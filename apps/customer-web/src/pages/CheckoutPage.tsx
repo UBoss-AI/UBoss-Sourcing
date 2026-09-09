@@ -207,7 +207,7 @@ export function CheckoutPage(): React.JSX.Element {
 
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { business } = useStorefront();
+  const { business, features } = useStorefront();
 
   const [shippingAddressId, setShippingAddressId] = useState<string | null>(null);
   const [billingSameAsShipping, setBillingSameAsShipping] = useState(true);
@@ -405,6 +405,15 @@ export function CheckoutPage(): React.JSX.Element {
   }
 
   const canSubmit = currentCart.checkoutReady && shippingAddressId !== null && !submit.isPending;
+
+  /**
+   * How many of these lines the schedule builder would accept.
+   *
+   * The same flag the cart's badge and panel read, counted here so the
+   * schedule offer beside Place Order never leads to `/schedules/new` and its
+   * empty state. The server decides eligibility; this only counts.
+   */
+  const recurringEligibleCount = currentCart.lines.filter((line) => line.isRecurringEligible).length;
 
   return (
     <>
@@ -818,6 +827,36 @@ export function CheckoutPage(): React.JSX.Element {
               <p className="mt-2 text-center text-xs text-ink-muted">
                 {t('checkout.chooseADeliveryAddressTo')}
               </p>
+            )}
+
+            {/*
+             * The other thing that can be done with this basket, offered where
+             * the decision is actually made.
+             *
+             * A customer buying the same consumables every month is standing
+             * at this button when the thought "I will be doing this again in
+             * four weeks" occurs to them. Until now the only place to act on
+             * it was the cart page they have already left, so the repeat was
+             * set up on the *next* order or not at all.
+             *
+             * Deliberately not a second orange button and deliberately below
+             * the first. Place Order is what this page is for; this is an
+             * alternative to it, and two equally loud calls to action is how a
+             * customer ends up on a subscription they meant to buy once.
+             *
+             * Shown only when the store offers repeat purchases AND this
+             * basket has something that can go on one, so it never leads to
+             * the builder's empty state.
+             */}
+            {features.recurringOrders && recurringEligibleCount > 0 && (
+              <div className="mt-3 border-t border-border-subtle pt-3">
+                <ButtonLink to="/schedules/new" fullWidth>
+                  {t('checkout.scheduleThisInstead')}
+                </ButtonLink>
+                <p className="mt-1.5 text-center text-xxs leading-relaxed text-ink-subtle">
+                  {t('checkout.scheduleThisInsteadHint')}
+                </p>
+              </div>
             )}
 
             {/*

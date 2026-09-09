@@ -319,6 +319,7 @@ export async function buildCustomerBundle(subject: BundleSubject): Promise<Recor
           status: true,
           frequency: true,
           intervalDays: true,
+          intervalMonths: true,
           weekday: true,
           monthDay: true,
           timezone: true,

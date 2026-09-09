@@ -20,11 +20,18 @@
      * Palette
      * =================================================================== */
 
-    /* --- Navy: chrome. The header band, the hero, the admin sidebar. ---
-       Deep navy rather than near-black: a true black band above a white
-       catalogue reads as a rendering mistake, not as a decision. */
-    --navy: 16 42 67;
-    --navy-hover: 24 58 90;
+    /* --- Navy: the deep ground. Dialog scrims, and anything on-dark. ---
+       It used to be the chrome — the header band here and the sidebar in the
+       panel — and is not any more: both went white over a sky-tinted page, so
+       what is left for it is the scrim behind a dialog and the two `inverse`
+       button variants that exist for a dark surface.
+
+       Deep *blue* navy rather than the slate navy it was: with the chrome
+       light, the one dark thing left on screen should belong to the same blue
+       family as everything else rather than read as a leftover from another
+       palette. Text on it is 14.6:1. */
+    --navy: 12 35 80;
+    --navy-hover: 19 49 104;
 
     /* --- Primary blue: navigation and general primary actions --------- */
     --brand: 29 78 216;
@@ -74,39 +81,58 @@
      * =================================================================== */
     --surface: 255 255 255;
     --surface-raised: 255 255 255;
-    --surface-sunken: 248 250 252;
+    /*
+     * The page ground, and the reason the whole product reads as sky.
+     *
+     * A blue-tinted white rather than the neutral slate it was. Everything
+     * else follows from this one value: white cards and white chrome sit *on*
+     * it, so the separation that used to come from a navy band now comes from
+     * the page being cool and the surfaces on it being pure white.
+     *
+     * How far it can be tinted is set by the text on it, not by taste.
+     * `ink-subtle` carries SKUs and timestamps here and has to clear 4.5:1;
+     * at this value it is 4.98:1, and a couple of steps deeper it stops
+     * passing. That is the ceiling, and it is why this is a tint rather than
+     * a colour.
+     */
+    --surface-sunken: 245 249 254;
     /* The hover ground for a row, a menu item, a quiet button. One step below
        `surface-sunken`, so a hovered row inside a sunken panel still moves. */
-    --surface-hover: 241 245 249;
-    --surface-inverse: 16 42 67;
-    --surface-inverse-hover: 24 58 90;
+    --surface-hover: 235 243 253;
+    --surface-inverse: 12 35 80;
+    --surface-inverse-hover: 19 49 104;
 
     /* ===================================================================
      * Borders
      * =================================================================== */
-    /* The standard hairline: panel edges, table rules, dividers. */
-    --border: 226 232 240;
+    /* The standard hairline: panel edges, table rules, dividers. Tinted to
+       the same blue as the page, so a card edge belongs to the ground it is
+       drawn on instead of being a grey line laid over a cool surface. */
+    --border: 216 230 243;
     /* One step lighter, for a rule *inside* an already-bordered card. Using
        the same weight for the card edge and its internal header rule is what
        makes a page of cards read as a stack of boxes. */
-    --border-subtle: 241 245 249;
-    /* A control boundary needs 3:1 to be perceivable (WCAG 1.4.11). The
-       lighter slate this replaced sat at 1.48:1, which made every input
-       border effectively invisible to a low-vision customer. */
-    --border-strong: 132 144 161;
+    --border-subtle: 232 241 251;
+    /* A control boundary needs 3:1 to be perceivable (WCAG 1.4.11); this is
+       3.31:1 on a card and 3.13:1 on the page ground. The lighter slate two
+       revisions ago sat at 1.48:1, which made every input border effectively
+       invisible to a low-vision customer. */
+    --border-strong: 124 143 168;
     /* The hover boundary for an idle control: darker, and still not the focus
        ring, so hovering an input is felt without being announced. */
-    --border-hover: 100 116 139;
+    --border-hover: 94 116 144;
 
     /* ===================================================================
      * Text
      * =================================================================== */
     --ink: 15 23 42;
     --ink-muted: 71 85 105;
-    /* Clears 4.5:1 on both the card and the page grounds (4.76:1 and 4.55:1),
-       not picked for looks: this carries SKUs, timestamps and helper text,
-       which are informational however quiet they look. */
-    --ink-subtle: 100 116 139;
+    /* Clears 4.5:1 on the card, the page ground and a hovered row (5.26:1,
+       4.98:1 and 4.70:1), not picked for looks: this carries SKUs, timestamps
+       and helper text, which are informational however quiet they look.
+       It went a step darker when the page ground went sky — a tinted ground
+       is a darker ground, and the quietest text on it has to pay for that. */
+    --ink-subtle: 92 109 135;
     --ink-inverse: 248 250 252;
 
     /* ===================================================================
@@ -148,6 +174,23 @@
   }
 
   html {
+    /*
+     * Say the quiet part to the browser.
+     *
+     * Without this a visitor whose operating system is set to dark renders
+     * the parts of the page the browser draws itself — the scrollbar, and the
+     * option list of a native `<select>` — in dark, on a product that is
+     * white and sky everywhere else. Three of the header's controls are
+     * native selects on purpose (they are keyboard- and screen-reader-correct
+     * for free, and on a phone they open the platform's own picker), so this
+     * is the difference between that decision costing nothing and it costing
+     * a black dropdown on a white page.
+     *
+     * This is a light product and says so. It is not a claim that a dark
+     * theme would be unwelcome — it is that half a dark theme, chosen by the
+     * browser on our behalf, is worse than none.
+     */
+    color-scheme: light;
     scroll-behavior: smooth;
     /* An anchored heading clears the sticky header instead of hiding under it. */
     scroll-padding-top: 5rem;
@@ -156,6 +199,20 @@
   body {
     @apply bg-surface-sunken text-ink antialiased;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /*
+   * Selected text.
+   *
+   * The browser default is a saturated blue that belongs to no palette in
+   * particular, and on a page that is already blue it is the one thing on
+   * screen wearing the wrong one. `brand-soft-hover` under `ink` is 14.8:1,
+   * so a highlighted sentence is more readable than the default rather than
+   * less — which matters here, because the text people select in this app is
+   * usually an order number or a SKU they are about to paste somewhere.
+   */
+  ::selection {
+    @apply bg-brand-soft-hover text-ink;
   }
 
   /*
@@ -201,27 +258,18 @@
   }
 
   /*
-   * Focus ring for the navy header.
+   * There is no on-dark focus ring, and that is the point.
    *
-   * The global ring is brand blue offset against white, which all but
-   * disappears on a navy band. Keyboard users must not lose the ring just
-   * because the chrome went dark, so inside `.on-navy` it becomes white with a
-   * navy offset. Same ring, same trigger — only the two colours change.
-   */
-  .on-navy :focus-visible {
-    @apply ring-white ring-offset-surface-inverse;
-  }
-
-  /*
-   * …and back again, for a white panel that hangs off a navy one.
+   * There used to be a pair of them: `.on-navy` swapped the global brand ring
+   * for a white one on the dark chrome, and `.on-light` swapped it back for
+   * the white popover that hung off it. Both went when the chrome did. Every
+   * surface a keyboard user can reach is now white or a sky tint, so the one
+   * global ring in the base layer above is correct everywhere — which is a
+   * better place to be than two rings and a rule about which one applies.
    *
-   * The account menu is a white popover anchored inside the navy header. It
-   * inherits `.on-navy`, where a white ring on a white surface is no ring at
-   * all, so the panel opts back out.
+   * The palette still has `--navy`; if a genuinely dark surface ever carries
+   * a control again, this is where its ring belongs.
    */
-  .on-navy .on-light :focus-visible {
-    @apply ring-ring ring-offset-surface;
-  }
 
   /*
    * Our own select arrow.

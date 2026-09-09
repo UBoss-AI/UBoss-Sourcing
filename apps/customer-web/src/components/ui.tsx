@@ -93,14 +93,27 @@ const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
   danger:
     'bg-danger text-white shadow-card hover:bg-danger-hover ' +
     'focus-visible:ring-danger disabled:bg-ink-subtle disabled:shadow-none',
-  // For the navy hero and header, where `primary` blue on navy is 1.57:1 and
-  // simply vanishes. White carries navy text at 14.6:1.
+  /*
+   * The on-dark pair, and nothing calls them today.
+   *
+   * They existed for the navy hero and the navy header, where `primary` blue
+   * on navy was 1.57:1 and simply vanished. Both surfaces went white over a
+   * sky-tinted page, so every button in the app is now an on-light button.
+   *
+   * Kept rather than deleted, for two reasons. The palette still has `--navy`
+   * for the one dark thing left — the scrim behind a dialog — so the surface
+   * these were drawn for has not stopped existing. And this list is mirrored
+   * in the admin panel's `button-styles.ts` precisely so a component can be
+   * lifted between the apps unchanged; a variant that exists in one file and
+   * not the other is how that stops being true. If a dark surface never comes
+   * back, these and `--navy` go together.
+   */
   inverse:
     'bg-surface text-surface-inverse shadow-card hover:bg-ink-inverse ' +
     'disabled:text-ink-subtle disabled:shadow-none',
-  // The paired quiet option on a dark surface. `white/40`, not the `white/25`
-  // this replaced: a control boundary needs 3:1 to be perceivable at all
-  // (WCAG 1.4.11), and /25 sat at 2.6:1 against the navy.
+  // The paired quiet option. `white/40`, not the `white/25` this replaced:
+  // a control boundary needs 3:1 to be perceivable at all (WCAG 1.4.11), and
+  // /25 sat at 2.6:1 against the navy.
   'inverse-outline':
     'border border-white/40 text-ink-inverse hover:border-white/60 hover:bg-white/10',
 };

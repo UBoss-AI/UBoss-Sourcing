@@ -162,6 +162,23 @@ const envSchema = z
     /// Tuesday" without offering a standing authority to charge, and plenty
     /// will want to.
     FEATURE_SCHEDULED_ORDERS: booleanFromString.default(true),
+    /// Whether EVERY published product may be put on a repeat purchase.
+    ///
+    /// On: eligibility is not asked per product, and anything a customer can
+    /// buy they can also schedule. Off: only products an administrator has
+    /// ticked `isRecurringEligible` on may be scheduled, which is what this
+    /// software did before the flag existed.
+    ///
+    /// On by default, because the per-product flag defaults to FALSE and the
+    /// two together meant a freshly installed store offered a repeat-purchase
+    /// button that refused every basket put through it. A deployment that
+    /// genuinely sells things it will not repeat - a clearance line, a
+    /// one-per-customer device, anything sold against a single tender - turns
+    /// this off and curates the list.
+    ///
+    /// A setting rather than a decision made here, because which of those two
+    /// a buyer of this software is depends entirely on what they sell.
+    FEATURE_SCHEDULE_ANY_PRODUCT: booleanFromString.default(true),
     /// Auto-pay: charging a stored card while the customer is away.
     ///
     /// Off by default, and that default is the important part. Turning it on

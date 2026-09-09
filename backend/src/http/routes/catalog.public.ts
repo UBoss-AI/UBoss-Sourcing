@@ -40,6 +40,10 @@ import {
   publicProductWhere,
 } from '../../modules/catalog/catalog.visibility.js';
 import {
+  isScheduleEligible,
+  scheduleEligibleWhere,
+} from '../../modules/catalog/recurring-eligibility.js';
+import {
   findCategoryBySlug,
   listCategoryTree,
   subtreeCategoryIds,
@@ -325,7 +329,7 @@ function serialiseProduct(
       minOrderQty: product.minOrderQty,
       maxOrderQty: product.maxOrderQty,
       qtyIncrement: product.qtyIncrement,
-      isRecurringEligible: product.isRecurringEligible,
+      isRecurringEligible: isScheduleEligible(product),
     },
 
     /**
@@ -487,7 +491,10 @@ async function resolveFilters(
   }
 
   if (query.recurringOnly === 'true') {
-    conditions.push({ isRecurringEligible: true });
+    // Empty when every product qualifies, which narrows nothing - the filter
+    // then returns the whole catalogue, because the whole catalogue is
+    // repeatable. See scheduleEligibleWhere.
+    conditions.push(scheduleEligibleWhere());
   }
 
   if (query.inStockOnly === 'true') {

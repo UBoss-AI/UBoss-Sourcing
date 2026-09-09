@@ -61,7 +61,18 @@ const itemSchema = z.object({
  * EVERY_N_DAYS with 14, because the two behave differently when a delivery is
  * skipped - see the enum in the schema.
  */
-const frequencyEnum = z.enum(['EVERY_N_DAYS', 'WEEKLY', 'BIWEEKLY', 'MONTHLY', 'ONE_TIME']);
+const frequencyEnum = z.enum([
+  'EVERY_N_DAYS',
+  'WEEKLY',
+  'BIWEEKLY',
+  'MONTHLY',
+  // Every N calendar months: two-monthly, quarterly, half-yearly, yearly. A
+  // first-class frequency rather than EVERY_N_DAYS with 60, 90, 180 or 365,
+  // because a quarter is not ninety days and counting one in days walks a
+  // standing order into the wrong month.
+  'EVERY_N_MONTHS',
+  'ONE_TIME',
+]);
 
 const planStatusEnum = z.enum([
   'DRAFT',
@@ -78,6 +89,8 @@ const cartScheduleSchema = z.object({
   intervalDays: z.number().int().min(1).max(365).nullable().optional(),
   weekday: z.number().int().min(1).max(7).nullable().optional(),
   monthDay: z.number().int().min(1).max(31).nullable().optional(),
+  /** EVERY_N_MONTHS. Two and up; one would be MONTHLY under another name. */
+  intervalMonths: z.number().int().min(2).max(24).nullable().optional(),
   startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected YYYY-MM-DD.'),
   runAtMinute: z.number().int().min(0).max(1439).optional(),
   timezone: z.string().max(64).optional(),
@@ -116,6 +129,8 @@ const createSchema = z.object({
   intervalDays: z.number().int().min(1).max(365).nullable().optional(),
   weekday: z.number().int().min(1).max(7).nullable().optional(),
   monthDay: z.number().int().min(1).max(31).nullable().optional(),
+  /** EVERY_N_MONTHS. Two and up; one would be MONTHLY under another name. */
+  intervalMonths: z.number().int().min(2).max(24).nullable().optional(),
   timezone: z.string().max(64).optional(),
   runAtMinute: z.number().int().min(0).max(1439).optional(),
   // Calendar dates, not instants: a schedule starts on a day in the customer's
@@ -166,6 +181,8 @@ const updateSchema = z.object({
   intervalDays: z.number().int().min(1).max(365).nullable().optional(),
   weekday: z.number().int().min(1).max(7).nullable().optional(),
   monthDay: z.number().int().min(1).max(31).nullable().optional(),
+  /** EVERY_N_MONTHS. Two and up; one would be MONTHLY under another name. */
+  intervalMonths: z.number().int().min(2).max(24).nullable().optional(),
   runAtMinute: z.number().int().min(0).max(1439).optional(),
   /** Re-date a Buy Later, or move a subscription's anchor. */
   startDate: z
@@ -221,6 +238,7 @@ function serialiseSchedule(
     intervalDays: schedule.intervalDays,
     weekday: schedule.weekday,
     monthDay: schedule.monthDay,
+    intervalMonths: schedule.intervalMonths,
     timezone: schedule.timezone,
     runAtMinute: schedule.runAtMinute,
     startDate: schedule.startDate.toISOString().slice(0, 10),

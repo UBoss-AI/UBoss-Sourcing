@@ -8,6 +8,7 @@
  * Every one must produce exactly one order.
  */
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
+import { env } from '../../src/config/env.js';
 import { newId } from '../../src/infra/ids.js';
 import { prisma } from '../../src/infra/prisma.js';
 import { receiveStock, getAvailability } from '../../src/modules/inventory/inventory.service.js';
@@ -30,6 +31,33 @@ let customerProfileId: string;
 let productId: string;
 let nonRecurringProductId: string;
 let addressId: string;
+
+/**
+ * Run a block with the per-product eligibility tick back in charge.
+ *
+ * `FEATURE_SCHEDULE_ANY_PRODUCT` defaults to on, which means every published
+ * product may be scheduled and `Product.isRecurringEligible` is not consulted.
+ * The two tests below are about the OTHER mode - the deployment that curates
+ * which of its products may be repeated - so they say so rather than relying
+ * on a default that no longer holds.
+ *
+ * Restored in a `finally`: leaking a flag out of one test would silently
+ * change what every later test in the file is exercising.
+ */
+async function withCuratedEligibility(body: () => Promise<void>): Promise<void> {
+  const previous = env.FEATURE_SCHEDULE_ANY_PRODUCT;
+  Object.assign(env as unknown as { FEATURE_SCHEDULE_ANY_PRODUCT: boolean }, {
+    FEATURE_SCHEDULE_ANY_PRODUCT: false,
+  });
+
+  try {
+    await body();
+  } finally {
+    Object.assign(env as unknown as { FEATURE_SCHEDULE_ANY_PRODUCT: boolean }, {
+      FEATURE_SCHEDULE_ANY_PRODUCT: previous,
+    });
+  }
+}
 
 async function resetAll(): Promise<void> {
   await prisma.auditLog.deleteMany({});
@@ -243,6 +271,45 @@ describe('creating a schedule', () => {
     expect(row.consentVersion).toBe('v1');
   });
 
+  /**
+   * The month-interval cadences, against the real CHECK constraint.
+   *
+   * `chk_schedule_frequency_field_present` names every frequency and the
+   * column it depends on, and a CHECK that matches no branch FAILS. So a new
+   * frequency whose branch was not added to the constraint cannot be inserted
+   * at all — and no unit test can catch that, because the constraint only
+   * exists in the database. This is the test that would have failed had the
+   * migration been forgotten.
+   */
+  it.each([2, 3, 6, 12])('stores an every-%i-months plan', async (intervalMonths) => {
+    const created = await makeSchedule({
+      frequency: 'EVERY_N_MONTHS',
+      intervalMonths,
+      intervalDays: null,
+      startDate: yesterday(),
+    });
+
+    const row = await prisma.recurringSchedule.findUniqueOrThrow({
+      where: { id: created.scheduleId },
+    });
+
+    expect(row.frequency).toBe('EVERY_N_MONTHS');
+    expect(row.intervalMonths).toBe(intervalMonths);
+    expect(row.status).toBe('ACTIVE');
+
+    // A repeating plan is queued. The interval is months, so the next run is
+    // further out than any day-counted cadence would put it.
+    expect(row.nextRunAt).not.toBeNull();
+    expect(row.nextRunAt?.getTime()).toBeGreaterThan(Date.now());
+  });
+
+  /** One month is MONTHLY. Accepting it here would be a second spelling. */
+  it('refuses a month interval of one', async () => {
+    await expect(
+      makeSchedule({ frequency: 'EVERY_N_MONTHS', intervalMonths: 1, intervalDays: null }),
+    ).rejects.toMatchObject({ code: 'RECURRENCE_RULE_INVALID' });
+  });
+
   /** A standing authority to charge requires explicit agreement. */
   it('refuses without consent', async () => {
     await expect(makeSchedule({ consentAccepted: false })).rejects.toMatchObject({
@@ -250,11 +317,28 @@ describe('creating a schedule', () => {
     });
   });
 
-  /** An admin opts a product in; a customer cannot schedule anything they like. */
-  it('refuses a product that is not recurring-eligible', async () => {
-    await expect(
-      makeSchedule({ items: [{ productId: nonRecurringProductId, quantity: 1 }] }),
-    ).rejects.toMatchObject({ code: 'SCHEDULE_PRODUCT_NOT_ELIGIBLE' });
+  /**
+   * A curated range still refuses what is not in it.
+   *
+   * Only meaningful with FEATURE_SCHEDULE_ANY_PRODUCT off — with it on, which
+   * is the default, everything the store sells may be repeated and there is
+   * nothing for this to refuse.
+   */
+  it('refuses a product outside a curated recurring range', async () => {
+    await withCuratedEligibility(async () => {
+      await expect(
+        makeSchedule({ items: [{ productId: nonRecurringProductId, quantity: 1 }] }),
+      ).rejects.toMatchObject({ code: 'SCHEDULE_PRODUCT_NOT_ELIGIBLE' });
+    });
+  });
+
+  /** And with the flag on, the same basket is accepted. */
+  it('accepts any published product when the store repeats everything', async () => {
+    const created = await makeSchedule({
+      items: [{ productId: nonRecurringProductId, quantity: 1 }],
+    });
+
+    expect(created.scheduleId).toBeTruthy();
   });
 
   it('refuses auto-pay without a mandate', async () => {
@@ -547,20 +631,28 @@ describe('running an occurrence', () => {
     expect(notice).not.toBeNull();
   });
 
-  it('pauses when a product loses recurring eligibility', async () => {
-    const schedule = await makeSchedule();
-    await prisma.product.update({
-      where: { id: productId },
-      data: { isRecurringEligible: false },
-    });
+  /**
+   * Withdrawing a product from a curated recurring range pauses the plans on
+   * it, rather than holding the occurrence and emailing the customer about it
+   * every cycle for ever. Only reachable with the flag off — see
+   * `withCuratedEligibility`.
+   */
+  it('pauses when a product is taken out of a curated recurring range', async () => {
+    await withCuratedEligibility(async () => {
+      const schedule = await makeSchedule();
+      await prisma.product.update({
+        where: { id: productId },
+        data: { isRecurringEligible: false },
+      });
 
-    const slot = await makeDue(schedule.scheduleId);
-    expect((await runOccurrence(schedule.scheduleId, slot)).result).toBe('SKIPPED');
+      const slot = await makeDue(schedule.scheduleId);
+      expect((await runOccurrence(schedule.scheduleId, slot)).result).toBe('SKIPPED');
 
-    const row = await prisma.recurringSchedule.findUniqueOrThrow({
-      where: { id: schedule.scheduleId },
+      const row = await prisma.recurringSchedule.findUniqueOrThrow({
+        where: { id: schedule.scheduleId },
+      });
+      expect(row.status).toBe('PAUSED');
     });
-    expect(row.status).toBe('PAUSED');
   });
 
   /**

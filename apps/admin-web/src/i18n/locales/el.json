@@ -1900,7 +1900,6 @@
   "erp.event.INVENTORY_SYNC": "Συγχρονισμός αποθεμάτων",
   "erp.event.INVENTORY_WEBHOOK": "Το απόθεμα εισήχθη",
   "erp.event.ORDER_STATUS_POLL": "Έλεγχος κατάστασης παραγγελίας",
-  "erp.event.AUTOPAY_CHARGE": "Αυτόματη πληρωμή",
   "erp.attemptCount": "Προσπάθειες: {{count}}",
   "erp.nextAttempt": "Επόμενη προσπάθεια: {{when}}",
   "erp.tryAgain": "Δοκίμασε ξανά",

@@ -14,7 +14,13 @@
  * client in a zone that does must still get their 06:00.
  */
 
-export type Frequency = 'EVERY_N_DAYS' | 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY' | 'ONE_TIME';
+export type Frequency =
+  | 'EVERY_N_DAYS'
+  | 'WEEKLY'
+  | 'BIWEEKLY'
+  | 'MONTHLY'
+  | 'EVERY_N_MONTHS'
+  | 'ONE_TIME';
 
 export interface RecurrenceRule {
   frequency: Frequency;
@@ -24,6 +30,21 @@ export interface RecurrenceRule {
   weekday?: number | null;
   /** MONTHLY. 1..31, clamped to the last valid day of a short month. */
   monthDay?: number | null;
+  /**
+   * EVERY_N_MONTHS. 2..24 — "every second month", "every quarter", "yearly".
+   *
+   * Deliberately not expressible as EVERY_N_DAYS: a quarter is not 90 days,
+   * and a year is not 365 of them. Counting in days puts a "quarterly" order
+   * five days earlier each year and eventually into the wrong month
+   * altogether, which for a standing order somebody budgets against is a
+   * defect rather than a rounding detail.
+   *
+   * The day of the month is NOT carried here. It comes from the plan's start
+   * date, because "every three months" is a choice about spacing and the date
+   * was already chosen when the customer picked their first delivery. See
+   * `nextEveryNMonths`.
+   */
+  intervalMonths?: number | null;
   /** IANA zone the wall-clock time is interpreted in. */
   timezone: string;
   /** Local time of day, minutes since local midnight. */
@@ -216,6 +237,21 @@ export function validateRule(rule: RecurrenceRule): void {
       }
       break;
 
+    case 'EVERY_N_MONTHS':
+      // Two and up. One would be MONTHLY spelled a second way, and two ways
+      // to store the same cadence is how a screen that reads one of them
+      // starts reporting a plan's own settings back wrongly.
+      if (
+        rule.intervalMonths === null ||
+        rule.intervalMonths === undefined ||
+        !Number.isInteger(rule.intervalMonths) ||
+        rule.intervalMonths < 2 ||
+        rule.intervalMonths > 24
+      ) {
+        throw new RecurrenceError('intervalMonths must be a whole number between 2 and 24.');
+      }
+      break;
+
     default: {
       const exhaustive: never = rule.frequency;
       throw new RecurrenceError(`Unknown frequency: ${String(exhaustive)}`);
@@ -275,6 +311,8 @@ export function nextRunAt(input: NextRunInput): Date | null {
       return nextBiweekly(rule, startInstant, after, timeZone);
     case 'MONTHLY':
       return nextMonthly(rule, after, timeZone);
+    case 'EVERY_N_MONTHS':
+      return nextEveryNMonths(rule, startInstant, input.lastRunAt ?? null, after, timeZone);
     // ONE_TIME is absent on purpose: it returned above, before the start-date
     // comparison, so the compiler has already narrowed it out of this switch.
     // Listing it here would be unreachable code that only looks reassuring.
@@ -467,6 +505,66 @@ function nextMonthly(rule: RecurrenceRule, after: Date, timeZone: string): Date 
 }
 
 /**
+ * Every N months, on the start date's day of the month.
+ *
+ * Counted in CALENDAR months from the start, which is the whole reason this
+ * frequency exists. "Every three months from the 15th" is the 15th of January,
+ * April, July and October for ever; the same intention expressed as
+ * `EVERY_N_DAYS` with 90 walks backwards through the calendar by five days a
+ * year and after four years is billing in a different month.
+ *
+ * Anchored to the start month rather than to the last run, exactly as
+ * `nextEveryNDays` is: a delivery held for a fortnight must not move every
+ * later one, or a quarterly plan drifts a little each time somebody pauses it.
+ *
+ * The day is clamped in short months on the same reasoning as MONTHLY — the
+ * 31st becomes the 30th in a thirty-day month, and the 29th of February
+ * becomes the 28th. Skipping the month instead would mean a plan the customer
+ * set up simply not arriving, which is the worse of the two surprises. The
+ * clamp is applied per month from the *unclamped* start day, so one short
+ * month does not shorten every month after it.
+ */
+function nextEveryNMonths(
+  rule: RecurrenceRule,
+  startInstant: Date,
+  lastRunAt: Date | null,
+  after: Date,
+  timeZone: string,
+): Date {
+  const interval = rule.intervalMonths ?? 2;
+  const start = zonedCalendarDate(startInstant, timeZone);
+  const current = zonedCalendarDate(after, timeZone);
+
+  // Whole months between the start and now, then rounded down to a multiple of
+  // the interval. Jumping rather than stepping matters for a yearly plan that
+  // has been paused: stepping a month at a time from 2026 would take a hundred
+  // iterations to reach 2035.
+  const monthsElapsed =
+    (current.year - start.year) * 12 + (current.month - start.month);
+  let periods = Math.max(0, Math.floor(monthsElapsed / interval));
+
+  for (let guard = 0; guard < 1000; guard += 1) {
+    // Month arithmetic through Date.UTC on the first of the month, so an
+    // overflowing month index rolls the year over correctly, and only then is
+    // the day clamped to what that month actually has.
+    const cursor = new Date(Date.UTC(start.year, start.month - 1 + periods * interval, 1));
+    const year = cursor.getUTCFullYear();
+    const month = cursor.getUTCMonth() + 1;
+    const day = Math.min(start.day, daysInMonth(year, month));
+
+    const candidate = zonedTimeToUtc(year, month, day, rule.runAtMinute, timeZone);
+
+    const isFuture = candidate.getTime() > after.getTime();
+    const isAfterLastRun = lastRunAt === null || candidate.getTime() > lastRunAt.getTime();
+
+    if (isFuture && isAfterLastRun) return candidate;
+    periods += 1;
+  }
+
+  throw new RecurrenceError('Could not find the next occurrence of this monthly interval.');
+}
+
+/**
  * A human-readable summary.
  *
  * SOP 11.1 requires a visible schedule summary before activation - a customer
@@ -511,6 +609,24 @@ export function describeRule(rule: RecurrenceRule): string {
       const day = rule.monthDay ?? 1;
       const suffix = day > 28 ? ' (or the last day, in shorter months)' : '';
       return `On day ${String(day)} of each month at ${time}${suffix} (${rule.timezone})`;
+    }
+
+    case 'EVERY_N_MONTHS': {
+      const months = rule.intervalMonths ?? 2;
+      // Named where a name exists. "Every 12 months" is accurate and reads
+      // like a machine wrote it; the customer chose "once a year".
+      const cadence =
+        months === 12
+          ? 'Once a year'
+          : months === 3
+            ? 'Every three months'
+            : months === 6
+              ? 'Every six months'
+              : `Every ${String(months)} months`;
+
+      // The date is not restated: it comes from the start date, which the
+      // caller already shows beside this line.
+      return `${cadence}, on the same date, at ${time} (${rule.timezone})`;
     }
 
     default: {

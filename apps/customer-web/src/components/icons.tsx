@@ -315,3 +315,52 @@ export function AlertIcon(props: IconProps): React.JSX.Element {
     </Icon>
   );
 }
+
+// ---------------------------------------------------------------------------
+// The sourcing hub
+//
+// Added for the greeting page's orchestration graphic, where each node is a
+// capability rather than a control. They follow the same rules as the rest of
+// the set — `currentColor`, `aria-hidden`, stroke 1.7 — because a node's name
+// is always rendered as text beside its mark, never replaced by it.
+// ---------------------------------------------------------------------------
+
+/** The assistant. A spark rather than a speech bubble: what it does is think. */
+export function SparkIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M11 3.6 12.7 8.6 17.7 10.3 12.7 12 11 17 9.3 12 4.3 10.3 9.3 8.6z" />
+      <path d="M17.6 15.2v3.4M15.9 16.9h3.4" />
+    </Icon>
+  );
+}
+
+/** A warehouse in elevation: roof, body, shutter. */
+export function WarehouseIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M3 10.2 12 4.8l9 5.4V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" />
+      <path d="M8.5 21v-7h7v7" />
+      <path d="M8.5 17.4h7" />
+    </Icon>
+  );
+}
+
+/** A month, for a delivery that has a date rather than a queue position. */
+export function CalendarIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <rect x="3.2" y="5.2" width="17.6" height="15.6" rx="2.2" />
+      <path d="M3.2 10h17.6M8.2 3.2v4M15.8 3.2v4" />
+    </Icon>
+  );
+}
+
+/** Dismiss. Shared, so a close button is the same cross wherever it appears. */
+export function CloseIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M18 6 6 18M6 6l12 12" />
+    </Icon>
+  );
+}

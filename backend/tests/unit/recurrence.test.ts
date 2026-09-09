@@ -291,6 +291,164 @@ describe('monthly', () => {
   });
 });
 
+/**
+ * Cadences measured in months.
+ *
+ * The storefront's "2 months", "3 months", "6 months" and "1 year". The whole
+ * reason they are not EVERY_N_DAYS with 60, 90, 180 or 365 is in the first
+ * test: counting in days drifts, counting in months does not.
+ */
+describe('every N months', () => {
+  const monthly = (months: number, overrides: Partial<RecurrenceRule> = {}): RecurrenceRule =>
+    rule({ frequency: 'EVERY_N_MONTHS', intervalMonths: months, intervalDays: null, ...overrides });
+
+  it('keeps the start date, quarter after quarter', () => {
+    // Start 15 Jan; a quarterly plan is 15 Apr, 15 Jul, 15 Oct, 15 Jan.
+    const startDate = new Date('2026-01-15T00:00:00.000Z');
+
+    const expected = [
+      { after: '2026-01-20T00:00:00.000Z', year: 2026, month: 4, day: 15 },
+      { after: '2026-05-01T00:00:00.000Z', year: 2026, month: 7, day: 15 },
+      { after: '2026-08-01T00:00:00.000Z', year: 2026, month: 10, day: 15 },
+      { after: '2026-11-01T00:00:00.000Z', year: 2027, month: 1, day: 15 },
+    ];
+
+    for (const step of expected) {
+      const next = nextRunAt({ rule: monthly(3), startDate, after: new Date(step.after) });
+
+      expect(zonedCalendarDate(next ?? new Date(), KOLKATA)).toEqual({
+        year: step.year,
+        month: step.month,
+        day: step.day,
+      });
+    }
+  });
+
+  /**
+   * The drift this frequency exists to prevent, stated as a test.
+   *
+   * Ninety days from 15 January 2026 is 15 April. Ninety days from THAT is 14
+   * July - a day early - and the error accumulates: by the fourth year an
+   * "every 90 days" plan has moved into the previous month. A quarter is not
+   * ninety days.
+   */
+  it('does not drift the way an equivalent day count would', () => {
+    const startDate = new Date('2026-01-15T00:00:00.000Z');
+
+    const inDays = nextRunAt({
+      rule: rule({ intervalDays: 90 }),
+      startDate,
+      after: new Date('2030-01-01T00:00:00.000Z'),
+    });
+
+    const inMonths = nextRunAt({
+      rule: monthly(3),
+      startDate,
+      after: new Date('2030-01-01T00:00:00.000Z'),
+    });
+
+    // Four years on, the day-counted plan is no longer on the 15th.
+    expect(zonedCalendarDate(inDays ?? new Date(), KOLKATA).day).not.toBe(15);
+    expect(zonedCalendarDate(inMonths ?? new Date(), KOLKATA).day).toBe(15);
+  });
+
+  it('treats twelve months as the same date a year later', () => {
+    const next = nextRunAt({
+      rule: monthly(12),
+      startDate: new Date('2026-03-09T00:00:00.000Z'),
+      after: new Date('2026-06-01T00:00:00.000Z'),
+    });
+
+    expect(zonedCalendarDate(next ?? new Date(), KOLKATA)).toEqual({
+      year: 2027,
+      month: 3,
+      day: 9,
+    });
+  });
+
+  /**
+   * A 31st start clamps in the short months it lands on - and, crucially,
+   * un-clamps afterwards. Carrying the clamped day forward would turn a
+   * "31st" plan into a "30th" plan permanently, the first time it met a short
+   * month.
+   */
+  it('clamps a late start day per month without shortening later ones', () => {
+    const startDate = new Date('2026-01-31T00:00:00.000Z');
+
+    // Every two months from 31 January: March 31, May 31, July 31...
+    const march = nextRunAt({ rule: monthly(2), startDate, after: new Date('2026-02-01T00:00:00.000Z') });
+    expect(zonedCalendarDate(march ?? new Date(), KOLKATA).day).toBe(31);
+
+    // Every three months from 31 January: 30 April (clamped), then 31 July.
+    const april = nextRunAt({ rule: monthly(3), startDate, after: new Date('2026-02-01T00:00:00.000Z') });
+    expect(zonedCalendarDate(april ?? new Date(), KOLKATA)).toEqual({
+      year: 2026,
+      month: 4,
+      day: 30,
+    });
+
+    const july = nextRunAt({ rule: monthly(3), startDate, after: new Date('2026-05-01T00:00:00.000Z') });
+    expect(zonedCalendarDate(july ?? new Date(), KOLKATA).day).toBe(31);
+  });
+
+  /**
+   * A plan paused for years resumes on its own dates, not on a date measured
+   * from when somebody happened to unpause it.
+   */
+  it('resumes on the plan’s own schedule after a long pause', () => {
+    const next = nextRunAt({
+      rule: monthly(6),
+      startDate: new Date('2026-02-10T00:00:00.000Z'),
+      after: new Date('2031-07-04T00:00:00.000Z'),
+    });
+
+    // Six-monthly from 10 February: February and August, every year.
+    expect(zonedCalendarDate(next ?? new Date(), KOLKATA)).toEqual({
+      year: 2031,
+      month: 8,
+      day: 10,
+    });
+  });
+
+  it('never re-fires a slot it has already served', () => {
+    const startDate = new Date('2026-01-15T00:00:00.000Z');
+    const lastRunAt = new Date('2026-04-15T00:30:00.000Z');
+
+    const next = nextRunAt({
+      rule: monthly(3),
+      startDate,
+      lastRunAt,
+      // Only a minute after the run: without the lastRunAt guard the same slot
+      // would still be "the next one".
+      after: new Date('2026-04-15T00:29:00.000Z'),
+    });
+
+    expect(Number(next?.getTime())).toBeGreaterThan(lastRunAt.getTime());
+    expect(zonedCalendarDate(next ?? new Date(), KOLKATA).month).toBe(7);
+  });
+
+  it('refuses an interval of one, which is MONTHLY under another name', () => {
+    expect(() => {
+      validateRule(monthly(1));
+    }).toThrow(RecurrenceError);
+
+    expect(() => {
+      validateRule(monthly(25));
+    }).toThrow(RecurrenceError);
+
+    expect(() => {
+      validateRule(rule({ frequency: 'EVERY_N_MONTHS', intervalMonths: null, intervalDays: null }));
+    }).toThrow(RecurrenceError);
+  });
+
+  it('describes itself in words a customer chose', () => {
+    expect(describeRule(monthly(12))).toContain('Once a year');
+    expect(describeRule(monthly(3))).toContain('Every three months');
+    expect(describeRule(monthly(6))).toContain('Every six months');
+    expect(describeRule(monthly(2))).toContain('Every 2 months');
+  });
+});
+
 describe('always moves forward', () => {
   /**
    * The invariant the whole engine rests on: a next run is strictly in the
@@ -308,6 +466,10 @@ describe('always moves forward', () => {
       rule({ frequency: 'WEEKLY', weekday: 7, intervalDays: null }),
       rule({ frequency: 'MONTHLY', monthDay: 1, intervalDays: null }),
       rule({ frequency: 'MONTHLY', monthDay: 31, intervalDays: null }),
+      rule({ frequency: 'EVERY_N_MONTHS', intervalMonths: 2, intervalDays: null }),
+      rule({ frequency: 'EVERY_N_MONTHS', intervalMonths: 3, intervalDays: null }),
+      rule({ frequency: 'EVERY_N_MONTHS', intervalMonths: 6, intervalDays: null }),
+      rule({ frequency: 'EVERY_N_MONTHS', intervalMonths: 12, intervalDays: null }),
       rule({ intervalDays: 7, timezone: LONDON }),
       rule({ intervalDays: 7, timezone: 'America/New_York' }),
       rule({ intervalDays: 7, runAtMinute: 0 }),

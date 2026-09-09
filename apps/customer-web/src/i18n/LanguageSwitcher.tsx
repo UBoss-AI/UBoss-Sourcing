@@ -7,7 +7,7 @@
  *     matters most: somebody who cannot read the interface cannot navigate to
  *     a setting buried inside it, so the escape hatch has to be on the first
  *     screen they land on, before they have an account to store it against.
- *   - `header` rides the navy band next to the currency switcher.
+ *   - `header` rides the header next to the currency switcher.
  *   - `inline` is the plain form for a settings panel.
  *
  * Every option is listed in its own language and never translated into the
@@ -57,10 +57,9 @@ export function LanguageSwitcher({
         // being whatever shape the operating system felt like drawing.
         'select-chevron rounded-md border bg-surface text-ink',
         placement === 'header'
-          ? // A white control on the navy band, not a transparent one with
-            // white text: the option list is drawn by the OS and inherits the
-            // page's colours, so white-on-transparent gives an unreadable
-            // dropdown. Same reasoning as the currency switcher beside it.
+          ? // Shorter and quieter than the settings form below, because up
+            // here it is one of three market controls in a row rather than a
+            // labelled field. Same skin as the currency switcher beside it.
             'h-10 border-border-strong pl-2.5 pr-7 text-xs font-medium'
           : 'h-10 w-full border-border-strong px-3 pr-9 text-sm',
       )}

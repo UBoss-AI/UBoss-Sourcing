@@ -78,8 +78,15 @@ const TEXT_PAIRS = [
   ['ink-muted', 'surface-sunken', 'Secondary text on a sunken panel'],
   ['ink-subtle', 'surface', 'Tertiary text on a card'],
   ['ink-subtle', 'surface-sunken', 'Tertiary text on a sunken panel'],
+  // Added when the page ground went sky. A tinted ground is a darker ground,
+  // and the quietest text in the app is the first thing that stops passing on
+  // it — including inside a row somebody is hovering, which is darker still.
+  ['ink-subtle', 'surface-hover', 'Tertiary text in a hovered row'],
   ['ink-inverse', 'surface-inverse', 'Text on the inverse surface'],
-  ['ink-inverse', 'navy', 'Header text on navy'],
+  // Not the chrome any more — the header and the sidebar are white over a
+  // sky page. What is still drawn on this is a dialog scrim and the two
+  // `inverse` button variants, and both carry text.
+  ['ink-inverse', 'navy', 'Text on the deep-blue ground'],
   ['ink-inverse', 'brand', 'Label on a primary button'],
   ['ink-inverse', 'brand-hover', 'Label on a hovered primary button'],
   ['ink-inverse', 'action-strong', 'Label on the buy button'],

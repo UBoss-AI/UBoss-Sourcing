@@ -50,6 +50,21 @@ export interface StripeConfirmResult {
   paymentIntent?: { id: string; status: string };
 }
 
+/**
+ * The answer to confirming a SetupIntent.
+ *
+ * Saving a card is not a payment, so it comes back as a `setupIntent` rather
+ * than a `paymentIntent` and there is no amount anywhere in it. Its `id` is
+ * the only field this app forwards, and it forwards it so the SERVER can
+ * re-read the intent from Stripe — a browser saying "the card was saved" is a
+ * claim about somebody's payment credential, and the backend stores what
+ * Stripe says instead. See `payment-method.service.ts`.
+ */
+export interface StripeSetupResult {
+  error?: StripeJsError;
+  setupIntent?: { id: string; status: string };
+}
+
 export interface StripeJs {
   elements: (options: {
     clientSecret: string;
@@ -61,6 +76,19 @@ export interface StripeJs {
     confirmParams?: { return_url?: string; payment_method_data?: Record<string, unknown> };
     redirect?: 'if_required' | 'always';
   }) => Promise<StripeConfirmResult>;
+  /**
+   * Confirm a SetupIntent: authorise this card for later, off-session use.
+   *
+   * The same Elements instance and the same `return_url` discipline as
+   * `confirmPayment` — a 3-D Secure challenge on enrolment navigates away
+   * exactly as one on a payment does, and Stripe refuses to start a challenge
+   * it cannot bring the customer back from.
+   */
+  confirmSetup: (options: {
+    elements: StripeElements;
+    confirmParams?: { return_url?: string; payment_method_data?: Record<string, unknown> };
+    redirect?: 'if_required' | 'always';
+  }) => Promise<StripeSetupResult>;
 }
 
 type StripeConstructor = (publishableKey: string, options?: Record<string, unknown>) => StripeJs;

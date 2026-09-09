@@ -241,6 +241,7 @@ export const ScheduleFrequency = {
   WEEKLY: 'WEEKLY',
   BIWEEKLY: 'BIWEEKLY',
   MONTHLY: 'MONTHLY',
+  EVERY_N_MONTHS: 'EVERY_N_MONTHS',
   ONE_TIME: 'ONE_TIME'
 } as const
 

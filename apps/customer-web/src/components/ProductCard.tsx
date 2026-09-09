@@ -89,9 +89,16 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
     product.compareAtPrice !== null &&
     BigInt(product.compareAtPrice.minor) > BigInt(product.price.minor);
 
-  // The bottom strip only earns its hairline when it has something in it.
-  const hasRuleChips =
-    hasDiscount || rules.minOrderQty > 1 || rules.qtyIncrement > 1 || rules.isRecurringEligible;
+  /*
+   * The bottom strip only earns its hairline when it has something in it.
+   *
+   * Recurring eligibility is deliberately NOT one of those things any more.
+   * Every product a customer can buy can also be scheduled, so a chip saying
+   * so appeared on every card in the grid — a badge that is always present
+   * distinguishes nothing and only costs the row its scannability. What is
+   * left here is the set of facts that genuinely vary between products.
+   */
+  const hasRuleChips = hasDiscount || rules.minOrderQty > 1 || rules.qtyIncrement > 1;
 
   return (
     // Rests on the page at `shadow-card` and rises to `shadow-card-hover` —
@@ -210,9 +217,6 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
               {hasDiscount && <Badge tone="action">{t('productCard.reducedPrice')}</Badge>}
               {rules.minOrderQty > 1 && <Badge>Min {formatNumber(rules.minOrderQty)}</Badge>}
               {rules.qtyIncrement > 1 && <Badge>In {formatNumber(rules.qtyIncrement)}s</Badge>}
-              {rules.isRecurringEligible && (
-                <Badge tone="operational">{t('productCard.repeatPurchase')}</Badge>
-              )}
             </div>
           )}
         </div>

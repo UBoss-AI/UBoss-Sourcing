@@ -6917,6 +6917,7 @@ export const RecurringScheduleScalarFieldEnum = {
   intervalDays: 'intervalDays',
   weekday: 'weekday',
   monthDay: 'monthDay',
+  intervalMonths: 'intervalMonths',
   timezone: 'timezone',
   runAtMinute: 'runAtMinute',
   startDate: 'startDate',

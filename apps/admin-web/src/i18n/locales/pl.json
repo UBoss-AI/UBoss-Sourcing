@@ -1932,7 +1932,6 @@
   "erp.event.INVENTORY_SYNC": "Synchronizacja zapasów",
   "erp.event.INVENTORY_WEBHOOK": "Towar został dostarczony",
   "erp.event.ORDER_STATUS_POLL": "Sprawdzenie statusu zamówienia",
-  "erp.event.AUTOPAY_CHARGE": "Płatność automatyczna",
   "erp.attemptCount": "Próby: {{count}}",
   "erp.nextAttempt": "Kolejna próba: {{when}}",
   "erp.tryAgain": "Proszę spróbować ponownie",

@@ -40,7 +40,7 @@ import { useToast } from '@/components/toast-context';
 import { QuantityInput } from '@/components/QuantityInput';
 import { clampToRules } from '@/lib/quantity-rules';
 import { Badge, Button, ButtonLink, ErrorState, LoadingState } from '@/components/ui';
-import { BoxIcon, CurrencyIcon, RepeatIcon, TruckIcon } from '@/components/icons';
+import { BoxIcon, CurrencyIcon, TruckIcon } from '@/components/icons';
 import { ApiError, api } from '@/lib/api';
 import { formatMoney, formatNumber } from '@/lib/format';
 import { SafeHtml } from '@/lib/safe-html';
@@ -261,26 +261,21 @@ function taxLine(
 /**
  * Ordering information — the purchase-confidence panel.
  *
- * Four facts at most, and every one of them is something the API already
- * stated about this product. Nothing is inferred, averaged or aspirational:
- * the tax treatment comes from `tax`, the quantity rules from
- * `purchaseRules`, the fulfilment wording from `isStockTracked` — which is
- * the same sentence this page has always shown — and the schedule line only
- * appears when the store has recurring orders switched on *and* the product
- * is eligible for one, because offering a capability the backend will refuse
- * is worse than not mentioning it.
+ * Every fact here is something the API already stated about this product,
+ * and every one of them VARIES between products. Nothing is inferred,
+ * averaged or aspirational: the tax treatment comes from `tax`, the quantity
+ * rules from `purchaseRules`, the fulfilment wording from `isStockTracked` —
+ * which is the same sentence this page has always shown.
+ *
+ * A "Repeat purchase" row used to sit here too. It went when scheduling
+ * became true of everything the store sells: a fact that is the same on every
+ * product page is not a fact this panel is for.
  *
  * Compact by construction: a two-column grid of short term/detail pairs, so
  * it supports the decision from the corner of the eye instead of becoming
  * another block of prose to read before buying.
  */
-function OrderingInformation({
-  product,
-  canSchedule,
-}: {
-  product: Product;
-  canSchedule: boolean;
-}): React.JSX.Element {
+function OrderingInformation({ product }: { product: Product }): React.JSX.Element {
   const { t } = useI18n();
 
   const rules = product.purchaseRules;
@@ -325,14 +320,18 @@ function OrderingInformation({
       : t('product.madeToOrder'),
   });
 
-  if (canSchedule) {
-    facts.push({
-      key: 'recurring',
-      icon: <RepeatIcon className="h-4 w-4" />,
-      term: t('product.repeatPurchase'),
-      detail: t('product.canBePutOnASchedule'),
-    });
-  }
+  /*
+   * No "Repeat purchase" row in the ordering facts.
+   *
+   * This panel is for what is true of THIS product and not of the next one —
+   * its minimum, its increment, whether stock is tracked. Scheduling is true
+   * of everything the store sells, so the row appeared on every product page
+   * and told the reader nothing they could not assume.
+   *
+   * The capability itself is not hidden: `canSchedule` still gates the
+   * "Schedule your Cart" button further down, which is where a customer can
+   * actually do something about it.
+   */
 
   return (
     <section
@@ -672,7 +671,7 @@ export function ProductPage(): React.JSX.Element {
 
           {/* Everything in here is a fact the API already sent. See the
               component's own note. */}
-          <OrderingInformation product={product} canSchedule={canSchedule} />
+          <OrderingInformation product={product} />
         </div>
       </div>
 

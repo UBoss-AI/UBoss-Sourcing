@@ -27,6 +27,7 @@ import {
 import { newId, variantKeyOf } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { publicProductWhere } from '../catalog/catalog.visibility.js';
+import { isScheduleEligible } from '../catalog/recurring-eligibility.js';
 import { loadPricesForCurrency, priceKey } from '../catalog/price.service.js';
 import {
   evaluateCoupon,
@@ -378,7 +379,7 @@ export async function resolveCart(
         taxClassCode: product.taxClass.code,
         taxRatePercent: lineTax.taxRatePercent,
         taxInclusive: lineTax.taxInclusive,
-        isRecurringEligible: product.isRecurringEligible,
+        isRecurringEligible: isScheduleEligible(product),
         imageUrl: product.media[0]?.media.url ?? null,
       },
       quantity: item.quantity,
@@ -510,7 +511,7 @@ export async function resolveCart(
       taxRatePercent: priced?.taxRatePercent ?? '0',
       taxInclusive: priced?.taxInclusive ?? false,
       availableQty: meta.availableQty,
-      isRecurringEligible: source?.product.isRecurringEligible ?? false,
+      isRecurringEligible: source === undefined ? false : isScheduleEligible(source.product),
       purchaseRules: {
         minOrderQty: items[index]?.product.minOrderQty ?? 1,
         maxOrderQty: items[index]?.product.maxOrderQty ?? null,

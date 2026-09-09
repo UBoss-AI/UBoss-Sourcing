@@ -23,9 +23,9 @@ have to read separately — this *is* the explanation.
 8. [The API](#8-the-api)
 9. [Complete flows, end to end](#9-complete-flows-end-to-end)
    - [9.5 Scheduled orders — Buy Later and Subscribe & Reorder](#95-scheduled-orders--buy-later-and-subscribe--reorder)
-   - [9.5.1 Auto-pay: charging a card nobody is looking at](#951-auto-pay-charging-a-card-nobody-is-looking-at)
+   - [9.5.1 Autopay: charging a card nobody is looking at](#951-autopay-charging-a-card-nobody-is-looking-at)
    - [9.5.2 The ERP hand-off](#952-the-erp-hand-off)
-   - [9.8 The ERP connection, and auto-pay](#98-the-erp-connection-and-auto-pay)
+   - [9.8 The ERP connection, and Autopay](#98-the-erp-connection-and-autopay)
 10. [Money — the most important rule](#10-money--the-most-important-rule)
 11. [The background worker](#11-the-background-worker)
 12. [Security](#12-security)
@@ -151,6 +151,62 @@ rather than merely unlikely.
 It also means a member of staff can be logged into the admin panel *and*
 logged in as a test customer in the same browser at the same time — the two
 cookies do not collide.
+
+## The look, and the one place it is defined
+
+The two frontends share no browser code, but they *do* share one palette — and
+that is deliberate, because they are one product to the company that bought it.
+
+The palette lives in two files that are kept **identical**:
+
+```
+apps/customer-web/src/index.css   ← the :root token block
+apps/admin-web/src/index.css      ← the same block, same values
+```
+
+**A colour changes in both files or it has not really changed.** Only the prose
+around the tokens differs; each app describes the shared palette in its own
+terms. Below the palette the two diverge on purpose — the storefront is the
+spacious one and the panel the dense one — but that difference lives in
+padding, type steps and radii, never in the colours.
+
+### What the product looks like
+
+White and sky blue, with blue as the accent. The rule that produces it:
+
+- **The page ground is a blue-tinted white** (`--surface-sunken`), and
+  everything that sits on it — cards, the storefront header, the admin sidebar,
+  the top bar — is **pure white**. That inversion is the whole scheme. Both
+  chromes used to be a navy band; the separation now comes from the page being
+  cool rather than from the chrome being dark.
+- **Hairlines are tinted to match** (`--border`), so a card edge belongs to the
+  ground it is drawn on instead of being a grey line over a cool surface.
+- **Blue is navigation and primary actions. Orange is the buy path, and
+  nothing else.** Add to Cart, Checkout, Place Order — and the storefront's
+  basket button, which is the only orange in the chrome. A CTA that looked
+  like a link would stop being noticed as either.
+- **Teal is a standing arrangement** — schedules, Autopay — so committing to
+  a repeat delivery never has to borrow the buy path's orange.
+
+### How far the tint can go is not a matter of taste
+
+`npm run audit:contrast` (in both apps) reads the token block directly and
+checks every pair the components actually put together against WCAG 2.1 AA —
+4.5:1 for text, 3:1 for anything that identifies a control. It exits non-zero
+on a failure and runs as part of `npm run verify`.
+
+That audit is what sets the ceiling on the sky tint. A tinted ground is a
+*darker* ground, and the quietest text in the app — `--ink-subtle`, which
+carries SKUs, timestamps and every table column header — is the first thing
+that stops passing on it. It sits at 4.98:1 on the page ground today. A couple
+of steps deeper and the audit fails, which is the correct outcome: the
+alternative is a slightly prettier blue that a low-vision buyer cannot read a
+part number on.
+
+There is no dark theme, and `color-scheme: light` says so to the browser. The
+parts of a page the browser draws itself — the scrollbar, and the option list
+of a native `<select>` — would otherwise render dark for a visitor whose
+operating system is, on a product that is white everywhere else.
 
 ## Why the worker is separate
 
@@ -288,7 +344,7 @@ comes back in the exact same shape:
 | `/schedules/new` | Build a repeating order | **Yes** |
 | `/account/addresses` | Saved addresses | **Yes** |
 | `/account/profile` | Name, phone, language | **Yes** |
-| `/account/autopay` | Automatic payment: consent, limits, which card | **Yes** |
+| `/account/autopay` | Autopay: consent, limits, which card | **Yes** |
 
 **Browsing does not need an account.** The sign-in wall sits at the *cart*, not
 at the front door — because the backend puts it there too. A visitor can see
@@ -299,7 +355,92 @@ they want to actually buy.
 launcher and, on pressing it, a "Sign in to use AI" panel — never a composer.
 Signing in from there returns them to the page they were on with the panel
 already open. See *The AI assistant* in section 8 for why the API insists on it
-too.
+too. It can also be opened from the front page — see below.
+
+## The front page, and the sourcing hub
+
+`/` is a greeting page. Above the catalogue it carries one large animated
+graphic: a central orb labelled **Sourcing**, two orbital rings turning in
+opposite directions, and six capabilities arranged on a circle around it.
+
+| Node | What pressing it does |
+|---|---|
+| AI Assistant | Opens the chat panel in the corner of the page |
+| Scheduled Orders | Goes to `/account/schedules` |
+| Autopay | Goes to `/account/autopay` |
+| Inventory Sync | Goes to `/products` — a synchronised stock level is shown on the product |
+| Warehouse Network | Explains that the network belongs to the operator, and offers the catalogue |
+| ERP Integration | Explains that a connection is created in the admin panel |
+
+**A node never links somewhere the person pressing it cannot go.** That is the
+rule the whole thing is built on, and it is why three of the six are `<a>` and
+three are `<button>` depending on who is looking:
+
+- A **guest** pressing Scheduled Orders, Autopay or AI Assistant gets a short
+  explanation and a **Sign in** link — never the guarded route, and never an
+  AI composer.
+- A capability this deployment has **switched off** (`recurringOrders`,
+  `assistant`) explains that instead of linking to a page that would 404.
+- **Warehouses and ERP always explain**, for everybody. Neither has a customer
+  screen and neither is supposed to grow one — an ERP connection is a URL plus
+  a credential belonging to whoever runs the installation, which is exactly why
+  the screen for it is Settings → ERP in the admin panel.
+
+The decision table lives in
+`apps/customer-web/src/components/greeting/orchestration-nodes.ts`, on its own,
+so it can be read and tested without rendering an SVG.
+
+### What a signed-in customer sees underneath
+
+A panel that renders **nothing at all for a guest**, and makes no request for
+one. For a customer it carries:
+
+- A personalised greeting, *if* the account has a name on it. `fullName` is
+  nullable and blank in plenty of real purchasing accounts, so a missing name
+  falls back to "Welcome back" rather than breaking the page. It is never
+  derived from the email address.
+- Actions: **View dashboard**, **Ask AI**, **Build a cart**, **Schedule a
+  cart**, **Connect ERP API**. Each appears only where it leads somewhere —
+  no schedule action without `recurringOrders`, no AI action without an
+  assistant.
+- The **next scheduled order**: the soonest run across every active plan, with
+  the plan's status, the server's own description of the recurrence, and a
+  link straight to that schedule.
+- **Setup guidance**, when there is any: a card that can no longer be charged,
+  a paused Autopay authority, or a repeat purchase running with no standing
+  authority behind it.
+
+**Guidance never gates.** A setup notice changes nothing about the actions
+beside it: a customer who has not finished setting up Autopay can
+still open their orders, build a basket and schedule one.
+
+**The page never claims an ERP is connected.** There is no customer-facing
+endpoint for that and there should not be one, so the ERP entry is worded as
+an explanation of how the hand-off works and of who sets it up. A green "ERP
+connected" chip here would be a decoration pretending to be a status.
+
+### The animation
+
+Everything that moves animates **`transform` and `opacity` only** — the orb's
+wireframe rotates in three dimensions, the rings counter-rotate, particles ride
+them, a light travels out along each spoke, and the six nodes float. All of it
+composites on the GPU and does no layout for the life of the page. The
+travelling lights are circles that translate rather than the usual animated
+`stroke-dashoffset`, which would repaint the whole path every frame.
+
+**The word "Sourcing" does not rotate.** It is a sibling layer of the orb with
+no transform at all, because a word painted onto a spinning sphere is
+unreadable for most of every revolution.
+
+`prefers-reduced-motion: reduce` stops every rotation, the float and the
+pointer parallax. The parallax is written straight to two CSS custom
+properties on the element and re-reads the media query on each frame, so
+switching reduced motion on mid-visit takes effect without a reload.
+
+**Below `lg` the circle becomes a list.** Same DOM, same six controls, same tab
+order: the orb stays as a smaller graphic and the nodes drop into a grid under
+it — one column on a phone, two from `sm`. A radial layout that merely scaled
+down would put one node's label on top of another's.
 
 ## How a page is built
 
@@ -1315,6 +1456,121 @@ says a different thing for each.
 `PENDING`, `ORDER_CREATED` and `PAID` also exist in the enum. Nothing writes
 them; they are kept so rows from the previous engine still read correctly.
 
+### How often — the intervals offered
+
+The builder's **Repeat** dropdown offers six intervals, grouped as *Common
+intervals*:
+
+| The customer picks | Stored as | Which day it lands on |
+|---|---|---|
+| Every 15 days | `EVERY_N_DAYS`, `intervalDays` 15 | Counted from the start date |
+| Every month | `MONTHLY`, `monthDay` from the start date | The same date each month, clamped in short months |
+| Every 2 months | `EVERY_N_MONTHS`, `intervalMonths` 2 | The start date's day, every second month |
+| Every 3 months | `EVERY_N_MONTHS`, `intervalMonths` 3 | …every third month |
+| Every 6 months | `EVERY_N_MONTHS`, `intervalMonths` 6 | …every sixth |
+| Once a year | `EVERY_N_MONTHS`, `intervalMonths` 12 | The same date next year |
+
+Under *Something else* are the three cadences that shipped before the presets:
+every so many days, weekly on a chosen weekday, and monthly on a chosen date.
+Each asks a follow-up question, which is why they are grouped apart — a
+customer wanting "every three months" should not have to answer "which day of
+the month?" when they already picked a start date.
+
+**`EVERY_N_MONTHS` is not `EVERY_N_DAYS` with a bigger number, and that is the
+point.** A quarter is not ninety days and a year is not 365 of them, so a
+month-interval plan counted in days walks backwards through the calendar — an
+"every 90 days" order starting 15 January is billing on the 14th by its second
+year and in the previous month within four. `intervalMonths` counts calendar
+months from the start date, so the date holds for ever. `domain/recurrence.ts`
+owns the arithmetic and `tests/unit/recurrence.test.ts` states the drift as a
+test.
+
+There is deliberately no `intervalMonths` of 1: that is `MONTHLY`, and two
+storable spellings of one cadence is how a screen reading a plan's own settings
+reports it back wrongly. The day of the month is not stored for
+`EVERY_N_MONTHS` either — it comes from `startDate`, because "every three
+months" is a choice about spacing and the date was settled when the customer
+picked their first delivery.
+
+Adding another member to `ScheduleFrequency` needs a migration for
+`chk_schedule_frequency_field_present`. That CHECK names each frequency and the
+column it depends on, and a CHECK matching no branch **fails** — so a frequency
+absent from it cannot be inserted at all. See
+`20260909160000_schedule_month_intervals`.
+
+### Which products can be repeated
+
+By default, **all of them**: anything a customer can buy, they can schedule.
+
+`FEATURE_SCHEDULE_ANY_PRODUCT` (default `true`) is what says so. Turn it off
+and eligibility falls back to the per-product **Eligible for repeat purchase**
+tick on the product form, which is how a store curates its repeatable range —
+clearance lines, one-per-customer devices, anything sold against a single
+tender.
+
+The question is asked in one place, `modules/catalog/recurring-eligibility.ts`,
+and every caller goes through it: the product badge, the cart badge, the cart
+panel's count, the builder's item list, `quoteSchedule`, and
+`createSchedule`'s own refusal. Computing it separately in six places is six
+chances for the storefront to offer a schedule the API then refuses.
+
+### Where a customer starts one
+
+Four doors, all leading to `/schedules/new`:
+
+| From | What they see |
+|---|---|
+| A product page | The **Schedule your Cart** button, beside Add to Cart |
+| `/cart` | A **Need this again?** panel beside Checkout, when at least one line is eligible |
+| `/checkout` | **Repeat this order on a schedule**, directly under Place Order |
+| `/account/schedules` | The list of plans they already have, and its empty state |
+
+The cart and checkout doors are the ones that matter, because they are where
+the decision is actually being made — a customer who has just added a case of
+syringes is at the exact moment they think "I need these every week", and one
+standing at Place Order is thinking "I will be doing this again next month".
+
+The checkout offer is deliberately **not** a second orange button and sits
+*below* Place Order. Place Order is what that page is for; this is an
+alternative to it, and two equally loud calls to action is how somebody ends up
+on a subscription they meant to buy once. It appears only when the store offers
+repeat purchases and the basket has at least one eligible line, so it never
+leads to the builder's empty state.
+
+### Autopay, from the cart
+
+The cart panel shows the state of **Autopay** — On, Paused or Off —
+with the card that would be charged, and it is actionable. One control per
+state, never two:
+
+| State | Control | What happens |
+|---|---|---|
+| On | **Manage Autopay** → `/account/autopay` | Limits and withdrawal belong on the page that explains both |
+| Off, no card saved | **Set up a card for Autopay** | Card enrolment, then the consent step |
+| Off, card saved | **Turn on Autopay** | The consent step alone |
+| Paused | **Resume Autopay** | One call. Consent is already on record, so nothing is asked again |
+
+The label names the *first step*, not the destination. A customer promised
+"turn on Autopay" and handed a card form has been surprised by it;
+one offered "set up a card for Autopay" has not.
+
+**Nothing is authorised from the panel itself.** Both the card and the consent
+are collected in a dialog with the wording in front of the customer, and the
+two are kept apart because they are different agreements: saving a card is not
+agreeing to be charged with it. A customer can reasonably want the first
+without the second, and one tick covering both would be consent to the larger
+thing obtained by asking about the smaller one. Spending limits are not asked
+for in the dialog either — it links to `/account/autopay` instead of
+reproducing that page badly.
+
+Both halves of the panel fail quietly. A store that does not offer Autopay
+(`available: false`) gets the schedule button and no Autopay block, and a
+failed read of `/account/autopay` does the same. A cart must not lose its
+checkout button because an account endpoint hiccoughed. The panel itself is
+hidden entirely when no line is eligible, because `/schedules/new` filters the
+cart by the same flag and would otherwise greet the customer with its empty
+state.
+
 ### The flow
 
 ```
@@ -1508,7 +1764,7 @@ collapse together rather than half of them repeating.
 Claiming uses a conditional `UPDATE` and an affected-rows check, not
 `FOR UPDATE SKIP LOCKED` — MariaDB 10.4 does not have it.
 
-## 9.5.1 Auto-pay: charging a card nobody is looking at
+## 9.5.1 Autopay: charging a card nobody is looking at
 
 Off by default (`FEATURE_SUBSCRIPTION_AUTOPAY`). Turning it on means this
 deployment takes money from people who are not present, which should be a
@@ -1694,7 +1950,7 @@ keyed on `inventory_movements.dedupeKey` so a retried reconciliation collides on
 the unique index rather than posting a second delta. The ledger is append-only
 and has no reversal, so a double post would silently corrupt on-hand for ever.
 
-## 9.8 The ERP connection, and auto-pay
+## 9.8 The ERP connection, and Autopay
 
 ### The distinction everything here rests on
 
@@ -1720,9 +1976,9 @@ installation behind it. The set of people who may create one is the set already
 trusted with the installation, and the guarantee is a route that does not exist
 rather than a permission somebody could be granted by accident.
 
-Auto-pay is the exception, and it has to be: **nobody can consent on somebody
+Autopay is the exception, and it has to be: **nobody can consent on somebody
 else's behalf to money leaving their account.** That screen stays under Account
-→ Automatic payment, where the account holder is.
+→ Autopay, where the account holder is.
 
 ### The consequences of "somebody types the address"
 
@@ -1988,11 +2244,11 @@ id** (shared by every log line, audit row and event from one incident, so it
 reads back as one story), the idempotency key, the attempt count, the status, a
 safe provider response, and its timestamps.
 
-### Auto-pay
+### Autopay
 
 This is the one part of the feature that belongs to the **customer**, and it has
 to: nobody can consent on somebody else's behalf to money leaving their account.
-It lives under **Account → Automatic payment**.
+It lives under **Account → Autopay**.
 
 **A saved card is not permission to use it.** `customer_payment_methods` says an
 instrument exists; `customer_autopay_settings` says the account holder asked us
@@ -2027,6 +2283,30 @@ operator's backstop on top, so a pricing bug cannot become a five-figure charge.
 The customer also controls the retry preference, pause/resume, which card, and
 which notifications they get. **Withdrawing consent is not gated on the feature
 flag** — a right to withdraw that depends on a deployment setting is not a right.
+
+### Saving a card
+
+Enrolment happens in a dialog (`components/CardSetupDialog.tsx`), reachable
+from **Account → Autopay** and from the cart panel. Three requests,
+and the third is the one that matters:
+
+1. `POST /account/payment-methods/setup-intent` — the server asks Stripe to
+   begin and answers with a client secret and a publishable key.
+2. The browser confirms the SetupIntent **directly with Stripe**. The card
+   number goes from the customer to Stripe and nowhere else; this origin never
+   sees it, which is what keeps the deployment out of PCI scope.
+3. `POST /account/payment-methods` — the server **re-reads** the intent from
+   Stripe and stores what Stripe says.
+
+Step 3 not trusting step 2 is the whole design. The browser sends an intent id
+and a consent flag; every display detail of the stored card comes from the
+provider. A page claiming a card was enrolled when it was not gets a refusal,
+not a row — the same rule that stops a client redirect confirming a payment.
+
+The dialog carries its own consent tick, never pre-ticked, and it is a
+different tick from the Autopay one: this one says the card may be *stored in
+a form that can be charged later*, which is the thing a customer typing a card
+into a checkout has not agreed to.
 
 ### Coordination, in order
 
@@ -2441,6 +2721,7 @@ hostname adds it to that check, in every mode, and nothing else with it. See
 | `FEATURE_ORDER_APPROVALS` | `false` | Route orders through approval |
 | `FEATURE_RECURRING_ORDERS` | `true` | Subscribe & Reorder |
 | `FEATURE_SCHEDULED_ORDERS` | `true` | Buy Later — one delivery, on a chosen date |
+| `FEATURE_SCHEDULE_ANY_PRODUCT` | `true` | Every published product may be put on a repeat purchase. Off means only products an administrator ticked, which is how a store curates its repeatable range |
 | `FEATURE_SUBSCRIPTION_AUTOPAY` | `false` | Charging a saved card off-session. Needs Stripe |
 | `FEATURE_ERP_INTEGRATION` | `false` | **Settings → ERP.** An ERP configured from a screen rather than from environment variables. Off means the screen says so, the routes refuse, no polling job runs and the webhook endpoint 404s |
 | `FEATURE_CUSTOMER_AUTOPAY` | `false` | A customer's standing authority to be charged, with their own limits. Needs Stripe **and** `FEATURE_SUBSCRIPTION_AUTOPAY`, which is what lets them save a card at all |

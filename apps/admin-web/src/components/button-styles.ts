@@ -71,14 +71,27 @@ export const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
   danger:
     'bg-danger text-white shadow-card hover:bg-danger-hover ' +
     'focus-visible:ring-danger disabled:bg-ink-subtle disabled:shadow-none',
-  // For a navy surface, where accent blue on navy is 1.57:1 and simply
-  // vanishes. White carries navy text at 14.6:1. Present for parity with the
-  // storefront, so a component can be lifted between the apps unchanged.
+  /*
+   * The on-dark pair, and nothing calls them today.
+   *
+   * They existed for a navy surface, where accent blue on navy was 1.57:1 and
+   * simply vanished. The sidebar here and the header on the storefront both
+   * went white over a sky-tinted page, so every button in both apps is now an
+   * on-light button.
+   *
+   * Kept rather than deleted, for two reasons. The palette still has `--navy`
+   * for the one dark thing left — the scrim behind a dialog — so the surface
+   * these were drawn for has not stopped existing. And this list mirrors the
+   * storefront's `ui.tsx` precisely so a component can be lifted between the
+   * apps unchanged; a variant that exists in one file and not the other is
+   * how that stops being true. If a dark surface never comes back, these and
+   * `--navy` go together.
+   */
   inverse:
     'bg-surface text-surface-inverse shadow-card hover:bg-ink-inverse ' +
     'disabled:text-ink-subtle disabled:shadow-none',
-  // The paired quiet option on a dark surface. `white/40` because a control
-  // boundary needs 3:1 to be perceivable at all (WCAG 1.4.11).
+  // The paired quiet option. `white/40` because a control boundary needs 3:1
+  // to be perceivable at all (WCAG 1.4.11).
   'inverse-outline':
     'border border-white/40 text-ink-inverse hover:border-white/60 hover:bg-white/10',
 };

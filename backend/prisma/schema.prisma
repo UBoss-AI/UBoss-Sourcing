@@ -1774,6 +1774,16 @@ enum ScheduleFrequency {
   /// week parity, so "alternate Tuesdays" stays on Tuesdays for ever.
   BIWEEKLY
   MONTHLY
+  /// Every N calendar months, on the start date's day of the month.
+  ///
+  /// What "every two months", "quarterly", "every six months" and "yearly"
+  /// are all stored as, with `intervalMonths` saying which. Not the same thing
+  /// as EVERY_N_DAYS with 60, 90, 180 or 365: a quarter is not ninety days and
+  /// a year is not 365 of them, so counting in days walks a standing order
+  /// backwards through the calendar until it bills in the wrong month.
+  ///
+  /// N is 2 or more. One would be MONTHLY spelled a second way.
+  EVERY_N_MONTHS
   /// Buy Later: one delivery, on one date, and then the plan is COMPLETED.
   ///
   /// Modelled as a frequency rather than its own table because everything
@@ -1850,6 +1860,13 @@ model RecurringSchedule {
   weekday      Int?
   /// Used when frequency = MONTHLY. 1..31, clamped to the last valid day.
   monthDay     Int?
+
+  /// Used when frequency = EVERY_N_MONTHS. 2..24.
+  ///
+  /// No day column of its own: the day of the month comes from `startDate`.
+  /// "Every three months" is a choice about spacing, and the date was settled
+  /// when the customer picked their first delivery.
+  intervalMonths Int?
 
   /// IANA zone the wall-clock run time is interpreted in. The server timezone
   /// is deliberately not trusted for this.

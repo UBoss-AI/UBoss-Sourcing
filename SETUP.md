@@ -123,6 +123,7 @@ worth knowing about now, because they change what you see later:
 | `ERP_ORDER_CONNECTION_NAME` | *(empty)* | With this empty, no order is pushed to an ERP. That is a working state: orders are created, paid and fulfilled exactly as they are with one. Set it to the **name** of an integration connection you have created and activated in the admin panel. |
 | `FEATURE_ERP_INTEGRATION` | `false` | With this off, **Settings → ERP** says so and does nothing else: the routes refuse, no polling job runs and the inbound webhook endpoint answers 404. Turn it on to connect an ERP from a screen rather than from environment variables — see below. |
 | `FEATURE_CUSTOMER_AUTOPAY` | `false` | A customer's standing authority to be charged for scheduled deliveries, with their own per-transaction ceiling and approval threshold. Needs Stripe **and** `FEATURE_SUBSCRIPTION_AUTOPAY`, which is what lets them save a card in the first place; the backend refuses to start with one on and the other off. |
+| `FEATURE_SCHEDULE_ANY_PRODUCT` | `true` | With this on, anything a customer can buy they can also put on a repeat purchase. Turn it off and only products you have ticked **Eligible for repeat purchase** on the product form may be scheduled — which is what you want if you sell things you will not repeat. On by default because that per-product tick defaults to off, and the two together mean a fresh install offers a repeat-purchase button that then refuses every basket. |
 
 ### Connecting an ERP from a screen
 

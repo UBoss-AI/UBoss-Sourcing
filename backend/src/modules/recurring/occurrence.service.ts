@@ -220,6 +220,7 @@ export async function materialiseOccurrences(
         rule: {
           frequency: schedule.frequency,
           intervalDays: schedule.intervalDays,
+          intervalMonths: schedule.intervalMonths,
           weekday: schedule.weekday,
           monthDay: schedule.monthDay,
           timezone: schedule.timezone,
@@ -1651,6 +1652,7 @@ async function advanceSchedule(scheduleId: string, servedSlot: Date): Promise<vo
     rule: {
       frequency: schedule.frequency,
       intervalDays: schedule.intervalDays,
+      intervalMonths: schedule.intervalMonths,
       weekday: schedule.weekday,
       monthDay: schedule.monthDay,
       timezone: schedule.timezone,

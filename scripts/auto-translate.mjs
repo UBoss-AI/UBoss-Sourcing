@@ -53,8 +53,16 @@ const FORMAL = new Set(['nl', 'fr', 'de', 'it', 'pl', 'es']);
  * Words that must survive untranslated: the product, and role names that are
  * shown verbatim in the panel and referred to by name in support calls.
  * Protected the same way placeholders are.
+ *
+ * `Autopay` is here because it is the storefront's NAME for the feature, in
+ * every language, and it is the name in the nav, the cart panel, the account
+ * page and the schedule builder. Left unprotected, DeepL renders it
+ * "Automatische Zahlung", "Paiement automatique", and so on - which is a fine
+ * translation of the words and undoes the naming in seven languages, so that a
+ * German customer's nav and the same customer's support call use two different
+ * terms.
  */
-const KEEP = ['UBOSS', 'Business Owner', 'GSTIN', 'IBAN', 'GDPR'];
+const KEEP = ['UBOSS', 'Autopay', 'Business Owner', 'GSTIN', 'IBAN', 'GDPR'];
 
 const PLURAL_SUFFIX = /_(zero|one|two|few|many|other)$/;
 

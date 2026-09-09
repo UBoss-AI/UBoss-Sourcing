@@ -45,7 +45,13 @@ import { Link, useLocation } from 'react-router-dom';
 import { useStorefront } from '@/app/storefront-context';
 import { useSession } from '@/auth/session-context';
 import { ButtonLink, Spinner } from './ui';
+// The cross is the shared one. `ChatIcon` and `SendIcon` below are still
+// local because nothing else in the app draws them; a close button is not in
+// that position, and two crosses at two stroke weights is how an icon set
+// starts drifting.
+import { CloseIcon } from './icons';
 import { cx } from '@/lib/cx';
+import { ASSISTANT_OPEN_EVENT } from '@/lib/assistant-panel';
 import { ApiError, api, requestStream } from '@/lib/api';
 import { useI18n } from '@/i18n/i18n-context';
 import type { Translate } from '@/i18n/i18n-context';
@@ -151,22 +157,6 @@ function ChatIcon({ className }: { className?: string }): React.JSX.Element {
       aria-hidden="true"
     >
       <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-    </svg>
-  );
-}
-
-function CloseIcon({ className }: { className?: string }): React.JSX.Element {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      aria-hidden="true"
-    >
-      <path d="M18 6 6 18M6 6l12 12" />
     </svg>
   );
 }
@@ -996,6 +986,32 @@ export function ChatWidget(): React.JSX.Element | null {
     setSessionEnded(false);
     setIsOpen(true);
   }, [isCustomer, isLoading]);
+
+  /*
+   * Opened from somewhere else on the page.
+   *
+   * The greeting page's "AI Assistant" node is the only caller today. It
+   * cannot reach this component — the widget is mounted by the shell, not by
+   * the route — so it asks by name instead; see `lib/assistant-panel.ts`.
+   *
+   * It opens the panel and nothing more. Whether there is a composer behind
+   * it is still decided by `isCustomer` inside `ChatPanel`, exactly as it is
+   * when the launcher is pressed, so an event cannot talk its way past the
+   * sign-in gate. The node that dispatches it will not even offer the action
+   * to a guest, and the API answers a signed-out browser with a 401 either
+   * way.
+   */
+  useEffect(() => {
+    const open = (): void => {
+      setIsOpen(true);
+    };
+
+    window.addEventListener(ASSISTANT_OPEN_EVENT, open);
+
+    return () => {
+      window.removeEventListener(ASSISTANT_OPEN_EVENT, open);
+    };
+  }, []);
 
   // The single gate on the widget existing at all. No key configured on this
   // deployment, no widget — not a disabled button, not a tooltip.

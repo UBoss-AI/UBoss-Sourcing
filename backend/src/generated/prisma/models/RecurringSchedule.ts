@@ -30,6 +30,7 @@ export type RecurringScheduleAvgAggregateOutputType = {
   intervalDays: number | null
   weekday: number | null
   monthDay: number | null
+  intervalMonths: number | null
   runAtMinute: number | null
   maxOccurrences: number | null
   occurrenceCount: number | null
@@ -45,6 +46,7 @@ export type RecurringScheduleSumAggregateOutputType = {
   intervalDays: number | null
   weekday: number | null
   monthDay: number | null
+  intervalMonths: number | null
   runAtMinute: number | null
   maxOccurrences: number | null
   occurrenceCount: number | null
@@ -67,6 +69,7 @@ export type RecurringScheduleMinAggregateOutputType = {
   intervalDays: number | null
   weekday: number | null
   monthDay: number | null
+  intervalMonths: number | null
   timezone: string | null
   runAtMinute: number | null
   startDate: Date | null
@@ -119,6 +122,7 @@ export type RecurringScheduleMaxAggregateOutputType = {
   intervalDays: number | null
   weekday: number | null
   monthDay: number | null
+  intervalMonths: number | null
   timezone: string | null
   runAtMinute: number | null
   startDate: Date | null
@@ -171,6 +175,7 @@ export type RecurringScheduleCountAggregateOutputType = {
   intervalDays: number
   weekday: number
   monthDay: number
+  intervalMonths: number
   timezone: number
   runAtMinute: number
   startDate: number
@@ -219,6 +224,7 @@ export type RecurringScheduleAvgAggregateInputType = {
   intervalDays?: true
   weekday?: true
   monthDay?: true
+  intervalMonths?: true
   runAtMinute?: true
   maxOccurrences?: true
   occurrenceCount?: true
@@ -234,6 +240,7 @@ export type RecurringScheduleSumAggregateInputType = {
   intervalDays?: true
   weekday?: true
   monthDay?: true
+  intervalMonths?: true
   runAtMinute?: true
   maxOccurrences?: true
   occurrenceCount?: true
@@ -256,6 +263,7 @@ export type RecurringScheduleMinAggregateInputType = {
   intervalDays?: true
   weekday?: true
   monthDay?: true
+  intervalMonths?: true
   timezone?: true
   runAtMinute?: true
   startDate?: true
@@ -308,6 +316,7 @@ export type RecurringScheduleMaxAggregateInputType = {
   intervalDays?: true
   weekday?: true
   monthDay?: true
+  intervalMonths?: true
   timezone?: true
   runAtMinute?: true
   startDate?: true
@@ -360,6 +369,7 @@ export type RecurringScheduleCountAggregateInputType = {
   intervalDays?: true
   weekday?: true
   monthDay?: true
+  intervalMonths?: true
   timezone?: true
   runAtMinute?: true
   startDate?: true
@@ -500,6 +510,7 @@ export type RecurringScheduleGroupByOutputType = {
   intervalDays: number | null
   weekday: number | null
   monthDay: number | null
+  intervalMonths: number | null
   timezone: string
   runAtMinute: number
   startDate: Date
@@ -576,6 +587,7 @@ export type RecurringScheduleWhereInput = {
   intervalDays?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
   weekday?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
   monthDay?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
+  intervalMonths?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
   timezone?: Prisma.StringFilter<"RecurringSchedule"> | string
   runAtMinute?: Prisma.IntFilter<"RecurringSchedule"> | number
   startDate?: Prisma.DateTimeFilter<"RecurringSchedule"> | Date | string
@@ -636,6 +648,7 @@ export type RecurringScheduleOrderByWithRelationInput = {
   intervalDays?: Prisma.SortOrderInput | Prisma.SortOrder
   weekday?: Prisma.SortOrderInput | Prisma.SortOrder
   monthDay?: Prisma.SortOrderInput | Prisma.SortOrder
+  intervalMonths?: Prisma.SortOrderInput | Prisma.SortOrder
   timezone?: Prisma.SortOrder
   runAtMinute?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
@@ -700,6 +713,7 @@ export type RecurringScheduleWhereUniqueInput = Prisma.AtLeast<{
   intervalDays?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
   weekday?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
   monthDay?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
+  intervalMonths?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
   timezone?: Prisma.StringFilter<"RecurringSchedule"> | string
   runAtMinute?: Prisma.IntFilter<"RecurringSchedule"> | number
   startDate?: Prisma.DateTimeFilter<"RecurringSchedule"> | Date | string
@@ -760,6 +774,7 @@ export type RecurringScheduleOrderByWithAggregationInput = {
   intervalDays?: Prisma.SortOrderInput | Prisma.SortOrder
   weekday?: Prisma.SortOrderInput | Prisma.SortOrder
   monthDay?: Prisma.SortOrderInput | Prisma.SortOrder
+  intervalMonths?: Prisma.SortOrderInput | Prisma.SortOrder
   timezone?: Prisma.SortOrder
   runAtMinute?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
@@ -821,6 +836,7 @@ export type RecurringScheduleScalarWhereWithAggregatesInput = {
   intervalDays?: Prisma.IntNullableWithAggregatesFilter<"RecurringSchedule"> | number | null
   weekday?: Prisma.IntNullableWithAggregatesFilter<"RecurringSchedule"> | number | null
   monthDay?: Prisma.IntNullableWithAggregatesFilter<"RecurringSchedule"> | number | null
+  intervalMonths?: Prisma.IntNullableWithAggregatesFilter<"RecurringSchedule"> | number | null
   timezone?: Prisma.StringWithAggregatesFilter<"RecurringSchedule"> | string
   runAtMinute?: Prisma.IntWithAggregatesFilter<"RecurringSchedule"> | number
   startDate?: Prisma.DateTimeWithAggregatesFilter<"RecurringSchedule"> | Date | string
@@ -873,6 +889,7 @@ export type RecurringScheduleCreateInput = {
   intervalDays?: number | null
   weekday?: number | null
   monthDay?: number | null
+  intervalMonths?: number | null
   timezone: string
   runAtMinute?: number
   startDate: Date | string
@@ -929,6 +946,7 @@ export type RecurringScheduleUncheckedCreateInput = {
   intervalDays?: number | null
   weekday?: number | null
   monthDay?: number | null
+  intervalMonths?: number | null
   timezone: string
   runAtMinute?: number
   startDate: Date | string
@@ -983,6 +1001,7 @@ export type RecurringScheduleUpdateInput = {
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intervalMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1039,6 +1058,7 @@ export type RecurringScheduleUncheckedUpdateInput = {
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intervalMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1094,6 +1114,7 @@ export type RecurringScheduleCreateManyInput = {
   intervalDays?: number | null
   weekday?: number | null
   monthDay?: number | null
+  intervalMonths?: number | null
   timezone: string
   runAtMinute?: number
   startDate: Date | string
@@ -1146,6 +1167,7 @@ export type RecurringScheduleUpdateManyMutationInput = {
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intervalMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1195,6 +1217,7 @@ export type RecurringScheduleUncheckedUpdateManyInput = {
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intervalMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1264,6 +1287,7 @@ export type RecurringScheduleCountOrderByAggregateInput = {
   intervalDays?: Prisma.SortOrder
   weekday?: Prisma.SortOrder
   monthDay?: Prisma.SortOrder
+  intervalMonths?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
   runAtMinute?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
@@ -1310,6 +1334,7 @@ export type RecurringScheduleAvgOrderByAggregateInput = {
   intervalDays?: Prisma.SortOrder
   weekday?: Prisma.SortOrder
   monthDay?: Prisma.SortOrder
+  intervalMonths?: Prisma.SortOrder
   runAtMinute?: Prisma.SortOrder
   maxOccurrences?: Prisma.SortOrder
   occurrenceCount?: Prisma.SortOrder
@@ -1332,6 +1357,7 @@ export type RecurringScheduleMaxOrderByAggregateInput = {
   intervalDays?: Prisma.SortOrder
   weekday?: Prisma.SortOrder
   monthDay?: Prisma.SortOrder
+  intervalMonths?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
   runAtMinute?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
@@ -1384,6 +1410,7 @@ export type RecurringScheduleMinOrderByAggregateInput = {
   intervalDays?: Prisma.SortOrder
   weekday?: Prisma.SortOrder
   monthDay?: Prisma.SortOrder
+  intervalMonths?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
   runAtMinute?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
@@ -1429,6 +1456,7 @@ export type RecurringScheduleSumOrderByAggregateInput = {
   intervalDays?: Prisma.SortOrder
   weekday?: Prisma.SortOrder
   monthDay?: Prisma.SortOrder
+  intervalMonths?: Prisma.SortOrder
   runAtMinute?: Prisma.SortOrder
   maxOccurrences?: Prisma.SortOrder
   occurrenceCount?: Prisma.SortOrder
@@ -1717,6 +1745,7 @@ export type RecurringScheduleCreateWithoutInventoryLocationInput = {
   intervalDays?: number | null
   weekday?: number | null
   monthDay?: number | null
+  intervalMonths?: number | null
   timezone: string
   runAtMinute?: number
   startDate: Date | string
@@ -1772,6 +1801,7 @@ export type RecurringScheduleUncheckedCreateWithoutInventoryLocationInput = {
   intervalDays?: number | null
   weekday?: number | null
   monthDay?: number | null
+  intervalMonths?: number | null
   timezone: string
   runAtMinute?: number
   startDate: Date | string
@@ -1855,6 +1885,7 @@ export type RecurringScheduleScalarWhereInput = {
   intervalDays?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
   weekday?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
   monthDay?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
+  intervalMonths?: Prisma.IntNullableFilter<"RecurringSchedule"> | number | null
   timezone?: Prisma.StringFilter<"RecurringSchedule"> | string
   runAtMinute?: Prisma.IntFilter<"RecurringSchedule"> | number
   startDate?: Prisma.DateTimeFilter<"RecurringSchedule"> | Date | string
@@ -1907,6 +1938,7 @@ export type RecurringScheduleCreateWithoutCustomerProfileInput = {
   intervalDays?: number | null
   weekday?: number | null
   monthDay?: number | null
+  intervalMonths?: number | null
   timezone: string
   runAtMinute?: number
   startDate: Date | string
@@ -1961,6 +1993,7 @@ export type RecurringScheduleUncheckedCreateWithoutCustomerProfileInput = {
   intervalDays?: number | null
   weekday?: number | null
   monthDay?: number | null
+  intervalMonths?: number | null
   timezone: string
   runAtMinute?: number
   startDate: Date | string
@@ -2041,6 +2074,7 @@ export type RecurringScheduleCreateWithoutShippingAddressInput = {
   intervalDays?: number | null
   weekday?: number | null
   monthDay?: number | null
+  intervalMonths?: number | null
   timezone: string
   runAtMinute?: number
   startDate: Date | string
@@ -2096,6 +2130,7 @@ export type RecurringScheduleUncheckedCreateWithoutShippingAddressInput = {
   intervalDays?: number | null
   weekday?: number | null
   monthDay?: number | null
+  intervalMonths?: number | null
   timezone: string
   runAtMinute?: number
   startDate: Date | string
@@ -2159,6 +2194,7 @@ export type RecurringScheduleCreateWithoutBillingAddressInput = {
   intervalDays?: number | null
   weekday?: number | null
   monthDay?: number | null
+  intervalMonths?: number | null
   timezone: string
   runAtMinute?: number
   startDate: Date | string
@@ -2214,6 +2250,7 @@ export type RecurringScheduleUncheckedCreateWithoutBillingAddressInput = {
   intervalDays?: number | null
   weekday?: number | null
   monthDay?: number | null
+  intervalMonths?: number | null
   timezone: string
   runAtMinute?: number
   startDate: Date | string
@@ -2309,6 +2346,7 @@ export type RecurringScheduleCreateWithoutItemsInput = {
   intervalDays?: number | null
   weekday?: number | null
   monthDay?: number | null
+  intervalMonths?: number | null
   timezone: string
   runAtMinute?: number
   startDate: Date | string
@@ -2364,6 +2402,7 @@ export type RecurringScheduleUncheckedCreateWithoutItemsInput = {
   intervalDays?: number | null
   weekday?: number | null
   monthDay?: number | null
+  intervalMonths?: number | null
   timezone: string
   runAtMinute?: number
   startDate: Date | string
@@ -2433,6 +2472,7 @@ export type RecurringScheduleUpdateWithoutItemsInput = {
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intervalMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2488,6 +2528,7 @@ export type RecurringScheduleUncheckedUpdateWithoutItemsInput = {
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intervalMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2541,6 +2582,7 @@ export type RecurringScheduleCreateWithoutOccurrencesInput = {
   intervalDays?: number | null
   weekday?: number | null
   monthDay?: number | null
+  intervalMonths?: number | null
   timezone: string
   runAtMinute?: number
   startDate: Date | string
@@ -2596,6 +2638,7 @@ export type RecurringScheduleUncheckedCreateWithoutOccurrencesInput = {
   intervalDays?: number | null
   weekday?: number | null
   monthDay?: number | null
+  intervalMonths?: number | null
   timezone: string
   runAtMinute?: number
   startDate: Date | string
@@ -2665,6 +2708,7 @@ export type RecurringScheduleUpdateWithoutOccurrencesInput = {
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intervalMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2720,6 +2764,7 @@ export type RecurringScheduleUncheckedUpdateWithoutOccurrencesInput = {
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intervalMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2773,6 +2818,7 @@ export type RecurringScheduleCreateWithoutPaymentMethodInput = {
   intervalDays?: number | null
   weekday?: number | null
   monthDay?: number | null
+  intervalMonths?: number | null
   timezone: string
   runAtMinute?: number
   startDate: Date | string
@@ -2828,6 +2874,7 @@ export type RecurringScheduleUncheckedCreateWithoutPaymentMethodInput = {
   intervalDays?: number | null
   weekday?: number | null
   monthDay?: number | null
+  intervalMonths?: number | null
   timezone: string
   runAtMinute?: number
   startDate: Date | string
@@ -2908,6 +2955,7 @@ export type RecurringScheduleCreateManyInventoryLocationInput = {
   intervalDays?: number | null
   weekday?: number | null
   monthDay?: number | null
+  intervalMonths?: number | null
   timezone: string
   runAtMinute?: number
   startDate: Date | string
@@ -2959,6 +3007,7 @@ export type RecurringScheduleUpdateWithoutInventoryLocationInput = {
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intervalMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3014,6 +3063,7 @@ export type RecurringScheduleUncheckedUpdateWithoutInventoryLocationInput = {
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intervalMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3068,6 +3118,7 @@ export type RecurringScheduleUncheckedUpdateManyWithoutInventoryLocationInput = 
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intervalMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3119,6 +3170,7 @@ export type RecurringScheduleCreateManyCustomerProfileInput = {
   intervalDays?: number | null
   weekday?: number | null
   monthDay?: number | null
+  intervalMonths?: number | null
   timezone: string
   runAtMinute?: number
   startDate: Date | string
@@ -3171,6 +3223,7 @@ export type RecurringScheduleUpdateWithoutCustomerProfileInput = {
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intervalMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3225,6 +3278,7 @@ export type RecurringScheduleUncheckedUpdateWithoutCustomerProfileInput = {
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intervalMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3279,6 +3333,7 @@ export type RecurringScheduleUncheckedUpdateManyWithoutCustomerProfileInput = {
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intervalMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3332,6 +3387,7 @@ export type RecurringScheduleCreateManyShippingAddressInput = {
   intervalDays?: number | null
   weekday?: number | null
   monthDay?: number | null
+  intervalMonths?: number | null
   timezone: string
   runAtMinute?: number
   startDate: Date | string
@@ -3384,6 +3440,7 @@ export type RecurringScheduleCreateManyBillingAddressInput = {
   intervalDays?: number | null
   weekday?: number | null
   monthDay?: number | null
+  intervalMonths?: number | null
   timezone: string
   runAtMinute?: number
   startDate: Date | string
@@ -3435,6 +3492,7 @@ export type RecurringScheduleUpdateWithoutShippingAddressInput = {
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intervalMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3490,6 +3548,7 @@ export type RecurringScheduleUncheckedUpdateWithoutShippingAddressInput = {
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intervalMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3544,6 +3603,7 @@ export type RecurringScheduleUncheckedUpdateManyWithoutShippingAddressInput = {
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intervalMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3595,6 +3655,7 @@ export type RecurringScheduleUpdateWithoutBillingAddressInput = {
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intervalMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3650,6 +3711,7 @@ export type RecurringScheduleUncheckedUpdateWithoutBillingAddressInput = {
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intervalMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3704,6 +3766,7 @@ export type RecurringScheduleUncheckedUpdateManyWithoutBillingAddressInput = {
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intervalMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3756,6 +3819,7 @@ export type RecurringScheduleCreateManyPaymentMethodInput = {
   intervalDays?: number | null
   weekday?: number | null
   monthDay?: number | null
+  intervalMonths?: number | null
   timezone: string
   runAtMinute?: number
   startDate: Date | string
@@ -3807,6 +3871,7 @@ export type RecurringScheduleUpdateWithoutPaymentMethodInput = {
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intervalMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3862,6 +3927,7 @@ export type RecurringScheduleUncheckedUpdateWithoutPaymentMethodInput = {
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intervalMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3916,6 +3982,7 @@ export type RecurringScheduleUncheckedUpdateManyWithoutPaymentMethodInput = {
   intervalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   monthDay?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  intervalMonths?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   runAtMinute?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4008,6 +4075,7 @@ export type RecurringScheduleSelect<ExtArgs extends runtime.Types.Extensions.Int
   intervalDays?: boolean
   weekday?: boolean
   monthDay?: boolean
+  intervalMonths?: boolean
   timezone?: boolean
   runAtMinute?: boolean
   startDate?: boolean
@@ -4071,6 +4139,7 @@ export type RecurringScheduleSelectScalar = {
   intervalDays?: boolean
   weekday?: boolean
   monthDay?: boolean
+  intervalMonths?: boolean
   timezone?: boolean
   runAtMinute?: boolean
   startDate?: boolean
@@ -4113,7 +4182,7 @@ export type RecurringScheduleSelectScalar = {
   updatedAt?: boolean
 }
 
-export type RecurringScheduleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerProfileId" | "name" | "status" | "kind" | "runOnceAt" | "frequency" | "intervalDays" | "weekday" | "monthDay" | "timezone" | "runAtMinute" | "startDate" | "endDate" | "maxOccurrences" | "occurrenceCount" | "nextRunAt" | "lastRunAt" | "paymentMode" | "mandateReference" | "mandateProvider" | "payerEmail" | "paymentMethodId" | "shippingAddressId" | "billingAddressId" | "shippingMethodCode" | "consentAcceptedAt" | "consentVersion" | "repriceApprovalThresholdMinor" | "priceTolerancePercent" | "priceToleranceMinor" | "editCutoffMinutes" | "substitutionPolicy" | "fulfilmentRule" | "inventoryLocationId" | "cartSnapshotJson" | "sourceCartId" | "activatedAt" | "completedAt" | "failureCount" | "maxFailures" | "pausedAt" | "pausedReason" | "pausedById" | "cancelledAt" | "cancelReason" | "leaseOwner" | "leaseExpiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["recurringSchedule"]>
+export type RecurringScheduleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerProfileId" | "name" | "status" | "kind" | "runOnceAt" | "frequency" | "intervalDays" | "weekday" | "monthDay" | "intervalMonths" | "timezone" | "runAtMinute" | "startDate" | "endDate" | "maxOccurrences" | "occurrenceCount" | "nextRunAt" | "lastRunAt" | "paymentMode" | "mandateReference" | "mandateProvider" | "payerEmail" | "paymentMethodId" | "shippingAddressId" | "billingAddressId" | "shippingMethodCode" | "consentAcceptedAt" | "consentVersion" | "repriceApprovalThresholdMinor" | "priceTolerancePercent" | "priceToleranceMinor" | "editCutoffMinutes" | "substitutionPolicy" | "fulfilmentRule" | "inventoryLocationId" | "cartSnapshotJson" | "sourceCartId" | "activatedAt" | "completedAt" | "failureCount" | "maxFailures" | "pausedAt" | "pausedReason" | "pausedById" | "cancelledAt" | "cancelReason" | "leaseOwner" | "leaseExpiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["recurringSchedule"]>
 export type RecurringScheduleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   shippingAddress?: boolean | Prisma.AddressDefaultArgs<ExtArgs>
@@ -4168,6 +4237,14 @@ export type $RecurringSchedulePayload<ExtArgs extends runtime.Types.Extensions.I
      * Used when frequency = MONTHLY. 1..31, clamped to the last valid day.
      */
     monthDay: number | null
+    /**
+     * Used when frequency = EVERY_N_MONTHS. 2..24.
+     * 
+     * No day column of its own: the day of the month comes from `startDate`.
+     * "Every three months" is a choice about spacing, and the date was settled
+     * when the customer picked their first delivery.
+     */
+    intervalMonths: number | null
     /**
      * IANA zone the wall-clock run time is interpreted in. The server timezone
      * is deliberately not trusted for this.
@@ -4675,6 +4752,7 @@ export interface RecurringScheduleFieldRefs {
   readonly intervalDays: Prisma.FieldRef<"RecurringSchedule", 'Int'>
   readonly weekday: Prisma.FieldRef<"RecurringSchedule", 'Int'>
   readonly monthDay: Prisma.FieldRef<"RecurringSchedule", 'Int'>
+  readonly intervalMonths: Prisma.FieldRef<"RecurringSchedule", 'Int'>
   readonly timezone: Prisma.FieldRef<"RecurringSchedule", 'String'>
   readonly runAtMinute: Prisma.FieldRef<"RecurringSchedule", 'Int'>
   readonly startDate: Prisma.FieldRef<"RecurringSchedule", 'DateTime'>

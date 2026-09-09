@@ -4,8 +4,11 @@
  * A plan is a standing authority to charge someone, so activation is guarded
  * harder than an ordinary record:
  *
- *   - Every product must be individually marked recurring-eligible. An admin
- *     opts a product in; a customer cannot schedule anything they like.
+ *   - Every product must clear `isScheduleEligible`. By default that is
+ *     everything the store sells; a deployment that curates its repeatable
+ *     range turns FEATURE_SCHEDULE_ANY_PRODUCT off and opts products in one at
+ *     a time. Either way the check is here as well as on the storefront, so a
+ *     basket assembled by a client is not taken on trust.
  *   - Explicit consent is required and versioned, so a policy change can force
  *     re-consent rather than silently inheriting the old agreement.
  *   - Auto-pay needs a stored payment method whose own consent record says it
@@ -45,6 +48,7 @@ import { newId, variantKeyOf } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { publicProductWhere } from '../catalog/catalog.visibility.js';
+import { isScheduleEligible } from '../catalog/recurring-eligibility.js';
 import { assertChargeable } from '../payments/payment-method.service.js';
 import { materialiseOccurrences, rematerialiseOccurrences } from './occurrence.service.js';
 
@@ -76,6 +80,7 @@ export interface CreateScheduleInput {
   /** ONE_TIME is Buy Later: one delivery, then the plan is COMPLETED. */
   frequency: Frequency;
   intervalDays?: number | null;
+  intervalMonths?: number | null;
   weekday?: number | null;
   monthDay?: number | null;
   timezone?: string;
@@ -134,6 +139,7 @@ export interface CreatedSchedule {
 function ruleFrom(input: {
   frequency: Frequency;
   intervalDays?: number | null;
+  intervalMonths?: number | null;
   weekday?: number | null;
   monthDay?: number | null;
   timezone: string;
@@ -142,6 +148,7 @@ function ruleFrom(input: {
   return {
     frequency: input.frequency,
     intervalDays: input.intervalDays ?? null,
+    intervalMonths: input.intervalMonths ?? null,
     weekday: input.weekday ?? null,
     monthDay: input.monthDay ?? null,
     timezone: input.timezone,
@@ -417,6 +424,7 @@ export async function createSchedule(
         runOnceAt: isOneTime ? firstRun : null,
         frequency: input.frequency,
         intervalDays: input.intervalDays ?? null,
+        intervalMonths: input.intervalMonths ?? null,
         weekday: input.weekday ?? null,
         monthDay: input.monthDay ?? null,
         timezone,
@@ -560,8 +568,11 @@ async function assertItemsSchedulable(items: ScheduleItemInput[]): Promise<void>
       return;
     }
 
-    // The opt-in check. An admin decides which products may be scheduled.
-    if (!product.isRecurringEligible) {
+    // The eligibility check. Everything this store sells, unless
+    // FEATURE_SCHEDULE_ANY_PRODUCT is off - then only what an administrator
+    // ticked. Same helper the storefront's badge and `quoteSchedule` use, so a
+    // basket the cart offered to schedule is a basket this accepts.
+    if (!isScheduleEligible(product)) {
       problems.push({
         field: `items.${String(index)}.productId`,
         code: ErrorCode.SCHEDULE_PRODUCT_NOT_ELIGIBLE,
@@ -609,7 +620,7 @@ async function assertItemsSchedulable(items: ScheduleItemInput[]): Promise<void>
     if (item.substituteProductId !== null && item.substituteProductId !== undefined) {
       const substitute = productById.get(item.substituteProductId);
 
-      if (substitute === undefined || !substitute.isRecurringEligible) {
+      if (substitute === undefined || !isScheduleEligible(substitute)) {
         problems.push({
           field: `items.${String(index)}.substituteProductId`,
           code: ErrorCode.SCHEDULE_PRODUCT_NOT_ELIGIBLE,
@@ -778,6 +789,7 @@ export async function activateSchedule(
         rule: ruleFrom({
           frequency: schedule.frequency,
           intervalDays: schedule.intervalDays,
+          intervalMonths: schedule.intervalMonths,
           weekday: schedule.weekday,
           monthDay: schedule.monthDay,
           timezone: schedule.timezone,
@@ -933,6 +945,7 @@ export async function resumeSchedule(
         rule: ruleFrom({
           frequency: schedule.frequency,
           intervalDays: schedule.intervalDays,
+          intervalMonths: schedule.intervalMonths,
           weekday: schedule.weekday,
           monthDay: schedule.monthDay,
           timezone: schedule.timezone,
@@ -1188,6 +1201,7 @@ export interface UpdateScheduleInput {
   name?: string;
   frequency?: Frequency;
   intervalDays?: number | null;
+  intervalMonths?: number | null;
   weekday?: number | null;
   monthDay?: number | null;
   runAtMinute?: number;
@@ -1252,6 +1266,7 @@ export async function updateSchedule(
   const rule = ruleFrom({
     frequency,
     intervalDays: input.intervalDays ?? schedule.intervalDays,
+    intervalMonths: input.intervalMonths ?? schedule.intervalMonths,
     weekday: input.weekday ?? schedule.weekday,
     monthDay: input.monthDay ?? schedule.monthDay,
     timezone: schedule.timezone,
@@ -1275,6 +1290,7 @@ export async function updateSchedule(
     data.kind = isOneTime ? 'ONE_TIME' : 'RECURRING';
   }
   if (input.intervalDays !== undefined) data.intervalDays = input.intervalDays;
+  if (input.intervalMonths !== undefined) data.intervalMonths = input.intervalMonths;
   if (input.weekday !== undefined) data.weekday = input.weekday;
   if (input.monthDay !== undefined) data.monthDay = input.monthDay;
   if (input.runAtMinute !== undefined) data.runAtMinute = input.runAtMinute;
@@ -1406,6 +1422,7 @@ export async function updateSchedule(
   const ruleChanged =
     input.frequency !== undefined ||
     input.intervalDays !== undefined ||
+    input.intervalMonths !== undefined ||
     input.weekday !== undefined ||
     input.monthDay !== undefined ||
     input.runAtMinute !== undefined ||
@@ -1474,6 +1491,7 @@ export async function updateSchedule(
           name: schedule.name,
           frequency: schedule.frequency,
           intervalDays: schedule.intervalDays,
+          intervalMonths: schedule.intervalMonths,
           runAtMinute: schedule.runAtMinute,
           nextRunAt: schedule.nextRunAt?.toISOString() ?? null,
           itemCount: undefined,
@@ -1684,6 +1702,8 @@ export async function cancelOccurrence(
 export function scheduleSummary(schedule: {
   frequency: Frequency;
   intervalDays: number | null;
+  /** Optional so a caller holding a row from before this column existed still fits. */
+  intervalMonths?: number | null;
   weekday: number | null;
   monthDay: number | null;
   timezone: string;

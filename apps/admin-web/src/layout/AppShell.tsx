@@ -44,7 +44,7 @@ function Brand({ onNavigate }: { onNavigate?: (() => void) | undefined }): React
   const { t } = useI18n();
 
   return (
-    <div className="flex h-16 shrink-0 items-center border-b border-white/10 px-4">
+    <div className="flex h-16 shrink-0 items-center border-b border-border px-4">
       <Link
         to="/"
         onClick={onNavigate}
@@ -52,13 +52,13 @@ function Brand({ onNavigate }: { onNavigate?: (() => void) | undefined }): React
       >
         <span
           aria-hidden="true"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white text-sm font-bold tracking-tight text-surface-inverse shadow-card"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-brand text-sm font-bold tracking-tight text-white shadow-card"
         >
           U
         </span>
         <span className="min-w-0 leading-tight">
-          <span className="block text-sm font-semibold tracking-tight text-white">UBOSS</span>
-          <span className="block text-xxs font-medium uppercase tracking-[0.14em] text-white/50">
+          <span className="block text-sm font-semibold tracking-tight text-ink">UBOSS</span>
+          <span className="block text-xxs font-medium uppercase tracking-[0.14em] text-ink-subtle">
             {t('shell.adminConsole')}
           </span>
         </span>
@@ -70,20 +70,18 @@ function Brand({ onNavigate }: { onNavigate?: (() => void) | undefined }): React
 /**
  * The sidebar.
  *
- * Navy, and deliberately so: it is chrome, and holding it visually apart from
- * the white data surface is most of what makes a dense table scannable. When
- * navigation and content share one background, the eye has to re-find the
- * edge of the table on every page.
+ * White, over a sky-tinted page. It used to be navy, and the reason for the
+ * navy still holds: chrome has to be visually apart from the data surface, or
+ * the eye re-finds the edge of the table on every page. What changed is which
+ * side is which — the page ground is now the tinted one and the sidebar is
+ * pure white, so the separation is the same and the panel stops carrying a
+ * dark band no other surface in the product answers to.
  *
  * Three signals separate the current page from the other thirteen, because one
- * is never enough: a lit ground, a full-strength label and icon against the
- * dimmed rest, and a rail down the left edge. The rail is what survives a
+ * is never enough: a tinted ground, a brand-blue label and icon against the
+ * muted rest, and a rail down the left edge. The rail is what survives a
  * monochrome screen; `aria-current="page"` from NavLink is what survives no
  * screen at all.
- *
- * `on-navy` swaps the focus ring to white — see index.css. Without it a
- * keyboard user tabbing the navigation gets an accent-blue ring on navy,
- * which is very nearly no ring at all.
  */
 function Sidebar({ onNavigate }: { onNavigate?: (() => void) | undefined }): React.JSX.Element {
   const { can } = useSession();
@@ -93,14 +91,14 @@ function Sidebar({ onNavigate }: { onNavigate?: (() => void) | undefined }): Rea
   return (
     <nav
       aria-label={t('shell.mainNav')}
-      className="on-navy scrollbar-none flex h-full flex-col overflow-y-auto bg-surface-inverse"
+      className="scrollbar-none flex h-full flex-col overflow-y-auto border-r border-border bg-surface"
     >
       <Brand onNavigate={onNavigate} />
 
       <div className="flex-1 space-y-5 px-2.5 py-4">
         {groups.map((group) => (
           <div key={group.labelKey}>
-            <h2 className="px-3 pb-1.5 text-xxs font-semibold uppercase tracking-[0.12em] text-white/45">
+            <h2 className="px-3 pb-1.5 text-xxs font-semibold uppercase tracking-[0.12em] text-ink-subtle">
               {translateKey(t, group.labelKey)}
             </h2>
             <ul className="space-y-px">
@@ -121,10 +119,10 @@ function Sidebar({ onNavigate }: { onNavigate?: (() => void) | undefined }): Rea
                             ? // The rail. `before:` rather than a sibling
                               // element so it cannot drift out of step with
                               // the state that draws it.
-                              'bg-white/[0.13] font-medium text-white ' +
+                              'bg-brand-soft font-medium text-brand ' +
                                 'before:absolute before:left-0 before:top-2 before:h-5 before:w-[3px] ' +
-                                "before:rounded-full before:bg-white before:content-['']"
-                            : 'text-white/70 hover:bg-white/[0.07] hover:text-white',
+                                "before:rounded-full before:bg-brand before:content-['']"
+                            : 'text-ink-muted hover:bg-surface-hover hover:text-ink',
                         )
                       }
                     >
@@ -133,7 +131,7 @@ function Sidebar({ onNavigate }: { onNavigate?: (() => void) | undefined }): Rea
                           <ItemIcon
                             className={cx(
                               'h-[1.15rem] w-[1.15rem] shrink-0 transition-colors',
-                              isActive ? 'text-white' : 'text-white/55 group-hover:text-white/90',
+                              isActive ? 'text-brand' : 'text-ink-subtle group-hover:text-ink-muted',
                             )}
                           />
                           <span className="truncate">{translateKey(t, item.labelKey)}</span>
@@ -374,7 +372,7 @@ function MobileDrawer({
         role="dialog"
         aria-modal="true"
         aria-label={t('shell.navigation')}
-        className="absolute inset-y-0 left-0 flex w-[17rem] max-w-[85%] animate-drawer-in flex-col bg-surface-inverse shadow-overlay"
+        className="absolute inset-y-0 left-0 flex w-[17rem] max-w-[85%] animate-drawer-in flex-col bg-surface shadow-overlay"
       >
         {/* The close button sits over the brand block rather than in a bar of
             its own — a drawer this size cannot spare 48px to say "close" when
@@ -383,7 +381,7 @@ function MobileDrawer({
           ref={closeRef}
           type="button"
           onClick={onClose}
-          className="on-navy absolute right-2 top-3.5 z-10 flex h-9 w-9 items-center justify-center rounded-md text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+          className="absolute right-2 top-3.5 z-10 flex h-9 w-9 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink"
         >
           <CloseIcon className="h-5 w-5" />
           <span className="sr-only">{t('shell.closeNavigation')}</span>
@@ -431,7 +429,7 @@ export function AppShell(): React.JSX.Element {
 
       <div className="lg:grid lg:grid-cols-[15rem_1fr]">
         {/* Desktop sidebar */}
-        <aside className="sticky top-0 hidden h-screen bg-surface-inverse lg:block">
+        <aside className="sticky top-0 hidden h-screen bg-surface lg:block">
           <Sidebar />
         </aside>
 

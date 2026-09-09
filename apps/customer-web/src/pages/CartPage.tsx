@@ -30,6 +30,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
 import { useToast } from '@/components/toast-context';
+import { AutoPaySetupDialog } from '@/components/AutoPaySetupDialog';
 import { QuantityInput } from '@/components/QuantityInput';
 import { CouponPanel } from '@/components/CouponPanel';
 import { CheckoutSteps } from '@/components/CheckoutSteps';
@@ -40,6 +41,7 @@ import { AlertIcon, TrashIcon } from '@/components/icons';
 import { clampToRules } from '@/lib/quantity-rules';
 import { Badge, Button, ButtonLink, ErrorState, LoadingState } from '@/components/ui';
 import { api } from '@/lib/api';
+import { autoPayApi, autoPayKeys } from '@/lib/autopay';
 import { formatMoney, formatNumber } from '@/lib/format';
 import { useI18n } from '@/i18n/i18n-context';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
@@ -218,14 +220,19 @@ function LineRow({
           </p>
         </div>
 
-        {line.isRecurringEligible && (
-          <p className="mt-2">
-            {/* Teal, and stated as a capability rather than as a warning: this
-                is the B2B feature the account section is built around. */}
-            <Badge tone="operational">{t('cart.repeatPurchaseAvailable')}</Badge>
-          </p>
-        )}
-
+        {/*
+         * No per-line "Repeat purchase available" badge.
+         *
+         * It carried information while an administrator opted products in one
+         * at a time. Now that everything a customer can buy can also be
+         * scheduled, it appeared on every line of every cart — and a badge on
+         * everything is a badge that says nothing, competing for attention
+         * with the issue notices below it, which do need to be seen.
+         *
+         * The capability is still offered, once, where it can be acted on: the
+         * "Need this again?" panel beside the summary. `line.isRecurringEligible`
+         * is still read — that panel counts it.
+         */}
         <div className="mt-3 flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
           <QuantityInput
             value={line.quantity}
@@ -275,6 +282,174 @@ function LineRow({
         })}
       </div>
     </li>
+  );
+}
+
+/**
+ * The other thing that can be done with this cart.
+ *
+ * A customer who has just added a case of flush syringes is at the exact
+ * moment they would think "I need these every week", and until now the only
+ * place that thought could be acted on was a product badge and a page in the
+ * account section. This puts the schedule next to Checkout, where the decision
+ * is actually being made.
+ *
+ * The auto-pay half is here for the same reason. `/schedules/new` offers
+ * "Autopay" as a radio button, but choosing it there is only
+ * useful once a card is authorised — so the state of that authority is worth
+ * knowing *before* the builder, not after.
+ *
+ * It is now actionable rather than only readable, and the button says which of
+ * three things will happen, because they are genuinely different:
+ *
+ *   no card       — "Set up a card" — enrolment, then the consent step. This
+ *                   is the order the two have to happen in: there is nothing
+ *                   to consent about until a card exists.
+ *   card, off     — "Turn on automatic payment" — the consent step alone.
+ *   paused        — "Resume" — consent is already on record, so this is one
+ *                   call and no new agreement.
+ *
+ * What it does NOT do is enable anything from this panel directly. Both the
+ * card and the consent are collected in a dialog with the wording in front of
+ * the customer; a cart button that quietly authorised off-session charges
+ * would be the one thing this whole path must not be.
+ *
+ * Both halves fail quietly. `available: false` means the store does not offer
+ * auto-pay at all, and a failed or still-loading read simply omits the block —
+ * a cart must not lose its checkout button because an account endpoint
+ * hiccoughed.
+ */
+function RepeatPurchasePanel({ eligibleCount }: { eligibleCount: number }): React.JSX.Element {
+  const { t } = useI18n();
+  const toast = useToast();
+  const queryClient = useQueryClient();
+
+  const [isSettingUp, setIsSettingUp] = useState(false);
+
+  const query = useQuery({
+    queryKey: autoPayKeys.settings,
+    queryFn: () => autoPayApi.get(),
+    // Nothing on this page changes it except the dialog below, which
+    // invalidates the key itself.
+    staleTime: 60_000,
+    retry: false,
+  });
+
+  const autoPay = query.data?.available === true ? query.data.autoPay : null;
+
+  const resume = useMutation({
+    mutationFn: () => autoPayApi.setPaused(false),
+    onSuccess: () => {
+      toast.success(t('autopay.resumed'));
+      void queryClient.invalidateQueries({ queryKey: autoPayKeys.settings });
+    },
+    onError: (error) => {
+      toast.error(errorMessage(t, error, t('autopay.couldNotBeSwitchedOn')));
+    },
+  });
+
+  return (
+    <div className="mt-4 rounded-lg border border-border bg-surface p-5 shadow-card">
+      <h2 className="text-title-sm text-ink">{t('cart.repeatHeading')}</h2>
+
+      <p className="mt-1.5 text-xs text-ink-muted">
+        {t('cart.repeatEligibleCount', { count: eligibleCount })}
+      </p>
+
+      {autoPay !== null && (
+        <div className="mt-4 rounded-md bg-surface-sunken px-3 py-2.5">
+          <p className="flex items-center justify-between gap-2">
+            <span className="text-xs font-medium text-ink">{t('cart.autoPayLabel')}</span>
+            <Badge
+              tone={
+                autoPay.status === 'ACTIVE'
+                  ? 'success'
+                  : autoPay.status === 'PAUSED'
+                    ? 'warning'
+                    : 'neutral'
+              }
+            >
+              {t(`autopay.state.${autoPay.status}` as 'autopay.state.ACTIVE')}
+            </Badge>
+          </p>
+
+          <p className="mt-1 text-xxs text-ink-muted">
+            {autoPay.status === 'ACTIVE'
+              ? autoPay.paymentMethodLabel === null
+                ? t('cart.autoPayOnHintNoCard')
+                : t('cart.autoPayOnHint', { card: autoPay.paymentMethodLabel })
+              : autoPay.status === 'PAUSED'
+                ? t('cart.autoPayPausedHint')
+                : t('cart.autoPayOffHint')}
+          </p>
+
+          {/*
+           * One control per state, and never two.
+           *
+           * ACTIVE has nothing to switch on, so it gets the management link it
+           * always had — changing a limit or withdrawing consent belongs on
+           * the page that explains both.
+           */}
+          {autoPay.status === 'ACTIVE' ? (
+            <Link
+              to="/account/autopay"
+              className="mt-1.5 inline-block text-xxs font-semibold text-brand underline underline-offset-2 hover:no-underline"
+            >
+              {t('cart.autoPayManage')}
+            </Link>
+          ) : autoPay.status === 'PAUSED' ? (
+            <Button
+              size="sm"
+              variant="primary"
+              fullWidth
+              className="mt-2.5"
+              isLoading={resume.isPending}
+              onClick={() => {
+                resume.mutate();
+              }}
+            >
+              {t('cart.autoPayResume')}
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              variant="primary"
+              fullWidth
+              className="mt-2.5"
+              onClick={() => {
+                setIsSettingUp(true);
+              }}
+            >
+              {/* The label names the FIRST step, not the destination. A
+                  customer with no card who is promised "turn on automatic
+                  payment" and handed a card form has been surprised; one
+                  offered "set up a card for automatic payment" has not. */}
+              {autoPay.paymentMethodUsable
+                ? t('cart.autoPayTurnOn')
+                : t('cart.autoPaySetUpCard')}
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* Blue, not orange: the orange belongs to Add to Cart, Checkout and
+          Place Order. This is a second road, not a louder version of the
+          first one. */}
+      <ButtonLink to="/schedules/new" variant="primary" fullWidth className="mt-4">
+        {t('cart.repeatSetUp')}
+      </ButtonLink>
+
+      {isSettingUp && (
+        <AutoPaySetupDialog
+          onClose={() => {
+            setIsSettingUp(false);
+          }}
+          onEnabled={() => {
+            toast.success(t('autopay.enabled'));
+          }}
+        />
+      )}
+    </div>
   );
 }
 
@@ -394,6 +569,16 @@ export function CartPage(): React.JSX.Element {
    * arithmetic bug until the row says so.
    */
   const inclusiveLines = cart.lines.filter((line) => line.taxInclusive).length;
+
+  /*
+   * How many of these products the builder would accept.
+   *
+   * The same flag the line badge reads, counted here so the panel can say a
+   * number rather than "some of these". `/schedules/new` filters the cart by
+   * exactly this, so a panel offered on a cart of nothing eligible would lead
+   * straight to that page's empty state.
+   */
+  const recurringEligibleCount = cart.lines.filter((line) => line.isRecurringEligible).length;
   const taxHint =
     inclusiveLines === cart.lines.length
       ? '· already in the prices above'
@@ -558,6 +743,10 @@ export function CartPage(): React.JSX.Element {
               {t('cart.continueShopping')}
             </ButtonLink>
           </div>
+
+          {recurringEligibleCount > 0 && (
+            <RepeatPurchasePanel eligibleCount={recurringEligibleCount} />
+          )}
         </aside>
       </div>
 

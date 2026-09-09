@@ -1,5 +1,5 @@
 /**
- * Set up a repeat purchase.
+ * Schedule your Cart.
  *
  * Two ways in, and they differ in what can honestly be shown:
  *
@@ -47,8 +47,100 @@ import { translateKey, useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
 
-type Frequency = 'EVERY_N_DAYS' | 'WEEKLY' | 'MONTHLY';
 type PaymentMode = 'AUTO_PAY' | 'PAYMENT_LINK';
+
+/**
+ * What the customer picks, which is not what the API stores.
+ *
+ * "Every three months" is one choice to a person and two fields to the server
+ * — a frequency and an interval — and the day it lands on is a third, taken
+ * from the start date. Modelling the dropdown as the API's own enum meant
+ * every preset needed its own follow-up question, so the six intervals this
+ * screen actually offers are their own type and `recurrenceFor` below turns
+ * one into the other.
+ *
+ * The three CUSTOM_ entries are the cadences this builder offered before the
+ * presets existed. They are kept because they are real capabilities that
+ * shipped and customers are on them — a weekly standing order on a fixed
+ * weekday is not expressible as any preset — but they are grouped apart, since
+ * almost nobody arrives wanting to nominate a weekday.
+ */
+type Cadence =
+  | 'DAYS_15'
+  | 'MONTHS_1'
+  | 'MONTHS_2'
+  | 'MONTHS_3'
+  | 'MONTHS_6'
+  | 'MONTHS_12'
+  | 'CUSTOM_DAYS'
+  | 'CUSTOM_WEEKLY'
+  | 'CUSTOM_MONTHLY';
+
+const PRESET_CADENCES = [
+  { value: 'DAYS_15', labelKey: 'scheduleBuilder.every15Days' },
+  { value: 'MONTHS_1', labelKey: 'scheduleBuilder.everyMonth' },
+  { value: 'MONTHS_2', labelKey: 'scheduleBuilder.every2Months' },
+  { value: 'MONTHS_3', labelKey: 'scheduleBuilder.every3Months' },
+  { value: 'MONTHS_6', labelKey: 'scheduleBuilder.every6Months' },
+  { value: 'MONTHS_12', labelKey: 'scheduleBuilder.everyYear' },
+] as const satisfies readonly { value: Cadence; labelKey: TranslationKey }[];
+
+const CUSTOM_CADENCES = [
+  { value: 'CUSTOM_DAYS', labelKey: 'scheduleBuilder.everySoManyDays' },
+  { value: 'CUSTOM_WEEKLY', labelKey: 'scheduleBuilder.weeklyOnAChosenDay' },
+  { value: 'CUSTOM_MONTHLY', labelKey: 'scheduleBuilder.monthlyOnAChosenDate' },
+] as const satisfies readonly { value: Cadence; labelKey: TranslationKey }[];
+
+/** The day of the month a `YYYY-MM-DD` start date falls on. */
+function dayOfMonthIn(startDate: string): number {
+  const day = Number(startDate.slice(8, 10));
+  return Number.isInteger(day) && day >= 1 && day <= 31 ? day : 1;
+}
+
+/**
+ * The recurrence fields for a cadence.
+ *
+ * Only the fields that cadence needs are returned, and that matters: the
+ * server's CHECK constraint requires the column a frequency depends on to be
+ * populated, and sending `weekday` alongside a MONTHLY plan would be sending a
+ * value nothing reads and the customer never chose.
+ *
+ * The presets take their day from the start date rather than asking for one.
+ * A customer who picked the 9th and "every three months" has already said
+ * which day; asking again is a second chance to disagree with themselves.
+ */
+function recurrenceFor(
+  cadence: Cadence,
+  startDate: string,
+  custom: { intervalDays: number; weekday: number; monthDay: number },
+): Record<string, string | number> {
+  switch (cadence) {
+    case 'DAYS_15':
+      // A fortnight is genuinely fifteen days here, not BIWEEKLY — that
+      // frequency is anchored to a weekday, and this preset is not about
+      // weekdays at all.
+      return { frequency: 'EVERY_N_DAYS', intervalDays: 15 };
+
+    case 'MONTHS_1':
+      return { frequency: 'MONTHLY', monthDay: dayOfMonthIn(startDate) };
+
+    case 'MONTHS_2':
+      return { frequency: 'EVERY_N_MONTHS', intervalMonths: 2 };
+    case 'MONTHS_3':
+      return { frequency: 'EVERY_N_MONTHS', intervalMonths: 3 };
+    case 'MONTHS_6':
+      return { frequency: 'EVERY_N_MONTHS', intervalMonths: 6 };
+    case 'MONTHS_12':
+      return { frequency: 'EVERY_N_MONTHS', intervalMonths: 12 };
+
+    case 'CUSTOM_DAYS':
+      return { frequency: 'EVERY_N_DAYS', intervalDays: custom.intervalDays };
+    case 'CUSTOM_WEEKLY':
+      return { frequency: 'WEEKLY', weekday: custom.weekday };
+    case 'CUSTOM_MONTHLY':
+      return { frequency: 'MONTHLY', monthDay: custom.monthDay };
+  }
+}
 
 const WEEKDAYS = [
   { value: 1, labelKey: 'scheduleBuilder.monday' },
@@ -157,7 +249,11 @@ export function ScheduleBuilderPage(): React.JSX.Element {
   // --- Form state -----------------------------------------------------------
 
   const [name, setName] = useState('');
-  const [frequency, setFrequency] = useState<Frequency>('EVERY_N_DAYS');
+  // A month is the interval most repeat purchases actually run at, so it is
+  // what the form opens on. The old default — "every so many days", with 7 in
+  // a number box — made a weekly delivery the path of least resistance for
+  // consumables that are ordered monthly.
+  const [cadence, setCadence] = useState<Cadence>('MONTHS_1');
   const [intervalDays, setIntervalDays] = useState(7);
   const [weekday, setWeekday] = useState(1);
   const [monthDay, setMonthDay] = useState(1);
@@ -262,10 +358,12 @@ export function ScheduleBuilderPage(): React.JSX.Element {
     mutationFn: () =>
       api.post<ScheduleCreated>('/recurring-schedules', {
         name: name.trim(),
-        frequency,
-        ...(frequency === 'EVERY_N_DAYS' ? { intervalDays } : {}),
-        ...(frequency === 'WEEKLY' ? { weekday } : {}),
-        ...(frequency === 'MONTHLY' ? { monthDay } : {}),
+        // The frequency and its one dependent field, together, from the single
+        // choice the customer made. Never assembled inline: the server's CHECK
+        // constraint refuses a frequency whose own column is absent, and
+        // spreading three conditionals at the call site is how one of them
+        // eventually goes missing.
+        ...recurrenceFor(cadence, startDate, { intervalDays, weekday, monthDay }),
         timezone: business.timezone,
         runAtMinute,
         startDate,
@@ -367,18 +465,31 @@ export function ScheduleBuilderPage(): React.JSX.Element {
   /** A plain-language description of what was chosen, for the summary. */
   const weekdayKey = WEEKDAYS.find((day) => day.value === weekday)?.labelKey;
 
-  const cadence =
-    frequency === 'EVERY_N_DAYS'
-      ? t('scheduleBuilder.everyNDays', {
-          count: intervalDays,
-          days: formatNumber(intervalDays),
-        })
-      : frequency === 'WEEKLY'
-        ? t('scheduleBuilder.everyWeekday', {
-            weekday:
-              weekdayKey === undefined ? t('scheduleBuilder.week') : translateKey(t, weekdayKey),
+  /**
+   * The cadence in words, for the summary panel.
+   *
+   * A preset reads back the label the customer chose from the dropdown rather
+   * than a translation of what it became — somebody who picked "Every 3
+   * months" should not have it summarised as "on day 9 of every third month".
+   * The custom modes still describe themselves, because there the follow-up
+   * field is the answer and the label alone would not say what was set.
+   */
+  const presetLabelKey = PRESET_CADENCES.find((option) => option.value === cadence)?.labelKey;
+
+  const cadenceSummary =
+    presetLabelKey !== undefined
+      ? translateKey(t, presetLabelKey)
+      : cadence === 'CUSTOM_DAYS'
+        ? t('scheduleBuilder.everyNDays', {
+            count: intervalDays,
+            days: formatNumber(intervalDays),
           })
-        : t('scheduleBuilder.onDayOfEachMonth', { day: formatNumber(monthDay) });
+        : cadence === 'CUSTOM_WEEKLY'
+          ? t('scheduleBuilder.everyWeekday', {
+              weekday:
+                weekdayKey === undefined ? t('scheduleBuilder.week') : translateKey(t, weekdayKey),
+            })
+          : t('scheduleBuilder.onDayOfEachMonth', { day: formatNumber(monthDay) });
 
   const timeLabel = RUN_TIMES.find((time) => time.value === runAtMinute)?.label ?? '06:00';
 
@@ -452,23 +563,47 @@ export function ScheduleBuilderPage(): React.JSX.Element {
             </h2>
 
             <div className="mt-3 space-y-4">
-              <Field label={t('scheduleBuilder.repeat')}>
-                {({ inputId }) => (
+              <Field
+                label={t('scheduleBuilder.repeat')}
+                hint={t('scheduleBuilder.theFirstDeliveryDateSets')}
+              >
+                {({ inputId, describedBy }) => (
                   <Select
                     id={inputId}
-                    value={frequency}
+                    value={cadence}
+                    aria-describedby={describedBy}
                     onChange={(event) => {
-                      setFrequency(event.target.value as Frequency);
+                      setCadence(event.target.value as Cadence);
                     }}
                   >
-                    <option value="EVERY_N_DAYS">{t('scheduleBuilder.everySoManyDays')}</option>
-                    <option value="WEEKLY">{t('scheduleBuilder.weeklyOnAChosenDay')}</option>
-                    <option value="MONTHLY">{t('scheduleBuilder.monthlyOnAChosenDate')}</option>
+                    {/*
+                     * Two groups, and the split is doing work rather than
+                     * decorating. The six presets answer "how often" on their
+                     * own; each custom entry is a promise of a second question,
+                     * and mixing the two in one flat list made a nine-item
+                     * dropdown where the sixth and seventh looked alike and
+                     * behaved differently.
+                     */}
+                    <optgroup label={t('scheduleBuilder.commonIntervals')}>
+                      {PRESET_CADENCES.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {translateKey(t, option.labelKey)}
+                        </option>
+                      ))}
+                    </optgroup>
+
+                    <optgroup label={t('scheduleBuilder.somethingElse')}>
+                      {CUSTOM_CADENCES.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {translateKey(t, option.labelKey)}
+                        </option>
+                      ))}
+                    </optgroup>
                   </Select>
                 )}
               </Field>
 
-              {frequency === 'EVERY_N_DAYS' && (
+              {cadence === 'CUSTOM_DAYS' && (
                 <Field
                   label={t('scheduleBuilder.numberOfDaysBetweenDeliveries')}
                   hint={t('scheduleBuilder.7GivesYouAWeekly')}
@@ -494,7 +629,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                 </Field>
               )}
 
-              {frequency === 'WEEKLY' && (
+              {cadence === 'CUSTOM_WEEKLY' && (
                 <Field label={t('scheduleBuilder.dayOfTheWeek')}>
                   {({ inputId }) => (
                     <Select
@@ -514,7 +649,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                 </Field>
               )}
 
-              {frequency === 'MONTHLY' && (
+              {cadence === 'CUSTOM_MONTHLY' && (
                 <Field
                   label={t('scheduleBuilder.dayOfTheMonth')}
                   hint={t('scheduleBuilder.aMonthShorterThanThe')}
@@ -859,7 +994,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
             <dl className="mt-4 space-y-2 border-t border-border pt-4 text-sm">
               <div className="flex justify-between gap-3">
                 <dt className="text-ink-muted">{t('scheduleBuilder.repeats')}</dt>
-                <dd className="text-right text-ink">{cadence}</dd>
+                <dd className="text-right text-ink">{cadenceSummary}</dd>
               </div>
               <div className="flex justify-between gap-3">
                 <dt className="text-ink-muted">At</dt>

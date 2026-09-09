@@ -1900,7 +1900,6 @@
   "erp.event.INVENTORY_SYNC": "Voorraadafstemming",
   "erp.event.INVENTORY_WEBHOOK": "De voorraad is aangevoerd",
   "erp.event.ORDER_STATUS_POLL": "Controle van de bestelstatus",
-  "erp.event.AUTOPAY_CHARGE": "Automatische betaling",
   "erp.attemptCount": "Pogingen: {{count}}",
   "erp.nextAttempt": "Volgende poging: {{when}}",
   "erp.tryAgain": "Probeer het nog eens",

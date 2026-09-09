@@ -15,10 +15,16 @@
  *     and account labels collapse to their icons, but the controls themselves
  *     stay — currency, account and cart are all still one tap away, and search
  *     gets its own row rather than being hidden behind a toggle.
- *   - **Two bands, two jobs.** The navy band is identity and account state;
- *     the white bar below it is where you are in the catalogue. Keeping them
- *     visually separate is what stops "who am I" and "what am I browsing"
- *     competing for the same strip of screen.
+ *   - **Two bands, two jobs.** The upper band is identity and account state;
+ *     the lower one is where you are in the catalogue. They are separated by a
+ *     hairline rather than by two different colours, which is what stops
+ *     "who am I" and "what am I browsing" competing for the same strip.
+ *   - **The chrome is white, over a sky-tinted page.** It used to be a navy
+ *     band. The separation now comes from the page ground being cool and the
+ *     header being pure white with a shadow under it — see `--surface-sunken`
+ *     in index.css, which is the one value the whole scheme hangs off. Every
+ *     control up here is therefore an ordinary on-light control, and the app
+ *     no longer needs a second set of them drawn for a dark surface.
  */
 import { useEffect, useId, useRef, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
@@ -49,34 +55,35 @@ function BrandMark(): React.JSX.Element {
   return (
     <Link
       to="/"
-      className="-mx-2 flex shrink-0 items-center gap-3 rounded-md px-2 py-1.5 transition-colors hover:bg-white/10"
+      className="-mx-2 flex shrink-0 items-center gap-3 rounded-md px-2 py-1.5 transition-colors hover:bg-surface-hover"
     >
       {business.logo === null ? (
         <span
           aria-hidden="true"
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-white text-base font-bold text-surface-inverse ring-1 ring-inset ring-white/50"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand text-base font-bold text-white shadow-card"
         >
           {business.displayName.slice(0, 1).toUpperCase()}
         </span>
       ) : (
-        // On the navy band a transparent logo would sit on navy. A white
-        // plate keeps a supplied logo readable whatever it was drawn for.
+        // A white plate with a hairline, not a bare image: a logo drawn for a
+        // white page and one drawn for a dark one both have to survive here,
+        // and only a plate makes that true of both.
         <img
           src={business.logo.url}
           alt=""
           width={40}
           height={40}
-          className="h-10 w-10 shrink-0 rounded-md bg-white object-contain p-1 ring-1 ring-inset ring-white/50"
+          className="h-10 w-10 shrink-0 rounded-md border border-border bg-white object-contain p-1"
         />
       )}
 
       <span className="flex min-w-0 flex-col leading-tight">
-        <span className="truncate text-base font-semibold tracking-tight text-white">
+        <span className="truncate text-base font-semibold tracking-tight text-ink">
           {business.displayName}
         </span>
         <span
           aria-hidden="true"
-          className="hidden text-xxs font-medium uppercase tracking-[0.14em] text-white/60 sm:block"
+          className="hidden text-xxs font-medium uppercase tracking-[0.14em] text-ink-subtle sm:block"
         >
           {t('header.brandTagline')}
         </span>
@@ -101,11 +108,13 @@ function SearchBox(): React.JSX.Element {
   return (
     <form
       role="search"
-      // The blue submit button's outer edge is only 1.6:1 against the navy
-      // band. One ring around the whole group gives the composite control a
-      // 3.6:1 boundary, so it reads as a control and not as a shape that
-      // happens to be there (WCAG 1.4.11).
-      className="relative flex flex-1 items-stretch rounded-md ring-1 ring-white/40 transition-shadow hover:ring-white/60"
+      // No ring around the group any more. It was there because on the navy
+      // band the blue submit button's outer edge was 1.6:1 against its own
+      // surround and the composite control had no perceivable boundary; on
+      // white the field's own `border-strong` is 3.31:1 and the button is
+      // 6.70:1, so each half identifies itself (WCAG 1.4.11) and a second
+      // outline would only be a doubled edge.
+      className="relative flex flex-1 items-stretch rounded-md"
       onSubmit={(event) => {
         event.preventDefault();
         const trimmed = term.trim();
@@ -150,7 +159,7 @@ function SearchBox(): React.JSX.Element {
  * the store sells in only one currency, where a control with one option is
  * just noise.
  *
- * Kept on the navy band at every width. A buyer comparing a quote in the wrong
+ * Kept in the header at every width. A buyer comparing a quote in the wrong
  * currency is the single most expensive misreading this storefront can cause,
  * so it does not get folded away on a phone.
  */
@@ -168,10 +177,6 @@ function CurrencySwitcher(): React.JSX.Element | null {
         onChange={(event) => {
           void locale.setCurrency(event.target.value);
         }}
-        // A white control on the navy band, not a transparent one with white
-        // text: the option list is drawn by the OS and inherits the page's
-        // colours, so white-on-transparent gives an unreadable dropdown.
-        //
         // `select-chevron` replaces the platform arrow (index.css), so this
         // sits at the same weight as the app's other selects instead of being
         // whatever shape the operating system felt like drawing.
@@ -264,11 +269,15 @@ function CartLink(): React.JSX.Element {
   return (
     <Link
       to="/cart"
-      // Given its own filled-and-ringed treatment rather than the plain hover
-      // the other header controls use: the cart is the one thing up here that
-      // is part of buying, and on a phone — where the word "Cart" collapses to
-      // the icon — a bare glyph among glyphs would not read as the buy path.
-      className="relative flex h-10 items-center gap-2 rounded-md bg-white/10 px-3 text-sm font-medium text-white ring-1 ring-inset ring-white/25 transition-colors hover:bg-white/20 hover:ring-white/40"
+      // Given its own tinted treatment rather than the plain hover the other
+      // header controls use: the cart is the one thing up here that is part of
+      // buying, and on a phone — where the word "Cart" collapses to the icon —
+      // a bare glyph among glyphs would not read as the buy path.
+      //
+      // Orange, and the only orange in the chrome, because orange is what this
+      // app spends on the buy path and nothing else. `action-strong` on
+      // `action-soft` is 4.88:1.
+      className="relative flex h-10 items-center gap-2 rounded-md bg-action-soft px-3 text-sm font-medium text-action-strong ring-1 ring-inset ring-action/30 transition-colors hover:bg-action-soft-hover hover:ring-action/50"
       // Counted, not an appended "s": the plural of "item" is a different word
       // shape in most of the catalogue, and Polish needs three of them.
       // i18next reads `count` and picks the form.
@@ -283,9 +292,10 @@ function CartLink(): React.JSX.Element {
           // would be 3.56:1. The count is also in this link's aria-label, so
           // nothing depends on reading the badge.
           //
-          // The navy ring separates the badge from the control it overlaps —
-          // without it the two orange-on-white edges merge at small sizes.
-          className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-action px-1 text-xxs font-bold text-ink ring-2 ring-surface-inverse"
+          // The ring is the chrome behind it, so the badge is cut out of the
+          // header rather than sitting on the tinted control it overlaps —
+          // without it the two orange edges merge at this size.
+          className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-action px-1 text-xxs font-bold text-ink ring-2 ring-surface"
         >
           {count > 99 ? '99+' : count}
         </span>
@@ -329,7 +339,7 @@ function AccountMenu(): React.JSX.Element {
     return (
       <Link
         to="/login"
-        className="inline-flex h-10 shrink-0 items-center rounded-md border border-white/40 px-3 text-sm font-medium text-white transition-colors hover:border-white/60 hover:bg-white/10 sm:px-4"
+        className="inline-flex h-10 shrink-0 items-center rounded-md border border-border-strong bg-surface px-3 text-sm font-medium text-ink shadow-card transition-colors hover:border-border-hover hover:bg-surface-hover sm:px-4"
       >
         {t('header.signIn')}
       </Link>
@@ -354,16 +364,16 @@ function AccountMenu(): React.JSX.Element {
         // Named explicitly: the trigger is the avatar alone, and the avatar is
         // aria-hidden, so without this the button has no accessible name.
         aria-label={t('header.account')}
-        className="flex h-10 items-center gap-2 rounded-md px-2 text-sm font-medium text-white/85 transition-colors hover:bg-white/10 hover:text-white sm:px-3"
+        className="flex h-10 items-center gap-2 rounded-md px-2 text-sm font-medium text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink sm:px-3"
       >
         <span
           aria-hidden="true"
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/15 text-xxs font-semibold text-white ring-1 ring-inset ring-white/25"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xxs font-semibold text-brand ring-1 ring-inset ring-brand/20"
         >
           {(user?.email ?? '?').slice(0, 2).toUpperCase()}
         </span>
         <ChevronDownIcon
-          className={cx('h-4 w-4 text-white/60 transition-transform', isOpen && 'rotate-180')}
+          className={cx('h-4 w-4 text-ink-subtle transition-transform', isOpen && 'rotate-180')}
         />
       </button>
 
@@ -371,10 +381,7 @@ function AccountMenu(): React.JSX.Element {
         <nav
           id={panelId}
           aria-label={t('header.account')}
-          // `on-light` puts the focus ring back to brand-on-white: this panel
-          // is a white surface that happens to hang off the navy band, and the
-          // band's white ring would be invisible inside it.
-          className="on-light absolute right-0 z-40 mt-2 w-60 rounded-lg border border-border bg-surface p-1.5 shadow-popover"
+          className="absolute right-0 z-40 mt-2 w-60 rounded-lg border border-border bg-surface p-1.5 shadow-popover"
         >
           <p className="border-b border-border px-3 pb-2.5 pt-2">
             <span className="block text-xxs font-medium uppercase tracking-wider text-ink-subtle">
@@ -461,7 +468,7 @@ function CategoryBar(): React.JSX.Element | null {
   return (
     <nav
       aria-label={t('header.categories')}
-      className="border-b border-border bg-surface shadow-card"
+      className="border-b border-border bg-surface"
     >
       <div className="mx-auto max-w-content overflow-x-auto px-4">
         <ul className="flex items-center gap-1 py-2">
@@ -490,20 +497,18 @@ function CategoryBar(): React.JSX.Element | null {
 
 export function Header(): React.JSX.Element {
   return (
-    <header className="sticky top-0 z-30">
+    // `shadow-card` on the whole header, not on the category bar inside it:
+    // the two bands are one white block resting on a sky page, and the shadow
+    // is what says so. Opaque, not translucent — a sticky header that lets the
+    // page show through is where catalogue text and header text overlap while
+    // you scroll.
+    <header className="sticky top-0 z-30 shadow-card">
       {/*
-       * The navy band.
-       *
-       * Opaque, not the translucent white this replaced: a sticky header that
-       * lets the page show through is where catalogue text and header text
-       * overlap while you scroll. Navy also separates the chrome from the
-       * white catalogue below it, so "where am I" and "what am I buying" stop
-       * competing for the same surface.
-       *
-       * `on-navy` swaps the focus ring to white — see index.css. Without it a
-       * keyboard user loses the ring on every control up here.
+       * The identity band. White, with a hairline under it rather than a
+       * change of colour: the split between "who am I" and "what am I
+       * browsing" is worth a line, not a second surface.
        */}
-      <div className="on-navy bg-surface-inverse">
+      <div className="border-b border-border-subtle bg-surface">
         <div className="mx-auto flex max-w-content items-center gap-4 px-4 py-3 sm:gap-6">
           <BrandMark />
 

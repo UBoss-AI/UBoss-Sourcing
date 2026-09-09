@@ -23,10 +23,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/toast-context';
 import { useStorefront } from '@/app/storefront-context';
+import { CardSetupDialog } from '@/components/CardSetupDialog';
 import {
   Badge,
   Button,
-  ButtonLink,
   Card,
   ErrorState,
   Field,
@@ -120,6 +120,7 @@ export function AutoPayPage(): React.JSX.Element {
 
   const [form, setForm] = useState<FormState | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [isAddingCard, setIsAddingCard] = useState(false);
 
   const settingsQuery = useQuery({
     queryKey: autoPayKeys.settings,
@@ -334,9 +335,23 @@ export function AutoPayPage(): React.JSX.Element {
             <div className="rounded-md bg-surface-sunken px-4 py-4">
               <p className="text-sm text-ink">{t('autopay.noCardTitle')}</p>
               <p className="mt-1 text-sm text-ink-muted">{t('autopay.noCardDescription')}</p>
-              <ButtonLink to="/account/profile" size="sm" variant="primary" className="mt-3">
+              {/*
+               * Enrolment happens here, not on another page.
+               *
+               * This used to link to `/account/profile`, which has no card
+               * section — the button was a dead end, and the one screen that
+               * needs a card was the screen that could not produce one.
+               */}
+              <Button
+                size="sm"
+                variant="primary"
+                className="mt-3"
+                onClick={() => {
+                  setIsAddingCard(true);
+                }}
+              >
                 {t('autopay.addACard')}
-              </ButtonLink>
+              </Button>
             </div>
           ) : (
             <Field label={t('autopay.cardToCharge')} error={fieldErrors['paymentMethodId']}>
@@ -541,6 +556,28 @@ export function AutoPayPage(): React.JSX.Element {
           )}
         </div>
       </Card>
+
+      {isAddingCard && (
+        <CardSetupDialog
+          // The first card on an account that is about to authorise charges
+          // has nothing to compete with, so it becomes the default.
+          makeDefault={usableCards.length === 0}
+          onSaved={(card) => {
+            setIsAddingCard(false);
+            toast.success(t('cardSetup.saved'));
+            // Select the card just added rather than leaving the form on
+            // whatever the previous default was — it was added in order to be
+            // used, and the consent tick below refers to "the card above".
+            setForm((current) =>
+              current === null ? current : { ...current, paymentMethodId: card.id },
+            );
+            void queryClient.invalidateQueries({ queryKey: autoPayKeys.paymentMethods });
+          }}
+          onCancel={() => {
+            setIsAddingCard(false);
+          }}
+        />
+      )}
     </AutoPayShell>
   );
 }

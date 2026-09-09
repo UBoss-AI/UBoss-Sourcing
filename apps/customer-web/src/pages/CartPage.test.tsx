@@ -331,4 +331,208 @@ describe('CartPage', () => {
     const alerts = await screen.findAllByRole('alert');
     expect(within(alerts[0] as HTMLElement).getByText('Only 12 left in stock.')).toBeInTheDocument();
   });
+
+  /**
+   * The repeat-purchase panel.
+   *
+   * The thing worth guarding is not that a link renders — it is that the panel
+   * never becomes a reason the cart itself fails. Auto-pay is read from a
+   * different endpoint, and that endpoint is allowed to be off, unavailable or
+   * simply broken without taking checkout down with it.
+   */
+  describe('repeat purchase', () => {
+    /** Answer /cart with `cart`, and /account/autopay with `autoPay`. */
+    function serveCartAndAutoPay(cart: Cart, autoPay: unknown): void {
+      fetchMock.mockImplementation((url: string) =>
+        Promise.resolve(
+          url.includes('/account/autopay') ? jsonResponse(autoPay) : jsonResponse({ cart }),
+        ),
+      );
+    }
+
+    it('offers the schedule when a line can be repeated', async () => {
+      serveCart(makeCart());
+
+      renderWithProviders(<CartPage />);
+
+      expect(await screen.findByRole('link', { name: /schedule your cart/i })).toHaveAttribute(
+        'href',
+        '/schedules/new',
+      );
+      expect(screen.getByText(/1 product here can be delivered on a schedule/i)).toBeInTheDocument();
+    });
+
+    it('stays out of the way when nothing in the cart can be repeated', async () => {
+      serveCart(makeCart({ lines: [makeCartLine({ isRecurringEligible: false })] }));
+
+      renderWithProviders(<CartPage />);
+
+      // Wait for the cart itself, so this is an absence rather than a race.
+      expect(await screen.findByRole('button', { name: /proceed to checkout/i })).toBeEnabled();
+      expect(screen.queryByRole('link', { name: /schedule your cart/i })).toBeNull();
+    });
+
+    it('shows the auto-pay state and the card it would charge', async () => {
+      serveCartAndAutoPay(makeCart(), {
+        available: true,
+        consentVersion: '1',
+        autoPay: {
+          status: 'ACTIVE',
+          enabled: true,
+          paymentMethodLabel: 'Visa ending 4242',
+        },
+      });
+
+      renderWithProviders(<CartPage />);
+
+      expect(await screen.findByText('Autopay')).toBeInTheDocument();
+      expect(screen.getByText('On')).toBeInTheDocument();
+      expect(screen.getByText(/Visa ending 4242/)).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /manage Autopay/i })).toHaveAttribute(
+        'href',
+        '/account/autopay',
+      );
+    });
+
+    it('says a payment link is coming when auto-pay is off', async () => {
+      serveCartAndAutoPay(makeCart(), {
+        available: true,
+        consentVersion: '1',
+        autoPay: { status: 'DISABLED', enabled: false, paymentMethodLabel: null },
+      });
+
+      renderWithProviders(<CartPage />);
+
+      expect(await screen.findByText('Off')).toBeInTheDocument();
+      expect(screen.getByText(/each delivery will email a payment link/i)).toBeInTheDocument();
+    });
+
+    it('omits the auto-pay line when the store does not offer it', async () => {
+      serveCartAndAutoPay(makeCart(), { available: false, consentVersion: '1', autoPay: null });
+
+      renderWithProviders(<CartPage />);
+
+      expect(await screen.findByRole('link', { name: /schedule your cart/i })).toBeVisible();
+      expect(screen.queryByText('Autopay')).toBeNull();
+    });
+
+    it('keeps the cart intact when the auto-pay read fails', async () => {
+      fetchMock.mockImplementation((url: string) => {
+        if (url.includes('/account/autopay')) return Promise.reject(new Error('network'));
+        return Promise.resolve(jsonResponse({ cart: makeCart() }));
+      });
+
+      renderWithProviders(<CartPage />);
+
+      // Checkout still works, and the schedule is still offered — only the
+      // line about auto-pay is missing, which is the half that could not be
+      // answered.
+      expect(await screen.findByRole('button', { name: /proceed to checkout/i })).toBeEnabled();
+      expect(screen.getByRole('link', { name: /schedule your cart/i })).toBeVisible();
+      expect(screen.queryByText('Autopay')).toBeNull();
+    });
+
+    /**
+     * Turning auto-pay on from the cart.
+     *
+     * The property under test is the ordering the customer asked for: a card
+     * has to exist before there is anything to consent about, so the button's
+     * label and the dialog it opens both depend on whether one does. And in no
+     * case does the cart itself enable anything — the consent is collected in
+     * the dialog, with the wording on screen.
+     */
+    describe('switching auto-pay on', () => {
+      /** Off, with `paymentMethodUsable` saying whether a card is on file. */
+      function offWithCard(paymentMethodUsable: boolean): unknown {
+        return {
+          available: true,
+          consentVersion: '1',
+          autoPay: {
+            status: 'DISABLED',
+            enabled: false,
+            paymentMethodLabel: null,
+            paymentMethodUsable,
+          },
+        };
+      }
+
+      it('offers the card step first when no card is on file', async () => {
+        serveCartAndAutoPay(makeCart(), offWithCard(false));
+
+        renderWithProviders(<CartPage />);
+
+        // The label names the first step rather than the destination. A
+        // customer promised "turn on Autopay" and handed a card form
+        // has been surprised by it.
+        expect(
+          await screen.findByRole('button', { name: /set up a card for Autopay/i }),
+        ).toBeVisible();
+        expect(screen.queryByRole('button', { name: /^turn on Autopay$/i })).toBeNull();
+      });
+
+      it('goes straight to consent when a card is already on file', async () => {
+        serveCartAndAutoPay(makeCart(), offWithCard(true));
+
+        renderWithProviders(<CartPage />);
+
+        expect(
+          await screen.findByRole('button', { name: /turn on Autopay/i }),
+        ).toBeVisible();
+      });
+
+      it('collects consent in the dialog rather than enabling from the cart', async () => {
+        const user = userEvent.setup();
+
+        fetchMock.mockImplementation((url: string) => {
+          if (url.includes('/account/autopay')) return Promise.resolve(jsonResponse(offWithCard(true)));
+          if (url.includes('/account/payment-methods')) {
+            return Promise.resolve(
+              jsonResponse({
+                paymentMethods: [
+                  { id: 'pm_1', brand: 'Visa', last4: '4242', status: 'ACTIVE', isDefault: true },
+                ],
+              }),
+            );
+          }
+          return Promise.resolve(jsonResponse({ cart: makeCart() }));
+        });
+
+        renderWithProviders(<CartPage />);
+
+        await user.click(await screen.findByRole('button', { name: /turn on Autopay/i }));
+
+        // The card is named, not implied — "your card" is not an answer when
+        // an account has three.
+        expect(await screen.findByText(/Visa ···· 4242/)).toBeVisible();
+
+        // The dialog's own confirm stays disabled until the tick, and nothing
+        // has been POSTed by opening it.
+        const dialog = screen.getByRole('dialog');
+        expect(within(dialog).getByRole('button', { name: /turn on/i })).toBeDisabled();
+
+        const posted = fetchMock.mock.calls.filter(
+          (call: unknown[]) => (call[1] as RequestInit | undefined)?.method === 'POST',
+        );
+        expect(posted).toHaveLength(0);
+      });
+
+      it('resumes without asking for consent again when it is only paused', async () => {
+        // Consent is already on record for a paused mandate, so resuming is
+        // one call and no new agreement — a dialog here would be asking for
+        // something the customer has already given.
+        serveCartAndAutoPay(makeCart(), {
+          available: true,
+          consentVersion: '1',
+          autoPay: { status: 'PAUSED', enabled: false, paymentMethodLabel: null },
+        });
+
+        renderWithProviders(<CartPage />);
+
+        expect(
+          await screen.findByRole('button', { name: /resume Autopay/i }),
+        ).toBeVisible();
+        expect(screen.queryByRole('dialog')).toBeNull();
+      });
+    });
+  });
 });

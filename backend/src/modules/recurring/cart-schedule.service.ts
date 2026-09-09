@@ -54,6 +54,7 @@ export interface CartScheduleConfig {
   /** ONE_TIME for Buy Later; anything else is a subscription. */
   frequency: Frequency;
   intervalDays?: number | null;
+  intervalMonths?: number | null;
   weekday?: number | null;
   monthDay?: number | null;
   /** The first (or only) delivery date, as YYYY-MM-DD in the customer's zone. */
@@ -180,6 +181,7 @@ export async function previewCartSchedule(
   const firstRun = computeFirstRun({
     frequency: config.frequency,
     intervalDays: config.intervalDays ?? null,
+    intervalMonths: config.intervalMonths ?? null,
     weekday: config.weekday ?? null,
     monthDay: config.monthDay ?? null,
     timezone,
@@ -249,6 +251,7 @@ export async function previewCartSchedule(
       ? describeRule({
           frequency: config.frequency,
           intervalDays: config.intervalDays ?? null,
+          intervalMonths: config.intervalMonths ?? null,
           weekday: config.weekday ?? null,
           monthDay: config.monthDay ?? null,
           timezone,
@@ -325,6 +328,7 @@ export async function createCartSchedule(
       name: preview.name,
       frequency: config.frequency,
       intervalDays: config.intervalDays ?? null,
+      intervalMonths: config.intervalMonths ?? null,
       weekday: config.weekday ?? null,
       monthDay: config.monthDay ?? null,
       timezone: preview.timezone,
@@ -460,6 +464,7 @@ function defaultName(
 function computeFirstRun(input: {
   frequency: Frequency;
   intervalDays: number | null;
+  intervalMonths: number | null;
   weekday: number | null;
   monthDay: number | null;
   timezone: string;
@@ -494,6 +499,7 @@ function computeFirstRun(input: {
       rule: {
         frequency: input.frequency,
         intervalDays: input.intervalDays,
+        intervalMonths: input.intervalMonths,
         weekday: input.weekday,
         monthDay: input.monthDay,
         timezone: input.timezone,

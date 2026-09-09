@@ -219,6 +219,6 @@ describe('ProductPage', () => {
     );
 
     await screen.findByRole('button', { name: /add to cart/i });
-    expect(screen.queryByRole('link', { name: /repeat purchase/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /schedule your cart/i })).not.toBeInTheDocument();
   });
 });

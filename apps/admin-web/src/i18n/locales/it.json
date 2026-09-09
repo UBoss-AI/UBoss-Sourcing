@@ -1916,7 +1916,6 @@
   "erp.event.INVENTORY_SYNC": "Sincronizzazione delle scorte",
   "erp.event.INVENTORY_WEBHOOK": "Merce consegnata",
   "erp.event.ORDER_STATUS_POLL": "Verifica dello stato dell'ordine",
-  "erp.event.AUTOPAY_CHARGE": "Pagamento automatico",
   "erp.attemptCount": "Tentativi: {{count}}",
   "erp.nextAttempt": "Prossimo tentativo: {{when}}",
   "erp.tryAgain": "Provi di nuovo",

@@ -40,6 +40,7 @@ import {
 import { variantKeyOf } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { publicProductWhere } from '../catalog/catalog.visibility.js';
+import { isScheduleEligible } from '../catalog/recurring-eligibility.js';
 import { loadPricesForCurrency } from '../catalog/price.service.js';
 import { checkPurchasingLimits } from '../customers/limits.service.js';
 import { verifyErpStock, isErpConfigured } from '../integrations/erp-order.service.js';
@@ -620,7 +621,7 @@ async function resolveLines(
 
     // The admin's opt-in. A customer cannot put anything they like on a
     // standing order.
-    if (!product.isRecurringEligible) return null;
+    if (!isScheduleEligible(product)) return null;
 
     if (variantId !== null) {
       const variant = variantById.get(variantId);
@@ -640,7 +641,7 @@ async function resolveLines(
         flatRatePercent: product.taxClass.ratePercent.toString(),
         taxInclusive: product.taxClass.isInclusive,
         vatCategory: product.taxClass.vatCategory,
-        isRecurringEligible: product.isRecurringEligible,
+        isRecurringEligible: isScheduleEligible(product),
         isStockTracked: product.isStockTracked,
         minOrderQty: product.minOrderQty,
         maxOrderQty: product.maxOrderQty,
@@ -664,7 +665,7 @@ async function resolveLines(
       flatRatePercent: product.taxClass.ratePercent.toString(),
       taxInclusive: product.taxClass.isInclusive,
       vatCategory: product.taxClass.vatCategory,
-      isRecurringEligible: product.isRecurringEligible,
+      isRecurringEligible: isScheduleEligible(product),
       isStockTracked: product.isStockTracked,
       minOrderQty: product.minOrderQty,
       maxOrderQty: product.maxOrderQty,

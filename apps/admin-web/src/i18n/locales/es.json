@@ -1916,7 +1916,6 @@
   "erp.event.INVENTORY_SYNC": "Sincronización de existencias",
   "erp.event.INVENTORY_WEBHOOK": "Se introdujo el stock",
   "erp.event.ORDER_STATUS_POLL": "Consulta del estado del pedido",
-  "erp.event.AUTOPAY_CHARGE": "Pago automático",
   "erp.attemptCount": "Intentos: {{count}}",
   "erp.nextAttempt": "Próximo intento: {{when}}",
   "erp.tryAgain": "Inténtelo de nuevo",

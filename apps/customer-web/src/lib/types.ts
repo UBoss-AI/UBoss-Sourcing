@@ -713,6 +713,8 @@ export interface Schedule {
   intervalDays: number | null;
   weekday: number | null;
   monthDay: number | null;
+  /** EVERY_N_MONTHS: 2, 3, 6 or 12. The date itself comes from `startDate`. */
+  intervalMonths: number | null;
   timezone: string;
   runAtMinute: number;
   startDate: string;

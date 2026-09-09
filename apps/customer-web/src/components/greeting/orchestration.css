@@ -1,0 +1,497 @@
+/*
+ * The sourcing hub's geometry and motion.
+ *
+ * Plain CSS rather than Tailwind classes or a `keyframes` block in
+ * tailwind.config.js, for two reasons that are worth stating because both look
+ * like inconsistency until you know them:
+ *
+ *   - **The Tailwind config is shared.** Its header says it is kept
+ *     byte-identical to `apps/admin-web/tailwind.config.js` apart from two
+ *     marked lines. Six orbital keyframes that only the storefront's greeting
+ *     page will ever use do not belong in a file the admin panel also reads.
+ *   - **These animations are parameterised per element.** Every node has its
+ *     own phase, every travelling light its own delay and its own angle. That
+ *     is a custom property fed from React, and the arbitrary-value syntax for
+ *     it is considerably harder to read than the CSS it compiles to.
+ *
+ * Two rules hold for everything below.
+ *
+ * **Only `transform` and `opacity` are animated.** Both are composited, so a
+ * page with nine things moving on it forever still does no layout and no
+ * paint. Nothing here animates a width, a colour, a `box-shadow`, a
+ * `background-position` or an SVG `stroke-dashoffset` — the last one is the
+ * usual way a "travelling light along a line" is drawn, and it repaints the
+ * whole path on every frame. The lights here are circles that translate.
+ *
+ * **Every animation ends where it started.** A ring's last frame is
+ * `rotate(360deg)`, which is the same picture as `rotate(0)`; a float returns
+ * to zero. An infinite loop whose first and last frames differ produces a
+ * visible jump once per cycle, and it is the single most common way a
+ * decorative animation starts reading as a bug.
+ *
+ * On `prefers-reduced-motion` all of it stops — see the block at the end.
+ */
+
+/* ==========================================================================
+ * Layout
+ *
+ * Two arrangements of the same DOM, so the six nodes are one list of six
+ * controls in both. A phone gets a small hub with the nodes in a grid beneath
+ * it; from `lg` the nodes lift out onto a circle around it.
+ *
+ * The alternative — a radial layout that scales down — was tried and does not
+ * work: at 360px the six labels overlap each other and the orb, and a node
+ * whose text is under another node's text is a node nobody can press.
+ * ========================================================================== */
+
+.orch {
+  position: relative;
+}
+
+.orch-stage {
+  position: relative;
+  width: min(17rem, 76vw);
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+}
+
+/*
+ * One column on a phone, not two.
+ *
+ * Two columns at 390px leaves each tile about 140px of text, and "Warehouse
+ * Network — stock held wherever it is closest to you" arrives in six lines.
+ * Full width, the mark sits left of the words and every tile is two lines.
+ */
+.orch-nodes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.625rem;
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 640px) {
+  .orch-nodes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* The radial arrangement. `lg` and not a pixel earlier: the circle needs about
+   34rem of square before the labels stop touching, and a tablet in portrait
+   does not have it to spare beside the hero. */
+@media (min-width: 1024px) {
+  .orch {
+    aspect-ratio: 1 / 1;
+    max-width: 34rem;
+    margin-inline: auto;
+  }
+
+  .orch-stage {
+    position: absolute;
+    inset: 0;
+    width: auto;
+    margin: 0;
+  }
+
+  .orch-nodes {
+    position: absolute;
+    inset: 0;
+    display: block;
+    margin: 0;
+  }
+
+  /* `--orch-x` / `--orch-y` are written by React from one table of angles, so
+     the node, the line it sits on and the light travelling up that line
+     cannot drift apart. */
+  .orch-node {
+    position: absolute;
+    left: var(--orch-x);
+    top: var(--orch-y);
+    width: 9.25rem;
+    /* Centring only. The float lives on the child, so the two transforms
+       never have to be composed by hand. */
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* ==========================================================================
+ * The layers, and the parallax that separates them
+ *
+ * `--orch-px` / `--orch-py` are set on `.orch` by a pointer handler that
+ * writes them straight to the node's style — no React state, so moving the
+ * mouse across the hero does not re-render anything. Each layer multiplies
+ * them differently, which is what makes the web read as sitting behind the
+ * nodes rather than painted on the same sheet as them.
+ *
+ * `translate3d` rather than `translate`, so the layer gets its own compositor
+ * layer instead of being re-rasterised as the pointer moves.
+ * ========================================================================== */
+
+.orch-web,
+.orch-hub,
+.orch-nodes {
+  transition: transform 220ms var(--ease-ui);
+  will-change: transform;
+}
+
+.orch-web {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: translate3d(calc(var(--orch-px, 0px) * 0.35), calc(var(--orch-py, 0px) * 0.35), 0);
+}
+
+.orch-hub {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 33%;
+  aspect-ratio: 1 / 1;
+  /* Centring and parallax in one declaration: they are the same property, and
+     splitting them across two rules is how one silently wins. */
+  transform: translate(-50%, -50%)
+    translate3d(calc(var(--orch-px, 0px) * 0.6), calc(var(--orch-py, 0px) * 0.6), 0);
+}
+
+@media (min-width: 1024px) {
+  .orch-nodes {
+    transform: translate3d(calc(var(--orch-px, 0px) * 0.9), calc(var(--orch-py, 0px) * 0.9), 0);
+  }
+}
+
+/* ==========================================================================
+ * The orb
+ *
+ * A sphere in four layers: a ground, a wireframe that genuinely rotates in
+ * three dimensions, a specular highlight that orbits, and the label.
+ *
+ * The label is a sibling of the rotating parts, not a child of them. That is
+ * the whole reason the orb is built this way: a word painted onto a spinning
+ * sphere is unreadable for most of every revolution, and a word that is
+ * upright and sharp while the thing under it turns is the effect this is
+ * after. Nothing in `.orch-orb` is ever readable text.
+ * ========================================================================== */
+
+.orch-orb {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  /* Off-centre, so the sphere is lit from the upper left like everything else
+     on the page. A centred radial gradient reads as a flat disc.
+     The highlight is also kept clear of the middle: the label sits there in
+     white, and white on this blue is 4.87:1 — enough, but not enough to spend
+     on a decorative gleam underneath it. */
+  background:
+    radial-gradient(circle at 30% 24%, rgb(191 219 254 / 0.95), transparent 30%),
+    radial-gradient(circle at 50% 50%, rgb(37 99 235), rgb(30 58 138) 72%, rgb(23 37 84));
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.35) inset,
+    0 18px 45px -12px rgb(30 64 175 / 0.65);
+  overflow: hidden;
+  /* The perspective the wireframe below rotates under. Without it `rotateY`
+     is an orthographic squash and the sphere looks like a closing eye. */
+  perspective: 620px;
+}
+
+.orch-orb-wire {
+  position: absolute;
+  inset: 8%;
+  transform-style: preserve-3d;
+  animation: orch-orb-spin 24s linear infinite;
+}
+
+/* Three meridians at 60° to each other. Rotating the group in Y carries all
+   three, so what you see is one wireframe globe turning rather than three
+   ellipses breathing out of step. */
+.orch-orb-meridian {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgb(191 219 254 / 0.4);
+}
+
+.orch-orb-meridian:nth-child(1) {
+  transform: rotateY(0deg);
+}
+.orch-orb-meridian:nth-child(2) {
+  transform: rotateY(60deg);
+}
+.orch-orb-meridian:nth-child(3) {
+  transform: rotateY(120deg);
+}
+
+/* The equator does not rotate with the others: it is the axis they turn
+   about, and it stays put for the same reason a globe's stand does. */
+.orch-orb-equator {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 50%;
+  height: 0;
+  border-top: 1px solid rgb(191 219 254 / 0.28);
+}
+
+/* The specular highlight, orbiting the sphere's centre at a radius. Its own
+   animation and its own period, deliberately not a multiple of the
+   wireframe's — two loops that share a factor visibly re-sync, and the pattern
+   that emerges is more noticeable than either motion on its own. */
+.orch-orb-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  animation: orch-spin 17s linear infinite;
+}
+
+.orch-orb-sheen::before {
+  content: '';
+  position: absolute;
+  left: 18%;
+  top: 6%;
+  width: 42%;
+  height: 42%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(224 242 254 / 0.55), transparent 68%);
+  filter: blur(6px);
+}
+
+/* The soft ground the orb sits in. Outside `.orch-orb` because that clips. */
+.orch-hub-glow {
+  position: absolute;
+  inset: -34%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(56 189 248 / 0.3), transparent 62%);
+  pointer-events: none;
+}
+
+/*
+ * The label layer.
+ *
+ * Upright, sharp and above everything. `pointer-events: none` so it never
+ * eats a press meant for a node behind it, and no transform of any kind — a
+ * transformed layer is composited and can pick up a half-pixel blur on the
+ * text, which is precisely what this layer exists to avoid.
+ */
+.orch-hub-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  pointer-events: none;
+  text-align: center;
+}
+
+/* ==========================================================================
+ * The web: rings, radial lines and the lights that travel them
+ *
+ * One SVG on a 400×400 user-unit grid, centred at (200, 200). React works in
+ * the same units, so an angle in the node table and an angle in the drawing
+ * are literally the same number.
+ * ========================================================================== */
+
+/* Both rings rotate about the drawing's centre. `transform-box: view-box`
+   makes `transform-origin: 200px 200px` mean 200 user units — without it the
+   origin is the element's own bounding box and the ring orbits its own edge. */
+.orch-ring {
+  transform-box: view-box;
+  transform-origin: 200px 200px;
+}
+
+.orch-ring--inner {
+  animation: orch-spin 30s linear infinite;
+}
+
+/* Counter-clockwise, and a different period. Two rings turning the same way
+   at the same speed look like one thick ring. */
+.orch-ring--outer {
+  animation: orch-spin-reverse 46s linear infinite;
+}
+
+/*
+ * A radial line, and the same line while its node is the active one.
+ *
+ * The highlight is driven by `data-orch-active` on the root rather than by
+ * React state. Hovering a node must brighten a line that is its DOM sibling's
+ * sibling, which CSS alone cannot express — but one attribute written by the
+ * pointer handler can, and it costs no render.
+ */
+.orch-line {
+  stroke: rgb(59 130 246 / 0.35);
+  stroke-width: 1.4;
+  transition:
+    stroke 200ms var(--ease-ui),
+    stroke-width 200ms var(--ease-ui);
+}
+
+.orch[data-orch-active] .orch-line {
+  stroke: rgb(59 130 246 / 0.18);
+}
+
+.orch[data-orch-active='assistant'] .orch-line[data-node='assistant'],
+.orch[data-orch-active='warehouses'] .orch-line[data-node='warehouses'],
+.orch[data-orch-active='schedules'] .orch-line[data-node='schedules'],
+.orch[data-orch-active='erp'] .orch-line[data-node='erp'],
+.orch[data-orch-active='autopay'] .orch-line[data-node='autopay'],
+.orch[data-orch-active='inventory'] .orch-line[data-node='inventory'] {
+  stroke: rgb(29 78 216 / 0.95);
+  stroke-width: 2.2;
+}
+
+/*
+ * A light travelling out along one radial line.
+ *
+ * The circle is drawn at the centre, inside a `<g>` the drawing has already
+ * rotated to the node's angle. All this has to do is push it along the local
+ * x-axis, which is a translate — no path, no dash offset, nothing that
+ * repaints.
+ */
+.orch-pulse {
+  fill: rgb(125 211 252);
+  animation: orch-travel 4.4s linear infinite;
+  animation-delay: var(--orch-delay, 0s);
+  opacity: 0;
+}
+
+/* Particles riding the rings. They are children of the rotating groups, so
+   they need no animation of their own — they are carried. The pulse is only
+   there to stop six identical dots reading as a dotted line. */
+.orch-mote {
+  fill: rgb(147 197 253);
+  animation: orch-mote 3.6s ease-in-out infinite;
+  animation-delay: var(--orch-delay, 0s);
+}
+
+/* ==========================================================================
+ * Nodes
+ * ========================================================================== */
+
+/* The float. On the inner control, never on the `<li>` that positions it. */
+.orch-node-float {
+  animation: orch-float 6.5s ease-in-out infinite;
+  animation-delay: var(--orch-delay, 0s);
+}
+
+/* The mark's glow, brightened on hover and on keyboard focus alike. Focus
+   gets the same treatment as hover on purpose: a node that only reacts to a
+   pointer is a node a keyboard user cannot tell they have reached. */
+.orch-node-mark {
+  transition:
+    box-shadow 200ms var(--ease-ui),
+    background-color 200ms var(--ease-ui),
+    color 200ms var(--ease-ui);
+}
+
+.orch-node-control:hover .orch-node-mark,
+.orch-node-control:focus-visible .orch-node-mark {
+  box-shadow:
+    0 0 0 6px rgb(56 189 248 / 0.16),
+    0 10px 24px -8px rgb(29 78 216 / 0.55);
+}
+
+/* ==========================================================================
+ * Keyframes
+ * ========================================================================== */
+
+@keyframes orch-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes orch-spin-reverse {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes orch-orb-spin {
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+/*
+ * 74 → 142 user units: the orb's edge to just short of the node ring. The
+ * fades at either end are what stop the light from appearing out of nothing
+ * at the orb and vanishing into nothing at the node.
+ */
+@keyframes orch-travel {
+  0% {
+    transform: translateX(74px);
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.95;
+  }
+  82% {
+    opacity: 0.95;
+  }
+  100% {
+    transform: translateX(142px);
+    opacity: 0;
+  }
+}
+
+@keyframes orch-mote {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes orch-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* ==========================================================================
+ * Reduced motion
+ *
+ * `index.css` already clamps every animation in the app to 0.01ms and one
+ * iteration, which happens to leave each of these on a sane final frame — a
+ * full turn is the same picture as no turn, a float ends at zero. This block
+ * is not redundant on top of that: it says so deliberately rather than by
+ * luck, and it also switches off the parallax transition, which is a
+ * *transition* and would otherwise survive as a 0.01ms snap on every pointer
+ * move. The pointer handler stops writing the variables in this mode too, so
+ * the layers simply hold still.
+ * ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .orch-orb-wire,
+  .orch-orb-sheen,
+  .orch-ring--inner,
+  .orch-ring--outer,
+  .orch-mote,
+  .orch-node-float {
+    animation: none;
+  }
+
+  /* The travelling lights are removed rather than parked: a dot frozen
+     half-way up a line looks like a rendering fault, and an end-state dot at
+     zero opacity is simply invisible, which is the honest version of "this
+     page is not animating". */
+  .orch-pulse {
+    animation: none;
+    opacity: 0;
+  }
+
+  .orch-web,
+  .orch-hub,
+  .orch-nodes {
+    transition: none;
+    will-change: auto;
+  }
+}
