@@ -44,6 +44,12 @@ import {
   sendUpcomingReminders,
 } from '../modules/recurring/occurrence.service.js';
 import { retryDueErpPushes } from '../modules/integrations/erp-order.service.js';
+import { retryDueErpConnectionPushes } from '../modules/integrations/erp-push.service.js';
+import { pollDueConnections } from '../modules/integrations/erp-inventory-sync.service.js';
+import {
+  findDueRetries,
+  releaseEvent,
+} from '../modules/integrations/integration-event.service.js';
 
 /**
  * A failure that retrying cannot fix.
@@ -300,6 +306,98 @@ const erpOrderRetry: JobHandler = async () => {
   }
 };
 
+/**
+ * Poll every customer ERP whose next check is due.
+ *
+ * The fallback for a buyer's ERP with no outbound webhooks, which is most of
+ * them. Each connection carries its own `nextPollAt` and the sweep books the
+ * next one BEFORE running, so a connection whose poll throws is not picked up
+ * again on the very next pass - which would be a tight loop against somebody
+ * else's server.
+ *
+ * A no-op while FEATURE_ERP_INTEGRATION is off.
+ */
+const erpInventoryPoll: JobHandler = async () => {
+  const result = await pollDueConnections();
+
+  if (result.polled > 0 || result.failed > 0) {
+    logger.info(result, 'polled customer ERP connections for stock');
+  }
+};
+
+/**
+ * Retry orders the ERP has not taken.
+ *
+ * The exit from Paid - ERP Pending. Every row this
+ * touches is an order somebody has already paid for and which their warehouse
+ * cannot yet see, so it runs on the ordinary maintenance beat; each row carries
+ * its own `nextRetryAt`, so a pass with nothing due is one indexed query.
+ *
+ * Every attempt reuses the idempotency key the first one sent, so this can
+ * never produce a second ERP order however many times it runs.
+ */
+const erpPushRetry: JobHandler = async () => {
+  const result = await retryDueErpConnectionPushes();
+
+  if (result.attempted > 0) {
+    logger.info(result, 'retried customer ERP order pushes');
+  }
+};
+
+/**
+ * Retry integration operations whose failure looked transient.
+ *
+ * Reads `integration_events` rather than any one business table, so a new kind
+ * of operation is retried without a new job type. Order pushes are deliberately
+ * left to `erpPushRetry` above: they have their own ledger row, their
+ * own larger attempt budget, and a paid order is not the place for a generic
+ * sweep to be the thing that gives up.
+ */
+const integrationEventRetry: JobHandler = async () => {
+  const due = await findDueRetries();
+  if (due.length === 0) return;
+
+  let requeued = 0;
+
+  for (const event of due) {
+    if (event.eventType === 'ORDER_PUSH') continue;
+
+    // A sync is re-run rather than resumed: the ERP's answer now is the one
+    // worth having, and half-applying an hour-old snapshot on top of a fresh
+    // one is how two systems end up disagreeing about stock.
+    if (event.eventType === 'INVENTORY_SYNC' && event.connectionId !== null) {
+      const connection = await prisma.erpConnection.findFirst({
+        where: { id: event.connectionId, status: 'ACTIVE', deletedAt: null },
+      });
+
+      if (connection === null) {
+        // The connection was paused, suspended or deleted while this waited.
+        // Nothing to retry against, and leaving the event RETRY_SCHEDULED would
+        // have the sweep pick it up for ever.
+        await releaseEvent(event.id, 'The connection is no longer switched on.');
+        continue;
+      }
+
+      await prisma.erpConnection.update({
+        where: { id: connection.id },
+        data: { nextPollAt: new Date() },
+      });
+
+      await releaseEvent(event.id, 'Superseded by a fresh synchronisation.');
+      requeued += 1;
+      continue;
+    }
+
+    // Anything else has no automatic retry path yet. Closed rather than left
+    // scheduled for ever, with the reason on the row.
+    await releaseEvent(event.id, 'This operation has to be retried by hand.');
+  }
+
+  if (requeued > 0) {
+    logger.info({ requeued, examined: due.length }, 'requeued customer ERP integration events');
+  }
+};
+
 /** Mark links that quietly aged out, so an admin can see why they stopped working. */
 const expireLinks: JobHandler = async () => {
   const expired = await expirePaymentLinks();
@@ -433,6 +531,9 @@ export const HANDLERS: Readonly<Record<string, JobHandler>> = Object.freeze({
   [JobType.SCHEDULE_ACTION_EXPIRE]: scheduleActionExpire,
   [JobType.SCHEDULE_MATERIALISE]: scheduleMaterialise,
   [JobType.ERP_ORDER_RETRY]: erpOrderRetry,
+  [JobType.ERP_INVENTORY_POLL]: erpInventoryPoll,
+  [JobType.ERP_PUSH_RETRY]: erpPushRetry,
+  [JobType.INTEGRATION_EVENT_RETRY]: integrationEventRetry,
   [JobType.PAYMENT_LINK_EXPIRE]: expireLinks,
   [JobType.EXPORT_GENERATE]: generateExportJob,
   [JobType.INTEGRATION_SYNC]: integrationSync,

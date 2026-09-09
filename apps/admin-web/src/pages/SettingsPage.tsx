@@ -49,6 +49,7 @@ import type { Translate } from '@/i18n/i18n-context';
 import { ExchangeRatesPanel } from './settings/ExchangeRatesPanel';
 import { CatalogueTranslationPanel } from './settings/CatalogueTranslationPanel';
 import { VatRatesPanel } from './settings/VatRatesPanel';
+import { ErpPanel } from './settings/ErpPanel';
 import { ProcessorsPanel } from './settings/ProcessorsPanel';
 
 interface BusinessProfile {
@@ -1006,6 +1007,10 @@ export function SettingsPage(): React.JSX.Element {
         {/* Beside the exchange rate panel because they are the same job seen
             twice: what a market is quoted in, and what it reads. */}
         <CatalogueTranslationPanel />
+        {/* Above the feature flags: an ERP connection is a standing
+            arrangement with another system, and reads closer to the business
+            profile than to a switch. Renders nothing when the feature is off. */}
+        <ErpPanel />
         <FeatureFlagsPanel />
         {/* Last, because it is a report rather than a setting - nothing on it
             is editable, and it is read against a register rather than used to

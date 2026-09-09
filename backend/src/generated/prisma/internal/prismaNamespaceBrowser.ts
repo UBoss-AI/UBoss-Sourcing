@@ -128,7 +128,14 @@ export const ModelName = {
   VatNumberCheck: 'VatNumberCheck',
   Invoice: 'Invoice',
   EconomicOperator: 'EconomicOperator',
-  ProductDeviceInfo: 'ProductDeviceInfo'
+  ProductDeviceInfo: 'ProductDeviceInfo',
+  ErpConnection: 'ErpConnection',
+  ErpInventorySyncRun: 'ErpInventorySyncRun',
+  ErpSyncRecordError: 'ErpSyncRecordError',
+  ErpInventorySnapshot: 'ErpInventorySnapshot',
+  IntegrationEvent: 'IntegrationEvent',
+  ErpWebhookReceipt: 'ErpWebhookReceipt',
+  CustomerAutoPaySetting: 'CustomerAutoPaySetting'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1038,6 +1045,7 @@ export const ErpOrderPushScalarFieldEnum = {
   orderId: 'orderId',
   occurrenceId: 'occurrenceId',
   connectionId: 'connectionId',
+  erpConnectionId: 'erpConnectionId',
   idempotencyKey: 'idempotencyKey',
   status: 'status',
   erpOrderReference: 'erpOrderReference',
@@ -1653,6 +1661,184 @@ export const ProductDeviceInfoScalarFieldEnum = {
 } as const
 
 export type ProductDeviceInfoScalarFieldEnum = (typeof ProductDeviceInfoScalarFieldEnum)[keyof typeof ProductDeviceInfoScalarFieldEnum]
+
+
+export const ErpConnectionScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  baseUrl: 'baseUrl',
+  status: 'status',
+  statusReason: 'statusReason',
+  statusChangedAt: 'statusChangedAt',
+  productEndpoint: 'productEndpoint',
+  inventoryEndpoint: 'inventoryEndpoint',
+  warehouseEndpoint: 'warehouseEndpoint',
+  orderCreateEndpoint: 'orderCreateEndpoint',
+  orderStatusEndpoint: 'orderStatusEndpoint',
+  methodsJson: 'methodsJson',
+  customHeadersJson: 'customHeadersJson',
+  timeoutMs: 'timeoutMs',
+  authMethod: 'authMethod',
+  credentialsEnc: 'credentialsEnc',
+  credentialHint: 'credentialHint',
+  oauthTokenUrl: 'oauthTokenUrl',
+  oauthScope: 'oauthScope',
+  oauthTokenEnc: 'oauthTokenEnc',
+  oauthTokenExpiresAt: 'oauthTokenExpiresAt',
+  webhookEnabled: 'webhookEnabled',
+  webhookSecretEnc: 'webhookSecretEnc',
+  webhookSignatureHeader: 'webhookSignatureHeader',
+  webhookSlug: 'webhookSlug',
+  pollingEnabled: 'pollingEnabled',
+  pollingIntervalMinutes: 'pollingIntervalMinutes',
+  lastPolledAt: 'lastPolledAt',
+  nextPollAt: 'nextPollAt',
+  fieldMappingJson: 'fieldMappingJson',
+  mappingVerifiedAt: 'mappingVerifiedAt',
+  inventoryAuthority: 'inventoryAuthority',
+  allowManualOverride: 'allowManualOverride',
+  orderPushEnabled: 'orderPushEnabled',
+  idempotencyHeader: 'idempotencyHeader',
+  lastTestAt: 'lastTestAt',
+  lastTestOk: 'lastTestOk',
+  lastTestHttpStatus: 'lastTestHttpStatus',
+  lastTestDurationMs: 'lastTestDurationMs',
+  lastTestMessage: 'lastTestMessage',
+  consecutiveFailures: 'consecutiveFailures',
+  circuitOpenedAt: 'circuitOpenedAt',
+  lastSyncSuccessAt: 'lastSyncSuccessAt',
+  lastSyncFailureAt: 'lastSyncFailureAt',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+} as const
+
+export type ErpConnectionScalarFieldEnum = (typeof ErpConnectionScalarFieldEnum)[keyof typeof ErpConnectionScalarFieldEnum]
+
+
+export const ErpInventorySyncRunScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  trigger: 'trigger',
+  status: 'status',
+  isDryRun: 'isDryRun',
+  correlationId: 'correlationId',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  processedCount: 'processedCount',
+  appliedCount: 'appliedCount',
+  skippedCount: 'skippedCount',
+  failedCount: 'failedCount',
+  conflictCount: 'conflictCount',
+  rateLimitedUntil: 'rateLimitedUntil',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage'
+} as const
+
+export type ErpInventorySyncRunScalarFieldEnum = (typeof ErpInventorySyncRunScalarFieldEnum)[keyof typeof ErpInventorySyncRunScalarFieldEnum]
+
+
+export const ErpSyncRecordErrorScalarFieldEnum = {
+  id: 'id',
+  syncRunId: 'syncRunId',
+  externalRef: 'externalRef',
+  field: 'field',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage',
+  createdAt: 'createdAt'
+} as const
+
+export type ErpSyncRecordErrorScalarFieldEnum = (typeof ErpSyncRecordErrorScalarFieldEnum)[keyof typeof ErpSyncRecordErrorScalarFieldEnum]
+
+
+export const ErpInventorySnapshotScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  sku: 'sku',
+  warehouseKey: 'warehouseKey',
+  productId: 'productId',
+  variantId: 'variantId',
+  availableQuantity: 'availableQuantity',
+  reservedQuantity: 'reservedQuantity',
+  unitOfMeasure: 'unitOfMeasure',
+  erpProductId: 'erpProductId',
+  erpProductName: 'erpProductName',
+  priceMinor: 'priceMinor',
+  currency: 'currency',
+  platformQuantityAtSync: 'platformQuantityAtSync',
+  conflictDetectedAt: 'conflictDetectedAt',
+  manualQuantity: 'manualQuantity',
+  manualSetAt: 'manualSetAt',
+  manualSetByUserId: 'manualSetByUserId',
+  lastSyncedAt: 'lastSyncedAt',
+  lastSyncRunId: 'lastSyncRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ErpInventorySnapshotScalarFieldEnum = (typeof ErpInventorySnapshotScalarFieldEnum)[keyof typeof ErpInventorySnapshotScalarFieldEnum]
+
+
+export const IntegrationEventScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  eventType: 'eventType',
+  status: 'status',
+  orderId: 'orderId',
+  erpOrderReference: 'erpOrderReference',
+  correlationId: 'correlationId',
+  idempotencyKey: 'idempotencyKey',
+  attemptCount: 'attemptCount',
+  lastAttemptAt: 'lastAttemptAt',
+  nextRetryAt: 'nextRetryAt',
+  httpStatus: 'httpStatus',
+  durationMs: 'durationMs',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage',
+  responseJson: 'responseJson',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type IntegrationEventScalarFieldEnum = (typeof IntegrationEventScalarFieldEnum)[keyof typeof IntegrationEventScalarFieldEnum]
+
+
+export const ErpWebhookReceiptScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  externalEventId: 'externalEventId',
+  receivedAt: 'receivedAt',
+  processedAt: 'processedAt',
+  syncRunId: 'syncRunId'
+} as const
+
+export type ErpWebhookReceiptScalarFieldEnum = (typeof ErpWebhookReceiptScalarFieldEnum)[keyof typeof ErpWebhookReceiptScalarFieldEnum]
+
+
+export const CustomerAutoPaySettingScalarFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  status: 'status',
+  paymentMethodId: 'paymentMethodId',
+  maxTransactionMinor: 'maxTransactionMinor',
+  approvalThresholdMinor: 'approvalThresholdMinor',
+  limitCurrency: 'limitCurrency',
+  retryPreference: 'retryPreference',
+  notifyOnCharge: 'notifyOnCharge',
+  notifyOnFailure: 'notifyOnFailure',
+  consentAcceptedAt: 'consentAcceptedAt',
+  consentVersion: 'consentVersion',
+  consentIpHash: 'consentIpHash',
+  consentUserAgent: 'consentUserAgent',
+  consentWithdrawnAt: 'consentWithdrawnAt',
+  enabledAt: 'enabledAt',
+  pausedAt: 'pausedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerAutoPaySettingScalarFieldEnum = (typeof CustomerAutoPaySettingScalarFieldEnum)[keyof typeof CustomerAutoPaySettingScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2293,6 +2479,7 @@ export const ErpOrderPushOrderByRelevanceFieldEnum = {
   orderId: 'orderId',
   occurrenceId: 'occurrenceId',
   connectionId: 'connectionId',
+  erpConnectionId: 'erpConnectionId',
   idempotencyKey: 'idempotencyKey',
   erpOrderReference: 'erpOrderReference',
   lastErrorCode: 'lastErrorCode',
@@ -2708,4 +2895,108 @@ export const ProductDeviceInfoOrderByRelevanceFieldEnum = {
 } as const
 
 export type ProductDeviceInfoOrderByRelevanceFieldEnum = (typeof ProductDeviceInfoOrderByRelevanceFieldEnum)[keyof typeof ProductDeviceInfoOrderByRelevanceFieldEnum]
+
+
+export const ErpConnectionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name',
+  baseUrl: 'baseUrl',
+  statusReason: 'statusReason',
+  productEndpoint: 'productEndpoint',
+  inventoryEndpoint: 'inventoryEndpoint',
+  warehouseEndpoint: 'warehouseEndpoint',
+  orderCreateEndpoint: 'orderCreateEndpoint',
+  orderStatusEndpoint: 'orderStatusEndpoint',
+  credentialsEnc: 'credentialsEnc',
+  credentialHint: 'credentialHint',
+  oauthTokenUrl: 'oauthTokenUrl',
+  oauthScope: 'oauthScope',
+  oauthTokenEnc: 'oauthTokenEnc',
+  webhookSecretEnc: 'webhookSecretEnc',
+  webhookSignatureHeader: 'webhookSignatureHeader',
+  webhookSlug: 'webhookSlug',
+  idempotencyHeader: 'idempotencyHeader',
+  lastTestMessage: 'lastTestMessage',
+  createdById: 'createdById'
+} as const
+
+export type ErpConnectionOrderByRelevanceFieldEnum = (typeof ErpConnectionOrderByRelevanceFieldEnum)[keyof typeof ErpConnectionOrderByRelevanceFieldEnum]
+
+
+export const ErpInventorySyncRunOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  correlationId: 'correlationId',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage'
+} as const
+
+export type ErpInventorySyncRunOrderByRelevanceFieldEnum = (typeof ErpInventorySyncRunOrderByRelevanceFieldEnum)[keyof typeof ErpInventorySyncRunOrderByRelevanceFieldEnum]
+
+
+export const ErpSyncRecordErrorOrderByRelevanceFieldEnum = {
+  id: 'id',
+  syncRunId: 'syncRunId',
+  externalRef: 'externalRef',
+  field: 'field',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage'
+} as const
+
+export type ErpSyncRecordErrorOrderByRelevanceFieldEnum = (typeof ErpSyncRecordErrorOrderByRelevanceFieldEnum)[keyof typeof ErpSyncRecordErrorOrderByRelevanceFieldEnum]
+
+
+export const ErpInventorySnapshotOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  sku: 'sku',
+  warehouseKey: 'warehouseKey',
+  productId: 'productId',
+  variantId: 'variantId',
+  unitOfMeasure: 'unitOfMeasure',
+  erpProductId: 'erpProductId',
+  erpProductName: 'erpProductName',
+  currency: 'currency',
+  manualSetByUserId: 'manualSetByUserId',
+  lastSyncRunId: 'lastSyncRunId'
+} as const
+
+export type ErpInventorySnapshotOrderByRelevanceFieldEnum = (typeof ErpInventorySnapshotOrderByRelevanceFieldEnum)[keyof typeof ErpInventorySnapshotOrderByRelevanceFieldEnum]
+
+
+export const IntegrationEventOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  orderId: 'orderId',
+  erpOrderReference: 'erpOrderReference',
+  correlationId: 'correlationId',
+  idempotencyKey: 'idempotencyKey',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage'
+} as const
+
+export type IntegrationEventOrderByRelevanceFieldEnum = (typeof IntegrationEventOrderByRelevanceFieldEnum)[keyof typeof IntegrationEventOrderByRelevanceFieldEnum]
+
+
+export const ErpWebhookReceiptOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  externalEventId: 'externalEventId',
+  syncRunId: 'syncRunId'
+} as const
+
+export type ErpWebhookReceiptOrderByRelevanceFieldEnum = (typeof ErpWebhookReceiptOrderByRelevanceFieldEnum)[keyof typeof ErpWebhookReceiptOrderByRelevanceFieldEnum]
+
+
+export const CustomerAutoPaySettingOrderByRelevanceFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  paymentMethodId: 'paymentMethodId',
+  limitCurrency: 'limitCurrency',
+  consentVersion: 'consentVersion',
+  consentIpHash: 'consentIpHash',
+  consentUserAgent: 'consentUserAgent'
+} as const
+
+export type CustomerAutoPaySettingOrderByRelevanceFieldEnum = (typeof CustomerAutoPaySettingOrderByRelevanceFieldEnum)[keyof typeof CustomerAutoPaySettingOrderByRelevanceFieldEnum]
 

@@ -248,6 +248,95 @@ const envSchema = z
     /// this has no effect.
     ERP_VERIFY_STOCK_BEFORE_CHARGE: booleanFromString.default(true),
 
+    // --- Configurable ERP connections ---
+    //
+    // Everything above this comment configures the ERP connector wired through
+    // environment variables. The settings below govern the other kind: a
+    // connection an administrator creates under Settings -> ERP, whose address,
+    // endpoints, credentials and field names all live in the database. Nothing
+    // here names an ERP, because nothing in a deployment's configuration needs
+    // to - that is the whole point of the feature.
+    //
+    // The master switch. Off means the Integrations screens are hidden, the
+    // routes refuse with FEATURE_DISABLED, no polling job is enqueued, and the
+    // webhook endpoint 404s. An installation that has not thought about
+    // customers reaching outbound to their own systems should not have that
+    // happening by default, so it is opt-in.
+    FEATURE_ERP_INTEGRATION: booleanFromString.default(false),
+    /// How many ERP connections one customer may hold.
+    ///
+    /// A sandbox and a live one is the ordinary case; five is room for a
+    /// migration without letting one account create work for the poller
+    /// without limit.
+    ERP_MAX_CONNECTIONS: intFromString(1, 50).default(5),
+    /// Attempts at one customer-ERP operation before it needs a person.
+    ///
+    /// Lower than ERP_ORDER_MAX_ATTEMPTS because these hit a system the
+    /// customer runs themselves: an ERP that has refused six times is telling
+    /// its owner something, and continuing to hammer it is not our decision to
+    /// make on their behalf. The paid-but-unpushed case is exempt and uses the
+    /// operator ceiling - see `pushOrderToErp`.
+    ERP_MAX_ATTEMPTS: intFromString(1, 20).default(6),
+    /// Records one inventory sync will read from a customer's ERP.
+    ///
+    /// A ceiling on memory and on how long a worker slot is held, not a
+    /// business rule. A feed longer than this is paged where the customer's
+    /// ERP supports paging and truncated with a warning where it does not.
+    ERP_MAX_SYNC_RECORDS: intFromString(100, 100_000).default(5000),
+    /// Per-record failures stored for one sync run.
+    ///
+    /// Beyond this the run is marked FAILED with one reason. Fifty thousand
+    /// rows nobody will read is not a better diagnostic than "the whole feed
+    /// was rejected".
+    ERP_MAX_RECORD_ERRORS: intFromString(1, 1000).default(50),
+    /// Consecutive failures before a connection is taken out of service.
+    ///
+    /// It moves to ERROR and stops being called until a test passes. Without
+    /// this, a customer whose ERP has been switched off for a fortnight gets a
+    /// poll against it every hour for a fortnight.
+    ERP_FAILURE_THRESHOLD: intFromString(1, 100).default(5),
+
+    // Whether a customer's ERP address may be on a private or loopback
+    // network.
+    //
+    // FALSE, and `superRefine` below refuses to start a production process
+    // with it true. It exists for one case: a developer pointing a connection
+    // at a mock ERP on localhost:9000. Turning it on in production hands
+    // anybody who can save a connection a way to make this server call
+    // 169.254.169.254 and read the instance's cloud credentials back out of a
+    // sync error - which is why it is not merely discouraged but refused.
+    //
+    // With it off, `outbound-http.ts` resolves every hostname itself, checks
+    // every address it resolves to, pins the socket to one that passed, and
+    // re-validates every redirect. See that file's header.
+    ALLOW_PRIVATE_ERP_TARGETS: booleanFromString.default(false),
+
+    // --- Auto-pay ---
+    //
+    // Separate from FEATURE_SUBSCRIPTION_AUTOPAY, which governs whether a
+    // scheduled plan may charge a stored card. This one governs the customer's
+    // own standing authority: a ceiling per transaction, a threshold above
+    // which they want to be asked, and the consent that makes any of it lawful.
+    //
+    // A deployment may reasonably want saved cards for schedules and no
+    // standing authority beyond them, which is why the two are not one flag.
+    FEATURE_CUSTOMER_AUTOPAY: booleanFromString.default(false),
+    /// The consent text version a customer's stored acceptance is recorded
+    /// against.
+    ///
+    /// Bumping it does NOT invalidate existing consent by itself - that would
+    /// silently stop every customer's auto-pay on a deployment - but it is
+    /// what lets an operator tell who agreed to which wording, which is the
+    /// question asked when a charge is disputed.
+    AUTOPAY_CONSENT_VERSION: z.string().default('v1'),
+    /// A platform-wide ceiling on any single off-session charge, in minor
+    /// units of the order's own currency.
+    ///
+    /// Applied on top of whatever the customer set, never instead of it, and
+    /// zero means no platform ceiling. It is the operator's backstop against a
+    /// pricing bug turning into a five-figure charge nobody authorised.
+    AUTOPAY_PLATFORM_MAX_MINOR: intFromString(0, 100_000_000_000).default(0),
+
     // --- Admin sign-in location ---
     //
     // On by default: the console asks the browser where the device is at
@@ -488,6 +577,61 @@ const envSchema = z
         code: z.ZodIssueCode.custom,
         path: ['ERP_ORDER_PATH'],
         message: 'required when ERP_ORDER_CONNECTION_NAME is set',
+      });
+    }
+
+    // The one setting in this file that is a security control rather than a
+    // preference, and the only one refused outright rather than warned about.
+    //
+    // ALLOW_PRIVATE_ERP_TARGETS lets a customer-supplied address resolve to a
+    // private or loopback network. In development that is how somebody points a
+    // connection at a mock ERP on localhost:9000. In production it is a way for
+    // anybody who can save a connection to make this server fetch
+    // http://169.254.169.254/latest/meta-data/iam/security-credentials/ and read
+    // the instance's cloud credentials back out of a sync error message.
+    //
+    // There is no deployment where that is the intended behaviour, so this
+    // refuses to start rather than logging a warning nobody reads.
+    if (value.NODE_ENV === 'production' && value.ALLOW_PRIVATE_ERP_TARGETS) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['ALLOW_PRIVATE_ERP_TARGETS'],
+        message:
+          'ALLOW_PRIVATE_ERP_TARGETS cannot be true in production. It permits a customer-supplied ' +
+          'address to resolve to a loopback, link-local or private network, which makes the ' +
+          'cloud metadata endpoint reachable from a form field. It exists for local development ' +
+          'against a mock ERP and nothing else.',
+      });
+    }
+
+    // Auto-pay with nothing that can charge. A customer would tick the consent
+    // box, agree to a ceiling, and then have every scheduled delivery fail at
+    // the moment of payment - having been told the opposite.
+    if (
+      value.FEATURE_CUSTOMER_AUTOPAY &&
+      value.STRIPE_SECRET_KEY.length === 0 &&
+      value.NODE_ENV === 'production'
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['FEATURE_CUSTOMER_AUTOPAY'],
+        message:
+          'FEATURE_CUSTOMER_AUTOPAY is on but no Stripe secret key is configured. Customers ' +
+          'would be asked to consent to charges that could never be made. Connect Stripe, or ' +
+          'turn the flag off.',
+      });
+    }
+
+    // Auto-pay stores a card and charges it off-session, which needs the
+    // SetupIntent path that FEATURE_SUBSCRIPTION_AUTOPAY gates. On without it,
+    // a customer can consent to auto-pay and then find no way to add a card.
+    if (value.FEATURE_CUSTOMER_AUTOPAY && !value.FEATURE_SUBSCRIPTION_AUTOPAY) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['FEATURE_CUSTOMER_AUTOPAY'],
+        message:
+          'FEATURE_CUSTOMER_AUTOPAY needs FEATURE_SUBSCRIPTION_AUTOPAY, which is what lets a ' +
+          'customer save a card at all. Turn both on, or neither.',
       });
     }
 

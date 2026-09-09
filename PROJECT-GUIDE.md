@@ -25,6 +25,7 @@ have to read separately — this *is* the explanation.
    - [9.5 Scheduled orders — Buy Later and Subscribe & Reorder](#95-scheduled-orders--buy-later-and-subscribe--reorder)
    - [9.5.1 Auto-pay: charging a card nobody is looking at](#951-auto-pay-charging-a-card-nobody-is-looking-at)
    - [9.5.2 The ERP hand-off](#952-the-erp-hand-off)
+   - [9.8 The ERP connection, and auto-pay](#98-the-erp-connection-and-auto-pay)
 10. [Money — the most important rule](#10-money--the-most-important-rule)
 11. [The background worker](#11-the-background-worker)
 12. [Security](#12-security)
@@ -287,6 +288,7 @@ comes back in the exact same shape:
 | `/schedules/new` | Build a repeating order | **Yes** |
 | `/account/addresses` | Saved addresses | **Yes** |
 | `/account/profile` | Name, phone, language | **Yes** |
+| `/account/autopay` | Automatic payment: consent, limits, which card | **Yes** |
 
 **Browsing does not need an account.** The sign-in wall sits at the *cart*, not
 at the front door — because the backend puts it there too. A visitor can see
@@ -368,6 +370,7 @@ name, their currencies and their features appear.
 | `/integrations` | Integrations | Payment gateway credentials, connectors |
 | `/staff` | Staff | Staff accounts and their roles |
 | `/settings` | Settings | Business profile, tax, shipping, currencies, notifications |
+| `/settings/erp` | Settings → ERP | The ERP connection: address, credentials, endpoints, field mapping, test, sync, activity |
 
 ## Warehouses, and the map
 
@@ -773,6 +776,15 @@ order. There is no "it works on mine".
 `recurring_schedules`, `recurring_schedule_items`, `schedule_occurrences`,
 `customer_payment_methods`, `erp_order_pushes`
 
+**Integrations**
+The OPERATOR's own connector: `integration_connections`, `sync_runs`,
+`sync_errors`, `import_jobs`, `import_row_errors`, `export_jobs`
+
+The ERP connected under Settings → ERP — see 9.8, and note that nothing here
+may write `inventory_balances`: `erp_connections`, `erp_inventory_snapshots`,
+`erp_inventory_sync_runs`, `erp_sync_record_errors`, `integration_events`,
+`erp_webhook_receipts`, `customer_autopay_settings`
+
 **Machinery**
 `job_queue`, `notification_outbox`, `notification_deliveries`,
 `admin_notifications`, `rate_limit_buckets`, `audit_log`, `number_sequences`
@@ -830,12 +842,13 @@ have. Two consequences you will meet in the code:
 
 Base path: `/api/v1`. About 22 route files.
 
-## The three zones
+## The zones
 
 | Zone | Prefix | Who may call it |
 |---|---|---|
 | **Public** | `/api/v1/config`, `/api/v1/catalog` | Anyone, no login |
 | **Customer** | `/api/v1/auth`, `/account`, `/cart`, `/orders`, `/recurring-schedules`, `/assistant` | A signed-in customer |
+| **Webhooks** | `/api/v1/payments/webhooks/:provider`, `/api/v1/integrations/erp/webhooks/:slug` | A machine, proving itself with a signature over the raw bytes. See *The webhook exception* |
 | **Admin** | `/api/v1/admin/*` | A signed-in member of staff with the right permission |
 
 ## Two design decisions in the routing
@@ -928,6 +941,18 @@ unauthenticated endpoints that change money. Their authority is the
 **cryptographic signature over the raw body**, not a cookie. This is correct:
 the caller is Stripe's server, which has no browser and no cookie, but does
 hold a shared signing secret.
+
+`POST /api/v1/integrations/erp/webhooks/:slug` is the same exception for the
+same reason, one layer out: the caller is the business's ERP pushing a stock
+update. Its authority is an HMAC-SHA256 over the raw bytes, compared in constant
+time against a secret held by that connection and the ERP alone, at an
+unguessable per-connection path. There is no unsigned mode.
+
+**Both are registered in `RAW_BODY_ROUTES`**, and that is not a detail. A
+signature is over the exact bytes that were sent; verifying against a
+re-serialised object fails for every honest sender, because key order and
+whitespace change on a JSON round trip — and the usual "fix" for that is to stop
+verifying.
 
 ---
 
@@ -1669,6 +1694,353 @@ keyed on `inventory_movements.dedupeKey` so a retried reconciliation collides on
 the unique index rather than posting a second delta. The ledger is append-only
 and has no reversal, so a double post would silently corrupt on-hand for ever.
 
+## 9.8 The ERP connection, and auto-pay
+
+### The distinction everything here rests on
+
+Section 9.5.2 describes an ERP wired through **environment variables**: one
+address, fixed paths, named by `ERP_ORDER_CONNECTION_NAME`, set when the process
+starts and changed by a deployment.
+
+This section is about the same job done from a screen. A Business Owner opens
+**Settings → ERP** and configures a connection whose base URL, endpoints,
+credentials, field mapping and webhook secret all live in the database. It is
+tested there, switched on there, and changed there — no deployment, no restart.
+
+Both exist and neither replaces the other. `pushOrderToErp` tries the configured
+connection first and falls through to the environment one; an installation where
+nobody has connected anything behaves exactly as it did before.
+
+**Every order goes to the same ERP**, because there is only one: the business's.
+Nothing here is per-customer, and there is no matching rule to get wrong.
+
+**There is no customer-facing screen for any of this, on purpose.** A connection
+is a URL plus a credential that this server then calls with the machinery of the
+installation behind it. The set of people who may create one is the set already
+trusted with the installation, and the guarantee is a route that does not exist
+rather than a permission somebody could be granted by accident.
+
+Auto-pay is the exception, and it has to be: **nobody can consent on somebody
+else's behalf to money leaving their account.** That screen stays under Account
+→ Automatic payment, where the account holder is.
+
+### The consequences of "somebody types the address"
+
+Everywhere else in this system the addresses we call are ours. Here a form field
+becomes an authenticated outbound HTTP request, which is a server-side request
+forgery primitive with a text input in front of it. An address an administrator
+typed is more likely to be right than one a stranger typed; it is not thereby
+right, and a copied URL, a compromised staff account or a hostname whose DNS
+answer changes tomorrow are all still on the table.
+
+`infra/outbound-http.ts` is the answer, and the rule is about **addresses**,
+applied after resolution:
+
+1. Only `http` and `https` exist. `file:`, `gopher:` and the rest are refused by
+   scheme, not by pattern.
+2. The hostname is resolved **by us**, before connecting.
+3. **Every** address it resolves to must be globally routable unicast. Loopback,
+   link-local (`169.254.169.254` — the cloud metadata endpoint on every major
+   provider), all the RFC 1918 ranges, CGNAT, multicast, broadcast, and their
+   IPv4-mapped IPv6 spellings (`::ffff:127.0.0.1`) are refused. A name answering
+   with both a public address and `127.0.0.1` is refused outright: it is a rebind
+   attempt in a round-robin costume.
+4. The socket is **pinned** to an address that passed. This is why the module
+   uses `node:http`/`node:https` and not `fetch`: `fetch` re-resolves the
+   hostname when it opens the socket, and an attacker's DNS server is free to
+   answer differently the second time. The `lookup` override closes that window.
+5. **No redirect is followed automatically.** A `Location` is a fresh URL that
+   has been through none of the above, so it goes back to the top of the loop
+   and is re-validated, at most three times. A 301/302/303 also drops the body
+   and becomes a GET — replaying a POST to a URL the first server chose is how a
+   redirect turns into a way to make this server submit an order somewhere else.
+
+`ALLOW_PRIVATE_ERP_TARGETS` lifts the address rules for local development
+against a mock ERP. `env.ts` **refuses to start a production process** with it
+true, because there is no deployment where it is the intended behaviour.
+
+An endpoint path is checked separately: it must resolve onto the base URL's own
+origin. An "endpoint" free to leave the authorised host would carry the
+credential with it.
+
+### The connection lifecycle
+
+```
+DRAFT ──test──▶ TESTING ──passed──▶ CONNECTED ──activate──▶ ACTIVE
+  ▲                 │                                        │  ▲
+  │                 └──failed──▶ ERROR ◀──repeated failures──┘  │
+  │                                │                            │
+  └──── edit (from anywhere) ──────┘         PAUSED ────resume───┘
+                                               ▲
+                                     ACTIVE ───┘ pause
+
+  DISABLED ──reopen──▶ DRAFT
+```
+
+`domain/erp-connection-state.ts` is the only thing allowed to move a row between
+these, exactly as `assertTransition` is for orders. Two edges carry the weight:
+
+- **`CONNECTED → ACTIVE` is the only way traffic ever starts**, and it requires
+  a test that passed *and* a mapping checked against a real response. It is not
+  reachable from `DRAFT` or `ERROR`, both of which mean "no test has passed since
+  this configuration was last touched".
+- **Editing lands back in `DRAFT`.** Whatever the last test proved, it proved
+  about settings that have just been replaced. Without this, somebody could
+  change a base URL and have the next paid order posted to the new address
+  untested.
+
+**At most one connection may be `ACTIVE`.** MariaDB 10.4 has no partial index, so
+this is enforced in the service rather than by the schema — the screen offers
+several rows so a sandbox and a migration have somewhere to live, and exactly one
+of them carries traffic.
+
+`PAUSED` and `DISABLED` look similar and are not. Pause is "stop for now": every
+setting intact, no re-test to resume, and **inbound webhooks refused while it
+lasts** — accepting stock updates for a connection somebody deliberately stopped
+is the opposite of what pausing means. Disable is "stop, and I am not coming
+back soon"; the row survives so the integration ledger still reads, and coming
+out of it goes through a test like any cold start.
+
+`ERROR` is entered by the machinery, never by a person, after
+`ERP_FAILURE_THRESHOLD` consecutive failures. Without it, an ERP that has been
+off for a fortnight collects a failed poll against it every hour for a fortnight.
+
+### Authentication
+
+Four methods, one shape — all of them end as headers, and only `erp-client.ts`
+ever decrypts a credential to build them:
+
+| Method | What is sent |
+|---|---|
+| `API_KEY` | A key in a header the administrator names, e.g. `X-API-Key` |
+| `BEARER_TOKEN` | `Authorization: Bearer <token>` |
+| `BASIC` | `Authorization: Basic base64(user:pass)` |
+| `OAUTH2` | Client-credentials grant, then `Authorization: Bearer <access token>` |
+
+OAuth is client credentials rather than any interactive grant because there is
+no human present: a stock poll runs at 03:00 and an order push runs inside a
+webhook handler. The token is **cached on the row** (`oauthTokenEnc`, encrypted
+like any other secret) rather than fetched per request — a round trip before
+every stock read would double both the traffic and the failure surface. It is
+cleared on any credential or method change.
+
+**Nothing returns a credential.** `ConnectionView` has no field that could carry
+one; the edit screen gets `credentialHint` — `X-API-Key: sk_liv...9f2a` — which
+identifies a key without being one. And **a save that omits a secret keeps the
+stored one**: the screen never receives a secret, so it never sends one back,
+and if an empty box meant "clear it", editing the timeout would silently break
+the connection. Sending an explicit empty string is how a credential is removed.
+
+### Field mapping — why a second ERP costs nothing
+
+One ERP's stock endpoint answers
+
+```json
+{ "d": { "results": [ { "Material": "X-1", "Werks": "1000", "LabSt": "42.000" } ] } }
+```
+
+and the next one's answers
+
+```json
+[ { "sku": "X-1", "warehouse": "MAIN", "qty_available": 42 } ]
+```
+
+Neither is wrong and neither will change for us. So the shape is **data**:
+`fieldMappingJson` maps this platform's field names to dotted paths into the
+ERP's JSON. No branch anywhere in this repository knows a vendor's name, and
+changing ERP is a screen, not a release.
+
+The fourteen mappable fields: **Product ID, SKU, Product name, Warehouse ID,
+Unit of measure, Available quantity, Reserved quantity, Price, Currency,
+Customer reference, Platform order ID, ERP order ID, Payment reference, Order
+status** — plus `itemsPath`, which says where in the response the array of
+records lives and is the single most common configuration mistake.
+
+Three rules keep this from becoming a footgun:
+
+1. **A mapping is validated twice.** `validateFieldMapping` checks it makes
+   structural sense; `verifyAgainstSample` checks it against a document the ERP
+   actually sent. A connection cannot be switched on without both, because a
+   structurally perfect mapping is still a guess about somebody else's JSON.
+   The sample is an inventory document, so only the product, inventory and
+   pricing fields are checked against it — asking an order-creation field to
+   appear in a stock response is a question with no right answer.
+2. **Paths are read, never evaluated.** `readPath` walks own properties only and
+   refuses `__proto__`, `constructor` and `prototype`. A mapping is typed input,
+   and typed input that reaches `Object.prototype` is a prototype-pollution
+   primitive with a form field in front of it.
+3. **Types are coerced narrowly.** `"42.000"` is 42; `"forty-two"` is a failed
+   record, not a zero. **"The ERP said nothing" and "the ERP said none left" are
+   different facts**, and collapsing the first into the second empties a
+   warehouse on the strength of a renamed field. Money uses string arithmetic
+   throughout — `12.34 * 100` is `1233.9999999999998`.
+
+### Test, and dry run
+
+Two buttons answering two different questions, and **neither changes anything**:
+
+- **Test connection** — *can we reach it?* Calls the read endpoints, reports
+  connected/failed, HTTP status, response time, per-endpoint status, mapping
+  validation and the timestamp. The order-creation endpoint is deliberately
+  **not** called: a "test" that puts a real order in an ERP is not a test, it is
+  an incident.
+- **Dry run** — *do we understand what it says?* Reads the stock endpoint,
+  applies the mapping, and shows the first few records as this system would read
+  them. Writes no stock figure. Seeing `Price: EA` in a column is how somebody
+  discovers in two seconds that their price field is reading the unit-of-measure
+  column.
+
+Everything reported is safe: a status code, a round trip, and a sentence from
+`safeErrorMessage`. **Never a provider body** — an ERP's error output is written
+by somebody else's software and routinely echoes back the `Authorization` header
+it just rejected.
+
+### Inventory: three doors, one path
+
+A webhook, a scheduled poll, or somebody pressing **Sync now** all end in
+`applyRecords`, so a figure arrives the same way whichever door it came through.
+
+**What this writes, and what it must never write.** Every quantity lands in
+`erp_inventory_snapshots`, which is a record of *what the ERP said*. It does
+**not** touch `inventory_balances`, because a balance in this system is derived
+from the append-only `inventory_movements` ledger, where every change carries a
+reason and a person. A figure that arrived over HTTP through a field mapping
+somebody typed has neither — and letting it overwrite the ledger would leave a
+stock level nobody can explain and an audit trail with a hole in it. There is no
+setting that changes this, because there is no code path to it.
+
+**Authority** decides what happens when the two disagree, and all three answers
+are right for somebody:
+
+| Setting | What happens |
+|---|---|
+| `ERP` | The ERP is the system of record. Its figure is stored. |
+| `PLATFORM` | This platform's figure stands. The ERP's is recorded beside it so the divergence is visible. |
+| `MANUAL` | Neither is applied. The row is flagged and a person decides — the honest answer during a migration. |
+
+A **manual override** survives the next sync, but only where the connection
+allows one. Without that flag the next pass would overwrite it, and a control
+that silently undoes itself is worse than no control.
+
+**Webhooks** are HMAC-SHA256 over the exact bytes received, compared in constant
+time, at an unguessable per-connection path. There is no unsigned mode — an
+unauthenticated endpoint that rewrites stock is not a feature. A redelivery is
+answered **200 with `duplicate: true`**, not an error: an ERP retrying a delivery
+it already made has done nothing wrong, and a 4xx makes it retry harder.
+
+**Rate limits are obeyed, not worked around.** A 429 stops the run, records the
+`Retry-After`, marks the run `RATE_LIMITED` rather than `FAILED` — what was
+processed is applied and the rest is taken next pass — and does **not** count
+towards suspending the connection. Counting it would suspend exactly the ERPs
+that are best behaved.
+
+### Orders, and "Paid — ERP Pending"
+
+When a normal or scheduled order is paid:
+
+1. Find the active connection. None is an ordinary answer.
+2. Validate the mapping and the SKUs.
+3. Check availability.
+4. Build the approved payload.
+5. POST it to the configured endpoint with a **stable idempotency key** derived
+   from the order.
+6. Save the ERP's reference.
+7. Reconcile the inventory movement.
+8. Update the platform order's sync status.
+9. Notify.
+
+**The state this exists for is money taken and the ERP silent.** The order stays
+`CONFIRMED` — it *is* confirmed; the customer's money is real — and an
+`ErpOrderPush` row holds the retry state. Every attempt sends the **same**
+idempotency key. Three guards make a duplicate structurally impossible rather
+than merely unlikely:
+
+1. `unique(erp_order_pushes.orderId)` — one push row per order, ever.
+2. `unique(integration_events.idempotencyKey)` — one ledger row per logical
+   operation, so a redelivered webhook collides instead of starting a second
+   push.
+3. The same key in the header on every attempt, so an ERP that honours it
+   de-duplicates too — and one that answers a replay with **409 is read as
+   success**, because retrying for hours against an ERP that took the order on
+   the first attempt would eventually abandon an order the warehouse is picking.
+
+**"Paid — ERP Pending" is a derived state, not an eleventh `OrderStatus`.** The
+ten statuses are fixed by the SOP, and telling a customer their order failed
+because of a hiccup in a back-office system would be a lie about their money.
+`erpSyncStateFor` turns "order paid + push pending" into words. The customer is
+told nothing while a retry is running; the **staff** notification is the one that
+fires, because it is the business's own warehouse system and the business is who
+can act on it.
+
+A **permanent** refusal — a 400, a mapping the ERP rejects — is never retried
+automatically. Sending identical bytes to a 400 gets an identical answer, and
+hammering a server over a typo in a field name is not a strategy. It is shown
+with a **Retry** button, and that retry reuses the original key: if the earlier
+attempt did reach the ERP despite reporting failure, it has to collide rather
+than create a second order.
+
+### The integration ledger
+
+`integration_events` is what the Activity panel reads, what a retry consults, and
+what answers *why has this order not reached the warehouse*. Each row carries the
+event type, the connection, the platform and ERP order ids, the **correlation
+id** (shared by every log line, audit row and event from one incident, so it
+reads back as one story), the idempotency key, the attempt count, the status, a
+safe provider response, and its timestamps.
+
+### Auto-pay
+
+This is the one part of the feature that belongs to the **customer**, and it has
+to: nobody can consent on somebody else's behalf to money leaving their account.
+It lives under **Account → Automatic payment**.
+
+**A saved card is not permission to use it.** `customer_payment_methods` says an
+instrument exists; `customer_autopay_settings` says the account holder asked us
+to use it, up to this much, under these rules. Two tables because they are two
+facts, and conflating them is how somebody is billed for something they never
+agreed to.
+
+Turning it on requires a chargeable instrument **and** an explicit consent tick,
+recorded with the wording version, the time, a hash of the address it came from
+and the user agent. A `CHECK` constraint refuses a non-disabled row with no
+consent on it: "we had permission" is a claim somebody will one day have to
+prove.
+
+Stripe does the rest: a **SetupIntent** saves a reusable instrument, an
+off-session **PaymentIntent** charges it, and **only a signature-verified
+webhook** confirms the result. No raw card or bank detail is ever stored here —
+only Stripe's identifiers and the consent record.
+
+Two limits, which are different instructions rather than degrees of one:
+
+| Setting | Above it |
+|---|---|
+| `maxTransactionMinor` | **Refuse.** Nothing is charged and nobody is asked. |
+| `approvalThresholdMinor` | **Ask.** Nothing is charged; the customer is consulted. |
+
+Both are compared in the same currency **or not at all**. A cap of 5000 typed
+against EUR is not a cap on a JPY total, and converting one silently is a
+decision about somebody's money this system is not entitled to make — so a
+mismatch refuses with its own code. `AUTOPAY_PLATFORM_MAX_MINOR` is the
+operator's backstop on top, so a pricing bug cannot become a five-figure charge.
+
+The customer also controls the retry preference, pause/resume, which card, and
+which notifications they get. **Withdrawing consent is not gated on the feature
+flag** — a right to withdraw that depends on a deployment setting is not a right.
+
+### Coordination, in order
+
+1. Verify inventory and ERP readiness.
+2. Check the payment authorisation (`evaluateAutoPay`).
+3. Take the Stripe payment.
+4. Create the ERP order **after** the payment succeeds.
+5. Reconcile inventory.
+6. Update the final status and notify.
+
+If step 3 succeeds and step 4 fails, the transaction holds at **Paid — ERP
+Pending** and retries under the same key. The customer is never charged twice,
+and the ERP cannot end up with two copies.
+
 ## 9.6 A new member of staff
 
 ```
@@ -1771,6 +2143,9 @@ server.
 | `schedule.action_expire` | Closes out cycles the customer never authenticated |
 | `schedule.materialise` | Builds the upcoming rows customers skip and re-date |
 | `erp_order.retry` | Retries a **paid** order the ERP has not accepted. The exit from `PAID_ERP_PENDING` |
+| `erp.inventory_poll` | Asks the ERP for stock, where it has no webhooks. See 9.8 |
+| `erp.push_retry` | Retries a **paid** order the ERP has not accepted, under the original key |
+| `integration_event.retry` | Retries other integration operations whose failure looked transient |
 | `payment.reconcile` | Re-checks a payment whose outcome is unclear |
 | `payment_link.expire` | Closes payment links nobody used |
 | `refund.poll` | Chases a refund's final state |
@@ -1849,6 +2224,28 @@ Gateway keys and connector secrets are encrypted with **AES-256-GCM**, using
 the record's own identity as additional authenticated data. A credential row
 copied into another record fails to decrypt rather than yielding a working
 secret.
+
+That covers the ERP credentials under Settings → ERP too (9.8), with two
+additions: no read path anywhere returns one — the screen gets
+`X-API-Key: sk_liv...9f2a`, which identifies a key without being one — and a
+save that omits a secret keeps the stored one, so editing a timeout cannot
+silently wipe a working credential.
+
+## Calling an address somebody typed
+
+The one place in this system where a form field becomes an authenticated
+outbound HTTP request. `infra/outbound-http.ts` resolves the hostname itself,
+refuses **every** address it resolves to that is not globally routable unicast
+(loopback, link-local — where cloud metadata lives — every private range, CGNAT,
+and their IPv4-mapped IPv6 spellings), **pins the socket** to one that passed so
+DNS cannot answer differently a moment later, and follows no redirect without
+putting the new URL through all of it again.
+
+It is built on `node:http` rather than `fetch` specifically because `fetch`
+re-resolves the hostname when it opens the socket, which reopens the rebind
+window the check just closed. `ALLOW_PRIVATE_ERP_TARGETS` lifts the address
+rules for local development, and configuration validation **refuses to start a
+production process** with it on.
 
 ## Comparisons
 
@@ -2045,6 +2442,9 @@ hostname adds it to that check, in every mode, and nothing else with it. See
 | `FEATURE_RECURRING_ORDERS` | `true` | Subscribe & Reorder |
 | `FEATURE_SCHEDULED_ORDERS` | `true` | Buy Later — one delivery, on a chosen date |
 | `FEATURE_SUBSCRIPTION_AUTOPAY` | `false` | Charging a saved card off-session. Needs Stripe |
+| `FEATURE_ERP_INTEGRATION` | `false` | **Settings → ERP.** An ERP configured from a screen rather than from environment variables. Off means the screen says so, the routes refuse, no polling job runs and the webhook endpoint 404s |
+| `FEATURE_CUSTOMER_AUTOPAY` | `false` | A customer's standing authority to be charged, with their own limits. Needs Stripe **and** `FEATURE_SUBSCRIPTION_AUTOPAY`, which is what lets them save a card at all |
+| `ALLOW_PRIVATE_ERP_TARGETS` | `false` | Lets a customer-supplied ERP address resolve to a private or loopback network. **Development only — `env.ts` refuses to start a production process with it on**, because it makes the cloud metadata endpoint reachable from a form field |
 | `FEATURE_ADMIN_LOGIN_LOCATION` | `true` | Ask staff's browser for its location at sign-in |
 | `ASSISTANT_ENABLED` | — | The AI chat widget |
 
@@ -2151,6 +2551,14 @@ UBoss-Software/
 | Change what is sent to the ERP | `modules/integrations/erp-order.service.ts` (`buildPayload`) |
 | Point at a different ERP | `ERP_ORDER_CONNECTION_NAME` plus a connection in the panel |
 | Find a paid order the ERP refused | `GET /admin/erp/order-pushes` |
+| Connect an ERP from a screen | `FEATURE_ERP_INTEGRATION`; `modules/integrations/erp-connection.service.ts`; Settings → ERP |
+| Add a field a customer's ERP can map | `MAPPING_FIELDS` in `modules/integrations/erp-field-mapping.ts` — the screen is generated from it, so no frontend change |
+| Change what a customer's ERP is sent | `modules/integrations/customer-erp-order.service.ts` (`buildOrderPayload`) |
+| Change which addresses may be called | `infra/outbound-http.ts` |
+| Add a connection status rule | `domain/erp-connection-state.ts` |
+| Change how stock conflicts are resolved | `inventoryAuthority` on the connection; `applyRecords` in `erp-inventory-sync.service.ts` |
+| Change what a customer may authorise us to charge | `modules/payments/autopay.service.ts` (`evaluateAutoPay`) |
+| Cap every automatic charge, store-wide | `AUTOPAY_PLATFORM_MAX_MINOR` |
 | Turn a feature on or off | `backend/.env` |
 
 ---

@@ -474,7 +474,14 @@ export const ModelName = {
   VatNumberCheck: 'VatNumberCheck',
   Invoice: 'Invoice',
   EconomicOperator: 'EconomicOperator',
-  ProductDeviceInfo: 'ProductDeviceInfo'
+  ProductDeviceInfo: 'ProductDeviceInfo',
+  ErpConnection: 'ErpConnection',
+  ErpInventorySyncRun: 'ErpInventorySyncRun',
+  ErpSyncRecordError: 'ErpSyncRecordError',
+  ErpInventorySnapshot: 'ErpInventorySnapshot',
+  IntegrationEvent: 'IntegrationEvent',
+  ErpWebhookReceipt: 'ErpWebhookReceipt',
+  CustomerAutoPaySetting: 'CustomerAutoPaySetting'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -490,7 +497,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productMedia" | "productAttribute" | "inventoryLocation" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productMedia" | "productAttribute" | "inventoryLocation" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -5642,6 +5649,468 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ErpConnection: {
+      payload: Prisma.$ErpConnectionPayload<ExtArgs>
+      fields: Prisma.ErpConnectionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ErpConnectionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpConnectionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ErpConnectionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpConnectionPayload>
+        }
+        findFirst: {
+          args: Prisma.ErpConnectionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpConnectionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ErpConnectionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpConnectionPayload>
+        }
+        findMany: {
+          args: Prisma.ErpConnectionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpConnectionPayload>[]
+        }
+        create: {
+          args: Prisma.ErpConnectionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpConnectionPayload>
+        }
+        createMany: {
+          args: Prisma.ErpConnectionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ErpConnectionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpConnectionPayload>
+        }
+        update: {
+          args: Prisma.ErpConnectionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpConnectionPayload>
+        }
+        deleteMany: {
+          args: Prisma.ErpConnectionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ErpConnectionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ErpConnectionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpConnectionPayload>
+        }
+        aggregate: {
+          args: Prisma.ErpConnectionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateErpConnection>
+        }
+        groupBy: {
+          args: Prisma.ErpConnectionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ErpConnectionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ErpConnectionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ErpConnectionCountAggregateOutputType> | number
+        }
+      }
+    }
+    ErpInventorySyncRun: {
+      payload: Prisma.$ErpInventorySyncRunPayload<ExtArgs>
+      fields: Prisma.ErpInventorySyncRunFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ErpInventorySyncRunFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpInventorySyncRunPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ErpInventorySyncRunFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpInventorySyncRunPayload>
+        }
+        findFirst: {
+          args: Prisma.ErpInventorySyncRunFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpInventorySyncRunPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ErpInventorySyncRunFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpInventorySyncRunPayload>
+        }
+        findMany: {
+          args: Prisma.ErpInventorySyncRunFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpInventorySyncRunPayload>[]
+        }
+        create: {
+          args: Prisma.ErpInventorySyncRunCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpInventorySyncRunPayload>
+        }
+        createMany: {
+          args: Prisma.ErpInventorySyncRunCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ErpInventorySyncRunDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpInventorySyncRunPayload>
+        }
+        update: {
+          args: Prisma.ErpInventorySyncRunUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpInventorySyncRunPayload>
+        }
+        deleteMany: {
+          args: Prisma.ErpInventorySyncRunDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ErpInventorySyncRunUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ErpInventorySyncRunUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpInventorySyncRunPayload>
+        }
+        aggregate: {
+          args: Prisma.ErpInventorySyncRunAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateErpInventorySyncRun>
+        }
+        groupBy: {
+          args: Prisma.ErpInventorySyncRunGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ErpInventorySyncRunGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ErpInventorySyncRunCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ErpInventorySyncRunCountAggregateOutputType> | number
+        }
+      }
+    }
+    ErpSyncRecordError: {
+      payload: Prisma.$ErpSyncRecordErrorPayload<ExtArgs>
+      fields: Prisma.ErpSyncRecordErrorFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ErpSyncRecordErrorFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpSyncRecordErrorPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ErpSyncRecordErrorFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpSyncRecordErrorPayload>
+        }
+        findFirst: {
+          args: Prisma.ErpSyncRecordErrorFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpSyncRecordErrorPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ErpSyncRecordErrorFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpSyncRecordErrorPayload>
+        }
+        findMany: {
+          args: Prisma.ErpSyncRecordErrorFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpSyncRecordErrorPayload>[]
+        }
+        create: {
+          args: Prisma.ErpSyncRecordErrorCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpSyncRecordErrorPayload>
+        }
+        createMany: {
+          args: Prisma.ErpSyncRecordErrorCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ErpSyncRecordErrorDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpSyncRecordErrorPayload>
+        }
+        update: {
+          args: Prisma.ErpSyncRecordErrorUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpSyncRecordErrorPayload>
+        }
+        deleteMany: {
+          args: Prisma.ErpSyncRecordErrorDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ErpSyncRecordErrorUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ErpSyncRecordErrorUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpSyncRecordErrorPayload>
+        }
+        aggregate: {
+          args: Prisma.ErpSyncRecordErrorAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateErpSyncRecordError>
+        }
+        groupBy: {
+          args: Prisma.ErpSyncRecordErrorGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ErpSyncRecordErrorGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ErpSyncRecordErrorCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ErpSyncRecordErrorCountAggregateOutputType> | number
+        }
+      }
+    }
+    ErpInventorySnapshot: {
+      payload: Prisma.$ErpInventorySnapshotPayload<ExtArgs>
+      fields: Prisma.ErpInventorySnapshotFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ErpInventorySnapshotFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpInventorySnapshotPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ErpInventorySnapshotFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpInventorySnapshotPayload>
+        }
+        findFirst: {
+          args: Prisma.ErpInventorySnapshotFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpInventorySnapshotPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ErpInventorySnapshotFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpInventorySnapshotPayload>
+        }
+        findMany: {
+          args: Prisma.ErpInventorySnapshotFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpInventorySnapshotPayload>[]
+        }
+        create: {
+          args: Prisma.ErpInventorySnapshotCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpInventorySnapshotPayload>
+        }
+        createMany: {
+          args: Prisma.ErpInventorySnapshotCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ErpInventorySnapshotDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpInventorySnapshotPayload>
+        }
+        update: {
+          args: Prisma.ErpInventorySnapshotUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpInventorySnapshotPayload>
+        }
+        deleteMany: {
+          args: Prisma.ErpInventorySnapshotDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ErpInventorySnapshotUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ErpInventorySnapshotUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpInventorySnapshotPayload>
+        }
+        aggregate: {
+          args: Prisma.ErpInventorySnapshotAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateErpInventorySnapshot>
+        }
+        groupBy: {
+          args: Prisma.ErpInventorySnapshotGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ErpInventorySnapshotGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ErpInventorySnapshotCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ErpInventorySnapshotCountAggregateOutputType> | number
+        }
+      }
+    }
+    IntegrationEvent: {
+      payload: Prisma.$IntegrationEventPayload<ExtArgs>
+      fields: Prisma.IntegrationEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.IntegrationEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IntegrationEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.IntegrationEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IntegrationEventPayload>
+        }
+        findFirst: {
+          args: Prisma.IntegrationEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IntegrationEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.IntegrationEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IntegrationEventPayload>
+        }
+        findMany: {
+          args: Prisma.IntegrationEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IntegrationEventPayload>[]
+        }
+        create: {
+          args: Prisma.IntegrationEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IntegrationEventPayload>
+        }
+        createMany: {
+          args: Prisma.IntegrationEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.IntegrationEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IntegrationEventPayload>
+        }
+        update: {
+          args: Prisma.IntegrationEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IntegrationEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.IntegrationEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.IntegrationEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.IntegrationEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IntegrationEventPayload>
+        }
+        aggregate: {
+          args: Prisma.IntegrationEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateIntegrationEvent>
+        }
+        groupBy: {
+          args: Prisma.IntegrationEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.IntegrationEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.IntegrationEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.IntegrationEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    ErpWebhookReceipt: {
+      payload: Prisma.$ErpWebhookReceiptPayload<ExtArgs>
+      fields: Prisma.ErpWebhookReceiptFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ErpWebhookReceiptFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpWebhookReceiptPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ErpWebhookReceiptFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpWebhookReceiptPayload>
+        }
+        findFirst: {
+          args: Prisma.ErpWebhookReceiptFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpWebhookReceiptPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ErpWebhookReceiptFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpWebhookReceiptPayload>
+        }
+        findMany: {
+          args: Prisma.ErpWebhookReceiptFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpWebhookReceiptPayload>[]
+        }
+        create: {
+          args: Prisma.ErpWebhookReceiptCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpWebhookReceiptPayload>
+        }
+        createMany: {
+          args: Prisma.ErpWebhookReceiptCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ErpWebhookReceiptDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpWebhookReceiptPayload>
+        }
+        update: {
+          args: Prisma.ErpWebhookReceiptUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpWebhookReceiptPayload>
+        }
+        deleteMany: {
+          args: Prisma.ErpWebhookReceiptDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ErpWebhookReceiptUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ErpWebhookReceiptUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ErpWebhookReceiptPayload>
+        }
+        aggregate: {
+          args: Prisma.ErpWebhookReceiptAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateErpWebhookReceipt>
+        }
+        groupBy: {
+          args: Prisma.ErpWebhookReceiptGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ErpWebhookReceiptGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ErpWebhookReceiptCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ErpWebhookReceiptCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerAutoPaySetting: {
+      payload: Prisma.$CustomerAutoPaySettingPayload<ExtArgs>
+      fields: Prisma.CustomerAutoPaySettingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerAutoPaySettingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAutoPaySettingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerAutoPaySettingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAutoPaySettingPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerAutoPaySettingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAutoPaySettingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerAutoPaySettingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAutoPaySettingPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerAutoPaySettingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAutoPaySettingPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerAutoPaySettingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAutoPaySettingPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerAutoPaySettingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CustomerAutoPaySettingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAutoPaySettingPayload>
+        }
+        update: {
+          args: Prisma.CustomerAutoPaySettingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAutoPaySettingPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerAutoPaySettingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerAutoPaySettingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CustomerAutoPaySettingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAutoPaySettingPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerAutoPaySettingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerAutoPaySetting>
+        }
+        groupBy: {
+          args: Prisma.CustomerAutoPaySettingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerAutoPaySettingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerAutoPaySettingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerAutoPaySettingCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -6572,6 +7041,7 @@ export const ErpOrderPushScalarFieldEnum = {
   orderId: 'orderId',
   occurrenceId: 'occurrenceId',
   connectionId: 'connectionId',
+  erpConnectionId: 'erpConnectionId',
   idempotencyKey: 'idempotencyKey',
   status: 'status',
   erpOrderReference: 'erpOrderReference',
@@ -7187,6 +7657,184 @@ export const ProductDeviceInfoScalarFieldEnum = {
 } as const
 
 export type ProductDeviceInfoScalarFieldEnum = (typeof ProductDeviceInfoScalarFieldEnum)[keyof typeof ProductDeviceInfoScalarFieldEnum]
+
+
+export const ErpConnectionScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  baseUrl: 'baseUrl',
+  status: 'status',
+  statusReason: 'statusReason',
+  statusChangedAt: 'statusChangedAt',
+  productEndpoint: 'productEndpoint',
+  inventoryEndpoint: 'inventoryEndpoint',
+  warehouseEndpoint: 'warehouseEndpoint',
+  orderCreateEndpoint: 'orderCreateEndpoint',
+  orderStatusEndpoint: 'orderStatusEndpoint',
+  methodsJson: 'methodsJson',
+  customHeadersJson: 'customHeadersJson',
+  timeoutMs: 'timeoutMs',
+  authMethod: 'authMethod',
+  credentialsEnc: 'credentialsEnc',
+  credentialHint: 'credentialHint',
+  oauthTokenUrl: 'oauthTokenUrl',
+  oauthScope: 'oauthScope',
+  oauthTokenEnc: 'oauthTokenEnc',
+  oauthTokenExpiresAt: 'oauthTokenExpiresAt',
+  webhookEnabled: 'webhookEnabled',
+  webhookSecretEnc: 'webhookSecretEnc',
+  webhookSignatureHeader: 'webhookSignatureHeader',
+  webhookSlug: 'webhookSlug',
+  pollingEnabled: 'pollingEnabled',
+  pollingIntervalMinutes: 'pollingIntervalMinutes',
+  lastPolledAt: 'lastPolledAt',
+  nextPollAt: 'nextPollAt',
+  fieldMappingJson: 'fieldMappingJson',
+  mappingVerifiedAt: 'mappingVerifiedAt',
+  inventoryAuthority: 'inventoryAuthority',
+  allowManualOverride: 'allowManualOverride',
+  orderPushEnabled: 'orderPushEnabled',
+  idempotencyHeader: 'idempotencyHeader',
+  lastTestAt: 'lastTestAt',
+  lastTestOk: 'lastTestOk',
+  lastTestHttpStatus: 'lastTestHttpStatus',
+  lastTestDurationMs: 'lastTestDurationMs',
+  lastTestMessage: 'lastTestMessage',
+  consecutiveFailures: 'consecutiveFailures',
+  circuitOpenedAt: 'circuitOpenedAt',
+  lastSyncSuccessAt: 'lastSyncSuccessAt',
+  lastSyncFailureAt: 'lastSyncFailureAt',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+} as const
+
+export type ErpConnectionScalarFieldEnum = (typeof ErpConnectionScalarFieldEnum)[keyof typeof ErpConnectionScalarFieldEnum]
+
+
+export const ErpInventorySyncRunScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  trigger: 'trigger',
+  status: 'status',
+  isDryRun: 'isDryRun',
+  correlationId: 'correlationId',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  processedCount: 'processedCount',
+  appliedCount: 'appliedCount',
+  skippedCount: 'skippedCount',
+  failedCount: 'failedCount',
+  conflictCount: 'conflictCount',
+  rateLimitedUntil: 'rateLimitedUntil',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage'
+} as const
+
+export type ErpInventorySyncRunScalarFieldEnum = (typeof ErpInventorySyncRunScalarFieldEnum)[keyof typeof ErpInventorySyncRunScalarFieldEnum]
+
+
+export const ErpSyncRecordErrorScalarFieldEnum = {
+  id: 'id',
+  syncRunId: 'syncRunId',
+  externalRef: 'externalRef',
+  field: 'field',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage',
+  createdAt: 'createdAt'
+} as const
+
+export type ErpSyncRecordErrorScalarFieldEnum = (typeof ErpSyncRecordErrorScalarFieldEnum)[keyof typeof ErpSyncRecordErrorScalarFieldEnum]
+
+
+export const ErpInventorySnapshotScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  sku: 'sku',
+  warehouseKey: 'warehouseKey',
+  productId: 'productId',
+  variantId: 'variantId',
+  availableQuantity: 'availableQuantity',
+  reservedQuantity: 'reservedQuantity',
+  unitOfMeasure: 'unitOfMeasure',
+  erpProductId: 'erpProductId',
+  erpProductName: 'erpProductName',
+  priceMinor: 'priceMinor',
+  currency: 'currency',
+  platformQuantityAtSync: 'platformQuantityAtSync',
+  conflictDetectedAt: 'conflictDetectedAt',
+  manualQuantity: 'manualQuantity',
+  manualSetAt: 'manualSetAt',
+  manualSetByUserId: 'manualSetByUserId',
+  lastSyncedAt: 'lastSyncedAt',
+  lastSyncRunId: 'lastSyncRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ErpInventorySnapshotScalarFieldEnum = (typeof ErpInventorySnapshotScalarFieldEnum)[keyof typeof ErpInventorySnapshotScalarFieldEnum]
+
+
+export const IntegrationEventScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  eventType: 'eventType',
+  status: 'status',
+  orderId: 'orderId',
+  erpOrderReference: 'erpOrderReference',
+  correlationId: 'correlationId',
+  idempotencyKey: 'idempotencyKey',
+  attemptCount: 'attemptCount',
+  lastAttemptAt: 'lastAttemptAt',
+  nextRetryAt: 'nextRetryAt',
+  httpStatus: 'httpStatus',
+  durationMs: 'durationMs',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage',
+  responseJson: 'responseJson',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type IntegrationEventScalarFieldEnum = (typeof IntegrationEventScalarFieldEnum)[keyof typeof IntegrationEventScalarFieldEnum]
+
+
+export const ErpWebhookReceiptScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  externalEventId: 'externalEventId',
+  receivedAt: 'receivedAt',
+  processedAt: 'processedAt',
+  syncRunId: 'syncRunId'
+} as const
+
+export type ErpWebhookReceiptScalarFieldEnum = (typeof ErpWebhookReceiptScalarFieldEnum)[keyof typeof ErpWebhookReceiptScalarFieldEnum]
+
+
+export const CustomerAutoPaySettingScalarFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  status: 'status',
+  paymentMethodId: 'paymentMethodId',
+  maxTransactionMinor: 'maxTransactionMinor',
+  approvalThresholdMinor: 'approvalThresholdMinor',
+  limitCurrency: 'limitCurrency',
+  retryPreference: 'retryPreference',
+  notifyOnCharge: 'notifyOnCharge',
+  notifyOnFailure: 'notifyOnFailure',
+  consentAcceptedAt: 'consentAcceptedAt',
+  consentVersion: 'consentVersion',
+  consentIpHash: 'consentIpHash',
+  consentUserAgent: 'consentUserAgent',
+  consentWithdrawnAt: 'consentWithdrawnAt',
+  enabledAt: 'enabledAt',
+  pausedAt: 'pausedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerAutoPaySettingScalarFieldEnum = (typeof CustomerAutoPaySettingScalarFieldEnum)[keyof typeof CustomerAutoPaySettingScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -7827,6 +8475,7 @@ export const ErpOrderPushOrderByRelevanceFieldEnum = {
   orderId: 'orderId',
   occurrenceId: 'occurrenceId',
   connectionId: 'connectionId',
+  erpConnectionId: 'erpConnectionId',
   idempotencyKey: 'idempotencyKey',
   erpOrderReference: 'erpOrderReference',
   lastErrorCode: 'lastErrorCode',
@@ -8244,6 +8893,110 @@ export const ProductDeviceInfoOrderByRelevanceFieldEnum = {
 export type ProductDeviceInfoOrderByRelevanceFieldEnum = (typeof ProductDeviceInfoOrderByRelevanceFieldEnum)[keyof typeof ProductDeviceInfoOrderByRelevanceFieldEnum]
 
 
+export const ErpConnectionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name',
+  baseUrl: 'baseUrl',
+  statusReason: 'statusReason',
+  productEndpoint: 'productEndpoint',
+  inventoryEndpoint: 'inventoryEndpoint',
+  warehouseEndpoint: 'warehouseEndpoint',
+  orderCreateEndpoint: 'orderCreateEndpoint',
+  orderStatusEndpoint: 'orderStatusEndpoint',
+  credentialsEnc: 'credentialsEnc',
+  credentialHint: 'credentialHint',
+  oauthTokenUrl: 'oauthTokenUrl',
+  oauthScope: 'oauthScope',
+  oauthTokenEnc: 'oauthTokenEnc',
+  webhookSecretEnc: 'webhookSecretEnc',
+  webhookSignatureHeader: 'webhookSignatureHeader',
+  webhookSlug: 'webhookSlug',
+  idempotencyHeader: 'idempotencyHeader',
+  lastTestMessage: 'lastTestMessage',
+  createdById: 'createdById'
+} as const
+
+export type ErpConnectionOrderByRelevanceFieldEnum = (typeof ErpConnectionOrderByRelevanceFieldEnum)[keyof typeof ErpConnectionOrderByRelevanceFieldEnum]
+
+
+export const ErpInventorySyncRunOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  correlationId: 'correlationId',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage'
+} as const
+
+export type ErpInventorySyncRunOrderByRelevanceFieldEnum = (typeof ErpInventorySyncRunOrderByRelevanceFieldEnum)[keyof typeof ErpInventorySyncRunOrderByRelevanceFieldEnum]
+
+
+export const ErpSyncRecordErrorOrderByRelevanceFieldEnum = {
+  id: 'id',
+  syncRunId: 'syncRunId',
+  externalRef: 'externalRef',
+  field: 'field',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage'
+} as const
+
+export type ErpSyncRecordErrorOrderByRelevanceFieldEnum = (typeof ErpSyncRecordErrorOrderByRelevanceFieldEnum)[keyof typeof ErpSyncRecordErrorOrderByRelevanceFieldEnum]
+
+
+export const ErpInventorySnapshotOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  sku: 'sku',
+  warehouseKey: 'warehouseKey',
+  productId: 'productId',
+  variantId: 'variantId',
+  unitOfMeasure: 'unitOfMeasure',
+  erpProductId: 'erpProductId',
+  erpProductName: 'erpProductName',
+  currency: 'currency',
+  manualSetByUserId: 'manualSetByUserId',
+  lastSyncRunId: 'lastSyncRunId'
+} as const
+
+export type ErpInventorySnapshotOrderByRelevanceFieldEnum = (typeof ErpInventorySnapshotOrderByRelevanceFieldEnum)[keyof typeof ErpInventorySnapshotOrderByRelevanceFieldEnum]
+
+
+export const IntegrationEventOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  orderId: 'orderId',
+  erpOrderReference: 'erpOrderReference',
+  correlationId: 'correlationId',
+  idempotencyKey: 'idempotencyKey',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage'
+} as const
+
+export type IntegrationEventOrderByRelevanceFieldEnum = (typeof IntegrationEventOrderByRelevanceFieldEnum)[keyof typeof IntegrationEventOrderByRelevanceFieldEnum]
+
+
+export const ErpWebhookReceiptOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  externalEventId: 'externalEventId',
+  syncRunId: 'syncRunId'
+} as const
+
+export type ErpWebhookReceiptOrderByRelevanceFieldEnum = (typeof ErpWebhookReceiptOrderByRelevanceFieldEnum)[keyof typeof ErpWebhookReceiptOrderByRelevanceFieldEnum]
+
+
+export const CustomerAutoPaySettingOrderByRelevanceFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  paymentMethodId: 'paymentMethodId',
+  limitCurrency: 'limitCurrency',
+  consentVersion: 'consentVersion',
+  consentIpHash: 'consentIpHash',
+  consentUserAgent: 'consentUserAgent'
+} as const
+
+export type CustomerAutoPaySettingOrderByRelevanceFieldEnum = (typeof CustomerAutoPaySettingOrderByRelevanceFieldEnum)[keyof typeof CustomerAutoPaySettingOrderByRelevanceFieldEnum]
+
+
 
 /**
  * Field references
@@ -8650,6 +9403,69 @@ export type EnumDeviceClassFieldRefInput<$PrismaModel> = FieldRefInputType<$Pris
 
 
 /**
+ * Reference to a field of type 'ErpConnectionStatus'
+ */
+export type EnumErpConnectionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ErpConnectionStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ErpAuthMethod'
+ */
+export type EnumErpAuthMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ErpAuthMethod'>
+    
+
+
+/**
+ * Reference to a field of type 'ErpInventoryAuthority'
+ */
+export type EnumErpInventoryAuthorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ErpInventoryAuthority'>
+    
+
+
+/**
+ * Reference to a field of type 'ErpSyncTrigger'
+ */
+export type EnumErpSyncTriggerFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ErpSyncTrigger'>
+    
+
+
+/**
+ * Reference to a field of type 'ErpSyncRunStatus'
+ */
+export type EnumErpSyncRunStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ErpSyncRunStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'IntegrationEventType'
+ */
+export type EnumIntegrationEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IntegrationEventType'>
+    
+
+
+/**
+ * Reference to a field of type 'IntegrationEventStatus'
+ */
+export type EnumIntegrationEventStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IntegrationEventStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'AutoPayStatus'
+ */
+export type EnumAutoPayStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AutoPayStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'AutoPayRetryPreference'
+ */
+export type EnumAutoPayRetryPreferenceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AutoPayRetryPreference'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -8884,6 +9700,13 @@ export type GlobalOmitConfig = {
   invoice?: Prisma.InvoiceOmit
   economicOperator?: Prisma.EconomicOperatorOmit
   productDeviceInfo?: Prisma.ProductDeviceInfoOmit
+  erpConnection?: Prisma.ErpConnectionOmit
+  erpInventorySyncRun?: Prisma.ErpInventorySyncRunOmit
+  erpSyncRecordError?: Prisma.ErpSyncRecordErrorOmit
+  erpInventorySnapshot?: Prisma.ErpInventorySnapshotOmit
+  integrationEvent?: Prisma.IntegrationEventOmit
+  erpWebhookReceipt?: Prisma.ErpWebhookReceiptOmit
+  customerAutoPaySetting?: Prisma.CustomerAutoPaySettingOmit
 }
 
 /* Types for Logging */

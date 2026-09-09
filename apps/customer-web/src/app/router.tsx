@@ -164,6 +164,18 @@ export const router = createBrowserRouter([
         ...customerRoute(() => import('@/pages/ProfilePage').then((m) => m.ProfilePage)),
       },
 
+      // --- Automatic payment ------------------------------------------------
+      //
+      // The customer's standing authority to be charged. There is no ERP screen
+      // here: that is configured by an administrator under Settings -> ERP,
+      // because a connection is a URL plus a credential the server then calls.
+      // This one stays with the buyer because nobody can consent on somebody
+      // else's behalf to money leaving their account.
+      {
+        path: 'account/autopay',
+        ...customerRoute(() => import('@/pages/AutoPayPage').then((m) => m.AutoPayPage)),
+      },
+
       { path: '*', element: <NotFoundPage /> },
     ],
   },

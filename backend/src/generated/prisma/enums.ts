@@ -500,3 +500,99 @@ export const DeviceClass = {
 } as const
 
 export type DeviceClass = (typeof DeviceClass)[keyof typeof DeviceClass]
+
+
+export const ErpConnectionStatus = {
+  DRAFT: 'DRAFT',
+  TESTING: 'TESTING',
+  CONNECTED: 'CONNECTED',
+  ACTIVE: 'ACTIVE',
+  PAUSED: 'PAUSED',
+  ERROR: 'ERROR',
+  DISABLED: 'DISABLED'
+} as const
+
+export type ErpConnectionStatus = (typeof ErpConnectionStatus)[keyof typeof ErpConnectionStatus]
+
+
+export const ErpAuthMethod = {
+  API_KEY: 'API_KEY',
+  BEARER_TOKEN: 'BEARER_TOKEN',
+  BASIC: 'BASIC',
+  OAUTH2: 'OAUTH2'
+} as const
+
+export type ErpAuthMethod = (typeof ErpAuthMethod)[keyof typeof ErpAuthMethod]
+
+
+export const ErpInventoryAuthority = {
+  ERP: 'ERP',
+  PLATFORM: 'PLATFORM',
+  MANUAL: 'MANUAL'
+} as const
+
+export type ErpInventoryAuthority = (typeof ErpInventoryAuthority)[keyof typeof ErpInventoryAuthority]
+
+
+export const ErpSyncTrigger = {
+  MANUAL: 'MANUAL',
+  SCHEDULED: 'SCHEDULED',
+  WEBHOOK: 'WEBHOOK',
+  RETRY: 'RETRY'
+} as const
+
+export type ErpSyncTrigger = (typeof ErpSyncTrigger)[keyof typeof ErpSyncTrigger]
+
+
+export const ErpSyncRunStatus = {
+  RUNNING: 'RUNNING',
+  SUCCEEDED: 'SUCCEEDED',
+  PARTIAL: 'PARTIAL',
+  FAILED: 'FAILED',
+  RATE_LIMITED: 'RATE_LIMITED'
+} as const
+
+export type ErpSyncRunStatus = (typeof ErpSyncRunStatus)[keyof typeof ErpSyncRunStatus]
+
+
+export const IntegrationEventType = {
+  CONNECTION_TEST: 'CONNECTION_TEST',
+  DRY_RUN: 'DRY_RUN',
+  ORDER_PUSH: 'ORDER_PUSH',
+  INVENTORY_SYNC: 'INVENTORY_SYNC',
+  INVENTORY_WEBHOOK: 'INVENTORY_WEBHOOK',
+  ORDER_STATUS_POLL: 'ORDER_STATUS_POLL',
+  AUTOPAY_CHARGE: 'AUTOPAY_CHARGE'
+} as const
+
+export type IntegrationEventType = (typeof IntegrationEventType)[keyof typeof IntegrationEventType]
+
+
+export const IntegrationEventStatus = {
+  PENDING: 'PENDING',
+  IN_PROGRESS: 'IN_PROGRESS',
+  SUCCEEDED: 'SUCCEEDED',
+  RETRY_SCHEDULED: 'RETRY_SCHEDULED',
+  FAILED: 'FAILED',
+  ABANDONED: 'ABANDONED'
+} as const
+
+export type IntegrationEventStatus = (typeof IntegrationEventStatus)[keyof typeof IntegrationEventStatus]
+
+
+export const AutoPayStatus = {
+  DISABLED: 'DISABLED',
+  ACTIVE: 'ACTIVE',
+  PAUSED: 'PAUSED'
+} as const
+
+export type AutoPayStatus = (typeof AutoPayStatus)[keyof typeof AutoPayStatus]
+
+
+export const AutoPayRetryPreference = {
+  NONE: 'NONE',
+  ONCE: 'ONCE',
+  STANDARD: 'STANDARD'
+} as const
+
+export type AutoPayRetryPreference = (typeof AutoPayRetryPreference)[keyof typeof AutoPayRetryPreference]

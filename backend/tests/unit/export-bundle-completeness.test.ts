@@ -61,6 +61,12 @@ const DISPOSITION: Readonly<Record<string, string | null>> = Object.freeze({
   Session: 'sessions',
   DataRequest: 'dataRequests',
 
+  // The standing authority to be charged. The ERP tables are deliberately
+  // absent from this map: they carry no link to a person at all, because the
+  // ERP belongs to the business rather than to any customer, so the parser
+  // above never finds them.
+  CustomerAutoPaySetting: 'autoPayAuthority',
+
   // --- Withheld, with the reason on the manifest the subject receives ---
   AuditLog: 'auditTrail',
   AuthToken: 'credentials',

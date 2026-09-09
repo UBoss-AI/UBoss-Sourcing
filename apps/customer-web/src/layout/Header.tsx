@@ -391,6 +391,7 @@ function AccountMenu(): React.JSX.Element {
                 ['/account/orders', t('header.myOrders')],
                 ['/account/schedules', t('header.repeatPurchases')],
                 ['/account/addresses', t('header.addresses')],
+                ['/account/autopay', t('header.autoPay')],
                 ['/account/profile', t('header.profile')],
               ] satisfies [string, string][]
             ).map(([to, label]) => (

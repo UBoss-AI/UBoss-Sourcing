@@ -495,3 +495,89 @@ export type EconomicOperator = Prisma.EconomicOperatorModel
  * disagree with itself.
  */
 export type ProductDeviceInfo = Prisma.ProductDeviceInfoModel
+/**
+ * Model ErpConnection
+ * The business's connection to its ERP.
+ * 
+ * Several rows may exist - a sandbox and a live one is the ordinary case -
+ * but **at most one is ACTIVE**, and that one carries every order. The
+ * constraint is enforced in `activateConnection`; the schema cannot express
+ * "unique where status = ACTIVE" on MariaDB 10.4, which has no partial index.
+ */
+export type ErpConnection = Prisma.ErpConnectionModel
+/**
+ * Model ErpInventorySyncRun
+ * One pass over the ERP's inventory feed, and what it did.
+ */
+export type ErpInventorySyncRun = Prisma.ErpInventorySyncRunModel
+/**
+ * Model ErpSyncRecordError
+ * One record a sync could not read, and why.
+ * 
+ * Capped per run by the service. A feed that fails wholesale should produce a
+ * run marked FAILED with one reason, not fifty thousand rows nobody reads.
+ */
+export type ErpSyncRecordError = Prisma.ErpSyncRecordErrorModel
+/**
+ * Model ErpInventorySnapshot
+ * What the ERP last said it holds, per SKU and warehouse.
+ * 
+ * **This is not `inventory_balances`, and the distinction is deliberate.**
+ * `inventory_balances` is derived from `inventory_movements`, which is an
+ * append-only ledger with an actor and a reason on every row - that is what
+ * makes "why did on-hand change" answerable. A feed that overwrote balances
+ * directly would move real stock with no movement behind it, and the first
+ * time a mapping was wrong it would do so silently and irreversibly.
+ * 
+ * So a sync writes HERE, and the two figures are shown side by side. Acting on
+ * a difference is a person's decision, taken through the Inventory screens,
+ * which record who did it and why.
+ */
+export type ErpInventorySnapshot = Prisma.ErpInventorySnapshotModel
+/**
+ * Model IntegrationEvent
+ * The integration ledger: one row per thing attempted against the ERP.
+ * 
+ * This is what the Activity screen reads, what a retry consults, and what
+ * answers "why has this order not reached the warehouse". It holds the
+ * correlation id and the idempotency key precisely so those questions have one
+ * answer each rather than a reconstruction.
+ * 
+ * `idempotencyKey` is unique where present. That is the structural reason a
+ * duplicate webhook or a re-run job cannot produce a second ERP order: the
+ * insert collides, instead of the code being careful.
+ */
+export type IntegrationEvent = Prisma.IntegrationEventModel
+/**
+ * Model ErpWebhookReceipt
+ * An inbound webhook we have already seen.
+ * 
+ * The duplicate guard for stock updates. An ERP that retries - and they all
+ * retry - must not apply the same movement twice, and the honest place to stop
+ * that is at the door, keyed on whatever identifier the ERP sends.
+ * 
+ * When an ERP sends no event id the service hashes the raw body and uses that.
+ * Two genuinely identical bodies inside the dedupe window are indistinguishable
+ * from a redelivery, and for a full-quantity stock snapshot treating them as
+ * one is the safe direction to be wrong in.
+ */
+export type ErpWebhookReceipt = Prisma.ErpWebhookReceiptModel
+/**
+ * Model CustomerAutoPaySetting
+ * One customer's authority to be charged without being present.
+ * 
+ * The one thing in this block that is genuinely the CUSTOMER's rather than the
+ * business's, and it has to be: an administrator cannot consent on somebody
+ * else's behalf to money leaving their account. That is not a design
+ * preference, it is what makes the charge lawful.
+ * 
+ * Separate from `customer_payment_methods` because the two answer different
+ * questions. That table says "this instrument exists and may be used"; this one
+ * says "and the account holder has asked us to use it, up to this much, under
+ * these rules". A saved card is not consent to charge it.
+ * 
+ * A row with `status = DISABLED` is, for charging purposes, the same as no row
+ * at all. It still exists so a customer's limits and preferences survive a
+ * disable/enable cycle.
+ */
+export type CustomerAutoPaySetting = Prisma.CustomerAutoPaySettingModel

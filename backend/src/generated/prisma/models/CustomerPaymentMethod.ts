@@ -364,6 +364,7 @@ export type CustomerPaymentMethodWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"CustomerPaymentMethod"> | Date | string
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
   schedules?: Prisma.RecurringScheduleListRelationFilter
+  autoPaySettings?: Prisma.CustomerAutoPaySettingListRelationFilter
 }
 
 export type CustomerPaymentMethodOrderByWithRelationInput = {
@@ -390,6 +391,7 @@ export type CustomerPaymentMethodOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   customerProfile?: Prisma.CustomerProfileOrderByWithRelationInput
   schedules?: Prisma.RecurringScheduleOrderByRelationAggregateInput
+  autoPaySettings?: Prisma.CustomerAutoPaySettingOrderByRelationAggregateInput
   _relevance?: Prisma.CustomerPaymentMethodOrderByRelevanceInput
 }
 
@@ -421,6 +423,7 @@ export type CustomerPaymentMethodWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"CustomerPaymentMethod"> | Date | string
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
   schedules?: Prisma.RecurringScheduleListRelationFilter
+  autoPaySettings?: Prisma.CustomerAutoPaySettingListRelationFilter
 }, "id" | "provider_providerPaymentMethodId">
 
 export type CustomerPaymentMethodOrderByWithAggregationInput = {
@@ -502,6 +505,7 @@ export type CustomerPaymentMethodCreateInput = {
   updatedAt?: Date | string
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutPaymentMethodsInput
   schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutPaymentMethodInput
+  autoPaySettings?: Prisma.CustomerAutoPaySettingCreateNestedManyWithoutPaymentMethodInput
 }
 
 export type CustomerPaymentMethodUncheckedCreateInput = {
@@ -527,6 +531,7 @@ export type CustomerPaymentMethodUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutPaymentMethodInput
+  autoPaySettings?: Prisma.CustomerAutoPaySettingUncheckedCreateNestedManyWithoutPaymentMethodInput
 }
 
 export type CustomerPaymentMethodUpdateInput = {
@@ -552,6 +557,7 @@ export type CustomerPaymentMethodUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutPaymentMethodsNestedInput
   schedules?: Prisma.RecurringScheduleUpdateManyWithoutPaymentMethodNestedInput
+  autoPaySettings?: Prisma.CustomerAutoPaySettingUpdateManyWithoutPaymentMethodNestedInput
 }
 
 export type CustomerPaymentMethodUncheckedUpdateInput = {
@@ -577,6 +583,7 @@ export type CustomerPaymentMethodUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutPaymentMethodNestedInput
+  autoPaySettings?: Prisma.CustomerAutoPaySettingUncheckedUpdateManyWithoutPaymentMethodNestedInput
 }
 
 export type CustomerPaymentMethodCreateManyInput = {
@@ -820,6 +827,22 @@ export type EnumStoredPaymentMethodStatusFieldUpdateOperationsInput = {
   set?: $Enums.StoredPaymentMethodStatus
 }
 
+export type CustomerPaymentMethodCreateNestedOneWithoutAutoPaySettingsInput = {
+  create?: Prisma.XOR<Prisma.CustomerPaymentMethodCreateWithoutAutoPaySettingsInput, Prisma.CustomerPaymentMethodUncheckedCreateWithoutAutoPaySettingsInput>
+  connectOrCreate?: Prisma.CustomerPaymentMethodCreateOrConnectWithoutAutoPaySettingsInput
+  connect?: Prisma.CustomerPaymentMethodWhereUniqueInput
+}
+
+export type CustomerPaymentMethodUpdateOneWithoutAutoPaySettingsNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerPaymentMethodCreateWithoutAutoPaySettingsInput, Prisma.CustomerPaymentMethodUncheckedCreateWithoutAutoPaySettingsInput>
+  connectOrCreate?: Prisma.CustomerPaymentMethodCreateOrConnectWithoutAutoPaySettingsInput
+  upsert?: Prisma.CustomerPaymentMethodUpsertWithoutAutoPaySettingsInput
+  disconnect?: Prisma.CustomerPaymentMethodWhereInput | boolean
+  delete?: Prisma.CustomerPaymentMethodWhereInput | boolean
+  connect?: Prisma.CustomerPaymentMethodWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerPaymentMethodUpdateToOneWithWhereWithoutAutoPaySettingsInput, Prisma.CustomerPaymentMethodUpdateWithoutAutoPaySettingsInput>, Prisma.CustomerPaymentMethodUncheckedUpdateWithoutAutoPaySettingsInput>
+}
+
 export type CustomerPaymentMethodCreateWithoutCustomerProfileInput = {
   id: string
   provider: $Enums.PaymentProviderKind
@@ -842,6 +865,7 @@ export type CustomerPaymentMethodCreateWithoutCustomerProfileInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutPaymentMethodInput
+  autoPaySettings?: Prisma.CustomerAutoPaySettingCreateNestedManyWithoutPaymentMethodInput
 }
 
 export type CustomerPaymentMethodUncheckedCreateWithoutCustomerProfileInput = {
@@ -866,6 +890,7 @@ export type CustomerPaymentMethodUncheckedCreateWithoutCustomerProfileInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutPaymentMethodInput
+  autoPaySettings?: Prisma.CustomerAutoPaySettingUncheckedCreateNestedManyWithoutPaymentMethodInput
 }
 
 export type CustomerPaymentMethodCreateOrConnectWithoutCustomerProfileInput = {
@@ -943,6 +968,7 @@ export type CustomerPaymentMethodCreateWithoutSchedulesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutPaymentMethodsInput
+  autoPaySettings?: Prisma.CustomerAutoPaySettingCreateNestedManyWithoutPaymentMethodInput
 }
 
 export type CustomerPaymentMethodUncheckedCreateWithoutSchedulesInput = {
@@ -967,6 +993,7 @@ export type CustomerPaymentMethodUncheckedCreateWithoutSchedulesInput = {
   detachedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  autoPaySettings?: Prisma.CustomerAutoPaySettingUncheckedCreateNestedManyWithoutPaymentMethodInput
 }
 
 export type CustomerPaymentMethodCreateOrConnectWithoutSchedulesInput = {
@@ -1007,6 +1034,7 @@ export type CustomerPaymentMethodUpdateWithoutSchedulesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutPaymentMethodsNestedInput
+  autoPaySettings?: Prisma.CustomerAutoPaySettingUpdateManyWithoutPaymentMethodNestedInput
 }
 
 export type CustomerPaymentMethodUncheckedUpdateWithoutSchedulesInput = {
@@ -1031,6 +1059,123 @@ export type CustomerPaymentMethodUncheckedUpdateWithoutSchedulesInput = {
   detachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  autoPaySettings?: Prisma.CustomerAutoPaySettingUncheckedUpdateManyWithoutPaymentMethodNestedInput
+}
+
+export type CustomerPaymentMethodCreateWithoutAutoPaySettingsInput = {
+  id: string
+  provider: $Enums.PaymentProviderKind
+  providerCustomerId: string
+  providerPaymentMethodId: string
+  setupIntentId?: string | null
+  brand?: string | null
+  last4?: string | null
+  expMonth?: number | null
+  expYear?: number | null
+  funding?: string | null
+  country?: string | null
+  status?: $Enums.StoredPaymentMethodStatus
+  consentAcceptedAt: Date | string
+  consentVersion: string
+  consentIpHash?: string | null
+  consentUserAgent?: string | null
+  isDefault?: boolean
+  detachedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutPaymentMethodsInput
+  schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutPaymentMethodInput
+}
+
+export type CustomerPaymentMethodUncheckedCreateWithoutAutoPaySettingsInput = {
+  id: string
+  customerProfileId: string
+  provider: $Enums.PaymentProviderKind
+  providerCustomerId: string
+  providerPaymentMethodId: string
+  setupIntentId?: string | null
+  brand?: string | null
+  last4?: string | null
+  expMonth?: number | null
+  expYear?: number | null
+  funding?: string | null
+  country?: string | null
+  status?: $Enums.StoredPaymentMethodStatus
+  consentAcceptedAt: Date | string
+  consentVersion: string
+  consentIpHash?: string | null
+  consentUserAgent?: string | null
+  isDefault?: boolean
+  detachedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutPaymentMethodInput
+}
+
+export type CustomerPaymentMethodCreateOrConnectWithoutAutoPaySettingsInput = {
+  where: Prisma.CustomerPaymentMethodWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerPaymentMethodCreateWithoutAutoPaySettingsInput, Prisma.CustomerPaymentMethodUncheckedCreateWithoutAutoPaySettingsInput>
+}
+
+export type CustomerPaymentMethodUpsertWithoutAutoPaySettingsInput = {
+  update: Prisma.XOR<Prisma.CustomerPaymentMethodUpdateWithoutAutoPaySettingsInput, Prisma.CustomerPaymentMethodUncheckedUpdateWithoutAutoPaySettingsInput>
+  create: Prisma.XOR<Prisma.CustomerPaymentMethodCreateWithoutAutoPaySettingsInput, Prisma.CustomerPaymentMethodUncheckedCreateWithoutAutoPaySettingsInput>
+  where?: Prisma.CustomerPaymentMethodWhereInput
+}
+
+export type CustomerPaymentMethodUpdateToOneWithWhereWithoutAutoPaySettingsInput = {
+  where?: Prisma.CustomerPaymentMethodWhereInput
+  data: Prisma.XOR<Prisma.CustomerPaymentMethodUpdateWithoutAutoPaySettingsInput, Prisma.CustomerPaymentMethodUncheckedUpdateWithoutAutoPaySettingsInput>
+}
+
+export type CustomerPaymentMethodUpdateWithoutAutoPaySettingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.EnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind
+  providerCustomerId?: Prisma.StringFieldUpdateOperationsInput | string
+  providerPaymentMethodId?: Prisma.StringFieldUpdateOperationsInput | string
+  setupIntentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  last4?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  funding?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumStoredPaymentMethodStatusFieldUpdateOperationsInput | $Enums.StoredPaymentMethodStatus
+  consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  consentIpHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  consentUserAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  detachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutPaymentMethodsNestedInput
+  schedules?: Prisma.RecurringScheduleUpdateManyWithoutPaymentMethodNestedInput
+}
+
+export type CustomerPaymentMethodUncheckedUpdateWithoutAutoPaySettingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.EnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind
+  providerCustomerId?: Prisma.StringFieldUpdateOperationsInput | string
+  providerPaymentMethodId?: Prisma.StringFieldUpdateOperationsInput | string
+  setupIntentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brand?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  last4?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  funding?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumStoredPaymentMethodStatusFieldUpdateOperationsInput | $Enums.StoredPaymentMethodStatus
+  consentAcceptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  consentVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  consentIpHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  consentUserAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  detachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutPaymentMethodNestedInput
 }
 
 export type CustomerPaymentMethodCreateManyCustomerProfileInput = {
@@ -1078,6 +1223,7 @@ export type CustomerPaymentMethodUpdateWithoutCustomerProfileInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedules?: Prisma.RecurringScheduleUpdateManyWithoutPaymentMethodNestedInput
+  autoPaySettings?: Prisma.CustomerAutoPaySettingUpdateManyWithoutPaymentMethodNestedInput
 }
 
 export type CustomerPaymentMethodUncheckedUpdateWithoutCustomerProfileInput = {
@@ -1102,6 +1248,7 @@ export type CustomerPaymentMethodUncheckedUpdateWithoutCustomerProfileInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutPaymentMethodNestedInput
+  autoPaySettings?: Prisma.CustomerAutoPaySettingUncheckedUpdateManyWithoutPaymentMethodNestedInput
 }
 
 export type CustomerPaymentMethodUncheckedUpdateManyWithoutCustomerProfileInput = {
@@ -1134,10 +1281,12 @@ export type CustomerPaymentMethodUncheckedUpdateManyWithoutCustomerProfileInput 
 
 export type CustomerPaymentMethodCountOutputType = {
   schedules: number
+  autoPaySettings: number
 }
 
 export type CustomerPaymentMethodCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   schedules?: boolean | CustomerPaymentMethodCountOutputTypeCountSchedulesArgs
+  autoPaySettings?: boolean | CustomerPaymentMethodCountOutputTypeCountAutoPaySettingsArgs
 }
 
 /**
@@ -1155,6 +1304,13 @@ export type CustomerPaymentMethodCountOutputTypeDefaultArgs<ExtArgs extends runt
  */
 export type CustomerPaymentMethodCountOutputTypeCountSchedulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.RecurringScheduleWhereInput
+}
+
+/**
+ * CustomerPaymentMethodCountOutputType without action
+ */
+export type CustomerPaymentMethodCountOutputTypeCountAutoPaySettingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerAutoPaySettingWhereInput
 }
 
 
@@ -1182,6 +1338,7 @@ export type CustomerPaymentMethodSelect<ExtArgs extends runtime.Types.Extensions
   updatedAt?: boolean
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   schedules?: boolean | Prisma.CustomerPaymentMethod$schedulesArgs<ExtArgs>
+  autoPaySettings?: boolean | Prisma.CustomerPaymentMethod$autoPaySettingsArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerPaymentMethodCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customerPaymentMethod"]>
 
@@ -1215,6 +1372,7 @@ export type CustomerPaymentMethodOmit<ExtArgs extends runtime.Types.Extensions.I
 export type CustomerPaymentMethodInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   schedules?: boolean | Prisma.CustomerPaymentMethod$schedulesArgs<ExtArgs>
+  autoPaySettings?: boolean | Prisma.CustomerPaymentMethod$autoPaySettingsArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerPaymentMethodCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1223,6 +1381,13 @@ export type $CustomerPaymentMethodPayload<ExtArgs extends runtime.Types.Extensio
   objects: {
     customerProfile: Prisma.$CustomerProfilePayload<ExtArgs>
     schedules: Prisma.$RecurringSchedulePayload<ExtArgs>[]
+    /**
+     * The auto-pay settings pointing at this instrument, if any. `SetNull` on
+     * the other side: removing a card must leave auto-pay without an instrument
+     * - which `assertAutoPayChargeable` then refuses - rather than deleting the
+     * customer's limits and preferences along with it.
+     */
+    autoPaySettings: Prisma.$CustomerAutoPaySettingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1617,6 +1782,7 @@ export interface Prisma__CustomerPaymentMethodClient<T, Null = never, ExtArgs ex
   readonly [Symbol.toStringTag]: "PrismaPromise"
   customerProfile<T extends Prisma.CustomerProfileDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfileDefaultArgs<ExtArgs>>): Prisma.Prisma__CustomerProfileClient<runtime.Types.Result.GetResult<Prisma.$CustomerProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   schedules<T extends Prisma.CustomerPaymentMethod$schedulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerPaymentMethod$schedulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecurringSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  autoPaySettings<T extends Prisma.CustomerPaymentMethod$autoPaySettingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerPaymentMethod$autoPaySettingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerAutoPaySettingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2036,6 +2202,30 @@ export type CustomerPaymentMethod$schedulesArgs<ExtArgs extends runtime.Types.Ex
   take?: number
   skip?: number
   distinct?: Prisma.RecurringScheduleScalarFieldEnum | Prisma.RecurringScheduleScalarFieldEnum[]
+}
+
+/**
+ * CustomerPaymentMethod.autoPaySettings
+ */
+export type CustomerPaymentMethod$autoPaySettingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerAutoPaySetting
+   */
+  select?: Prisma.CustomerAutoPaySettingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerAutoPaySetting
+   */
+  omit?: Prisma.CustomerAutoPaySettingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerAutoPaySettingInclude<ExtArgs> | null
+  where?: Prisma.CustomerAutoPaySettingWhereInput
+  orderBy?: Prisma.CustomerAutoPaySettingOrderByWithRelationInput | Prisma.CustomerAutoPaySettingOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerAutoPaySettingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerAutoPaySettingScalarFieldEnum | Prisma.CustomerAutoPaySettingScalarFieldEnum[]
 }
 
 /**

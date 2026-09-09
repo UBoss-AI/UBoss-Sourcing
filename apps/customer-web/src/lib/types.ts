@@ -740,3 +740,37 @@ export interface Schedule {
     failureReason: string | null;
   }[];
 }
+
+// ---------------------------------------------------------------------------
+// Account -> Automatic payment
+//
+// All that is left of a larger surface. The ERP shapes that used to sit here
+// went with the screens: a connection is configured by an administrator under
+// Settings -> ERP, and the storefront neither shows one nor has a type for
+// it. Auto-pay stayed, and had to - nobody can consent on somebody else's
+// behalf to money leaving their account.
+// ---------------------------------------------------------------------------
+
+export type AutoPayStatus = 'DISABLED' | 'ACTIVE' | 'PAUSED';
+export type AutoPayRetryPreference = 'NONE' | 'ONCE' | 'STANDARD';
+
+export interface AutoPaySettings {
+  status: AutoPayStatus;
+  enabled: boolean;
+  paymentMethodId: string | null;
+  paymentMethodLabel: string | null;
+  paymentMethodUsable: boolean;
+  /** Minor units, as a string. Never a JS number - see the API client. */
+  maxTransactionMinor: string | null;
+  approvalThresholdMinor: string | null;
+  limitCurrency: string | null;
+  retryPreference: AutoPayRetryPreference;
+  notifyOnCharge: boolean;
+  notifyOnFailure: boolean;
+  consentAcceptedAt: string | null;
+  consentVersion: string | null;
+  consentWithdrawnAt: string | null;
+  enabledAt: string | null;
+  pausedAt: string | null;
+  currentConsentVersion: string;
+}

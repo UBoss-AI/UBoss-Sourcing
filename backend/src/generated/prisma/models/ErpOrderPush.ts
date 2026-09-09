@@ -49,6 +49,7 @@ export type ErpOrderPushMinAggregateOutputType = {
   orderId: string | null
   occurrenceId: string | null
   connectionId: string | null
+  erpConnectionId: string | null
   idempotencyKey: string | null
   status: $Enums.ErpPushStatus | null
   erpOrderReference: string | null
@@ -67,6 +68,7 @@ export type ErpOrderPushMaxAggregateOutputType = {
   orderId: string | null
   occurrenceId: string | null
   connectionId: string | null
+  erpConnectionId: string | null
   idempotencyKey: string | null
   status: $Enums.ErpPushStatus | null
   erpOrderReference: string | null
@@ -85,6 +87,7 @@ export type ErpOrderPushCountAggregateOutputType = {
   orderId: number
   occurrenceId: number
   connectionId: number
+  erpConnectionId: number
   idempotencyKey: number
   status: number
   erpOrderReference: number
@@ -115,6 +118,7 @@ export type ErpOrderPushMinAggregateInputType = {
   orderId?: true
   occurrenceId?: true
   connectionId?: true
+  erpConnectionId?: true
   idempotencyKey?: true
   status?: true
   erpOrderReference?: true
@@ -133,6 +137,7 @@ export type ErpOrderPushMaxAggregateInputType = {
   orderId?: true
   occurrenceId?: true
   connectionId?: true
+  erpConnectionId?: true
   idempotencyKey?: true
   status?: true
   erpOrderReference?: true
@@ -151,6 +156,7 @@ export type ErpOrderPushCountAggregateInputType = {
   orderId?: true
   occurrenceId?: true
   connectionId?: true
+  erpConnectionId?: true
   idempotencyKey?: true
   status?: true
   erpOrderReference?: true
@@ -258,6 +264,7 @@ export type ErpOrderPushGroupByOutputType = {
   orderId: string
   occurrenceId: string | null
   connectionId: string | null
+  erpConnectionId: string | null
   idempotencyKey: string
   status: $Enums.ErpPushStatus
   erpOrderReference: string | null
@@ -301,6 +308,7 @@ export type ErpOrderPushWhereInput = {
   orderId?: Prisma.StringFilter<"ErpOrderPush"> | string
   occurrenceId?: Prisma.StringNullableFilter<"ErpOrderPush"> | string | null
   connectionId?: Prisma.StringNullableFilter<"ErpOrderPush"> | string | null
+  erpConnectionId?: Prisma.StringNullableFilter<"ErpOrderPush"> | string | null
   idempotencyKey?: Prisma.StringFilter<"ErpOrderPush"> | string
   status?: Prisma.EnumErpPushStatusFilter<"ErpOrderPush"> | $Enums.ErpPushStatus
   erpOrderReference?: Prisma.StringNullableFilter<"ErpOrderPush"> | string | null
@@ -323,6 +331,7 @@ export type ErpOrderPushOrderByWithRelationInput = {
   orderId?: Prisma.SortOrder
   occurrenceId?: Prisma.SortOrderInput | Prisma.SortOrder
   connectionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  erpConnectionId?: Prisma.SortOrderInput | Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
   status?: Prisma.SortOrder
   erpOrderReference?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -350,6 +359,7 @@ export type ErpOrderPushWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ErpOrderPushWhereInput[]
   NOT?: Prisma.ErpOrderPushWhereInput | Prisma.ErpOrderPushWhereInput[]
   connectionId?: Prisma.StringNullableFilter<"ErpOrderPush"> | string | null
+  erpConnectionId?: Prisma.StringNullableFilter<"ErpOrderPush"> | string | null
   status?: Prisma.EnumErpPushStatusFilter<"ErpOrderPush"> | $Enums.ErpPushStatus
   erpOrderReference?: Prisma.StringNullableFilter<"ErpOrderPush"> | string | null
   attemptCount?: Prisma.IntFilter<"ErpOrderPush"> | number
@@ -371,6 +381,7 @@ export type ErpOrderPushOrderByWithAggregationInput = {
   orderId?: Prisma.SortOrder
   occurrenceId?: Prisma.SortOrderInput | Prisma.SortOrder
   connectionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  erpConnectionId?: Prisma.SortOrderInput | Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
   status?: Prisma.SortOrder
   erpOrderReference?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -399,6 +410,7 @@ export type ErpOrderPushScalarWhereWithAggregatesInput = {
   orderId?: Prisma.StringWithAggregatesFilter<"ErpOrderPush"> | string
   occurrenceId?: Prisma.StringNullableWithAggregatesFilter<"ErpOrderPush"> | string | null
   connectionId?: Prisma.StringNullableWithAggregatesFilter<"ErpOrderPush"> | string | null
+  erpConnectionId?: Prisma.StringNullableWithAggregatesFilter<"ErpOrderPush"> | string | null
   idempotencyKey?: Prisma.StringWithAggregatesFilter<"ErpOrderPush"> | string
   status?: Prisma.EnumErpPushStatusWithAggregatesFilter<"ErpOrderPush"> | $Enums.ErpPushStatus
   erpOrderReference?: Prisma.StringNullableWithAggregatesFilter<"ErpOrderPush"> | string | null
@@ -417,6 +429,7 @@ export type ErpOrderPushScalarWhereWithAggregatesInput = {
 export type ErpOrderPushCreateInput = {
   id: string
   connectionId?: string | null
+  erpConnectionId?: string | null
   idempotencyKey: string
   status?: $Enums.ErpPushStatus
   erpOrderReference?: string | null
@@ -439,6 +452,7 @@ export type ErpOrderPushUncheckedCreateInput = {
   orderId: string
   occurrenceId?: string | null
   connectionId?: string | null
+  erpConnectionId?: string | null
   idempotencyKey: string
   status?: $Enums.ErpPushStatus
   erpOrderReference?: string | null
@@ -457,6 +471,7 @@ export type ErpOrderPushUncheckedCreateInput = {
 export type ErpOrderPushUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   connectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpConnectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumErpPushStatusFieldUpdateOperationsInput | $Enums.ErpPushStatus
   erpOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -479,6 +494,7 @@ export type ErpOrderPushUncheckedUpdateInput = {
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
   occurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   connectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpConnectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumErpPushStatusFieldUpdateOperationsInput | $Enums.ErpPushStatus
   erpOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -499,6 +515,7 @@ export type ErpOrderPushCreateManyInput = {
   orderId: string
   occurrenceId?: string | null
   connectionId?: string | null
+  erpConnectionId?: string | null
   idempotencyKey: string
   status?: $Enums.ErpPushStatus
   erpOrderReference?: string | null
@@ -517,6 +534,7 @@ export type ErpOrderPushCreateManyInput = {
 export type ErpOrderPushUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   connectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpConnectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumErpPushStatusFieldUpdateOperationsInput | $Enums.ErpPushStatus
   erpOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -537,6 +555,7 @@ export type ErpOrderPushUncheckedUpdateManyInput = {
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
   occurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   connectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpConnectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumErpPushStatusFieldUpdateOperationsInput | $Enums.ErpPushStatus
   erpOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -568,6 +587,7 @@ export type ErpOrderPushCountOrderByAggregateInput = {
   orderId?: Prisma.SortOrder
   occurrenceId?: Prisma.SortOrder
   connectionId?: Prisma.SortOrder
+  erpConnectionId?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
   status?: Prisma.SortOrder
   erpOrderReference?: Prisma.SortOrder
@@ -592,6 +612,7 @@ export type ErpOrderPushMaxOrderByAggregateInput = {
   orderId?: Prisma.SortOrder
   occurrenceId?: Prisma.SortOrder
   connectionId?: Prisma.SortOrder
+  erpConnectionId?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
   status?: Prisma.SortOrder
   erpOrderReference?: Prisma.SortOrder
@@ -610,6 +631,7 @@ export type ErpOrderPushMinOrderByAggregateInput = {
   orderId?: Prisma.SortOrder
   occurrenceId?: Prisma.SortOrder
   connectionId?: Prisma.SortOrder
+  erpConnectionId?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
   status?: Prisma.SortOrder
   erpOrderReference?: Prisma.SortOrder
@@ -698,6 +720,7 @@ export type EnumErpPushStatusFieldUpdateOperationsInput = {
 export type ErpOrderPushCreateWithoutOrderInput = {
   id: string
   connectionId?: string | null
+  erpConnectionId?: string | null
   idempotencyKey: string
   status?: $Enums.ErpPushStatus
   erpOrderReference?: string | null
@@ -718,6 +741,7 @@ export type ErpOrderPushUncheckedCreateWithoutOrderInput = {
   id: string
   occurrenceId?: string | null
   connectionId?: string | null
+  erpConnectionId?: string | null
   idempotencyKey: string
   status?: $Enums.ErpPushStatus
   erpOrderReference?: string | null
@@ -752,6 +776,7 @@ export type ErpOrderPushUpdateToOneWithWhereWithoutOrderInput = {
 export type ErpOrderPushUpdateWithoutOrderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   connectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpConnectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumErpPushStatusFieldUpdateOperationsInput | $Enums.ErpPushStatus
   erpOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -772,6 +797,7 @@ export type ErpOrderPushUncheckedUpdateWithoutOrderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   occurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   connectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpConnectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumErpPushStatusFieldUpdateOperationsInput | $Enums.ErpPushStatus
   erpOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -790,6 +816,7 @@ export type ErpOrderPushUncheckedUpdateWithoutOrderInput = {
 export type ErpOrderPushCreateWithoutOccurrenceInput = {
   id: string
   connectionId?: string | null
+  erpConnectionId?: string | null
   idempotencyKey: string
   status?: $Enums.ErpPushStatus
   erpOrderReference?: string | null
@@ -810,6 +837,7 @@ export type ErpOrderPushUncheckedCreateWithoutOccurrenceInput = {
   id: string
   orderId: string
   connectionId?: string | null
+  erpConnectionId?: string | null
   idempotencyKey: string
   status?: $Enums.ErpPushStatus
   erpOrderReference?: string | null
@@ -844,6 +872,7 @@ export type ErpOrderPushUpdateToOneWithWhereWithoutOccurrenceInput = {
 export type ErpOrderPushUpdateWithoutOccurrenceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   connectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpConnectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumErpPushStatusFieldUpdateOperationsInput | $Enums.ErpPushStatus
   erpOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -864,6 +893,7 @@ export type ErpOrderPushUncheckedUpdateWithoutOccurrenceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
   connectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpConnectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumErpPushStatusFieldUpdateOperationsInput | $Enums.ErpPushStatus
   erpOrderReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -886,6 +916,7 @@ export type ErpOrderPushSelect<ExtArgs extends runtime.Types.Extensions.Internal
   orderId?: boolean
   occurrenceId?: boolean
   connectionId?: boolean
+  erpConnectionId?: boolean
   idempotencyKey?: boolean
   status?: boolean
   erpOrderReference?: boolean
@@ -910,6 +941,7 @@ export type ErpOrderPushSelectScalar = {
   orderId?: boolean
   occurrenceId?: boolean
   connectionId?: boolean
+  erpConnectionId?: boolean
   idempotencyKey?: boolean
   status?: boolean
   erpOrderReference?: boolean
@@ -925,7 +957,7 @@ export type ErpOrderPushSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ErpOrderPushOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "occurrenceId" | "connectionId" | "idempotencyKey" | "status" | "erpOrderReference" | "attemptCount" | "lastAttemptAt" | "nextRetryAt" | "succeededAt" | "lastErrorCode" | "lastErrorMessage" | "requestJson" | "responseJson" | "createdAt" | "updatedAt", ExtArgs["result"]["erpOrderPush"]>
+export type ErpOrderPushOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "occurrenceId" | "connectionId" | "erpConnectionId" | "idempotencyKey" | "status" | "erpOrderReference" | "attemptCount" | "lastAttemptAt" | "nextRetryAt" | "succeededAt" | "lastErrorCode" | "lastErrorMessage" | "requestJson" | "responseJson" | "createdAt" | "updatedAt", ExtArgs["result"]["erpOrderPush"]>
 export type ErpOrderPushInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   occurrence?: boolean | Prisma.ErpOrderPush$occurrenceArgs<ExtArgs>
@@ -946,10 +978,21 @@ export type $ErpOrderPushPayload<ExtArgs extends runtime.Types.Extensions.Intern
      */
     occurrenceId: string | null
     /**
-     * The connector used. NULL once a connection is deleted; the ledger row
-     * outlives the configuration that made it.
+     * The legacy `integration_connections` row used, on an installation still
+     * configured through `ERP_ORDER_CONNECTION_NAME`. NULL once a connection is
+     * deleted; the ledger row outlives the configuration that made it.
      */
     connectionId: string | null
+    /**
+     * The `erp_connections` row used - the one an administrator configured
+     * under Settings -> ERP, which is the path every new installation takes.
+     * 
+     * A second column rather than a reused one because the two point at two
+     * different tables, and a row that cannot say which kind it holds is a row
+     * nobody can safely join. At most one is set on any push; both NULL means no
+     * ERP was configured at all.
+     */
+    erpConnectionId: string | null
     /**
      * Sent to the ERP as its idempotency header, and unique here.
      * 
@@ -1353,6 +1396,7 @@ export interface ErpOrderPushFieldRefs {
   readonly orderId: Prisma.FieldRef<"ErpOrderPush", 'String'>
   readonly occurrenceId: Prisma.FieldRef<"ErpOrderPush", 'String'>
   readonly connectionId: Prisma.FieldRef<"ErpOrderPush", 'String'>
+  readonly erpConnectionId: Prisma.FieldRef<"ErpOrderPush", 'String'>
   readonly idempotencyKey: Prisma.FieldRef<"ErpOrderPush", 'String'>
   readonly status: Prisma.FieldRef<"ErpOrderPush", 'ErpPushStatus'>
   readonly erpOrderReference: Prisma.FieldRef<"ErpOrderPush", 'String'>

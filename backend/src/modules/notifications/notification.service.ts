@@ -73,6 +73,29 @@ export const NotificationEvent = {
   /// suggests the customer do anything: it is ours to fix.
   SCHEDULE_ERP_DELAYED: 'schedule.erp_delayed',
   INVENTORY_LOW_STOCK: 'inventory.low_stock',
+  /// The ERP connection stopped working and was taken out of service. Sent to
+  /// staff, because it is the business's own system and only they can fix it -
+  /// and until they do, no order is reaching the warehouse system.
+  ERP_CONNECTION_SUSPENDED: 'erp.connection_suspended',
+  /// A stock synchronisation finished with records it could not apply. Sent
+  /// only when something actually failed; a clean nightly sync is not news.
+  ERP_SYNC_FAILED: 'erp.sync_failed',
+  /// Paid, and the ERP has not taken the order yet. Sent to staff once the
+  /// delay is long enough to be worth acting on. The customer is told nothing:
+  /// their order is confirmed and their money is safe, and a warehouse system
+  /// being slow is not their problem to carry.
+  ERP_ORDER_DELAYED: 'erp.order_delayed',
+  /// Retries are exhausted. The order is paid, real, and not in the warehouse
+  /// system, and somebody has to go and look at the ERP.
+  ERP_ORDER_ABANDONED: 'erp.order_abandoned',
+  /// An automatic payment was taken. Sent when the customer asked to be told,
+  /// and it says what was charged before it says anything else.
+  AUTOPAY_CHARGED: 'autopay.charged',
+  /// An automatic payment did not go through.
+  AUTOPAY_FAILED: 'autopay.failed',
+  /// Nothing was charged because the amount was above the level the customer
+  /// asked to be consulted about. The delivery is waiting for their answer.
+  AUTOPAY_APPROVAL_NEEDED: 'autopay.approval_needed',
   /// The Art. 15 copy is built and waiting. Says when the link stops working,
   /// because the window is short on purpose.
   DATA_REQUEST_READY: 'data_request.ready',
@@ -264,6 +287,93 @@ const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string
       body:
         '{{productName}} ({{sku}}) is at {{availableQty}} units, ' +
         'at or below its reorder threshold of {{threshold}}.\n',
+    },
+
+    // --- The ERP connection --------------------------------------------
+    //
+    // These go to STAFF, not to the customer. The ERP is the business's own
+    // system, and a customer who has paid for an order does not need to hear
+    // that a warehouse system somewhere has not acknowledged it yet - their
+    // order is confirmed and their money is accounted for either way. Every one
+    // of them names what somebody has to go and do.
+    [NotificationEvent.ERP_CONNECTION_SUSPENDED]: {
+      subject: 'ERP connection "{{connectionName}}" has stopped',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'The ERP connection "{{connectionName}}" has been switched off after repeated ' +
+        'failures.\n\n' +
+        'What happened: {{reason}}\n\n' +
+        'Nothing has been lost. Orders are being taken and recorded as usual, and each one ' +
+        'will be sent to the ERP once the connection is working again.\n\n' +
+        'To restart it, open Settings > ERP, check the settings, and run a connection ' +
+        'test:\n{{connectionUrl}}\n',
+    },
+    [NotificationEvent.ERP_SYNC_FAILED]: {
+      subject: 'Stock synchronisation finished with {{failedCount}} problems',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'The stock synchronisation for "{{connectionName}}" read {{processedCount}} records ' +
+        'and could not apply {{failedCount}} of them.\n\n' +
+        'The records that did apply have been updated. The ones that did not are listed with ' +
+        'their reasons here:\n{{connectionUrl}}\n\n' +
+        'The most common cause is a field in the ERP that has been renamed since the mapping ' +
+        'was set up.\n',
+    },
+    [NotificationEvent.ERP_ORDER_DELAYED]: {
+      subject: 'Order {{orderNumber}} is paid - not yet in the ERP',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Order {{orderNumber}} has been paid for and is confirmed. The ERP has not accepted ' +
+        'it yet.\n\n' +
+        'Retries are running on their own, and the order is sent under a single reference the ' +
+        'ERP will accept only once - so no attempt can produce a second copy or a second ' +
+        'charge. The customer has not been told anything, because from where they stand the ' +
+        'order is confirmed.\n\n' +
+        'You can follow it here:\n{{orderUrl}}\n',
+    },
+    [NotificationEvent.ERP_ORDER_ABANDONED]: {
+      subject: 'Order {{orderNumber}} could not reach the ERP',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Order {{orderNumber}} is paid and confirmed, but after several attempts the ERP has ' +
+        'not accepted it. Automatic retries have stopped.\n\n' +
+        'What the ERP reported: {{reason}}\n\n' +
+        'The payment stands and the order is real - it is simply not in the ERP, so the ' +
+        'warehouse cannot see it. Somebody needs to look at that.\n\n' +
+        'Once it is fixed, send it again from the order page. It is sent under the original ' +
+        'reference, so nobody is charged twice and the ERP cannot end up with two ' +
+        'copies:\n{{orderUrl}}\n',
+    },
+
+    // --- Auto-pay ------------------------------------------------------
+    [NotificationEvent.AUTOPAY_CHARGED]: {
+      subject: '{{amount}} paid automatically for order {{orderNumber}}',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        '{{amount}} has been charged to your saved {{cardLabel}} for order {{orderNumber}}.\n\n' +
+        'This was an automatic payment, taken under the authorisation you gave on ' +
+        '{{consentDate}}.\n\n' +
+        'You can change your limits or switch automatic payment off at any time:\n' +
+        '{{settingsUrl}}\n',
+    },
+    [NotificationEvent.AUTOPAY_FAILED]: {
+      subject: 'Automatic payment for order {{orderNumber}} did not go through',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'We could not take {{amount}} from your saved {{cardLabel}} for order ' +
+        '{{orderNumber}}.\n\n' +
+        'Reason: {{reason}}\n\n' +
+        'Nothing has been charged. You can pay for this order directly, or update your saved ' +
+        'card and we will try again:\n{{orderUrl}}\n',
+    },
+    [NotificationEvent.AUTOPAY_APPROVAL_NEEDED]: {
+      subject: 'Order {{orderNumber}} needs your approval before it is paid',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Order {{orderNumber}} comes to {{amount}}, which is above the {{threshold}} you asked ' +
+        'to be consulted about.\n\n' +
+        'Nothing has been charged and nothing will be until you say so.\n\n' +
+        'Review and approve it here:\n{{orderUrl}}\n',
     },
     [NotificationEvent.SCHEDULE_REMINDER]: {
       subject: 'Upcoming recurring order on {{dueDate}}',

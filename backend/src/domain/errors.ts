@@ -229,6 +229,76 @@ export const ErrorCode = {
   IMPORT_DRY_RUN_REQUIRED: 'IMPORT_DRY_RUN_REQUIRED',
   EXPORT_NOT_READY: 'EXPORT_NOT_READY',
 
+  // --- A configurable ERP connection ---
+  //
+  // Distinct from the ERP_* codes above, which are about the connector wired
+  // through environment variables. These are returned to an administrator
+  // working in Settings -> ERP, so each one has to name something they can
+  // actually go and fix.
+  /// The address is not one this server will call: not http(s), missing a host,
+  /// carrying credentials, or resolving to a private or reserved network. The
+  /// detail says which.
+  ERP_URL_NOT_ALLOWED: 'ERP_URL_NOT_ALLOWED',
+  /// An endpoint path pointed at a different origin from the base URL. Refused
+  /// because an "endpoint" free to leave the authorised host is an SSRF
+  /// primitive with a form field in front of it.
+  ERP_ENDPOINT_OFF_ORIGIN: 'ERP_ENDPOINT_OFF_ORIGIN',
+  /// The connection is not in a state that allows what was asked - activating
+  /// one that has never passed a test, resuming one that was never paused. The
+  /// message names the current status.
+  ERP_CONNECTION_STATE_INVALID: 'ERP_CONNECTION_STATE_INVALID',
+  /// Activation was refused because the connection has no passing test behind
+  /// it. Separate from the code above because it names the remedy: press Test.
+  ERP_CONNECTION_UNTESTED: 'ERP_CONNECTION_UNTESTED',
+  /// The field mapping is missing something required, maps a field twice, or
+  /// points at a path that is not present in the sample response.
+  ERP_MAPPING_INVALID: 'ERP_MAPPING_INVALID',
+  /// Activation was refused because the mapping has never been checked against
+  /// a real response. A structurally valid mapping is still a guess about
+  /// somebody else's JSON.
+  ERP_MAPPING_UNVERIFIED: 'ERP_MAPPING_UNVERIFIED',
+  /// The ERP answered, but not with anything this connection can use: not
+  /// JSON, or JSON with no array of records where the mapping says one is.
+  ERP_RESPONSE_UNUSABLE: 'ERP_RESPONSE_UNUSABLE',
+  /// The customer's ERP refused our credentials. Its own 401 or 403, reported
+  /// as itself rather than as a generic failure, because the remedy is
+  /// entirely different from a network fault.
+  ERP_AUTHENTICATION_FAILED: 'ERP_AUTHENTICATION_FAILED',
+  /// The OAuth token endpoint refused the client-credentials grant.
+  ERP_OAUTH_TOKEN_FAILED: 'ERP_OAUTH_TOKEN_FAILED',
+  /// The ERP asked us to slow down. Carries the retry-after it gave, where it
+  /// gave one.
+  ERP_RATE_LIMITED: 'ERP_RATE_LIMITED',
+  /// Repeated failures took the connection out of service. It will not be
+  /// called again until a test passes.
+  ERP_CONNECTION_SUSPENDED: 'ERP_CONNECTION_SUSPENDED',
+  /// A webhook arrived for a connection whose signature did not verify, or
+  /// which has no signing secret configured. Never says which: an endpoint that
+  /// distinguishes "wrong signature" from "no secret" is an oracle.
+  ERP_WEBHOOK_REJECTED: 'ERP_WEBHOOK_REJECTED',
+  /// A sync was asked for while one is already running on this connection.
+  ERP_SYNC_ALREADY_RUNNING: 'ERP_SYNC_ALREADY_RUNNING',
+
+  // --- Auto-pay ---
+  /// Enabling was refused because there is no usable saved card. The customer
+  /// is sent to add one rather than told "not eligible".
+  AUTOPAY_PAYMENT_METHOD_REQUIRED: 'AUTOPAY_PAYMENT_METHOD_REQUIRED',
+  /// Enabling was refused because the explicit consent box was not ticked.
+  /// Charging without it is not something a flag may turn on.
+  AUTOPAY_CONSENT_REQUIRED: 'AUTOPAY_CONSENT_REQUIRED',
+  /// Auto-pay is off or paused, and something asked for an off-session charge.
+  AUTOPAY_NOT_ENABLED: 'AUTOPAY_NOT_ENABLED',
+  /// The amount is above the ceiling the customer set. Refused, not deferred.
+  AUTOPAY_LIMIT_EXCEEDED: 'AUTOPAY_LIMIT_EXCEEDED',
+  /// The amount is above the threshold at which the customer asked to be
+  /// consulted. Nothing is charged and they are asked - which is why this is
+  /// not the same code as the one above.
+  AUTOPAY_APPROVAL_REQUIRED: 'AUTOPAY_APPROVAL_REQUIRED',
+  /// The charge and the customer's limits are in different currencies, so the
+  /// limit cannot be applied. Refused rather than guessed at: converting a cap
+  /// the customer typed is not something to do silently.
+  AUTOPAY_CURRENCY_MISMATCH: 'AUTOPAY_CURRENCY_MISMATCH',
+
   // --- Data protection ---
   /// One open request of this kind already exists. Art. 12(3) runs from the
   /// first one, so a second does not restart the clock and is not a new

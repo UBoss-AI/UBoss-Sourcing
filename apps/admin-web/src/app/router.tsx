@@ -194,6 +194,12 @@ export const router = createBrowserRouter([
           Permission.SETTINGS_READ,
         ]),
       },
+      {
+        path: 'settings/erp',
+        ...lazyRoute(() => import('@/pages/ErpSettingsPage').then((m) => m.ErpSettingsPage), [
+          Permission.INTEGRATION_READ,
+        ]),
+      },
       { path: '*', element: <Navigate to="/" replace /> },
     ],
   },

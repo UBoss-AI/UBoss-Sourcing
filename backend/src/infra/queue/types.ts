@@ -41,6 +41,26 @@ export const JobType = {
   /// for. Runs under the occurrence's original idempotency key, so it can
   /// never produce a second ERP order or a second charge.
   ERP_ORDER_RETRY: 'erp_order.retry',
+  /// Ask the configured ERP for stock, where it has no outbound webhooks -
+  /// which is most of them.
+  ///
+  /// Each connection carries its own `nextPollAt`, so a pass with nothing due
+  /// costs one indexed query. Separate from INTEGRATION_SYNC, which is the
+  /// catalogue connector: the two read different tables and must not share a
+  /// retry budget.
+  ERP_INVENTORY_POLL: 'erp.inventory_poll',
+  /// Retry an order the ERP has not accepted yet.
+  ///
+  /// The exit from Paid - ERP Pending, and the most important retry in this
+  /// feature: every row it touches is an order somebody has already paid for.
+  /// Runs under the original idempotency key, so it can never produce a second
+  /// ERP order or a second charge.
+  ERP_PUSH_RETRY: 'erp.push_retry',
+  /// Retry any other integration operation whose failure looked transient.
+  ///
+  /// Reads `integration_events` rather than a specific business table, so a
+  /// new kind of operation is retried without a new job type.
+  INTEGRATION_EVENT_RETRY: 'integration_event.retry',
   PAYMENT_RECONCILE: 'payment.reconcile',
   PAYMENT_LINK_EXPIRE: 'payment_link.expire',
   REFUND_POLL: 'refund.poll',

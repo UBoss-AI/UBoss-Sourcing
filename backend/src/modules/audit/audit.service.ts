@@ -173,6 +173,57 @@ export const AuditAction = {
   CONNECTOR_UPDATED: 'connector.updated',
   DATA_EXPORTED: 'data.exported',
 
+  // The ERP connection under Settings -> ERP
+  //
+  // Written with actorType ADMIN and the staff user's own id: this is a change
+  // to how the installation runs, and it belongs on the staff trail beside the
+  // tax classes and the payment gateways. The trail matters here for a specific
+  // reason: these rows record somebody pointing this server at an outbound
+  // address and giving it a credential, and "who set that up, and when" is the
+  // first question asked if the address turns out to be wrong.
+  ERP_CONNECTION_CREATED: 'erp_connection.created',
+  ERP_CONNECTION_UPDATED: 'erp_connection.updated',
+  /// Credentials replaced. Its own action rather than an `updated`, because a
+  /// rotated secret is the change most worth being able to find. The secret
+  /// itself never reaches the row - see REDACTED_FIELDS.
+  ERP_CREDENTIALS_ROTATED: 'erp_connection.credentials_rotated',
+  ERP_CONNECTION_TESTED: 'erp_connection.tested',
+  /// The moment a connection started carrying real orders.
+  ERP_CONNECTION_ACTIVATED: 'erp_connection.activated',
+  ERP_CONNECTION_PAUSED: 'erp_connection.paused',
+  ERP_CONNECTION_RESUMED: 'erp_connection.resumed',
+  /// Taken out of service by the machinery after repeated failures. Written by
+  /// SYSTEM, and the only status change in this group that nobody chose.
+  ERP_CONNECTION_SUSPENDED: 'erp_connection.suspended',
+  ERP_CONNECTION_DELETED: 'erp_connection.deleted',
+  /// A field mapping was saved or verified against a real response.
+  ERP_MAPPING_UPDATED: 'erp_connection.mapping_updated',
+  /// A synchronisation ran. Recorded for manual and scheduled runs alike, so
+  /// "who changed my stock figures" has an answer that does not depend on
+  /// reading application logs.
+  ERP_INVENTORY_SYNCED: 'erp_connection.inventory_synced',
+  /// An inbound webhook was refused: bad signature, no secret, or a connection
+  /// that is not accepting them. Worth a row of its own - a run of these is
+  /// either a misconfigured ERP or somebody probing the endpoint.
+  ERP_WEBHOOK_REJECTED: 'erp_connection.webhook_rejected',
+
+  // Auto-pay
+  //
+  // Consent to charge, and its withdrawal. These are the rows that answer "did
+  // this customer agree to this" when a charge is disputed, which is why they
+  // record the version of the wording agreed to and are written even when the
+  // change is a customer switching their own setting off.
+  AUTOPAY_ENABLED: 'autopay.enabled',
+  AUTOPAY_DISABLED: 'autopay.disabled',
+  AUTOPAY_PAUSED: 'autopay.paused',
+  AUTOPAY_RESUMED: 'autopay.resumed',
+  AUTOPAY_SETTINGS_UPDATED: 'autopay.settings_updated',
+  /// A charge was NOT made because it exceeded a limit the customer set, or
+  /// crossed the threshold at which they asked to be consulted. On the trail
+  /// because a delivery that did not happen needs an explanation as much as one
+  /// that did.
+  AUTOPAY_CHARGE_WITHHELD: 'autopay.charge_withheld',
+
   // Data protection
   //
   // These rows are the Art. 5(2) accountability record. "We honour erasure
@@ -233,6 +284,15 @@ const REDACTED_FIELDS = new Set([
   'rawPayload',
   'cardNumber',
   'cvv',
+  // ERP credentials, in every spelling the connection service and its API
+  // schema use for them. The key survives, so "the API key was
+  // rotated" stays visible on the trail; only the value is replaced.
+  'apiKey',
+  'clientSecret',
+  'credentials',
+  'extraSecretHeaders',
+  'oauthTokenEnc',
+  'accessToken',
 ]);
 
 const MAX_AUDIT_VALUE_BYTES = 16_384;

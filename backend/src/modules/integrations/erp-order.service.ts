@@ -482,6 +482,17 @@ async function buildPayload(orderId: string): Promise<Record<string, unknown>> {
  * a worker holding a paid occurrence, and an exception there would be caught
  * and turned into "this occurrence failed", which is exactly the wrong thing
  * to tell a customer whose money has gone.
+ *
+ * **Two connectors can be on the other end of this, and the configured one
+ * comes first.** An installation with an active connection under Settings ->
+ * ERP sends every order there; one without falls through to the connector wired
+ * through `ERP_ORDER_*` environment variables, exactly as before this feature
+ * existed. The configured connection wins because it is the one somebody set up
+ * deliberately, on a screen, having tested it - while the environment connector
+ * is whatever the deployment was started with.
+ *
+ * Never both. `erp_order_pushes.orderId` is unique, so whichever path claims
+ * the row owns the hand-off; the other would find it already there.
  */
 export async function pushOrderToErp(input: {
   orderId: string;
@@ -493,6 +504,32 @@ export async function pushOrderToErp(input: {
     orderId: input.orderId,
     occurrenceId: input.occurrenceId ?? undefined,
   });
+
+  // --- The connection configured under Settings -> ERP -------------------
+  //
+  // Imported lazily to keep the module graph acyclic: the push service reads
+  // connection state from a module that imports this one.
+  {
+    const { pushOrderToErpConnection, resolveErpConnection } = await import(
+      './erp-push.service.js'
+    );
+
+    if ((await resolveErpConnection()) !== null) {
+      const result = await pushOrderToErpConnection({
+        orderId: input.orderId,
+        occurrenceId: input.occurrenceId ?? null,
+        // The SAME key the caller derived from the order. Not regenerated here,
+        // because a retry has to send the value the first attempt sent.
+        idempotencyKey: input.idempotencyKey,
+        correlationId: input.correlationId ?? null,
+      });
+
+      // SKIPPED means the connection turned out not to be usable for orders
+      // after all - order sending switched off, or no creation endpoint. Fall
+      // through to the legacy connector rather than silently dropping the order.
+      if (result.status !== 'SKIPPED') return result;
+    }
+  }
 
   const connection = await loadErpConnection();
 

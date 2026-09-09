@@ -60,6 +60,10 @@ export const SECTIONS = Object.freeze({
     'chatEnquiries',
     'sessions',
     'dataRequests',
+    // Their standing authority to be charged, and the evidence of when they
+    // gave it. Disclosed in full: it is the record a subject would want if they
+    // ever disputed a charge.
+    'autoPayAuthority',
   ]),
   withheld: Object.freeze([
     {
@@ -594,6 +598,42 @@ export async function buildCustomerBundle(subject: BundleSubject): Promise<Recor
     })),
 
     dataRequests,
+
+    // The one thing in this feature that IS the subject's: their standing
+    // authority to be charged, and the evidence of when they gave it. The ERP
+    // connection itself belongs to the business - it is the company's
+    // integration with its own supplier system, not a fact about this person -
+    // so nothing about it appears here.
+    // The consent itself, which is the part that matters: it is the evidence
+    // this subject would want if they ever disputed a charge.
+    autoPayAuthority: await (async () => {
+      const settings = await prisma.customerAutoPaySetting.findUnique({
+        where: { customerProfileId: profile?.id ?? '' },
+      });
+
+      if (settings === null) return null;
+
+      return {
+        status: settings.status,
+        maxTransactionMinor: money(settings.maxTransactionMinor),
+        approvalThresholdMinor: money(settings.approvalThresholdMinor),
+        limitCurrency: settings.limitCurrency,
+        retryPreference: settings.retryPreference,
+        notifyOnCharge: settings.notifyOnCharge,
+        notifyOnFailure: settings.notifyOnFailure,
+        consentAcceptedAt: iso(settings.consentAcceptedAt),
+        consentVersion: settings.consentVersion,
+        consentWithdrawnAt: iso(settings.consentWithdrawnAt),
+        // The hash of the address consent came from is reported as present
+        // rather than disclosed: it is a hash, so it tells the subject nothing
+        // they do not know, and reversing it is exactly what it exists to
+        // prevent.
+        consentEvidenceHeld: settings.consentIpHash !== null,
+        consentUserAgent: settings.consentUserAgent,
+        enabledAt: iso(settings.enabledAt),
+        pausedAt: iso(settings.pausedAt),
+      };
+    })(),
   });
 }
 

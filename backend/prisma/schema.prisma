@@ -1107,6 +1107,12 @@ model CustomerProfile {
 
   paymentMethods CustomerPaymentMethod[]
 
+  /// Their authority to be charged while nobody is watching. Self-service, and
+  /// necessarily so: nobody can consent on somebody else's behalf to money
+  /// leaving their account. The ERP itself is the business's, not theirs - see
+  /// the ERP CONNECTIVITY block at the end of this file.
+  autoPaySetting CustomerAutoPaySetting?
+
   couponRedemptions CouponRedemption[]
   limits            CustomerLimit[]
 
@@ -2238,6 +2244,12 @@ model CustomerPaymentMethod {
 
   schedules RecurringSchedule[]
 
+  /// The auto-pay settings pointing at this instrument, if any. `SetNull` on
+  /// the other side: removing a card must leave auto-pay without an instrument
+  /// - which `assertAutoPayChargeable` then refuses - rather than deleting the
+  /// customer's limits and preferences along with it.
+  autoPaySettings CustomerAutoPaySetting[]
+
   /// One row per instrument. A repeated SetupIntent confirmation collides here
   /// rather than giving the customer the same card twice.
   @@unique([provider, providerPaymentMethodId], map: "uq_payment_method_provider_ref")
@@ -2262,9 +2274,19 @@ model ErpOrderPush {
   /// The occurrence that caused it, when a schedule did. NULL for an ordinary
   /// checkout pushed to the ERP.
   occurrenceId String? @unique(map: "uq_erp_push_occurrence") @db.Char(26)
-  /// The connector used. NULL once a connection is deleted; the ledger row
-  /// outlives the configuration that made it.
+  /// The legacy `integration_connections` row used, on an installation still
+  /// configured through `ERP_ORDER_CONNECTION_NAME`. NULL once a connection is
+  /// deleted; the ledger row outlives the configuration that made it.
   connectionId String? @db.Char(26)
+
+  /// The `erp_connections` row used - the one an administrator configured
+  /// under Settings -> ERP, which is the path every new installation takes.
+  ///
+  /// A second column rather than a reused one because the two point at two
+  /// different tables, and a row that cannot say which kind it holds is a row
+  /// nobody can safely join. At most one is set on any push; both NULL means no
+  /// ERP was configured at all.
+  erpConnectionId String? @db.Char(26)
 
   /// Sent to the ERP as its idempotency header, and unique here.
   ///
@@ -2301,6 +2323,7 @@ model ErpOrderPush {
   /// The retry sweep: due, not yet done.
   @@index([status, nextRetryAt], map: "ix_erp_push_retry")
   @@index([connectionId, createdAt], map: "ix_erp_push_connection_time")
+  @@index([erpConnectionId, createdAt], map: "ix_erp_push_erp_connection_time")
   @@map("erp_order_pushes")
 }
 
@@ -3905,4 +3928,632 @@ model ProductDeviceInfo {
   @@index([deviceClass], map: "ix_device_info_class")
   @@index([basicUdiDi], map: "ix_device_info_basic_udi")
   @@map("product_device_info")
+}
+
+// ===========================================================================
+// ERP CONNECTIVITY
+//
+// The business's own ERP, configured once by an administrator under
+// Settings -> ERP, and used for EVERY order.
+//
+// There is deliberately no per-customer connection here, and the reason is
+// worth stating because an earlier draft of this feature had one. A connection
+// is a URL plus a credential that this server then calls; letting a buyer
+// supply either makes a form field into a server-side request forgery
+// primitive, and makes "did this order reach the warehouse" depend on
+// something the buyer configured. `BusinessProfile` is a single-row table -
+// this deployment serves exactly one business - and its ERP is the same one
+// for every order it takes.
+//
+// What that buys, beyond the security: an order's fate no longer depends on
+// whether a particular customer set something up. Every order goes the same
+// way, so a failure is a failure of the installation rather than of one
+// buyer's configuration, and there is one place to look.
+//
+// Secrets are AES-256-GCM ciphertext bound by AAD to the row that holds them,
+// and no read path in the application decrypts them into a response.
+// `credentialHint` is what the screen shows instead.
+// ===========================================================================
+
+/// Where the ERP connection stands.
+///
+/// The order matters and the gaps matter. DRAFT -> TESTING -> CONNECTED is the
+/// setup path, and ACTIVE is reachable only from CONNECTED: a connection that
+/// has never answered a test cannot start carrying orders. See
+/// `erp-connection-state.ts`, which is the only thing allowed to move a row
+/// between these.
+enum ErpConnectionStatus {
+  /// Being filled in. No traffic, no jobs, not selectable by anything.
+  DRAFT
+  /// A test is in flight. Transient, and held in the row so a second test
+  /// started from another tab does not run concurrently with the first.
+  TESTING
+  /// The last test passed and the mapping validates. Ready to be switched on,
+  /// and deliberately NOT yet carrying orders - activation is a decision an
+  /// administrator makes, not a side effect of a test that happened to pass.
+  CONNECTED
+  /// Live. Orders push, inventory syncs, webhooks are accepted. At most one
+  /// connection is in this state at a time - see `uq_erp_connection_active`.
+  ACTIVE
+  /// Switched off deliberately, temporarily. Configuration is intact and
+  /// resuming needs no re-test. Inbound webhooks are refused while paused,
+  /// because accepting stock updates for a connection somebody deliberately
+  /// stopped is the opposite of what pausing means.
+  PAUSED
+  /// Repeated failures took it out of service. Distinct from PAUSED: nobody
+  /// chose this, and the row carries the reason. Recovered by a passing test.
+  ERROR
+  /// Switched off and kept for its history. Nothing runs; it is not deleted,
+  /// so the integration events that reference it still read back.
+  DISABLED
+}
+
+/// How the ERP authenticates callers.
+enum ErpAuthMethod {
+  /// A key in a header the ERP names, e.g. `X-API-Key`.
+  API_KEY
+  /// `Authorization: Bearer <token>`.
+  BEARER_TOKEN
+  /// `Authorization: Basic base64(user:pass)`.
+  BASIC
+  /// Client-credentials grant. The only method here that makes a call of its
+  /// own before the real one, and the only one whose secret has a lifetime -
+  /// see `oauthTokenEnc` and `oauthTokenExpiresAt`.
+  OAUTH2
+}
+
+/// Who wins when the ERP and this platform disagree about a stock figure.
+///
+/// A real question with no universally right answer, which is why it is a
+/// setting rather than a decision made here. A business whose ERP is the
+/// system of record wants ERP; one running this platform as the front of house
+/// for a warehouse managed here wants PLATFORM; one mid-migration wants to be
+/// asked.
+///
+/// **None of the three writes `inventory_balances`.** The synced figures land
+/// in `erp_inventory_snapshots` and the divergence is reported; moving the
+/// real stock ledger is done by a person through the Inventory screens, which
+/// record a reason and an actor. See that model's comment.
+enum ErpInventoryAuthority {
+  /// The ERP's figure is the one shown as authoritative in the snapshot.
+  ERP
+  /// This platform's figure stands. The ERP's is recorded beside it so the
+  /// divergence is visible rather than applied.
+  PLATFORM
+  /// Neither is preferred. Divergences are flagged for a person to resolve,
+  /// which is the only honest answer during a migration.
+  MANUAL
+}
+
+/// What started a sync.
+enum ErpSyncTrigger {
+  MANUAL
+  SCHEDULED
+  WEBHOOK
+  /// A retry of a run that failed. Kept apart from the trigger behind the
+  /// original so a retry storm is visible as one.
+  RETRY
+}
+
+enum ErpSyncRunStatus {
+  RUNNING
+  SUCCEEDED
+  /// Some records read, some not. The common outcome of a real feed, and the
+  /// reason a boolean would have been the wrong shape.
+  PARTIAL
+  FAILED
+  /// The ERP asked us to slow down and the run stopped early on purpose. Not a
+  /// failure: what was processed is applied, and the rest is taken next pass.
+  RATE_LIMITED
+}
+
+/// Every kind of thing the integration ledger records.
+enum IntegrationEventType {
+  CONNECTION_TEST
+  DRY_RUN
+  ORDER_PUSH
+  INVENTORY_SYNC
+  INVENTORY_WEBHOOK
+  ORDER_STATUS_POLL
+  AUTOPAY_CHARGE
+}
+
+enum IntegrationEventStatus {
+  PENDING
+  IN_PROGRESS
+  SUCCEEDED
+  /// Failed for a reason that may pass. `nextRetryAt` is set.
+  RETRY_SCHEDULED
+  /// Failed for a reason that will not pass on its own - a 400, a mapping the
+  /// ERP rejects, a credential it refuses. Never retried automatically; it is
+  /// shown to an administrator, who may retry it once the cause is fixed.
+  FAILED
+  /// Retries exhausted. A person has to look.
+  ABANDONED
+}
+
+/// Whether a customer has authorised charges made without them present.
+enum AutoPayStatus {
+  /// The default, and what a customer who never opted in has. No stored
+  /// instrument is charged off-session while a row says this.
+  DISABLED
+  ACTIVE
+  /// Opted in, consent intact, temporarily stopped. Resuming does NOT ask for
+  /// consent again, because it was never withdrawn - which is exactly why pause
+  /// and disable are two different things.
+  PAUSED
+}
+
+/// What a customer wants done when an off-session charge fails.
+enum AutoPayRetryPreference {
+  /// Fail immediately and tell them. The choice of somebody who would rather
+  /// pay by hand than have a card retried behind their back.
+  NONE
+  /// One further attempt, a day later.
+  ONCE
+  /// The platform's own bounded schedule.
+  STANDARD
+}
+
+/// The business's connection to its ERP.
+///
+/// Several rows may exist - a sandbox and a live one is the ordinary case -
+/// but **at most one is ACTIVE**, and that one carries every order. The
+/// constraint is enforced in `activateConnection`; the schema cannot express
+/// "unique where status = ACTIVE" on MariaDB 10.4, which has no partial index.
+model ErpConnection {
+  id   String @id @db.Char(26)
+  name String @unique(map: "uq_erp_connection_name") @db.VarChar(128)
+
+  /// Scheme + host + optional port + optional base path. Validated on write by
+  /// `assertSafeErpUrl`, and again on every request: DNS moves, and a hostname
+  /// that resolved publicly at save time can resolve to 169.254.169.254 an hour
+  /// later. The guard is kept even though only an administrator types here -
+  /// it costs nothing and the alternative is trusting a text box for ever.
+  baseUrl String @db.VarChar(1024)
+
+  status          ErpConnectionStatus @default(DRAFT)
+  /// Why it is in ERROR, in words safe to show on screen. Never a provider
+  /// body, never a header.
+  statusReason    String?             @db.VarChar(512)
+  statusChangedAt DateTime            @default(now()) @db.DateTime(3)
+
+  // --- Endpoints -----------------------------------------------------------
+  //
+  // Paths relative to `baseUrl`, or absolute URLs on the same origin. A path
+  // pointing anywhere else is refused at save time.
+  productEndpoint     String? @db.VarChar(512)
+  inventoryEndpoint   String? @db.VarChar(512)
+  warehouseEndpoint   String? @db.VarChar(512)
+  orderCreateEndpoint String? @db.VarChar(512)
+  orderStatusEndpoint String? @db.VarChar(512)
+
+  /// HTTP method per endpoint, because ERPs disagree. Shape:
+  /// `{"product":"GET","inventory":"POST"}`. Validated against a closed set -
+  /// GET, POST, PUT, PATCH - on write.
+  methodsJson Json?
+
+  /// Extra headers every request carries: a tenant id, an API version. Header
+  /// NAMES and non-secret values only. A header carrying a secret belongs in
+  /// `credentialsEnc`, not in a column the API returns.
+  customHeadersJson Json?
+
+  /// Per-request ceiling. Bounded on write (1s - 60s): a ten-minute timeout
+  /// would hold a worker slot hostage.
+  timeoutMs Int @default(15000)
+
+  // --- Authentication ------------------------------------------------------
+  authMethod ErpAuthMethod @default(API_KEY)
+
+  /// AES-256-GCM over a JSON object whose keys depend on `authMethod`. Never
+  /// decrypted into any response, log line or error message. AAD binds it to
+  /// `erp_connection:<id>`, so the ciphertext is useless in another row.
+  credentialsEnc String? @db.Text
+
+  /// What the edit screen shows instead: `X-API-Key: sk_live...9f2a`. Derived
+  /// from the secret at save time, and safe to return.
+  credentialHint String? @db.VarChar(128)
+
+  /// --- OAuth 2.0 only ---
+  oauthTokenUrl       String?   @db.VarChar(1024)
+  oauthScope          String?   @db.VarChar(512)
+  /// The access token last obtained, encrypted like any other secret. Cached
+  /// rather than fetched per request: a client-credentials round trip before
+  /// every stock read would double both the traffic and the failure surface.
+  oauthTokenEnc       String?   @db.Text
+  oauthTokenExpiresAt DateTime? @db.DateTime(3)
+
+  // --- Inbound webhooks ----------------------------------------------------
+  //
+  // The ERP calls US. `webhookSecretEnc` is what proves it did: HMAC-SHA256
+  // over the raw bytes, compared in constant time. A connection with no secret
+  // accepts no webhooks - there is no "unsigned" mode, because an
+  // unauthenticated endpoint that rewrites stock is not a feature.
+  webhookEnabled         Boolean @default(false)
+  webhookSecretEnc       String? @db.Text
+  /// The header the ERP puts its signature in. Configurable, because every ERP
+  /// chose differently.
+  webhookSignatureHeader String  @default("X-UBOSS-Signature") @db.VarChar(64)
+  /// Public, unguessable path segment for this connection's webhook URL: 32
+  /// bytes of CSPRNG, base64url. Not a secret on its own - the signature is the
+  /// authentication - but it keeps the endpoint from being discoverable by
+  /// iterating ids.
+  webhookSlug            String  @unique(map: "uq_erp_webhook_slug") @db.VarChar(64)
+
+  // --- Polling fallback ----------------------------------------------------
+  //
+  // For an ERP with no outbound webhooks, which is most of them. Minutes rather
+  // than a cron expression: the question being answered is "how fresh does
+  // stock need to be", and every cron field beyond that is a way to get it
+  // wrong.
+  pollingEnabled         Boolean   @default(false)
+  pollingIntervalMinutes Int       @default(60)
+  lastPolledAt           DateTime? @db.DateTime(3)
+  nextPollAt             DateTime? @db.DateTime(3)
+
+  // --- Field mapping -------------------------------------------------------
+  //
+  // Dotted paths into the ERP's own JSON, keyed by the platform field they
+  // answer. Validated by `validateFieldMapping` before the connection may leave
+  // DRAFT, and re-validated against a real response during a dry run.
+  fieldMappingJson  Json?
+  /// Set once the mapping has been checked against a real response. Activation
+  /// requires it: a mapping that only validates structurally is a guess about
+  /// somebody else's JSON.
+  mappingVerifiedAt DateTime? @db.DateTime(3)
+
+  // --- Inventory policy ----------------------------------------------------
+  inventoryAuthority  ErpInventoryAuthority @default(ERP)
+  /// Allow a synced figure to be overridden by hand in the snapshot. Off by
+  /// default: with ERP as the authority a manual edit is replaced by the next
+  /// sync, and a control that undoes itself is worse than no control at all.
+  allowManualOverride Boolean               @default(false)
+
+  // --- Order push ----------------------------------------------------------
+  /// Whether orders are pushed at all. A business may connect an ERP purely for
+  /// stock and keep taking orders here.
+  orderPushEnabled  Boolean @default(true)
+  /// The header this ERP reads an idempotency key from.
+  idempotencyHeader String  @default("Idempotency-Key") @db.VarChar(64)
+
+  // --- Test and health -----------------------------------------------------
+  lastTestAt         DateTime? @db.DateTime(3)
+  lastTestOk         Boolean?
+  /// HTTP status and round-trip of the last test. Safe to show; neither is a
+  /// credential.
+  lastTestHttpStatus Int?
+  lastTestDurationMs Int?
+  lastTestMessage    String?   @db.VarChar(512)
+
+  consecutiveFailures Int       @default(0)
+  circuitOpenedAt     DateTime? @db.DateTime(3)
+
+  lastSyncSuccessAt DateTime? @db.DateTime(3)
+  lastSyncFailureAt DateTime? @db.DateTime(3)
+
+  /// Who set it up. Kept for the trail: these rows record somebody pointing
+  /// this server at an outbound address and giving it a credential.
+  createdById String?  @db.Char(26)
+  createdAt   DateTime @default(now()) @db.DateTime(3)
+  updatedAt   DateTime @updatedAt @db.DateTime(3)
+  /// Soft delete. A connection with integration events behind it is retired
+  /// rather than removed, so the ledger still explains what became of an order
+  /// that went through it.
+  deletedAt DateTime? @db.DateTime(3)
+
+  syncRuns          ErpInventorySyncRun[]
+  snapshots         ErpInventorySnapshot[]
+  integrationEvents IntegrationEvent[]
+  webhookReceipts   ErpWebhookReceipt[]
+
+  @@index([status], map: "ix_erp_connection_status")
+  /// The polling sweep: active, polling on, due.
+  @@index([status, pollingEnabled, nextPollAt], map: "ix_erp_connection_poll_due")
+  @@map("erp_connections")
+}
+
+/// One pass over the ERP's inventory feed, and what it did.
+model ErpInventorySyncRun {
+  id           String @id @db.Char(26)
+  connectionId String @db.Char(26)
+
+  trigger  ErpSyncTrigger
+  status   ErpSyncRunStatus @default(RUNNING)
+  /// A dry run reads, maps and reports, and writes no snapshot. The rehearsal
+  /// that lets somebody check a mapping without moving a number.
+  isDryRun Boolean          @default(false)
+
+  /// Shared with every log line, audit row and integration event this run
+  /// produces, so one incident reads back as one story.
+  correlationId String @db.Char(26)
+
+  startedAt  DateTime  @default(now()) @db.DateTime(3)
+  finishedAt DateTime? @db.DateTime(3)
+
+  processedCount Int @default(0)
+  appliedCount   Int @default(0)
+  skippedCount   Int @default(0)
+  failedCount    Int @default(0)
+  /// Records where the ERP and this platform disagreed. Counted apart from
+  /// failures: nothing went wrong, a difference was found.
+  conflictCount  Int @default(0)
+
+  /// Set when the ERP asked us to slow down. Rendered as "paused until", which
+  /// is the only part of a 429 anybody needs.
+  rateLimitedUntil DateTime? @db.DateTime(3)
+
+  errorCode    String? @db.VarChar(64)
+  errorMessage String? @db.VarChar(1024)
+
+  connection ErpConnection        @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  records    ErpSyncRecordError[]
+
+  @@index([connectionId, startedAt], map: "ix_erp_sync_connection_time")
+  @@index([status, startedAt], map: "ix_erp_sync_status_time")
+  @@map("erp_inventory_sync_runs")
+}
+
+/// One record a sync could not read, and why.
+///
+/// Capped per run by the service. A feed that fails wholesale should produce a
+/// run marked FAILED with one reason, not fifty thousand rows nobody reads.
+model ErpSyncRecordError {
+  id        String @id @db.Char(26)
+  syncRunId String @db.Char(26)
+
+  /// The SKU or external id the record claimed to be about, when it had one.
+  externalRef String? @db.VarChar(191)
+  field       String? @db.VarChar(128)
+  errorCode   String  @db.VarChar(64)
+  /// Already safe for display. Redaction happens before the write, not before
+  /// the read - a value reaching this column has been through
+  /// `safeErrorMessage`.
+  errorMessage String @db.VarChar(1024)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  syncRun ErpInventorySyncRun @relation(fields: [syncRunId], references: [id], onDelete: Cascade)
+
+  @@index([syncRunId], map: "ix_erp_sync_record_run")
+  @@map("erp_sync_record_errors")
+}
+
+/// What the ERP last said it holds, per SKU and warehouse.
+///
+/// **This is not `inventory_balances`, and the distinction is deliberate.**
+/// `inventory_balances` is derived from `inventory_movements`, which is an
+/// append-only ledger with an actor and a reason on every row - that is what
+/// makes "why did on-hand change" answerable. A feed that overwrote balances
+/// directly would move real stock with no movement behind it, and the first
+/// time a mapping was wrong it would do so silently and irreversibly.
+///
+/// So a sync writes HERE, and the two figures are shown side by side. Acting on
+/// a difference is a person's decision, taken through the Inventory screens,
+/// which record who did it and why.
+model ErpInventorySnapshot {
+  id           String @id @db.Char(26)
+  connectionId String @db.Char(26)
+
+  /// The SKU as the ERP spells it. Matched against this platform's catalogue
+  /// where it can be, and kept either way - an ERP holding stock of something
+  /// this business does not list is ordinary, not an error.
+  sku          String @db.VarChar(191)
+  /// This platform's inventory location code the ERP warehouse maps to, or ''
+  /// when the mapping names none.
+  ///
+  /// NOT NULL with a '' sentinel rather than a nullable column: a MySQL UNIQUE
+  /// index treats every NULL as distinct, so a nullable column inside the
+  /// composite unique below would let the same SKU be inserted without a
+  /// warehouse any number of times - turning every redelivered webhook into a
+  /// duplicate row.
+  warehouseKey String @db.VarChar(64)
+
+  /// Resolved from `sku` at sync time, and null when nothing here matches. Kept
+  /// as a link rather than looked up on read so the join is done once per sync
+  /// instead of once per page view.
+  productId String? @db.Char(26)
+  variantId String? @db.Char(26)
+
+  availableQuantity Int     @default(0)
+  reservedQuantity  Int     @default(0)
+  unitOfMeasure     String? @db.VarChar(32)
+
+  /// What the ERP called it, for a screen that has to be recognisable to
+  /// somebody who works in that ERP all day.
+  erpProductId   String? @db.VarChar(191)
+  erpProductName String? @db.VarChar(255)
+
+  /// The ERP's own price, when the mapping supplies one. Minor units, like
+  /// every other amount in this schema, with its currency beside it - a bare
+  /// number is not a price.
+  priceMinor BigInt? @db.BigInt
+  currency   String? @db.Char(3)
+
+  /// What this platform's own balances said at the moment of the sync. Stored
+  /// so a divergence can be SHOWN rather than merely resolved: "your ERP says
+  /// 12, we hold 40" is the useful sentence, and it cannot be reconstructed
+  /// after the fact.
+  platformQuantityAtSync Int?
+
+  /// Set when the two disagreed. Cleared by the next sync that agrees.
+  conflictDetectedAt DateTime? @db.DateTime(3)
+
+  /// A figure a person typed, which survives the next sync.
+  ///
+  /// Only usable where the connection allows manual override. Without that flag
+  /// the next sync would replace it, and a control that silently undoes itself
+  /// is worse than no control.
+  manualQuantity    Int?
+  manualSetAt       DateTime? @db.DateTime(3)
+  manualSetByUserId String?   @db.Char(26)
+
+  lastSyncedAt  DateTime @default(now()) @db.DateTime(3)
+  lastSyncRunId String?  @db.Char(26)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  connection ErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  /// One row per SKU per warehouse per connection. This is what makes a sync an
+  /// upsert rather than an append, and what stops a redelivered webhook adding
+  /// a second row for stock that has not moved.
+  @@unique([connectionId, sku, warehouseKey], map: "uq_erp_snapshot_sku_warehouse")
+  @@index([sku], map: "ix_erp_snapshot_sku")
+  @@index([productId], map: "ix_erp_snapshot_product")
+  @@index([connectionId, conflictDetectedAt], map: "ix_erp_snapshot_conflicts")
+  @@map("erp_inventory_snapshots")
+}
+
+/// The integration ledger: one row per thing attempted against the ERP.
+///
+/// This is what the Activity screen reads, what a retry consults, and what
+/// answers "why has this order not reached the warehouse". It holds the
+/// correlation id and the idempotency key precisely so those questions have one
+/// answer each rather than a reconstruction.
+///
+/// `idempotencyKey` is unique where present. That is the structural reason a
+/// duplicate webhook or a re-run job cannot produce a second ERP order: the
+/// insert collides, instead of the code being careful.
+model IntegrationEvent {
+  id String @id @db.Char(26)
+  /// Nullable so the row outlives a deleted connection.
+  connectionId String? @db.Char(26)
+
+  eventType IntegrationEventType
+  status    IntegrationEventStatus @default(PENDING)
+
+  /// The platform's order, when this event is about one.
+  orderId           String? @db.Char(26)
+  /// What the ERP called it back.
+  erpOrderReference String? @db.VarChar(191)
+
+  correlationId  String  @db.Char(26)
+  /// Stable across every attempt at the same logical operation. NULL for events
+  /// that are not operations against the ERP's state - a connection test, say,
+  /// which may be run as often as anybody likes.
+  idempotencyKey String? @unique(map: "uq_integration_event_idempotency") @db.VarChar(191)
+
+  attemptCount  Int       @default(0)
+  lastAttemptAt DateTime? @db.DateTime(3)
+  nextRetryAt   DateTime? @db.DateTime(3)
+
+  httpStatus Int?
+  durationMs Int?
+
+  errorCode    String? @db.VarChar(64)
+  /// Safe to read: no credential, no Authorization header, no verbatim provider
+  /// body. `safeErrorMessage` is the only thing that writes here.
+  errorMessage String? @db.VarChar(1024)
+  /// The provider's answer with credentials stripped and size capped. Kept
+  /// because a disagreement about an order is settled by what was actually
+  /// exchanged, and reconstructed evidence is not evidence.
+  responseJson Json?
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  connection ErpConnection? @relation(fields: [connectionId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt], map: "ix_integration_event_time")
+  @@index([eventType, status], map: "ix_integration_event_kind")
+  @@index([orderId], map: "ix_integration_event_order")
+  /// The retry sweep.
+  @@index([status, nextRetryAt], map: "ix_integration_event_retry")
+  @@map("integration_events")
+}
+
+/// An inbound webhook we have already seen.
+///
+/// The duplicate guard for stock updates. An ERP that retries - and they all
+/// retry - must not apply the same movement twice, and the honest place to stop
+/// that is at the door, keyed on whatever identifier the ERP sends.
+///
+/// When an ERP sends no event id the service hashes the raw body and uses that.
+/// Two genuinely identical bodies inside the dedupe window are indistinguishable
+/// from a redelivery, and for a full-quantity stock snapshot treating them as
+/// one is the safe direction to be wrong in.
+model ErpWebhookReceipt {
+  id           String @id @db.Char(26)
+  connectionId String @db.Char(26)
+
+  /// The ERP's event id, or `sha256:<hex>` of the raw body when it sent none.
+  externalEventId String @db.VarChar(191)
+
+  receivedAt  DateTime  @default(now()) @db.DateTime(3)
+  processedAt DateTime? @db.DateTime(3)
+  /// Null until processed. Set to the run that applied it, so a redelivery can
+  /// answer "already applied, in run X" rather than merely "seen before".
+  syncRunId   String?   @db.Char(26)
+
+  connection ErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@unique([connectionId, externalEventId], map: "uq_erp_webhook_receipt")
+  @@index([receivedAt], map: "ix_erp_webhook_time")
+  @@map("erp_webhook_receipts")
+}
+
+/// One customer's authority to be charged without being present.
+///
+/// The one thing in this block that is genuinely the CUSTOMER's rather than the
+/// business's, and it has to be: an administrator cannot consent on somebody
+/// else's behalf to money leaving their account. That is not a design
+/// preference, it is what makes the charge lawful.
+///
+/// Separate from `customer_payment_methods` because the two answer different
+/// questions. That table says "this instrument exists and may be used"; this one
+/// says "and the account holder has asked us to use it, up to this much, under
+/// these rules". A saved card is not consent to charge it.
+///
+/// A row with `status = DISABLED` is, for charging purposes, the same as no row
+/// at all. It still exists so a customer's limits and preferences survive a
+/// disable/enable cycle.
+model CustomerAutoPaySetting {
+  id                String @id @db.Char(26)
+  customerProfileId String @unique(map: "uq_autopay_customer") @db.Char(26)
+
+  status AutoPayStatus @default(DISABLED)
+
+  /// The instrument to charge. Nullable in the schema and enforced in the
+  /// service: enabling with no usable instrument is refused rather than stored.
+  paymentMethodId String? @db.Char(26)
+
+  /// The most this may charge in one transaction, in minor units of
+  /// `limitCurrency`. NULL means the customer set no ceiling of their own; the
+  /// platform's own limits still apply either way.
+  maxTransactionMinor    BigInt? @db.BigInt
+  /// Above this, nothing is charged automatically - the customer is asked
+  /// first. NULL means never ask. Held apart from the maximum because they are
+  /// different instructions: one refuses, the other defers.
+  approvalThresholdMinor BigInt? @db.BigInt
+  /// The currency both amounts are in, required whenever either is set. A bare
+  /// number is not a limit, and comparing 5000 JPY against a EUR total is the
+  /// kind of bug that charges somebody eighty times what they agreed to.
+  limitCurrency          String? @db.Char(3)
+
+  retryPreference AutoPayRetryPreference @default(STANDARD)
+
+  notifyOnCharge  Boolean @default(true)
+  notifyOnFailure Boolean @default(true)
+
+  /// --- Consent. The same evidence shape as CustomerPaymentMethod. ---
+  consentAcceptedAt  DateTime? @db.DateTime(3)
+  consentVersion     String?   @db.VarChar(32)
+  consentIpHash      String?   @db.VarChar(64)
+  consentUserAgent   String?   @db.VarChar(256)
+  /// When consent was taken back. Set on disable, cleared on a fresh opt-in.
+  consentWithdrawnAt DateTime? @db.DateTime(3)
+
+  enabledAt DateTime? @db.DateTime(3)
+  pausedAt  DateTime? @db.DateTime(3)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  customerProfile CustomerProfile        @relation(fields: [customerProfileId], references: [id], onDelete: Cascade)
+  paymentMethod   CustomerPaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
+
+  @@index([status], map: "ix_autopay_status")
+  @@index([paymentMethodId], map: "ix_autopay_payment_method")
+  @@map("customer_autopay_settings")
 }

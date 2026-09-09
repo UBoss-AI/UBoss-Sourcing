@@ -1326,6 +1326,159 @@ export type EnumDeviceClassWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumDeviceClassFilter<$PrismaModel>
 }
 
+export type EnumErpConnectionStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpConnectionStatus | Prisma.EnumErpConnectionStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpConnectionStatus[]
+  notIn?: $Enums.ErpConnectionStatus[]
+  not?: Prisma.NestedEnumErpConnectionStatusFilter<$PrismaModel> | $Enums.ErpConnectionStatus
+}
+
+export type EnumErpAuthMethodFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpAuthMethod | Prisma.EnumErpAuthMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpAuthMethod[]
+  notIn?: $Enums.ErpAuthMethod[]
+  not?: Prisma.NestedEnumErpAuthMethodFilter<$PrismaModel> | $Enums.ErpAuthMethod
+}
+
+export type EnumErpInventoryAuthorityFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpInventoryAuthority | Prisma.EnumErpInventoryAuthorityFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpInventoryAuthority[]
+  notIn?: $Enums.ErpInventoryAuthority[]
+  not?: Prisma.NestedEnumErpInventoryAuthorityFilter<$PrismaModel> | $Enums.ErpInventoryAuthority
+}
+
+export type EnumErpConnectionStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpConnectionStatus | Prisma.EnumErpConnectionStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpConnectionStatus[]
+  notIn?: $Enums.ErpConnectionStatus[]
+  not?: Prisma.NestedEnumErpConnectionStatusWithAggregatesFilter<$PrismaModel> | $Enums.ErpConnectionStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumErpConnectionStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumErpConnectionStatusFilter<$PrismaModel>
+}
+
+export type EnumErpAuthMethodWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpAuthMethod | Prisma.EnumErpAuthMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpAuthMethod[]
+  notIn?: $Enums.ErpAuthMethod[]
+  not?: Prisma.NestedEnumErpAuthMethodWithAggregatesFilter<$PrismaModel> | $Enums.ErpAuthMethod
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumErpAuthMethodFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumErpAuthMethodFilter<$PrismaModel>
+}
+
+export type EnumErpInventoryAuthorityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpInventoryAuthority | Prisma.EnumErpInventoryAuthorityFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpInventoryAuthority[]
+  notIn?: $Enums.ErpInventoryAuthority[]
+  not?: Prisma.NestedEnumErpInventoryAuthorityWithAggregatesFilter<$PrismaModel> | $Enums.ErpInventoryAuthority
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumErpInventoryAuthorityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumErpInventoryAuthorityFilter<$PrismaModel>
+}
+
+export type EnumErpSyncTriggerFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpSyncTrigger | Prisma.EnumErpSyncTriggerFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpSyncTrigger[]
+  notIn?: $Enums.ErpSyncTrigger[]
+  not?: Prisma.NestedEnumErpSyncTriggerFilter<$PrismaModel> | $Enums.ErpSyncTrigger
+}
+
+export type EnumErpSyncRunStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpSyncRunStatus | Prisma.EnumErpSyncRunStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpSyncRunStatus[]
+  notIn?: $Enums.ErpSyncRunStatus[]
+  not?: Prisma.NestedEnumErpSyncRunStatusFilter<$PrismaModel> | $Enums.ErpSyncRunStatus
+}
+
+export type EnumErpSyncTriggerWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpSyncTrigger | Prisma.EnumErpSyncTriggerFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpSyncTrigger[]
+  notIn?: $Enums.ErpSyncTrigger[]
+  not?: Prisma.NestedEnumErpSyncTriggerWithAggregatesFilter<$PrismaModel> | $Enums.ErpSyncTrigger
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumErpSyncTriggerFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumErpSyncTriggerFilter<$PrismaModel>
+}
+
+export type EnumErpSyncRunStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpSyncRunStatus | Prisma.EnumErpSyncRunStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpSyncRunStatus[]
+  notIn?: $Enums.ErpSyncRunStatus[]
+  not?: Prisma.NestedEnumErpSyncRunStatusWithAggregatesFilter<$PrismaModel> | $Enums.ErpSyncRunStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumErpSyncRunStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumErpSyncRunStatusFilter<$PrismaModel>
+}
+
+export type EnumIntegrationEventTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.IntegrationEventType | Prisma.EnumIntegrationEventTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.IntegrationEventType[]
+  notIn?: $Enums.IntegrationEventType[]
+  not?: Prisma.NestedEnumIntegrationEventTypeFilter<$PrismaModel> | $Enums.IntegrationEventType
+}
+
+export type EnumIntegrationEventStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.IntegrationEventStatus | Prisma.EnumIntegrationEventStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.IntegrationEventStatus[]
+  notIn?: $Enums.IntegrationEventStatus[]
+  not?: Prisma.NestedEnumIntegrationEventStatusFilter<$PrismaModel> | $Enums.IntegrationEventStatus
+}
+
+export type EnumIntegrationEventTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.IntegrationEventType | Prisma.EnumIntegrationEventTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.IntegrationEventType[]
+  notIn?: $Enums.IntegrationEventType[]
+  not?: Prisma.NestedEnumIntegrationEventTypeWithAggregatesFilter<$PrismaModel> | $Enums.IntegrationEventType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumIntegrationEventTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumIntegrationEventTypeFilter<$PrismaModel>
+}
+
+export type EnumIntegrationEventStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.IntegrationEventStatus | Prisma.EnumIntegrationEventStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.IntegrationEventStatus[]
+  notIn?: $Enums.IntegrationEventStatus[]
+  not?: Prisma.NestedEnumIntegrationEventStatusWithAggregatesFilter<$PrismaModel> | $Enums.IntegrationEventStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumIntegrationEventStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumIntegrationEventStatusFilter<$PrismaModel>
+}
+
+export type EnumAutoPayStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.AutoPayStatus | Prisma.EnumAutoPayStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AutoPayStatus[]
+  notIn?: $Enums.AutoPayStatus[]
+  not?: Prisma.NestedEnumAutoPayStatusFilter<$PrismaModel> | $Enums.AutoPayStatus
+}
+
+export type EnumAutoPayRetryPreferenceFilter<$PrismaModel = never> = {
+  equals?: $Enums.AutoPayRetryPreference | Prisma.EnumAutoPayRetryPreferenceFieldRefInput<$PrismaModel>
+  in?: $Enums.AutoPayRetryPreference[]
+  notIn?: $Enums.AutoPayRetryPreference[]
+  not?: Prisma.NestedEnumAutoPayRetryPreferenceFilter<$PrismaModel> | $Enums.AutoPayRetryPreference
+}
+
+export type EnumAutoPayStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AutoPayStatus | Prisma.EnumAutoPayStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AutoPayStatus[]
+  notIn?: $Enums.AutoPayStatus[]
+  not?: Prisma.NestedEnumAutoPayStatusWithAggregatesFilter<$PrismaModel> | $Enums.AutoPayStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAutoPayStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAutoPayStatusFilter<$PrismaModel>
+}
+
+export type EnumAutoPayRetryPreferenceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AutoPayRetryPreference | Prisma.EnumAutoPayRetryPreferenceFieldRefInput<$PrismaModel>
+  in?: $Enums.AutoPayRetryPreference[]
+  notIn?: $Enums.AutoPayRetryPreference[]
+  not?: Prisma.NestedEnumAutoPayRetryPreferenceWithAggregatesFilter<$PrismaModel> | $Enums.AutoPayRetryPreference
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAutoPayRetryPreferenceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAutoPayRetryPreferenceFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[]
@@ -2599,6 +2752,159 @@ export type NestedEnumDeviceClassWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumDeviceClassFilter<$PrismaModel>
   _max?: Prisma.NestedEnumDeviceClassFilter<$PrismaModel>
+}
+
+export type NestedEnumErpConnectionStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpConnectionStatus | Prisma.EnumErpConnectionStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpConnectionStatus[]
+  notIn?: $Enums.ErpConnectionStatus[]
+  not?: Prisma.NestedEnumErpConnectionStatusFilter<$PrismaModel> | $Enums.ErpConnectionStatus
+}
+
+export type NestedEnumErpAuthMethodFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpAuthMethod | Prisma.EnumErpAuthMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpAuthMethod[]
+  notIn?: $Enums.ErpAuthMethod[]
+  not?: Prisma.NestedEnumErpAuthMethodFilter<$PrismaModel> | $Enums.ErpAuthMethod
+}
+
+export type NestedEnumErpInventoryAuthorityFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpInventoryAuthority | Prisma.EnumErpInventoryAuthorityFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpInventoryAuthority[]
+  notIn?: $Enums.ErpInventoryAuthority[]
+  not?: Prisma.NestedEnumErpInventoryAuthorityFilter<$PrismaModel> | $Enums.ErpInventoryAuthority
+}
+
+export type NestedEnumErpConnectionStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpConnectionStatus | Prisma.EnumErpConnectionStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpConnectionStatus[]
+  notIn?: $Enums.ErpConnectionStatus[]
+  not?: Prisma.NestedEnumErpConnectionStatusWithAggregatesFilter<$PrismaModel> | $Enums.ErpConnectionStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumErpConnectionStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumErpConnectionStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumErpAuthMethodWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpAuthMethod | Prisma.EnumErpAuthMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpAuthMethod[]
+  notIn?: $Enums.ErpAuthMethod[]
+  not?: Prisma.NestedEnumErpAuthMethodWithAggregatesFilter<$PrismaModel> | $Enums.ErpAuthMethod
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumErpAuthMethodFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumErpAuthMethodFilter<$PrismaModel>
+}
+
+export type NestedEnumErpInventoryAuthorityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpInventoryAuthority | Prisma.EnumErpInventoryAuthorityFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpInventoryAuthority[]
+  notIn?: $Enums.ErpInventoryAuthority[]
+  not?: Prisma.NestedEnumErpInventoryAuthorityWithAggregatesFilter<$PrismaModel> | $Enums.ErpInventoryAuthority
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumErpInventoryAuthorityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumErpInventoryAuthorityFilter<$PrismaModel>
+}
+
+export type NestedEnumErpSyncTriggerFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpSyncTrigger | Prisma.EnumErpSyncTriggerFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpSyncTrigger[]
+  notIn?: $Enums.ErpSyncTrigger[]
+  not?: Prisma.NestedEnumErpSyncTriggerFilter<$PrismaModel> | $Enums.ErpSyncTrigger
+}
+
+export type NestedEnumErpSyncRunStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpSyncRunStatus | Prisma.EnumErpSyncRunStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpSyncRunStatus[]
+  notIn?: $Enums.ErpSyncRunStatus[]
+  not?: Prisma.NestedEnumErpSyncRunStatusFilter<$PrismaModel> | $Enums.ErpSyncRunStatus
+}
+
+export type NestedEnumErpSyncTriggerWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpSyncTrigger | Prisma.EnumErpSyncTriggerFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpSyncTrigger[]
+  notIn?: $Enums.ErpSyncTrigger[]
+  not?: Prisma.NestedEnumErpSyncTriggerWithAggregatesFilter<$PrismaModel> | $Enums.ErpSyncTrigger
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumErpSyncTriggerFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumErpSyncTriggerFilter<$PrismaModel>
+}
+
+export type NestedEnumErpSyncRunStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ErpSyncRunStatus | Prisma.EnumErpSyncRunStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ErpSyncRunStatus[]
+  notIn?: $Enums.ErpSyncRunStatus[]
+  not?: Prisma.NestedEnumErpSyncRunStatusWithAggregatesFilter<$PrismaModel> | $Enums.ErpSyncRunStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumErpSyncRunStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumErpSyncRunStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumIntegrationEventTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.IntegrationEventType | Prisma.EnumIntegrationEventTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.IntegrationEventType[]
+  notIn?: $Enums.IntegrationEventType[]
+  not?: Prisma.NestedEnumIntegrationEventTypeFilter<$PrismaModel> | $Enums.IntegrationEventType
+}
+
+export type NestedEnumIntegrationEventStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.IntegrationEventStatus | Prisma.EnumIntegrationEventStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.IntegrationEventStatus[]
+  notIn?: $Enums.IntegrationEventStatus[]
+  not?: Prisma.NestedEnumIntegrationEventStatusFilter<$PrismaModel> | $Enums.IntegrationEventStatus
+}
+
+export type NestedEnumIntegrationEventTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.IntegrationEventType | Prisma.EnumIntegrationEventTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.IntegrationEventType[]
+  notIn?: $Enums.IntegrationEventType[]
+  not?: Prisma.NestedEnumIntegrationEventTypeWithAggregatesFilter<$PrismaModel> | $Enums.IntegrationEventType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumIntegrationEventTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumIntegrationEventTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumIntegrationEventStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.IntegrationEventStatus | Prisma.EnumIntegrationEventStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.IntegrationEventStatus[]
+  notIn?: $Enums.IntegrationEventStatus[]
+  not?: Prisma.NestedEnumIntegrationEventStatusWithAggregatesFilter<$PrismaModel> | $Enums.IntegrationEventStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumIntegrationEventStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumIntegrationEventStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumAutoPayStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.AutoPayStatus | Prisma.EnumAutoPayStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AutoPayStatus[]
+  notIn?: $Enums.AutoPayStatus[]
+  not?: Prisma.NestedEnumAutoPayStatusFilter<$PrismaModel> | $Enums.AutoPayStatus
+}
+
+export type NestedEnumAutoPayRetryPreferenceFilter<$PrismaModel = never> = {
+  equals?: $Enums.AutoPayRetryPreference | Prisma.EnumAutoPayRetryPreferenceFieldRefInput<$PrismaModel>
+  in?: $Enums.AutoPayRetryPreference[]
+  notIn?: $Enums.AutoPayRetryPreference[]
+  not?: Prisma.NestedEnumAutoPayRetryPreferenceFilter<$PrismaModel> | $Enums.AutoPayRetryPreference
+}
+
+export type NestedEnumAutoPayStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AutoPayStatus | Prisma.EnumAutoPayStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AutoPayStatus[]
+  notIn?: $Enums.AutoPayStatus[]
+  not?: Prisma.NestedEnumAutoPayStatusWithAggregatesFilter<$PrismaModel> | $Enums.AutoPayStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAutoPayStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAutoPayStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumAutoPayRetryPreferenceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AutoPayRetryPreference | Prisma.EnumAutoPayRetryPreferenceFieldRefInput<$PrismaModel>
+  in?: $Enums.AutoPayRetryPreference[]
+  notIn?: $Enums.AutoPayRetryPreference[]
+  not?: Prisma.NestedEnumAutoPayRetryPreferenceWithAggregatesFilter<$PrismaModel> | $Enums.AutoPayRetryPreference
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAutoPayRetryPreferenceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAutoPayRetryPreferenceFilter<$PrismaModel>
 }
 
 

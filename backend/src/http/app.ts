@@ -50,6 +50,9 @@ import { registerAdminInventoryRoutes } from './routes/inventory.admin.js';
 import { registerAdminSettingsRoutes } from './routes/settings.admin.js';
 import { registerAdminOrderRoutes, registerCustomerOrderRoutes } from './routes/orders.js';
 import { registerCustomerPaymentMethodRoutes } from './routes/payment-methods.customer.js';
+import { registerCustomerAutoPayRoutes } from './routes/autopay.customer.js';
+import { registerAdminErpRoutes } from './routes/erp.admin.js';
+import { registerErpWebhookRoutes } from './routes/erp-webhooks.js';
 import { registerAdminPaymentRoutes, registerPaymentRoutes } from './routes/payments.js';
 import { registerAdminNotificationRoutes } from './routes/notifications.admin.js';
 import { registerAdminReportRoutes, registerExportDownloadRoute } from './routes/reports.admin.js';
@@ -74,7 +77,14 @@ export const API_PREFIX = '/api/v1';
  * and every signature fails, or worse, someone "fixes" it by skipping
  * verification.
  */
-const RAW_BODY_ROUTES = [`${API_PREFIX}/payments/webhooks/`];
+const RAW_BODY_ROUTES = [
+  `${API_PREFIX}/payments/webhooks/`,
+  // A customer's ERP signs the exact bytes it sent, so the exact bytes are what
+  // `verifyWebhookSignature` is given. Verifying a re-serialised object fails
+  // for every honest sender - key order and whitespace change on a JSON round
+  // trip - and the usual "fix" for that is to stop verifying.
+  `${API_PREFIX}/integrations/erp/webhooks/`,
+];
 
 function shouldCaptureRawBody(url: string): boolean {
   return RAW_BODY_ROUTES.some((prefix) => url.startsWith(prefix));
@@ -389,6 +399,29 @@ export async function buildApp() {
   // storefront's own screens for them live.
   await app.register(registerCustomerPaymentMethodRoutes, {
     prefix: `${API_PREFIX}/account/payment-methods`,
+  });
+
+  // The customer's standing authority to be charged. Under /account for the
+  // same reason as saved cards: it belongs to the buyer, and nobody can consent
+  // on their behalf. The ERP it pays for is the business's - see below.
+  await app.register(registerCustomerAutoPayRoutes, {
+    prefix: `${API_PREFIX}/account/autopay`,
+  });
+
+  // Settings -> ERP. Administrator only, behind integration.read/write, which
+  // only the Business Owner role holds. There is deliberately no customer
+  // counterpart: a connection is a URL plus a credential this server then
+  // calls, so creating one is limited to people already trusted with the
+  // installation.
+  await app.register(registerAdminErpRoutes, { prefix: `${API_PREFIX}/admin` });
+
+  // Where the ERP pushes stock TO US. Unauthenticated by necessity - the caller
+  // is a machine with no session - and authenticated in substance by an HMAC
+  // over the raw body plus an unguessable per-connection path. Mounted outside
+  // /admin for that reason: nothing here may sit behind the session guard, and
+  // mixing it in with routes that do is how one eventually loses it.
+  await app.register(registerErpWebhookRoutes, {
+    prefix: `${API_PREFIX}/integrations`,
   });
 
   await app.register(registerCustomerScheduleRoutes, {

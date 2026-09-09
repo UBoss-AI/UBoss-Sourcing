@@ -179,6 +179,29 @@ async function maintenance(): Promise<void> {
     // `nextRetryAt`, so a pass with nothing due is one indexed query.
     await queue.enqueue(JobType.ERP_ORDER_RETRY, {}, { dedupeKey: `erp_order_retry:${slot}` });
 
+    // The same beat, for the configured connection. Every row it touches is an
+    // order somebody has paid for that the warehouse system cannot yet see, and
+    // each carries its own `nextRetryAt` - so a pass with nothing due is one
+    // indexed query.
+    await queue.enqueue(
+      JobType.ERP_PUSH_RETRY,
+      {},
+      { dedupeKey: `erp_push_retry:${slot}` },
+    );
+
+    // Stock from the ERP, where it has no webhooks to push with.
+    // Each connection holds its own interval and next-due time, so this is one
+    // query when nothing is ready. A no-op while the feature is switched off.
+    await queue.enqueue(JobType.ERP_INVENTORY_POLL, {}, { dedupeKey: `erp_inventory_poll:${slot}` });
+
+    // Everything else in the integration ledger that failed in a way worth
+    // another go.
+    await queue.enqueue(
+      JobType.INTEGRATION_EVENT_RETRY,
+      {},
+      { dedupeKey: `integration_event_retry:${slot}` },
+    );
+
     // Cycles that failed before any money moved. Each carries its own retry
     // time, so this is also one query when nothing is waiting.
     await queue.enqueue(

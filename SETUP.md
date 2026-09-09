@@ -121,6 +121,54 @@ worth knowing about now, because they change what you see later:
 | `MAP_TILE_URL` | *(empty)* | With this empty the admin panel's Warehouses map plots its markers on a plain ground, with no map behind them. That is a working state, and it is the private one — nothing is requested from a tile service until you set this. See below. |
 | `FEATURE_SUBSCRIPTION_AUTOPAY` | `false` | With this off, customers can still schedule an order for a future date and still subscribe — each delivery is paid through a link emailed to them. Turn it on to let them save a card that is charged automatically, which needs Stripe connected. Storefront screens for saving a card are refused entirely while it is off. |
 | `ERP_ORDER_CONNECTION_NAME` | *(empty)* | With this empty, no order is pushed to an ERP. That is a working state: orders are created, paid and fulfilled exactly as they are with one. Set it to the **name** of an integration connection you have created and activated in the admin panel. |
+| `FEATURE_ERP_INTEGRATION` | `false` | With this off, **Settings → ERP** says so and does nothing else: the routes refuse, no polling job runs and the inbound webhook endpoint answers 404. Turn it on to connect an ERP from a screen rather than from environment variables — see below. |
+| `FEATURE_CUSTOMER_AUTOPAY` | `false` | A customer's standing authority to be charged for scheduled deliveries, with their own per-transaction ceiling and approval threshold. Needs Stripe **and** `FEATURE_SUBSCRIPTION_AUTOPAY`, which is what lets them save a card in the first place; the backend refuses to start with one on and the other off. |
+
+### Connecting an ERP from a screen
+
+This is a different thing from `ERP_ORDER_CONNECTION_NAME` above, and the
+difference is where the configuration lives. That one is an ERP wired through
+environment variables: one address, fixed paths, set at deploy time.
+`FEATURE_ERP_INTEGRATION` lets a **Business Owner** connect one from
+**Settings → ERP** instead — the address, the credentials, the endpoints and the
+field mapping are all entered on a screen, tested there, and stored in the
+database.
+
+Both may exist. A paid order goes to the connection configured under Settings →
+ERP if one is active, and falls through to `ERP_ORDER_*` if none is.
+
+**It is administrator-only, on purpose.** A connection is a URL plus a credential
+this server then calls, so the people who can create one are the people already
+trusted with the installation. There is no customer-facing route to any of it.
+
+Nothing else needs configuring. Endpoints, authentication, field mapping and
+webhook secrets are all per-connection data entered on the screen. Four settings
+bound what can be asked for, and the defaults are sensible:
+
+| Setting | Default | What it bounds |
+|---|---|---|
+| `ERP_MAX_CONNECTIONS` | `5` | Connections that may exist. Only **one** may be active at a time; the rest are room for a sandbox and a migration. |
+| `ERP_MAX_SYNC_RECORDS` | `5000` | Records read from the ERP in a single sync. A longer feed is truncated with a warning on the run. |
+| `ERP_MAX_ATTEMPTS` | `6` | Attempts at one operation before it needs a person. Paid orders are exempt and use `ERP_ORDER_MAX_ATTEMPTS` instead. |
+| `ERP_FAILURE_THRESHOLD` | `5` | Consecutive failures before a connection is taken out of service and stops being polled. |
+
+**Testing against a mock ERP on your own machine.** The server refuses to call
+any address that resolves to a private or loopback network — that is what stops
+a form field being pointed at your cloud provider's metadata endpoint. For local
+development against a mock ERP on `localhost`, set:
+
+```
+ALLOW_PRIVATE_ERP_TARGETS=true
+```
+
+**This cannot be set in production.** `env.ts` refuses to start a process with
+`NODE_ENV=production` and this on, rather than warning about it, because there
+is no deployment where it is the intended behaviour.
+
+**The webhook URL.** Switching webhooks on shows an address to paste into the
+ERP, built from `API_PUBLIC_URL`. If that is wrong, the address shown is wrong —
+so set it before anyone configures a connection. Over a tunnel (Part 3), it has
+to be the tunnel's URL, or the ERP will be told to call `localhost`.
 
 Leaving `MAP_TILE_URL` empty is a deliberate default rather than something to
 tidy up. A tile request tells whoever serves it which part of the world is
