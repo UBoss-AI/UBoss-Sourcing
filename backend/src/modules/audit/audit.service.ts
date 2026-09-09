@@ -75,6 +75,12 @@ export const AuditAction = {
   /// question being buried under every receipt booked against it.
   INVENTORY_LOCATION_CREATED: 'inventory_location.created',
   INVENTORY_LOCATION_UPDATED: 'inventory_location.updated',
+  /// A warehouse row was deleted outright. Only possible while nothing had
+  /// ever been booked against it, which is exactly why this entry matters: it
+  /// is the only remaining trace that the place existed, so it carries the
+  /// whole record in `before` rather than an id somebody can no longer look
+  /// up.
+  INVENTORY_LOCATION_DELETED: 'inventory_location.deleted',
   /// A connector reported where a warehouse stands with the ERP. Its own
   /// action rather than an `updated`, because these rows are written by
   /// machinery on a schedule and would otherwise bury the handful of entries

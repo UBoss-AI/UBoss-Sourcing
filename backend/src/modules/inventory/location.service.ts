@@ -9,11 +9,17 @@
  *
  * Four rules shape everything below.
  *
- *   - **A warehouse is never deleted.** Movements point at it with
- *     `onDelete: Restrict`, and rightly: deleting the place would orphan the
- *     ledger that explains where stock went. Retiring one sets `isActive`
- *     false, which takes it out of the receipt and adjustment dialogs while
- *     leaving every historical movement readable.
+ *   - **A warehouse that has been used is never deleted, only retired.**
+ *     Movements point at it with `onDelete: Restrict`, and rightly: deleting
+ *     the place would orphan the ledger that explains where stock went.
+ *     Retiring one sets `isActive` false, which takes it out of the receipt
+ *     and adjustment dialogs while leaving every historical movement
+ *     readable. A warehouse nothing has ever been booked against is a
+ *     different thing - the duplicate created with a typo in its code, the
+ *     site that was planned and never opened - and `deleteWarehouse` removes
+ *     that row outright, because there is no ledger to orphan and archiving a
+ *     mistake forever only clutters the list somebody reads to find a real
+ *     one.
  *   - **There is always exactly one default, and it is always active.**
  *     `inventory.service.ts` resolves an unqualified receipt against
  *     `isDefault: true, isActive: true`, so a deployment with none has an
@@ -158,18 +164,80 @@ export interface MapTiles {
 }
 
 /**
- * The tile source, or null for "draw the markers on a plain grid".
+ * What the Warehouses screen should draw its warehouses on.
  *
- * Null is the default and a working state, not a misconfiguration. A tile
- * request tells whoever serves it which part of the world is being looked at,
- * and for this product that is where the buyer's warehouses are - not a fact
- * this software gets to disclose on their behalf until they ask it to.
+ * Three answers, and the panel has an implementation of each. A discriminated
+ * union rather than a bag of optional fields, because the browser has to pick
+ * one library and load it - `provider` is the thing it switches on, and a
+ * shape that let `GOOGLE` arrive with no key would put that decision back in
+ * the frontend.
+ *
+ * `NONE` is the default and a working state rather than a misconfiguration.
+ * Both of the other two tell somebody outside the building which part of the
+ * world is being looked at, and for this product that is where the buyer's
+ * warehouses are - not a fact this software gets to disclose on their behalf
+ * until they ask it to. With `NONE` the screen plots its markers on a plain
+ * grid, keeps its scale bar, and says in words that there is no background.
  */
-export function mapTiles(): MapTiles | null {
-  const urlTemplate = env.MAP_TILE_URL.trim();
-  if (urlTemplate.length === 0) return null;
+export type MapConfig =
+  | { provider: 'NONE' }
+  | { provider: 'RASTER'; tiles: MapTiles }
+  /**
+   * The key is here on purpose. The Maps JavaScript API has no server side:
+   * every deployment's key is public to anyone who opens the panel, and what
+   * stops it being spent elsewhere is the referrer restriction on the key
+   * itself. See MAP_GOOGLE_API_KEY in config/env.ts.
+   */
+  | { provider: 'GOOGLE'; apiKey: string; mapId: string };
 
-  return { urlTemplate, attribution: env.MAP_TILE_ATTRIBUTION.trim() };
+/**
+ * Which of the three, from settings.
+ *
+ * A pure function taking the four strings rather than reading `env` directly,
+ * so the precedence below can be tested without a process per case. `env` is
+ * parsed once at import and a test that wanted to try four combinations would
+ * otherwise need four child processes.
+ *
+ * **Google wins when both are configured.** Somebody who sets a Google key on
+ * an installation that has been running on OpenStreetMap tiles means to move
+ * to Google; making them also clear two other variables would give them a
+ * screen that ignored the thing they just set, with nothing on it saying why.
+ */
+export function resolveMapConfig(source: {
+  googleApiKey: string;
+  googleMapId: string;
+  tileUrl: string;
+  tileAttribution: string;
+}): MapConfig {
+  const apiKey = source.googleApiKey.trim();
+  const mapId = source.googleMapId.trim();
+
+  // Both, or neither. `env.ts` refuses to start a process with a key and no
+  // map ID, so reaching here with half a pair means this was called from
+  // somewhere else - and half a pair draws an unstyled map with no markers on
+  // it, which is worse than the plain grid.
+  if (apiKey.length > 0 && mapId.length > 0) {
+    return { provider: 'GOOGLE', apiKey, mapId };
+  }
+
+  const urlTemplate = source.tileUrl.trim();
+  if (urlTemplate.length > 0) {
+    return {
+      provider: 'RASTER',
+      tiles: { urlTemplate, attribution: source.tileAttribution.trim() },
+    };
+  }
+
+  return { provider: 'NONE' };
+}
+
+export function mapConfig(): MapConfig {
+  return resolveMapConfig({
+    googleApiKey: env.MAP_GOOGLE_API_KEY,
+    googleMapId: env.MAP_GOOGLE_MAP_ID,
+    tileUrl: env.MAP_TILE_URL,
+    tileAttribution: env.MAP_TILE_ATTRIBUTION,
+  });
 }
 
 // --- Reads -----------------------------------------------------------------
@@ -943,6 +1011,194 @@ export async function updateWarehouse(
   });
 
   return readBack(id);
+}
+
+/**
+ * What still points at this warehouse.
+ *
+ * Four tables reference `inventory_locations` with `onDelete: Restrict`:
+ * balances, movements, reservations and the scheduled orders that pin a plan
+ * to one warehouse. The guard below reads all four and names whichever is in
+ * the way, because "that cannot be deleted" with no reason attached is how
+ * somebody ends up opening the database to find out why.
+ *
+ * Counted rather than merely existence-checked, for the same reason the retire
+ * guard sums the stock: the number is most of the answer to "so what do I do
+ * about it".
+ *
+ * Reservations are counted in **every** status, not only ACTIVE. A RELEASED
+ * one is finished business and its row still holds the warehouse in place.
+ * Balances are counted without the tracked-and-unarchived product filter the
+ * roll-up uses, for the same reason - a balance against an archived product is
+ * still a row with a foreign key in it.
+ */
+interface WarehouseReferences {
+  balances: number;
+  heldQty: number;
+  movements: number;
+  reservations: number;
+  schedules: number;
+}
+
+async function referencesTo(id: string): Promise<WarehouseReferences> {
+  const [balances, movements, reservations, schedules] = await Promise.all([
+    prisma.inventoryBalance.aggregate({
+      where: { locationId: id },
+      _count: { _all: true },
+      _sum: { onHandQty: true, reservedQty: true },
+    }),
+    prisma.inventoryMovement.count({ where: { locationId: id } }),
+    prisma.stockReservation.count({ where: { locationId: id } }),
+    prisma.recurringSchedule.count({ where: { inventoryLocationId: id } }),
+  ]);
+
+  return {
+    balances: balances._count._all,
+    heldQty: (balances._sum.onHandQty ?? 0) + (balances._sum.reservedQty ?? 0),
+    movements,
+    reservations,
+    schedules,
+  };
+}
+
+/**
+ * May this warehouse's row actually go?
+ *
+ * Only while nothing has ever been booked against it. That is a narrower door
+ * than it sounds and it is the whole point of having one: the warehouse this
+ * removes is the duplicate created with a typo in its code, or the site that
+ * was planned and never opened. Neither should have to be archived forever
+ * where it clutters the list somebody reads to find a real one.
+ *
+ * The moment a movement exists the row stays and retiring is the answer. Not
+ * because deleting would be hard - `Restrict` refuses the write on its own -
+ * but because the ledger is the record of where stock went, and a movement
+ * whose warehouse cannot be named is a hole in it. So nothing here cascades
+ * and nothing here takes a force flag: a delete that could take history with
+ * it would be worth more to an attacker than every other write on this screen
+ * put together.
+ */
+async function assertDeletable(row: {
+  id: string;
+  name: string;
+  isDefault: boolean;
+}): Promise<void> {
+  // Checked first, because it is the one refusal with an obvious next step and
+  // because a deployment whose default has been deleted cannot book a receipt
+  // at all - `defaultLocationId` in inventory.service.ts would find nothing.
+  // The only warehouse is always the default, so this is also what stops the
+  // last one being deleted.
+  if (row.isDefault) {
+    throw conflict(
+      ErrorCode.LOCATION_STILL_IN_USE,
+      `${row.name} is the default warehouse. Make another one the default first.`,
+      [{ field: 'isDefault', code: 'IS_DEFAULT' }],
+    );
+  }
+
+  const references = await referencesTo(row.id);
+
+  if (references.movements > 0) {
+    throw conflict(
+      ErrorCode.LOCATION_HAS_HISTORY,
+      `${row.name} has ${String(references.movements)} stock movement(s) recorded against it, so the record has to stay - deleting it would leave the ledger unable to say where that stock went. Retire it instead: it stops being offered, and its history stays readable.`,
+      [{ field: 'id', code: 'HAS_MOVEMENTS', meta: { movements: references.movements } }],
+    );
+  }
+
+  if (references.balances > 0) {
+    throw conflict(
+      ErrorCode.LOCATION_HAS_HISTORY,
+      references.heldQty > 0
+        ? `${row.name} holds ${String(references.heldQty)} unit(s) of stock. Move or write it off, then retire the warehouse.`
+        : `${row.name} has ${String(references.balances)} stock record(s) against it. Retire it instead.`,
+      [
+        {
+          field: 'id',
+          code: 'HAS_BALANCES',
+          meta: { balances: references.balances, heldQty: references.heldQty },
+        },
+      ],
+    );
+  }
+
+  if (references.reservations > 0) {
+    throw conflict(
+      ErrorCode.LOCATION_HAS_HISTORY,
+      `${row.name} has ${String(references.reservations)} reservation(s) recorded against it, live or finished. Retire it instead.`,
+      [{ field: 'id', code: 'HAS_RESERVATIONS', meta: { reservations: references.reservations } }],
+    );
+  }
+
+  // A scheduled order naming this warehouse is the reference that bites
+  // hardest, because it is about the future rather than the past: a worker
+  // will price that basket weeks from now and charge a card for it, and it
+  // needs somewhere to take the stock from. Cancelled and finished plans keep
+  // their row too and are counted, because the foreign key does not care
+  // which.
+  if (references.schedules > 0) {
+    throw conflict(
+      ErrorCode.LOCATION_HAS_HISTORY,
+      `${row.name} is named on ${String(references.schedules)} scheduled order(s). Point those at another warehouse first, or retire this one.`,
+      [{ field: 'id', code: 'HAS_SCHEDULES', meta: { schedules: references.schedules } }],
+    );
+  }
+}
+
+/**
+ * Delete a warehouse that was never used.
+ *
+ * Answers 404 for a warehouse that is not there, which is also the answer to
+ * pressing delete twice - and the right one: the row is gone either way.
+ *
+ * The audit entry is written in the same transaction as the delete and carries
+ * the whole record rather than an id, because it is the only thing that will
+ * be left. There is no row to look up afterwards, and "who removed the
+ * warehouse called Pune North, and what was its code" is exactly the question
+ * somebody asks a week later. `audit_logs` has no foreign key to
+ * `inventory_locations`, so the entry outlives the row it describes.
+ */
+export async function deleteWarehouse(id: string, actor: LocationActor): Promise<void> {
+  const before = await prisma.inventoryLocation.findUnique({ where: { id } });
+  if (before === null) throw notFound('Warehouse');
+
+  await assertDeletable(before);
+
+  await prisma.$transaction(async (tx: PrismaTransaction) => {
+    await recordAudit(
+      {
+        action: AuditAction.INVENTORY_LOCATION_DELETED,
+        resourceType: 'inventory_location',
+        resourceId: id,
+        actorType: 'ADMIN',
+        actorUserId: actor.userId,
+        actorEmail: actor.email,
+        before: {
+          code: before.code,
+          name: before.name,
+          countryCode: before.countryCode,
+          timezone: before.timezone,
+          operationalStatus: before.operationalStatus,
+          erpExternalId: before.erpExternalId,
+          isDefault: before.isDefault,
+          isActive: before.isActive,
+          latitude: coordinate(before.latitude),
+          longitude: coordinate(before.longitude),
+          createdAt: before.createdAt.toISOString(),
+        },
+        ipAddress: actor.ipAddress ?? null,
+        correlationId: actor.correlationId ?? null,
+      },
+      tx,
+    );
+
+    // The delete sits inside the transaction, after the guard, so a movement
+    // written between the two takes the whole thing down rather than slipping
+    // past: `Restrict` is enforced by the database and it is the last word
+    // here, not `assertDeletable`. The guard exists to explain the refusal,
+    // not to be the refusal.
+    await tx.inventoryLocation.delete({ where: { id } });
+  });
 }
 
 // --- ERP synchronisation ---------------------------------------------------

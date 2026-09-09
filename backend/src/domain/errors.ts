@@ -94,6 +94,13 @@ export const ErrorCode = {
   /// offers, or leave the deployment with no default for the next receipt to
   /// land in. The message names which of the two it is and the count behind it.
   LOCATION_STILL_IN_USE: 'LOCATION_STILL_IN_USE',
+  /// The warehouse row itself cannot go, because history points at it: a stock
+  /// movement, a balance, a reservation or a scheduled order. A separate code
+  /// from the one above because the answer is a different one - that refusal
+  /// says "clear the stock, then retire it", this one says "retiring is the
+  /// only thing left". The message names what is in the way and how much of
+  /// it there is.
+  LOCATION_HAS_HISTORY: 'LOCATION_HAS_HISTORY',
 
   // --- Cart and purchasing limits ---
   CART_EMPTY: 'CART_EMPTY',

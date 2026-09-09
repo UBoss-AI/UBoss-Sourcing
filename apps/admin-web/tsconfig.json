@@ -5,7 +5,11 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
-    "types": ["vite/client", "node"],
+    // "google.maps" is the ambient namespace @types/google.maps declares. It
+    // has to be listed because this array is explicit: an unlisted @types
+    // package is simply not loaded, and every `google.maps.Map` in the
+    // warehouse map would be an error about a missing name.
+    "types": ["vite/client", "node", "google.maps"],
 
     "strict": true,
     "noUncheckedIndexedAccess": true,

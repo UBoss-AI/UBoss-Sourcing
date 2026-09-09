@@ -43,11 +43,15 @@ process.env.GEOCODE_REVERSE_URL = '';
 // endpoint answers `{ result: null }` and somebody types the coordinates.
 process.env.GEOCODE_FORWARD_URL = '';
 
-// No tiles either, and this one is about determinism rather than politeness. A
-// developer who has pointed MAP_TILE_URL at a tile server in their own .env
-// would otherwise see the warehouse tests disagree with CI about whether the
-// map has a tile source.
+// No map background of either kind, and this one is about determinism rather
+// than politeness. A developer who has pointed MAP_TILE_URL at a tile server -
+// or set a Google key - in their own .env would otherwise see the warehouse
+// tests disagree with CI about which provider the panel is configured for.
+// All three cleared, because Google wins over the tiles when both are set and
+// clearing only one of them would leave the outcome depending on the other.
 process.env.MAP_TILE_URL = '';
+process.env.MAP_GOOGLE_API_KEY = '';
+process.env.MAP_GOOGLE_MAP_ID = '';
 
 // No VIES either. Checking a VAT number reaches a member state's own register
 // through the Commission's service, which is slow, offline as often as not,

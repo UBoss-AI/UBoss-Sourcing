@@ -405,6 +405,48 @@ const envSchema = z
     // knows what their provider asks for, and this software cannot.
     MAP_TILE_ATTRIBUTION: z.string().default(''),
 
+    // Google Maps, as an alternative to the raster tiles above.
+    //
+    // Set a key here and the Warehouses screen draws a Google map instead of
+    // a tile layer: vector rendering, and whatever style the operator built in
+    // the Cloud console. **Google wins over MAP_TILE_URL when both are set**,
+    // and that precedence is the useful way round - an operator moving from
+    // OpenStreetMap to Google sets two variables and does not also have to
+    // remember to clear two others.
+    //
+    // Google's tiles cannot be used as an XYZ raster layer, which is why this
+    // is a second setting rather than another URL for the one above. There is
+    // no public tile endpoint and their terms forbid reaching for one, so the
+    // browser loads their JavaScript API instead. Both paths stay in the
+    // product: an installation behind a firewall, or one whose operator will
+    // not send warehouse coordinates to Google, still has the tile route and
+    // still has the plain grid.
+    //
+    // THIS KEY REACHES THE BROWSER, and that is not a leak - the Maps
+    // JavaScript API has no server side and every deployment's key is public
+    // to anybody who opens the panel. What stops it being *used* elsewhere is
+    // the restriction on the key itself, set in the Cloud console:
+    //
+    //   - Application restrictions: HTTP referrers, listing the panel's own
+    //     origin. This is the one that matters. An unrestricted key can be
+    //     lifted off the page and spent by anybody.
+    //   - API restrictions: Maps JavaScript API only.
+    //
+    // A key restricted by referrer needs the browser to send one, so the
+    // panel's own document must not carry `<meta name="referrer"
+    // content="no-referrer">`. The API's own no-referrer policy is set on API
+    // responses and does not affect it.
+    MAP_GOOGLE_API_KEY: z.string().default(''),
+    // The Cloud console's map ID, which is what carries the style.
+    //
+    // Required alongside the key rather than optional, and `superRefine`
+    // below refuses to start without it. Two things depend on it: vector
+    // rendering with a cloud-based style, which is the reason to choose
+    // Google at all, and Advanced Markers, which is what the panel draws its
+    // warehouses with. A key with no map ID would load a default-styled
+    // raster map and then fail to place a single marker on it.
+    MAP_GOOGLE_MAP_ID: z.string().default(''),
+
     // Address to coordinates, for the "find this address" button on a
     // warehouse. The mirror of GEOCODE_REVERSE_URL above and best-effort in
     // exactly the same way: unreachable, unconfigured or slow leaves the
@@ -545,6 +587,19 @@ const envSchema = z
         code: z.ZodIssueCode.custom,
         path: ['SMTP_HOST'],
         message: 'required when EMAIL_DRIVER=smtp',
+      });
+    }
+
+    // A Google Maps key with no map ID beside it loads a map nobody styled
+    // and then cannot place a marker on it - Advanced Markers need the ID.
+    // Refused at startup, because the alternative is a Warehouses screen that
+    // looks like it worked and shows no warehouses.
+    if (value.MAP_GOOGLE_API_KEY.length > 0 && value.MAP_GOOGLE_MAP_ID.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['MAP_GOOGLE_MAP_ID'],
+        message:
+          'required when MAP_GOOGLE_API_KEY is set. Create one in the Google Cloud console under Map management (type: JavaScript, rendering: Vector) and attach a style to it.',
       });
     }
 

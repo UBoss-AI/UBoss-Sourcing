@@ -101,16 +101,41 @@ export interface Warehouse {
   updatedAt: string;
 }
 
-/** The tile source, when the operator configured one. */
+/** The tile source, when the operator configured a raster one. */
 export interface MapTiles {
   urlTemplate: string;
   attribution: string;
 }
 
+/**
+ * What the warehouses are drawn on, decided by the operator's settings.
+ *
+ * The server sends one of three, and the panel has an implementation of each.
+ * Which one arrives decides which map library the browser downloads, so this
+ * has to be in hand before the map component mounts - hence its travelling in
+ * the warehouses response rather than behind a request of its own.
+ *
+ * `NONE` is the default and a working state: markers on a plain grid, scale
+ * bar included, and a line on the screen saying there is no background. Both
+ * of the others tell somebody outside the building where this company's
+ * warehouses are, which is not a thing this software decides on the operator's
+ * behalf.
+ */
+export type MapConfig =
+  | { provider: 'NONE' }
+  | { provider: 'RASTER'; tiles: MapTiles }
+  /**
+   * The key is public, and that is not an oversight. The Maps JavaScript API
+   * has no server side - every deployment's key is visible to anybody who
+   * opens the panel - and what stops it being spent elsewhere is the HTTP
+   * referrer restriction on the key itself. See MAP_GOOGLE_API_KEY in
+   * `backend/src/config/env.ts`.
+   */
+  | { provider: 'GOOGLE'; apiKey: string; mapId: string };
+
 export interface WarehousesResponse {
   warehouses: Warehouse[];
-  /** Null means "no tile source configured", which the map draws without. */
-  tiles: MapTiles | null;
+  map: MapConfig;
 }
 
 export interface CountryOption {

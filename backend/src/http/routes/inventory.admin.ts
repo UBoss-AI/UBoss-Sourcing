@@ -26,9 +26,10 @@ import {
   ERP_SYNC_STATUSES,
   OPERATIONAL_STATUSES,
   createWarehouse,
+  deleteWarehouse,
   forwardGeocode,
   listWarehouses,
-  mapTiles,
+  mapConfig,
   recordErpSync,
   updateWarehouse,
 } from '../../modules/inventory/location.service.js';
@@ -450,10 +451,11 @@ export function registerAdminInventoryRoutes(app: FastifyInstance): Promise<void
    * They also cost different amounts - the stock roll-up here is three
    * aggregate queries, and a dropdown should not pay for them.
    *
-   * The tile source travels with the warehouses rather than sitting behind a
-   * request of its own. One response fills the whole screen, and the
+   * What to draw the warehouses on travels with them rather than sitting
+   * behind a request of its own. One response fills the whole screen, and the
    * alternative is a map that renders bare and reflows when a second request
-   * lands.
+   * lands. It also decides which map library the browser downloads, so it has
+   * to arrive before the map component mounts rather than after.
    */
   app.get(
     '/inventory/warehouses',
@@ -488,10 +490,16 @@ export function registerAdminInventoryRoutes(app: FastifyInstance): Promise<void
 
       return reply.status(200).send({
         warehouses,
-        // Null where the operator has set no MAP_TILE_URL, which the panel
-        // reads as "plot the markers on a plain grid". See location.service.ts
-        // for why that is the default rather than a fallback.
-        tiles: mapTiles(),
+        // What to draw them on: a Google map, a raster tile layer, or nothing
+        // at all. `{ provider: 'NONE' }` is the default rather than a
+        // fallback, and the panel reads it as "plot the markers on a plain
+        // grid" - see `MapConfig` in location.service.ts for why.
+        //
+        // Carried in this response rather than behind a request of its own,
+        // for the same reason the warehouses and their stock roll-up are: one
+        // response fills the whole screen, and the alternative is a map that
+        // renders bare and then reflows when a second request lands.
+        map: mapConfig(),
       });
     },
   );
@@ -535,11 +543,10 @@ export function registerAdminInventoryRoutes(app: FastifyInstance): Promise<void
   /**
    * Correct a warehouse, move it, retire it, or make it the default.
    *
-   * There is no DELETE, and there will not be one. Movements reference the
-   * location with `onDelete: Restrict`, so deleting the row would orphan the
-   * ledger that explains where stock went. Retiring is `isActive: false`, and
-   * it is refused while the place still holds stock - see `assertRetirable`
-   * in the service.
+   * Retiring is `isActive: false`, and it is refused while the place still
+   * holds stock - see `assertRetirable` in the service. It is the answer for
+   * any warehouse that has been used; the DELETE below only removes one that
+   * never was.
    */
   app.patch(
     '/inventory/warehouses/:id',
@@ -569,6 +576,40 @@ export function registerAdminInventoryRoutes(app: FastifyInstance): Promise<void
       );
 
       return reply.status(200).send({ warehouse });
+    },
+  );
+
+  /**
+   * Delete a warehouse that was never used.
+   *
+   * Narrow on purpose, and the narrowness is the feature. This removes the
+   * duplicate somebody created with a typo in its code and the site that was
+   * planned and never opened - a row nothing has ever been booked against.
+   * The moment a movement, a balance, a reservation or a scheduled order
+   * points at it, the answer is `LOCATION_HAS_HISTORY` and a message naming
+   * what is in the way, and retiring through the PATCH above is what the
+   * operator wants instead. Deleting a warehouse with history would leave the
+   * ledger unable to say where that stock went, which is a worse outcome than
+   * a tidy list.
+   *
+   * The default warehouse is refused too, whatever its history: unqualified
+   * receipts land there, and a deployment with no default cannot book stock at
+   * all. Since the only warehouse is always the default, that is also what
+   * stops the last one being deleted.
+   *
+   * 404 for a warehouse that is not there, which is also the answer to a
+   * second press of the button - and the right one, because the row is gone
+   * either way.
+   */
+  app.delete(
+    '/inventory/warehouses/:id',
+    { preHandler: requireAdmin(Permission.INVENTORY_LOCATION_WRITE) },
+    async (request, reply) => {
+      const params = z.object({ id: z.string().length(26) }).parse(request.params);
+
+      await deleteWarehouse(params.id, actorFrom(request));
+
+      return reply.status(200).send({ deleted: true });
     },
   );
 
