@@ -519,25 +519,43 @@ name, their currencies and their features appear.
 Every balance, movement and reservation in the system already carried a
 location; this is the screen that creates and corrects them.
 
-**Four rules, all enforced on the server.**
+**Five rules, all enforced on the server.**
 
-1. **A warehouse is never deleted, only retired.** Every stock movement ever
-   booked against it points at that row, so deleting it would orphan the ledger
-   that explains where stock went. Retiring takes it out of the receipt and
-   adjustment pickers and leaves all of its history readable.
-2. **Retiring is refused while it still holds stock**, and the refusal says how
+1. **A warehouse that has been used is never deleted, only retired.** Every
+   stock movement ever booked against it points at that row, so deleting it
+   would orphan the ledger that explains where stock went. Retiring takes it
+   out of the receipt and adjustment pickers and leaves all of its history
+   readable.
+2. **A warehouse that was never used can be deleted outright**, and that is
+   the whole of what delete does. It is there for the duplicate somebody
+   created with a typo in its code and the site that was planned and never
+   opened — a row nothing points at. The moment a balance, a movement, a
+   reservation or a scheduled order names it, the answer is
+   `LOCATION_HAS_HISTORY` and a message saying which of the four is in the way
+   and how much of it there is; retiring is then the only way to get it off
+   the working list. Deleting frees the code for reuse, which retiring
+   deliberately does not. The default warehouse is refused whatever its
+   history, and since a deployment's only warehouse is always the default,
+   that is also what stops the last one being deleted. All four tables
+   reference the row with `onDelete: Restrict`, so the database is what makes
+   this safe; the guard in `location.service.ts` is what makes the refusal
+   explain itself instead of surfacing as a foreign-key error. Nothing
+   cascades, and there is no force flag.
+3. **Retiring is refused while it still holds stock**, and the refusal says how
    many units. Retiring a full warehouse would not move the stock — it would
    hide it, by removing the only place from which it could be adjusted back
    out.
-3. **There is always exactly one default, and it is always active.** Stock
+4. **There is always exactly one default, and it is always active.** Stock
    received without a warehouse named lands in the default. Promoting another
    one demotes the previous holder in the same write; demoting the only default
    is refused, because a deployment with no default cannot book a receipt at
    all. The first warehouse ever created becomes the default whatever the form
    said.
-4. **A code belongs to one warehouse forever, in practice.** It is stamped on
+5. **A code belongs to one warehouse forever, in practice.** It is stamped on
    every movement, and the codes are stored in capitals because MariaDB's
    collation is case-insensitive — `main` and `MAIN` would collide anyway.
+   "Forever" means for as long as the warehouse exists: deleting an unused one
+   hands its code back, because nothing was ever stamped with it.
 
 **What a warehouse record holds.**
 
@@ -587,12 +605,13 @@ that is switched off, firewalled or simply wrong about a town must never be
 able to stop somebody recording a building.
 
 **The map's background is the operator's decision, and the default is none.**
-With no `MAP_TILE_URL` set the map still works — it pans, zooms, carries a
-scale bar and places every marker correctly relative to the others — it just
-has no picture of the ground behind it, and the screen says so. That default is
-deliberate: a tile request tells whoever serves it which part of the world is
-being looked at, and in a self-hosted product that is where the buyer's
-warehouses are. Nothing is sent anywhere until the operator asks for it. See
+Three providers — a Google map, raster tiles, or nothing — and with none of
+them configured the map still works: it pans, zooms, carries a scale bar and
+places every marker correctly relative to the others. It just has no picture of
+the ground behind it, and the screen says so. That default is deliberate: both
+providers tell whoever serves them which part of the world is being looked at,
+and in a self-hosted product that is where the buyer's warehouses are. Nothing
+is sent anywhere until the operator asks for it. See
 [Configuration](#14-configuration).
 
 **What the screen deliberately does not show is a valuation per warehouse.**
@@ -601,9 +620,16 @@ would put rupees and euros in the same total and print it as though it meant
 something. Units are what a warehouse holds; money belongs on the screens that
 know which currency they are quoting.
 
-Leaflet draws the map, loaded by a dynamic `import()` inside the map component
-so it lands in its own chunk. Somebody who opens this screen to correct a
-postcode never downloads it.
+**Two map implementations, and the operator's settings choose.**
+`WarehouseMap.tsx` does nothing but pick between them: Google Maps where a key
+and a map ID are configured, Leaflet for raster tiles and for the
+no-background default. Each one's library loads by dynamic `import()` inside
+its own module, so it lands in its own chunk — a deployment on Google never
+downloads Leaflet, one on tiles never fetches a line of Google's API, and
+somebody who opens this screen to correct a postcode downloads neither. What a
+marker looks like lives in `warehouse-marker.ts`, shared by both, so the two
+maps cannot drift apart. See §14's warehouse-map settings for why Google
+cannot simply be another tile URL.
 
 **Finding one.** The search matches the name, the code **and the country's
 name** — somebody hunting for the Greek warehouse types "greece", not "GR" —
@@ -636,16 +662,21 @@ decides what is *shown*; the server decides what is allowed.
 
 | Method and path | Permission | What it does |
 |---|---|---|
-| `GET /inventory/warehouses` | `inventory.read` | Every warehouse with its stock roll-up, plus the tile source. Takes `q`, `countryCode`, `status` (repeatable) and `includeInactive` |
+| `GET /inventory/warehouses` | `inventory.read` | Every warehouse with its stock roll-up, plus the `map` provider the panel should draw them on. Takes `q`, `countryCode`, `status` (repeatable) and `includeInactive` |
 | `POST /inventory/warehouses` | `inventory.location.write` | Opens one. Country required |
 | `PATCH /inventory/warehouses/:id` | `inventory.location.write` | Corrects, moves, retires or promotes one. Absent fields are left alone |
+| `DELETE /inventory/warehouses/:id` | `inventory.location.write` | Removes one that was never used. Refused for the default, and for any warehouse a balance, movement, reservation or scheduled order names. 404 for a warehouse already gone, which is also the answer to a second press |
 | `PUT /inventory/warehouses/:id/erp-status` | `inventory.location.write` | The connector reports where the warehouse stands with the ERP |
 | `POST /inventory/warehouses/geocode` | `inventory.location.write` | An address to coordinates. A POST so the address stays out of access logs |
 | `GET /inventory/warehouse-countries` | `inventory.read` | The countries a warehouse may be in, for the pickers |
 | `GET /inventory/locations` | `inventory.read` | The *pickers'* list — active only, no stock roll-up. Deliberately not the same endpoint |
 
-There is no `DELETE`, and there will not be one: movements reference the
-location with `onDelete: Restrict`.
+The `DELETE` is narrow on purpose and cannot be widened by a parameter: the
+four tables that reference a warehouse do so with `onDelete: Restrict`, so a
+row with any history behind it stays whatever the caller asks. It leaves one
+`inventory_location.deleted` entry in the audit log carrying the whole record —
+code, name, country, position — because after the write there is nothing left
+to look the warehouse up in.
 
 ## The five staff roles
 
@@ -2733,17 +2764,65 @@ hostname adds it to that check, in every mode, and nothing else with it. See
 
 | Variable | Default | Effect |
 |---|---|---|
+| `MAP_GOOGLE_API_KEY` | *(empty)* | A Google Maps browser key. Set it — with a map ID — and the Warehouses map is a Google map: vector rendering, and whatever style the operator built in the Cloud console |
+| `MAP_GOOGLE_MAP_ID` | *(empty)* | The Cloud console's map ID. **Required alongside the key**, and `env.ts` refuses to start without it: it is what carries the style, and what Advanced Markers need |
 | `MAP_TILE_URL` | *(empty)* | The XYZ raster tile template behind the Warehouses map. Empty means no tiles: markers are plotted on a plain ground and everything else on the screen works unchanged |
 | `MAP_TILE_ATTRIBUTION` | *(empty)* | Shown in the corner of the map. Every tile licence requires it |
 | `GEOCODE_FORWARD_URL` | Nominatim | Turns a typed address into coordinates for the "look up" button. `{query}` is substituted. Empty switches it off |
 
-Empty is the default for the tile URL **and it is the private one**. A tile
-request discloses which part of the world is being looked at, and in this
-product that is where the buyer's warehouses are — so nothing is requested
-until the operator sets this. OpenStreetMap's own tiles are
-`https://tile.openstreetmap.org/{z}/{x}/{y}.png`; read their tile usage policy
-before pointing at them, because attribution is required and an installation
-with many staff is expected to run its own tile server or pay a provider.
+**Three providers, and the panel has an implementation of each.** The
+warehouses response carries a `map` field — `{ provider: 'NONE' }`,
+`{ provider: 'RASTER', tiles }` or `{ provider: 'GOOGLE', apiKey, mapId }` —
+and that is what decides which map library the browser downloads. A deployment
+on Google never downloads Leaflet; one on tiles never fetches a line of
+Google's API.
+
+**Google wins when both are configured.** Somebody who sets a Google key on an
+installation that has been running on OpenStreetMap tiles means to move to
+Google, and making them also clear two other variables would give them a screen
+that ignored the setting they just added.
+
+**Empty is the default for all of them, and it is the private one.** Both
+providers disclose which part of the world is being looked at, and in this
+product that is where the buyer's warehouses are — so nothing is requested until
+the operator asks for it. With none set the markers sit on a plain ground, the
+scale bar still works, and the screen says in words that there is no background.
+
+**Google's tiles cannot be used as raster tiles.** There is no public XYZ
+endpoint and their terms forbid reaching for one, which is why Google is a
+second setting rather than another value for `MAP_TILE_URL`, and why the panel
+carries two map implementations rather than one. The raster path stays for the
+installation behind a firewall with its own tile server, and for the operator
+who will not send warehouse coordinates to Google.
+
+**What the operator has to do in the Google Cloud console**, once, and none of
+it is something this software can do for them:
+
+1. A project with a **billing account** attached. Maps Platform does not run
+   without one, free monthly allowance included.
+2. **Maps JavaScript API** enabled.
+3. A **browser key**, restricted — *Application restrictions* → HTTP referrers,
+   listing the panel's own origin, and *API restrictions* → Maps JavaScript API
+   only. The key reaches the browser and always will: the Maps JavaScript API
+   has no server side, so every deployment's key is visible to anybody who
+   opens the screen. **The referrer restriction is what stops it being spent
+   elsewhere**, and an unrestricted key can be lifted off the page by anyone.
+4. A **map ID** (Map management → type JavaScript, rendering Vector) with a
+   **style** attached. The style is where the map stops looking like a default
+   Google map, and it is editable in the console afterwards without touching
+   this software.
+
+A key restricted by referrer needs the browser to send one, so the panel's
+document must never carry `<meta name="referrer" content="no-referrer">`. The
+API's own no-referrer policy is set on API responses and does not affect this.
+The map is loaded with `authReferrerPolicy: 'origin'`, so what Google is told
+is the panel's origin and not the URL — this screen keeps its search and its
+filters in the address bar, and none of that is Google's business.
+
+Google rejecting a key — a referrer that does not match, billing switched off,
+the API not enabled — is reported on the screen as its own state, separate from
+a map that failed to load, because the two have different fixes and neither is
+fixable by the person reading the panel.
 
 `GEOCODE_FORWARD_URL` is the mirror of `GEOCODE_REVERSE_URL` (used by the
 sign-in location check) and shares its `GEOCODE_TIMEOUT_MS`. Both are
@@ -2823,7 +2902,7 @@ UBoss-Software/
 | Change a page's look | `apps/*/src/pages/` |
 | Change which language a country's staff read | the `countries` row's `languageCode` |
 | Add or move a warehouse | `/warehouses` in the panel; `modules/inventory/location.service.ts` |
-| Put a background behind the warehouse map | `MAP_TILE_URL` in `backend/.env` |
+| Put a background behind the warehouse map | `MAP_GOOGLE_API_KEY` + `MAP_GOOGLE_MAP_ID`, or `MAP_TILE_URL`, in `backend/.env` |
 | Change what happens in the background | `src/worker/handlers.ts` |
 | Change what a scheduled order costs | `modules/recurring/schedule-quote.service.ts` — the review screen and the worker both use it |
 | Add a plan or occurrence status rule | `domain/schedule-state.ts` |

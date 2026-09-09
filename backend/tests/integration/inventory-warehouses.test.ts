@@ -113,7 +113,15 @@ interface Warehouse {
 
 interface WarehouseListResponse {
   warehouses: Warehouse[];
-  tiles: { urlTemplate: string; attribution: string } | null;
+  /**
+   * Loosely typed on purpose. The service's own union is exhaustive; this file
+   * only ever asserts against the `NONE` arm, because `tests/setup.ts` clears
+   * every map setting so the suite cannot disagree with a developer's `.env`
+   * about which provider is configured. The precedence between the three is
+   * unit-tested in tests/unit/map-config.test.ts, where it can be tried four
+   * ways without a process each.
+   */
+  map: { provider: string; tiles?: { urlTemplate: string; attribution: string } };
 }
 
 interface ErrorResponse {
@@ -193,6 +201,17 @@ function patch(
   });
 }
 
+function remove(
+  id: string,
+  session: { cookies: string; csrfToken: string } = { cookies, csrfToken },
+): Promise<ReturnType<typeof app.inject> extends Promise<infer T> ? T : never> {
+  return app.inject({
+    method: 'DELETE',
+    url: `/api/v1/admin/inventory/warehouses/${id}`,
+    headers: { cookie: session.cookies, 'x-csrf-token': session.csrfToken },
+  });
+}
+
 /**
  * Report a sync outcome, the way a connector would.
  *
@@ -226,10 +245,7 @@ async function created(options: CreateOptions): Promise<Warehouse> {
  * counts a SKU as low when on-hand minus reserved falls to or below it, and
  * skips any product whose threshold is zero.
  */
-async function stockAt(
-  locationId: string,
-  options: { sku: string; onHand: number; reserved?: number; threshold?: number },
-): Promise<void> {
+async function trackedProduct(sku: string, threshold = 0): Promise<string> {
   const productId = newId();
 
   await prisma.product.create({
@@ -237,16 +253,25 @@ async function stockAt(
       id: productId,
       categoryId,
       taxClassId,
-      name: `Product ${options.sku}`,
-      slug: `warehouse-test-${options.sku.toLowerCase()}`,
-      sku: options.sku,
+      name: `Product ${sku}`,
+      slug: `warehouse-test-${sku.toLowerCase()}`,
+      sku,
       status: 'ACTIVE',
       basePriceMinor: 1000n,
       currency: 'INR',
       isStockTracked: true,
-      reorderThreshold: options.threshold ?? 0,
+      reorderThreshold: threshold,
     },
   });
+
+  return productId;
+}
+
+async function stockAt(
+  locationId: string,
+  options: { sku: string; onHand: number; reserved?: number; threshold?: number },
+): Promise<void> {
+  const productId = await trackedProduct(options.sku, options.threshold ?? 0);
 
   await prisma.inventoryBalance.create({
     data: {
@@ -256,6 +281,30 @@ async function stockAt(
       locationId,
       onHandQty: options.onHand,
       reservedQty: options.reserved ?? 0,
+    },
+  });
+}
+
+/**
+ * One movement in the ledger, and nothing else.
+ *
+ * Written directly rather than through the receipt endpoint, so the warehouse
+ * ends up in the state the delete guard exists for and no other: a movement
+ * against it, no balance, no stock. Through the API the two always arrive
+ * together, and a test that could not tell them apart would not prove that the
+ * ledger alone is enough to hold the row in place.
+ */
+async function movementAt(locationId: string, sku: string): Promise<void> {
+  await prisma.inventoryMovement.create({
+    data: {
+      id: newId(),
+      productId: await trackedProduct(sku),
+      variantKey: '',
+      locationId,
+      type: 'RECEIPT',
+      quantityDelta: 7,
+      resultingOnHand: 7,
+      reason: 'Warehouse delete guard fixture',
     },
   });
 }
@@ -636,6 +685,159 @@ describe('retiring a warehouse', () => {
     expect((await patch(warehouse.id, { isActive: true })).statusCode).toBe(200);
 
     expect((await findOwn(warehouse.code))?.isActive).toBe(true);
+  });
+});
+
+/**
+ * Deleting a warehouse, which is a narrower act than retiring one.
+ *
+ * The two are not variations of each other and the tests here are mostly about
+ * keeping them apart. Retiring archives a warehouse that has been used and
+ * leaves every movement booked against it readable; deleting removes a row
+ * nothing was ever booked against - the duplicate created with a typo in its
+ * code, the site that was planned and never opened.
+ *
+ * Which of the two a warehouse is cannot be answered from the row itself, only
+ * from what points at it, and four tables do: balances, movements,
+ * reservations and the scheduled orders that pin a plan to one warehouse. Each
+ * of them holds the row in place with `onDelete: Restrict`, so the guard is
+ * not what makes deleting safe - the database is. The guard is what makes the
+ * refusal explain itself instead of surfacing as a foreign-key error.
+ */
+describe('deleting a warehouse', () => {
+  it('removes a warehouse nothing was ever booked against', async () => {
+    const warehouse = await created({ code: `${PREFIX}GONE` });
+
+    expect((await remove(warehouse.id)).statusCode).toBe(200);
+
+    // Gone from the list that keeps retired warehouses too, which is the
+    // difference between this and retiring: there is nothing left to bring
+    // back.
+    expect(await findOwn(warehouse.code)).toBeUndefined();
+    expect(await prisma.inventoryLocation.findUnique({ where: { id: warehouse.id } })).toBeNull();
+  });
+
+  it('frees the code, unlike retiring, which holds it', async () => {
+    const warehouse = await created({ code: `${PREFIX}REUSE` });
+    expect((await remove(warehouse.id)).statusCode).toBe(200);
+
+    // A retired warehouse still owns its code and creating a second with it is
+    // refused, naming the holder. A deleted one owns nothing.
+    const again = await create({ code: `${PREFIX}REUSE`, name: 'The replacement' });
+    expect(again.statusCode, again.body).toBe(201);
+  });
+
+  it('removes a retired warehouse that was never used', async () => {
+    const warehouse = await created({ code: `${PREFIX}RETGONE` });
+    expect((await patch(warehouse.id, { isActive: false })).statusCode).toBe(200);
+
+    expect((await remove(warehouse.id)).statusCode).toBe(200);
+    expect(await findOwn(warehouse.code)).toBeUndefined();
+  });
+
+  it('refuses one with a movement against it, and says to retire it instead', async () => {
+    const warehouse = await created({ code: `${PREFIX}LEDGER` });
+    await movementAt(warehouse.id, 'WHT-LEDGER-1');
+
+    const response = await remove(warehouse.id);
+    expect(response.statusCode).toBe(409);
+
+    const body = response.json<ErrorResponse>();
+    expect(body.error.code).toBe('LOCATION_HAS_HISTORY');
+    // Named rather than implied. A movement whose warehouse cannot be named is
+    // a hole in the record of where stock went, and the message has to say
+    // that retiring is the way out.
+    expect(body.error.message).toContain('Retire');
+
+    // Still there, and still retirable - the refusal must not have been a
+    // half-finished delete.
+    expect(await findOwn(warehouse.code)).toBeDefined();
+    expect((await patch(warehouse.id, { isActive: false })).statusCode).toBe(200);
+  });
+
+  it('refuses one that still holds stock, and names the units', async () => {
+    const warehouse = await created({ code: `${PREFIX}HELD` });
+    await stockAt(warehouse.id, { sku: 'WHT-HELD-1', onHand: 13 });
+
+    const response = await remove(warehouse.id);
+    expect(response.statusCode).toBe(409);
+
+    const body = response.json<ErrorResponse>();
+    expect(body.error.code).toBe('LOCATION_HAS_HISTORY');
+    expect(body.error.message).toContain('13');
+  });
+
+  it('refuses one a reservation points at, finished or not', async () => {
+    const warehouse = await created({ code: `${PREFIX}RESV` });
+
+    // Released, not active. It is over, and its row still holds the warehouse
+    // in place with a foreign key - which is why the guard counts every status
+    // rather than the live ones the retire guard cares about.
+    await prisma.stockReservation.create({
+      data: {
+        id: newId(),
+        productId: await trackedProduct('WHT-RESV-1'),
+        variantKey: '',
+        locationId: warehouse.id,
+        quantity: 2,
+        status: 'RELEASED',
+        expiresAt: new Date(Date.now() - 60_000),
+        releasedAt: new Date(),
+        releaseReason: 'Warehouse delete guard fixture',
+      },
+    });
+
+    const response = await remove(warehouse.id);
+    expect(response.statusCode).toBe(409);
+    expect(response.json<ErrorResponse>().error.code).toBe('LOCATION_HAS_HISTORY');
+  });
+
+  it('refuses the default, which is also what stops the last one going', async () => {
+    const warehouse = await created({ code: `${PREFIX}DEFGONE`, isDefault: true });
+
+    const response = await remove(warehouse.id);
+    expect(response.statusCode).toBe(409);
+
+    const body = response.json<ErrorResponse>();
+    expect(body.error.code).toBe('LOCATION_STILL_IN_USE');
+    expect(body.error.details?.[0]?.code).toBe('IS_DEFAULT');
+
+    // Hand the flag back before the next test, and prove the way out of the
+    // refusal is the documented one: promote another, then delete this.
+    await patch(anchorId, { isDefault: true });
+    expect((await remove(warehouse.id)).statusCode).toBe(200);
+  });
+
+  it('answers 404 for a warehouse that does not exist, and for a second press', async () => {
+    const warehouse = await created({ code: `${PREFIX}TWICE` });
+
+    expect((await remove(warehouse.id)).statusCode).toBe(200);
+    // The right answer to pressing the button again: the row is gone either
+    // way, and nothing about the second press is a server error.
+    expect((await remove(warehouse.id)).statusCode).toBe(404);
+    expect((await remove(newId())).statusCode).toBe(404);
+  });
+
+  it('records the whole record, because the audit entry is all that is left', async () => {
+    const warehouse = await created({
+      code: `${PREFIX}TRACE`,
+      name: 'Warehouse that was a typo',
+      latitude: 18.52,
+      longitude: 73.85,
+    });
+
+    expect((await remove(warehouse.id)).statusCode).toBe(200);
+
+    const entry = await prisma.auditLog.findFirstOrThrow({
+      where: { action: 'inventory_location.deleted', resourceId: warehouse.id },
+    });
+
+    // The code and the name, not just an id: there is no row to look them up
+    // in any more, and "which warehouse was that" is the first question asked.
+    const before = JSON.stringify(entry.beforeJson);
+    expect(before).toContain(`${PREFIX}TRACE`);
+    expect(before).toContain('Warehouse that was a typo');
+    expect(entry.actorEmail).toBe(EMAIL);
   });
 });
 
@@ -1059,12 +1261,18 @@ describe('a warehouse with no position', () => {
 });
 
 describe('the map configuration', () => {
-  it('reports no tile source when the operator has set none', async () => {
-    const { tiles } = await listWarehouses();
+  it('reports no background when the operator has configured none', async () => {
+    const { map } = await listWarehouses();
 
     // The default, and a working state: the panel plots markers on a plain
-    // grid rather than sending anybody's warehouse coordinates to a tile host.
-    expect(tiles).toBeNull();
+    // grid rather than sending anybody's warehouse coordinates to a tile host
+    // or to Google.
+    expect(map.provider).toBe('NONE');
+
+    // And it arrives with nothing else on it. A `NONE` carrying a leftover
+    // tile URL or an API key would be a setting the operator switched off and
+    // this response published anyway.
+    expect(Object.keys(map)).toEqual(['provider']);
   });
 });
 
@@ -1126,6 +1334,20 @@ describe('permissions', () => {
     );
 
     expect(response.statusCode).toBe(403);
+  });
+
+  it('refuses a reader the right to delete one, and leaves it standing', async () => {
+    const warehouse = await created({ code: `${PREFIX}KEEP` });
+
+    const response = await remove(warehouse.id, {
+      cookies: readerCookies,
+      csrfToken: readerCsrf,
+    });
+
+    expect(response.statusCode).toBe(403);
+    // The row, not just the status code. A delete refused at the door that
+    // had already run would be the worst possible way to pass this test.
+    expect(await findOwn(warehouse.code)).toBeDefined();
   });
 
   it('refuses a reader the geocoder', async () => {

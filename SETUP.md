@@ -118,7 +118,8 @@ worth knowing about now, because they change what you see later:
 |---|---|---|
 | `EMAIL_DRIVER` | `log` | Emails are **printed into the worker terminal**, not sent. Fine for development — and that terminal is where you will find confirmation links and temporary passwords while testing. Set to `smtp` and fill the `SMTP_*` block to send real mail. |
 | `FEATURE_CUSTOMER_SELF_REGISTRATION` | `false` | With this off the storefront shows "accounts are by invitation" instead of a sign-up form. Turn it on to let customers register themselves. |
-| `MAP_TILE_URL` | *(empty)* | With this empty the admin panel's Warehouses map plots its markers on a plain ground, with no map behind them. That is a working state, and it is the private one — nothing is requested from a tile service until you set this. See below. |
+| `MAP_GOOGLE_API_KEY`, `MAP_GOOGLE_MAP_ID` | *(empty)* | Set both and the admin panel's Warehouses map is a Google map, vector-rendered with your own style. Needs a Google Cloud project with billing attached, and a browser key restricted to this panel's origin. See below. |
+| `MAP_TILE_URL` | *(empty)* | Raster tiles instead, from any XYZ service. With every map setting empty the Warehouses map plots its markers on a plain ground, with no map behind them. That is a working state, and it is the private one — nothing is requested from anybody until you set one of these. See below. |
 | `FEATURE_SUBSCRIPTION_AUTOPAY` | `false` | With this off, customers can still schedule an order for a future date and still subscribe — each delivery is paid through a link emailed to them. Turn it on to let them save a card that is charged automatically, which needs Stripe connected. Storefront screens for saving a card are refused entirely while it is off. |
 | `ERP_ORDER_CONNECTION_NAME` | *(empty)* | With this empty, no order is pushed to an ERP. That is a working state: orders are created, paid and fulfilled exactly as they are with one. Set it to the **name** of an integration connection you have created and activated in the admin panel. |
 | `FEATURE_ERP_INTEGRATION` | `false` | With this off, **Settings → ERP** says so and does nothing else: the routes refuse, no polling job runs and the inbound webhook endpoint answers 404. Turn it on to connect an ERP from a screen rather than from environment variables — see below. |
@@ -171,10 +172,41 @@ ERP, built from `API_PUBLIC_URL`. If that is wrong, the address shown is wrong �
 so set it before anyone configures a connection. Over a tunnel (Part 3), it has
 to be the tunnel's URL, or the ERP will be told to call `localhost`.
 
-Leaving `MAP_TILE_URL` empty is a deliberate default rather than something to
-tidy up. A tile request tells whoever serves it which part of the world is
-being looked at, and that is where your warehouses are — so this software does
-not disclose it on your behalf. To put a background behind the map, set both:
+**The warehouse map has three settings and no required one.** Leaving all of
+them empty is a deliberate default rather than something to tidy up: both
+providers tell whoever serves them which part of the world is being looked at,
+and that is where your warehouses are, so this software does not disclose it on
+your behalf. With none set, the markers sit on a plain ground, the scale bar
+still works, and the screen says so in words.
+
+For a **Google map** — vector rendering and your own style — set both of these:
+
+```
+MAP_GOOGLE_API_KEY=AIza...
+MAP_GOOGLE_MAP_ID=your-map-id
+```
+
+Create them once in the Google Cloud console: a project with a **billing
+account** attached (Maps Platform does not run without one), the **Maps
+JavaScript API** enabled, a **browser key** restricted to HTTP referrers
+listing this panel's origin and to the Maps JavaScript API only, and a **map
+ID** under Map management — type JavaScript, rendering Vector — with a style
+attached. The style is where the map stops looking like a default Google map,
+and you can keep editing it in the console afterwards without touching this
+software.
+
+The key reaches the browser, and that is unavoidable rather than a mistake: the
+Maps JavaScript API has no server side, so every deployment's key is visible to
+anybody who opens the Warehouses screen. **The referrer restriction is what
+stops it being spent elsewhere** — an unrestricted key can be lifted off the
+page by anyone who looks. A key restricted that way needs the browser to send a
+referrer, so never add `<meta name="referrer" content="no-referrer">` to the
+panel's `index.html`. The map ID is required whenever the key is set and the
+server refuses to start without it, because it carries the style and the
+markers need it.
+
+For **raster tiles** instead — any XYZ service, including your own tile server
+— set both of these:
 
 ```
 MAP_TILE_URL=https://tile.openstreetmap.org/{z}/{x}/{y}.png
@@ -184,6 +216,11 @@ MAP_TILE_ATTRIBUTION=© OpenStreetMap contributors
 Read OpenStreetMap's tile usage policy before pointing at theirs: attribution
 is required, and an installation with many staff is expected to run its own
 tile server or use a commercial provider rather than lean on the volunteer one.
+
+Google's tiles cannot go in `MAP_TILE_URL` — they have no public tile endpoint
+and their terms forbid reaching for one, which is why the two are separate
+settings. **Google wins if both are configured**, so moving from OpenStreetMap
+to Google means setting the two Google variables and nothing else.
 
 ## 5. Build the database
 

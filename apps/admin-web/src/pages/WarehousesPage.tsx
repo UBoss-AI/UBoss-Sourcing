@@ -27,9 +27,12 @@
  * Four rules the screen states rather than leaving in this comment, because
  * they are the sort of thing people discover by being refused:
  *
- *   - **A warehouse is never deleted, only retired.** Every movement ever
- *     booked against it points at the row, so deleting it would orphan the
- *     ledger that explains where stock went.
+ *   - **A warehouse that has been used is never deleted, only retired.** Every
+ *     movement ever booked against it points at the row, so deleting it would
+ *     orphan the ledger that explains where stock went. Delete is offered as
+ *     well, and it only ever removes a warehouse nothing was booked against -
+ *     the duplicate created with a typo, the site that never opened. The
+ *     server decides which of the two a warehouse is, and says so.
  *   - **Retiring is refused while it still holds stock**, and the refusal says
  *     how many units.
  *   - **The default warehouse cannot be retired or demoted.** Stock received
@@ -128,6 +131,7 @@ export function WarehousesPage(): React.JSX.Element {
   const [editing, setEditing] = useState<Warehouse | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [confirmRetire, setConfirmRetire] = useState<Warehouse | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<Warehouse | null>(null);
 
   const canWrite = can(Permission.INVENTORY_LOCATION_WRITE);
 
@@ -226,6 +230,32 @@ export function WarehousesPage(): React.JSX.Element {
       // to "so what do I do about it".
       toast.error(error instanceof ApiError ? error.message : t('warehouses.couldNotSave'));
       setConfirmRetire(null);
+    },
+  });
+
+  /**
+   * Remove the row, for a warehouse nothing was ever booked against.
+   *
+   * The server is what decides whether this one qualifies, and it is the only
+   * thing that can: the movement ledger and the scheduled orders pointing at a
+   * warehouse are not in the list this screen holds. So the refusal is the
+   * feature - it names what is in the way and says to retire instead, and the
+   * toast shows that sentence rather than a generic failure.
+   */
+  const remove = useMutation({
+    mutationFn: (id: string) => api.delete(`/admin/inventory/warehouses/${id}`),
+    onSuccess: async (_result, id) => {
+      toast.success(t('warehouses.deleted'));
+      setConfirmDelete(null);
+      // The panel described a warehouse that no longer exists. Closing it is
+      // not tidiness - leaving it open would show a stale record beside a
+      // table the row has gone from.
+      setSelectedId((current) => (current === id ? null : current));
+      await invalidate();
+    },
+    onError: (error) => {
+      toast.error(error instanceof ApiError ? error.message : t('warehouses.couldNotDelete'));
+      setConfirmDelete(null);
     },
   });
 
@@ -407,6 +437,32 @@ export function WarehousesPage(): React.JSX.Element {
                 {t('warehouses.restore')}
               </Button>
             )}
+
+            {/* Delete removes the row itself, and only for a warehouse
+                nothing was ever booked against. Disabled on the two states
+                this screen can already see are disqualifying - the default,
+                and a warehouse with stock records - so that the common
+                refusals are visible before somebody presses anything. The
+                movement ledger and the scheduled orders are not in the list
+                here, so the server still has the last word and its message
+                names whichever of those is in the way. */}
+            <Button
+              size="sm"
+              variant="danger"
+              disabled={row.isDefault || row.stock.skuCount > 0}
+              title={
+                row.isDefault
+                  ? t('warehouses.deleteBlockedDefault')
+                  : row.stock.skuCount > 0
+                    ? t('warehouses.deleteBlockedStock')
+                    : undefined
+              }
+              onClick={() => {
+                setConfirmDelete(row);
+              }}
+            >
+              {t('warehouses.delete')}
+            </Button>
           </div>
         );
       },
@@ -446,10 +502,12 @@ export function WarehousesPage(): React.JSX.Element {
         ) : (
           <>
             <div className="space-y-4 px-5 py-4">
-              {/* No tile source is the default, not a fault, so this is
-                  neutral and addressed to whoever runs the deployment - the
-                  person reading the panel cannot fix it. */}
-              {query.data !== undefined && query.data.tiles === null && placed.length > 0 && (
+              {/* No map background configured is the default, not a fault, so
+                  this is neutral and addressed to whoever runs the deployment
+                  - the person reading the panel cannot fix it. It names both
+                  ways out, because either is a valid choice and this software
+                  does not get to prefer one on the operator's behalf. */}
+              {query.data?.map.provider === 'NONE' && placed.length > 0 && (
                 <Callout tone="neutral" title={t('warehouses.noTilesTitle')}>
                   {t('warehouses.noTilesBody')}
                 </Callout>
@@ -482,7 +540,12 @@ export function WarehousesPage(): React.JSX.Element {
                   {placed.length > 0 ? (
                     <WarehouseMap
                       warehouses={placed}
-                      tiles={query.data?.tiles ?? null}
+                      // Which map library the browser loads is decided here,
+                      // from the operator's settings. Until the first response
+                      // lands there is nothing to draw anyway - `placed` is
+                      // empty - so the NONE default is a safe stand-in rather
+                      // than a guess that could load the wrong one.
+                      map={query.data?.map ?? { provider: 'NONE' }}
                       selectedId={selectedId}
                       onSelect={setSelectedId}
                     />
@@ -681,6 +744,30 @@ export function WarehousesPage(): React.JSX.Element {
         onConfirm={() => {
           if (confirmRetire !== null) {
             setActive.mutate({ id: confirmRetire.id, isActive: false });
+          }
+        }}
+      />
+
+      {/* Its own dialog rather than a shared one with a swapped verb. The two
+          acts are not variations of each other: retiring is reversible from
+          this screen and keeps everything, deleting is neither, and a reader
+          skimming a confirmation deserves to be told which one they are
+          about to do. */}
+      <ConfirmDialog
+        isOpen={confirmDelete !== null}
+        title={t('warehouses.deleteTitle')}
+        body={
+          confirmDelete === null ? '' : t('warehouses.deleteBody', { name: confirmDelete.name })
+        }
+        confirmLabel={t('warehouses.delete')}
+        isDangerous
+        isWorking={remove.isPending}
+        onClose={() => {
+          setConfirmDelete(null);
+        }}
+        onConfirm={() => {
+          if (confirmDelete !== null) {
+            remove.mutate(confirmDelete.id);
           }
         }}
       />

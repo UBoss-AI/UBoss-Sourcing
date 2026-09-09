@@ -990,6 +990,12 @@ model InventoryMovement {
   @@index([productId, variantKey, createdAt], map: "ix_inventory_movement_sku_time")
   @@index([referenceType, referenceId], map: "ix_inventory_movement_reference")
   @@index([createdAt], map: "ix_inventory_movement_time")
+  /// "Has anything ever been booked against this warehouse?" - the question
+  /// `deleteWarehouse` has to answer before it removes the row. Without an
+  /// index the answer for a warehouse that has never been used costs a scan of
+  /// the whole ledger, which is the one case where the answer is yes, delete
+  /// it. Matches `ix_inventory_balance_location` on the balances beside it.
+  @@index([locationId], map: "ix_inventory_movement_location")
   @@map("inventory_movements")
 }
 
@@ -1030,6 +1036,10 @@ model StockReservation {
   @@index([orderId], map: "ix_reservation_order")
   @@index([cartId], map: "ix_reservation_cart")
   @@index([productId, variantKey, status], map: "ix_reservation_sku_status")
+  /// Same question, same reason as `ix_inventory_movement_location`: a
+  /// released reservation still points at the warehouse with `Restrict`, so
+  /// the delete guard counts every status here, not only the live ones.
+  @@index([locationId], map: "ix_reservation_location")
   @@map("stock_reservations")
 }
 
