@@ -411,15 +411,24 @@ const SEED_WAREHOUSES: readonly WarehouseSeed[] = [
     erpSyncMessage: '1,284 SKUs reconciled.',
   },
   {
-    code: 'ES-BCN',
-    name: 'Barcelona Zona Franca',
+    // This fixture used to be in Barcelona. Renaming its *code* is something
+    // only a fixture may do - a real warehouse keeps its code forever, because
+    // it is stamped on every movement ever booked against the place - so the
+    // superseded code is listed in `SUPERSEDED_WAREHOUSE_CODES` below and
+    // cleaned up, rather than left behind as a second Spanish warehouse in
+    // every database the old seed had touched.
+    code: 'ES-MAD',
+    name: 'Madrid central warehouse',
     countryCode: 'ES',
     timezone: 'Europe/Madrid',
-    latitude: '41.351000',
-    longitude: '2.129000',
-    address: { line1: "Carrer A, 41, Zona Franca", city: 'Barcelona', postalCode: '08040' },
+    // Villaverde, the industrial belt in the south of the city. Deliberately
+    // inland: it is the fixture that shows the delivery-coverage panel's empty
+    // answer, because no foreign border is anywhere near 100 km of it.
+    latitude: '40.345000',
+    longitude: '-3.690000',
+    address: { line1: 'Calle Eduardo Barreiros 110', city: 'Madrid', postalCode: '28041' },
     operationalStatus: 'OPERATIONAL',
-    erpExternalId: 'WH-BCN-01',
+    erpExternalId: 'WH-MAD-01',
     erpSyncStatus: 'SYNCED',
     erpSyncedHoursAgo: 5,
     erpSyncMessage: '903 SKUs reconciled.',
@@ -458,7 +467,85 @@ const SEED_WAREHOUSES: readonly WarehouseSeed[] = [
   },
 ];
 
+/**
+ * Warehouse codes this seed used to install and does not any more.
+ *
+ * The seed upserts on `code`, which is what makes re-running it converge - but
+ * only for codes still in the list. A fixture that is renamed leaves its old
+ * row behind for ever, and a developer who has been on the project a while
+ * ends up with a database holding both halves of every rename anybody ever
+ * did. So a retired code is written down here and removed on the next seed.
+ *
+ * **Only ever fixtures, and never at the cost of real data.** `removeSuperseded`
+ * below refuses to delete a warehouse that anything points at or that holds
+ * the default flag, and says so rather than failing: a developer who booked
+ * stock against this warehouse while testing has data worth more than the
+ * tidiness of the fixture list.
+ */
+const SUPERSEDED_WAREHOUSE_CODES: readonly string[] = [
+  // Renamed to ES-MAD when the Spanish fixture moved from Barcelona to Madrid.
+  'ES-BCN',
+];
+
+/**
+ * Take out the warehouses the fixture list has stopped installing.
+ *
+ * The four tables that point at a warehouse all do so with
+ * `onDelete: Restrict`, so this counts before it deletes - a blind delete
+ * would throw a foreign-key error and take the whole seed down with it. Where
+ * something does point at the row it is retired instead, which is exactly what
+ * the panel offers a person in the same situation.
+ */
+async function removeSuperseded(): Promise<void> {
+  for (const code of SUPERSEDED_WAREHOUSE_CODES) {
+    const row = await prisma.inventoryLocation.findUnique({
+      where: { code },
+      select: { id: true, code: true, name: true, isDefault: true, isActive: true },
+    });
+
+    if (row === null) continue;
+
+    // The default is left alone whatever else is true of it: a deployment with
+    // no default warehouse cannot book a receipt at all, because
+    // `defaultLocationId` in inventory.service.ts would find nothing.
+    if (row.isDefault) {
+      console.log(
+        `  kept ${row.code}: it holds the default flag. Promote another warehouse, then re-run the seed.`,
+      );
+      continue;
+    }
+
+    const [balances, movements, reservations, schedules] = await Promise.all([
+      prisma.inventoryBalance.count({ where: { locationId: row.id } }),
+      prisma.inventoryMovement.count({ where: { locationId: row.id } }),
+      prisma.stockReservation.count({ where: { locationId: row.id } }),
+      prisma.recurringSchedule.count({ where: { inventoryLocationId: row.id } }),
+    ]);
+
+    const references = balances + movements + reservations + schedules;
+
+    if (references > 0) {
+      if (row.isActive) {
+        await prisma.inventoryLocation.update({
+          where: { id: row.id },
+          data: { isActive: false },
+        });
+      }
+
+      console.log(
+        `  retired ${row.code}: ${String(references)} record(s) point at it, so the row has to stay.`,
+      );
+      continue;
+    }
+
+    await prisma.inventoryLocation.delete({ where: { id: row.id } });
+    console.log(`  removed ${row.code}: superseded fixture, nothing referenced it.`);
+  }
+}
+
 async function seedWarehouses(): Promise<number> {
+  await removeSuperseded();
+
   for (const warehouse of SEED_WAREHOUSES) {
     const erpLastSyncAt =
       warehouse.erpSyncedHoursAgo === null

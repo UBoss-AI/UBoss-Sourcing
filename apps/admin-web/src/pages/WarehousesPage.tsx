@@ -83,6 +83,7 @@ import {
   isPlaced,
   operationalLabelKey,
   operationalTone,
+  supportsDeliveryCoverage,
   warehouseState,
 } from '@/lib/warehouses';
 import type {
@@ -91,10 +92,18 @@ import type {
   Warehouse,
   WarehousesResponse,
 } from '@/lib/warehouses';
+import {
+  NOT_PLACED,
+  COVERAGE_EXIT_MS,
+  coverageQueryKey,
+  fetchDeliveryCoverage,
+} from '@/lib/delivery-coverage';
+import { useLingering } from '@/lib/use-lingering';
 import { translateKey, useI18n } from '@/i18n/i18n-context';
 import { WarehouseDetailPanel } from './warehouse/WarehouseDetailPanel';
 import { WarehouseFormDialog } from './warehouse/WarehouseFormDialog';
 import { WarehouseMap } from './warehouse/WarehouseMap';
+import { DeliveryCoveragePanel } from './warehouse/DeliveryCoveragePanel';
 
 /**
  * How long the search box waits before asking the server.
@@ -128,6 +137,20 @@ export function WarehousesPage(): React.JSX.Element {
   const [searchDraft, setSearchDraft] = useState(search);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  /**
+   * The warehouse whose delivery coverage is open, if any.
+   *
+   * Deliberately not `selectedId`. Selecting a warehouse opens its record and
+   * is a decision somebody made; coverage follows the pointer and is a
+   * question somebody is asking in passing. Tying the two together would mean
+   * a camera flight every time a row was clicked in the table, and no way to
+   * read the record of a warehouse without the map tilting.
+   *
+   * Not in the URL either, for the same reason: it is a hover, and twelve
+   * history entries because somebody moved the mouse across five markers is
+   * how a back button stops working.
+   */
+  const [coverageId, setCoverageId] = useState<string | null>(null);
   const [editing, setEditing] = useState<Warehouse | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [confirmRetire, setConfirmRetire] = useState<Warehouse | null>(null);
@@ -194,6 +217,85 @@ export function WarehousesPage(): React.JSX.Element {
     staleTime: 10 * 60 * 1000,
   });
 
+  /**
+   * The radius this deployment promises, from the server.
+   *
+   * The fallback only ever applies before the first response lands, when there
+   * is no map drawn and nothing to ask coverage about. It is not a default
+   * this frontend gets to have an opinion about.
+   */
+  const radiusKm = query.data?.coverage.radiusKm ?? 100;
+
+  const mapConfig = query.data?.map ?? { provider: 'NONE' as const };
+  const canShowCoverage = supportsDeliveryCoverage(mapConfig);
+
+  /**
+   * One query for the ring and the flaps.
+   *
+   * `enabled` is what makes hovering cheap: nothing is requested until a
+   * warehouse is actually being pointed at, and React Query then keeps the
+   * answer, so moving back and forth between two markers costs two requests
+   * rather than twenty. A warehouse's coordinates are the only input, and they
+   * change only when somebody edits it - hence a stale time long enough to
+   * cover a session of looking around and an invalidation on save, which the
+   * existing `invalidate` already performs for every warehouse query.
+   */
+  const coverageQuery = useQuery({
+    queryKey: coverageQueryKey(coverageId ?? '', radiusKm),
+    queryFn: () => fetchDeliveryCoverage(coverageId ?? '', radiusKm),
+    enabled: coverageId !== null && canShowCoverage,
+    staleTime: 5 * 60 * 1000,
+    // A warehouse with no coordinates will not grow any by being asked twice,
+    // and a retry would keep the spinner up for seconds before saying so.
+    retry: (attempt, error) =>
+      attempt < 1 && !(error instanceof ApiError && error.code === NOT_PLACED),
+  });
+
+  const coverageWarehouse =
+    coverageId === null
+      ? null
+      : (query.data?.warehouses.find((warehouse) => warehouse.id === coverageId) ?? null);
+
+  /**
+   * Two failures, because they have two fixes.
+   *
+   * A warehouse with no coordinates is something the reader can put right, and
+   * the panel says how. Anything else is a request that did not come back, and
+   * the panel says to try again. Collapsing them into one message would tell
+   * half the readers to retry something that will never work.
+   */
+  const coverageFailure =
+    coverageQuery.error === null
+      ? null
+      : coverageQuery.error instanceof ApiError && coverageQuery.error.code === NOT_PLACED
+        ? ('notPlaced' as const)
+        : ('error' as const);
+
+  /**
+   * What the flap panel is showing, kept alive while it leaves.
+   *
+   * The panel is unmounted by nobody pointing at a warehouse any more, and an
+   * unmounted element fades out of nothing - so this holds the last answer
+   * for the length of the exit and hands the panel an `isLeaving` to fade on.
+   *
+   * A snapshot of all four values rather than the id alone, because they do
+   * not survive the id going away: `coverageQuery` is keyed on the warehouse
+   * being pointed at, so the moment that is null the query is disabled and
+   * `data` is undefined and `isPending` is true again. Lingering on the id
+   * would fade out a spinner instead of the countries that were being read.
+   */
+  const coveragePanel = useLingering(
+    coverageId !== null && coverageWarehouse !== null
+      ? {
+          warehouseName: coverageWarehouse.name,
+          coverage: coverageQuery.data ?? null,
+          isLoading: coverageQuery.isPending,
+          failure: coverageFailure,
+        }
+      : null,
+    COVERAGE_EXIT_MS,
+  );
+
   const warehouses = query.data?.warehouses ?? [];
   const placed = warehouses.filter(isPlaced);
   const unplaced = warehouses.filter(
@@ -202,6 +304,25 @@ export function WarehousesPage(): React.JSX.Element {
   const broken = warehouses.filter((warehouse) => warehouse.coordinatesInvalid);
 
   const selected = warehouses.find((warehouse) => warehouse.id === selectedId) ?? null;
+
+  /**
+   * A marker was clicked or a row was opened.
+   *
+   * On a device with no pointer this is the *only* gesture available, so it
+   * has to open the coverage as well - there is no hover to do it and no
+   * "moving away" to close it, which is why the panel grows a close button
+   * there. Where there is a pointer, hovering already handles coverage and a
+   * click must not also fly the camera: somebody clicking a row to read an
+   * address has not asked to be taken anywhere.
+   */
+  const selectWarehouse = (id: string | null): void => {
+    setSelectedId(id);
+
+    if (!canShowCoverage) return;
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    setCoverageId(id);
+  };
   const isFiltered = search !== '' || statusFilter !== '' || countryFilter !== '';
 
   const clearFilters = (): void => {
@@ -251,6 +372,9 @@ export function WarehousesPage(): React.JSX.Element {
       // not tidiness - leaving it open would show a stale record beside a
       // table the row has gone from.
       setSelectedId((current) => (current === id ? null : current));
+      // A warehouse that has just been retired or deleted must not leave a
+      // ring on the map for a record that is gone.
+      setCoverageId((current) => (current === id ? null : current));
       await invalidate();
     },
     onError: (error) => {
@@ -545,9 +669,39 @@ export function WarehousesPage(): React.JSX.Element {
                       // lands there is nothing to draw anyway - `placed` is
                       // empty - so the NONE default is a safe stand-in rather
                       // than a guess that could load the wrong one.
-                      map={query.data?.map ?? { provider: 'NONE' }}
+                      map={mapConfig}
                       selectedId={selectedId}
-                      onSelect={setSelectedId}
+                      onSelect={selectWarehouse}
+                      coverageId={coverageId}
+                      coverage={coverageQuery.data ?? null}
+                      // Only handed over where the provider can draw the ring.
+                      // Undefined rather than a no-op, because the map reads it
+                      // to decide whether to attach hover listeners at all.
+                      onPointAt={canShowCoverage ? setCoverageId : undefined}
+                      overlay={
+                        coveragePanel === null ? undefined : (
+                          <DeliveryCoveragePanel
+                            warehouseName={coveragePanel.value.warehouseName}
+                            radiusKm={radiusKm}
+                            coverage={coveragePanel.value.coverage}
+                            isLoading={coveragePanel.value.isLoading}
+                            failure={coveragePanel.value.failure}
+                            // Still on screen, on its way out. The map has
+                            // already put the camera back; this is the panel
+                            // catching up rather than vanishing mid-sentence.
+                            isLeaving={coveragePanel.isLeaving}
+                            // The close button exists only where there is no
+                            // pointer to move away. See `selectWarehouse`.
+                            onClose={
+                              window.matchMedia('(hover: hover) and (pointer: fine)').matches
+                                ? undefined
+                                : () => {
+                                    setCoverageId(null);
+                                  }
+                            }
+                          />
+                        )
+                      }
                     />
                   ) : (
                     !query.isPending && (
@@ -581,7 +735,27 @@ export function WarehousesPage(): React.JSX.Element {
                     warehouse={selected}
                     onClose={() => {
                       setSelectedId(null);
+                      setCoverageId(null);
                     }}
+                    // The keyboard and screen-reader path to the coverage. The
+                    // map is aria-hidden, so a marker cannot be focused and
+                    // hovering is not a gesture a keyboard has - this button
+                    // is how the answer is reachable without a pointer.
+                    // Absent for a warehouse with no position and on a
+                    // provider that cannot draw the ring, rather than present
+                    // and inert.
+                    {...(canShowCoverage && isPlaced(selected)
+                      ? {
+                          coverage: {
+                            isOpen: coverageId === selected.id,
+                            onToggle: () => {
+                              setCoverageId((current) =>
+                                current === selected.id ? null : selected.id,
+                              );
+                            },
+                          },
+                        }
+                      : {})}
                     {...(canWrite
                       ? {
                           onEdit: () => {

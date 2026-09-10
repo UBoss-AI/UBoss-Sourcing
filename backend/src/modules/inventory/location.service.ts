@@ -164,24 +164,52 @@ export interface MapTiles {
 }
 
 /**
+ * The vector style, when the operator pointed at one.
+ *
+ * A style JSON URL rather than a tile template, because that is the shape
+ * MapLibre takes: the style is what names the tile source, the glyphs and
+ * every layer's paint, and a bare tile URL would leave the browser guessing at
+ * all three.
+ *
+ * `attribution` is an addition, not the whole credit. A style declares its own
+ * sources and each of those carries its own attribution string, so the corner
+ * of the map is usually right with this empty; it is here for the self-hosted
+ * style that declares none.
+ */
+export interface MapStyle {
+  url: string;
+  attribution: string;
+}
+
+/**
  * What the Warehouses screen should draw its warehouses on.
  *
- * Three answers, and the panel has an implementation of each. A discriminated
+ * Four answers, and the panel has an implementation of each. A discriminated
  * union rather than a bag of optional fields, because the browser has to pick
  * one library and load it - `provider` is the thing it switches on, and a
  * shape that let `GOOGLE` arrive with no key would put that decision back in
  * the frontend.
  *
  * `NONE` is the default and a working state rather than a misconfiguration.
- * Both of the other two tell somebody outside the building which part of the
- * world is being looked at, and for this product that is where the buyer's
+ * Every other one tells somebody outside the building which part of the world
+ * is being looked at, and for this product that is where the buyer's
  * warehouses are - not a fact this software gets to disclose on their behalf
  * until they ask it to. With `NONE` the screen plots its markers on a plain
- * grid, keeps its scale bar, and says in words that there is no background.
+ * ground, keeps its scale bar, and says in words that there is no background.
+ *
+ * `VECTOR` and `RASTER` are both OpenStreetMap-shaped and they are not
+ * interchangeable, which is why there are two of them. A raster tile arrives
+ * as a finished picture with the place names already drawn into it **in
+ * whatever language is local to that place**, and no amount of work in the
+ * browser can change that. A vector tile arrives as data - every place
+ * carrying `name`, `name:en`, `name:de` - so the panel can ask for one
+ * language and get it worldwide. An operator who wants a map that reads the
+ * same in Pune and in Athens needs `VECTOR`.
  */
 export type MapConfig =
   | { provider: 'NONE' }
   | { provider: 'RASTER'; tiles: MapTiles }
+  | { provider: 'VECTOR'; style: MapStyle }
   /**
    * The key is here on purpose. The Maps JavaScript API has no server side:
    * every deployment's key is public to anyone who opens the panel, and what
@@ -191,21 +219,25 @@ export type MapConfig =
   | { provider: 'GOOGLE'; apiKey: string; mapId: string };
 
 /**
- * Which of the three, from settings.
+ * Which of the four, from settings.
  *
- * A pure function taking the four strings rather than reading `env` directly,
- * so the precedence below can be tested without a process per case. `env` is
- * parsed once at import and a test that wanted to try four combinations would
- * otherwise need four child processes.
+ * A pure function taking the strings rather than reading `env` directly, so
+ * the precedence below can be tested without a process per case. `env` is
+ * parsed once at import and a test that wanted to try every combination would
+ * otherwise need a child process for each.
  *
- * **Google wins when both are configured.** Somebody who sets a Google key on
- * an installation that has been running on OpenStreetMap tiles means to move
- * to Google; making them also clear two other variables would give them a
- * screen that ignored the thing they just set, with nothing on it saying why.
+ * **The order is Google, then vector, then raster**, and it is the order of
+ * how deliberately somebody had to arrive there: nobody sets a Google key or a
+ * style URL by accident. An operator moving an installation forward sets the
+ * new provider's variables and nothing else - falling the other way round
+ * would leave them looking at the provider they had just moved off, with
+ * nothing on the screen saying why the setting they added did nothing.
  */
 export function resolveMapConfig(source: {
   googleApiKey: string;
   googleMapId: string;
+  styleUrl: string;
+  styleAttribution: string;
   tileUrl: string;
   tileAttribution: string;
 }): MapConfig {
@@ -218,6 +250,17 @@ export function resolveMapConfig(source: {
   // it, which is worse than the plain grid.
   if (apiKey.length > 0 && mapId.length > 0) {
     return { provider: 'GOOGLE', apiKey, mapId };
+  }
+
+  // Above the raster tiles, because the reason to set this is nearly always
+  // the labels: a deployment selling into eight languages wants place names in
+  // one of them, and the vector path is the only one that can give it them.
+  const styleUrl = source.styleUrl.trim();
+  if (styleUrl.length > 0) {
+    return {
+      provider: 'VECTOR',
+      style: { url: styleUrl, attribution: source.styleAttribution.trim() },
+    };
   }
 
   const urlTemplate = source.tileUrl.trim();
@@ -235,6 +278,8 @@ export function mapConfig(): MapConfig {
   return resolveMapConfig({
     googleApiKey: env.MAP_GOOGLE_API_KEY,
     googleMapId: env.MAP_GOOGLE_MAP_ID,
+    styleUrl: env.MAP_STYLE_URL,
+    styleAttribution: env.MAP_STYLE_ATTRIBUTION,
     tileUrl: env.MAP_TILE_URL,
     tileAttribution: env.MAP_TILE_ATTRIBUTION,
   });

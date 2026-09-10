@@ -2,18 +2,16 @@
  * How a warehouse is drawn on the map, for whichever map is drawing it.
  *
  * One builder rather than one per provider, and that is the whole reason this
- * file exists. Leaflet and Google Maps take their marker content in different
- * shapes - a string of HTML for Leaflet's `divIcon`, a real element for
- * Google's `AdvancedMarkerElement` - and two implementations of "what does a
- * warehouse look like" is how a deployment on Google ends up with markers that
- * are subtly a different size from the same panel on OpenStreetMap.
+ * file exists. Two implementations of "what does a warehouse look like" is how
+ * a deployment on Google ends up with markers that are subtly a different size
+ * from the same panel on OpenStreetMap. MapLibre's `Marker` and Google's
+ * `AdvancedMarkerElement` both take a real element, so one builder serves
+ * both.
  *
  * Built with DOM calls rather than a template string, and that is a security
- * decision rather than a style one. `divIcon` assigns its HTML with
- * `innerHTML`, so the previous version of this had to hand-escape the
- * warehouse's code. `textContent` cannot be talked into running anything, so
- * the escaping goes away rather than having to stay correct - and a warehouse
- * called `Pune <b>2</b>` reads as its own name on both maps.
+ * decision rather than a style one. `textContent` cannot be talked into
+ * running anything, so there is no escaping here that has to stay correct -
+ * and a warehouse called `Pune <b>2</b>` reads as its own name on both maps.
  */
 import type { PlacedWarehouse, Warehouse } from '@/lib/warehouses';
 
@@ -49,8 +47,26 @@ export function markerTone(warehouse: Warehouse): string {
   }
 }
 
-/** The box both providers reserve for one marker, in pixels. */
-export const MARKER_BOX = 28;
+/**
+ * The box a marker's element reserves, in pixels.
+ *
+ * Not exported: both renderers position a marker by its element's own box -
+ * MapLibre anchors at its centre, Google at the bottom of it - so neither has
+ * to be told a size.
+ */
+const MARKER_BOX = 28;
+
+/**
+ * What being the selected marker looks like, and what being an ordinary one
+ * looks like.
+ *
+ * Two lists rather than a ternary inside the class string, because they are
+ * also what `setMarkerSelected` swaps at runtime and a marker that was built
+ * selected has to be indistinguishable from one that was made selected
+ * afterwards. Written once, so the two cannot drift.
+ */
+const SELECTED_CLASSES = ['h-8', 'w-8', 'text-xs', 'ring-2', 'ring-ring'];
+const UNSELECTED_CLASSES = ['h-6', 'w-6', 'text-xxs'];
 
 /**
  * One marker, as an element.
@@ -61,22 +77,68 @@ export const MARKER_BOX = 28;
  * so the warning does not rest on colour alone - the panel's contrast audit
  * covers palettes, not what a red circle means to somebody who cannot see red.
  *
+ * The optional pulse is the one piece of motion on the map that is not drawn
+ * by MapLibre, and it is a CSS animation on this element rather than a paint
+ * property on a layer: the marker is a DOM node, so the compositor animates it
+ * for free and `motion-reduce` switches it off without any JavaScript
+ * checking a media query.
+ *
  * The outer element fills its box and centres the circle in it, which is what
- * lets Leaflet position it by `iconSize`/`iconAnchor` and Google position it
- * by its own anchor without either of them knowing the circle's size.
+ * lets MapLibre anchor it by the box's centre and Google by the box's bottom
+ * edge without either of them knowing the circle's size.
  */
-export function markerElement(warehouse: PlacedWarehouse, isSelected: boolean): HTMLElement {
+export function markerElement(
+  warehouse: PlacedWarehouse,
+  isSelected: boolean,
+  /**
+   * Is this the warehouse whose delivery coverage is being shown?
+   *
+   * A different question from `isSelected`, and the two are visible at once:
+   * a row can be selected in the table while the pointer is over a different
+   * marker. Selected is "this is the record open in the panel"; pulsing is
+   * "this is the one the ring on the map belongs to".
+   */
+  isPulsing = false,
+): HTMLElement {
   const box = document.createElement('span');
-  box.className = 'flex items-center justify-center';
+  box.className = 'relative flex items-center justify-center';
   box.style.width = `${String(MARKER_BOX)}px`;
   box.style.height = `${String(MARKER_BOX)}px`;
 
+  // Behind the circle rather than around it, and `pointer-events-none` so a
+  // ring that has grown to two and a half times the marker's size does not
+  // swallow clicks meant for the marker beside it.
+  //
+  // Built into every marker and hidden on most of them, rather than added and
+  // removed as the pointer moves. That is what lets the map answer "point at
+  // a different warehouse" by switching one attribute instead of throwing
+  // away every marker element and building new ones - a rebuild is visible as
+  // a blink of the whole map, and on the marker under the cursor it discards
+  // the hover the browser was tracking halfway through the gesture.
+  //
+  // `hidden` rather than a class: a `display: none` element runs no
+  // animation, so the pulse starts from its own first frame each time a halo
+  // is shown rather than joining one already in progress.
+  const halo = document.createElement('span');
+  halo.dataset.markerHalo = '';
+  halo.className =
+    'pointer-events-none absolute inset-1.5 rounded-full bg-brand animate-marker-pulse motion-reduce:animate-none';
+  halo.hidden = !isPulsing;
+  box.appendChild(halo);
+
   const circle = document.createElement('span');
+  circle.dataset.markerCircle = '';
   circle.className = [
     'relative flex items-center justify-center rounded-full border-2 font-semibold shadow-card',
-    isSelected ? 'h-8 w-8 text-xs' : 'h-6 w-6 text-xxs',
+    // The answer to the pointer arriving, before anything else has happened.
+    // Coverage waits 140ms to be sure the hover was meant; this does not wait
+    // at all, so the marker acknowledges the cursor at once and the panel that
+    // follows reads as the second half of one gesture rather than as something
+    // that happened on its own. Transform only, so it is composited and costs
+    // no layout, and `motion-reduce` drops it.
+    'transition-transform duration-150 ease-out hover:scale-110 motion-reduce:transition-none',
     markerTone(warehouse),
-    isSelected ? 'ring-2 ring-ring' : '',
+    ...(isSelected ? SELECTED_CLASSES : UNSELECTED_CLASSES),
   ]
     .filter((part) => part.length > 0)
     .join(' ');
@@ -97,12 +159,38 @@ export function markerElement(warehouse: PlacedWarehouse, isSelected: boolean): 
 }
 
 /**
- * The same marker as a string, for Leaflet's `divIcon`.
+ * Move the selection to or from one marker, in place.
  *
- * `divIcon` takes markup, not an element, so this is the one place the element
- * gets serialised. Going through `markerElement` rather than assembling a
- * second template is what keeps the two maps drawing the same marker.
+ * Same bargain as `setMarkerPulse` and the same reason: the selected marker
+ * is a ring two sizes larger, and rebuilding every marker to grow one of them
+ * discards the element the pointer is currently on. Clicking a marker is
+ * exactly when that happens - it selects the warehouse it is hovering - so
+ * without this, opening a record threw away the hover that was showing that
+ * record's delivery coverage.
+ *
+ * The z-index stays with the caller: it belongs to the outer element, which
+ * is the one the map renderer positions, and only the map knows what else it
+ * has put there.
  */
-export function markerHtml(warehouse: PlacedWarehouse, isSelected: boolean): string {
-  return markerElement(warehouse, isSelected).outerHTML;
+export function setMarkerSelected(element: HTMLElement, isSelected: boolean): void {
+  const circle = element.querySelector<HTMLElement>('[data-marker-circle]');
+  if (circle === null) return;
+
+  circle.classList.remove(...(isSelected ? UNSELECTED_CLASSES : SELECTED_CLASSES));
+  circle.classList.add(...(isSelected ? SELECTED_CLASSES : UNSELECTED_CLASSES));
+}
+
+/**
+ * Turn one marker's pulse on or off, in place.
+ *
+ * The counterpart to building a halo into every marker: pointing at another
+ * warehouse becomes a change to one attribute rather than a rebuild of every
+ * marker on the map. Takes the outer element a renderer already holds -
+ * MapLibre's `marker.getElement()` - so a caller needs to have kept nothing
+ * besides the marker itself.
+ */
+export function setMarkerPulse(element: HTMLElement, isPulsing: boolean): void {
+  const halo = element.querySelector<HTMLElement>('[data-marker-halo]');
+  if (halo === null) return;
+  halo.hidden = !isPulsing;
 }

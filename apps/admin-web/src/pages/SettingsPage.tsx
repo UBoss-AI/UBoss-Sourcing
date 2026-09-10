@@ -48,6 +48,7 @@ import { useI18n } from '@/i18n/i18n-context';
 import type { Translate } from '@/i18n/i18n-context';
 import { ExchangeRatesPanel } from './settings/ExchangeRatesPanel';
 import { CatalogueTranslationPanel } from './settings/CatalogueTranslationPanel';
+import { PolicyLinksPanel } from './settings/PolicyLinksPanel';
 import { VatRatesPanel } from './settings/VatRatesPanel';
 import { ErpPanel } from './settings/ErpPanel';
 import { ProcessorsPanel } from './settings/ProcessorsPanel';
@@ -995,6 +996,11 @@ export function SettingsPage(): React.JSX.Element {
 
       <div className="space-y-5">
         <BusinessPanel />
+        {/* Directly under the profile, because it is the rest of the same
+            answer: who this business is, and where it publishes the terms it
+            trades on. Both frontends read these links, so they are not a
+            storefront decoration. */}
+        <PolicyLinksPanel />
         <TaxClassesPanel />
         {/* Directly under the tax classes: a class carries the BAND, this
             carries the percentage that band means in each member state, and

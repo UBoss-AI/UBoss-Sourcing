@@ -38,12 +38,27 @@ interface WarehouseDetailPanelProps {
   onClose: () => void;
   /** Opens the form. Absent for a reader without the write permission. */
   onEdit?: () => void;
+  /**
+   * The delivery-coverage toggle.
+   *
+   * **This is the keyboard path to that feature, not a convenience.** On the
+   * map, coverage follows the pointer - and the map is `aria-hidden` because
+   * the table below it is the accessible copy of everything on it, so no
+   * marker can be focused and hovering is not a gesture a keyboard has. A
+   * button in this panel is the only way the answer is reachable without a
+   * pointer, which makes it load-bearing.
+   *
+   * Absent for a warehouse with no position and on a map provider that cannot
+   * draw the ring, rather than present and inert.
+   */
+  coverage?: { isOpen: boolean; onToggle: () => void };
 }
 
 export function WarehouseDetailPanel({
   warehouse,
   onClose,
   onEdit,
+  coverage,
 }: WarehouseDetailPanelProps): React.JSX.Element {
   const { t } = useI18n();
 
@@ -212,6 +227,22 @@ export function WarehouseDetailPanel({
             </p>
           )}
         </section>
+
+        {coverage !== undefined && (
+          <Button
+            variant="secondary"
+            className="w-full"
+            onClick={coverage.onToggle}
+            // The panel it opens is over the map, which is a different part of
+            // the page - so this says what state it is in rather than relying
+            // on the reader seeing the result appear.
+            aria-pressed={coverage.isOpen}
+          >
+            {coverage.isOpen
+              ? t('warehouses.coverage.close')
+              : t('warehouses.coverage.show')}
+          </Button>
+        )}
 
         {onEdit !== undefined && (
           <Button variant="primary" className="w-full" onClick={onEdit}>

@@ -108,22 +108,42 @@ export interface MapTiles {
 }
 
 /**
+ * The vector style, when the operator pointed at one.
+ *
+ * A style JSON URL rather than a tile template, because that is the shape
+ * MapLibre takes: the style names the tile source, the glyphs and every
+ * layer's paint. `attribution` is an *addition* to what the style's own
+ * sources declare, and is usually empty.
+ */
+export interface MapStyle {
+  url: string;
+  attribution: string;
+}
+
+/**
  * What the warehouses are drawn on, decided by the operator's settings.
  *
- * The server sends one of three, and the panel has an implementation of each.
+ * The server sends one of four, and the panel has an implementation of each.
  * Which one arrives decides which map library the browser downloads, so this
  * has to be in hand before the map component mounts - hence its travelling in
  * the warehouses response rather than behind a request of its own.
  *
- * `NONE` is the default and a working state: markers on a plain grid, scale
- * bar included, and a line on the screen saying there is no background. Both
- * of the others tell somebody outside the building where this company's
+ * `NONE` is the default and a working state: markers on a plain ground, scale
+ * bar included, and a line on the screen saying there is no background. Every
+ * other one tells somebody outside the building where this company's
  * warehouses are, which is not a thing this software decides on the operator's
  * behalf.
+ *
+ * `VECTOR` and `RASTER` are both OpenStreetMap-shaped and are not
+ * interchangeable. A raster tile is a finished picture with its place names
+ * drawn in **whatever language is local to that place**; a vector tile carries
+ * the names as data, so the panel can ask for English and get it worldwide.
+ * See `labelInEnglish` in `WarehouseMapLibre.tsx`.
  */
 export type MapConfig =
   | { provider: 'NONE' }
   | { provider: 'RASTER'; tiles: MapTiles }
+  | { provider: 'VECTOR'; style: MapStyle }
   /**
    * The key is public, and that is not an oversight. The Maps JavaScript API
    * has no server side - every deployment's key is visible to anybody who
@@ -133,9 +153,38 @@ export type MapConfig =
    */
   | { provider: 'GOOGLE'; apiKey: string; mapId: string };
 
+/**
+ * Can this map provider draw a delivery-coverage ring?
+ *
+ * Here rather than beside the component that reads it, because a file which
+ * exports both a component and a function loses Fast Refresh - and because the
+ * question is about `MapConfig`, which is defined above.
+ *
+ * The ring, the shaded countries and the arcs are MapLibre sources and layers;
+ * the Google map is a different renderer with a different API for all three,
+ * and a second implementation of the same picture would drift from the first.
+ * So a Google deployment does not offer the feature, and the page asks this so
+ * that the button offering it is *absent* rather than present and inert - a
+ * dead control is worse than a missing one, because the reader cannot tell
+ * whether they misunderstood it or whether it broke.
+ */
+export function supportsDeliveryCoverage(map: MapConfig): boolean {
+  return map.provider !== 'GOOGLE';
+}
+
 export interface WarehousesResponse {
   warehouses: Warehouse[];
   map: MapConfig;
+  /**
+   * How far this deployment says it delivers.
+   *
+   * From the server, never a constant here: "we deliver within 100 km" is a
+   * commercial promise that belongs to whoever runs the installation, and 100
+   * is the right number in the Benelux and nothing like it for a distributor
+   * covering Rajasthan. See `DELIVERY_COVERAGE_RADIUS_KM` in
+   * `backend/src/config/env.ts`.
+   */
+  coverage: { radiusKm: number };
 }
 
 export interface CountryOption {

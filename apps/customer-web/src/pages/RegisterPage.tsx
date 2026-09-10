@@ -40,6 +40,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
 import { z } from 'zod';
 import { useStorefront } from '@/app/storefront-context';
+import { AcceptTermsCheckbox } from '@/components/AcceptTermsCheckbox';
 import { Button, Field, Input, Select } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n-context';
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
@@ -354,44 +355,12 @@ function RegistrationForm(): React.JSX.Element {
           )}
         </Field>
 
-        <div>
-          <label className="flex items-start gap-2.5 text-sm text-ink">
-            <input
-              type="checkbox"
-              className="mt-0.5 h-4 w-4 rounded border-border-strong text-brand"
-              aria-describedby={errors.acceptedTerms === undefined ? undefined : 'terms-error'}
-              {...register('acceptedTerms')}
-            />
-            <span>
-              {t('auth.register.acceptTerms')}
-              {business.policyLinks !== null && Object.keys(business.policyLinks).length > 0 && (
-                <>
-                  {' ('}
-                  {Object.entries(business.policyLinks).map(([label, href], index) => (
-                    <span key={label}>
-                      {index > 0 && ', '}
-                      <a
-                        href={href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-medium text-brand hover:underline"
-                      >
-                        {label}
-                      </a>
-                    </span>
-                  ))}
-                  {')'}
-                </>
-              )}
-            </span>
-          </label>
-
-          {errors.acceptedTerms?.message !== undefined && (
-            <p id="terms-error" role="alert" className="mt-1.5 text-xs font-medium text-danger">
-              {errors.acceptedTerms.message}
-            </p>
-          )}
-        </div>
+        <AcceptTermsCheckbox
+          label={t('auth.register.acceptTerms')}
+          error={errors.acceptedTerms?.message}
+          errorId="terms-error"
+          {...register('acceptedTerms')}
+        />
 
         {/* Said before the form is sent, not after. Somebody who needs to order
             today should learn that an account is reviewed while they still have

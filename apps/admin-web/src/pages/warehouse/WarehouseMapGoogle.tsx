@@ -1,19 +1,20 @@
 /**
  * The warehouse map, drawn with Google Maps.
  *
- * The second of two implementations - `WarehouseMapLeaflet.tsx` is the other,
+ * The second of two implementations - `WarehouseMapLibre.tsx` is the other,
  * and `WarehouseMap.tsx` picks between them from the operator's settings. This
  * one runs only where a deployment has configured `MAP_GOOGLE_API_KEY` and
- * `MAP_GOOGLE_MAP_ID`; with neither, or with raster tiles instead, none of the
- * code below is downloaded.
+ * `MAP_GOOGLE_MAP_ID`; with any of the OpenStreetMap paths instead, none of
+ * the code below is downloaded.
  *
- * **Why not a tile layer.** Google has no public XYZ tile endpoint and their
+ * **Why not a MapLibre source.** Google has no public tile endpoint and their
  * terms forbid reaching for one, so a Google map cannot be another
- * `MAP_TILE_URL` handed to Leaflet - it has to be their JavaScript API, which
- * brings its own renderer. That is the reason the panel carries two map
- * implementations rather than one with a different URL in it, and the reason
- * the raster path stays: an installation behind a firewall, or one whose
- * operator will not send warehouse coordinates to Google, keeps a working map.
+ * `MAP_STYLE_URL` or `MAP_TILE_URL` handed to MapLibre - it has to be their
+ * JavaScript API, which brings its own renderer. That is the reason the panel
+ * carries two map implementations rather than one with a different URL in it,
+ * and the reason the OpenStreetMap paths stay: an installation behind a
+ * firewall, or one whose operator will not send warehouse coordinates to
+ * Google, keeps a working map.
  *
  * **The map ID is not optional.** It is what carries the style the operator
  * built in the Cloud console, and it is what Advanced Markers require. The
@@ -28,7 +29,7 @@
  * is the other half of that: it keeps the panel's own URL, filters and all,
  * out of what is sent to Google.
  *
- * **On accessibility**, the same decision as the Leaflet map and for the same
+ * **On accessibility**, the same decision as the MapLibre map and for the same
  * reason: the wrapper is `aria-hidden`, because everything on the map is also
  * in the table underneath it in a real `<table>` a screen reader can navigate.
  * The sighted-only content is the geography, and the coordinates column says
@@ -138,7 +139,7 @@ export function WarehouseMapGoogle({
      * Whether *this run* of the effect has been torn down.
      *
      * Per-run rather than a component-wide ref, for the reason spelled out at
-     * length in the Leaflet implementation: StrictMode mounts every effect
+     * length in the MapLibre implementation: StrictMode mounts every effect
      * twice in development, and a shared flag lets the first run believe it is
      * still live after the second has started - which here would mean two maps
      * built on one container.
@@ -194,7 +195,7 @@ export function WarehouseMapGoogle({
         const map = new GoogleMap(containerRef.current, {
           mapId,
           // The whole world until the warehouses are fitted below, which is
-          // the same opening view the Leaflet map takes.
+          // the same opening view the MapLibre map takes.
           center: { lat: 20, lng: 0 },
           zoom: 2,
           // Chrome, pared back to what this screen is for. Satellite imagery,
@@ -215,7 +216,7 @@ export function WarehouseMapGoogle({
           clickableIcons: false,
           // The map sits in a scrolling page. 'cooperative' scrolls the page
           // on a plain wheel and zooms on ctrl+wheel, which is the behaviour
-          // the Leaflet map buys by switching wheel zoom off entirely - and it
+          // the MapLibre map buys by switching wheel zoom off entirely - and it
           // keeps a way to zoom with the wheel for whoever wants one.
           gestureHandling: 'cooperative',
         });
@@ -320,7 +321,7 @@ export function WarehouseMapGoogle({
 
     map.fitBounds(bounds, 48);
 
-    // `fitBounds` takes no maximum zoom, unlike Leaflet's, so two warehouses
+    // `fitBounds` takes no maximum zoom, unlike MapLibre's, so two warehouses
     // in one city would fit to a view of two streets. Clamped once the fit has
     // settled, which is what 'idle' means, and the listener is removed
     // immediately so panning afterwards is left alone.

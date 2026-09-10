@@ -115,6 +115,15 @@ export const ErrorCode = {
   /// only thing left". The message names what is in the way and how much of
   /// it there is.
   LOCATION_HAS_HISTORY: 'LOCATION_HAS_HISTORY',
+  /// The warehouse is real but has nowhere on the map, so anything measured
+  /// from its position cannot be measured at all - today that is the delivery
+  /// coverage radius. A separate code from VALIDATION_FAILED because nothing
+  /// the caller sent is wrong: the request was well formed and the answer is
+  /// that this warehouse has no coordinates, or has coordinates that cannot be
+  /// plotted. The message says which of the two, because the fixes differ -
+  /// one is "look them up from the address", the other is "correct the numbers
+  /// somebody stored". Admin-only, so no storefront screen can receive it.
+  LOCATION_NOT_PLACED: 'LOCATION_NOT_PLACED',
 
   // --- Cart and purchasing limits ---
   CART_EMPTY: 'CART_EMPTY',

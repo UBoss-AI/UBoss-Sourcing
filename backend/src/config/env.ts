@@ -399,11 +399,58 @@ const envSchema = z
     // requires attribution and forbids bulk downloading - so a deployment that
     // points here must also set MAP_TILE_ATTRIBUTION, and an installation with
     // many staff should use its own tile server or a commercial one.
+    //
+    // RASTER TILES ARE ALWAYS LABELLED IN THE LOCAL LANGUAGE. Place names are
+    // drawn into the image before it is sent, so Greece arrives as Ελλάς and
+    // China as 中国 and the browser can do nothing about it. A deployment that
+    // needs one language across the whole world wants MAP_STYLE_URL below.
     MAP_TILE_URL: z.string().default(''),
     // Rendered in the corner of the map, as every tile licence requires. Kept
     // as free text rather than a lookup table of known providers: the operator
     // knows what their provider asks for, and this software cannot.
     MAP_TILE_ATTRIBUTION: z.string().default(''),
+
+    // Vector tiles, as a MapLibre style URL. The same map, drawn in the
+    // browser from data rather than delivered as finished pictures.
+    //
+    // **This is the setting that gets every label into one language.** A
+    // vector tile carries a place's names as fields - `name`, `name:en`,
+    // `name:de` - and the panel points every label at `name:en`, so a map
+    // opened in Pune and a map opened in Athens both read "Greece". With the
+    // raster tiles above that is not possible at any price.
+    //
+    // What goes here is a style JSON URL, not a tile template: the style is
+    // what names the tile source, the fonts and every layer's paint. Keyless
+    // public ones exist - OpenFreeMap's
+    // https://tiles.openfreemap.org/styles/liberty is planet-wide
+    // OpenStreetMap data - commercial providers hand out one with a key in the
+    // query string, and an installation behind a firewall points this at its
+    // own. **Vector wins over MAP_TILE_URL when both are set**, and Google
+    // still wins over both.
+    MAP_STYLE_URL: z.string().default(''),
+    // An attribution line added to whatever the style already declares.
+    //
+    // Usually left empty, and that is a different story from
+    // MAP_TILE_ATTRIBUTION above rather than the same one: a style JSON names
+    // its own sources and each source carries its own attribution, so the
+    // credit reaches the corner of the map without this being set. It is here
+    // for the deployment whose self-hosted style declares none, and for a
+    // licence that asks for a line of its own.
+    MAP_STYLE_ATTRIBUTION: z.string().default(''),
+
+    // How far the Warehouses screen says a warehouse delivers.
+    //
+    // A setting rather than a constant because it is a commercial promise, not
+    // a technical limit: 100 km is what a van does in an afternoon in the
+    // Benelux and nothing like the right number for a distributor covering
+    // Rajasthan. The panel asks for this radius by default and the endpoint
+    // accepts any value up to its own ceiling, so an operator can also try a
+    // different one without changing this.
+    //
+    // Nothing about it is hard-coded in the frontend. The browser is told the
+    // radius it should ask for by /config, the same way it is told everything
+    // else it must not assume.
+    DELIVERY_COVERAGE_RADIUS_KM: intFromString(1, 1000).default(100),
 
     // Google Maps, as an alternative to the raster tiles above.
     //

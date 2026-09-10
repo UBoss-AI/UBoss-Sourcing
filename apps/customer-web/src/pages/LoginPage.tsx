@@ -9,6 +9,10 @@
  *
  * Self-registration is offered only when the backend's flag says so. A "Create
  * an account" link that leads to a 403 is worse than no link.
+ *
+ * The terms have to be accepted on every sign-in, not remembered from the
+ * last one. Nothing is stored to say "this browser already agreed", because a
+ * consent that carries itself forward is a consent nobody gave this time.
  */
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -17,6 +21,7 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { useSession } from '@/auth/session-context';
 import { useStorefront } from '@/app/storefront-context';
+import { AcceptTermsCheckbox } from '@/components/AcceptTermsCheckbox';
 import { Button, Field, Input, Spinner } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n-context';
 import { LanguageSwitcher, TranslationQualityNotice } from '@/i18n/LanguageSwitcher';
@@ -38,6 +43,9 @@ function buildSchema(t: ReturnType<typeof useI18n>['t']) {
       .min(1, t('validation.emailRequired'))
       .pipe(z.email(t('validation.emailInvalid'))),
     password: z.string().min(1, t('validation.passwordRequired')),
+    // `literal(true)` rather than a boolean with a refinement: an unticked box
+    // is not a value the form may submit at all, so the type says so.
+    acceptedTerms: z.literal(true, { message: t('validation.acceptTermsToSignIn') }),
   });
 }
 
@@ -75,7 +83,10 @@ export function LoginPage(): React.JSX.Element {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(buildSchema(t)),
-    defaultValues: { email: '', password: '' },
+    // Never pre-ticked. `false` is not assignable to the `true` the schema
+    // demands, which is the point: the form starts in a state it refuses to
+    // submit until the customer acts.
+    defaultValues: { email: '', password: '', acceptedTerms: false as never },
   });
 
   useEffect(() => {
@@ -142,6 +153,9 @@ export function LoginPage(): React.JSX.Element {
     setHelpCode(null);
 
     try {
+      // `acceptedTerms` gates the submit and is not sent: `/auth/login` takes
+      // an email and a password, and the acceptance that is recorded against
+      // an account is the one given at registration or activation.
       await login(values.email, values.password);
       const from = (location.state as LocationState | null)?.from;
       void navigate(from ?? '/', { replace: true });
@@ -239,6 +253,15 @@ export function LoginPage(): React.JSX.Element {
             />
           )}
         </Field>
+
+        {/* Above the button, not below it. The tick is a condition of signing
+            in, so it has to be read before the thing it gates. */}
+        <AcceptTermsCheckbox
+          label={t('auth.login.acceptTerms')}
+          error={errors.acceptedTerms?.message}
+          errorId="login-terms-error"
+          {...register('acceptedTerms')}
+        />
 
         <Button type="submit" variant="primary" size="lg" fullWidth isLoading={isSubmitting}>
           {t('auth.login.submit')}

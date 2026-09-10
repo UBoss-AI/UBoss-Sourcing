@@ -50,6 +50,7 @@ process.env.GEOCODE_FORWARD_URL = '';
 // All three cleared, because Google wins over the tiles when both are set and
 // clearing only one of them would leave the outcome depending on the other.
 process.env.MAP_TILE_URL = '';
+process.env.MAP_STYLE_URL = '';
 process.env.MAP_GOOGLE_API_KEY = '';
 process.env.MAP_GOOGLE_MAP_ID = '';
 

@@ -186,11 +186,46 @@ export default {
           from: { transform: 'translateX(-100%)' },
           to: { transform: 'translateX(0)' },
         },
+        // The delivery-coverage panel arriving over the map. It comes from the
+        // edge it is anchored to, the way the drawer does, so the motion says
+        // where it came from rather than performing.
+        'flap-panel-in': {
+          from: { opacity: '0', transform: 'translateX(8px) scale(0.98)' },
+          to: { opacity: '1', transform: 'translateX(0) scale(1)' },
+        },
+        // One country flap opening. A real rotation about the left edge of the
+        // card, which is what makes a list of these read as a set of flaps
+        // rather than a list that faded in - the parent supplies the
+        // perspective and each card its own delay.
+        //
+        // Transform and opacity only, deliberately: both are composited, so a
+        // dozen of these animate on the GPU without laying out the page once,
+        // and the reduced-motion block in index.css leaves the finished card
+        // rather than a gap.
+        'flap-in': {
+          from: { opacity: '0', transform: 'rotateY(-38deg) translateX(6px)' },
+          '60%': { opacity: '1' },
+          to: { opacity: '1', transform: 'rotateY(0deg) translateX(0)' },
+        },
+        // The marker of the warehouse being asked about. A ring that grows out
+        // of it and fades, which is the one piece of motion on the map itself
+        // that MapLibre does not draw.
+        'marker-pulse': {
+          '0%': { opacity: '0.55', transform: 'scale(1)' },
+          '70%': { opacity: '0', transform: 'scale(2.6)' },
+          '100%': { opacity: '0', transform: 'scale(2.6)' },
+        },
       },
       animation: {
         'fade-in': 'fade-in var(--dur-base) var(--ease-ui)',
         'dialog-in': 'dialog-in var(--dur-base) var(--ease-ui)',
         'drawer-in': 'drawer-in var(--dur-base) var(--ease-ui)',
+        // The flap animation fills backwards, so a card waiting its turn is
+        // invisible rather than flashing in at full opacity and then
+        // flipping.
+        'flap-panel-in': 'flap-panel-in var(--dur-base) var(--ease-ui)',
+        'flap-in': 'flap-in 420ms var(--ease-ui) backwards',
+        'marker-pulse': 'marker-pulse 2s cubic-bezier(0.2, 0.6, 0.35, 1) infinite',
       },
     },
   },

@@ -33,7 +33,20 @@ import {
   recordErpSync,
   updateWarehouse,
 } from '../../modules/inventory/location.service.js';
+import { deliveryCoverage } from '../../modules/inventory/delivery-coverage.service.js';
+import { env } from '../../config/env.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
+
+/**
+ * The largest radius this endpoint will measure.
+ *
+ * Not a business rule - `DELIVERY_COVERAGE_RADIUS_KM` is that - but a guard on
+ * the work one request can ask for. A radius of a few thousand kilometres
+ * intersects most of a continent, and the reply would carry a hundred
+ * countries' clipped polygons to draw a promise nobody makes. 1,000 km is
+ * comfortably past any same-week delivery claim.
+ */
+const MAX_COVERAGE_RADIUS_KM = 1000;
 
 const stockKeySchema = z.object({
   productId: z.string().length(26),
@@ -500,6 +513,13 @@ export function registerAdminInventoryRoutes(app: FastifyInstance): Promise<void
         // response fills the whole screen, and the alternative is a map that
         // renders bare and then reflows when a second request lands.
         map: mapConfig(),
+        // How far this deployment says it delivers, which the panel needs
+        // before it can label a single thing "delivers to". It travels here
+        // rather than in /config because that endpoint is the *storefront's*
+        // public configuration, built from an allowlist, and where a
+        // wholesaler's vans reach is not something to publish to anonymous
+        // visitors. See DELIVERY_COVERAGE_RADIUS_KM in config/env.ts.
+        coverage: { radiusKm: env.DELIVERY_COVERAGE_RADIUS_KM },
       });
     },
   );
@@ -632,6 +652,54 @@ export function registerAdminInventoryRoutes(app: FastifyInstance): Promise<void
       });
 
       return reply.status(200).send({ countries });
+    },
+  );
+
+  /**
+   * Which countries this warehouse can deliver to inside a radius.
+   *
+   * Its own request rather than a field on the warehouses list, and that is
+   * about cost: this walks real country polygons, and doing it for every
+   * warehouse on a screen that lists twenty would be twenty times the work for
+   * a panel that only ever shows one at a time. It is asked for when somebody
+   * points at a warehouse, and the answer is small.
+   *
+   * INVENTORY_READ, the same permission as the list it is opened from. This
+   * discloses no stock, no money and no customer - it is the geography of a
+   * building whose coordinates the caller can already see.
+   *
+   * **The radius is a parameter with a configured default**, because "how far
+   * do we deliver" is the operator's promise and not this repository's. See
+   * DELIVERY_COVERAGE_RADIUS_KM in config/env.ts.
+   */
+  app.get(
+    '/inventory/warehouses/:id/delivery-coverage',
+    { preHandler: requireAdmin(Permission.INVENTORY_READ) },
+    async (request, reply) => {
+      const params = z.object({ id: z.string().length(26) }).parse(request.params);
+
+      const query = z
+        .object({
+          /**
+           * Coerced rather than parsed as a number, because it arrives as a
+           * string in a query. Fractional values are accepted - a 12.5 km
+           * urban radius is a real thing - and the bounds are what stop a
+           * request asking for the whole hemisphere.
+           */
+          radiusKm: z.coerce
+            .number()
+            .positive()
+            .max(MAX_COVERAGE_RADIUS_KM)
+            .default(env.DELIVERY_COVERAGE_RADIUS_KM),
+        })
+        .parse(request.query);
+
+      const coverage = await deliveryCoverage({
+        warehouseId: params.id,
+        radiusKm: query.radiusKm,
+      });
+
+      return reply.status(200).send(coverage);
     },
   );
 

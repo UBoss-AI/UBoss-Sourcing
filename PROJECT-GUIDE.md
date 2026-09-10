@@ -271,9 +271,9 @@ Two more tokens exist for the same reason:
   set of rules. A dark theme where the "on dark" variant becomes "on light" is
   a dark theme that has to reimplement its own components.
 
-The warehouse map's tiles do not follow the theme either, and
+The warehouse map's basemap does not follow the theme either, and
 `WarehouseMap.tsx` says why: the imagery is the operator's, and the usual
-shortcut — a CSS `invert()` over the tile layer — turns their basemap into a
+shortcut — a CSS `invert()` over the map — turns their basemap into a
 photographic negative. The chrome, markers and popups around it do follow it.
 
 ### How far the tint can go is not a matter of taste
@@ -1738,7 +1738,7 @@ name, their currencies and their features appear.
 | `/audit` | Audit log | Who changed what, and when |
 | `/integrations` | Integrations | Payment gateway credentials, connectors |
 | `/staff` | Staff | Staff accounts and their roles |
-| `/settings` | Settings | Business profile, tax, shipping, currencies, notifications |
+| `/settings` | Settings | Business profile, policy links, tax, shipping, currencies, notifications |
 | `/settings/erp` | Settings → ERP | The ERP connection: address, credentials, endpoints, field mapping, test, sync, activity |
 
 ## Warehouses, and the map
@@ -1833,14 +1833,25 @@ that is switched off, firewalled or simply wrong about a town must never be
 able to stop somebody recording a building.
 
 **The map's background is the operator's decision, and the default is none.**
-Three providers — a Google map, raster tiles, or nothing — and with none of
-them configured the map still works: it pans, zooms, carries a scale bar and
-places every marker correctly relative to the others. It just has no picture of
-the ground behind it, and the screen says so. That default is deliberate: both
-providers tell whoever serves them which part of the world is being looked at,
-and in a self-hosted product that is where the buyer's warehouses are. Nothing
-is sent anywhere until the operator asks for it. See
-[Configuration](#14-configuration).
+Four providers — a Google map, a vector style, raster tiles, or nothing — and
+with none of them configured the map still works: it pans, zooms, carries a
+scale bar and places every marker correctly relative to the others. It just has
+no picture of the ground behind it, and the screen says so. That default is
+deliberate: every other provider tells whoever serves it which part of the
+world is being looked at, and in a self-hosted product that is where the
+buyer's warehouses are. Nothing is sent anywhere until the operator asks for
+it. See [Configuration](#14-configuration).
+
+**Which provider decides what language the place names are in**, and that is
+the difference an operator notices first. A raster tile arrives as a finished
+picture with the names already painted into it, **in whatever language is local
+to that place** — so a panel used from Pune reads Ελλάς for Greece, 中国 for
+China and Deutschland for Germany, and nothing in the browser can change a
+word of it. A vector tile arrives as data instead: every place carries `name`,
+`name:en`, `name:de`, and `labelInEnglish` in `WarehouseMapLibre.tsx`
+repoints every label on the map at the English one. A deployment whose staff
+read one language and whose warehouses are in eight countries wants
+`MAP_STYLE_URL`.
 
 **What the screen deliberately does not show is a valuation per warehouse.**
 Product prices here are per currency, so adding up the SKUs in one building
@@ -1850,14 +1861,29 @@ know which currency they are quoting.
 
 **Two map implementations, and the operator's settings choose.**
 `WarehouseMap.tsx` does nothing but pick between them: Google Maps where a key
-and a map ID are configured, Leaflet for raster tiles and for the
-no-background default. Each one's library loads by dynamic `import()` inside
-its own module, so it lands in its own chunk — a deployment on Google never
-downloads Leaflet, one on tiles never fetches a line of Google's API, and
-somebody who opens this screen to correct a postcode downloads neither. What a
-marker looks like lives in `warehouse-marker.ts`, shared by both, so the two
-maps cannot drift apart. See §14's warehouse-map settings for why Google
-cannot simply be another tile URL.
+and a map ID are configured, MapLibre GL for the vector style, the raster tiles
+and the no-background default. Each one's library loads by dynamic `import()`
+inside its own module, so it lands in its own chunk — a deployment on Google
+never downloads MapLibre, one on OpenStreetMap never fetches a line of Google's
+API, and somebody who opens this screen to correct a postcode downloads
+neither. What a marker looks like lives in `warehouse-marker.ts`, shared by
+both, so the two maps cannot drift apart. See §14's warehouse-map settings for
+why Google cannot simply be another style or tile URL.
+
+MapLibre covers three of the four providers because it draws all three from one
+style: the vector path is the operator's style URL, the raster path is a
+one-layer style over their XYZ source, and no background is a style with no
+sources at all — a real, working map with nothing in it. They stay separate
+*providers* rather than one setting because only the vector one can be
+relabelled, which is the reason an operator would move between them.
+
+**MapLibre is a WebGL renderer and it is not small** — around 285 kB gzipped,
+against roughly 45 kB for the raster-tile library it replaced. That is why the
+dynamic `import()` matters more than it used to rather than less: it is in a
+chunk of its own, it is fetched by the Warehouses screen and by nothing else,
+and a deployment on Google or a member of staff who never opens Warehouses
+never pays a byte of it. The trade bought the labels, which no raster library
+can give at any size, and it also removed a second map library from the panel.
 
 **Finding one.** The search matches the name, the code **and the country's
 name** — somebody hunting for the Greek warehouse types "greece", not "GR" —
@@ -1865,6 +1891,93 @@ and it runs on the server, which is the only place that join is available.
 Alongside it are an operational-status filter and a country filter. All three
 live in the URL, the way the Dashboard's reporting window does, so a colleague
 can be sent the address bar.
+
+
+**"Delivers to": which countries a warehouse can actually reach.** Point at a
+marker and the map tilts in over a glowing 100 km ring, shades the part of each
+neighbouring country inside it, draws a curved route to the nearest point on
+each border, and opens a stack of glass flaps listing them — country, flag,
+and how far that border is. Move away and the camera returns to the overview.
+
+**The whole value of it is that the list is measured, not guessed**, and the
+two cheap ways to produce it are both wrong in ways nobody would notice on
+screen:
+
+  - **A neighbours table is too generous.** Belgium borders Germany, so a
+    lookup puts Germany in the answer for a warehouse in Antwerp — which is
+    150 km from the German border and cannot be reached inside 100. Somebody
+    quotes a customer on that.
+  - **A country centroid is too shy.** The centre of France is 450 km from a
+    warehouse in Basel; the border is 2 km away. Reduce a country to a point
+    and the feature refuses deliveries that are twenty minutes down the road.
+
+So a real geodesic circle is intersected with real country polygons — Natural
+Earth at 1:50m, travelling with the repository as an npm dependency because
+this software is installed behind other companies' firewalls. The distance
+reported is to the country's **nearest border**, which is the only distance a
+delivery radius cares about. See §14 for the endpoint and the radius setting,
+and `backend/src/domain/country-boundaries.ts` for why 1:50m and not the
+coarser or finer cut of the same data.
+
+**An empty answer is an answer.** A warehouse in central Spain reaches no
+foreign border inside 100 km — the nearest is Portugal at 244 km — and the
+panel says exactly that rather than offering Portugal because it is closest.
+The country the warehouse itself stands in is reported separately from the ones
+it reaches, which is what makes the empty list mean one thing and one thing
+only.
+
+**The radius is the operator's promise, not this repository's.** It arrives
+with the warehouses response from `DELIVERY_COVERAGE_RADIUS_KM`; 100 km is
+what a van does in an afternoon in the Benelux and nothing like the right
+number for a distributor covering Rajasthan. The endpoint accepts any radius up
+to 1,000 km, so an operator can try a different one without changing a setting.
+
+**The gesture depends on the input device, not the screen width.** With a real
+pointer, hovering shows the coverage and moving away puts it back. With no
+pointer there is no "moving away", so the tap that selects a warehouse opens
+the coverage and the panel grows a close button. `(hover: hover) and (pointer:
+fine)` is what decides, because a laptop with a narrow window still has a mouse
+and a large tablet still does not.
+
+**Opening is deliberate and closing is forgiving, which are two different
+numbers.** A marker has to be held for **140ms** before anything is requested,
+so dragging the map past five markers does not fire five requests and five
+camera flights. Leaving only *schedules* the close, **260ms** later, and three
+things cancel it: arriving at another marker, coming back to the same one, and
+the pointer reaching the panel. That last one is what makes the panel readable
+at all — it is in the far corner of the map with a button on every country in
+it, and closing the instant the pointer left the marker took the answer away
+during the journey towards it. The same delay is why moving from one marker to
+its neighbour changes the subject in one step instead of blanking the map
+between them. On the way out the panel fades and slides over 200ms rather than
+vanishing, holding the answer it was showing while it goes.
+
+**The markers are built once and changed in place.** Pointing at one used to
+rebuild every marker on the map — which blinked, and, on the marker under the
+cursor, threw away the hover the browser was tracking, so clicking a marker
+closed the coverage it had just opened. The pulse and the selection ring are
+now switched on the elements that are already there.
+
+**It is reachable without a pointer at all.** The map is `aria-hidden` — the
+table below it is the accessible copy of everything on it — so no marker can be
+focused and hovering is not a gesture a keyboard has. The detail panel carries
+a *Delivery coverage* button, and from there every flap is a real `<button>` in
+the tab order. The flap panel itself is deliberately outside the hidden
+subtree: it is the only place the answer exists in words.
+
+**Under `prefers-reduced-motion: reduce` the feature is complete and still.**
+The camera jumps instead of flying and stays flat, the ring does not pulse, the
+light does not run along the routes, and the flaps appear without flipping.
+Nothing is missing, which is the test of whether the motion was information or
+decoration.
+
+**Only the MapLibre providers draw it.** The ring, the shaded countries and the
+arcs are MapLibre sources and layers; the Google map is a different renderer
+with a different API for all three, and a second implementation of the same
+picture would drift from the first. On a Google deployment the button is
+*absent* rather than present and inert — a dead control is worse than a missing
+one, because the reader cannot tell whether they misunderstood it or whether it
+broke. `supportsDeliveryCoverage` in `lib/warehouses.ts` is what the page asks.
 
 **Clicking a marker opens a side panel** with the whole record: the address,
 the coordinates, the local time at that warehouse, the stock roll-up, and where
@@ -1896,6 +2009,7 @@ decides what is *shown*; the server decides what is allowed.
 | `DELETE /inventory/warehouses/:id` | `inventory.location.write` | Removes one that was never used. Refused for the default, and for any warehouse a balance, movement, reservation or scheduled order names. 404 for a warehouse already gone, which is also the answer to a second press |
 | `PUT /inventory/warehouses/:id/erp-status` | `inventory.location.write` | The connector reports where the warehouse stands with the ERP |
 | `POST /inventory/warehouses/geocode` | `inventory.location.write` | An address to coordinates. A POST so the address stays out of access logs |
+| `GET /inventory/warehouses/:id/delivery-coverage` | `inventory.read` | Which countries this warehouse reaches inside a radius, measured against real country boundaries. Takes `radiusKm` (default `DELIVERY_COVERAGE_RADIUS_KM`, ceiling 1,000). Returns the home country separately from the ones reached, each with its nearest-border distance and the point it was measured to, plus the ring itself as geometry. 422 `LOCATION_NOT_PLACED` for a warehouse with no usable coordinates |
 | `GET /inventory/warehouse-countries` | `inventory.read` | The countries a warehouse may be in, for the pickers |
 | `GET /inventory/locations` | `inventory.read` | The *pickers'* list — active only, no stock roll-up. Deliberately not the same endpoint |
 
@@ -1905,6 +2019,45 @@ row with any history behind it stays whatever the caller asks. It leaves one
 `inventory_location.deleted` entry in the audit log carrying the whole record —
 code, name, country, position — because after the write there is nothing left
 to look the warehouse up in.
+
+## Settings → Policy links
+
+The terms, privacy and returns pages this business publishes. A label and an
+address each, in the order they are arranged, stored as one JSON object in
+`business_profiles.policy_links_json`.
+
+They are read in three places, which is why this is a setting and not a page
+of copy somebody edits:
+
+- the storefront footer;
+- beside the terms tick on the storefront’s sign-in screen;
+- beside the terms tick on the panel’s own sign-in screen.
+
+All three read `business.policyLinks` from the public `GET /api/v1/config`, so
+a link added here appears in all of them without a redeploy. A deployment that
+sets none shows no links — and the terms tick is still required, because what
+is accepted is the contract, not the web page.
+
+**Three rules, and each one exists because it loses data quietly.**
+
+- **The label is the key.** The backend stores an object, so two rows sharing
+  a label are one row by the time it is written and the second silently
+  replaces the first. The panel refuses to save that rather than letting
+  somebody find a missing link a week later.
+- **The address must be `http://` or `https://`.** Enforced on the server,
+  not only in the form: a `javascript:` policy link would be stored XSS on
+  the storefront footer. The server keys its refusal by label, so the message
+  lands on the row it is about.
+- **A blank address is a deletion.** The server drops any entry whose address
+  is empty, which is a real way to lose a link by tabbing through a form. So
+  the panel validates every row before the request, and removal is a button
+  somebody presses.
+
+The write is `PATCH /api/v1/admin/settings/policy-links`, needs
+`SETTINGS_WRITE`, replaces the whole set, and goes through
+`updateBusinessProfile` — so it lands in the audit log like any other change
+to the business profile. Staff without `SETTINGS_WRITE` see the rows and no
+controls.
 
 ## The five staff roles
 
@@ -2727,6 +2880,51 @@ Three deliberate choices here:
 - **The expired-temporary-password check runs after the password check**, on
   purpose. Telling somebody who does not know the password that it has expired
   would confirm both that the account exists and that it has never been used.
+
+### Accepting the terms at sign-in
+
+Both sign-in screens — the storefront’s `/login` and the panel’s `/login` —
+carry a required **I accept the terms** tick above the button. An unticked box
+stops the submit and shows "You need to accept the terms to sign in."; nothing
+is sent until it is ticked.
+
+Four things about it are deliberate:
+
+- **It is a client-side gate, not a recorded consent.** `POST /auth/login`
+  still takes an email and a password and nothing else, and sending it a field
+  it does not declare would be rejected by its schema. The acceptance that is
+  *stored* is the one given at registration or at invitation activation, in
+  `customer_profiles.consent_accepted_at` and `consent_version` — and the
+  backend refuses either without it (`CONSENT_REQUIRED`). A staff invitation
+  carries no consent row at all. So the tick at sign-in is a reminder of a
+  standing agreement, not a new record of one. **If a deployment ever needs
+  each sign-in evidenced, that is a backend change** — a column, a version to
+  compare against, and a decision about what to do when the policy has moved
+  on — not a checkbox.
+- **It is never pre-ticked, and never remembered.** No cookie, no
+  `localStorage`, no "this browser already agreed". A tick that carries itself
+  forward is a tick nobody gave this time, and the panel in particular is
+  shared by several staff accounts behind nothing but a password — one
+  person’s acceptance must not appear as the next person’s.
+- **The links beside it are the operator’s own.** They come from
+  `business.policyLinks` on `GET /api/v1/config` — a label and a URL each,
+  stored in `business_profiles.policy_links_json`, edited in
+  **Settings → Policy links** and written by
+  `PATCH /api/v1/admin/settings/policy-links` (needs `SETTINGS_WRITE`).
+  Nothing in either frontend knows what a policy is called or where it
+  lives: whatever labels the operator sets are the labels that appear, in
+  that order. A deployment that has set none renders the sentence with no
+  links rather than a link to a page that does not exist — and the tick is
+  still required, because what is being accepted is the contract, not the
+  web page.
+- **The wording differs by surface, on purpose.** A customer accepts *terms of
+  business* (`auth.login.acceptTerms` in `apps/customer-web`, the same
+  sentence the sign-up form uses); a member of staff accepts *terms of use*
+  (the same key in `apps/admin-web`). Staff are not buying anything.
+
+The storefront’s three consent ticks — sign-in, sign-up and invitation
+activation — are one component, `components/AcceptTermsCheckbox.tsx`, so the
+sentence and the links cannot drift apart between the screens.
 
 ## 9.2 Browsing and being quoted a price
 
@@ -4383,34 +4581,53 @@ hostname adds it to that check, in every mode, and nothing else with it. See
 |---|---|---|
 | `MAP_GOOGLE_API_KEY` | *(empty)* | A Google Maps browser key. Set it — with a map ID — and the Warehouses map is a Google map: vector rendering, and whatever style the operator built in the Cloud console |
 | `MAP_GOOGLE_MAP_ID` | *(empty)* | The Cloud console's map ID. **Required alongside the key**, and `env.ts` refuses to start without it: it is what carries the style, and what Advanced Markers need |
-| `MAP_TILE_URL` | *(empty)* | The XYZ raster tile template behind the Warehouses map. Empty means no tiles: markers are plotted on a plain ground and everything else on the screen works unchanged |
+| `DELIVERY_COVERAGE_RADIUS_KM` | `100` | How far the Warehouses screen says a warehouse delivers. A commercial promise rather than a technical limit, which is why it is a setting: 100 km is a Benelux afternoon and nothing like the right number for a distributor covering Rajasthan. The panel is told this by the warehouses response and never assumes it; the endpoint accepts any radius up to 1,000 km |
+| `MAP_STYLE_URL` | *(empty)* | A MapLibre **style JSON** URL — vector tiles. **The setting that puts every place name in one language**, because a vector tile carries `name:en` as data. Keyless public ones exist (OpenFreeMap's `https://tiles.openfreemap.org/styles/liberty` is planet-wide OpenStreetMap data); commercial providers put a key in the query string; a firewalled installation points this at its own |
+| `MAP_STYLE_ATTRIBUTION` | *(empty)* | Added to what the style's own sources already declare, which is why it is usually left empty. For a self-hosted style that declares none |
+| `MAP_TILE_URL` | *(empty)* | The XYZ **raster** tile template behind the Warehouses map. Empty means no tiles: markers are plotted on a plain ground and everything else on the screen works unchanged. Note that raster place names are baked into the image in the local language and cannot be translated |
 | `MAP_TILE_ATTRIBUTION` | *(empty)* | Shown in the corner of the map. Every tile licence requires it |
 | `GEOCODE_FORWARD_URL` | Nominatim | Turns a typed address into coordinates for the "look up" button. `{query}` is substituted. Empty switches it off |
 
-**Three providers, and the panel has an implementation of each.** The
+**Four providers, and the panel has an implementation of each.** The
 warehouses response carries a `map` field — `{ provider: 'NONE' }`,
-`{ provider: 'RASTER', tiles }` or `{ provider: 'GOOGLE', apiKey, mapId }` —
-and that is what decides which map library the browser downloads. A deployment
-on Google never downloads Leaflet; one on tiles never fetches a line of
-Google's API.
+`{ provider: 'RASTER', tiles }`, `{ provider: 'VECTOR', style }` or
+`{ provider: 'GOOGLE', apiKey, mapId }` — and that is what decides which map
+library the browser downloads. A deployment on Google never downloads MapLibre;
+one on OpenStreetMap never fetches a line of Google's API.
 
-**Google wins when both are configured.** Somebody who sets a Google key on an
-installation that has been running on OpenStreetMap tiles means to move to
-Google, and making them also clear two other variables would give them a screen
-that ignored the setting they just added.
+**`VECTOR` is the one that gets the labels into one language, and that is
+usually the reason to configure a map at all.** A raster tile is a finished
+picture with the place names already drawn into it in whatever language is
+local to that place; a vector tile carries the names as fields, so
+`labelInEnglish` in `WarehouseMapLibre.tsx` can point every label at
+`name:en` and get English worldwide. It reads the layers the style actually
+declared rather than any list kept here, so it works on a style this repository
+has never seen — and it skips any symbol layer whose label does not mention a
+name, because a motorway shield draws `ref` and rewriting it would blank it.
+The formatting a style put in its own labels is lost in the trade: one language
+everywhere is worth more to the person reading this screen than the style
+author's typography.
 
-**Empty is the default for all of them, and it is the private one.** Both
-providers disclose which part of the world is being looked at, and in this
+**The order is Google, then vector, then raster**, and it is the order of how
+deliberately somebody had to arrive there — nobody sets a Google key or a style
+URL by accident. An operator moving an installation forward sets the new
+provider's variables and nothing else; falling the other way round would leave
+them looking at the provider they had just left, with nothing on the screen
+saying why the setting they added did nothing.
+
+**Empty is the default for all of them, and it is the private one.** Every
+provider discloses which part of the world is being looked at, and in this
 product that is where the buyer's warehouses are — so nothing is requested until
 the operator asks for it. With none set the markers sit on a plain ground, the
 scale bar still works, and the screen says in words that there is no background.
 
-**Google's tiles cannot be used as raster tiles.** There is no public XYZ
-endpoint and their terms forbid reaching for one, which is why Google is a
-second setting rather than another value for `MAP_TILE_URL`, and why the panel
-carries two map implementations rather than one. The raster path stays for the
-installation behind a firewall with its own tile server, and for the operator
-who will not send warehouse coordinates to Google.
+**Google's tiles cannot be used as a style or as raster tiles.** There is no
+public tile endpoint and their terms forbid reaching for one, which is why
+Google is a separate pair of settings rather than another value for
+`MAP_STYLE_URL`, and why the panel carries two map implementations rather than
+one. The OpenStreetMap paths stay for the installation behind a firewall with
+its own style or tile server, and for the operator who will not send warehouse
+coordinates to Google.
 
 **What the operator has to do in the Google Cloud console**, once, and none of
 it is something this software can do for them:
@@ -4568,7 +4785,10 @@ UBoss-Software/
 | Pin an action bar to the bottom of a phone screen | `components/StickyBottomBar.tsx` — it publishes `--page-bottom-bar` for anything that has to clear it |
 | Change which language a country's staff read | the `countries` row's `languageCode` |
 | Add or move a warehouse | `/warehouses` in the panel; `modules/inventory/location.service.ts` |
-| Put a background behind the warehouse map | `MAP_GOOGLE_API_KEY` + `MAP_GOOGLE_MAP_ID`, or `MAP_TILE_URL`, in `backend/.env` |
+| Put a background behind the warehouse map | `MAP_STYLE_URL` in `backend/.env` (or `MAP_TILE_URL`, or `MAP_GOOGLE_API_KEY` + `MAP_GOOGLE_MAP_ID`) |
+| Get the map's country names in English | `MAP_STYLE_URL` — a vector style. Raster tiles have the local name painted into the picture |
+| Change how long a marker must be hovered, or how long "Delivers to" lingers after the pointer leaves | `HOVER_INTENT_MS` and `HOVER_LEAVE_MS` in `pages/warehouse/WarehouseMapLibre.tsx` |
+| Change how the "Delivers to" panel leaves | `COVERAGE_EXIT_MS` in `lib/delivery-coverage.ts` **and** the matching `duration-200` on the panel's root — see `lib/use-lingering.ts` for what keeps it mounted while it goes |
 | Change what happens in the background | `src/worker/handlers.ts` |
 | Change what a scheduled order costs | `modules/recurring/schedule-quote.service.ts` — the review screen and the worker both use it |
 | Add a plan or occurrence status rule | `domain/schedule-state.ts` |

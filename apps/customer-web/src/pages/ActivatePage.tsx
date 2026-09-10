@@ -26,6 +26,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
 import { useSession } from '@/auth/session-context';
 import { useStorefront } from '@/app/storefront-context';
+import { AcceptTermsCheckbox } from '@/components/AcceptTermsCheckbox';
 import { Button, ButtonLink, Field, Input } from '@/components/ui';
 import { ApiError, NetworkError, api } from '@/lib/api';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
@@ -374,45 +375,12 @@ export function ActivatePage(): React.JSX.Element {
           )}
         </Field>
 
-        <div>
-          <label className="flex items-start gap-2.5 text-sm text-ink">
-            <input
-              type="checkbox"
-              className="mt-0.5 h-4 w-4 rounded border-border-strong text-brand"
-              aria-describedby={errors.acceptedTerms === undefined ? undefined : 'terms-error'}
-              {...register('acceptedTerms')}
-            />
-            <span>
-              {t('activatePage.iAcceptTheTerms')}
-              {business.policyLinks !== null && Object.keys(business.policyLinks).length > 0 && (
-                <>
-                  {' '}
-                  (
-                  {Object.entries(business.policyLinks).map(([label, href], index) => (
-                    <span key={label}>
-                      {index > 0 && ', '}
-                      <a
-                        href={href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-medium text-brand hover:underline"
-                      >
-                        {label}
-                      </a>
-                    </span>
-                  ))}
-                  )
-                </>
-              )}
-            </span>
-          </label>
-
-          {errors.acceptedTerms?.message !== undefined && (
-            <p id="terms-error" role="alert" className="mt-1.5 text-xs font-medium text-danger">
-              {errors.acceptedTerms.message}
-            </p>
-          )}
-        </div>
+        <AcceptTermsCheckbox
+          label={t('activatePage.iAcceptTheTerms')}
+          error={errors.acceptedTerms?.message}
+          errorId="terms-error"
+          {...register('acceptedTerms')}
+        />
 
         <Button type="submit" variant="primary" size="lg" fullWidth isLoading={isSubmitting}>
           {t('activatePage.activateMyAccount')}

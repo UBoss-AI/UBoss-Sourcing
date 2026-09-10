@@ -119,7 +119,9 @@ worth knowing about now, because they change what you see later:
 | `EMAIL_DRIVER` | `log` | Emails are **printed into the worker terminal**, not sent. Fine for development — and that terminal is where you will find confirmation links and temporary passwords while testing. Set to `smtp` and fill the `SMTP_*` block to send real mail. |
 | `FEATURE_CUSTOMER_SELF_REGISTRATION` | `false` | With this off the storefront shows "accounts are by invitation" instead of a sign-up form. Turn it on to let customers register themselves. |
 | `MAP_GOOGLE_API_KEY`, `MAP_GOOGLE_MAP_ID` | *(empty)* | Set both and the admin panel's Warehouses map is a Google map, vector-rendered with your own style. Needs a Google Cloud project with billing attached, and a browser key restricted to this panel's origin. See below. |
-| `MAP_TILE_URL` | *(empty)* | Raster tiles instead, from any XYZ service. With every map setting empty the Warehouses map plots its markers on a plain ground, with no map behind them. That is a working state, and it is the private one — nothing is requested from anybody until you set one of these. See below. |
+| `MAP_STYLE_URL` | *(empty)* | A MapLibre style URL — vector tiles, and **the setting that puts every place name on the map in one language**. A keyless public one exists. See below. |
+| `MAP_TILE_URL` | *(empty)* | Raster tiles instead, from any XYZ service. Their place names arrive painted into the picture in the local language and cannot be changed. With every map setting empty the Warehouses map plots its markers on a plain ground, with no map behind them. That is a working state, and it is the private one — nothing is requested from anybody until you set one of these. See below. |
+| `DELIVERY_COVERAGE_RADIUS_KM` | `100` | How far the Warehouses map says a warehouse delivers. Drives the coverage ring and the "Delivers to" list of countries beside it. A commercial promise, so it is yours to set — and the country boundaries it is measured against ship with the software, so it needs no network. |
 | `FEATURE_SUBSCRIPTION_AUTOPAY` | `false` | With this off, customers can still schedule an order for a future date and still subscribe — each delivery is paid through a link emailed to them. Turn it on to let them save a card that is charged automatically, which needs Stripe connected. Storefront screens for saving a card are refused entirely while it is off. |
 | `ERP_ORDER_CONNECTION_NAME` | *(empty)* | With this empty, no order is pushed to an ERP. That is a working state: orders are created, paid and fulfilled exactly as they are with one. Set it to the **name** of an integration connection you have created and activated in the admin panel. |
 | `FEATURE_ERP_INTEGRATION` | `false` | With this off, **Settings → ERP** says so and does nothing else: the routes refuse, no polling job runs and the inbound webhook endpoint answers 404. Turn it on to connect an ERP from a screen rather than from environment variables — see below. |
@@ -172,12 +174,40 @@ ERP, built from `API_PUBLIC_URL`. If that is wrong, the address shown is wrong �
 so set it before anyone configures a connection. Over a tunnel (Part 3), it has
 to be the tunnel's URL, or the ERP will be told to call `localhost`.
 
-**The warehouse map has three settings and no required one.** Leaving all of
-them empty is a deliberate default rather than something to tidy up: both
-providers tell whoever serves them which part of the world is being looked at,
+**The warehouse map has five settings and no required one.** Leaving all of
+them empty is a deliberate default rather than something to tidy up: every
+provider tells whoever serves it which part of the world is being looked at,
 and that is where your warehouses are, so this software does not disclose it on
 your behalf. With none set, the markers sit on a plain ground, the scale bar
 still works, and the screen says so in words.
+
+**Which one you choose decides what language the place names are in**, and for
+most installations that is the only difference that matters. Pick
+`MAP_STYLE_URL` if your staff read one language: a vector tile carries every
+place's English name as data, so the map reads "Greece", "China" and "Germany"
+wherever it is opened. Raster tiles arrive as finished pictures with the local
+name already painted in — Ελλάς, 中国, Deutschland — and nothing can translate
+them afterwards.
+
+For a **vector map** — one language everywhere, and the recommended choice —
+set one variable:
+
+```
+MAP_STYLE_URL=https://tiles.openfreemap.org/styles/liberty
+```
+
+That one is OpenFreeMap: planet-wide OpenStreetMap data, no API key, no billing
+account, run on donations. Their `positron` and `bright` styles are the same
+data drawn differently. Commercial providers (MapTiler, Stadia, Protomaps) give
+you a style URL with a key in the query string, and a firewalled installation
+can serve the whole thing itself with tileserver-gl or Martin over planet
+MBTiles.
+
+What goes here is a **style JSON URL, not a tile template**: the style is what
+names the tile source, the fonts and every layer's colours. There is a second
+setting, `MAP_STYLE_ATTRIBUTION`, which almost nobody needs — a style declares
+its own sources and each carries its own attribution, so the credit reaches the
+corner of the map on its own.
 
 For a **Google map** — vector rendering and your own style — set both of these:
 
@@ -217,10 +247,11 @@ Read OpenStreetMap's tile usage policy before pointing at theirs: attribution
 is required, and an installation with many staff is expected to run its own
 tile server or use a commercial provider rather than lean on the volunteer one.
 
-Google's tiles cannot go in `MAP_TILE_URL` — they have no public tile endpoint
-and their terms forbid reaching for one, which is why the two are separate
-settings. **Google wins if both are configured**, so moving from OpenStreetMap
-to Google means setting the two Google variables and nothing else.
+Google's tiles cannot go in `MAP_STYLE_URL` or `MAP_TILE_URL` — they have no
+public tile endpoint and their terms forbid reaching for one, which is why they
+are separate settings. **The order is Google, then vector, then raster**, so
+moving an installation forward means setting the new provider's variables and
+nothing else — you never also have to clear the ones behind it.
 
 ## 5. Build the database
 
