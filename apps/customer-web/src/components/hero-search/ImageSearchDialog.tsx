@@ -33,6 +33,7 @@ import { Button, ButtonLink, Spinner } from '@/components/ui';
 import { CameraIcon, CloseIcon, PlusIcon, SearchIcon } from '@/components/icons';
 import { useLocale } from '@/app/locale-context';
 import { ApiError, NetworkError } from '@/lib/api';
+import { useCamera } from '@/lib/camera';
 import { IMAGE_ACCEPT_ATTRIBUTE, rejectImage, searchByImage } from '@/lib/image-search';
 import type { ImageSearchResult } from '@/lib/image-search';
 import { useI18n } from '@/i18n/i18n-context';
@@ -74,6 +75,21 @@ export function ImageSearchDialog({
   const captureRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
+  // The device camera, for the machines where `capture` on a file input is
+  // ignored — which is every desktop. See lib/camera.ts.
+  const camera = useCamera();
+
+  /*
+   * Pulled out so `reset` can depend on it by name.
+   *
+   * The hook returns a fresh object every render, so a callback depending on
+   * `camera` would be rebuilt every render, and one depending on
+   * `camera.stop` reads as a missing dependency to the exhaustive-deps rule,
+   * which cannot know the member is stable. A plain variable is both honest
+   * and legible to the rule.
+   */
+  const { stop: stopCamera } = camera;
+
   /*
    * The preview is an object URL, and an object URL that is not revoked is a
    * leak of the whole image for the life of the document. Revoked on every
@@ -107,6 +123,9 @@ export function ImageSearchDialog({
   const reset = useCallback(() => {
     abortRef.current?.abort();
     abortRef.current = null;
+    // Before anything else: a stream left live holds the device open and the
+    // indicator light on for the rest of the visit.
+    stopCamera();
     setFile(null);
     setRejection(null);
     setPhase({ kind: 'choosing' });
@@ -114,12 +133,33 @@ export function ImageSearchDialog({
     // dialog appears to ignore the second attempt.
     if (uploadRef.current !== null) uploadRef.current.value = '';
     if (captureRef.current !== null) captureRef.current.value = '';
-  }, []);
+  }, [stopCamera]);
 
   const close = useCallback(() => {
     reset();
     onClose();
   }, [onClose, reset]);
+
+  /*
+   * Press the shutter.
+   *
+   * The frame goes through `accept` like any other file, so the size and type
+   * checks, the preview and the search are one path however the photograph
+   * arrived. The camera is released the moment the frame is taken: keeping it
+   * live behind a preview of the shot it just took is a light on the bezel for
+   * no reason.
+   */
+  const takePhoto = async (): Promise<void> => {
+    const captured = await camera.capture();
+    camera.stop();
+
+    if (captured === null) {
+      setRejection(t('imageSearch.error.captureFailed'));
+      return;
+    }
+
+    accept(captured);
+  };
 
   const accept = (chosen: File | undefined): void => {
     if (chosen === undefined) return;
@@ -201,12 +241,7 @@ export function ImageSearchDialog({
       {!isSessionLoading && !isCustomer ? (
         <div className="space-y-4 py-2">
           <p className="text-sm leading-relaxed text-ink-muted">{t('imageSearch.signInBody')}</p>
-          <ButtonLink
-            to="/login"
-            state={{ from: '/products' }}
-            variant="primary"
-            onClick={close}
-          >
+          <ButtonLink to="/login" state={{ from: '/products' }} variant="primary" onClick={close}>
             {t('imageSearch.signInAction')}
           </ButtonLink>
         </div>
@@ -241,17 +276,130 @@ export function ImageSearchDialog({
               }}
             />
 
-            {previewUrl === null ? (
+            {previewUrl === null && camera.status !== 'idle' ? (
+              <div className="space-y-3">
+                {/*
+                 * A refusal is an answer, not an error.
+                 *
+                 * Somebody who declined the prompt has decided; the dialog says
+                 * so and points at the file picker, which needs no permission
+                 * at all. The same view covers a machine with no camera and a
+                 * deployment served over plain HTTP, where `getUserMedia` does
+                 * not exist — three different causes, one thing the customer
+                 * can do about it.
+                 */}
+                {camera.status === 'denied' ||
+                camera.status === 'unavailable' ||
+                camera.status === 'failed' ? (
+                  <div className="rounded-lg border border-border bg-surface-sunken px-4 py-6 text-center">
+                    <p className="text-sm font-medium text-ink">
+                      {camera.status === 'denied'
+                        ? t('imageSearch.cameraDenied')
+                        : camera.status === 'unavailable'
+                          ? t('imageSearch.cameraUnavailable')
+                          : t('imageSearch.cameraFailed')}
+                    </p>
+                    <p className="mx-auto mt-1.5 max-w-sm text-xs leading-relaxed text-ink-muted">
+                      {t('imageSearch.cameraFallbackHint')}
+                    </p>
+                    <div className="mt-4 flex flex-wrap justify-center gap-2">
+                      <Button
+                        variant="primary"
+                        onClick={() => {
+                          camera.stop();
+                          uploadRef.current?.click();
+                        }}
+                      >
+                        {t('imageSearch.uploadImage')}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        onClick={() => {
+                          camera.stop();
+                        }}
+                      >
+                        {t('common.back')}
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/*
+                     * The live camera, when it has been asked for and granted.
+                     *
+                     * `playsInline` is load-bearing on iOS, where a `<video>`
+                     * without it goes fullscreen the moment it plays and takes the
+                     * dialog with it. `muted` because a stream with no audio track
+                     * still counts as unmuted for autoplay, and an unmuted video is
+                     * refused permission to play at all.
+                     */}
+                    <div className="relative overflow-hidden rounded-lg border border-border bg-navy">
+                      <video
+                        ref={camera.videoRef}
+                        autoPlay
+                        playsInline
+                        muted
+                        className="aspect-[4/3] w-full object-cover"
+                      />
+
+                      {camera.status === 'starting' && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-navy/80 text-center">
+                          <Spinner className="h-5 w-5 text-white" />
+                          <p className="px-6 text-xs text-sky-100">
+                            {t('imageSearch.cameraAllowPrompt')}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        variant="primary"
+                        disabled={camera.status !== 'live'}
+                        onClick={() => {
+                          void takePhoto();
+                        }}
+                      >
+                        <CameraIcon className="h-4 w-4" />
+                        {t('imageSearch.shutter')}
+                      </Button>
+
+                      <Button
+                        variant="ghost"
+                        onClick={() => {
+                          camera.stop();
+                        }}
+                      >
+                        {t('common.cancel')}
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : previewUrl === null ? (
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <button
                   type="button"
-                  onClick={() => captureRef.current?.click()}
+                  /*
+                   * The live camera where the browser will lend us one, and the
+                   * platform's own camera app where it will not.
+                   *
+                   * `capture` on a file input is a *hint*: a phone honours it
+                   * and opens a far better camera than a `<video>` frame grab,
+                   * and a desktop ignores it and opens a file picker — which
+                   * is how this button came to do nothing useful on a laptop.
+                   * So `getUserMedia` leads, and the input is the fallback for
+                   * the browsers and the plain-HTTP deployments that have no
+                   * `mediaDevices` at all.
+                   */
+                  onClick={() => {
+                    if (camera.isSupported) void camera.start();
+                    else captureRef.current?.click();
+                  }}
                   className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border-strong bg-surface-sunken px-4 py-7 text-center transition-colors hover:border-brand hover:bg-brand-soft"
                 >
                   <CameraIcon className="h-6 w-6 text-brand" />
-                  <span className="text-sm font-medium text-ink">
-                    {t('imageSearch.takePhoto')}
-                  </span>
+                  <span className="text-sm font-medium text-ink">{t('imageSearch.takePhoto')}</span>
                   <span className="text-xs text-ink-muted">{t('imageSearch.takePhotoHint')}</span>
                 </button>
 

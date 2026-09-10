@@ -11,6 +11,7 @@
  * pass a rendering test and still be broken.
  */
 import { screen, waitFor, within } from '@testing-library/react';
+import { Route, Routes } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CatalogPage } from './CatalogPage';
@@ -64,6 +65,51 @@ function serveCatalog(): void {
 
     if (url.includes('/catalog/categories/')) {
       return Promise.resolve(jsonResponse({ category: { id: 'c1', name: 'Consumables' } }));
+    }
+
+    // The tree, for the panel's category block. Two levels, because the whole
+    // point of that block is the step back up to the parent.
+    if (url.includes('/catalog/categories')) {
+      return Promise.resolve(
+        jsonResponse({
+          categories: [
+            {
+              id: 'c0',
+              name: 'Consumables',
+              slug: 'consumables',
+              parentId: null,
+              depth: 0,
+              sortOrder: 1,
+              isActive: true,
+              productCount: 40,
+              children: [
+                {
+                  id: 'c1',
+                  name: 'Line Access',
+                  slug: 'line-access',
+                  parentId: 'c0',
+                  depth: 1,
+                  sortOrder: 1,
+                  isActive: true,
+                  productCount: 7,
+                  children: [],
+                },
+                {
+                  id: 'c2',
+                  name: 'Syringes',
+                  slug: 'syringes',
+                  parentId: 'c0',
+                  depth: 1,
+                  sortOrder: 2,
+                  isActive: true,
+                  productCount: 12,
+                  children: [],
+                },
+              ],
+            },
+          ],
+        }),
+      );
     }
 
     return Promise.resolve(
@@ -243,5 +289,91 @@ describe('CatalogPage filters', () => {
       // must not throw away what they were looking for.
       expect(params.get('q')).toBe('bandage');
     });
+  });
+});
+
+/**
+ * The listing's own controls: the order it is in, and where in the tree it is.
+ *
+ * Both write to the URL, which is the whole state of this page — a sorted,
+ * filtered listing is something people send to a colleague. A control that
+ * changed only local state would pass a rendering test and still be broken.
+ */
+describe('CatalogPage listing controls', () => {
+  it('offers every order as a pressable option, with the current one pressed', async () => {
+    renderWithProviders(<CatalogPage />, { route: '/products' });
+
+    const bar = await screen.findByRole('group', { name: 'Sort by' });
+
+    // Five options, not a dropdown hiding four of them: trying another order
+    // is the fastest thing a shopper does on a listing page.
+    expect(within(bar).getAllByRole('button')).toHaveLength(5);
+    expect(within(bar).getByRole('button', { name: 'Newest first' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(within(bar).getByRole('button', { name: 'Price: low to high' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+  });
+
+  it('asks the server for the order that was pressed', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<CatalogPage />, { route: '/products' });
+
+    const bar = await screen.findByRole('group', { name: 'Sort by' });
+    await user.click(within(bar).getByRole('button', { name: 'Price: low to high' }));
+
+    await waitFor(() => {
+      expect(lastListingParams().get('sort')).toBe('price_asc');
+    });
+
+    expect(
+      within(await screen.findByRole('group', { name: 'Sort by' })).getByRole('button', {
+        name: 'Price: low to high',
+      }),
+    ).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('sends the shopper back up the tree from inside a category', async () => {
+    // Rendered through a real route, not bare: the page reads its category
+    // from `useParams`, so a bare render is the /products case however the
+    // memory router's entry is spelled — which is a trap worth leaving
+    // written down, because the test passes and asserts the wrong page.
+    renderWithProviders(
+      <Routes>
+        <Route path="/category/:slug" element={<CatalogPage />} />
+      </Routes>,
+      { route: '/category/line-access' },
+    );
+
+    const panel = sidebar();
+
+    // The step up, which a department page reached from a menu otherwise only
+    // has via the breadcrumb at the very top of the page.
+    expect(await within(panel).findByRole('link', { name: 'Consumables' })).toHaveAttribute(
+      'href',
+      '/category/consumables',
+    );
+
+    // Where you are, stated and not a link: a link to the page you are on is
+    // a control that does nothing.
+    const here = within(panel).getByText('Line Access');
+    expect(here).toHaveAttribute('aria-current', 'page');
+    expect(here.closest('a')).toBeNull();
+  });
+
+  it('lists the top level when no category is chosen', async () => {
+    renderWithProviders(<CatalogPage />, { route: '/products' });
+
+    const panel = sidebar();
+
+    expect(await within(panel).findByRole('link', { name: /Consumables/ })).toHaveAttribute(
+      'href',
+      '/category/consumables',
+    );
+    // No "up" link from the root, because there is nowhere up to go.
+    expect(within(panel).queryByRole('link', { name: 'All products' })).not.toBeInTheDocument();
   });
 });

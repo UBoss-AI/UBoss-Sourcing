@@ -34,7 +34,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
 import { useLocale } from '@/app/locale-context';
-import { ProductCard, ProductCardSkeleton } from '@/components/ProductCard';
+import { ProductRow, ProductRowSkeleton } from '@/components/ProductRow';
 import { Modal } from '@/components/Modal';
 import { Button, ErrorState, Field, Input, Select } from '@/components/ui';
 import { SearchIcon } from '@/components/icons';
@@ -46,6 +46,7 @@ import {
   majorToMinor,
   minorToMajor,
 } from '@/lib/format';
+import { cx } from '@/lib/cx';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { CatalogFilterFacets, CategoryNode, ProductListResponse } from '@/lib/types';
 import { translateKey, useI18n } from '@/i18n/i18n-context';
@@ -177,18 +178,64 @@ function FacetGroup({
 }): React.JSX.Element {
   const { t } = useI18n();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [term, setTerm] = useState('');
+
+  /*
+   * A search box, but only once the list is long enough to need one.
+   *
+   * An attribute with eight values is read; one with forty is hunted through,
+   * and unfolding forty checkboxes to find "18 G" is worse than not unfolding
+   * them. The threshold is twice what the group shows collapsed, so a box
+   * never appears above a list that is already almost all visible.
+   */
+  const isSearchable = values.length > FACET_VALUES_SHOWN * 2;
+
+  const needle = term.trim().toLowerCase();
+  const matching =
+    needle === ''
+      ? values
+      : values.filter((entry) => entry.value.toLowerCase().includes(needle));
 
   // A ticked value always shows, however far down the list it sits. Otherwise
   // a filter that is doing something is invisible until the group is unfolded.
-  const visible = isExpanded
-    ? values
-    : values.filter((entry, index) => index < FACET_VALUES_SHOWN || selected.includes(entry.value));
+  //
+  // Searching implies unfolding: a term that matches the thirtieth value and
+  // then hides it behind "show all" is a search box that does not search.
+  const visible =
+    isExpanded || needle !== ''
+      ? matching
+      : matching.filter(
+          (entry, index) => index < FACET_VALUES_SHOWN || selected.includes(entry.value),
+        );
 
-  const hidden = values.length - visible.length;
+  const hidden = matching.length - visible.length;
 
   return (
     <div className="pt-4">
       <p className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">{name}</p>
+
+      {isSearchable && (
+        <div className="relative mt-2">
+          <SearchIcon
+            aria-hidden="true"
+            className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-subtle"
+          />
+          <label className="sr-only" htmlFor={`facet-search-${name}`}>
+            {t('catalog.searchFacet', { facet: name })}
+          </label>
+          <input
+            id={`facet-search-${name}`}
+            type="text"
+            value={term}
+            onChange={(event) => {
+              setTerm(event.target.value);
+            }}
+            placeholder={t('catalog.searchFacet', { facet: name })}
+            autoComplete="off"
+            className="h-8 w-full rounded-md border border-border-strong bg-surface pl-8 pr-2 text-xs text-ink placeholder:text-ink-subtle"
+          />
+        </div>
+      )}
 
       <div className="mt-2.5">
         {visible.map((entry) => (
@@ -204,7 +251,14 @@ function FacetGroup({
         ))}
       </div>
 
-      {(hidden > 0 || isExpanded) && (
+      {visible.length === 0 && (
+        <p className="text-xs text-ink-subtle">{t('catalog.noValuesMatch')}</p>
+      )}
+
+      {/* The expander is meaningless while a search is narrowing the list, so
+          it goes away rather than offering to unfold something already
+          unfolded. */}
+      {needle === '' && (hidden > 0 || isExpanded) && (
         <button
           type="button"
           onClick={() => {
@@ -214,6 +268,122 @@ function FacetGroup({
         >
           {isExpanded ? t('catalog.showFewer') : t('catalog.showAll', { count: values.length })}
         </button>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Where you are in the category tree, at the top of the filter panel.
+ *
+ * Three things in one small block, which is why it is worth its own component:
+ *
+ *   - **The way back up.** A chevron and the parent's name, as a link. A
+ *     department page reached from a menu has no other way back to its parent
+ *     except the browser button or the breadcrumb, and the breadcrumb is at
+ *     the top of the page rather than at the top of the filters.
+ *   - **Where you are**, in bold and not a link, because a link to the page
+ *     you are on is a control that does nothing.
+ *   - **The way down**, when the category has children: each one with the
+ *     number of products in it, so a choice that would lead nowhere is
+ *     visible before it is made.
+ *
+ * With no category chosen it lists the top level instead, which is the same
+ * block doing the same job from the root.
+ *
+ * It reads the tree rather than the current category's own record, because the
+ * category endpoint returns the category and not its family — one cached read
+ * of `/catalog/categories` has the parent, the siblings and the children in
+ * it, and every other page that shows categories has already made it.
+ */
+function CategoryBlock({
+  tree,
+  currentSlug,
+}: {
+  tree: CategoryNode[] | undefined;
+  currentSlug: string | null;
+}): React.JSX.Element | null {
+  const { t } = useI18n();
+
+  if (tree === undefined) return null;
+
+  /** The node for a slug, and its parent, from one walk of the tree. */
+  const found = ((): { node: CategoryNode; parent: CategoryNode | null } | null => {
+    if (currentSlug === null) return null;
+
+    const walk = (
+      nodes: CategoryNode[],
+      parent: CategoryNode | null,
+    ): { node: CategoryNode; parent: CategoryNode | null } | null => {
+      for (const node of nodes) {
+        if (node.slug === currentSlug) return { node, parent };
+        const hit = walk(node.children, node);
+        if (hit !== null) return hit;
+      }
+      return null;
+    };
+
+    return walk(tree, null);
+  })();
+
+  // A slug that is not in the tree is a stale link. The listing already
+  // handles that as an empty result rather than an error, so this simply falls
+  // back to the root rather than asserting a position it cannot verify.
+  const children = found === null ? tree : found.node.children;
+
+  return (
+    <div className="border-b border-border-subtle pb-4">
+      <p className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
+        {t('catalog.categories')}
+      </p>
+
+      {found !== null && (
+        <>
+          {/* The parent, or the whole catalogue when this is a top-level
+              department — either way it is one step up. */}
+          <Link
+            to={found.parent === null ? '/products' : `/category/${found.parent.slug}`}
+            className="mt-2 flex items-center gap-1.5 text-sm text-ink-muted hover:text-brand hover:underline"
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              className="h-3.5 w-3.5 shrink-0"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m15 18-6-6 6-6" />
+            </svg>
+            {found.parent === null ? t('catalog.allProducts') : found.parent.name}
+          </Link>
+
+          <p className="mt-1.5 pl-5 text-sm font-semibold text-ink" aria-current="page">
+            {found.node.name}
+          </p>
+        </>
+      )}
+
+      {children.length > 0 && (
+        <ul className={cx('mt-2 space-y-1.5', found !== null && 'pl-5')}>
+          {children.map((child) => (
+            <li key={child.id}>
+              <Link
+                to={`/category/${child.slug}`}
+                className="flex items-baseline justify-between gap-2 text-sm text-ink-muted hover:text-brand hover:underline"
+              >
+                <span className="min-w-0">{child.name}</span>
+                {/* The count is the operator's own number, so a department
+                    with nothing published in it says so before it is opened. */}
+                <span className="shrink-0 text-xxs tabular text-ink-subtle">
+                  {formatNumber(child.productCount)}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );
@@ -237,11 +407,15 @@ function FilterFields({
   setParam,
   currency,
   facets,
+  tree,
+  currentSlug,
 }: {
   searchParams: URLSearchParams;
   setParam: (updates: Record<string, string | string[] | null>) => void;
   currency: string;
   facets: CatalogFilterFacets | undefined;
+  tree: CategoryNode[] | undefined;
+  currentSlug: string | null;
 }): React.JSX.Element {
   const { t } = useI18n();
 
@@ -306,6 +480,10 @@ function FilterFields({
 
   return (
     <div className="divide-y divide-border-subtle">
+      {/* Where you are in the tree, first: it is the one thing here that is
+          about the listing as a whole rather than about narrowing it. */}
+      <CategoryBlock tree={tree} currentSlug={currentSlug} />
+
       {/*
        * Search, at the top of the filters.
        *
@@ -633,6 +811,20 @@ export function CatalogPage(): React.JSX.Element {
     });
   };
 
+  /*
+   * The whole category tree, for the panel's "where am I" block.
+   *
+   * The same query key every other page that lists categories uses, so on a
+   * visit that has already been to the front page this costs nothing. The
+   * category *detail* endpoint beside it returns the category and not its
+   * family, which is why the tree is read rather than that.
+   */
+  const categoryTree = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => api.get<{ categories: CategoryNode[] }>('/catalog/categories'),
+    staleTime: 5 * 60_000,
+  });
+
   const categoryDetail = useQuery({
     queryKey: ['category', category],
     queryFn: () => api.get<{ category: CategoryNode }>(`/catalog/categories/${String(category)}`),
@@ -900,23 +1092,67 @@ export function CatalogPage(): React.JSX.Element {
     });
   })();
 
+  /*
+   * The sort bar.
+   *
+   * A row of options rather than a `<select>`, which is what it was. The
+   * options are the *shape of the list* and there are only five of them, and a
+   * dropdown hides four of the five behind a press — on a listing page the
+   * fastest thing a shopper does is try another order, and a bar makes that
+   * one press instead of three.
+   *
+   * `aria-pressed` on each, in a group with a name: five buttons of which
+   * exactly one is on. Not a `radiogroup`, which promises arrow-key movement
+   * between the options, and not `aria-current`, which is about position in a
+   * set rather than state.
+   *
+   * It scrolls sideways below `sm` rather than wrapping to two rows: five
+   * options in a container 320px wide is two ragged lines, and a bar that
+   * changes height as the labels change language is a bar that moves the
+   * results down the page.
+   */
   const sortControl = (
-    <label className="flex items-center gap-2 text-sm text-ink-muted">
-      <span className="whitespace-nowrap">{t('catalog.sortBy')}</span>
-      <Select
-        value={sort}
-        onChange={(event) => {
-          setParam({ sort: event.target.value });
-        }}
-        className="w-44 sm:w-48"
-      >
-        {SORT_OPTIONS.map((option) => (
-          <option key={option.value} value={option.value}>
+    <div
+      role="group"
+      aria-label={t('catalog.sortBy')}
+      className="-mx-1 flex items-center gap-1 overflow-x-auto px-1 sm:mx-0 sm:overflow-visible sm:px-0"
+    >
+      <span className="shrink-0 pr-1 text-sm font-medium text-ink-muted">
+        {t('catalog.sortBy')}
+      </span>
+
+      {SORT_OPTIONS.map((option) => {
+        const isActive = option.value === sort;
+
+        return (
+          <button
+            key={option.value}
+            type="button"
+            aria-pressed={isActive}
+            onClick={() => {
+              setParam({ sort: option.value });
+            }}
+            className={cx(
+              'relative shrink-0 whitespace-nowrap rounded px-2.5 py-1.5 text-sm transition-colors',
+              isActive
+                ? 'font-semibold text-brand'
+                : 'text-ink hover:bg-surface-hover hover:text-brand',
+            )}
+          >
             {translateKey(t, option.labelKey)}
-          </option>
-        ))}
-      </Select>
-    </label>
+            {/* The underline is a child of the selected option rather than a
+                measured element that slides: it is exact in all eight
+                languages for free, and nothing here moves. */}
+            {isActive && (
+              <span
+                aria-hidden="true"
+                className="absolute inset-x-2.5 -bottom-0.5 h-0.5 rounded-full bg-brand"
+              />
+            )}
+          </button>
+        );
+      })}
+    </div>
   );
 
   return (
@@ -949,12 +1185,23 @@ export function CatalogPage(): React.JSX.Element {
         <p className="text-xxs font-semibold uppercase tracking-[0.14em] text-ink-subtle">
           {eyebrow}
         </p>
-        <h1 className="mt-1.5 text-title-xl text-ink">{heading}</h1>
-        {/* aria-live, so a screen reader hears the count change when a filter
-            is applied rather than being left to go and look. */}
-        <p className="mt-1.5 text-sm text-ink-muted" aria-live="polite">
-          {countLabel}
-        </p>
+        {/*
+         * The count sits beside the title, not under it.
+         *
+         * "Mobiles (showing 1-24 of 5,425)" is one fact about one listing, and
+         * splitting it over two lines spends a line of the page on the second
+         * half of a sentence. It wraps under on a phone, where the title is
+         * two lines anyway.
+         *
+         * `aria-live`, so a screen reader hears the count change when a
+         * filter is applied rather than being left to go and look.
+         */}
+        <div className="mt-1.5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <h1 className="text-title-xl text-ink">{heading}</h1>
+          <p className="text-sm text-ink-muted" aria-live="polite">
+            {countLabel}
+          </p>
+        </div>
       </header>
 
       {/*
@@ -967,7 +1214,7 @@ export function CatalogPage(): React.JSX.Element {
        * always looked like.
        */}
       <div className="mb-5 rounded-lg border border-border bg-surface px-4 py-3 shadow-card">
-        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
           <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
             {/* Desktop keeps the sidebar; this is the phone's way in. The
                 count on the button is what tells someone with the drawer shut
@@ -1004,7 +1251,15 @@ export function CatalogPage(): React.JSX.Element {
             <AppliedFilters applied={applied} clearAll={clearAll} />
           </div>
 
-          <div className="ml-auto shrink-0">{sortControl}</div>
+          {/*
+            * Left-aligned, and on its own line when there are chips.
+            *
+            * Right-aligned it left a wide empty band across the strip on
+            * every visit with no filters applied, which is most of them. Read
+            * from the left it works like a row of column headings, which is
+            * what choosing an order is.
+            */}
+          <div className="w-full min-w-0 lg:w-auto">{sortControl}</div>
         </div>
       </div>
 
@@ -1048,6 +1303,8 @@ export function CatalogPage(): React.JSX.Element {
             setParam={setParam}
             currency={currency}
             facets={facets.data}
+            tree={categoryTree.data?.categories}
+            currentSlug={category}
           />
         </Modal>
       )}
@@ -1082,6 +1339,8 @@ export function CatalogPage(): React.JSX.Element {
                 setParam={setParam}
                 currency={currency}
                 facets={facets.data}
+                tree={categoryTree.data?.categories}
+                currentSlug={category}
               />
             </div>
           </div>
@@ -1098,10 +1357,10 @@ export function CatalogPage(): React.JSX.Element {
           )}
 
           {products.isPending && (
-            <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
-              {Array.from({ length: 8 }, (_, index) => (
+            <ul className="divide-y divide-border-subtle rounded-lg border border-border bg-surface shadow-card">
+              {Array.from({ length: 4 }, (_, index) => (
                 <li key={index}>
-                  <ProductCardSkeleton />
+                  <ProductRowSkeleton />
                 </li>
               ))}
             </ul>
@@ -1139,10 +1398,19 @@ export function CatalogPage(): React.JSX.Element {
 
           {products.data !== undefined && products.data.products.length > 0 && (
             <>
-              <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
+              {/*
+                * One bordered sheet with hairlines between the rows, rather
+                * than a card per product.
+                *
+                * A department is a list you read down, and forty separate
+                * cards each with their own border and shadow is forty edges
+                * competing with the one boundary that matters — where one
+                * product stops and the next begins.
+                */}
+              <ul className="divide-y divide-border-subtle overflow-hidden rounded-lg border border-border bg-surface shadow-card">
                 {products.data.products.map((product) => (
                   <li key={product.id}>
-                    <ProductCard product={product} />
+                    <ProductRow product={product} />
                   </li>
                 ))}
               </ul>

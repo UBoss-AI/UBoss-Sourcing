@@ -1089,5 +1089,18 @@
   "theme.optionLight": "Tema claro",
   "theme.optionDark": "Tema oscuro",
   "theme.pressToChange": "Pulse para cambiarla.",
-  "heroSearch.modesLabel": "Buscar en el catálogo o preguntar al Modo IA"
+  "heroSearch.modesLabel": "Buscar en el catálogo o preguntar al Modo IA",
+  "catalog.rowMinimum": "Mínimo {{qty}}",
+  "catalog.rowIncrement": "En múltiplos de {{qty}}",
+  "catalog.rowPercentOff": "{{percent}}% de descuento",
+  "catalog.categories": "Categorías",
+  "catalog.searchFacet": "Buscar {{facet}}",
+  "catalog.noValuesMatch": "No hay coincidencias.",
+  "imageSearch.shutter": "Hacer la foto",
+  "imageSearch.cameraAllowPrompt": "Permita la cámara para iniciar la vista previa.",
+  "imageSearch.cameraDenied": "No se permitió la cámara.",
+  "imageSearch.cameraUnavailable": "Aquí no hay ninguna cámara disponible.",
+  "imageSearch.cameraFailed": "No se pudo iniciar la cámara.",
+  "imageSearch.cameraFallbackHint": "Puede elegir una fotografía de este dispositivo en su lugar — eso no necesita permiso.",
+  "imageSearch.error.captureFailed": "No se pudo capturar esa imagen. Inténtelo de nuevo."
 }

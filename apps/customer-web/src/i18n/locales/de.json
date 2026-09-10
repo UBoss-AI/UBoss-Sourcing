@@ -1076,5 +1076,18 @@
   "theme.optionLight": "Helles Design",
   "theme.optionDark": "Dunkles Design",
   "theme.pressToChange": "Zum Ändern drücken.",
-  "heroSearch.modesLabel": "Katalog durchsuchen oder KI-Modus fragen"
+  "heroSearch.modesLabel": "Katalog durchsuchen oder KI-Modus fragen",
+  "catalog.rowMinimum": "Mindestens {{qty}}",
+  "catalog.rowIncrement": "In Schritten von {{qty}}",
+  "catalog.rowPercentOff": "{{percent}}% Rabatt",
+  "catalog.categories": "Kategorien",
+  "catalog.searchFacet": "{{facet}} durchsuchen",
+  "catalog.noValuesMatch": "Dazu passt nichts.",
+  "imageSearch.shutter": "Foto aufnehmen",
+  "imageSearch.cameraAllowPrompt": "Erlauben Sie die Kamera, um die Vorschau zu starten.",
+  "imageSearch.cameraDenied": "Die Kamera wurde nicht erlaubt.",
+  "imageSearch.cameraUnavailable": "Hier ist keine Kamera verfügbar.",
+  "imageSearch.cameraFailed": "Die Kamera konnte nicht gestartet werden.",
+  "imageSearch.cameraFallbackHint": "Sie können stattdessen ein Foto von diesem Gerät auswählen — dafür ist keine Erlaubnis nötig.",
+  "imageSearch.error.captureFailed": "Dieses Bild konnte nicht aufgenommen werden. Bitte versuchen Sie es erneut."
 }

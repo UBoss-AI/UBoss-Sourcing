@@ -206,7 +206,13 @@ export function FieldGroup({
  * Four states, all of them visible:
  *   idle      A 3:1 border, so the control's edge is perceivable (WCAG 1.4.11).
  *   hover     One step darker. Felt, not announced.
- *   focus     The global ring from index.css.
+ *   focus     The border goes accent, and an inset hairline doubles it to a
+ *             2px perimeter. Not the offset ring index.css puts on everything
+ *             else: a text field matches `:focus-visible` on a mouse click
+ *             too, so that ring appeared around the field the instant it was
+ *             clicked, which is a box drawn around a box. The note on the
+ *             rule in index.css has the reasoning; this is the half that
+ *             makes the replacement thick enough to see.
  *   disabled  Sunken ground, no shadow, not-allowed cursor, and the hover
  *             suppressed — a disabled field that still reacts to the pointer
  *             reads as broken rather than as unavailable.
@@ -215,6 +221,7 @@ const CONTROL_BASE =
   'block w-full rounded-md border border-border-strong bg-surface px-3 text-sm text-ink shadow-card ' +
   'transition-[background-color,border-color,box-shadow] ' +
   'placeholder:text-ink-subtle hover:border-border-hover ' +
+  'focus:ring-1 focus:ring-inset focus:ring-brand ' +
   'disabled:cursor-not-allowed disabled:border-border disabled:bg-surface-sunken ' +
   'disabled:text-ink-muted disabled:shadow-none disabled:hover:border-border';
 

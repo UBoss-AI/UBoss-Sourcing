@@ -60,6 +60,7 @@ import { ProductDevicePanel } from '@/components/ProductDevicePanel';
 import { useI18n } from '@/i18n/i18n-context';
 import type { Translate } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
+import { usePointerZoom } from '@/lib/pointer-zoom';
 
 /**
  * The image gallery.
@@ -68,6 +69,14 @@ import { errorMessage } from '@/lib/errors';
  * every product photograph in this catalogue is `object-contain` on white —
  * on a white card there is no edge at all, and the product reads as floating
  * shapes rather than as a photograph of a thing.
+ *
+ * **Hovering it magnifies the part under the pointer.** A consumables
+ * catalogue is photographs of things with printed scales, gauge markings and
+ * product codes on them, and a 500px square is not enough to read those —
+ * so the one thing a buyer most wants to do with this image is look closer at
+ * a particular bit of it. See `.zoom-layer` in index.css for how, and
+ * `lib/pointer-zoom.ts` for why it is two CSS variables rather than anything
+ * React re-renders.
  */
 function Gallery({ product }: { product: Product }): React.JSX.Element {
   const { t } = useI18n();
@@ -75,6 +84,11 @@ function Gallery({ product }: { product: Product }): React.JSX.Element {
   const images = product.images;
   const [activeIndex, setActiveIndex] = useState(0);
   const active = images[activeIndex] ?? product.primaryImage;
+
+  // Where the pointer is over the photograph, for the magnifier. Called
+  // before the early return below, because a hook cannot be conditional —
+  // and harmless there, since nothing reads it on the no-image path.
+  const zoom = usePointerZoom();
 
   if (active == null) {
     return (
@@ -104,18 +118,52 @@ function Gallery({ product }: { product: Product }): React.JSX.Element {
 
   return (
     <div>
-      <div className="overflow-hidden rounded-xl border border-border bg-surface-sunken shadow-card">
-        <img
-          src={active.url}
-          alt={active.altText ?? product.name}
-          // The hero image is the largest paint on this page, so it is not
-          // lazy — deferring it delays the metric it defines.
-          loading="eager"
-          decoding="async"
-          width={800}
-          height={800}
-          className="aspect-square w-full object-contain p-6 sm:p-8"
-        />
+      {/*
+       * The padding is on the frame, not on the image.
+       *
+       * It used to be `p-6 sm:p-8` on the `<img>`, which was fine until the
+       * zoom layer arrived: two images with different padding have different
+       * content boxes, and the magnified point is then near the point that was
+       * hovered rather than the point that was hovered. On the frame, both
+       * fill the same box and the mapping is exact.
+       */}
+      <div className="overflow-hidden rounded-xl border border-border bg-surface-sunken p-6 shadow-card sm:p-8">
+        <div
+          ref={zoom.ref}
+          onPointerEnter={zoom.onPointerEnter}
+          onPointerMove={zoom.onPointerMove}
+          onPointerLeave={zoom.onPointerLeave}
+          className="zoom-viewport aspect-square w-full"
+        >
+          <img
+            src={active.url}
+            alt={active.altText ?? product.name}
+            // The hero image is the largest paint on this page, so it is not
+            // lazy — deferring it delays the metric it defines.
+            loading="eager"
+            decoding="async"
+            width={800}
+            height={800}
+            className="h-full w-full object-contain"
+          />
+
+          {/*
+           * The magnifier: the same file again at 2.5x, slid so the part
+           * under the cursor stays under the cursor. Same `src`, so it is
+           * already in the cache and costs no request — and `aria-hidden`,
+           * because it is the image above it, and a screen reader being told
+           * about a product photograph twice is worse than not being told
+           * about the zoom.
+           */}
+          <img
+            aria-hidden="true"
+            src={active.url}
+            alt=""
+            loading="eager"
+            decoding="async"
+            className="zoom-layer"
+          />
+        </div>
       </div>
 
       {images.length > 1 && (

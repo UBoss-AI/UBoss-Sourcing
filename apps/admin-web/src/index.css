@@ -458,6 +458,55 @@
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-surface;
   }
 
+  /*
+   * ...except in something you type into, where it shows on the field's own
+   * edge instead.
+   *
+   * **A text field matches `:focus-visible` on a mouse click.** That is the
+   * specification rather than a browser quirk: an element that expects typed
+   * input always matches, whatever focused it, because a caret alone is a poor
+   * indicator. So the rule above drew an offset ring around every field the
+   * moment it was clicked — and an offset ring around a control that already
+   * has a border is a second box around the first, which is what it looks
+   * like. A panel is mostly forms, so it was mostly that.
+   *
+   * The replacement is the field's own border going accent. Still a visible
+   * focus indicator (WCAG 2.4.7), still over 3:1 against the surface and
+   * against the colour it replaces (1.4.11), and it is what a text field
+   * wants: the box you are typing in lights up rather than acquiring a halo.
+   *
+   * Only `border-color` is set, deliberately. A borderless input inside a
+   * bordered wrapper that carries `focus-within` for it resolves to nothing
+   * here, because there is no border to colour — anything that drew its own
+   * ink would draw it inside the wrapper.
+   *
+   * The exclusions are the inputs nobody types into: a checkbox, a radio, a
+   * slider, a colour swatch, a file picker and the button types have no border
+   * to light up and are focused deliberately rather than to type, so they keep
+   * the ring. Written as `:not()` over that list rather than `:is()` over the
+   * text types, so a text-entry type nobody has thought of yet is included
+   * rather than forgotten.
+   *
+   * Identical to the storefront's rule, and it has to stay that way: the note
+   * at the top of components/ui.tsx says focus behaviour is one of the things
+   * that must never diverge between the two apps.
+   */
+  input:not(
+      [type='checkbox'],
+      [type='radio'],
+      [type='range'],
+      [type='color'],
+      [type='file'],
+      [type='submit'],
+      [type='button'],
+      [type='reset'],
+      [type='image']
+    ):focus,
+  textarea:focus,
+  select:focus {
+    @apply border-brand ring-0 ring-offset-0;
+  }
+
   /* Tabular numerals keep money columns aligned down the page. */
   .tabular {
     font-variant-numeric: tabular-nums;

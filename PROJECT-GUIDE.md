@@ -883,6 +883,56 @@ matches, so a misreading looks like a misreading rather than like a catalogue
 full of the wrong stock. The photograph is sent to the provider and never
 stored. See *Image search* in section 8 for how the slugs are validated.
 
+**The camera is a live camera now, not only a file picker.** "Take a photo"
+used to be `<input type="file" capture="environment">`, and the `capture`
+attribute is a *hint* the spec lets a browser ignore. A phone honours it and
+opens the platform's own camera app, which is the better tool — autofocus, a
+flash, the full sensor. A laptop ignores it and opens a file picker, so
+somebody sitting in front of a webcam with the product in their hand had no way
+to photograph it. So `getUserMedia` leads now: a live preview and a shutter,
+inside the dialog, on every device whose browser will lend one. The file input
+stays as the fallback for the browsers that have no `mediaDevices` at all —
+which includes any deployment served over plain HTTP, because that is not a
+secure context.
+
+The captured frame goes down **exactly the same path as a chosen file**: the
+same size and type checks, the same upload, the same analysis, the same
+description shown back. A photograph is a photograph however it arrived, and a
+second pipeline would be a second set of limits to keep in step. It is a JPEG
+at quality 0.9 and the video's own pixel dimensions — not a PNG, which for a
+photograph of a real scene is several megabytes and would fail the 5 MB limit
+the server enforces for no gain.
+
+Four rules hold, and `camera.test.tsx` asserts each of them:
+
+- **Nothing starts until somebody presses the button.** `start` is called from
+  a click and never from an effect. A page that turns a camera on because a
+  dialog opened is a page that turns a camera on without being asked, and the
+  light on the bezel is how the customer finds out.
+- **Every track is stopped on the way out** — on cancel, on unmount, and
+  immediately after the shutter. A `MediaStreamTrack` left live holds the
+  device open and the indicator light on for the rest of the visit, and on a
+  laptop it also stops every other application getting the camera. This is the
+  one a refactor breaks silently, because a webcam light is behind the screen
+  you are looking at.
+- **A refusal is a state, not an error.** Declining the prompt, a machine with
+  no camera, and a camera that failed to start are three different sentences,
+  because the customer's next move differs — and all three point at the file
+  picker, which needs no permission. The message never explains how to change a
+  browser permission: those instructions differ per browser and per version,
+  and a wrong instruction is worse than none when there is already another way
+  to do the thing.
+- **The frame never leaves the tab except as the upload.** No object URL
+  outlives the preview, nothing is written to storage, and no copy is kept
+  after the search.
+
+**Photographing something and then asking about it is one flow.** AI Mode's
+paperclip opens this same dialog, so a customer photographs what they have in
+their hand, the provider reads it, and what came back becomes context in the
+composer for the question they were going to ask about it — "is this the one
+that fits a 10 Fr port?" against a picture of the thing. That was already true
+for an uploaded picture; it is now true for one taken on the spot.
+
 **A capability the operator has not configured is absent, not disabled.** On a
 deployment with no AI provider there is no AI Mode link and no camera button —
 and with only one item left, no row above the bar either, because one item is a
@@ -1053,12 +1103,94 @@ the header button and the profile sidebar so all three greet somebody the same
 way, and it is never derived from the email address — `ops.procurement@` is not
 a person's name.
 
+### A text field lights up its own edge, and not a box around it
+
+Every focusable thing in both apps gets one ring, from a single
+`:focus-visible` rule — except the things you type into, which show focus on
+their own border instead.
+
+The reason is a piece of the specification that surprises people: **a text
+field matches `:focus-visible` on a mouse click.** An element that expects
+typed input always matches, whatever focused it, because a caret alone is a
+poor indicator. So one rule meant to show a ring only for keyboard users was
+drawing an offset ring around every input the moment it was clicked — and an
+offset ring around a control that already has a border is a second box drawn
+around the first, which is exactly what it looked like. In the panel, which is
+mostly forms, it was mostly that.
+
+| | Before | Now |
+|---|---|---|
+| Buttons, links, checkboxes, radios | 2px offset ring | unchanged |
+| Text inputs, textareas, selects | 2px offset ring | their border goes brand |
+| The shared field skin | as above | border plus a 1px inset hairline, so the perimeter is 2px |
+
+Nothing lost an indicator. A brand border clears 3:1 against the surface and
+against the colour it replaces, which is what WCAG 1.4.11 asks of the boundary
+of a control, and it is a visible change of state, which is what 2.4.7 asks
+for. The rule sets `border-color` and nothing else, deliberately: several
+fields in this app are borderless inputs inside a bordered wrapper that carries
+`focus-within` for them — the AI composer, the hero search bar, the market
+panel's search box — and on those the rule resolves to nothing rather than
+drawing a line inside the wrapper.
+
+The exclusions are written as `:not()` over the input types nobody types into,
+rather than `:is()` over the text types, so a text-entry type nobody has
+thought of yet is included rather than forgotten.
+
+### The product photograph magnifies under the pointer
+
+Hovering the image on a product page shows the part of it under the cursor at
+2.5x. This catalogue is photographs of things with printed scales, gauge
+markings and product codes on them, and a 530px square is not enough to read
+those — so looking closer at one particular bit of the image is the thing a
+buyer most wants to do with it.
+
+**A second image and a transform, not a moving background.** The obvious
+implementation is one element with `background-size: 250%` and an animated
+`background-position`, and it repaints the whole square on every frame of the
+hover. This is a second `<img>` at 2.5x the box, `translate3d` to put the right
+part of it under the cursor: one composited property, no paint, and no extra
+request, because it is the same `src` the layer underneath already loaded.
+
+**The arithmetic, once.** To keep the point under the cursor *under the
+cursor*, the layer moves by `-u × box × (scale - 1)`, which as a fraction of
+the layer's own width is `-u × (scale - 1) / scale`. At 2.5 that is `-60%`.
+`lib/pointer-zoom.ts` supplies `u` and `v` — where the pointer is in the box,
+0 to 1 on each axis, clamped — and `.zoom-layer` in index.css does the rest.
+
+**Both images share one content box.** The padding that keeps a photograph off
+the frame's edge moved from the image to the *frame*. Two images with different
+padding have different content boxes, and the magnified point is then near the
+point that was hovered rather than the point that was hovered.
+
+**It is sharp because the asset is big.** The product images in this catalogue
+are around 4000px square, so 2.5x of a 530px box is 1330px from a 4000px
+source — the magnifier resolves detail the page-sized image cannot show. On a
+deployment whose photographs are small it degrades to a soft zoom rather than
+to a broken one.
+
+**A finger gets nothing**, for the reason every hover effect in this app skips
+touch: a touch screen has no hover, so the zoom would open on a tap and stay
+open until the next tap somewhere else. Visibility is keyed off a `data-zooming`
+attribute the hook sets only for a mouse, rather than off `:hover`, which is
+what sticks after a tap.
+
+**Reduced motion keeps the zoom and loses the easing.** Unlike the card tilt
+this is not decoration — it is how somebody reads a product code off a
+photograph, and removing it would remove the information. So the transitions
+go and the tracking stays, which is the same trade `scroll-behavior` makes.
+
+`pointer-zoom.test.tsx` holds down the fractions, the clamp, and the three
+cases that must do nothing.
+
 ### A product card leans towards the pointer
 
 Hovering a product card tilts it a few degrees in perspective, lifts it very
 slightly, and slides a soft highlight across the photograph. It is the one
 piece of decoration in this storefront aimed at a specific moment: a buyer
-scanning a grid of forty consumables, deciding which one to open.
+scanning a grid of cards, deciding which one to open. That is the front page
+strip, the related-products rail and the wishlist — a category listing is rows
+now, and rows do not tilt.
 
 | Part | What it is |
 |---|---|
@@ -1102,6 +1234,90 @@ measurement is a layout read. Everything that then moves is `transform`.
 including the sign of `rotateX`: a pointer near the bottom edge has to tip the
 *far* edge away, and the version that tips the near edge away instead still
 looks like an effect, which is why it needs a test rather than an eye.
+
+## Opening a category: the listing layout
+
+`/category/:slug` and `/products` are one page — `CatalogPage` — because a
+department, a search result and "everything" are the same list with different
+filters applied, and three pages would be three copies of the filter, sort and
+pagination logic drifting apart. What that page looks like changed: it was a
+grid of cards and it is now a **list of wide rows beside a filter rail**, which
+is the shape a department is actually read in.
+
+```
+Home / Products / Line Access
+CATEGORY
+Line Access   7 products
+┌──────────────────────────────────────────────────────────────┐
+│ Sort by  Newest first  Price: low to high  …                 │
+└──────────────────────────────────────────────────────────────┘
+┌───────────────┐  ┌─────────────────────────────────────────┐
+│ Filters       │  │ ▢  Name of the product          ₹4,500  │
+│               │  │    CODE                       +5% GST   │
+│ CATEGORIES    │  │    What it is, in a sentence            │
+│ ‹ All products│  │    • Sterilisation: Sterile (EO)        │
+│   Line Access │  │    • Latex: Latex-free                  │
+│               │  ├─────────────────────────────────────────┤
+│ SEARCH        │  │ ▢  The next product              ₹3,050 │
+│ BRAND    ⌄    │  │    …                                    │
+│  ▢ …          │  └─────────────────────────────────────────┘
+└───────────────┘
+```
+
+**Why rows.** A card 240px wide holds a name, a code and a price. A buyer
+choosing between eleven infusion sets needs the *differences* — the bore, the
+sterilisation method, the safety feature, the minimum order — which is four
+more facts than a card has room for. A row has room, so the middle column
+carries up to four of the product's own attributes as a list. Those come from
+the catalogue rather than from a template: an administrator decides which
+attributes a product has, and the row shows the first four.
+
+`ProductCard` is untouched and still used by the front page strip, the
+related-products rail and the wishlist. Two presentations of one product is not
+duplication when they answer different questions — "here are some products"
+against "which of these eleven".
+
+**The sort is a bar, not a dropdown.** Five options, of which a dropdown hides
+four behind a press, on the page where the fastest thing a shopper does is try
+another order. Each option is a button reporting `aria-pressed`, in a group
+named "Sort by" — not a `radiogroup`, which promises arrow-key movement between
+the options. It scrolls sideways below `sm` rather than wrapping, because five
+labels in eight languages is a bar that would change height and push the
+results down the page.
+
+**The panel says where you are in the tree.** At the top of the filters: the
+parent as a link with a back chevron, the current category stated in bold and
+not a link, and the children beneath it with their product counts. With no
+category chosen it lists the top level instead. It reads
+`/catalog/categories` — the tree, which every page that shows categories has
+already loaded — rather than the category endpoint, which returns the category
+and not its family.
+
+**A long facet gets a search box.** Once a facet has more than twice as many
+values as the panel shows collapsed, a box appears above it, and typing in it
+implies unfolding: a term that matched the thirtieth value and then hid it
+behind "show all" would be a search box that does not search.
+
+### What the reference layout has that this does not
+
+The layout came from a Flipkart category page, and five things on it are
+deliberately absent here, because the data does not exist and inventing it
+would be a claim the operator never made:
+
+| On the reference | Why not here |
+|---|---|
+| A star rating and a review count | There is no reviews system. A rating is the most persuasive thing on a listing row and a fabricated one the most dishonest. |
+| "Sponsored" | Nothing in this catalogue is paid placement. |
+| A trust badge | Assurance is the operator's to claim, not this software's to assert for them. |
+| A bank offer | Discounts here are a price and a compare-at price; card-issuer promotions are not modelled. |
+| Add to Compare | There is no comparison view to add to. |
+
+What fills the space they would have taken is the specification list, the
+purchase rules that vary between products, and the saving — which is worked out
+from the two prices in `BigInt` minor units and **truncated**, because a
+percentage on a listing row is a claim and 33.6% off must read as 33 rather
+than 34. `ProductRow.test.tsx` asserts both that arithmetic and the absence of
+all five.
 
 ## AI Mode
 
@@ -4256,6 +4472,9 @@ UBoss-Software/
 │   │   ├── ThemeToggle.tsx         The appearance control, in both apps
 │   │   └── CountryFlag.tsx         Every served market, drawn in SVG
 │   ├── lib/pointer-tilt.ts         The product card's lean, in four CSS vars
+│   ├── lib/pointer-zoom.ts         Where the pointer is, for the image magnifier
+│   ├── lib/camera.ts               The device camera, as one still photograph
+│   ├── components/ProductRow.tsx   A product as a listing row, with its specs
 │   ├── lib/api.ts                  ← The single HTTP helper
 │   ├── lib/voice-search.ts         Dictation, on the browser's own engine
 │   ├── lib/image-search.ts         Upload rules, and the search call
@@ -4277,8 +4496,15 @@ UBoss-Software/
 | Add an error code | `domain/errors.ts`, then map it in both frontends |
 | Change a page's look | `apps/*/src/pages/` |
 | Change how a product card behaves on hover | `lib/pointer-tilt.ts` for the maths, `.tilt` / `.tilt-sheen` in `index.css` for the look |
+| Change the product image magnifier | `lib/pointer-zoom.ts` for the maths, `.zoom-layer` in `index.css` for the scale and the easing |
+| Change how a photograph is taken or what it is taken as | `lib/camera.ts` — the constraints, the JPEG quality, and every path that releases the device |
+| Change what image search accepts | `lib/image-search.ts` in the browser **and** `UPLOAD_MAX_BYTES` plus the magic-byte sniffer on the API; the browser's checks are for speed, the server's are the control |
+| Change what a category listing looks like | `pages/CatalogPage.tsx` for the rail, the sort bar and the layout; `components/ProductRow.tsx` for one row |
+| Change how many specs a listing row shows | `SPECS_SHOWN` in `components/ProductRow.tsx` |
+| Change what focus looks like | the `:focus-visible` rules in `index.css` in **both** apps — text fields are deliberately excluded from the ring |
 | Change the hero band's height or how its two columns align | `pages/HomePage.tsx` — the comment on the grid says what each value is holding |
 | Change the front page search bar, or the AI Mode link above it | `components/hero-search/HeroSearch.tsx` |
+| Change the catalogue's filters or facets | `FilterFields` in `pages/CatalogPage.tsx`; the facet list itself is the administrator's, from `/catalog/filters` |
 | Change a colour | `src/index.css` in **both** apps — the light block and the dark one — then `npm run audit:contrast` |
 | Add a theme option, or change what the appearance control does | `app/ThemeProvider.tsx` and `components/ThemeToggle.tsx` in both apps, plus the inline script in each `index.html` |
 | Change what AI Mode looks like | `pages/AiModePage.tsx` and `pages/ai/` |

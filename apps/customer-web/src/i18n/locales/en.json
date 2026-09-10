@@ -1388,5 +1388,18 @@
   "theme.optionLight": "Light theme",
   "theme.optionDark": "Dark theme",
   "theme.pressToChange": "Press to change it.",
-  "heroSearch.modesLabel": "Search the catalogue, or ask AI Mode"
+  "heroSearch.modesLabel": "Search the catalogue, or ask AI Mode",
+  "catalog.rowMinimum": "Minimum {{qty}}",
+  "catalog.rowIncrement": "In multiples of {{qty}}",
+  "catalog.rowPercentOff": "{{percent}}% off",
+  "catalog.categories": "Categories",
+  "catalog.searchFacet": "Search {{facet}}",
+  "catalog.noValuesMatch": "Nothing matches that.",
+  "imageSearch.shutter": "Take the photo",
+  "imageSearch.cameraAllowPrompt": "Allow the camera to start the preview.",
+  "imageSearch.cameraDenied": "The camera was not allowed.",
+  "imageSearch.cameraUnavailable": "No camera is available here.",
+  "imageSearch.cameraFailed": "The camera could not be started.",
+  "imageSearch.cameraFallbackHint": "You can choose a photograph from this device instead — that needs no permission.",
+  "imageSearch.error.captureFailed": "That frame could not be captured. Please try again."
 }

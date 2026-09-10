@@ -1089,5 +1089,18 @@
   "theme.optionLight": "Thème clair",
   "theme.optionDark": "Thème sombre",
   "theme.pressToChange": "Appuyez pour la modifier.",
-  "heroSearch.modesLabel": "Rechercher dans le catalogue ou interroger le Mode IA"
+  "heroSearch.modesLabel": "Rechercher dans le catalogue ou interroger le Mode IA",
+  "catalog.rowMinimum": "Minimum {{qty}}",
+  "catalog.rowIncrement": "Par multiples de {{qty}}",
+  "catalog.rowPercentOff": "{{percent}}% de remise",
+  "catalog.categories": "Catégories",
+  "catalog.searchFacet": "Rechercher {{facet}}",
+  "catalog.noValuesMatch": "Aucune correspondance.",
+  "imageSearch.shutter": "Prendre la photo",
+  "imageSearch.cameraAllowPrompt": "Autorisez la caméra pour lancer l'aperçu.",
+  "imageSearch.cameraDenied": "La caméra n'a pas été autorisée.",
+  "imageSearch.cameraUnavailable": "Aucune caméra n'est disponible ici.",
+  "imageSearch.cameraFailed": "La caméra n'a pas pu démarrer.",
+  "imageSearch.cameraFallbackHint": "Vous pouvez choisir une photographie sur cet appareil à la place — cela ne demande aucune autorisation.",
+  "imageSearch.error.captureFailed": "Cette image n'a pas pu être capturée. Veuillez réessayer."
 }

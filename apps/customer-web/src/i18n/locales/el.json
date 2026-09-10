@@ -1076,5 +1076,18 @@
   "theme.optionLight": "Φωτεινό θέμα",
   "theme.optionDark": "Σκούρο θέμα",
   "theme.pressToChange": "Πατήστε για αλλαγή.",
-  "heroSearch.modesLabel": "Αναζήτηση στον κατάλογο ή ερώτηση στη Λειτουργία AI"
+  "heroSearch.modesLabel": "Αναζήτηση στον κατάλογο ή ερώτηση στη Λειτουργία AI",
+  "catalog.rowMinimum": "Ελάχιστο {{qty}}",
+  "catalog.rowIncrement": "Σε πολλαπλάσια του {{qty}}",
+  "catalog.rowPercentOff": "Έκπτωση {{percent}}%",
+  "catalog.categories": "Κατηγορίες",
+  "catalog.searchFacet": "Αναζήτηση {{facet}}",
+  "catalog.noValuesMatch": "Δεν ταιριάζει κάτι.",
+  "imageSearch.shutter": "Λήψη φωτογραφίας",
+  "imageSearch.cameraAllowPrompt": "Επιτρέψτε την κάμερα για να ξεκινήσει η προεπισκόπηση.",
+  "imageSearch.cameraDenied": "Η κάμερα δεν επιτράπηκε.",
+  "imageSearch.cameraUnavailable": "Δεν υπάρχει διαθέσιμη κάμερα εδώ.",
+  "imageSearch.cameraFailed": "Η κάμερα δεν μπόρεσε να ξεκινήσει.",
+  "imageSearch.cameraFallbackHint": "Μπορείτε να επιλέξετε μια φωτογραφία από αυτή τη συσκευή — δεν χρειάζεται άδεια.",
+  "imageSearch.error.captureFailed": "Η λήψη δεν ήταν δυνατή. Δοκιμάστε ξανά."
 }

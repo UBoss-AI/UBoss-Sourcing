@@ -1089,5 +1089,18 @@
   "theme.optionLight": "Tema chiaro",
   "theme.optionDark": "Tema scuro",
   "theme.pressToChange": "Prema per cambiarlo.",
-  "heroSearch.modesLabel": "Cerca nel catalogo o chiedi alla Modalità IA"
+  "heroSearch.modesLabel": "Cerca nel catalogo o chiedi alla Modalità IA",
+  "catalog.rowMinimum": "Minimo {{qty}}",
+  "catalog.rowIncrement": "In multipli di {{qty}}",
+  "catalog.rowPercentOff": "{{percent}}% di sconto",
+  "catalog.categories": "Categorie",
+  "catalog.searchFacet": "Cerca {{facet}}",
+  "catalog.noValuesMatch": "Nessuna corrispondenza.",
+  "imageSearch.shutter": "Scatta la foto",
+  "imageSearch.cameraAllowPrompt": "Consenta la fotocamera per avviare l'anteprima.",
+  "imageSearch.cameraDenied": "La fotocamera non è stata consentita.",
+  "imageSearch.cameraUnavailable": "Qui non è disponibile nessuna fotocamera.",
+  "imageSearch.cameraFailed": "Non è stato possibile avviare la fotocamera.",
+  "imageSearch.cameraFallbackHint": "Può invece scegliere una fotografia da questo dispositivo — non serve alcun permesso.",
+  "imageSearch.error.captureFailed": "Non è stato possibile catturare l'immagine. Riprovi."
 }

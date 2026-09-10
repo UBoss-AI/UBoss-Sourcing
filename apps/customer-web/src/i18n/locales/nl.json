@@ -1076,5 +1076,18 @@
   "theme.optionLight": "Licht thema",
   "theme.optionDark": "Donker thema",
   "theme.pressToChange": "Druk om te wijzigen.",
-  "heroSearch.modesLabel": "Zoek in de catalogus of vraag het de AI-modus"
+  "heroSearch.modesLabel": "Zoek in de catalogus of vraag het de AI-modus",
+  "catalog.rowMinimum": "Minimaal {{qty}}",
+  "catalog.rowIncrement": "In veelvouden van {{qty}}",
+  "catalog.rowPercentOff": "{{percent}}% korting",
+  "catalog.categories": "Categorieën",
+  "catalog.searchFacet": "{{facet}} zoeken",
+  "catalog.noValuesMatch": "Niets komt overeen.",
+  "imageSearch.shutter": "Foto maken",
+  "imageSearch.cameraAllowPrompt": "Sta de camera toe om het voorbeeld te starten.",
+  "imageSearch.cameraDenied": "De camera is niet toegestaan.",
+  "imageSearch.cameraUnavailable": "Hier is geen camera beschikbaar.",
+  "imageSearch.cameraFailed": "De camera kon niet worden gestart.",
+  "imageSearch.cameraFallbackHint": "U kunt in plaats daarvan een foto van dit apparaat kiezen — daarvoor is geen toestemming nodig.",
+  "imageSearch.error.captureFailed": "Die opname is niet gelukt. Probeer het opnieuw."
 }

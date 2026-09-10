@@ -515,6 +515,54 @@
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-surface;
   }
 
+  /*
+   * ...except in something you type into, where it shows on the field's own
+   * edge instead.
+   *
+   * **A text field matches `:focus-visible` on a mouse click.** That is the
+   * specification, not a browser quirk: an element that expects typed input
+   * always matches, whatever the visitor focused it with, because a caret
+   * alone is a poor indicator. So the rule above was drawing an offset ring
+   * around every input the moment it was clicked — and an offset ring around
+   * a control that already has a border is a second box drawn around the
+   * first, which is what it looks like.
+   *
+   * The replacement is the field's own border going brand. It is still a
+   * visible focus indicator (WCAG 2.4.7) and still clears 3:1 against both
+   * the surface and the colour it replaces (1.4.11), and it is what a text
+   * field wants: the box you are typing in lights up, rather than acquiring a
+   * halo.
+   *
+   * Only `border-color` is set, deliberately. Several fields in this app are
+   * borderless inputs inside a bordered wrapper that carries
+   * `focus-within:border-brand` for them — the AI composer, the hero search
+   * bar, the market panel's search box. On those this rule resolves to
+   * nothing, because there is no border to colour, and the wrapper does the
+   * work. Anything that draws its own ink here would draw it inside them.
+   *
+   * The exclusions are the inputs that are not typed into: a checkbox, a
+   * radio, a slider, a colour swatch, a file picker and the button types have
+   * no border to light up, and they are focused deliberately rather than to
+   * type, so they keep the ring. Written as `:not()` over that list rather
+   * than `:is()` over the text types, so a text-entry type nobody has thought
+   * of yet is included rather than forgotten.
+   */
+  input:not(
+      [type='checkbox'],
+      [type='radio'],
+      [type='range'],
+      [type='color'],
+      [type='file'],
+      [type='submit'],
+      [type='button'],
+      [type='reset'],
+      [type='image']
+    ):focus,
+  textarea:focus,
+  select:focus {
+    @apply border-brand ring-0 ring-offset-0;
+  }
+
   /* Prices and quantities line up down a column. */
   .tabular {
     font-variant-numeric: tabular-nums;
@@ -727,5 +775,97 @@
 
   .tilt-sheen {
     display: none;
+  }
+}
+
+/* ==========================================================================
+ * The product image zoom
+ *
+ * Hovering the product photograph magnifies the part of it under the pointer.
+ * `lib/pointer-zoom.ts` writes `--zoom-u` and `--zoom-v` — where the pointer
+ * is in the box, 0 to 1 on each axis — and everything else is here.
+ *
+ * **Why a second image and a transform, rather than a moving background.**
+ * The obvious implementation is one element with `background-size: 250%` and
+ * an animated `background-position`, and it repaints the whole square on every
+ * frame of the hover. This is a second `<img>` at 2.5x the box, `translate3d`
+ * to put the right part of it under the cursor: one composited property, no
+ * paint, and the browser already has the file because the layer under it is
+ * the same `src`.
+ *
+ * **The arithmetic, once.** The layer is `--zoom-scale` times the box. To keep
+ * the point under the cursor *under the cursor*, the layer moves by
+ * `-u x box x (scale - 1)`, which as a fraction of the layer's own width is
+ * `-u x (scale - 1) / scale`. At 2.5 that is -0.6, hence the `-60%`. Change
+ * the scale and that number changes with it; they are declared next to each
+ * other for exactly that reason.
+ *
+ * **Both images share one content box**, which is what makes the magnified
+ * point the point that was hovered rather than approximately it. The padding
+ * that keeps a photograph off the frame's edge is on the *frame*, and the two
+ * images fill the box inside it — see `Gallery` in ProductPage.tsx. Putting
+ * the padding on the base image instead leaves the two geometries different by
+ * however many pixels the padding is, and the zoom then lands slightly off
+ * wherever you point it.
+ * ========================================================================== */
+
+.zoom-viewport {
+  position: relative;
+  overflow: hidden;
+  /* The cursor is the affordance: nothing else here says the image magnifies,
+     and a caption saying so would be a caption nobody reads. */
+  cursor: zoom-in;
+}
+
+.zoom-layer {
+  --zoom-scale: 2.5;
+
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(var(--zoom-scale) * 100%);
+  height: calc(var(--zoom-scale) * 100%);
+  /* Tailwind's preflight caps images at `max-width: 100%`, which would hold
+     this to the box and quietly defeat the whole thing. */
+  max-width: none;
+  object-fit: contain;
+  opacity: 0;
+  /* -60% is (scale - 1) / scale at 2.5. The 0.5 fallbacks are the middle of
+     the image, so a layer that has never been pointed at rests centred. */
+  transform: translate3d(
+    calc(var(--zoom-u, 0.5) * -60%),
+    calc(var(--zoom-v, 0.5) * -60%),
+    0
+  );
+  transition:
+    opacity 140ms var(--ease-ui),
+    transform 90ms linear;
+  /* It must not become the `pointerleave` target while the pointer is still
+     inside the viewport, and it must not eat a press meant for the image. */
+  pointer-events: none;
+}
+
+/*
+ * Shown from an attribute, not from `:hover`.
+ *
+ * `:hover` sticks after a tap on a touch screen, and the hook does not track
+ * a finger — so the pair would leave a centred 2.5x image on screen until the
+ * next tap somewhere else. The attribute is set only for a mouse.
+ */
+.zoom-viewport[data-zooming='true'] .zoom-layer {
+  opacity: 1;
+}
+
+/*
+ * Reduced motion keeps the zoom and drops the gliding.
+ *
+ * This one is not decoration: it is how somebody reads a product code off a
+ * photograph. Removing it would remove information, so what goes is the
+ * easing — the layer tracks the pointer without animating towards it, which is
+ * the same trade `scroll-behavior` makes elsewhere in this file.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .zoom-layer {
+    transition: none;
   }
 }
