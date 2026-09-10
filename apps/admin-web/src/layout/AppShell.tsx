@@ -28,6 +28,7 @@ import { translateKey, useI18n } from '@/i18n/i18n-context';
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
 import { MarketIndicator } from './MarketIndicator';
 import { locateRoute, visibleNavigation } from './navigation';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { NotificationBell } from './NotificationBell';
 import { SessionLocation } from './SessionLocation';
 
@@ -52,7 +53,7 @@ function Brand({ onNavigate }: { onNavigate?: (() => void) | undefined }): React
       >
         <span
           aria-hidden="true"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-brand text-sm font-bold tracking-tight text-white shadow-card"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-brand-fill text-sm font-bold tracking-tight text-white shadow-card"
         >
           U
         </span>
@@ -171,7 +172,12 @@ function PageContext(): React.JSX.Element | null {
   return (
     <nav aria-label={t('shell.breadcrumb')} className="min-w-0">
       <ol className="flex min-w-0 items-center gap-1.5">
-        <li className="whitespace-nowrap text-xxs font-semibold uppercase tracking-[0.12em] text-ink-subtle">
+        {/* `truncate` rather than the bare `whitespace-nowrap` this was: a
+            section name is a translated string, and "Katalogverwaltung" in a
+            uppercased, letter-spaced xxs on a 320px bar is wider than the
+            space there is. Ellipsised it still answers the question; allowed
+            to overflow it printed itself over the notification bell. */}
+        <li className="min-w-0 truncate text-xxs font-semibold uppercase tracking-[0.12em] text-ink-subtle">
           {translateKey(t, here.group.labelKey)}
         </li>
         {here.isChild && (
@@ -335,7 +341,13 @@ function MobileDrawer({
       const panel = panelRef.current;
       if (panel === null) return;
 
-      const focusable = panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled])');
+      // `select` is in the list because the drawer carries the language
+      // picker below `sm`. A trap that does not know about a control inside
+      // the panel sends Tab past it to the page behind the scrim, which is
+      // the exact failure the trap exists to prevent.
+      const focusable = panel.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), select:not([disabled])',
+      );
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
       if (first === undefined || last === undefined) return;
@@ -388,6 +400,24 @@ function MobileDrawer({
         </button>
 
         <Sidebar onNavigate={onClose} />
+
+        {/*
+         * The language picker, below `sm` only.
+         *
+         * It lives beside the account menu in the top bar at every width the
+         * bar can hold it, and below `sm` the bar cannot: on a 320px screen
+         * the five controls up there came to 351px, and what silently lost
+         * the argument was the breadcrumb — it collapsed to zero width, so
+         * the one signal a phone has for "which section am I in" was gone
+         * while a 106px language select stayed.
+         *
+         * So on a phone it comes down here. This is the navigation, not a
+         * settings screen: it is one tap from every page in the panel, which
+         * is the whole of what the header placement was protecting.
+         */}
+        <div className="shrink-0 border-t border-border p-3 sm:hidden">
+          <LanguageSwitcher />
+        </div>
       </div>
     </div>
   );
@@ -427,7 +457,7 @@ export function AppShell(): React.JSX.Element {
         {t('shell.skipToContent')}
       </a>
 
-      <div className="lg:grid lg:grid-cols-[15rem_1fr]">
+      <div className="lg:grid lg:grid-cols-[15rem_minmax(0,1fr)]">
         {/* Desktop sidebar */}
         <aside className="sticky top-0 hidden h-screen bg-surface lg:block">
           <Sidebar />
@@ -439,7 +469,7 @@ export function AppShell(): React.JSX.Element {
           {/* Opaque, not the translucent white this replaced: a sticky bar
               that lets the page through is a bar with table rows sliding
               behind its own text. */}
-          <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-surface px-3 lg:px-6">
+          <header className="sticky top-0 z-30 flex h-16 items-center gap-2 border-b border-border bg-surface px-2 sm:gap-3 sm:px-3 lg:px-6">
             <button
               ref={menuButtonRef}
               type="button"
@@ -462,6 +492,11 @@ export function AppShell(): React.JSX.Element {
                 about while you are standing in Inventory. */}
             <NotificationBell />
 
+            {/* Beside the bell, and on every page for the same reason: somebody
+                who moves from a bright floor to a dark office wants the two
+                presses to be here, not four screens away in Settings. */}
+            <ThemeToggle />
+
             {/* Where this sign-in came from, and which market that makes the
                 panel quote prices for. Two facts, deliberately two chips: one
                 is the place a person recognises and the other is a country a
@@ -472,10 +507,13 @@ export function AppShell(): React.JSX.Element {
             <SessionLocation />
             <MarketIndicator />
 
-            {/* Beside the account menu, on every page. The panel is a tool
-                people work in all day; the language it is in belongs where
-                they can see and change it, not behind a settings screen. */}
-            <LanguageSwitcher placement="header" />
+            {/* Beside the account menu, on every page the bar can hold it.
+                The panel is a tool people work in all day; the language it is
+                in belongs where they can see and change it, not behind a
+                settings screen. Below `sm` there is no room for it up here
+                and it moves to the foot of the navigation drawer — which is
+                navigation, not a settings screen. See MobileDrawer. */}
+            <LanguageSwitcher placement="header" className="hidden sm:flex" />
 
             <UserMenu />
           </header>

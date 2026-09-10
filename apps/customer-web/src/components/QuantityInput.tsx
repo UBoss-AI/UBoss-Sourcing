@@ -73,9 +73,21 @@ export function QuantityInput({
         {label ?? t('product.quantity')}
       </label>
 
+      {/*
+       * The steppers keep their size and the field gives way.
+       *
+       * At 320px a cart line has about 135px left for this after the
+       * thumbnail, and the control used to be a rigid 177px — it pushed out of
+       * its own column. What shrinks is the number field (`min-w-0 shrink`,
+       * since an `<input>` carries an intrinsic minimum that ignores a flex
+       * container otherwise); the two buttons are `shrink-0` because they are
+       * the touch targets, and a 44px stepper squeezed to 20px on a phone is
+       * the one part of this control that must not give.
+       */}
       <div className="mt-1.5 flex items-stretch gap-1.5">
         <Button
           size="md"
+          className="shrink-0"
           disabled={!canDecrease}
           aria-label={
             itemName === undefined
@@ -110,11 +122,12 @@ export function QuantityInput({
             const parsed = Number(event.target.value);
             onChange(clampToRules(Number.isFinite(parsed) ? parsed : min, rules));
           }}
-          className="w-20 rounded-md border border-border-strong bg-surface px-3 py-2.5 text-center text-sm tabular text-ink disabled:bg-surface-sunken"
+          className="w-16 min-w-0 shrink rounded-md border border-border-strong bg-surface px-3 py-2.5 text-center text-sm tabular text-ink disabled:bg-surface-sunken sm:w-20"
         />
 
         <Button
           size="md"
+          className="shrink-0"
           disabled={!canIncrease}
           aria-label={
             itemName === undefined

@@ -44,3 +44,31 @@ if (typeof HTMLDialogElement !== 'undefined') {
     };
   }
 }
+
+/**
+ * `ResizeObserver`, which jsdom does not implement either.
+ *
+ * `StickyBottomBar` measures itself and publishes its height as a custom
+ * property so the chat launcher can sit above it, and it re-measures when the
+ * box changes. Without a stub, mounting anything that renders the cart's
+ * bottom bar throws `ResizeObserver is not defined` and takes the whole file
+ * down with it.
+ *
+ * A no-op, on purpose, and not a polyfill: jsdom has no layout, so every box
+ * it reports is 0x0 and a working observer would have nothing to observe. What
+ * a test can assert is that the bar renders and that its contents are sound;
+ * that the offset tracks a real height is a browser fact, checked in one.
+ */
+if (typeof globalThis.ResizeObserver === 'undefined') {
+  globalThis.ResizeObserver = class ResizeObserver {
+    observe(): void {
+      /* jsdom has no layout to report */
+    }
+    unobserve(): void {
+      /* no-op */
+    }
+    disconnect(): void {
+      /* no-op */
+    }
+  };
+}

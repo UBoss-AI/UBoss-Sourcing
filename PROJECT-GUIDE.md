@@ -26,6 +26,8 @@ have to read separately — this *is* the explanation.
    - [9.5.1 Autopay: charging a card nobody is looking at](#951-autopay-charging-a-card-nobody-is-looking-at)
    - [9.5.2 The ERP hand-off](#952-the-erp-hand-off)
    - [9.8 The ERP connection, and Autopay](#98-the-erp-connection-and-autopay)
+   - [9.9 A customer changes the address they sign in with](#99-a-customer-changes-the-address-they-sign-in-with)
+   - [9.10 A customer closes their own account](#910-a-customer-closes-their-own-account)
 10. [Money — the most important rule](#10-money--the-most-important-rule)
 11. [The background worker](#11-the-background-worker)
 12. [Security](#12-security)
@@ -172,7 +174,8 @@ padding, type steps and radii, never in the colours.
 
 ### What the product looks like
 
-White and sky blue, with blue as the accent. The rule that produces it:
+White and sky blue, with blue as the accent — and a dark theme beside it,
+described below. The rule that produces the light one:
 
 - **The page ground is a blue-tinted white** (`--surface-sunken`), and
   everything that sits on it — cards, the storefront header, the admin sidebar,
@@ -188,6 +191,91 @@ White and sky blue, with blue as the accent. The rule that produces it:
 - **Teal is a standing arrangement** — schedules, Autopay — so committing to
   a repeat delivery never has to borrow the buy path's orange.
 
+### There are two themes, and one of them is dark
+
+The palette above is the light one. There is a dark one beside it in the same
+file, and the appearance control in the storefront header and the admin top bar
+switches between them.
+
+**Three preferences, two themes.** A segmented control, three icons wide,
+with the one in force drawn as a lifted tile:
+
+| Preference | What it means | What is on `<html>` |
+|---|---|---|
+| **Match my device** (the default) | Follow `prefers-color-scheme`, now and later | nothing |
+| **Light** | This site is light, whatever the machine says | `data-theme="light"` |
+| **Dark** | This site is dark, whatever the machine says | `data-theme="dark"` |
+
+The empty cell is load-bearing. `data-theme` is **not** a cache of the theme on
+screen: its *absence* is what hands the decision to the
+`@media (prefers-color-scheme: dark)` block, so somebody following their device
+keeps following it when the device changes at sunset. Writing the resolved
+value there would look identical in a screenshot and silently freeze them in
+whichever theme they happened to be in.
+
+The choice is kept in `localStorage` under `uboss.theme` and nowhere else — not
+on the profile. A theme belongs to the screen somebody is looking at, not to
+their account: the same buyer wants dark on the phone they check orders on in
+the evening and light on the warehouse terminal, and a synced preference would
+fight them on one of the two. It also means it works for a guest, on the
+sign-in page, and before any request has been made. The two apps share the key,
+so a deployment serving the panel under `/admin` gets one choice for the whole
+product.
+
+**The first paint is handled in `index.html`, not in React.** A six-line
+blocking script in the head stamps the attribute before the document is
+painted. React mounts *after* the first paint, so a provider structurally
+cannot prevent the white flash a dark-themed visitor would otherwise get on
+every page load — the one bug that makes a dark theme feel bolted on.
+`src/app/ThemeProvider.tsx` adopts whatever that script decided and owns it
+from there. The key and the three values appear in both files and have to stay
+in step; each says so.
+
+### Why every colour has two tokens now
+
+This is the part that is arithmetic rather than taste, and the part most likely
+to be undone by somebody tidying up.
+
+`--brand` was used two ways: as the fill under a white button label, and as the
+colour of a link on the page. On a dark card those pull in opposite directions.
+White on the fill needs 4.5:1, which caps the fill's luminance; the link on the
+card needs 4.5:1 against a surface that is nowhere near black. **No single blue
+satisfies both.**
+
+So every hue that appears as both a fill and as text carries two tokens:
+
+| Token | Role | In dark mode |
+|---|---|---|
+| `--brand` | text and accent — `text-brand`, `border-brand/25`, `bg-brand/10` | lightens |
+| `--brand-fill` | the solid plate under a light label — `bg-brand-fill text-white` | stays saturated |
+
+In light mode the two hold the same value, so the light theme is unchanged by
+their existence. The same split exists for `operational`, `success`, `warning`,
+`danger` and `action`. Orange had half of it already: `action-strong` was
+introduced as the fill under a white CTA label, and it has now separated
+further — `action-strong` is orange as *text* (the cart control's label), and
+`action-fill` is the plate.
+
+**Which one to reach for:** if a light label sits on it, it is a `-fill`. If it
+is a coloured mark with no text on it — a status dot, a proportion bar, a tab
+underline, the connector between checkout steps — it is the bare token, and a
+light hue on a dark ground is the correct reading for it.
+
+Two more tokens exist for the same reason:
+
+- `--surface-media` stays white in both themes. It is the plate behind an
+  uploaded logo or product photo, and an operator's logo is frequently a dark
+  PNG with no transparency — which on a dark plate is a black square.
+- `--surface-inverse` and `--navy` stay dark in both themes, so the two
+  `inverse` button variants and the dialog scrim keep working without a second
+  set of rules. A dark theme where the "on dark" variant becomes "on light" is
+  a dark theme that has to reimplement its own components.
+
+The warehouse map's tiles do not follow the theme either, and
+`WarehouseMap.tsx` says why: the imagery is the operator's, and the usual
+shortcut — a CSS `invert()` over the tile layer — turns their basemap into a
+photographic negative. The chrome, markers and popups around it do follow it.
+
 ### How far the tint can go is not a matter of taste
 
 `npm run audit:contrast` (in both apps) reads the token block directly and
@@ -195,18 +283,118 @@ checks every pair the components actually put together against WCAG 2.1 AA —
 4.5:1 for text, 3:1 for anything that identifies a control. It exits non-zero
 on a failure and runs as part of `npm run verify`.
 
+**It audits both palettes, separately, and it has to.** The version before the
+dark theme read the whole stylesheet with one regular expression, so adding a
+second `:root` block below the first would have made the last match win: the
+audit would have quietly begun reporting on dark values only, under headings
+that said nothing had changed. It now parses the light block and the dark
+overrides as two palettes and measures every pair in each. It also compares the
+two copies of the dark block against one another — dark is declared twice, once
+under `prefers-color-scheme` and once under `[data-theme='dark']`, and a token
+that drifted between them would mean the theme the operating system asks for
+and the theme the toggle asks for are different themes.
+
 That audit is what sets the ceiling on the sky tint. A tinted ground is a
 *darker* ground, and the quietest text in the app — `--ink-subtle`, which
 carries SKUs, timestamps and every table column header — is the first thing
-that stops passing on it. It sits at 4.98:1 on the page ground today. A couple
-of steps deeper and the audit fails, which is the correct outcome: the
+that stops passing on it. It sits at 4.98:1 on the light page ground today. A
+couple of steps deeper and the audit fails, which is the correct outcome: the
 alternative is a slightly prettier blue that a low-vision buyer cannot read a
 part number on.
 
-There is no dark theme, and `color-scheme: light` says so to the browser. The
-parts of a page the browser draws itself — the scrollbar, and the option list
-of a native `<select>` — would otherwise render dark for a visitor whose
-operating system is, on a product that is white everywhere else.
+It earned its keep the day the dark palette was added: it failed on two pairs
+nobody had thought about — a buy button that got *lighter* on hover, walking
+its white label to 4.09:1, and the cart control's orange label sitting at
+2.92:1 on its own tinted ground.
+
+`color-scheme` is now `light dark`, and pinned to one value when the visitor
+has made an explicit choice. That is what makes the browser draw its own parts
+— the scrollbar, and the option list of a native `<select>` — to match the
+page. A page stamped `data-theme="dark"` on a machine set to light would
+otherwise get a light scrollbar on a dark page, which is worse than no dark
+theme at all.
+
+### How the product reflows
+
+Both apps are used on phones — a buyer reordering from a ward, a manager
+checking an order on the way to a meeting — so both are built to work from
+320px up. Two rules hold everywhere, and they are the ones to check against
+when adding a screen:
+
+1. **A page never scrolls sideways.** Horizontal scrolling belongs to a
+   named container that opted into it — a wide table, a code block, a
+   diagram — never to the page, because taking the page sideways takes the
+   navigation and the cart off screen with it.
+2. **Nothing overflows its own box.** A control that spills over its
+   container is worse than one that scrolled: it silently covers the control
+   next to it, and the covered one is usually the important one.
+
+Where the two apps reflow:
+
+- **The storefront header is one band at every width.** Brand on the left;
+  appearance, market, account and basket on the right. It used to be three
+  bands below `md` — a market strip, an identity band and a search row — and
+  it is one now because two of the controls were removed outright: see *The
+  header* in section 4 for the global search box and the category bar, and why
+  neither should come back.
+
+  The three market controls that needed a strip of their own are now one
+  control that states all three answers and opens a panel. That is what freed
+  the rows. It is not a fold-away, either — a buyer reading a quote in the
+  wrong currency is the most expensive misreading this app can cause, and the
+  currency is on the trigger at every width above `lg` and one press away
+  below it.
+
+- **The account area is two columns from `lg` and a disclosure below it.** The
+  content column carries `min-w-0`, which is load bearing: a grid track's
+  default minimum is its content's min-content, and that column holds order
+  tables and product grids whose min-content is wider than a laptop. Without
+  it the track refuses to shrink and the whole page scrolls sideways, taking
+  the sidebar with it — which is rule 1 above, broken by a default.
+
+- **The admin panel's sidebar becomes a drawer below `lg`** — a real modal,
+  with focus moved into it, Tab cycling inside it and Escape closing it. The
+  language picker moves to the foot of that drawer below `sm`, because at
+  320px the top bar's five controls came to 351px and what silently lost was
+  the breadcrumb — the only thing telling a phone user which section they
+  are in. The drawer is navigation, not a settings screen, so the picker is
+  still one tap from every page.
+
+- **Wide admin tables scroll inside themselves,** and `DataTable` columns can
+  be marked `secondary` (hidden below `lg`) or `tertiary` (hidden below `xl`)
+  so a phone shows identity, status and one number rather than a crushed
+  fourteen.
+
+- **Dialogs are capped to the viewport and only their body scrolls.** The cap
+  is `100dvh` — the dynamic viewport, so a mobile browser's collapsing
+  toolbar is counted rather than guessed at. Before, the body alone was
+  capped at `70vh`, which is fine until the viewport is short: on a phone in
+  landscape the header and footer no longer fitted around it and the footer —
+  the row with Save and Cancel in it — fell off the bottom of the screen.
+
+- **Every grid declares its base column count** (`grid-cols-1`), not just its
+  wider ones. A grid track sized `auto` or `1fr` cannot go below its
+  content's min-content width, so one long product name in a sidebar column
+  widened a whole checkout page by 254px. `grid-cols-1` and `minmax(0,1fr)`
+  have a floor of zero and cannot do that. This is the single most common way
+  a page in either app starts scrolling sideways.
+
+- **The breakpoints are measured, not guessed.** Each one in the storefront
+  header is the width at which the controls actually stop fitting, and the
+  numbers are recorded in the comments beside them, so a future nudge earlier
+  can see what it would reintroduce.
+
+Two conventions worth knowing before adding to a page:
+
+- **`--page-bottom-bar`** is how much of the bottom edge a page-level action
+  bar is occupying — `0px` on the pages that have none. `StickyBottomBar`
+  (the cart's Checkout row) measures itself and publishes its height there,
+  and anything else pinned to the bottom edge offsets itself by it. The chat
+  launcher is why: 56px in the same corner, and before the offset it sat
+  exactly on top of the Checkout button.
+- **A short viewport is its own case.** A phone held sideways is ~400px tall,
+  where the storefront's sticky rows would be 40% of the screen, so they trim
+  their vertical padding under `max-height: 480px`.
 
 ## Why the worker is separate
 
@@ -338,109 +526,864 @@ comes back in the exact same shape:
 | `/checkout` | Address, shipping, payment choice | **Yes** |
 | `/checkout/payment/:orderId` | The payment sheet | **Yes** |
 | `/order-confirmation/:orderId` | "Thank you" | **Yes** |
-| `/account/orders` | Order history | **Yes** |
-| `/account/orders/:id` | One order | **Yes** |
-| `/account/schedules` | Repeating orders | **Yes** |
+| `/confirm-contact` | Confirm a new email address or telephone number (from the emailed link) | Asks for one |
 | `/schedules/new` | Build a repeating order | **Yes** |
-| `/account/addresses` | Saved addresses | **Yes** |
-| `/account/profile` | Name, phone, language | **Yes** |
-| `/account/autopay` | Autopay: consent, limits, which card | **Yes** |
+| `/ai` | AI Mode: the assistant. A history needs an account | No |
+
+Everything under `/account` shares one frame — a profile card and a grouped
+sidebar on the left, the page on the right — and one session guard, which sits
+on the layout route rather than on each page:
+
+| Path | Page | Sidebar group |
+|---|---|---|
+| `/account` | Redirects to `/account/profile` | — |
+| `/account/orders` | Order history | Orders |
+| `/account/orders/:id` | One order | Orders |
+| `/account/schedules` | Repeating orders | Orders |
+| `/account/schedules/:id` | One repeating order | Orders |
+| `/account/profile` | Name, email, telephone, password, limits, your data, closing the account | Account settings |
+| `/account/company` | Company name, department, delivery contact number | Account settings |
+| `/account/addresses` | Saved addresses | Account settings |
+| `/account/region` | Language, country and currency | Account settings |
+| `/account/payment-methods` | Saved cards | Payments |
+| `/account/autopay` | Autopay: consent, limits, which card | Payments |
+| `/account/billing` | VAT number, GSTIN, billing address | Payments |
+| `/account/erp` | What the ERP hand-off does and who sets it up (no form) | Integrations |
+| `/account/coupons` | Codes available, and codes used | My stuff |
+| `/account/wishlist` | Lines saved without buying them | My stuff |
+| `/account/notifications` | A record of what has been sent to this account | My stuff |
+
+`/account/schedules` is absent from the sidebar on a deployment with
+`recurringOrders` off — absent, not greyed out. The one list of destinations
+that both the sidebar and the header dropdown read is
+`apps/customer-web/src/pages/account/account-nav.ts`; two hand-written arrays
+is how the header ends up offering a screen the sidebar has forgotten.
 
 **Browsing does not need an account.** The sign-in wall sits at the *cart*, not
 at the front door — because the backend puts it there too. A visitor can see
 the whole catalogue and prices, and is only asked to identify themselves when
 they want to actually buy.
 
-**The AI chat widget is the second thing behind that wall.** A guest sees the
-launcher and, on pressing it, a "Sign in to use AI" panel — never a composer.
-Signing in from there returns them to the page they were on with the panel
-already open. See *The AI assistant* in section 8 for why the API insists on it
-too. It can also be opened from the front page — see below.
+**AI Mode is in front of that wall too.** `/ai` is a page, not a panel, and
+anybody may ask it a question — the same reasoning as the catalogue: somebody
+deciding whether this store has what they need should be able to ask before
+opening an account. Signing in is what adds a *history*, not what buys an
+answer. See *The AI assistant* in section 8 for what a guest gets and what they
+do not, and for the setting that closes the door again.
 
-## The front page, and the sourcing hub
+**There is no longer a floating chat button.** The widget that used to sit in
+the bottom-right corner of every page has been removed outright — the launcher,
+the panel, the fixed positioning, and the per-tab conversation it kept in
+`sessionStorage`. What replaced it is a route with a URL and, for a signed-in
+customer, a conversation history that belongs to the *account* rather than to
+the browser tab.
 
-`/` is a greeting page. Above the catalogue it carries one large animated
-graphic: a central orb labelled **Sourcing**, two orbital rings turning in
-opposite directions, and six capabilities arranged on a circle around it.
+**Image search is the one thing behind the wall.** The camera button on the
+front page's search bar spends the operator's AI provider budget on every
+press, and unlike a chat message there is no cheap version of it — a vision
+call is the most expensive single request this API makes. So it sits behind the
+session, and a guest is offered a way in rather than a file picker that ends in
+a 401. Browsing, searching and filtering the catalogue stay open to everybody.
 
-| Node | What pressing it does |
+## The header
+
+One band over a tinted page, and five things in it: the brand on the left,
+then the appearance control, the market control, the account control and the
+basket on the right. That is all. Two things that used to be here are gone, and both removals are
+the point of the current shape.
+
+**The global search box is gone.** The front page opens on a large search
+module, and a second, smaller search field in the chrome directly above
+it was two front doors to the same room — behaving differently, at that: the
+header field always went to `/search`, while the hero bar goes to the catalogue
+with the filters and facets applied. Searching from anywhere is still one press
+away, and the catalogue page grew a search field of its own **at the top of its
+filter panel**, which is where it belongs: it is one more thing narrowing that
+listing, alongside price, stock and the facets. (Clear all deliberately keeps
+the term — it is the intent behind the listing rather than one of the
+constraints on it.)
+
+**The horizontal category bar is gone.** It was a second sticky row spending
+44px of every viewport on the top-level departments, which are also the first
+section of the front page and the whole left rail of the catalogue page. On a
+phone it scrolled sideways, so the department you were in was frequently half
+off screen — a navigation aid you have to navigate. The header no longer asks
+for `/catalog/categories` either; a removed bar that still fetches is a removed
+bar in name only.
+
+What is left is deliberately not padded out to fill the space they left. The
+brand shrinks and the controls do not, so the gap between them is whatever is
+over. A `flex-1` element in the middle would be a named, measurable hole where
+a control used to be.
+
+**The appearance control is the fifth thing, and the quietest.** It is the
+only control up here that changes nothing about the order somebody is
+placing, so it sits first, and it is the one thing in the band that changes
+shape with the width:
+
+| Width | What it is |
 |---|---|
-| AI Assistant | Opens the chat panel in the corner of the page |
-| Scheduled Orders | Goes to `/account/schedules` |
-| Autopay | Goes to `/account/autopay` |
-| Inventory Sync | Goes to `/products` — a synchronised stock level is shown on the product |
-| Warehouse Network | Explains that the network belongs to the operator, and offers the catalogue |
-| ERP Integration | Explains that a connection is created in the admin panel |
+| From `sm` | Three segments — *match my device*, *light*, *dark* — 109px |
+| Below `sm` | One icon that advances through the same three — 40px |
+
+That is a measurement rather than a preference. At 345px the band has about
+44px left once the brand, the market chip, the account and the basket have
+taken theirs, and a segmented control forced in there takes the page
+sideways. Dropping a *segment* instead would be worse: the one that would go
+is "match my device", so a phone user who pressed "light" once could never
+hand the decision back. Adding the fifth control also cost the band four
+pixels of gap below `sm`, which is written down beside it in `Header.tsx`.
+
+Why "match my device" is a preference rather than a third look is in *There
+are two themes* in section 2.
+
+`chrome.test.tsx` asserts both absences. A comment explains a deliberate
+removal; a test is what stops it being quietly reinstated by somebody who finds
+the header looking sparse.
+
+### One control for language, country and currency
+
+They used to be three `<select>`s in a row. Together they came to 481px of
+chrome in a 345px viewport, which made the whole page scroll sideways on a
+phone and forced the header to grow a *second* sticky band to hold them. And a
+`<select>` of 43 countries cannot be searched: the platform picker's type-ahead
+matches the first letter only, so finding Netherlands means pressing N four
+times.
+
+So the three collapse into one control. The trigger states the current answer —
+flag, language code, country, currency — and the panel changes all three
+together:
+
+| Part | Why it is there |
+|---|---|
+| Flag | The fastest of the four to read, so it leads |
+| `EN` | The interface language, as a code, at every width |
+| Country and currency | Wide screens only; below `lg` the flag says it and the panel spells it out |
+| Chevron | It is a disclosure, and says so |
+
+**Nothing is applied until Apply.** Every other control in the header acts on
+change, and this one deliberately does not: it is three coupled answers, and a
+country whose currency this catalogue holds no prices for has to be *shown* to
+be a problem before it is acted on. Applying them together also matters —
+picking "Germany" and then "euro" as two separate acts reprices the whole
+catalogue twice and restamps the cart twice, and the shopper watches two rounds
+of skeletons for one decision.
+
+**Applying it says that the numbers moved.** Every price on screen has just
+been requoted from the server — a different price list, and a different
+destination's tax on top of it — and the open cart with them. A catalogue whose
+figures change while somebody is reading it, with nothing said, is the most
+expensive silence this storefront can produce, so a toast names the new market
+and currency.
+
+**The location is offered, never taken.** The browser's own reading — from the
+time zone, which needs no permission — appears as a suggestion beside the list
+with a "Use that". Nothing here raises a location permission prompt; the only
+screen that does is the first-run picker, where the shopper can see why it is
+being asked.
+
+The panel is an anchored dropdown from `lg` and a bottom sheet below it. A
+43-row list in a 280px popover pinned to the corner of a phone is a list you
+scroll with your thumb over the content you were reading.
+
+`/account/region` asks the same three questions with room to explain them, and
+writes to exactly the same place. Both go through `LocaleProvider.choose`,
+which is what invalidates every priced query and lets the server restamp the
+cart; a second implementation of "reprice the catalogue" is how a header ends
+up saying one currency while the grid shows another.
+
+### The flags are drawn, not fetched
+
+Three approaches were possible and two are wrong for this product.
+
+**Not emoji.** `🇮🇳` is two regional-indicator code points a font is expected
+to compose into a flag, and Windows ships no font that does — every browser on
+it except Firefox renders the pair as the letters "IN" in two boxes. Since this
+control is in the header of every page, on the platform an operator is most
+likely to be running, "the flag is sometimes two letters in a box" would not be
+a rendering detail, it would be the design.
+
+**Not images.** UBOSS is self-hosted, and the front page's rule applies to the
+chrome as well: it has to look finished with nothing supplied. A sprite sheet is
+a request that can 404 behind a firewall, and a CDN is a third party in the
+page.
+
+**So they are drawn, and they are stylised.** `components/CountryFlag.tsx`
+holds every served market as a handful of equal bands plus, where a flag needs
+one, a single mark — a disc, a chakra, a cross, a leaf. At 24×16 CSS pixels a
+stylised flag and an exact one are the same picture, and an exact one would be
+kilobytes of path data per country for detail no display can resolve. A country
+with no entry falls back to its two-letter code in a tinted plate, which is not
+a failure state: `Country` is a table an operator can add rows to, so an
+unknown code is an ordinary event and a deliberate letter chip reads as a
+design decision where a blank box would read as a bug.
+
+Every flag is `aria-hidden`. The country's own name is beside it in text
+everywhere it appears, and a screen reader hearing "flag of India, India" has
+been told the same thing twice.
+
+### The account control
+
+A guest gets a **Sign in** button — not a menu with one item in it, because
+there is exactly one thing a stranger can do here and a control offering one
+action should *be* that action.
+
+A signed-in customer gets a dropdown headed by who they are (name, address,
+company) and then the account destinations in four short groups: the profile,
+orders, payments, and the odds and ends. It reads the same table the account
+sidebar reads.
+
+Four decisions worth knowing:
+
+- **It is a disclosure, not an ARIA menu.** `role="menu"` promises a composite
+  widget where Tab enters once and arrow keys move between items. This is a
+  list of links, and announcing it as a menu would describe keyboard behaviour
+  it does not have — and would replace "link" in every announcement, so a user
+  who cannot tell that following an entry navigates has been told *less*.
+- **The groups are headings, but not document headings.** They are `<p>`s
+  referenced by each group's `aria-labelledby`, so a screen reader says
+  "Payments, list, 3 items" on entering one without filling its heading list
+  with "Payments" every time somebody opens the dropdown. In the account
+  sidebar, which genuinely is a document region, the same titles are `<h2>`s.
+- **The current page is marked.** `NavLink` sets `aria-current="page"` and the
+  row is filled, because half of "where am I and what else is there" is
+  answered by showing where you are.
+- **Signing out asks first.** It sits one row under Notifications in a list
+  people scan quickly, and on a shared purchasing machine an accidental
+  sign-out costs somebody their basket. The confirmation is a real dialog
+  rather than a second click on the same button, and it says what is *kept*.
+
+Escape closes it and returns focus to the trigger; so does a click outside.
+Below `sm` it is a bottom sheet with its own close button, because a sheet
+covering half a phone needs a visible way out that is not a gesture.
+
+## The front page: the search module
+
+To the left of the sourcing graphic, under the headline, sits the thing this
+page exists to offer: **one large search bar, with a two-item row above it.**
+
+| Item | What pressing it does |
+|---|---|
+| **AI Mode** | Opens `/ai` — the AI Mode page — immediately |
+| **Products** | Nothing. It is where you already are, and the bar below it is the catalogue search |
+
+It replaced a pair of call-to-action buttons, and the swap is the point. The
+old buttons said "Browse the catalogue" and "Sign in"; the first of those asked
+somebody to go and *look* for a thing they could already name. Nothing was lost
+with them — submitting an empty box goes to the same browse-all page the orange
+button did, and the sign-in path is in the header on every screen.
+
+**Submitting searches the catalogue, and only that.** The term goes into the
+URL as `/products?q=…`, and the catalogue page owns what a result looks like —
+so the filters, facets, pagination and category structure that already exist
+are the ones the results arrive in. An empty box is the whole catalogue rather
+than a no-op. A second grid of search results on the front page would be a
+second definition of "a search result".
+
+### AI Mode is a link, and it used to be a tab
+
+The row looks like two tabs and is not two tabs. Pressing **AI Mode** goes
+straight to the AI Mode page.
+
+It used to select a tab: the bar switched its placeholder to "Ask anything
+about medical sourcing", and pressing **Search** then navigated. That was two
+presses to reach a page that is simply better at the job than a one-line bar
+with a Search button can be — AI Mode has a composer that grows, a transcript,
+and a list of previous conversations. So the row now does the obvious thing:
+the item that leads somewhere leads there when pressed.
+
+**Whatever is already typed travels with it.** It is parked in
+`sessionStorage` and collected once on arrival, with intent `compose` — the
+words land in the composer ready to finish, rather than being asked on
+somebody's behalf, because pressing a link is not the same act as pressing
+Search. `lib/ai-mode.ts` holds both the mechanism and why it is not a query
+parameter: a question can be a paragraph, and it has no business in a link that
+gets pasted into a chat window, logged by a proxy, or kept in browser history.
+
+**There is no `role="tablist"` here any more, and there was.** A tablist
+promises that its items switch panels inside the page and that arrow keys move
+between them. One of these two items leaves the page, so announcing it as tab
+selection describes a control that no longer exists. What is left is a labelled
+row: the current item carries `aria-current`, the other is a link. The sliding
+underline went with it — nothing moves, so the underline is a `span` inside the
+current item, which is exact in all eight languages without a `ResizeObserver`,
+a font-load handler and a layout effect.
+
+The AI Mode item is **absent, not disabled**, on a deployment with no AI
+provider configured. The bar is then a search bar with nothing above it, which
+is the honest shape for that deployment — the same rule the rest of the
+storefront follows for a capability the operator has not switched on.
+
+### The catalogue is simply on the page
+
+Below the hero, the greeting page lists products. It is not conditional on
+anything: the bar above it searches the catalogue, and this is the catalogue.
+
+| Step | What happens |
+|---|---|
+| 1 | The section mounts with the page |
+| 2 | `/catalog/products` is read for the current currency, destination and language |
+| 3 | Skeleton cards while it is in flight, in the grid the results land in |
+| 4 | A failed read reports the reason with a **Try again**; an empty catalogue says so plainly |
+
+**Two earlier shapes are worth not repeating**, and the tests record both.
+Mounting the list only once the Products *tab* had been pressed saved one
+catalogue read and left that tab sitting visibly selected, blue underline and
+all, with nothing underneath it — which reads as a broken page to exactly the
+person least able to tell that it is not. Tying it to *which tab was current*
+then meant choosing AI Mode unmounted it, and the section scrolled itself into
+view when it came back, which was right after a press and wrong on arrival.
+With AI Mode a link, Products is the only thing the bar can be, and all of that
+machinery is gone: nothing reveals the list, so nothing scrolls.
+
+**It is a taste of the catalogue, not a second catalogue.** The section reuses
+`ProductCard`, the same `/catalog/products` read and the same pricing as every
+other listing, and adds a sort order and a page. The facets, price bounds,
+attribute filters and category tree stay on `/products`, one link away —
+reimplementing any of them here would be a second answer to "what is in this
+catalogue" that could disagree with the first.
+
+`home-products.test.tsx` guards the two things that rot. It counts the
+catalogue reads and asserts there is exactly **one** — a section that mounts
+twice, or a stale second query key, shows up here and nowhere else. And it
+spies on `scrollIntoView` to assert that nothing scrolls on arrival, which is
+the half of the old behaviour that was always wrong and the one a re-invention
+would bring back first.
+
+The bar carries four controls:
+
+| Control | What it does |
+|---|---|
+| Text input | Enter submits, as does the Search button |
+| Clear | Empties the box without submitting |
+| Microphone | Dictates into the box using the browser's own speech engine |
+| Camera | Opens image search — see below |
+
+**Voice search never submits.** The transcript lands in the box and stops
+there; the customer reads what was heard and presses Search themselves. Speech
+recognition is confident and frequently wrong, and a search that runs itself on
+a misheard word is a page of results for something nobody asked for. Dictation
+is *appended* to what was typed rather than replacing it, so somebody who typed
+"syringe" and then said "18 gauge" gets both.
+
+It uses the browser's `SpeechRecognition`, so **nothing leaves the page**. The
+alternative — recording audio and posting it to a transcription service — would
+mean shipping a microphone recording of whoever is standing near the machine to
+a third party, paying per second for it, and adding that vendor to the privacy
+notice. Chrome, Edge and Safari have an engine; Firefox does not, and there the
+microphone button is simply absent rather than present and broken. A refused
+permission, a missing microphone and a dropped connection each get their own
+message.
+
+**Image search matches on what the model recognises the item to *be*.** It is
+not a perceptual-similarity search over product photographs, and the interface
+says so by showing the customer the sentence the picture was read as — "a
+series of disposable plastic hypodermic syringes without needles" — above the
+matches, so a misreading looks like a misreading rather than like a catalogue
+full of the wrong stock. The photograph is sent to the provider and never
+stored. See *Image search* in section 8 for how the slugs are validated.
+
+**A capability the operator has not configured is absent, not disabled.** On a
+deployment with no AI provider there is no AI Mode link and no camera button —
+and with only one item left, no row above the bar either, because one item is a
+label pretending to be a choice.
+
+## The sourcing hub
+
+Beside the search module, `/` carries one large animated graphic: a central
+glass orb labelled **Sourcing**, two orbital rings turning in opposite
+directions, and **four** capabilities riding those rings around it.
+
+| Node | Ring | What pressing it does |
+|---|---|---|
+| AI Assistant | outer | Goes to `/ai` |
+| Scheduled Orders | inner | Goes to `/account/schedules` |
+| Autopay | inner | Goes to `/account/autopay` |
+| ERP Integration | outer | Explains that a connection is created in the admin panel |
+
+**Two nodes were removed and should not come back without a screen behind
+them.** *Warehouse Network* and *Inventory Sync* both described the operator's
+own logistics rather than anything a buyer could act on, and both resolved to
+the catalogue in the end — so the hub was spending a third of its circle
+pointing twice at a page the search bar beside it already reaches. What a buyer
+can act on is what that network can ship. The node table's own header records
+this, and `greeting.test.tsx` asserts the four ids, so re-adding one fails a
+test before it reaches a review.
 
 **A node never links somewhere the person pressing it cannot go.** That is the
-rule the whole thing is built on, and it is why three of the six are `<a>` and
-three are `<button>` depending on who is looking:
+rule the whole thing is built on, and it is why some nodes are `<a>` and some
+are `<button>` depending on who is looking:
 
-- A **guest** pressing Scheduled Orders, Autopay or AI Assistant gets a short
-  explanation and a **Sign in** link — never the guarded route, and never an
-  AI composer.
+- A **guest** pressing Scheduled Orders or Autopay gets a short explanation and
+  a **Sign in** link, never the guarded route.
+- **AI Assistant is the exception, and it is the rule being followed rather
+  than broken.** AI Mode is open, so there is nowhere a guest pressing it
+  cannot go — it is a plain link for everybody, and the only node with no
+  session branch at all.
 - A capability this deployment has **switched off** (`recurringOrders`,
   `assistant`) explains that instead of linking to a page that would 404.
-- **Warehouses and ERP always explain**, for everybody. Neither has a customer
-  screen and neither is supposed to grow one — an ERP connection is a URL plus
-  a credential belonging to whoever runs the installation, which is exactly why
-  the screen for it is Settings → ERP in the admin panel.
+- **ERP always explains**, for everybody. It has no customer screen and is not
+  supposed to grow one — a connection is a URL plus a credential belonging to
+  whoever runs the installation, which is exactly why the screen for it is
+  Settings → ERP in the admin panel. `/account/erp` says the same thing at
+  greater length.
 
 The decision table lives in
 `apps/customer-web/src/components/greeting/orchestration-nodes.ts`, on its own,
 so it can be read and tested without rendering an SVG.
 
-### What a signed-in customer sees underneath
-
-A panel that renders **nothing at all for a guest**, and makes no request for
-one. For a customer it carries:
-
-- A personalised greeting, *if* the account has a name on it. `fullName` is
-  nullable and blank in plenty of real purchasing accounts, so a missing name
-  falls back to "Welcome back" rather than breaking the page. It is never
-  derived from the email address.
-- Actions: **View dashboard**, **Ask AI**, **Build a cart**, **Schedule a
-  cart**, **Connect ERP API**. Each appears only where it leads somewhere —
-  no schedule action without `recurringOrders`, no AI action without an
-  assistant.
-- The **next scheduled order**: the soonest run across every active plan, with
-  the plan's status, the server's own description of the recurrence, and a
-  link straight to that schedule.
-- **Setup guidance**, when there is any: a card that can no longer be charged,
-  a paused Autopay authority, or a repeat purchase running with no standing
-  authority behind it.
-
-**Guidance never gates.** A setup notice changes nothing about the actions
-beside it: a customer who has not finished setting up Autopay can
-still open their orders, build a basket and schedule one.
-
-**The page never claims an ERP is connected.** There is no customer-facing
-endpoint for that and there should not be one, so the ERP entry is worded as
-an explanation of how the hand-off works and of who sets it up. A green "ERP
-connected" chip here would be a decoration pretending to be a status.
-
 ### The animation
 
 Everything that moves animates **`transform` and `opacity` only** — the orb's
-wireframe rotates in three dimensions, the rings counter-rotate, particles ride
-them, a light travels out along each spoke, and the six nodes float. All of it
-composites on the GPU and does no layout for the life of the page. The
-travelling lights are circles that translate rather than the usual animated
-`stroke-dashoffset`, which would repaint the whole path every frame.
+wireframe rotates in three dimensions, its specular highlight orbits, an arc
+travels round its rim, its aura breathes, the two drawn ring guides
+counter-rotate, particles ride them, a light travels out along each spoke, and
+the cards float. All of it composites on the GPU and does no layout
+for the life of the page. The travelling lights are circles that translate
+rather than the usual animated `stroke-dashoffset`, which would repaint the
+whole path every frame.
+
+**The whole thing has to be visible at once, and that sets its size.** This is
+a diagram of four capabilities around a hub: a ring with one branch below the
+fold is a diagram somebody has to scroll to read, which defeats the point of
+drawing it. At a 34rem frame with cards that sized themselves to their own
+wording the ring came to 562px tall, the hero band to 641px, and the page to
+750px with the header on top — so on a 717px laptop viewport the bottom card
+was cut off. Three numbers were changed together:
+
+| | Was | Is |
+|---|---|---|
+| The frame | 34rem | 30rem |
+| The card | 8rem wide, 152-171px tall, each sizing itself | 9.5rem square, all four identical |
+| Supporting line | up to three lines | two, from `lg` |
+
+The ring now sweeps 507px in both directions — the card is square, so the
+composition is a circle rather than an ellipse — the hero band is 577px, and
+the whole graphic sits between 139px and 649px of a 717px viewport with the
+header ending at 77. The 14px it spills past the frame on each side lands in
+the hero's own 48px padding.
+
+**Four identical cards, not four cards that fit their own text.** The heights
+were 152, 155, 171 and 152 pixels, which on a ring reads as four cards that
+happen to be near each other rather than as one arrangement — and the tallest
+of them was deciding how much vertical room the composition needed. A fixed
+height also means a translation that runs long cannot change the geometry: the
+supporting line clamps to two lines from `lg`, and the full sentence is still
+what the phone list shows and what a screen reader reads either way.
+
+**The whole ring turns, and nothing on it ends up upside down.** From `lg` all
+four cards orbit the orb together — one direction, 64 seconds — and each sits
+inside a layer turning the *opposite* way at the *same period*, so the two
+cancel and the wording is upright and sharp in every frame. The pairing is the
+one thing in this file that cannot be got wrong: the period is a CSS custom
+property declared once on `.orch` and read by both layers, because a
+counter-rotation a second out of step is a card that slowly tips over. The
+radial spokes under the cards take the same period in the same direction, so a
+line always points at the card it belongs to.
+
+**One period for all four cards is a fix, not the original design.** They were
+two counter-rotating groups at 64 and 97 seconds, which read better as a
+description than it looked on screen: all four cards ride the *same* circle, so
+two groups turning at different rates have to pass through each other, and
+twice a minute one card sat on top of another with its wording clipped. Four
+cards 90° apart on one orbit stay 90° apart forever. Only the two drawn ring
+guides still counter-rotate, on their own period — they are dashes on a circle,
+and a dash can pass anything without covering it, which is where the variety
+the two node groups were reaching for actually belongs.
+
+No two periods here are multiples of one another — the orbit, the wireframe,
+the gleam, the rim arc, the aura and the two ring guides are all coprime by
+intention. Two loops that share a factor visibly re-sync, and the pattern that
+emerges is more noticeable than any of the motions on its own.
 
 **The word "Sourcing" does not rotate.** It is a sibling layer of the orb with
 no transform at all, because a word painted onto a spinning sphere is
-unreadable for most of every revolution.
+unreadable for most of every revolution. The orb itself is nine layers of pure
+CSS — a breathing aura, a soft ground, a travelling rim arc, a deep
+navy-to-royal body, a graded conic rim, a wireframe globe, an orbiting gleam, a
+fixed glass crescent and the label — with three concentric hairlines outside
+it, and the glow kept deliberately tight, because a halo wide enough to be
+noticed on its own is a halo washing out the headline beside it.
 
-`prefers-reduced-motion: reduce` stops every rotation, the float and the
-pointer parallax. The parallax is written straight to two CSS custom
-properties on the element and re-reads the media query on each frame, so
-switching reduced motion on mid-visit takes effect without a reload.
+The aura and the rim arc were added when the hero's top band was tightened: the
+sphere is 33% of the stage rather than 30%, and a larger orb in a shorter card
+wants something happening at its shoulder or it reads as a static logo dropped
+into a diagram. Both are `transform` and `opacity` only — the arc is a conic
+gradient masked to a hairline ring and *rotated*, not a gradient whose position
+is animated.
 
-**Below `lg` the circle becomes a list.** Same DOM, same six controls, same tab
-order: the orb stays as a smaller graphic and the nodes drop into a grid under
-it — one column on a phone, two from `sm`. A radial layout that merely scaled
-down would put one node's label on top of another's.
+33% is as large as the sphere goes, and the margin is 14px: that is the gap
+between the aura's visible edge and the nearest a card comes to it, which
+happens due north and due east rather than on the diagonal. The note on
+`NODE_RADIUS_FRACTION` has the arithmetic and the four numbers it depends on.
+
+`prefers-reduced-motion: reduce` stops every rotation, the orbit *and its
+counter-rotation together*, the aura, the rim arc, the float and the pointer
+parallax. The parallax is written straight to two CSS custom properties on the
+element and re-reads the media query on each frame, so switching reduced motion
+on mid-visit takes effect without a reload.
+
+**Below `lg` the circle becomes a still list.** Same DOM, same four controls,
+same tab order: the orb stays as a smaller graphic and the cards drop into a
+grid under it — one column on a phone, two from `sm` — with no rotation at all.
+A radial layout that merely scaled down would put one node's label on top of
+another's, and a rotating one would have four cards taking turns to cover each
+other.
+
+### What used to sit underneath
+
+A panel headed **Your account** — five quick actions (View dashboard, Ask AI,
+Build a cart, Schedule a cart, Connect ERP API), a next-delivery strip and an
+Autopay promotion. **It has been removed outright.**
+
+Every one of those destinations is now in the account menu in the header,
+which is where somebody looking for their own account actually goes, and the
+whole account area behind it has a sidebar of its own. A landing page that
+spends its second screen on links for the minority of visitors who are signed
+in is a landing page not doing its one job. Nothing was lost with it: the
+dashboard, the assistant, the catalogue, the schedule builder and the ERP
+explanation are all one press away, and the setup guidance it carried is on the
+screens that can act on it — a card that can no longer be charged is reported
+on `/account/autopay`, where it can be replaced.
+
+What survives of it is the one line that was about the *page* rather than about
+the account: the greeting above the headline still uses the customer's first
+name where the profile has one. It comes from `useAccountIdentity`, shared with
+the header button and the profile sidebar so all three greet somebody the same
+way, and it is never derived from the email address — `ops.procurement@` is not
+a person's name.
+
+### A product card leans towards the pointer
+
+Hovering a product card tilts it a few degrees in perspective, lifts it very
+slightly, and slides a soft highlight across the photograph. It is the one
+piece of decoration in this storefront aimed at a specific moment: a buyer
+scanning a grid of forty consumables, deciding which one to open.
+
+| Part | What it is |
+|---|---|
+| The lean | `rotateX` / `rotateY`, at most 6° each, following the pointer's position in the card |
+| The lift | `scale3d(1.012)`, on top of the shadow and border step the card already had |
+| The highlight | A brand-tinted radial gradient over the media frame, translated with the pointer |
+
+**Six degrees, and 1000px of perspective.** Shorter perspective or a wider
+angle and it stops looking like a surface catching the light and starts looking
+like a fairground mirror; it is also the angle at which a 14px product name
+begins to look blurred on a non-retina screen, which is what makes this kind of
+effect read as cheap.
+
+**The highlight is on the photograph, not on the card.** It was briefly over
+the whole card, which put an 18% blue veil across the price and the product
+code — a contrast cost paid for decoration, which is the one trade a product
+card must never make. On the media frame it is doing what a specular actually
+does: sliding across the surface of the thing being looked at.
+
+**Three cases get nothing at all**, and each of them is a bug if it is missed:
+
+- **A finger.** `pointerType` is checked, because a touch screen has no hover:
+  a tilt driven by touch fires as a tap lands and then stays leaning until the
+  next tap somewhere else, which reads as a rendering fault.
+- **A keyboard.** `focus-within` still gets the lift, the shadow and the
+  border, so tabbing through a grid moves the same highlight a pointer does —
+  but there is no pointer to lean towards, so there is no lean.
+- **`prefers-reduced-motion: reduce`.** Checked in the hook *and* in the
+  stylesheet, so the two cannot disagree, and the resting transform is removed
+  rather than merely frozen.
+
+**It costs one composited property and no re-renders.** `lib/pointer-tilt.ts`
+writes four CSS custom properties straight to the node through a ref, so React
+never hears about the pointer — putting the angle in state would re-render the
+card, its price, its chips and its image dozens of times a second. The events
+are coalesced into one `requestAnimationFrame` callback, and the card's box is
+measured once when the pointer arrives rather than on every move, because that
+measurement is a layout read. Everything that then moves is `transform`.
+
+`ProductCardTilt.test.tsx` holds down the three exemptions and the arithmetic,
+including the sign of `rotateX`: a pointer near the bottom edge has to tip the
+*far* edge away, and the version that tips the near edge away instead still
+looks like an effect, which is why it needs a test rather than an eye.
+
+## AI Mode
+
+`/ai` is the assistant as a page, and it replaced the chat widget that used to
+be pinned to the corner of every screen. Two panes: a conversation list on the
+left, the conversation on the right.
+
+**Why it was worth moving rather than making the panel bigger:**
+
+- **The history belongs to the account.** The widget kept one conversation id
+  in `sessionStorage` and forgot it when the tab closed. The threads now come
+  from the API, scoped to the caller's own profile on every read — so a buyer
+  who asked something on Tuesday finds it on Thursday from a different machine,
+  and cannot reach anybody else's.
+- **There is room to answer properly.** A 23rem panel over a product grid is
+  the wrong shape for a reply that lists eight product codes.
+- **It can be linked, guarded and returned to.** The front page's search bar
+  sends a question here; a guest goes to sign-in first and arrives with the
+  question intact. That flow has nowhere to live in a widget.
+
+| Left rail | Main pane |
+|---|---|
+| New chat | Welcome heading and a short introduction |
+| Conversation history, most recent first | Five suggested starters |
+| Rename a thread | The transcript, with the reply streaming in |
+| Delete a thread (asks first) | Composer: text, attach, voice, Send / Stop |
+| Collapse the rail | Copy and **Ask again** under a finished reply |
+| The account, and Sign out | The AI disclosure and the retention notice |
+
+**The rail is a drawer below `lg` and a rail above it** — one component, two
+presentations, because two components is how the pair stops agreeing about what
+"selected" looks like.
+
+**Delete is soft, and the interface does not pretend otherwise.** From the
+customer's side the thread is gone for good: it leaves the list, leaves every
+read, and cannot be continued. What survives is the transcript, because what
+this deployment's AI told a buyer about a medical device is a record it has to
+be able to produce — staff still read it under Chat enquiries, and the
+retention sweep is what eventually clears it. Erasure under Art. 17 is a
+different act with its own route, and that one deletes the rows.
+
+**It is "Ask again", not "Regenerate", and the wording is the honest one.** It
+re-sends the question as a new turn; it does not replace the reply already
+given. The transcript lives on the server, and a button that quietly deleted a
+recorded answer would make that record a fiction.
+
+**The paperclip is image search.** The customer photographs what they have, and
+what came back — the description, and the matched products written as
+`/product/…` paths — is dropped into the composer as context for the question
+they were about to ask. It is not sent on its own.
+
+**Anybody may ask; only an account gets a history.** The page is public and so
+are `/assistant/start` and `/assistant/chat`. What differs is the rail:
+
+| | A customer | A guest |
+|---|---|---|
+| Proof it is their conversation | Their session | An opaque token the API minted |
+| Conversation history | Listed, renameable, deletable | None — the rail invites them to sign in |
+| Survives a reload | Yes | No, and deliberately |
+| Chat allowance | `ASSISTANT_RATE_LIMIT_PER_5MIN` | `ASSISTANT_GUEST_RATE_LIMIT_PER_5MIN`, which is lower |
+
+**A guest's token is never persisted, and that is a decision rather than an
+oversight.** Storing it would let a reload resume the conversation — but a
+guest cannot re-read a transcript, because that route belongs to accounts. The
+page would come back empty while the model carried context nobody could see,
+and the next answer would refer to things that are not on screen. Starting
+fresh keeps what is shown and what the server holds the same thing.
+
+**Signing out does not throw anybody off the page.** The session ends, the
+conversation goes with it, and the visitor carries on as a guest. There is
+nowhere to be ejected to, and dropping somebody onto the home page for pressing
+Sign out would be a worse answer than simply forgetting who they were.
+
+An operator who would rather pay only for their own customers sets
+`ASSISTANT_ALLOW_GUESTS=false`, and a guest's first send comes back 401.
+
+**The shell gets out of the way for this one route.** `<main>` drops the
+storefront's reading measure and its padding, the footer is not rendered, and
+the column is an exact `100dvh` rather than a `min-height` — a two-pane chat
+application inside a centred 80rem column with 16px gutters is a page
+pretending to be an app, and a `min-height` leaves `flex-1` with no leftover
+space to claim, which puts the composer below the fold.
+
+## The account area
+
+Everything under `/account` shares one frame: a profile card and a grouped
+sidebar on the left, the page on the right, and one session guard on the layout
+route rather than on each page. The sidebar stays mounted across a navigation,
+so the scroll position holds, the profile read is not repeated, and the active
+row moves rather than the whole column redrawing.
+
+Below `lg` the sidebar collapses to a **disclosure** rather than to nothing.
+Hiding the navigation entirely strands somebody who arrived on a deep link with
+no way to the rest of their account, so on a phone the current page's name is a
+button that opens the list. (Longest path match wins, so
+`/account/orders/ORD-1` is labelled "My orders" rather than "Account".)
+
+### Profile information
+
+A column of panels, each a heading with an **Edit** beside it that swaps a read
+view for a form. That shape is not decoration: a screen of twenty live inputs
+all saved together is a screen where somebody correcting a phone number can
+blank their job title and not notice for a month. One panel open, one Save, one
+thing changed.
+
+Every Edit carries the panel's own name in its accessible label — "Edit
+personal information" — because eight controls all called "Edit" are eight
+controls a screen-reader user cannot tell apart in a list.
+
+**The name is captured in two parts and composed on the server.** `fullName`
+stays the canonical name — what an order, an invoice, a delivery note and the
+header greeting all use — and `updateCustomer` builds it from `firstName` and
+`lastName` whenever either is sent. The composition only ever runs in that
+direction:
+
+> Given the parts, joining them is exact. Given a full name, splitting it is a
+> guess that is wrong for a large fraction of real names in the markets this
+> ships into: "Van der Berg" is one surname, "Jean Paul" is one forename, and
+> plenty of Indonesian and Tamil accounts hold a single mononym. A guessed
+> split is one the customer cannot tell was guessed.
+
+So an account created by invitation or by import opens with the two parts empty
+and its full name shown beside them, which is honest. Clearing both parts never
+empties `fullName` — the parts simply become unknown again.
+
+The panel also shows the country, language and currency and **does not edit
+them**: they are one coupled answer that reprices the whole catalogue, there
+are already two places that ask it properly, and a third editor is a third
+chance for them to disagree. It links to `/account/region`.
+
+Beneath the panels: the password (current one always required), the purchasing
+limits (read-only — set by the supplier, and absent from the update schema on
+the server as well as from this screen), a short FAQ about contact changes
+written for this product rather than borrowed from a marketplace, the **Your
+data** panel from section 12, and **closing the account**.
+
+### Changing an email address or a telephone number
+
+Neither is saved by the profile form. Both go through a confirmation link, and
+the reason is worth stating plainly:
+
+> `users.email` is what the account signs in with and where every order
+> confirmation, payment link, invoice and password reset is sent. Writing a
+> typed string straight into it means one typo locks somebody out of their own
+> purchasing account with no way back — the confirmation would go to the
+> address that does not exist.
+
+So the requested value is parked in `users.pendingEmail` (or `pendingPhone`), a
+single-use two-hour token is minted, and only consuming that link promotes it.
+Throughout, the account carries on working on the value it already has, and the
+screen shows the pending one as pending so nobody is ever looking at an address
+their account does not actually use.
+
+**Two emails go out per request, and the second one is the point:**
+
+| Sent to | Carries |
+|---|---|
+| The **new** address | The confirmation link. Owning that mailbox is the only thing the link proves, so it is the only place it is sent |
+| The **old** address | A warning with no link. If somebody else has got into the account, this is the message that reaches the real holder while their address still works — and it says that changing the password stops the pending request |
+
+**Uniqueness is checked twice**, at request and again at confirmation. Minutes
+pass between the two, and in that window another account can register or
+confirm the same address; checking once is how two accounts end up sharing a
+sign-in identity. Both refusals are `EMAIL_ALREADY_IN_USE` with the same
+wording whether the address is *registered* or merely *requested* — a distinct
+message would turn the endpoint into an oracle for whether a given company buys
+here.
+
+**Confirming an address revokes every session, including the caller's.** The
+address is the sign-in identity, so a token minted against the old one is a
+credential for an account that no longer exists under that name. The panel says
+so *before* the request rather than after it, so somebody about to be signed
+out of every device can finish what they were doing first.
+
+**A telephone number is confirmed by a link sent to the email address.**
+`NotificationChannel` names SMS and nothing in this installation sends it, so
+the link proves control of the *account* — which is what stops somebody else
+altering the number — and not control of the number. The screen and the FAQ
+both say so, because a customer waiting for a text that is never coming
+concludes the feature is broken. Wiring an SMS provider is what upgrades this,
+and the only thing that has to change is where the message is sent.
+Confirming a number moves **both** copies, `users.phone` and
+`customer_profiles.phone`: two columns for one fact, and a change that updated
+one would leave a courier ringing the old number. It revokes no sessions,
+because a number is not the sign-in identity.
+
+The link lands on `/confirm-contact?token=…&kind=email|phone`. That page is
+public in the router and guarded by itself: it has to be reachable from a mail
+client carrying no cookie, and a 302 to sign-in would lose the token out of the
+query string and tell the customer their perfectly good link was invalid. The
+`kind` is a hint and never trusted — the token carries its own purpose and the
+server refuses a mismatch, so a link minted to confirm a number cannot be
+replayed to promote a pending address.
+
+### Closing the account
+
+Two different acts, and the screen's job is to stop somebody confusing them.
+
+**Deactivate** stops the account being used: every session revoked, nothing can
+sign in, nothing deleted, and a member of staff can reopen it. It requires the
+current password — this is one click from a sidebar, and on a shared purchasing
+machine the person at the keyboard is not reliably the account holder.
+
+What it must not do is leave money moving. A deactivated account with an ACTIVE
+scheduled order and a live card mandate is a worker charging somebody weeks
+after they closed their account, which happens *by default* unless the closure
+prevents it. So it does three things in order, each through the service that
+owns it:
+
+1. Every ACTIVE schedule is **paused** through `pauseSchedule`, which asserts
+   the transition. Paused rather than cancelled: cancelling is irreversible and
+   the customer did not ask for it.
+2. Auto-pay is **disabled** through `disableAutoPay`, which withdraws the
+   stored consent and detaches the mandate at the provider.
+3. The user row goes to DEACTIVATED and every session is revoked.
+
+The confirmation dialog reads `GET /account/closure` first, so the warning
+names the customer's own arrangements — "this will pause 2 scheduled orders" is
+a sentence somebody can act on, where "scheduled orders may be affected" is one
+they scroll past. It also states how many orders are still **owed**, because
+closing the account does not cancel them and a customer must not be able to
+believe it did. The audit entry is written with `actorType: 'CUSTOMER'`, unlike
+the identical action written by the admin panel's own `setCustomerStatus` — "who
+closed this account" has two very different answers.
+
+**Delete** means erasure under Art. 17, and it is *not* a second endpoint. It
+goes through `POST /account/data-requests` with `ERASURE` like every other
+data-subject right, because it has to be assessed against the obligations that
+survive it — an unpaid order, an open return, an invoice a tax authority
+requires be kept for years. That path already refuses with a reason, already
+tracks the one-month clock and already tells the subject what was kept. The
+closing panel points at it rather than growing a second control: two ways to
+ask for the same irreversible thing is one too many.
+
+### Coupons, notifications and saved lines
+
+**Coupons** (`/account/coupons`) lists the advertised codes for the currency
+this customer is quoted in, read from the same `listPublicCoupons` the cart
+reads — so a code offered here is a code the cart will accept. It deliberately
+does **not** say whether a coupon is eligible: eligibility depends on what is
+in the basket, and a page printing "eligible" against an empty cart would be
+promising something it cannot know. The minimum order value is stated instead.
+Redemptions are listed from `codeSnapshot`, not from the coupon's current code:
+a coupon can be renamed or repercentaged afterwards, and what an order actually
+received must not move.
+
+**Notifications** (`/account/notifications`) is a record of what has been sent
+to this address, read out of the outbox and filtered to `SENT` — a queued
+message has not arrived and a failed one never will. Three deliberate
+absences: nothing to mark as read (the server does not track whether an email
+was opened, so a read state here would be an invention), no message **body**
+(these are rendered emails and several carry a single-use link — a payment
+link, a reset token, an export download — so a list endpoint handing them back
+would turn one borrowed session into every live link the account has ever been
+sent), and no preferences. The event key is turned into a family label in the
+frontend, matched on its prefix so a new `schedule.*` event arrives grouped
+correctly without a table growing a row.
+
+**Saved for later** (`/account/wishlist`) is the narrowest useful feature, and
+the absences are the design: no quantity, no note, no reordering.
+
+> A wishlist that carries a quantity is a second basket with none of a basket's
+> rules — no minimum order quantity, no increment, no stock reservation, no
+> priced total — and the moment one exists somebody tries to check it out.
+
+Saving a line says "remind me about this"; buying it means putting it in the
+cart. That is also why the row's action goes to the product page rather than
+straight into the basket: adding from here would have to invent a quantity, and
+the quantity is exactly what a purchase rule constrains.
+
+Lines are saved from a quiet **Save for later** control under the buy path on
+the product page — offered to guests too, where it explains what signing in
+buys them, because somebody browsing without an account is exactly who wants to
+keep a line for later. It saves the chosen option where exactly one is chosen.
+
+Prices come from the same shelf-pricing path as the catalogue, so a saved line
+carries the destination's tax like every other figure on the storefront. **A
+saved line whose product has gone is shown, not hidden**: unpublished,
+deactivated variant, or not priced in the currency now being browsed, the row
+stays with `isAvailable` false and no price. A saved item that silently
+vanishes is indistinguishable from a bug, and the customer is owed the chance
+to see that the thing they were waiting for has gone.
 
 ## The product page: choosing more than one option
 
@@ -544,7 +1487,7 @@ receives:
 - Which currencies and countries this deployment actually sells in
 - Which features are switched on (self-registration, repeating orders, the chat
   assistant)
-- Whether the AI chat widget should be shown, and which model it uses
+- Whether AI Mode and image search should be offered, and which model answers
 
 **Nothing about the business is hard-coded in the frontend.** That is what
 makes this a product other companies can buy: they change a setting, and their
@@ -572,7 +1515,7 @@ name, their currencies and their features appear.
 | `/recurring` | Recurring | Customers' repeating-order schedules |
 | `/customers` | Customers | Accounts, including "awaiting approval" |
 | `/customers/:id` | Customer detail | Their prices, limits, addresses, orders |
-| `/chat-enquiries` | Chat enquiries | Transcripts from the AI widget, and whose account each one belongs to |
+| `/chat-enquiries` | Chat enquiries | Transcripts from AI Mode, and whose account each one belongs to |
 | `/reports` | Reports | Sales, stock and tax reports; exports |
 | `/data-requests` | Data requests | GDPR access and erasure requests |
 | `/manufacturers` | Manufacturers | Economic operators required by EU product law |
@@ -936,7 +1879,7 @@ Each folder under `src/modules/` owns one area:
 | `reports` | Reports and exports |
 | `privacy` | GDPR access, export and erasure; data retention |
 | `integrations` | External connectors and sync runs |
-| `assistant` | The AI chat widget on the storefront, for signed-in customers |
+| `assistant` | AI Mode on the storefront, for signed-in customers |
 | `audit` | The record of who changed what |
 
 ## What happens to a request, step by step
@@ -992,6 +1935,38 @@ order. There is no "it works on mine".
 `users`, `roles`, `permissions`, `role_permissions`, `user_roles`, `sessions`,
 `auth_tokens`, `login_attempts`, `customer_profiles`, `addresses`
 
+Three columns here exist only because a contact detail is confirmed before it
+is adopted. `users.pendingEmail`, `users.pendingEmailNormalized` and
+`users.pendingPhone` hold what somebody has asked to move to, and the live
+`email` / `phone` are untouched until the emailed link is consumed — see *The
+account area* in section 4 for why writing an unconfirmed address into the
+sign-in identity locks people out of their own accounts. `pendingEmailNormalized`
+is indexed but deliberately **not unique**: two accounts abandoning a change to
+the same address is not a corrupt state, it is two rows nobody ever confirmed,
+and a collision is an ordinary race to be refused with a sentence rather than a
+1062 from the database. `auth_tokens.type` grew `EMAIL_CHANGE` and
+`PHONE_CHANGE` to go with them — separate values rather than a reuse of
+`EMAIL_VERIFICATION`, so a link minted to prove one thing cannot be replayed to
+prove another. (Enum values are only ever appended: MariaDB stores an ENUM as
+an ordinal, so inserting one in the middle silently renumbers every row already
+written.)
+
+`customer_profiles` carries `firstName`, `lastName` and `jobTitle` beside
+`fullName`. `fullName` remains the one canonical name on every order and
+invoice and is *composed* from the two parts; the parts are nullable and are
+null for every account created by invitation or by import, which is correct
+rather than a gap to backfill.
+
+**Saved for later**
+`wishlist_items` — a link to a person, a link to a product, a `variantKey` and
+a timestamp. Nothing else, and see section 4 for why there is no quantity
+column. `variantKey` is the same device the cart and the schedule items use,
+for the MariaDB reason below: a UNIQUE index treats every NULL as distinct, so a
+nullable `variantId` inside the composite unique would not stop the same
+variant being saved twice. There is no foreign key on the variant on purpose —
+the alternative would make somebody's wishlist a reason an administrator cannot
+tidy up a product.
+
 **What is for sale**
 `categories`, `products`, `product_variants`, `product_media`,
 `product_attributes`, `product_prices`, `media_assets`, `tax_classes`,
@@ -1025,6 +2000,13 @@ The ERP connected under Settings → ERP — see 9.8, and note that nothing here
 may write `inventory_balances`: `erp_connections`, `erp_inventory_snapshots`,
 `erp_inventory_sync_runs`, `erp_sync_record_errors`, `integration_events`,
 `erp_webhook_receipts`, `customer_autopay_settings`
+
+**AI Mode**
+`assistant_conversations`, `assistant_messages`. The transcript lives here
+rather than in the browser, which is what lets staff read what was actually
+said and lets the retention sweep reach it. A conversation carries the
+customer's own `title` (usually null — the sidebar falls back to the opening
+question) and `hiddenAt`, the soft delete described in section 8.
 
 **Machinery**
 `job_queue`, `notification_outbox`, `notification_deliveries`,
@@ -1109,49 +2091,159 @@ exists on the other.
 **Customer endpoints never take an id for the thing they own.**
 `/api/v1/account/orders` derives the customer from the session cookie. There is
 no `/api/v1/orders/:someoneElsesId` to forget an ownership check on — the class
-of bug is designed out rather than guarded against.
+of bug is designed out rather than guarded against. Where a path does carry an
+id it is the id of a *row*, and the owner is still the session's: deleting a
+saved wishlist line is a `deleteMany` scoped by both, so another customer's row
+resolves to "not found" rather than needing an ownership check somebody will
+eventually forget to write.
+
+## The customer account endpoints
+
+`/api/v1/account/*`, all behind `requireCustomer`, all deriving the profile
+from the session. The rate limits are on the ones that send mail or move
+identity, not on the reads.
+
+| Endpoint | Notes |
+|---|---|
+| `GET /account/profile` | Also carries `pendingEmail` / `pendingPhone`, so the screen renders the pending value beside the live one from one read |
+| `PATCH /account/profile` | Name parts, job title, company, department, delivery number, VAT number, GSTIN. **Not** the email address, the account number, `customerCode` or any purchasing limit — those are absent from the schema, which is a stronger guarantee than remembering to strip them |
+| `GET`/`PUT /account/locale` | Country, currency and the browser's own reading, kept apart |
+| `GET`/`POST`/`PATCH`/`DELETE /account/addresses` | Scoped by the session's profile id |
+| `POST /account/email-change` | `202`. Parks the address, mints a link, mails **both** addresses. `5/hour` |
+| `POST /account/email-change/confirm` | Promotes it, verifies it, revokes every session. Re-checks uniqueness |
+| `DELETE /account/email-change` | Abandons it and consumes the outstanding token |
+| `POST /account/phone-change` | `202`. The link goes to the account's email — no SMS driver here |
+| `POST /account/phone-change/confirm` | Moves both copies of the number. Revokes nothing |
+| `DELETE /account/phone-change` | As above |
+| `GET /account/closure` | What closing this account would pause, withdraw and leave owed |
+| `POST /account/deactivate` | Password required. Pauses schedules, withdraws auto-pay, deactivates, revokes sessions. `5/hour` |
+| `GET /account/coupons` | Advertised codes for the quoted currency, plus this customer's redemptions |
+| `GET /account/notifications` | Outbox rows for this address, `SENT` only, **subjects without bodies** |
+| `GET`/`POST /account/wishlist`, `DELETE /account/wishlist/:itemId` | Priced through the catalogue's own shelf-pricing path |
+| `GET`/`POST /account/data-requests` | Art. 15 and Art. 17. **Deleting an account is this, not `/deactivate`** |
+
+Two of these are worth restating because they are easy to get backwards:
+
+- **`POST /account/deactivate` deletes nothing.** It closes the account and
+  stops anything that would charge it later. Erasure is
+  `POST /account/data-requests` with `ERASURE`, which is queued for a decision
+  because Art. 17(3) has exemptions a person has to weigh.
+- **`POST /account/wishlist` is idempotent and answers `200`, never `201`.**
+  Saving something already saved is the customer getting what they wanted, and
+  a `201` would be a claim that a row was created.
 
 ## The AI assistant
 
-Two endpoints, both in the **Customer** zone.
+Six endpoints. **The first two answer anybody; the other four need an account.**
 
-| Endpoint | Body | Answers |
-|---|---|---|
-| `POST /api/v1/assistant/start` | *(empty)* | `{ conversationId }` |
-| `POST /api/v1/assistant/chat` | `{ conversationId, message }` | A Server-Sent Event stream |
+| Endpoint | Sign-in | Body | Answers |
+|---|---|---|---|
+| `POST /api/v1/assistant/start` | No | *(empty)* | `{ conversationId }`, plus `conversationToken` for a guest |
+| `POST /api/v1/assistant/chat` | No | `{ conversationId, message, conversationToken? }` | A Server-Sent Event stream |
+| `GET /api/v1/assistant/conversations` | **Yes** | — | The caller's own threads, most recent first |
+| `GET /api/v1/assistant/conversations/:id` | **Yes** | — | One transcript in full |
+| `PATCH /api/v1/assistant/conversations/:id` | **Yes** | `{ title }` | `204`. An empty title clears the name |
+| `DELETE /api/v1/assistant/conversations/:id` | **Yes** | — | `204`. A soft delete — see below |
 
-**It used to be public, and it is not any more.** The widget opened with a form
-asking for a name, a mobile number and an email, and that form was the only
-answer to "who is asking". Nothing typed into it was verified, so it bought
-friction rather than safety. Both the form and the anonymous access are gone.
+### Who owns a conversation
 
-What every request is now checked for, before a single token is bought:
+Two authorities, and they do not cross. A **customer** owns theirs through
+their account, so it follows them between machines and appears in their
+history. A **guest** owns exactly one, through an opaque token returned by
+`/start` and required on every turn.
+
+`optionalCustomer` is the guard on the open pair, and its rule is **no
+credential means guest; a credential means prove it.** A request with no access
+token is anonymous. One that presents a token is asking to be treated as that
+customer, so it goes through the whole check — expiry, revocation, surface,
+account status, CSRF — and a failure is a failure. Quietly demoting a broken
+credential to guest would strand a customer from their own conversation and
+would let a cross-site POST that fails the CSRF check carry on regardless.
+
+What a guest token buys is one conversation and nothing else:
+
+- Only its **SHA-256 is stored**, so a database read cannot resume a
+  conversation and neither can a leaked backup. The comparison is
+  constant-time.
+- It **cannot open a conversation that has an account behind it**, and a
+  customer cannot pick up a guest's by its id — each branch demands the column
+  the other one leaves null.
+- Somebody else's conversation is a **404, never a 403**. Whether it exists is
+  not something an anonymous caller gets to learn.
+
+The four history routes share one guarantee worth saying once: **every service
+call takes `customerProfileId` from the session guard and puts it in the
+`where`.** There is no parameter a browser can send that widens the query, so
+one customer's history cannot reach another's — and no token stands in for an
+account, so a guest never reaches them at all.
+
+### What letting guests in costs
+
+An anonymous caller spends the operator's AI provider budget. A rate limit
+bounds that; it does not remove it. Three things bound it:
+
+| | |
+|---|---|
+| `ASSISTANT_ALLOW_GUESTS` | Off, and the two open routes answer a guest 401 again |
+| `ASSISTANT_GUEST_RATE_LIMIT_PER_5MIN` | The guest allowance per IP. Lower than the signed-in one |
+| The fixed parameters | The control that matters most. The body cannot name a model, a system prompt or a token budget, which is what stops the endpoint being driven as a relay to somebody else's AI bill |
+
+The rate-limit hook runs before the route's guard, so the allowance is chosen
+from whether the request carries a customer access cookie at all. That is a
+heuristic for **sizing a bucket, nothing else** — its worst case is a junk
+cookie of the right name buying the difference between the two numbers, and no
+access to anything.
+
+**Delete is a soft delete.** `hiddenAt` is stamped, and from the customer's
+side that is total: the thread leaves the list, leaves every read, and
+`authoriseConversation` refuses to let it be continued. The transcript itself
+survives for staff and for the retention sweep, because what the AI told a
+buyer about a medical device is a record the deployment has to be able to
+produce. An erasure request is a different act with a different route, and that
+one still deletes the rows.
+
+**The title column is usually null, and that is not a gap.** The sidebar falls
+back to the opening question, which is a better label than anything generated
+and costs no provider call to make. It is written only when somebody renames a
+thread by hand.
+
+**Nobody is asked who they are, signed in or not.** The widget once opened with
+a form asking for a name, a mobile number and an email, and that form was the
+only answer to "who is asking". Nothing typed into it was ever verified, so it
+bought friction rather than safety. It is gone and is not coming back: a
+visitor is anonymous, which is both cheaper and more truthful than an unchecked
+claim.
+
+Where a customer *does* present a credential, this is what it is checked for
+before a single token is bought:
 
 | Check | Failure |
 |---|---|
-| An access token for the **customer** surface | `401 UNAUTHENTICATED` |
 | A token that verifies and has not expired | `401 SESSION_EXPIRED` |
 | A session that has not been revoked (logout, password change, deactivation) | `401 SESSION_EXPIRED` |
 | An account that is still `ACTIVE` and not archived | `401 ACCOUNT_DEACTIVATED` |
-| A staff credential presented here | `403 FORBIDDEN` |
 | A customer with no `CustomerProfile` | `403 ACCOUNT_NOT_ACTIVATED` |
 | The CSRF double-submit header | `403 FORBIDDEN` |
-| The conversation belongs to **this** account | `404 NOT_FOUND` |
+| The conversation belongs to **this** caller | `404 NOT_FOUND` |
+
+A **staff** credential is not one of these failures and never reaches the
+customer surface at all: the admin cookies are named apart, so a member of
+staff on the storefront is simply an anonymous visitor. What they must never be
+is a customer, and the row proves it — no owner, and a guest token instead.
 
 The 404 on the last row is deliberate: somebody else's conversation must not be
 distinguishable from one that never existed, or a conversation id becomes a way
 to ask whose it is.
 
-**Rate limits stay.** `/start` allows 30 per 15 minutes per address —
-deliberately generous, because a procurement office is often a dozen people
-behind one NAT address. `/chat` uses `ASSISTANT_RATE_LIMIT_PER_5MIN`.
-Authentication says *who* may spend the deployment's provider budget; it does
-not say how much, and it does not stop one signed-in account from driving the
-endpoint as a general-purpose relay. Only the fixed parameters do that: the
-request body cannot name a model, a system prompt or a token budget, and a body
-carrying one is a `400`.
+**Rate limits.** `/start` allows 30 per 15 minutes per address — deliberately
+generous, because a procurement office is often a dozen people behind one NAT
+address. `/chat` uses `ASSISTANT_RATE_LIMIT_PER_5MIN`, or the guest number
+where there is no session. A limit says how much may be spent; it does not stop
+the endpoint being driven as a general-purpose relay. Only the fixed parameters
+do that: the request body cannot name a model, a system prompt or a token
+budget, and a body carrying one is a `400`.
 
-**What the assistant knows about the customer.** Because the caller is
+**What the assistant knows about the customer.** Because a signed-in caller is
 authenticated, it never has to ask. The system prompt carries a few lines read
 from their account under that session — full name, organisation, department,
 account number, preferred currency and country — and nothing else. No address,
@@ -1161,19 +2253,94 @@ line is sent to the AI provider on every turn. Those lines go **last** in the
 prompt, below the catalogue snapshot, so the cacheable prefix stays identical
 for every customer.
 
+**A guest's prompt simply has no customer block**, which is the correct
+degradation rather than a missing feature: a visitor with no account has no
+name, organisation or account number for it to be right about, and putting a
+box on screen to type one into is the capture form all over again.
+
 **Nothing sensitive is logged.** The conversation id, the model and the token
 counts go to the log. The question, the reply and the customer's details do
 not: a transcript belongs in the database, where the retention sweep can reach
 it and an erasure request can delete it.
 
-**The old columns are still there.** `assistant_conversations` keeps
-`visitorName`, `visitorPhone`, `visitorEmail`, `visitorEmailNormalized` and
-`sessionTokenHash`, now nullable and never written. The rows that already have
-them are somebody's enquiry, and they leave on the schedule
-`RETENTION_ASSISTANT_CONVERSATION_DAYS` has always set for them. The Chat enquiries screen
-reads both eras and labels which is which — details from an account are marked
-verified; details typed into the old form are marked as the unchecked claims
-they always were.
+**The four `visitor*` columns are still there and still never written.**
+`assistant_conversations` keeps `visitorName`, `visitorPhone`, `visitorEmail`
+and `visitorEmailNormalized`, nullable. The rows that already have them are
+somebody's enquiry from the capture-form era, and they leave on the schedule
+`RETENTION_ASSISTANT_CONVERSATION_DAYS` has always set for them. The Chat
+enquiries screen reads both eras and labels which is which — details from an
+account are marked verified; details typed into the old form are marked as the
+unchecked claims they always were, and a guest's row carries no details at all.
+
+**`sessionTokenHash` is in use again**, and it is worth being clear that this
+is not the old mechanism returning. It holds the hash of a guest's conversation
+token: a secret this server minted, which proves one conversation and says
+nothing about who anybody is. The old column held the same *kind* of value for
+the same *kind* of reason — separating one anonymous visitor from another — and
+what has not come back is the form that sat in front of it.
+
+**Staff see hidden conversations too.** `hiddenAt` narrows the *customer's*
+reads and nothing else: the Chat enquiries screen lists a thread the customer
+has deleted, because the point of keeping it was that staff can still read it.
+
+## Image search
+
+`POST /api/v1/catalog/image-search` — multipart, one file in a field named
+`image`.
+
+**It is the one authenticated route under `/catalog`, and the exception is
+deliberate.** Every other read in that zone costs a database query; this one
+spends the operator's AI provider budget on every call. Left open, any script
+on the internet could bill a self-hosted deployment for as many vision calls as
+it cared to make — which is the same reasoning that put `/assistant/*` behind
+the session guard. It is rate limited to **12 in five minutes**, well below the
+chat endpoint, because a vision call is the most expensive single request this
+API makes and nobody legitimately photographs ten products a minute.
+
+**How it actually works**, because "image search" covers several very different
+things and this is only one of them:
+
+1. The published catalogue is rendered as a short index — slug, category, name,
+   one summary line. Not the full snapshot the chat assistant gets: matching a
+   photograph does not need prices, tax classes, ordering rules or variants,
+   and leaving them out roughly quarters the prompt. Cached for 60 seconds.
+2. The image and that index go to the deployment's own AI provider, with one
+   instruction: identify what is in the picture and name the entries from the
+   index that match it.
+3. **Every slug that comes back is checked against the index before it is
+   used.** A model that invents `blue-syringe-box` has its answer silently
+   dropped rather than turned into a card that 404s. The same check covers a
+   slug remembered from training data and a product unpublished in the sixty
+   seconds since the index was built.
+
+The matches are then priced through exactly the same path as the grid, and
+returned **in the model's ranking** — a product with no price row in the
+requested currency is not sold in it and is left out, as it would be from the
+listing.
+
+**What this is not:** a perceptual-similarity search over product photographs.
+There is no embedding index and no pretence of one. Matching is on what the
+model recognises the item *to be*, which is why `description` comes back with
+the results and the storefront shows it.
+
+**The bytes are never stored.** The type is sniffed from magic bytes and the
+client's `Content-Type` and filename are both ignored — SVG is refused, as it
+is on the admin upload, because it is a script-capable document rather than a
+picture. The photograph goes to the provider and is dropped when the request
+ends: a picture taken inside a hospital store room is not something this system
+should be holding.
+
+Two failures, two codes, because they need different words and different
+actions:
+
+| Code | Status | Means |
+|---|---|---|
+| `IMAGE_SEARCH_BUSY` | 503 | The provider is over quota or overloaded. Wait |
+| `IMAGE_SEARCH_UNREADABLE` | 502 | A reply came back that could not be used. Try a clearer photograph |
+
+Neither reuses `SERVICE_UNAVAILABLE`, which the storefront reads as "the whole
+store is down" and puts a site-wide maintenance banner behind. One camera
+button failing is not an outage.
 
 ## The webhook exception
 
@@ -2468,6 +3635,66 @@ The refund's real outcome comes back the same way a payment does — from a
 signature-verified provider event, plus a `refund.poll` job for gateways that
 settle asynchronously.
 
+## 9.9 A customer changes the address they sign in with
+
+The long version, and the reasoning behind each step, is *Changing an email
+address or a telephone number* in section 4. The sequence:
+
+1. `POST /account/email-change` with the new address. The server checks that no
+   other account signs in with it **or is already moving to it**, parks it in
+   `users.pendingEmail`, and mints a two-hour single-use `EMAIL_CHANGE` token.
+2. Two emails are queued: the link to the **new** address, and a warning with
+   no link to the **old** one. The endpoint answers `202` — accepted, not done.
+3. The account carries on working. Sign-in, order confirmations, payment links
+   and invoices all still use the old address. The profile screen shows the
+   pending one as pending.
+4. The customer opens the link, which lands on
+   `/confirm-contact?token=…&kind=email`. The page requires a session; if there
+   is none it offers sign-in **with the address the account still has**, which
+   is why not promoting it early matters.
+5. `POST /account/email-change/confirm` consumes the token, re-checks
+   uniqueness (minutes have passed), promotes the address, stamps
+   `emailVerifiedAt`, clears the pending columns and **revokes every session**.
+6. The customer signs in again with the new address.
+
+Anywhere it can fail, it fails without changing the live value: a taken address
+refuses at step 1 *and* again at step 5, an expired or reused link refuses at
+step 5, and a link belonging to a different signed-in account refuses at step 5.
+Cancelling at step 3 consumes the outstanding token, so the link in the inbox
+stops working.
+
+A telephone number follows the same six steps with `kind=phone`, one honest
+difference — the link goes to the account's **email** address, because this
+installation has no SMS driver — and one behavioural difference: it moves both
+`users.phone` and `customer_profiles.phone`, and revokes no sessions.
+
+## 9.10 A customer closes their own account
+
+1. `GET /account/closure` reports what closing would do to *this* account: how
+   many ACTIVE schedules would be paused, whether a charging authority would be
+   withdrawn, and how many orders are still owed. The dialog states all three.
+2. `POST /account/deactivate` with the current password. A wrong password
+   refuses and nothing changes.
+3. Every ACTIVE schedule is paused through `pauseSchedule`, which asserts the
+   transition — not a bulk `UPDATE` on `status`, because plan status is only
+   ever changed through `domain/schedule-state.ts`.
+4. Auto-pay is disabled through `disableAutoPay`, withdrawing the stored
+   consent and detaching the mandate at the provider.
+5. `users.status` goes to DEACTIVATED, every session is revoked, and the
+   closure is audited with `actorType: 'CUSTOMER'`.
+6. The holder is emailed a summary at the address that still works, because a
+   deactivation they did not ask for is something they need to hear about while
+   it can still be reversed.
+
+Steps 3 and 4 are the point of the whole flow. Without them a closed account
+still has a live mandate against a live schedule, and the worker charges
+somebody weeks after they closed their account.
+
+**Nothing is deleted.** Erasure is a different act with its own route —
+`POST /account/data-requests` with `ERASURE` — because Art. 17(3) has
+exemptions a person has to weigh, and an invoice a tax authority requires be
+kept for years is one of them.
+
 ---
 
 # 10. Money — the most important rule
@@ -2599,9 +3826,43 @@ transparently on their next successful login.
 
 ## Tokens
 
-Invitation links, password resets and payment links are 32 bytes from a
-cryptographically secure random generator. **Only the SHA-256 hash is stored.**
-A stolen database backup contains no usable links.
+Invitation links, password resets, contact-change confirmations and payment
+links are 32 bytes from a cryptographically secure random generator. **Only the
+SHA-256 hash is stored.** A stolen database backup contains no usable links.
+
+Each token carries its **purpose**, and `consumeToken` refuses a mismatch
+before it looks at anything else. That is what stops a link minted to prove
+somebody owns a new telephone number being replayed to promote a pending email
+address, or a password-reset link being redeemed as an invitation. Issuing a
+token supersedes the outstanding ones of the same purpose, so a resent link
+invalidates the previous one rather than leaving two live.
+
+## Changing what identifies an account
+
+Two properties are load bearing here, and both are asserted in
+`tests/integration/account-self-service.test.ts`:
+
+- **The live value never changes before the link is followed.** An unconfirmed
+  address written into `users.email` is a typo that locks somebody out of their
+  own purchasing account, because the confirmation would go to the address that
+  does not exist. The intermediate state — parked value, old address still in
+  force — is the one the tests assert.
+- **Confirming an address revokes every session, including the caller's.** The
+  address is the sign-in identity; a live token minted against the previous one
+  is a credential for an account that no longer exists under that name.
+
+The old address is told that a change was requested, with no link in the
+message and a pointer at the password reset. If somebody else has got into the
+account, that email is what reaches the real holder while their address still
+works — and changing the password revokes every session and supersedes the
+pending request.
+
+Closing an account requires the current password. It is one click from a
+sidebar menu, and on a shared purchasing machine the person at the keyboard is
+not reliably the account holder. The closure is audited with
+`actorType: 'CUSTOMER'`, distinct from the identical action written when a
+member of staff deactivates somebody: "who closed this account" has two very
+different answers, and only the audit trail can tell them apart afterwards.
 
 ## Provider credentials
 
@@ -2781,6 +4042,26 @@ Someone in Belgium may read French and pay in euros. Someone in India may read
 English and pay in rupees. A German speaker living in India buys in rupees.
 Changing the language must never silently change what somebody is charged.
 
+They share **one control** in the storefront header and one screen at
+`/account/region`, and that is a presentation decision rather than a retreat
+from the distinction: three separate `<select>`s made the header scroll
+sideways on a phone. Inside the panel they are three separate answers, each
+with its own explanation of what it decides, and the language is applied
+through the i18n provider while the country and currency go through
+`LocaleProvider.choose`. What the shared Apply buys is that changing all three
+reprices the catalogue **once** instead of three times.
+
+**A market change is announced.** Applying a new country or currency requotes
+every price on screen from the server and restamps the open cart, and a toast
+names the market and currency it is now quoting in. A catalogue whose figures
+change while somebody is reading it, with nothing said, is the most expensive
+silence this storefront can produce.
+
+**And a country the catalogue cannot price says so.** Staff can activate a
+country before anything is priced in the currency it uses. The panel does not
+silently leave the shopper on their old currency and let them find out on the
+grid — it states which currency they will keep being quoted in, before Apply.
+
 ## A market exists only when someone has priced it
 
 A currency being switched on is **not** a market. The catalogue holds a real,
@@ -2832,7 +4113,8 @@ hostname adds it to that check, in every mode, and nothing else with it. See
 | `FEATURE_CUSTOMER_AUTOPAY` | `false` | A customer's standing authority to be charged, with their own limits. Needs Stripe **and** `FEATURE_SUBSCRIPTION_AUTOPAY`, which is what lets them save a card at all |
 | `ALLOW_PRIVATE_ERP_TARGETS` | `false` | Lets a customer-supplied ERP address resolve to a private or loopback network. **Development only — `env.ts` refuses to start a production process with it on**, because it makes the cloud metadata endpoint reachable from a form field |
 | `FEATURE_ADMIN_LOGIN_LOCATION` | `true` | Ask staff's browser for its location at sign-in |
-| `ASSISTANT_ENABLED` | — | The AI chat widget |
+| `ASSISTANT_ENABLED` | — | AI Mode and image search |
+| `ASSISTANT_ALLOW_GUESTS` | `true` | May somebody with no account use AI Mode? On, and a visitor may ask before signing up; off, and `/start` and `/chat` answer a guest 401. Understand what it costs before leaving it on — an anonymous caller spends the operator's AI provider budget, and a rate limit bounds that rather than removing it |
 
 ## The warehouse map
 
@@ -2932,21 +4214,25 @@ UBoss-Software/
 │
 ├── backend/
 │   ├── prisma/
-│   │   ├── schema.prisma           ← THE DATABASE SHAPE. 76 models.
-│   │   └── migrations/             21 numbered, committed SQL steps
+│   │   ├── schema.prisma           ← THE DATABASE SHAPE. 86 models.
+│   │   └── migrations/             29 numbered, committed SQL steps
 │   ├── src/
 │   │   ├── config/env.ts           ← Every setting, validated at boot
 │   │   ├── domain/                 Pure rules, no I/O
 │   │   │   ├── money.ts            BigInt arithmetic, rounding
-│   │   │   ├── errors.ts           ← The 108 error codes
+│   │   │   ├── errors.ts           ← The 152 error codes
 │   │   │   ├── permissions.ts      ← Roles and ~50 permissions
-│   │   │   └── order-state-machine.ts  ← Legal order transitions
+│   │   │   ├── order-state-machine.ts  ← Legal order transitions
+│   │   │   └── schedule-state.ts   ← Legal plan and occurrence transitions
 │   │   ├── infra/                  Database, crypto, ids, queue, email, storage
 │   │   ├── http/
 │   │   │   ├── app.ts              ← Plugin order, CORS, raw body, error envelope
 │   │   │   ├── server.ts           Entry point
-│   │   │   └── routes/             22 route files
+│   │   │   ├── openapi.ts          Hand-written summaries over the live route table
+│   │   │   └── routes/             26 route files
 │   │   ├── modules/                ← The business logic
+│   │   │   └── customers/          Profiles, registration, limits,
+│   │   │                           contact-change, account-closure, wishlist
 │   │   ├── worker/                 The background worker
 │   │   └── seed/                   Development data
 │   ├── tests/                      Unit and integration tests
@@ -2954,9 +4240,25 @@ UBoss-Software/
 │
 ├── apps/customer-web/src/
 │   ├── app/router.tsx              ← Every storefront page
+│   ├── app/ThemeProvider.tsx       Light, dark, or match the device
 │   ├── pages/                      One file per page
+│   │   ├── AiModePage.tsx          ← AI Mode, the assistant as a page
+│   │   ├── ai/                     Its sidebar, composer and message
+│   │   ├── ConfirmContactPage.tsx  Where a contact-change link lands
+│   │   └── account/                ← The account area: its frame, its
+│   │                               sidebar table, and every panel
 │   ├── components/                 Shared UI
+│   │   ├── greeting/               The sourcing hub
+│   │   ├── hero-search/            ← The front page's search module
+│   │   ├── home/InlineProducts.tsx The catalogue, on the greeting page
+│   │   ├── market/MarketMenu.tsx   ← Language, country and currency, in one
+│   │   ├── account/AccountMenu.tsx The header's account dropdown
+│   │   ├── ThemeToggle.tsx         The appearance control, in both apps
+│   │   └── CountryFlag.tsx         Every served market, drawn in SVG
+│   ├── lib/pointer-tilt.ts         The product card's lean, in four CSS vars
 │   ├── lib/api.ts                  ← The single HTTP helper
+│   ├── lib/voice-search.ts         Dictation, on the browser's own engine
+│   ├── lib/image-search.ts         Upload rules, and the search call
 │   ├── i18n/locales/               Eight languages
 │   └── auth/                       Session context
 │
@@ -2974,6 +4276,24 @@ UBoss-Software/
 | Change an error message | `i18n/locales/*.json` in the frontend |
 | Add an error code | `domain/errors.ts`, then map it in both frontends |
 | Change a page's look | `apps/*/src/pages/` |
+| Change how a product card behaves on hover | `lib/pointer-tilt.ts` for the maths, `.tilt` / `.tilt-sheen` in `index.css` for the look |
+| Change the hero band's height or how its two columns align | `pages/HomePage.tsx` — the comment on the grid says what each value is holding |
+| Change the front page search bar, or the AI Mode link above it | `components/hero-search/HeroSearch.tsx` |
+| Change a colour | `src/index.css` in **both** apps — the light block and the dark one — then `npm run audit:contrast` |
+| Add a theme option, or change what the appearance control does | `app/ThemeProvider.tsx` and `components/ThemeToggle.tsx` in both apps, plus the inline script in each `index.html` |
+| Change what AI Mode looks like | `pages/AiModePage.tsx` and `pages/ai/` |
+| Change how a photograph is matched to products | `backend/src/modules/assistant/image-search.service.ts` |
+| Move a control in the storefront header | `apps/customer-web/src/layout/Header.tsx` — the comment beside each breakpoint says what it is holding |
+| Change what the language/country/currency control offers | `components/market/MarketMenu.tsx`; `/account/region` asks the same three questions and both go through `LocaleProvider.choose` |
+| Add or correct a flag | `components/CountryFlag.tsx` — bands plus at most one mark; an unlisted country falls back to a letter chip |
+| Add a destination to the account menu **and** the account sidebar | `pages/account/account-nav.ts` — one table, both surfaces |
+| Change what the account dropdown looks like | `components/account/AccountMenu.tsx` |
+| Change the account area's frame or its sidebar | `pages/account/AccountLayout.tsx` |
+| Add a panel to My Profile | `pages/account/ProfileInformationPage.tsx`, using `AccountPanel` / `PanelRow` |
+| Change how an email address or telephone number is confirmed | `modules/customers/contact-change.service.ts`; the link lands on `/confirm-contact` |
+| Change what closing an account does | `modules/customers/account-closure.service.ts` — and remember erasure is a data request, not this |
+| Change what a saved line shows or costs | `modules/customers/wishlist.service.ts` for the read, `pages/account/WishlistPage.tsx` for the screen |
+| Pin an action bar to the bottom of a phone screen | `components/StickyBottomBar.tsx` — it publishes `--page-bottom-bar` for anything that has to clear it |
 | Change which language a country's staff read | the `countries` row's `languageCode` |
 | Add or move a warehouse | `/warehouses` in the panel; `modules/inventory/location.service.ts` |
 | Put a background behind the warehouse map | `MAP_GOOGLE_API_KEY` + `MAP_GOOGLE_MAP_ID`, or `MAP_TILE_URL`, in `backend/.env` |

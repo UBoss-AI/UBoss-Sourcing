@@ -502,7 +502,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
         </p>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="space-y-6">
           {/* --- What ------------------------------------------------------- */}
           <section
@@ -675,7 +675,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                 </Field>
               )}
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field
                   label={t('scheduleBuilder.timeOfDay')}
                   hint={t('scheduleBuilder.yourLocalTime', { timezone: business.timezone })}

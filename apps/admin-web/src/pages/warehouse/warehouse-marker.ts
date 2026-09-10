@@ -35,17 +35,17 @@ export function markerTone(warehouse: Warehouse): string {
 
   switch (warehouse.operationalStatus) {
     case 'SUSPENDED':
-      return 'border-danger bg-danger text-white';
+      return 'border-danger bg-danger-fill text-white';
     case 'MAINTENANCE':
       return 'border-ink-muted bg-surface-sunken text-ink';
     case 'LIMITED':
-      return 'border-warning bg-warning text-white';
+      return 'border-warning bg-warning-fill text-white';
     case 'OPERATIONAL':
       // The default warehouse in the palette's own teal, so the place every
       // unqualified receipt lands in is pickable out of a cluster.
       return warehouse.isDefault
-        ? 'border-operational bg-operational text-white'
-        : 'border-accent bg-accent text-white';
+        ? 'border-operational bg-operational-fill text-white'
+        : 'border-brand bg-brand-fill text-white';
   }
 }
 

@@ -26,7 +26,7 @@ export function NotFoundPage(): React.JSX.Element {
       <div className="mt-6 flex justify-center gap-2">
         <Link
           to="/products"
-          className="inline-flex h-10 items-center rounded-md bg-brand px-5 text-sm font-medium text-white hover:bg-brand-hover"
+          className="inline-flex h-10 items-center rounded-md bg-brand-fill px-5 text-sm font-medium text-white hover:bg-brand-fill-hover"
         >
           {t('notFound.browseProducts')}
         </Link>

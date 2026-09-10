@@ -28,8 +28,11 @@ export type CustomerProfileMinAggregateOutputType = {
   id: string | null
   userId: string | null
   fullName: string | null
+  firstName: string | null
+  lastName: string | null
   organization: string | null
   department: string | null
+  jobTitle: string | null
   phone: string | null
   gstin: string | null
   customerCode: string | null
@@ -57,8 +60,11 @@ export type CustomerProfileMaxAggregateOutputType = {
   id: string | null
   userId: string | null
   fullName: string | null
+  firstName: string | null
+  lastName: string | null
   organization: string | null
   department: string | null
+  jobTitle: string | null
   phone: string | null
   gstin: string | null
   customerCode: string | null
@@ -86,8 +92,11 @@ export type CustomerProfileCountAggregateOutputType = {
   id: number
   userId: number
   fullName: number
+  firstName: number
+  lastName: number
   organization: number
   department: number
+  jobTitle: number
   phone: number
   gstin: number
   customerCode: number
@@ -117,8 +126,11 @@ export type CustomerProfileMinAggregateInputType = {
   id?: true
   userId?: true
   fullName?: true
+  firstName?: true
+  lastName?: true
   organization?: true
   department?: true
+  jobTitle?: true
   phone?: true
   gstin?: true
   customerCode?: true
@@ -146,8 +158,11 @@ export type CustomerProfileMaxAggregateInputType = {
   id?: true
   userId?: true
   fullName?: true
+  firstName?: true
+  lastName?: true
   organization?: true
   department?: true
+  jobTitle?: true
   phone?: true
   gstin?: true
   customerCode?: true
@@ -175,8 +190,11 @@ export type CustomerProfileCountAggregateInputType = {
   id?: true
   userId?: true
   fullName?: true
+  firstName?: true
+  lastName?: true
   organization?: true
   department?: true
+  jobTitle?: true
   phone?: true
   gstin?: true
   customerCode?: true
@@ -277,8 +295,11 @@ export type CustomerProfileGroupByOutputType = {
   id: string
   userId: string
   fullName: string
+  firstName: string | null
+  lastName: string | null
   organization: string | null
   department: string | null
+  jobTitle: string | null
   phone: string | null
   gstin: string | null
   customerCode: string | null
@@ -327,8 +348,11 @@ export type CustomerProfileWhereInput = {
   id?: Prisma.StringFilter<"CustomerProfile"> | string
   userId?: Prisma.StringFilter<"CustomerProfile"> | string
   fullName?: Prisma.StringFilter<"CustomerProfile"> | string
+  firstName?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
+  lastName?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   organization?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   department?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
+  jobTitle?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   phone?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   gstin?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   customerCode?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
@@ -359,6 +383,7 @@ export type CustomerProfileWhereInput = {
   autoPaySetting?: Prisma.XOR<Prisma.CustomerAutoPaySettingNullableScalarRelationFilter, Prisma.CustomerAutoPaySettingWhereInput> | null
   couponRedemptions?: Prisma.CouponRedemptionListRelationFilter
   limits?: Prisma.CustomerLimitListRelationFilter
+  wishlistItems?: Prisma.WishlistItemListRelationFilter
   assistantConversations?: Prisma.AssistantConversationListRelationFilter
 }
 
@@ -366,8 +391,11 @@ export type CustomerProfileOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   fullName?: Prisma.SortOrder
+  firstName?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastName?: Prisma.SortOrderInput | Prisma.SortOrder
   organization?: Prisma.SortOrderInput | Prisma.SortOrder
   department?: Prisma.SortOrderInput | Prisma.SortOrder
+  jobTitle?: Prisma.SortOrderInput | Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   gstin?: Prisma.SortOrderInput | Prisma.SortOrder
   customerCode?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -398,6 +426,7 @@ export type CustomerProfileOrderByWithRelationInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingOrderByWithRelationInput
   couponRedemptions?: Prisma.CouponRedemptionOrderByRelationAggregateInput
   limits?: Prisma.CustomerLimitOrderByRelationAggregateInput
+  wishlistItems?: Prisma.WishlistItemOrderByRelationAggregateInput
   assistantConversations?: Prisma.AssistantConversationOrderByRelationAggregateInput
   _relevance?: Prisma.CustomerProfileOrderByRelevanceInput
 }
@@ -410,8 +439,11 @@ export type CustomerProfileWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.CustomerProfileWhereInput[]
   NOT?: Prisma.CustomerProfileWhereInput | Prisma.CustomerProfileWhereInput[]
   fullName?: Prisma.StringFilter<"CustomerProfile"> | string
+  firstName?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
+  lastName?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   organization?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   department?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
+  jobTitle?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   phone?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   gstin?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
   vatNumber?: Prisma.StringNullableFilter<"CustomerProfile"> | string | null
@@ -441,6 +473,7 @@ export type CustomerProfileWhereUniqueInput = Prisma.AtLeast<{
   autoPaySetting?: Prisma.XOR<Prisma.CustomerAutoPaySettingNullableScalarRelationFilter, Prisma.CustomerAutoPaySettingWhereInput> | null
   couponRedemptions?: Prisma.CouponRedemptionListRelationFilter
   limits?: Prisma.CustomerLimitListRelationFilter
+  wishlistItems?: Prisma.WishlistItemListRelationFilter
   assistantConversations?: Prisma.AssistantConversationListRelationFilter
 }, "id" | "userId" | "customerCode">
 
@@ -448,8 +481,11 @@ export type CustomerProfileOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   fullName?: Prisma.SortOrder
+  firstName?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastName?: Prisma.SortOrderInput | Prisma.SortOrder
   organization?: Prisma.SortOrderInput | Prisma.SortOrder
   department?: Prisma.SortOrderInput | Prisma.SortOrder
+  jobTitle?: Prisma.SortOrderInput | Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   gstin?: Prisma.SortOrderInput | Prisma.SortOrder
   customerCode?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -483,8 +519,11 @@ export type CustomerProfileScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"CustomerProfile"> | string
   userId?: Prisma.StringWithAggregatesFilter<"CustomerProfile"> | string
   fullName?: Prisma.StringWithAggregatesFilter<"CustomerProfile"> | string
+  firstName?: Prisma.StringNullableWithAggregatesFilter<"CustomerProfile"> | string | null
+  lastName?: Prisma.StringNullableWithAggregatesFilter<"CustomerProfile"> | string | null
   organization?: Prisma.StringNullableWithAggregatesFilter<"CustomerProfile"> | string | null
   department?: Prisma.StringNullableWithAggregatesFilter<"CustomerProfile"> | string | null
+  jobTitle?: Prisma.StringNullableWithAggregatesFilter<"CustomerProfile"> | string | null
   phone?: Prisma.StringNullableWithAggregatesFilter<"CustomerProfile"> | string | null
   gstin?: Prisma.StringNullableWithAggregatesFilter<"CustomerProfile"> | string | null
   customerCode?: Prisma.StringNullableWithAggregatesFilter<"CustomerProfile"> | string | null
@@ -511,8 +550,11 @@ export type CustomerProfileScalarWhereWithAggregatesInput = {
 export type CustomerProfileCreateInput = {
   id: string
   fullName: string
+  firstName?: string | null
+  lastName?: string | null
   organization?: string | null
   department?: string | null
+  jobTitle?: string | null
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
@@ -543,6 +585,7 @@ export type CustomerProfileCreateInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingCreateNestedOneWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
 }
 
@@ -550,8 +593,11 @@ export type CustomerProfileUncheckedCreateInput = {
   id: string
   userId: string
   fullName: string
+  firstName?: string | null
+  lastName?: string | null
   organization?: string | null
   department?: string | null
+  jobTitle?: string | null
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
@@ -581,14 +627,18 @@ export type CustomerProfileUncheckedCreateInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedCreateNestedOneWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -619,6 +669,7 @@ export type CustomerProfileUpdateInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUpdateOneWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
 }
 
@@ -626,8 +677,11 @@ export type CustomerProfileUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -657,6 +711,7 @@ export type CustomerProfileUncheckedUpdateInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedUpdateOneWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
 
@@ -664,8 +719,11 @@ export type CustomerProfileCreateManyInput = {
   id: string
   userId: string
   fullName: string
+  firstName?: string | null
+  lastName?: string | null
   organization?: string | null
   department?: string | null
+  jobTitle?: string | null
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
@@ -692,8 +750,11 @@ export type CustomerProfileCreateManyInput = {
 export type CustomerProfileUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -721,8 +782,11 @@ export type CustomerProfileUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -761,8 +825,11 @@ export type CustomerProfileCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   fullName?: Prisma.SortOrder
+  firstName?: Prisma.SortOrder
+  lastName?: Prisma.SortOrder
   organization?: Prisma.SortOrder
   department?: Prisma.SortOrder
+  jobTitle?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   gstin?: Prisma.SortOrder
   customerCode?: Prisma.SortOrder
@@ -790,8 +857,11 @@ export type CustomerProfileMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   fullName?: Prisma.SortOrder
+  firstName?: Prisma.SortOrder
+  lastName?: Prisma.SortOrder
   organization?: Prisma.SortOrder
   department?: Prisma.SortOrder
+  jobTitle?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   gstin?: Prisma.SortOrder
   customerCode?: Prisma.SortOrder
@@ -819,8 +889,11 @@ export type CustomerProfileMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   fullName?: Prisma.SortOrder
+  firstName?: Prisma.SortOrder
+  lastName?: Prisma.SortOrder
   organization?: Prisma.SortOrder
   department?: Prisma.SortOrder
+  jobTitle?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   gstin?: Prisma.SortOrder
   customerCode?: Prisma.SortOrder
@@ -1017,11 +1090,28 @@ export type CustomerProfileUpdateOneRequiredWithoutAutoPaySettingNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerProfileUpdateToOneWithWhereWithoutAutoPaySettingInput, Prisma.CustomerProfileUpdateWithoutAutoPaySettingInput>, Prisma.CustomerProfileUncheckedUpdateWithoutAutoPaySettingInput>
 }
 
+export type CustomerProfileCreateNestedOneWithoutWishlistItemsInput = {
+  create?: Prisma.XOR<Prisma.CustomerProfileCreateWithoutWishlistItemsInput, Prisma.CustomerProfileUncheckedCreateWithoutWishlistItemsInput>
+  connectOrCreate?: Prisma.CustomerProfileCreateOrConnectWithoutWishlistItemsInput
+  connect?: Prisma.CustomerProfileWhereUniqueInput
+}
+
+export type CustomerProfileUpdateOneRequiredWithoutWishlistItemsNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerProfileCreateWithoutWishlistItemsInput, Prisma.CustomerProfileUncheckedCreateWithoutWishlistItemsInput>
+  connectOrCreate?: Prisma.CustomerProfileCreateOrConnectWithoutWishlistItemsInput
+  upsert?: Prisma.CustomerProfileUpsertWithoutWishlistItemsInput
+  connect?: Prisma.CustomerProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerProfileUpdateToOneWithWhereWithoutWishlistItemsInput, Prisma.CustomerProfileUpdateWithoutWishlistItemsInput>, Prisma.CustomerProfileUncheckedUpdateWithoutWishlistItemsInput>
+}
+
 export type CustomerProfileCreateWithoutUserInput = {
   id: string
   fullName: string
+  firstName?: string | null
+  lastName?: string | null
   organization?: string | null
   department?: string | null
+  jobTitle?: string | null
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
@@ -1051,14 +1141,18 @@ export type CustomerProfileCreateWithoutUserInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingCreateNestedOneWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUncheckedCreateWithoutUserInput = {
   id: string
   fullName: string
+  firstName?: string | null
+  lastName?: string | null
   organization?: string | null
   department?: string | null
+  jobTitle?: string | null
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
@@ -1088,6 +1182,7 @@ export type CustomerProfileUncheckedCreateWithoutUserInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedCreateNestedOneWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
 
@@ -1110,8 +1205,11 @@ export type CustomerProfileUpdateToOneWithWhereWithoutUserInput = {
 export type CustomerProfileUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1141,14 +1239,18 @@ export type CustomerProfileUpdateWithoutUserInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUpdateOneWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1178,14 +1280,18 @@ export type CustomerProfileUncheckedUpdateWithoutUserInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedUpdateOneWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutAddressesInput = {
   id: string
   fullName: string
+  firstName?: string | null
+  lastName?: string | null
   organization?: string | null
   department?: string | null
+  jobTitle?: string | null
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
@@ -1215,6 +1321,7 @@ export type CustomerProfileCreateWithoutAddressesInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingCreateNestedOneWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
 }
 
@@ -1222,8 +1329,11 @@ export type CustomerProfileUncheckedCreateWithoutAddressesInput = {
   id: string
   userId: string
   fullName: string
+  firstName?: string | null
+  lastName?: string | null
   organization?: string | null
   department?: string | null
+  jobTitle?: string | null
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
@@ -1252,6 +1362,7 @@ export type CustomerProfileUncheckedCreateWithoutAddressesInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedCreateNestedOneWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
 
@@ -1274,8 +1385,11 @@ export type CustomerProfileUpdateToOneWithWhereWithoutAddressesInput = {
 export type CustomerProfileUpdateWithoutAddressesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1305,6 +1419,7 @@ export type CustomerProfileUpdateWithoutAddressesInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUpdateOneWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
 }
 
@@ -1312,8 +1427,11 @@ export type CustomerProfileUncheckedUpdateWithoutAddressesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1342,14 +1460,18 @@ export type CustomerProfileUncheckedUpdateWithoutAddressesInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedUpdateOneWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutCartsInput = {
   id: string
   fullName: string
+  firstName?: string | null
+  lastName?: string | null
   organization?: string | null
   department?: string | null
+  jobTitle?: string | null
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
@@ -1379,6 +1501,7 @@ export type CustomerProfileCreateWithoutCartsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingCreateNestedOneWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
 }
 
@@ -1386,8 +1509,11 @@ export type CustomerProfileUncheckedCreateWithoutCartsInput = {
   id: string
   userId: string
   fullName: string
+  firstName?: string | null
+  lastName?: string | null
   organization?: string | null
   department?: string | null
+  jobTitle?: string | null
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
@@ -1416,6 +1542,7 @@ export type CustomerProfileUncheckedCreateWithoutCartsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedCreateNestedOneWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
 
@@ -1438,8 +1565,11 @@ export type CustomerProfileUpdateToOneWithWhereWithoutCartsInput = {
 export type CustomerProfileUpdateWithoutCartsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1469,6 +1599,7 @@ export type CustomerProfileUpdateWithoutCartsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUpdateOneWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
 }
 
@@ -1476,8 +1607,11 @@ export type CustomerProfileUncheckedUpdateWithoutCartsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1506,14 +1640,18 @@ export type CustomerProfileUncheckedUpdateWithoutCartsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedUpdateOneWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutOrdersInput = {
   id: string
   fullName: string
+  firstName?: string | null
+  lastName?: string | null
   organization?: string | null
   department?: string | null
+  jobTitle?: string | null
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
@@ -1543,6 +1681,7 @@ export type CustomerProfileCreateWithoutOrdersInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingCreateNestedOneWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
 }
 
@@ -1550,8 +1689,11 @@ export type CustomerProfileUncheckedCreateWithoutOrdersInput = {
   id: string
   userId: string
   fullName: string
+  firstName?: string | null
+  lastName?: string | null
   organization?: string | null
   department?: string | null
+  jobTitle?: string | null
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
@@ -1580,6 +1722,7 @@ export type CustomerProfileUncheckedCreateWithoutOrdersInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedCreateNestedOneWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
 
@@ -1602,8 +1745,11 @@ export type CustomerProfileUpdateToOneWithWhereWithoutOrdersInput = {
 export type CustomerProfileUpdateWithoutOrdersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1633,6 +1779,7 @@ export type CustomerProfileUpdateWithoutOrdersInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUpdateOneWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
 }
 
@@ -1640,8 +1787,11 @@ export type CustomerProfileUncheckedUpdateWithoutOrdersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1670,14 +1820,18 @@ export type CustomerProfileUncheckedUpdateWithoutOrdersInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedUpdateOneWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutSchedulesInput = {
   id: string
   fullName: string
+  firstName?: string | null
+  lastName?: string | null
   organization?: string | null
   department?: string | null
+  jobTitle?: string | null
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
@@ -1707,6 +1861,7 @@ export type CustomerProfileCreateWithoutSchedulesInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingCreateNestedOneWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
 }
 
@@ -1714,8 +1869,11 @@ export type CustomerProfileUncheckedCreateWithoutSchedulesInput = {
   id: string
   userId: string
   fullName: string
+  firstName?: string | null
+  lastName?: string | null
   organization?: string | null
   department?: string | null
+  jobTitle?: string | null
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
@@ -1744,6 +1902,7 @@ export type CustomerProfileUncheckedCreateWithoutSchedulesInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedCreateNestedOneWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
 
@@ -1766,8 +1925,11 @@ export type CustomerProfileUpdateToOneWithWhereWithoutSchedulesInput = {
 export type CustomerProfileUpdateWithoutSchedulesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1797,6 +1959,7 @@ export type CustomerProfileUpdateWithoutSchedulesInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUpdateOneWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
 }
 
@@ -1804,8 +1967,11 @@ export type CustomerProfileUncheckedUpdateWithoutSchedulesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1834,14 +2000,18 @@ export type CustomerProfileUncheckedUpdateWithoutSchedulesInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedUpdateOneWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutPaymentMethodsInput = {
   id: string
   fullName: string
+  firstName?: string | null
+  lastName?: string | null
   organization?: string | null
   department?: string | null
+  jobTitle?: string | null
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
@@ -1871,6 +2041,7 @@ export type CustomerProfileCreateWithoutPaymentMethodsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingCreateNestedOneWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
 }
 
@@ -1878,8 +2049,11 @@ export type CustomerProfileUncheckedCreateWithoutPaymentMethodsInput = {
   id: string
   userId: string
   fullName: string
+  firstName?: string | null
+  lastName?: string | null
   organization?: string | null
   department?: string | null
+  jobTitle?: string | null
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
@@ -1908,6 +2082,7 @@ export type CustomerProfileUncheckedCreateWithoutPaymentMethodsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedCreateNestedOneWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
 
@@ -1930,8 +2105,11 @@ export type CustomerProfileUpdateToOneWithWhereWithoutPaymentMethodsInput = {
 export type CustomerProfileUpdateWithoutPaymentMethodsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1961,6 +2139,7 @@ export type CustomerProfileUpdateWithoutPaymentMethodsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUpdateOneWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
 }
 
@@ -1968,8 +2147,11 @@ export type CustomerProfileUncheckedUpdateWithoutPaymentMethodsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1998,14 +2180,18 @@ export type CustomerProfileUncheckedUpdateWithoutPaymentMethodsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedUpdateOneWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutCouponRedemptionsInput = {
   id: string
   fullName: string
+  firstName?: string | null
+  lastName?: string | null
   organization?: string | null
   department?: string | null
+  jobTitle?: string | null
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
@@ -2035,6 +2221,7 @@ export type CustomerProfileCreateWithoutCouponRedemptionsInput = {
   paymentMethods?: Prisma.CustomerPaymentMethodCreateNestedManyWithoutCustomerProfileInput
   autoPaySetting?: Prisma.CustomerAutoPaySettingCreateNestedOneWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
 }
 
@@ -2042,8 +2229,11 @@ export type CustomerProfileUncheckedCreateWithoutCouponRedemptionsInput = {
   id: string
   userId: string
   fullName: string
+  firstName?: string | null
+  lastName?: string | null
   organization?: string | null
   department?: string | null
+  jobTitle?: string | null
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
@@ -2072,6 +2262,7 @@ export type CustomerProfileUncheckedCreateWithoutCouponRedemptionsInput = {
   paymentMethods?: Prisma.CustomerPaymentMethodUncheckedCreateNestedManyWithoutCustomerProfileInput
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedCreateNestedOneWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
 
@@ -2094,8 +2285,11 @@ export type CustomerProfileUpdateToOneWithWhereWithoutCouponRedemptionsInput = {
 export type CustomerProfileUpdateWithoutCouponRedemptionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2125,6 +2319,7 @@ export type CustomerProfileUpdateWithoutCouponRedemptionsInput = {
   paymentMethods?: Prisma.CustomerPaymentMethodUpdateManyWithoutCustomerProfileNestedInput
   autoPaySetting?: Prisma.CustomerAutoPaySettingUpdateOneWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
 }
 
@@ -2132,8 +2327,11 @@ export type CustomerProfileUncheckedUpdateWithoutCouponRedemptionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2162,14 +2360,18 @@ export type CustomerProfileUncheckedUpdateWithoutCouponRedemptionsInput = {
   paymentMethods?: Prisma.CustomerPaymentMethodUncheckedUpdateManyWithoutCustomerProfileNestedInput
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedUpdateOneWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutLimitsInput = {
   id: string
   fullName: string
+  firstName?: string | null
+  lastName?: string | null
   organization?: string | null
   department?: string | null
+  jobTitle?: string | null
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
@@ -2199,6 +2401,7 @@ export type CustomerProfileCreateWithoutLimitsInput = {
   paymentMethods?: Prisma.CustomerPaymentMethodCreateNestedManyWithoutCustomerProfileInput
   autoPaySetting?: Prisma.CustomerAutoPaySettingCreateNestedOneWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
 }
 
@@ -2206,8 +2409,11 @@ export type CustomerProfileUncheckedCreateWithoutLimitsInput = {
   id: string
   userId: string
   fullName: string
+  firstName?: string | null
+  lastName?: string | null
   organization?: string | null
   department?: string | null
+  jobTitle?: string | null
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
@@ -2236,6 +2442,7 @@ export type CustomerProfileUncheckedCreateWithoutLimitsInput = {
   paymentMethods?: Prisma.CustomerPaymentMethodUncheckedCreateNestedManyWithoutCustomerProfileInput
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedCreateNestedOneWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
 
@@ -2258,8 +2465,11 @@ export type CustomerProfileUpdateToOneWithWhereWithoutLimitsInput = {
 export type CustomerProfileUpdateWithoutLimitsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2289,6 +2499,7 @@ export type CustomerProfileUpdateWithoutLimitsInput = {
   paymentMethods?: Prisma.CustomerPaymentMethodUpdateManyWithoutCustomerProfileNestedInput
   autoPaySetting?: Prisma.CustomerAutoPaySettingUpdateOneWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
 }
 
@@ -2296,8 +2507,11 @@ export type CustomerProfileUncheckedUpdateWithoutLimitsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2326,14 +2540,18 @@ export type CustomerProfileUncheckedUpdateWithoutLimitsInput = {
   paymentMethods?: Prisma.CustomerPaymentMethodUncheckedUpdateManyWithoutCustomerProfileNestedInput
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedUpdateOneWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutAssistantConversationsInput = {
   id: string
   fullName: string
+  firstName?: string | null
+  lastName?: string | null
   organization?: string | null
   department?: string | null
+  jobTitle?: string | null
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
@@ -2364,14 +2582,18 @@ export type CustomerProfileCreateWithoutAssistantConversationsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingCreateNestedOneWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUncheckedCreateWithoutAssistantConversationsInput = {
   id: string
   userId: string
   fullName: string
+  firstName?: string | null
+  lastName?: string | null
   organization?: string | null
   department?: string | null
+  jobTitle?: string | null
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
@@ -2401,6 +2623,7 @@ export type CustomerProfileUncheckedCreateWithoutAssistantConversationsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedCreateNestedOneWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
 
 export type CustomerProfileCreateOrConnectWithoutAssistantConversationsInput = {
@@ -2422,8 +2645,11 @@ export type CustomerProfileUpdateToOneWithWhereWithoutAssistantConversationsInpu
 export type CustomerProfileUpdateWithoutAssistantConversationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2454,14 +2680,18 @@ export type CustomerProfileUpdateWithoutAssistantConversationsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUpdateOneWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileUncheckedUpdateWithoutAssistantConversationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2491,13 +2721,17 @@ export type CustomerProfileUncheckedUpdateWithoutAssistantConversationsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedUpdateOneWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutAutoPaySettingInput = {
   id: string
   fullName: string
+  firstName?: string | null
+  lastName?: string | null
   organization?: string | null
   department?: string | null
+  jobTitle?: string | null
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
@@ -2527,6 +2761,7 @@ export type CustomerProfileCreateWithoutAutoPaySettingInput = {
   paymentMethods?: Prisma.CustomerPaymentMethodCreateNestedManyWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
 }
 
@@ -2534,8 +2769,11 @@ export type CustomerProfileUncheckedCreateWithoutAutoPaySettingInput = {
   id: string
   userId: string
   fullName: string
+  firstName?: string | null
+  lastName?: string | null
   organization?: string | null
   department?: string | null
+  jobTitle?: string | null
   phone?: string | null
   gstin?: string | null
   customerCode?: string | null
@@ -2564,6 +2802,7 @@ export type CustomerProfileUncheckedCreateWithoutAutoPaySettingInput = {
   paymentMethods?: Prisma.CustomerPaymentMethodUncheckedCreateNestedManyWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
 }
 
@@ -2586,8 +2825,11 @@ export type CustomerProfileUpdateToOneWithWhereWithoutAutoPaySettingInput = {
 export type CustomerProfileUpdateWithoutAutoPaySettingInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2617,6 +2859,7 @@ export type CustomerProfileUpdateWithoutAutoPaySettingInput = {
   paymentMethods?: Prisma.CustomerPaymentMethodUpdateManyWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
 }
 
@@ -2624,8 +2867,11 @@ export type CustomerProfileUncheckedUpdateWithoutAutoPaySettingInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2654,6 +2900,187 @@ export type CustomerProfileUncheckedUpdateWithoutAutoPaySettingInput = {
   paymentMethods?: Prisma.CustomerPaymentMethodUncheckedUpdateManyWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
+}
+
+export type CustomerProfileCreateWithoutWishlistItemsInput = {
+  id: string
+  fullName: string
+  firstName?: string | null
+  lastName?: string | null
+  organization?: string | null
+  department?: string | null
+  jobTitle?: string | null
+  phone?: string | null
+  gstin?: string | null
+  customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
+  requiresOrderApproval?: boolean
+  internalNotes?: string | null
+  preferredCountry?: string | null
+  preferredCurrency?: string | null
+  localeChosenAt?: Date | string | null
+  detectedCountry?: string | null
+  detectedAt?: Date | string | null
+  consentAcceptedAt?: Date | string | null
+  consentVersion?: string | null
+  invitedById?: string | null
+  invitedAt?: Date | string | null
+  activatedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutCustomerProfileInput
+  addresses?: Prisma.AddressCreateNestedManyWithoutCustomerProfileInput
+  carts?: Prisma.CartCreateNestedManyWithoutCustomerProfileInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCustomerProfileInput
+  schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutCustomerProfileInput
+  paymentMethods?: Prisma.CustomerPaymentMethodCreateNestedManyWithoutCustomerProfileInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingCreateNestedOneWithoutCustomerProfileInput
+  couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
+  assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
+}
+
+export type CustomerProfileUncheckedCreateWithoutWishlistItemsInput = {
+  id: string
+  userId: string
+  fullName: string
+  firstName?: string | null
+  lastName?: string | null
+  organization?: string | null
+  department?: string | null
+  jobTitle?: string | null
+  phone?: string | null
+  gstin?: string | null
+  customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
+  requiresOrderApproval?: boolean
+  internalNotes?: string | null
+  preferredCountry?: string | null
+  preferredCurrency?: string | null
+  localeChosenAt?: Date | string | null
+  detectedCountry?: string | null
+  detectedAt?: Date | string | null
+  consentAcceptedAt?: Date | string | null
+  consentVersion?: string | null
+  invitedById?: string | null
+  invitedAt?: Date | string | null
+  activatedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  addresses?: Prisma.AddressUncheckedCreateNestedManyWithoutCustomerProfileInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutCustomerProfileInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerProfileInput
+  schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutCustomerProfileInput
+  paymentMethods?: Prisma.CustomerPaymentMethodUncheckedCreateNestedManyWithoutCustomerProfileInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedCreateNestedOneWithoutCustomerProfileInput
+  couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
+  assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
+}
+
+export type CustomerProfileCreateOrConnectWithoutWishlistItemsInput = {
+  where: Prisma.CustomerProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerProfileCreateWithoutWishlistItemsInput, Prisma.CustomerProfileUncheckedCreateWithoutWishlistItemsInput>
+}
+
+export type CustomerProfileUpsertWithoutWishlistItemsInput = {
+  update: Prisma.XOR<Prisma.CustomerProfileUpdateWithoutWishlistItemsInput, Prisma.CustomerProfileUncheckedUpdateWithoutWishlistItemsInput>
+  create: Prisma.XOR<Prisma.CustomerProfileCreateWithoutWishlistItemsInput, Prisma.CustomerProfileUncheckedCreateWithoutWishlistItemsInput>
+  where?: Prisma.CustomerProfileWhereInput
+}
+
+export type CustomerProfileUpdateToOneWithWhereWithoutWishlistItemsInput = {
+  where?: Prisma.CustomerProfileWhereInput
+  data: Prisma.XOR<Prisma.CustomerProfileUpdateWithoutWishlistItemsInput, Prisma.CustomerProfileUncheckedUpdateWithoutWishlistItemsInput>
+}
+
+export type CustomerProfileUpdateWithoutWishlistItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localeChosenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  detectedCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutCustomerProfileNestedInput
+  addresses?: Prisma.AddressUpdateManyWithoutCustomerProfileNestedInput
+  carts?: Prisma.CartUpdateManyWithoutCustomerProfileNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCustomerProfileNestedInput
+  schedules?: Prisma.RecurringScheduleUpdateManyWithoutCustomerProfileNestedInput
+  paymentMethods?: Prisma.CustomerPaymentMethodUpdateManyWithoutCustomerProfileNestedInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingUpdateOneWithoutCustomerProfileNestedInput
+  couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
+  assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
+}
+
+export type CustomerProfileUncheckedUpdateWithoutWishlistItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localeChosenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  detectedCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  addresses?: Prisma.AddressUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  paymentMethods?: Prisma.CustomerPaymentMethodUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
 
@@ -2670,6 +3097,7 @@ export type CustomerProfileCountOutputType = {
   paymentMethods: number
   couponRedemptions: number
   limits: number
+  wishlistItems: number
   assistantConversations: number
 }
 
@@ -2681,6 +3109,7 @@ export type CustomerProfileCountOutputTypeSelect<ExtArgs extends runtime.Types.E
   paymentMethods?: boolean | CustomerProfileCountOutputTypeCountPaymentMethodsArgs
   couponRedemptions?: boolean | CustomerProfileCountOutputTypeCountCouponRedemptionsArgs
   limits?: boolean | CustomerProfileCountOutputTypeCountLimitsArgs
+  wishlistItems?: boolean | CustomerProfileCountOutputTypeCountWishlistItemsArgs
   assistantConversations?: boolean | CustomerProfileCountOutputTypeCountAssistantConversationsArgs
 }
 
@@ -2746,6 +3175,13 @@ export type CustomerProfileCountOutputTypeCountLimitsArgs<ExtArgs extends runtim
 /**
  * CustomerProfileCountOutputType without action
  */
+export type CustomerProfileCountOutputTypeCountWishlistItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WishlistItemWhereInput
+}
+
+/**
+ * CustomerProfileCountOutputType without action
+ */
 export type CustomerProfileCountOutputTypeCountAssistantConversationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.AssistantConversationWhereInput
 }
@@ -2755,8 +3191,11 @@ export type CustomerProfileSelect<ExtArgs extends runtime.Types.Extensions.Inter
   id?: boolean
   userId?: boolean
   fullName?: boolean
+  firstName?: boolean
+  lastName?: boolean
   organization?: boolean
   department?: boolean
+  jobTitle?: boolean
   phone?: boolean
   gstin?: boolean
   customerCode?: boolean
@@ -2787,6 +3226,7 @@ export type CustomerProfileSelect<ExtArgs extends runtime.Types.Extensions.Inter
   autoPaySetting?: boolean | Prisma.CustomerProfile$autoPaySettingArgs<ExtArgs>
   couponRedemptions?: boolean | Prisma.CustomerProfile$couponRedemptionsArgs<ExtArgs>
   limits?: boolean | Prisma.CustomerProfile$limitsArgs<ExtArgs>
+  wishlistItems?: boolean | Prisma.CustomerProfile$wishlistItemsArgs<ExtArgs>
   assistantConversations?: boolean | Prisma.CustomerProfile$assistantConversationsArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerProfileCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customerProfile"]>
@@ -2797,8 +3237,11 @@ export type CustomerProfileSelectScalar = {
   id?: boolean
   userId?: boolean
   fullName?: boolean
+  firstName?: boolean
+  lastName?: boolean
   organization?: boolean
   department?: boolean
+  jobTitle?: boolean
   phone?: boolean
   gstin?: boolean
   customerCode?: boolean
@@ -2822,7 +3265,7 @@ export type CustomerProfileSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CustomerProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "fullName" | "organization" | "department" | "phone" | "gstin" | "customerCode" | "vatNumber" | "vatNumberValid" | "vatNumberCheckedAt" | "vatNumberReference" | "requiresOrderApproval" | "internalNotes" | "preferredCountry" | "preferredCurrency" | "localeChosenAt" | "detectedCountry" | "detectedAt" | "consentAcceptedAt" | "consentVersion" | "invitedById" | "invitedAt" | "activatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["customerProfile"]>
+export type CustomerProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "fullName" | "firstName" | "lastName" | "organization" | "department" | "jobTitle" | "phone" | "gstin" | "customerCode" | "vatNumber" | "vatNumberValid" | "vatNumberCheckedAt" | "vatNumberReference" | "requiresOrderApproval" | "internalNotes" | "preferredCountry" | "preferredCurrency" | "localeChosenAt" | "detectedCountry" | "detectedAt" | "consentAcceptedAt" | "consentVersion" | "invitedById" | "invitedAt" | "activatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["customerProfile"]>
 export type CustomerProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   addresses?: boolean | Prisma.CustomerProfile$addressesArgs<ExtArgs>
@@ -2833,6 +3276,7 @@ export type CustomerProfileInclude<ExtArgs extends runtime.Types.Extensions.Inte
   autoPaySetting?: boolean | Prisma.CustomerProfile$autoPaySettingArgs<ExtArgs>
   couponRedemptions?: boolean | Prisma.CustomerProfile$couponRedemptionsArgs<ExtArgs>
   limits?: boolean | Prisma.CustomerProfile$limitsArgs<ExtArgs>
+  wishlistItems?: boolean | Prisma.CustomerProfile$wishlistItemsArgs<ExtArgs>
   assistantConversations?: boolean | Prisma.CustomerProfile$assistantConversationsArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerProfileCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -2855,14 +3299,40 @@ export type $CustomerProfilePayload<ExtArgs extends runtime.Types.Extensions.Int
     autoPaySetting: Prisma.$CustomerAutoPaySettingPayload<ExtArgs> | null
     couponRedemptions: Prisma.$CouponRedemptionPayload<ExtArgs>[]
     limits: Prisma.$CustomerLimitPayload<ExtArgs>[]
+    wishlistItems: Prisma.$WishlistItemPayload<ExtArgs>[]
     assistantConversations: Prisma.$AssistantConversationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     userId: string
+    /**
+     * The name every other screen in the product uses: an order, an invoice, a
+     * delivery note, the greeting in the header.
+     * 
+     * It stays the single canonical name even though `firstName`/`lastName`
+     * exist below, and it is COMPOSED from them whenever they are supplied —
+     * see `updateCustomer`. Two independent sources for "what is this person
+     * called" is how an invoice ends up disagreeing with a delivery note.
+     */
     fullName: string
+    /**
+     * The name captured in two parts, because that is how a person fills in a
+     * form and because a name split on the first space is not a name: "Van der
+     * Berg" and "Jean Paul" both come apart wrongly. Nullable, and legitimately
+     * so — accounts created by invitation, by import or by an administrator
+     * have only the one field, and guessing a split for them would be worse
+     * than leaving these empty and showing `fullName`.
+     */
+    firstName: string | null
+    lastName: string | null
     organization: string | null
     department: string | null
+    /**
+     * What this person does, as they describe it. Distinct from `department`,
+     * which is where in the organisation the order is being placed from: "Head
+     * of Theatre Procurement" in "Surgical Services".
+     */
+    jobTitle: string | null
     phone: string | null
     gstin: string | null
     customerCode: string | null
@@ -3268,6 +3738,7 @@ export interface Prisma__CustomerProfileClient<T, Null = never, ExtArgs extends 
   autoPaySetting<T extends Prisma.CustomerProfile$autoPaySettingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$autoPaySettingArgs<ExtArgs>>): Prisma.Prisma__CustomerAutoPaySettingClient<runtime.Types.Result.GetResult<Prisma.$CustomerAutoPaySettingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   couponRedemptions<T extends Prisma.CustomerProfile$couponRedemptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$couponRedemptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CouponRedemptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   limits<T extends Prisma.CustomerProfile$limitsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$limitsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerLimitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  wishlistItems<T extends Prisma.CustomerProfile$wishlistItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$wishlistItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WishlistItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assistantConversations<T extends Prisma.CustomerProfile$assistantConversationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$assistantConversationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssistantConversationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -3301,8 +3772,11 @@ export interface CustomerProfileFieldRefs {
   readonly id: Prisma.FieldRef<"CustomerProfile", 'String'>
   readonly userId: Prisma.FieldRef<"CustomerProfile", 'String'>
   readonly fullName: Prisma.FieldRef<"CustomerProfile", 'String'>
+  readonly firstName: Prisma.FieldRef<"CustomerProfile", 'String'>
+  readonly lastName: Prisma.FieldRef<"CustomerProfile", 'String'>
   readonly organization: Prisma.FieldRef<"CustomerProfile", 'String'>
   readonly department: Prisma.FieldRef<"CustomerProfile", 'String'>
+  readonly jobTitle: Prisma.FieldRef<"CustomerProfile", 'String'>
   readonly phone: Prisma.FieldRef<"CustomerProfile", 'String'>
   readonly gstin: Prisma.FieldRef<"CustomerProfile", 'String'>
   readonly customerCode: Prisma.FieldRef<"CustomerProfile", 'String'>
@@ -3856,6 +4330,30 @@ export type CustomerProfile$limitsArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.CustomerLimitScalarFieldEnum | Prisma.CustomerLimitScalarFieldEnum[]
+}
+
+/**
+ * CustomerProfile.wishlistItems
+ */
+export type CustomerProfile$wishlistItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WishlistItem
+   */
+  select?: Prisma.WishlistItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WishlistItem
+   */
+  omit?: Prisma.WishlistItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WishlistItemInclude<ExtArgs> | null
+  where?: Prisma.WishlistItemWhereInput
+  orderBy?: Prisma.WishlistItemOrderByWithRelationInput | Prisma.WishlistItemOrderByWithRelationInput[]
+  cursor?: Prisma.WishlistItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WishlistItemScalarFieldEnum | Prisma.WishlistItemScalarFieldEnum[]
 }
 
 /**

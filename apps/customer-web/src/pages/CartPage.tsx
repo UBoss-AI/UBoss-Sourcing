@@ -35,6 +35,7 @@ import { QuantityInput } from '@/components/QuantityInput';
 import { CouponPanel } from '@/components/CouponPanel';
 import { CheckoutSteps } from '@/components/CheckoutSteps';
 import { CART_STEPS } from '@/lib/checkout-steps';
+import { StickyBottomBar } from '@/components/StickyBottomBar';
 import { GrandTotalRow, TotalRow } from '@/components/Totals';
 import { PageEmptyState } from '@/components/PageEmptyState';
 import { AlertIcon, TrashIcon } from '@/components/icons';
@@ -179,7 +180,7 @@ function LineRow({
         {line.imageUrl === null ? (
           <span
             aria-hidden="true"
-            className="block h-20 w-20 rounded-lg border border-border bg-surface-sunken sm:h-24 sm:w-24"
+            className="block h-14 w-14 rounded-lg border border-border bg-surface-sunken min-[380px]:h-20 min-[380px]:w-20 sm:h-24 sm:w-24"
           />
         ) : (
           <img
@@ -188,7 +189,7 @@ function LineRow({
             width={96}
             height={96}
             loading="lazy"
-            className="h-20 w-20 rounded-lg border border-border bg-surface object-contain p-2 transition-colors group-hover:border-border-hover sm:h-24 sm:w-24"
+            className="h-14 w-14 rounded-lg border border-border bg-surface object-contain p-2 transition-colors group-hover:border-border-hover min-[380px]:h-20 min-[380px]:w-20 sm:h-24 sm:w-24"
           />
         )}
       </Link>
@@ -643,8 +644,8 @@ export function CartPage(): React.JSX.Element {
 
       {/* The bottom padding clears the sticky bar below `lg`, so the last
           line of the summary is never parked underneath it. */}
-      <div className="grid gap-6 pb-24 lg:grid-cols-[1fr_22rem] lg:pb-0">
-        <div className="rounded-lg border border-border bg-surface px-5 shadow-card">
+      <div className="grid grid-cols-1 gap-6 pb-24 lg:grid-cols-[minmax(0,1fr)_22rem] lg:pb-0">
+        <div className="rounded-lg border border-border bg-surface px-4 shadow-card sm:px-5">
           <ul className="divide-y divide-border-subtle">
             {cart.lines.map((line) => (
               <LineRow
@@ -776,24 +777,22 @@ export function CartPage(): React.JSX.Element {
        * reachable, without repeating the total — the figure lives in exactly
        * one place on the page, so there is nothing to fall out of step.
        */}
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-surface/95 px-4 py-3 shadow-overlay backdrop-blur lg:hidden">
-        <div className="mx-auto flex max-w-content items-center gap-3">
-          <p className="min-w-0 flex-1 text-xs text-ink-muted">
-            {t('cart.itemsReady', { count: cart.itemCount })}
-          </p>
-          <Button
-            variant="action"
-            size="lg"
-            className="shrink-0"
-            disabled={!cart.checkoutReady}
-            onClick={() => {
-              void navigate('/checkout');
-            }}
-          >
-            {t('cart.checkout')}
-          </Button>
-        </div>
-      </div>
+      <StickyBottomBar>
+        <p className="min-w-0 flex-1 text-xs text-ink-muted">
+          {t('cart.itemsReady', { count: cart.itemCount })}
+        </p>
+        <Button
+          variant="action"
+          size="lg"
+          className="shrink-0"
+          disabled={!cart.checkoutReady}
+          onClick={() => {
+            void navigate('/checkout');
+          }}
+        >
+          {t('cart.checkout')}
+        </Button>
+      </StickyBottomBar>
     </>
   );
 }

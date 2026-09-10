@@ -1948,5 +1948,10 @@
   "erp.deleteConnection": "Usuń to połączenie",
   "erp.deleteConnectionDescription": "Usuwa połączenie, związane z nim dane uwierzytelniające oraz zgłoszone stany magazynowe. Nie ma to wpływu na zlecenia już przesłane do systemu ERP.",
   "erp.confirmDelete": "Tak, proszę to usunąć",
-  "erp.notCalled": "Nie zostało przetestowane"
+  "erp.notCalled": "Nie zostało przetestowane",
+  "theme.label": "Wygląd",
+  "theme.optionSystem": "Jak moje urządzenie",
+  "theme.optionLight": "Motyw jasny",
+  "theme.optionDark": "Motyw ciemny",
+  "theme.pressToChange": "Naciśnij, aby zmienić."
 }

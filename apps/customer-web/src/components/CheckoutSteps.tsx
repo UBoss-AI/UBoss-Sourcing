@@ -49,7 +49,7 @@ const STATE_WORDING: Record<CheckoutStepState, TranslationKey> = {
 };
 
 const MARKER_STYLES: Record<CheckoutStepState, string> = {
-  complete: 'border-brand bg-brand text-white',
+  complete: 'border-brand bg-brand-fill text-white',
   current: 'border-brand bg-surface text-brand',
   // Dashed, because "reached but unfinished" must not be mistakable for a
   // tick at a glance or in a screenshot.

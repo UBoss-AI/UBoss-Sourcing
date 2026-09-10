@@ -1932,5 +1932,10 @@
   "erp.deleteConnection": "Elimini questa connessione",
   "erp.deleteConnectionDescription": "Elimina la connessione, le relative credenziali e le giacenze da essa segnalate. Gli ordini già inviati all’ERP non subiscono alcuna modifica.",
   "erp.confirmDelete": "Sì, lo elimini",
-  "erp.notCalled": "Non testato"
+  "erp.notCalled": "Non testato",
+  "theme.label": "Aspetto",
+  "theme.optionSystem": "Come il mio dispositivo",
+  "theme.optionLight": "Tema chiaro",
+  "theme.optionDark": "Tema scuro",
+  "theme.pressToChange": "Prema per cambiarlo."
 }

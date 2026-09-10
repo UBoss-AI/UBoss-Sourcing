@@ -80,6 +80,20 @@ export const ErrorCode = {
   MEDIA_TYPE_NOT_ALLOWED: 'MEDIA_TYPE_NOT_ALLOWED',
   MEDIA_TOO_LARGE: 'MEDIA_TOO_LARGE',
 
+  // --- Image search ---
+  //
+  // Two codes and not one, because the two failures need different words in
+  // front of a customer and different actions from whoever runs the
+  // deployment. BUSY is the provider being over quota or overloaded, and the
+  // answer is to wait; UNREADABLE is a reply that came back and could not be
+  // used, and the answer is to try a clearer photograph or type the name.
+  //
+  // Deliberately NOT reusing SERVICE_UNAVAILABLE, which the storefront reads
+  // as "the whole store is down" and puts a site-wide maintenance banner
+  // behind. One camera button failing is not an outage.
+  IMAGE_SEARCH_BUSY: 'IMAGE_SEARCH_BUSY',
+  IMAGE_SEARCH_UNREADABLE: 'IMAGE_SEARCH_UNREADABLE',
+
   // --- Inventory ---
   INSUFFICIENT_STOCK: 'INSUFFICIENT_STOCK',
   STOCK_NOT_TRACKED: 'STOCK_NOT_TRACKED',
@@ -319,6 +333,19 @@ export const ErrorCode = {
   /// requires the data - unpaid orders, an open return, a live schedule. The
   /// detail names what, so the answer to the subject can too.
   ERASURE_BLOCKED_BY_OBLIGATION: 'ERASURE_BLOCKED_BY_OBLIGATION',
+
+  /// Somebody asked to move their account to an address another account
+  /// already uses, or is already moving to.
+  ///
+  /// Deliberately the same answer in both cases and deliberately vague about
+  /// which: a distinct message for "that address is registered" turns this
+  /// endpoint into an oracle for whether a given company buys here, which is
+  /// a question a competitor would like answered and the account holder does
+  /// not need answered.
+  EMAIL_ALREADY_IN_USE: 'EMAIL_ALREADY_IN_USE',
+  /// A pending email or telephone change was confirmed, or resent, when there
+  /// is no change in flight to confirm.
+  CONTACT_CHANGE_NOT_PENDING: 'CONTACT_CHANGE_NOT_PENDING',
 } as const;
 
 export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];

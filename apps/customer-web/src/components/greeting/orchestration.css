@@ -7,17 +7,18 @@
  *
  *   - **The Tailwind config is shared.** Its header says it is kept
  *     byte-identical to `apps/admin-web/tailwind.config.js` apart from two
- *     marked lines. Six orbital keyframes that only the storefront's greeting
- *     page will ever use do not belong in a file the admin panel also reads.
+ *     marked lines. Orbital keyframes that only the storefront's greeting page
+ *     will ever use do not belong in a file the admin panel also reads.
  *   - **These animations are parameterised per element.** Every node has its
- *     own phase, every travelling light its own delay and its own angle. That
- *     is a custom property fed from React, and the arbitrary-value syntax for
- *     it is considerably harder to read than the CSS it compiles to.
+ *     own phase and its own ring, every travelling light its own delay and its
+ *     own angle. That is a custom property fed from React, and the
+ *     arbitrary-value syntax for it is considerably harder to read than the
+ *     CSS it compiles to.
  *
- * Two rules hold for everything below.
+ * Three rules hold for everything below.
  *
  * **Only `transform` and `opacity` are animated.** Both are composited, so a
- * page with nine things moving on it forever still does no layout and no
+ * page with a dozen things moving on it forever still does no layout and no
  * paint. Nothing here animates a width, a colour, a `box-shadow`, a
  * `background-position` or an SVG `stroke-dashoffset` — the last one is the
  * usual way a "travelling light along a line" is drawn, and it repaints the
@@ -29,28 +30,92 @@
  * visible jump once per cycle, and it is the single most common way a
  * decorative animation starts reading as a bug.
  *
+ * **Anything that orbits carries an exact counter-rotation for its text.**
+ * The whole arrangement turns about the orb, so a card left alone would arrive
+ * upside down twice a minute. Each card therefore sits inside a layer turning
+ * the opposite way at the *same period* — see `.orch-node-spin`. The two
+ * cancel to the identity, which is why the wording stays upright and sharp
+ * while its position sweeps the circle. Getting the periods out of step by a
+ * second is a card that slowly tips over, so the periods are custom
+ * properties declared once on `.orch` and read by both layers.
+ *
  * On `prefers-reduced-motion` all of it stops — see the block at the end.
+ *
+ * ---
+ *
+ * **The stage keeps its own blues in both themes, and the cards do not.**
+ *
+ * Everything a person reads here — the four node cards and the note below
+ * them — is drawn from the palette tokens, so it follows the theme like the
+ * rest of the page. Everything that *is* the object — the orb's gradients and
+ * meridians, the spokes, the travelling lights, the glow — is written as fixed
+ * blues, and stays that way in dark mode on purpose. The orb is a deep-blue
+ * sphere lit from the upper left; it was already the darkest thing on the
+ * light page, and its highlights are light-on-dark to begin with. Re-derived
+ * from tokens it would have to inverse itself, which for a lit object means
+ * turning into a different object. A wireframe globe glowing on navy is the
+ * same picture as a wireframe globe glowing on white, only more so.
+ *
+ * The one thing this costs is that the spokes and ring guides sit at a lower
+ * contrast on the dark page than on the light one. They are decoration with no
+ * information in them — `aria-hidden`, and every node is reachable and
+ * labelled without them — so that is a trade rather than a defect.
  */
 
 /* ==========================================================================
  * Layout
  *
- * Two arrangements of the same DOM, so the six nodes are one list of six
+ * Two arrangements of the same DOM, so the four nodes are one list of four
  * controls in both. A phone gets a small hub with the nodes in a grid beneath
- * it; from `lg` the nodes lift out onto a circle around it.
+ * it; from `lg` the nodes lift out onto a circle around it and that circle
+ * turns.
  *
  * The alternative — a radial layout that scales down — was tried and does not
- * work: at 360px the six labels overlap each other and the orb, and a node
- * whose text is under another node's text is a node nobody can press.
+ * work: at 360px the labels overlap each other and the orb, and a node whose
+ * text is under another node's text is a node nobody can press. It is worse
+ * again now that the arrangement rotates: a cramped circle turning is four
+ * cards taking turns to cover one another.
  * ========================================================================== */
 
 .orch {
   position: relative;
+
+  /*
+   * How long one full orbit takes.
+   *
+   * **One period and one direction for all four cards, and that is a fix.**
+   * They were two counter-rotating groups at 64s and 97s, which looked better
+   * described than seen: all four cards ride the *same* circle, so two groups
+   * turning at different rates have to pass through each other, and twice a
+   * minute one card sat on top of another with its wording clipped. Four
+   * cards 90° apart on one orbit stay 90° apart forever.
+   *
+   * Only the drawn ring guides still counter-rotate, on `--orch-ring-period`.
+   * They are dashes on a circle: two of them at different speeds is where the
+   * variety the two node groups were reaching for actually belongs, and a dash
+   * cannot land on top of a label.
+   *
+   * Declared here and nowhere else because three things read the orbit period:
+   * the card's orbit, the counter-rotation inside it, and the spokes beneath
+   * it. All three must agree to the millisecond or the drawing comes apart —
+   * see the third rule in the header.
+   */
+  --orch-orbit-period: 64s;
+  --orch-ring-period: 97s;
 }
 
 .orch-stage {
   position: relative;
-  width: min(17rem, 76vw);
+  /*
+   * `100%`, not a `vw` figure.
+   *
+   * `vw` is the whole viewport and counts the scrollbar, while this sits
+   * inside a hero that is already inset by its own padding — so on a 320px
+   * screen 76vw came to 243px in a 223px column and the orb pushed 20px out
+   * of it. The container's own width is the measurement that was wanted, and
+   * on every wider phone the two agree to within a few pixels.
+   */
+  width: min(17rem, 100%);
   aspect-ratio: 1 / 1;
   margin: 0 auto;
 }
@@ -58,9 +123,9 @@
 /*
  * One column on a phone, not two.
  *
- * Two columns at 390px leaves each tile about 140px of text, and "Warehouse
- * Network — stock held wherever it is closest to you" arrives in six lines.
- * Full width, the mark sits left of the words and every tile is two lines.
+ * Two columns at 390px leaves each tile about 140px of text, and a capability
+ * with a supporting line arrives in six of them. Full width, the mark sits
+ * left of the words and every tile is two lines.
  */
 .orch-nodes {
   display: grid;
@@ -78,12 +143,24 @@
 }
 
 /* The radial arrangement. `lg` and not a pixel earlier: the circle needs about
-   34rem of square before the labels stop touching, and a tablet in portrait
+   30rem of square before the labels stop touching, and a tablet in portrait
    does not have it to spare beside the hero. */
 @media (min-width: 1024px) {
+  /*
+   * 30rem, down from 34.
+   *
+   * The frame sets the hero's height, and at 34rem the whole band came to
+   * 750px with the header on top — so on a 717px laptop viewport the bottom
+   * card of the ring sat below the fold, and the thing this graphic is for is
+   * being seen whole. 30rem brings the band to 653px, which fits.
+   *
+   * Shrinking the frame alone would have put the cards on the orb, so the
+   * cards got shorter and a little wider at the same time: see the fixed
+   * height and the seat width below.
+   */
   .orch {
     aspect-ratio: 1 / 1;
-    max-width: 34rem;
+    max-width: 30rem;
     margin-inline: auto;
   }
 
@@ -94,6 +171,11 @@
     margin: 0;
   }
 
+  .orch-nodes-layer {
+    position: absolute;
+    inset: 0;
+  }
+
   .orch-nodes {
     position: absolute;
     inset: 0;
@@ -101,17 +183,102 @@
     margin: 0;
   }
 
+  /*
+   * Every node covers the whole stage.
+   *
+   * That is what makes an orbit expressible in CSS at all: the layer inside
+   * that turns has its own centre on the orb, so `rotate()` about it sweeps
+   * the card round the hub without any per-frame arithmetic. Placing the card
+   * absolutely and trying to rotate it about a point outside itself would need
+   * a `transform-origin` measured in the *parent's* coordinates, which CSS
+   * does not offer.
+   *
+   * The consequence is four full-stage boxes stacked on top of each other, so
+   * everything down to the control is `pointer-events: none` — otherwise the
+   * last node in the DOM would swallow every click meant for the other three.
+   */
+  .orch-node {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .orch-node-orbit {
+    position: absolute;
+    inset: 0;
+    animation: orch-spin var(--orch-orbit-period) linear infinite;
+  }
+
+  /* Counter-clockwise for the outer ring. Two rings turning the same way at
+     the same speed look like one thick ring being spun. */
+  /* The same animation as the inner pair, deliberately. See the note on
+     `--orch-orbit-period`: this used to be `orch-spin-reverse` at its own
+     period, and two groups on one circle at two rates collide. */
+  .orch-node[data-ring='outer'] .orch-node-orbit {
+    animation: orch-spin var(--orch-orbit-period) linear infinite;
+  }
+
   /* `--orch-x` / `--orch-y` are written by React from one table of angles, so
      the node, the line it sits on and the light travelling up that line
      cannot drift apart. */
-  .orch-node {
+  .orch-node-seat {
     position: absolute;
     left: var(--orch-x);
     top: var(--orch-y);
-    width: 9.25rem;
-    /* Centring only. The float lives on the child, so the two transforms
-       never have to be composed by hand. */
+    /*
+     * 9rem, up from 8.
+     *
+     * At 8rem three of the four supporting lines needed a third line and got
+     * an ellipsis instead once the height was fixed — three cards out of four
+     * trailing "..." reads as text that did not fit rather than as a caption.
+     * 9.5rem is the width at which all four fit two lines in English, and it
+     * makes the card square: 152px each way, so the ring sweeps the same 507px
+     * in both directions and the composition is a circle rather than an
+     * ellipse. It costs 14px of spill each side of the frame, which lands in
+     * the hero's own 48px padding.
+     */
+    width: 9.5rem;
+    /* Centring only. The counter-rotation and the float live on the children,
+       so no two transforms ever have to be composed by hand. */
     transform: translate(-50%, -50%);
+  }
+
+  /*
+   * The layer that undoes the orbit.
+   *
+   * Exactly the opposite direction and exactly the same period as the ring
+   * this node rides, so the composition is the identity and the card is
+   * upright in every frame. Nothing else may go on this element: a second
+   * transform here would be multiplied into the cancellation and the card
+   * would drift.
+   */
+  .orch-node-spin {
+    animation: orch-spin-reverse var(--orch-orbit-period) linear infinite;
+  }
+
+  .orch-node[data-ring='outer'] .orch-node-spin {
+    animation: orch-spin-reverse var(--orch-orbit-period) linear infinite;
+  }
+
+  /*
+   * One height for all four, and it is 9.5rem.
+   *
+   * They used to size themselves to their own wording, which came out at 152,
+   * 155, 171 and 152 pixels — four different heights on a ring, which reads
+   * as four cards that happen to be near each other rather than as one
+   * arrangement. It also meant the tallest card decided how much room the
+   * whole composition needed vertically: at 171px the ring was 562px tall in a
+   * 544px frame, and the overflow is what pushed the band past a laptop's
+   * fold.
+   *
+   * Fixed, they are identical, the ring is 507px tall, and the supporting line
+   * clamps to two lines instead of running to three. `justify-center` so a
+   * one-line label sits in the middle of the card rather than at the top of it.
+   */
+  .orch-node-control {
+    pointer-events: auto;
+    height: 9.5rem;
+    justify-content: center;
   }
 }
 
@@ -126,11 +293,17 @@
  *
  * `translate3d` rather than `translate`, so the layer gets its own compositor
  * layer instead of being re-rasterised as the pointer moves.
+ *
+ * The parallax is on `.orch-nodes-layer` and NOT on `.orch-nodes`, which is
+ * where it used to be. The ul is now the thing whose children rotate, and a
+ * translate on a rotating subtree is a translate that rotates with it — the
+ * whole arrangement would have swung a few pixels round the orb once a
+ * minute, which reads as a wobble rather than as depth.
  * ========================================================================== */
 
 .orch-web,
 .orch-hub,
-.orch-nodes {
+.orch-nodes-layer {
   transition: transform 220ms var(--ease-ui);
   will-change: transform;
 }
@@ -147,6 +320,17 @@
   position: absolute;
   left: 50%;
   top: 50%;
+  /*
+   * 33%, up from 30%.
+   *
+   * The hero's band got shorter and its text column got taller, which left
+   * the orb looking small in the square it sits in. 33% is as far as it goes:
+   * the glow reaches 1.3x the sphere, so its edge is at 21.5% of the stage,
+   * and a card's inner edge at due east is at 25.2% — 20px of clearance at
+   * 34rem. Any larger and the cards graze the thing they are orbiting. See
+   * the note on NODE_RADIUS_FRACTION in orchestration-nodes.ts before moving
+   * either number.
+   */
   width: 33%;
   aspect-ratio: 1 / 1;
   /* Centring and parallax in one declaration: they are the same property, and
@@ -156,7 +340,7 @@
 }
 
 @media (min-width: 1024px) {
-  .orch-nodes {
+  .orch-nodes-layer {
     transform: translate3d(calc(var(--orch-px, 0px) * 0.9), calc(var(--orch-py, 0px) * 0.9), 0);
   }
 }
@@ -164,42 +348,99 @@
 /* ==========================================================================
  * The orb
  *
- * A sphere in four layers: a ground, a wireframe that genuinely rotates in
- * three dimensions, a specular highlight that orbits, and the label.
+ * A glass sphere in seven layers: a deep ground, a rim light, a wireframe that
+ * genuinely rotates in three dimensions, an orbiting specular highlight, a
+ * fixed hotspot, a glass sheen over the top of all of it, and the label.
  *
  * The label is a sibling of the rotating parts, not a child of them. That is
  * the whole reason the orb is built this way: a word painted onto a spinning
  * sphere is unreadable for most of every revolution, and a word that is
  * upright and sharp while the thing under it turns is the effect this is
- * after. Nothing in `.orch-orb` is ever readable text.
+ * after. Nothing inside `.orch-orb` is ever readable text.
+ *
+ * Every colour here is from the app's own blue scale — navy through royal to
+ * sky — and the glow is kept deliberately tight. A halo wide enough to be
+ * noticed on its own is a halo washing out the ink of whatever sits next to
+ * it, which on this page is the headline.
  * ========================================================================== */
 
 .orch-orb {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  /* Off-centre, so the sphere is lit from the upper left like everything else
-     on the page. A centred radial gradient reads as a flat disc.
-     The highlight is also kept clear of the middle: the label sits there in
-     white, and white on this blue is 4.87:1 — enough, but not enough to spend
-     on a decorative gleam underneath it. */
+  /*
+   * Four stops, lit from the upper left like everything else on the page.
+   *
+   *   1. A tight sky-white specular at 30%/22% — the light source.
+   *   2. A broad royal wash under it, so the lit half is a colour rather than
+   *      a smear of white.
+   *   3. The body: royal to navy, ending almost black at the limb.
+   *   4. A cool rim, painted as a conic sliver in `::before`, which is what
+   *      makes the edge read as glass rather than as a flat disc.
+   *
+   * The highlight is kept clear of the middle: the label sits there in white,
+   * and white on this blue is 4.87:1 — enough, but not enough to spend on a
+   * decorative gleam underneath it.
+   */
   background:
-    radial-gradient(circle at 30% 24%, rgb(191 219 254 / 0.95), transparent 30%),
-    radial-gradient(circle at 50% 50%, rgb(37 99 235), rgb(30 58 138) 72%, rgb(23 37 84));
+    radial-gradient(circle at 30% 22%, rgb(239 246 255 / 0.95), transparent 26%),
+    radial-gradient(circle at 34% 28%, rgb(96 165 250 / 0.55), transparent 52%),
+    radial-gradient(circle at 50% 46%, rgb(37 99 235), rgb(30 58 138) 66%, rgb(18 31 74));
   box-shadow:
-    0 0 0 1px rgb(255 255 255 / 0.35) inset,
-    0 18px 45px -12px rgb(30 64 175 / 0.65);
+    /* The glass edge: a hairline of light all the way round, brightest where
+       the light is. Two inset shadows rather than a border, so the sphere has
+       no seam where a border would meet the gradient. */
+    0 0 0 1px rgb(255 255 255 / 0.28) inset,
+    0 1px 14px 2px rgb(191 219 254 / 0.22) inset,
+    /* The ground shadow, and one controlled bloom. Nothing wider. */
+    0 20px 46px -14px rgb(30 64 175 / 0.7),
+    0 0 26px -6px rgb(56 189 248 / 0.35);
   overflow: hidden;
   /* The perspective the wireframe below rotates under. Without it `rotateY`
      is an orthographic squash and the sphere looks like a closing eye. */
   perspective: 620px;
 }
 
+/*
+ * The rim.
+ *
+ * A conic gradient masked to a ring, so the lit side of the limb is brighter
+ * than the shadowed side. A uniform ring is what a decal looks like; a graded
+ * one is what a curved surface looks like.
+ */
+.orch-orb::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  padding: 1px;
+  background: conic-gradient(
+    from 210deg,
+    rgb(224 242 254 / 0.75),
+    rgb(147 197 253 / 0.2) 28%,
+    rgb(30 58 138 / 0) 52%,
+    rgb(125 211 252 / 0.35) 82%,
+    rgb(224 242 254 / 0.75)
+  );
+  /* Ring, not disc: the mask keeps the one-pixel padding band and drops the
+     middle, which is how a gradient border is drawn without a second element
+     and without `border-image`, which cannot be rounded. */
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
 .orch-orb-wire {
   position: absolute;
   inset: 8%;
   transform-style: preserve-3d;
-  animation: orch-orb-spin 24s linear infinite;
+  animation: orch-orb-spin 26s linear infinite;
 }
 
 /* Three meridians at 60° to each other. Rotating the group in Y carries all
@@ -209,7 +450,7 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 1px solid rgb(191 219 254 / 0.4);
+  border: 1px solid rgb(191 219 254 / 0.34);
 }
 
 .orch-orb-meridian:nth-child(1) {
@@ -230,38 +471,152 @@
   right: 8%;
   top: 50%;
   height: 0;
-  border-top: 1px solid rgb(191 219 254 / 0.28);
+  border-top: 1px solid rgb(191 219 254 / 0.26);
 }
 
 /* The specular highlight, orbiting the sphere's centre at a radius. Its own
    animation and its own period, deliberately not a multiple of the
-   wireframe's — two loops that share a factor visibly re-sync, and the pattern
-   that emerges is more noticeable than either motion on its own. */
+   wireframe's. */
 .orch-orb-sheen {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  animation: orch-spin 17s linear infinite;
+  animation: orch-spin 19s linear infinite;
 }
 
 .orch-orb-sheen::before {
   content: '';
   position: absolute;
-  left: 18%;
-  top: 6%;
-  width: 42%;
-  height: 42%;
+  left: 17%;
+  top: 5%;
+  width: 44%;
+  height: 44%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgb(224 242 254 / 0.55), transparent 68%);
-  filter: blur(6px);
+  background: radial-gradient(circle, rgb(224 242 254 / 0.5), transparent 68%);
+  filter: blur(7px);
+}
+
+/*
+ * The glass.
+ *
+ * One soft crescent across the top third, and it does NOT move: a highlight
+ * that travels reads as a light source going round the object, and a fixed one
+ * reads as a window reflected in it. Both are true of real glass, so the orb
+ * carries one of each — the orbiting gleam above and this.
+ */
+.orch-orb-glass {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(
+    168deg,
+    rgb(255 255 255 / 0.3) 0%,
+    rgb(255 255 255 / 0.09) 22%,
+    transparent 46%
+  );
+  pointer-events: none;
+}
+
+/*
+ * Layered rings around the sphere, outside it.
+ *
+ * Three hairlines at increasing radius, each fainter than the last. They are
+ * what gives the orb a setting rather than leaving it floating: the eye reads
+ * concentric circles as depth, and it costs one element and no animation —
+ * they hold still while everything inside them turns, which is what makes the
+ * turning legible.
+ */
+.orch-hub-rings {
+  position: absolute;
+  inset: -18%;
+  border-radius: 50%;
+  border: 1px solid rgb(59 130 246 / 0.18);
+  pointer-events: none;
+}
+
+.orch-hub-rings::before,
+.orch-hub-rings::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+}
+
+.orch-hub-rings::before {
+  inset: 8%;
+  border: 1px solid rgb(56 189 248 / 0.26);
+}
+
+.orch-hub-rings::after {
+  inset: -14%;
+  border: 1px dashed rgb(59 130 246 / 0.12);
 }
 
 /* The soft ground the orb sits in. Outside `.orch-orb` because that clips. */
 .orch-hub-glow {
   position: absolute;
+  inset: -30%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(56 189 248 / 0.26), transparent 62%);
+  pointer-events: none;
+}
+
+/*
+ * The aura, and the sweep.
+ *
+ * Two layers added when the hero's top band was tightened and the orb grew
+ * from 30% of the stage to 33%: a larger sphere in a shorter card wants
+ * something happening at its shoulder, or it reads as a static logo somebody
+ * dropped into a diagram.
+ *
+ * Both animate `transform` and `opacity` and nothing else, both end where they
+ * start, and both are switched off wholesale by reduced motion — the three
+ * rules at the top of this file, which is why neither of them is a moving
+ * gradient. A `background-position` sweep would repaint a 200px circle sixty
+ * times a second for decoration.
+ */
+
+/* Breathing, slowly and only slightly. 7.5s is long enough that it is
+   noticed as depth rather than as a pulse, and the two extremes are 6% apart
+   in scale — enough to see at 180px, not enough to draw the eye off the
+   headline beside it. */
+.orch-hub-aura {
+  position: absolute;
   inset: -34%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgb(56 189 248 / 0.3), transparent 62%);
+  background: radial-gradient(circle, rgb(56 189 248 / 0.2), transparent 64%);
+  animation: orch-breathe 7.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/*
+ * A bright arc travelling round the rim, once every eleven seconds.
+ *
+ * A conic gradient turned into a ring by a radial mask, so what moves is a
+ * 60-degree sliver of light on a hairline circle rather than a glow over the
+ * whole sphere. The period is deliberately not a factor of the wireframe's
+ * 26s or the specular's 19s: three loops that share a factor visibly re-sync,
+ * and the pattern that emerges is more noticeable than any of them alone.
+ */
+.orch-hub-sweep {
+  position: absolute;
+  inset: -20%;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgb(125 211 252 / 0.55) 30deg,
+    rgb(191 219 254 / 0.14) 60deg,
+    transparent 84deg
+  );
+  -webkit-mask: radial-gradient(
+    circle,
+    transparent 69%,
+    #000 71%,
+    #000 75%,
+    transparent 77%
+  );
+  mask: radial-gradient(circle, transparent 69%, #000 71%, #000 75%, transparent 77%);
+  animation: orch-spin 11s linear infinite;
   pointer-events: none;
 }
 
@@ -293,31 +648,45 @@
  * are literally the same number.
  * ========================================================================== */
 
-/* Both rings rotate about the drawing's centre. `transform-box: view-box`
+/* Everything that turns about the drawing's centre. `transform-box: view-box`
    makes `transform-origin: 200px 200px` mean 200 user units — without it the
-   origin is the element's own bounding box and the ring orbits its own edge. */
-.orch-ring {
+   origin is the element's own bounding box and the group orbits its own edge. */
+.orch-ring,
+.orch-spokes {
   transform-box: view-box;
   transform-origin: 200px 200px;
 }
 
-.orch-ring--inner {
-  animation: orch-spin 30s linear infinite;
+/*
+ * **The spokes ride the orbit; the ring guides do not.**
+ *
+ * A line has to stay under the card it points at, so both spoke groups take
+ * `--orch-orbit-period` in the same direction as the cards — to the
+ * millisecond, or half the lines end up pointing at nothing. They stay two
+ * groups because each is drawn for its own pair of angles, not because they
+ * move differently.
+ *
+ * The two ring guides are the only things left that counter-rotate, and that
+ * is where the variety went: dashes on a circle can pass anything without
+ * covering it.
+ */
+.orch-ring--inner,
+.orch-spokes--inner,
+.orch-spokes--outer {
+  animation: orch-spin var(--orch-orbit-period) linear infinite;
 }
 
-/* Counter-clockwise, and a different period. Two rings turning the same way
-   at the same speed look like one thick ring. */
 .orch-ring--outer {
-  animation: orch-spin-reverse 46s linear infinite;
+  animation: orch-spin-reverse var(--orch-ring-period) linear infinite;
 }
 
 /*
  * A radial line, and the same line while its node is the active one.
  *
  * The highlight is driven by `data-orch-active` on the root rather than by
- * React state. Hovering a node must brighten a line that is its DOM sibling's
- * sibling, which CSS alone cannot express — but one attribute written by the
- * pointer handler can, and it costs no render.
+ * React state. Hovering a node must brighten a line several layers away in a
+ * different subtree, which CSS alone cannot express — but one attribute
+ * written by the pointer handler can, and it costs no render.
  */
 .orch-line {
   stroke: rgb(59 130 246 / 0.35);
@@ -327,18 +696,30 @@
     stroke-width 200ms var(--ease-ui);
 }
 
+/* Everything dims while one node is active, so the highlight below reads as a
+   selection rather than as one line that happens to be darker. */
 .orch[data-orch-active] .orch-line {
-  stroke: rgb(59 130 246 / 0.18);
+  stroke: rgb(59 130 246 / 0.16);
 }
 
 .orch[data-orch-active='assistant'] .orch-line[data-node='assistant'],
-.orch[data-orch-active='warehouses'] .orch-line[data-node='warehouses'],
 .orch[data-orch-active='schedules'] .orch-line[data-node='schedules'],
 .orch[data-orch-active='erp'] .orch-line[data-node='erp'],
-.orch[data-orch-active='autopay'] .orch-line[data-node='autopay'],
-.orch[data-orch-active='inventory'] .orch-line[data-node='inventory'] {
+.orch[data-orch-active='autopay'] .orch-line[data-node='autopay'] {
   stroke: rgb(29 78 216 / 0.95);
-  stroke-width: 2.2;
+  stroke-width: 2.4;
+}
+
+/* The travelling light on the active branch brightens with its line. */
+.orch[data-orch-active] .orch-pulse {
+  opacity: 0;
+}
+
+.orch[data-orch-active='assistant'] .orch-pulse[data-node='assistant'],
+.orch[data-orch-active='schedules'] .orch-pulse[data-node='schedules'],
+.orch[data-orch-active='erp'] .orch-pulse[data-node='erp'],
+.orch[data-orch-active='autopay'] .orch-pulse[data-node='autopay'] {
+  fill: rgb(191 219 254);
 }
 
 /*
@@ -358,7 +739,7 @@
 
 /* Particles riding the rings. They are children of the rotating groups, so
    they need no animation of their own — they are carried. The pulse is only
-   there to stop six identical dots reading as a dotted line. */
+   there to stop identical dots reading as a dotted line. */
 .orch-mote {
   fill: rgb(147 197 253);
   animation: orch-mote 3.6s ease-in-out infinite;
@@ -369,7 +750,9 @@
  * Nodes
  * ========================================================================== */
 
-/* The float. On the inner control, never on the `<li>` that positions it. */
+/* The float. On the innermost wrapper, never on anything that rotates: a bob
+   composed into a counter-rotation is a bob that changes direction as the card
+   goes round. */
 .orch-node-float {
   animation: orch-float 6.5s ease-in-out infinite;
   animation-delay: var(--orch-delay, 0s);
@@ -396,6 +779,19 @@
  * Keyframes
  * ========================================================================== */
 
+/* Depth, not a pulse. Ends where it starts, like everything else here. */
+@keyframes orch-breathe {
+  0%,
+  100% {
+    transform: scale(0.94);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+
 @keyframes orch-spin {
   to {
     transform: rotate(360deg);
@@ -415,7 +811,7 @@
 }
 
 /*
- * 74 → 142 user units: the orb's edge to just short of the node ring. The
+ * 74 → 116 user units: the orb's edge to just short of the node ring. The
  * fades at either end are what stop the light from appearing out of nothing
  * at the orb and vanishing into nothing at the node.
  */
@@ -431,7 +827,7 @@
     opacity: 0.95;
   }
   100% {
-    transform: translateX(142px);
+    transform: translateX(116px);
     opacity: 0;
   }
 }
@@ -467,13 +863,25 @@
  * *transition* and would otherwise survive as a 0.01ms snap on every pointer
  * move. The pointer handler stops writing the variables in this mode too, so
  * the layers simply hold still.
+ *
+ * The orbit and its counter-rotation are named together, and that is the one
+ * pairing here that cannot be got wrong: cancelling one without the other
+ * would leave every card permanently rotated by whatever the last frame was.
  * ========================================================================== */
 
 @media (prefers-reduced-motion: reduce) {
   .orch-orb-wire,
   .orch-orb-sheen,
+  .orch-hub-aura,
+  .orch-hub-sweep,
   .orch-ring--inner,
   .orch-ring--outer,
+  .orch-spokes--inner,
+  .orch-spokes--outer,
+  .orch-node-orbit,
+  .orch-node-spin,
+  .orch-node[data-ring='outer'] .orch-node-orbit,
+  .orch-node[data-ring='outer'] .orch-node-spin,
   .orch-mote,
   .orch-node-float {
     animation: none;
@@ -490,7 +898,7 @@
 
   .orch-web,
   .orch-hub,
-  .orch-nodes {
+  .orch-nodes-layer {
     transition: none;
     will-change: auto;
   }

@@ -30,6 +30,9 @@ import { ProductCard } from '@/components/ProductCard';
 import { AddressForm } from '@/components/AddressForm';
 import { Modal } from '@/components/Modal';
 import { Field, Input, Select, Textarea } from '@/components/ui';
+import { HeroSearch } from '@/components/hero-search/HeroSearch';
+import { AiMessage } from '@/pages/ai/AiMessage';
+import { FALLBACK_CONFIG } from '@/app/storefront-context';
 import type { Money, Product, ProductDevice, ProductSafety } from '@/lib/types';
 
 function money(minor: string, currency = 'INR'): Money {
@@ -372,5 +375,68 @@ describe('keyboard operability', () => {
       await user.tab();
       expect(link).toHaveAccessibleName();
     }
+  });
+});
+
+describe('search and AI Mode', () => {
+  /**
+   * The hero search module.
+   *
+   * A tablist, a text input with no visible label, and four controls packed
+   * into one box — which is a lot of ways to end up with an unlabelled button.
+   * The tab pattern is what axe checks hardest here: `aria-selected` on each
+   * tab, `aria-controls` pointing at something that exists, and a panel that
+   * names the tab it belongs to.
+   */
+  it('the hero search module has no violations', async () => {
+    const { container } = renderWithProviders(<HeroSearch />, {
+      config: {
+        ...FALLBACK_CONFIG,
+        features: { ...FALLBACK_CONFIG.features, assistant: true, imageSearch: true },
+      },
+    });
+
+    await expectNoA11yViolations(container);
+  });
+
+  it('every control in the search bar has an accessible name', () => {
+    renderWithProviders(<HeroSearch />, {
+      config: {
+        ...FALLBACK_CONFIG,
+        features: { ...FALLBACK_CONFIG.features, assistant: true, imageSearch: true },
+      },
+    });
+
+    // The voice and camera buttons are icons. Without a name they announce as
+    // "button", which is the single most common icon-button failure.
+    for (const button of screen.getAllByRole('button')) {
+      expect(button).toHaveAccessibleName();
+    }
+
+    // The search box's label is visually hidden, not absent.
+    expect(screen.getByRole('textbox')).toHaveAccessibleName();
+  });
+
+  /**
+   * An AI reply.
+   *
+   * Model output is rendered as text with one exception — a `/product/...`
+   * path becomes a link — so the thing to check is that the link carries a
+   * name and the actions under the bubble do too.
+   */
+  it('an AI reply and its actions have no violations', async () => {
+    const { container } = renderWithProviders(
+      <AiMessage
+        message={{
+          role: 'assistant',
+          content: 'We list three, starting at /product/accu-flow.',
+        }}
+        isTruncated={false}
+        onAskAgain={() => undefined}
+      />,
+    );
+
+    await expectNoA11yViolations(container);
+    expect(screen.getByRole('link', { name: '/product/accu-flow' })).toBeInTheDocument();
   });
 });

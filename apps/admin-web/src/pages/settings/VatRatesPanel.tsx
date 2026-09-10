@@ -279,7 +279,7 @@ export function VatRatesPanel(): React.JSX.Element {
           >
             <p className="mb-3 text-xs text-ink-muted">{t('vatRates.addHint')}</p>
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <Field label={t('vatRates.country')} required>
                 {({ inputId }) => (
                   <Select

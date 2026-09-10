@@ -85,7 +85,7 @@ function SelectedFlag(): React.JSX.Element {
   const { t } = useI18n();
 
   return (
-    <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-brand px-2 py-0.5 text-xxs font-semibold text-white">
+    <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-brand-fill px-2 py-0.5 text-xxs font-semibold text-white">
       <CheckIcon className="h-3 w-3" />
       {t('checkout.selected')}
     </span>
@@ -154,7 +154,7 @@ function PaymentChoice({
         aria-hidden="true"
         className={cx(
           'flex h-9 w-9 shrink-0 items-center justify-center rounded-md',
-          isSelected ? 'bg-brand text-white' : 'bg-surface-sunken text-ink-muted',
+          isSelected ? 'bg-brand-fill text-white' : 'bg-surface-sunken text-ink-muted',
         )}
       >
         {icon}
@@ -426,7 +426,7 @@ export function CheckoutPage(): React.JSX.Element {
         </p>
       </header>
 
-      <div className="grid gap-6 pb-4 lg:grid-cols-[1fr_22rem]">
+      <div className="grid grid-cols-1 gap-6 pb-4 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="space-y-6">
           {/* --- Delivery address ------------------------------------------ */}
           <Section id="address-heading" step={1} title={t('checkout.deliveryAddress')}>

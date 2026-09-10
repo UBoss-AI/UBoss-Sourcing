@@ -42,6 +42,37 @@ export function formatMoney(money: Money | null | undefined): string {
 }
 
 /**
+ * Currencies with no minor unit.
+ *
+ * Kept in step with the backend's `money.ts`, which is the authority. A yen
+ * amount shifted by two decimal places reads as one hundredth of the price,
+ * which is the single most dangerous formatting bug available here.
+ */
+const ZERO_DECIMAL_CURRENCIES = new Set(['JPY', 'KRW']);
+
+/**
+ * Display a bare minor-unit amount.
+ *
+ * `formatMoney` above is the one to reach for: the backend's `Money` object
+ * carries a `formatted` string it produced itself, and nothing beats reading
+ * the answer the server already gave. This exists for the endpoints that send
+ * a minor-unit string on its own — a coupon threshold, a redemption, a saved
+ * line's price — where there is no `Money` to read.
+ *
+ * Digit shifting, never arithmetic: `Number(minor) / 100` is exactly the bug
+ * the string representation exists to prevent.
+ */
+export function formatMoneyMinor(
+  minor: string | null | undefined,
+  currency: string,
+): string {
+  if (minor === null || minor === undefined) return '—';
+
+  const exponent = ZERO_DECIMAL_CURRENCIES.has(currency) ? 0 : 2;
+  return `${currencySymbol(currency)}${minorToMajor(minor, exponent)}`;
+}
+
+/**
  * Minor units to a major-unit string, by digit shifting.
  *
  * Used for form fields, which must round-trip exactly: a price typed as 45.50

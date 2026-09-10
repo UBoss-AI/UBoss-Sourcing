@@ -379,8 +379,18 @@ export async function createCustomer(
 
 export interface UpdateCustomerInput {
   fullName?: string;
+  /**
+   * The name in two parts, as a person fills in a form.
+   *
+   * Supplying either one recomposes `fullName`, which stays the single
+   * canonical name for orders, invoices and delivery notes. See the
+   * composition below for why it goes this way round and never the other.
+   */
+  firstName?: string | null;
+  lastName?: string | null;
   organization?: string | null;
   department?: string | null;
+  jobTitle?: string | null;
   phone?: string | null;
   gstin?: string | null;
   /**
@@ -408,8 +418,39 @@ export async function updateCustomer(
     if (input.fullName !== undefined) data.fullName = input.fullName.trim();
     if (input.organization !== undefined) data.organization = input.organization;
     if (input.department !== undefined) data.department = input.department;
+    if (input.jobTitle !== undefined) data.jobTitle = input.jobTitle;
     if (input.phone !== undefined) data.phone = input.phone;
     if (input.gstin !== undefined) data.gstin = input.gstin;
+
+    /*
+     * The two parts, and the name composed from them.
+     *
+     * Composition goes one way only, and the direction matters. Given the
+     * parts, joining them is exact. Given `fullName`, splitting it is a guess
+     * that is wrong for a large fraction of real names in the markets this
+     * ships into: "Van der Berg" is one surname, "Jean Paul" is one forename,
+     * and plenty of Indonesian and Tamil accounts hold a single mononym. So
+     * the parts feed `fullName` and `fullName` never feeds the parts.
+     *
+     * `fullName` is NOT NULL and is what an invoice carries, so a customer
+     * clearing both parts must not empty it. Where the join would come out
+     * blank the existing name is kept — the parts are then simply unknown
+     * again, which is the state every account created by invitation or by
+     * import is already in.
+     *
+     * An explicit `fullName` in the same request still wins, because that is
+     * the administrator screen editing the canonical name directly.
+     */
+    if (input.firstName !== undefined) data.firstName = input.firstName?.trim() ?? null;
+    if (input.lastName !== undefined) data.lastName = input.lastName?.trim() ?? null;
+
+    if (input.fullName === undefined && (input.firstName !== undefined || input.lastName !== undefined)) {
+      const first = (input.firstName === undefined ? existing.firstName : input.firstName) ?? '';
+      const last = (input.lastName === undefined ? existing.lastName : input.lastName) ?? '';
+      const composed = `${first.trim()} ${last.trim()}`.trim();
+
+      if (composed !== '') data.fullName = composed;
+    }
 
     if (input.vatNumber !== undefined) {
       const next = input.vatNumber === null ? null : input.vatNumber.trim().toUpperCase();

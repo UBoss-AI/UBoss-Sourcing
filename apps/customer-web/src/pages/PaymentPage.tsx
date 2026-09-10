@@ -336,7 +336,7 @@ export function PaymentPage(): React.JSX.Element {
         <div className="rounded-lg border border-success/30 bg-success-soft p-8 text-center shadow-card">
           <span
             aria-hidden="true"
-            className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-success text-white"
+            className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-success-fill text-white"
           >
             <CheckIcon className="h-6 w-6" />
           </span>

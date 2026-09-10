@@ -107,7 +107,7 @@ export function ResetPasswordPage(): React.JSX.Element {
           <div className="mt-6 flex flex-wrap justify-center gap-2">
             <Link
               to="/forgot-password"
-              className="inline-flex h-10 items-center rounded-md bg-brand px-4 text-sm font-medium text-white hover:bg-brand-hover"
+              className="inline-flex h-10 items-center rounded-md bg-brand-fill px-4 text-sm font-medium text-white hover:bg-brand-fill-hover"
             >
               {t('auth.reset.requestNewLink')}
             </Link>

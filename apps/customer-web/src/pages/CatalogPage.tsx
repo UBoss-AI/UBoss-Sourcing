@@ -37,6 +37,7 @@ import { useLocale } from '@/app/locale-context';
 import { ProductCard, ProductCardSkeleton } from '@/components/ProductCard';
 import { Modal } from '@/components/Modal';
 import { Button, ErrorState, Field, Input, Select } from '@/components/ui';
+import { SearchIcon } from '@/components/icons';
 import { api } from '@/lib/api';
 import {
   currencySymbol,
@@ -246,11 +247,13 @@ function FilterFields({
 
   const minMinor = searchParams.get('minPrice');
   const maxMinor = searchParams.get('maxPrice');
+  const queryTerm = searchParams.get('q') ?? '';
 
   // Local, so typing stays responsive; committed to the URL on submit.
   const [minText, setMinText] = useState(minMinor === null ? '' : minorToMajor(minMinor));
   const [maxText, setMaxText] = useState(maxMinor === null ? '' : minorToMajor(maxMinor));
   const [priceError, setPriceError] = useState<string | null>(null);
+  const [termText, setTermText] = useState(queryTerm);
 
   // Keep the boxes in step with the URL, so Back, Clear all or a removed chip
   // resets them too.
@@ -258,6 +261,10 @@ function FilterFields({
     setMinText(minMinor === null ? '' : minorToMajor(minMinor));
     setMaxText(maxMinor === null ? '' : minorToMajor(maxMinor));
   }, [minMinor, maxMinor]);
+
+  useEffect(() => {
+    setTermText(queryTerm);
+  }, [queryTerm]);
 
   const recurringOnly = searchParams.get('recurringOnly') === 'true';
   const inStockOnly = searchParams.get('inStock') === 'true';
@@ -299,8 +306,67 @@ function FilterFields({
 
   return (
     <div className="divide-y divide-border-subtle">
+      {/*
+       * Search, at the top of the filters.
+       *
+       * The header used to carry a global search box and no longer does — the
+       * greeting page opens on a large tabbed search module instead, and a
+       * second smaller field in the chrome above it was two front doors to the
+       * same room. But this page reads `?q=` and renders results for it, so
+       * without a field here a shopper who arrived on a search had no way to
+       * change the term except by editing the URL or going back to the
+       * greeting page.
+       *
+       * It belongs with the filters rather than above the grid because that is
+       * what it is: one more thing narrowing this listing, alongside price,
+       * stock and the facets. Clear all deliberately keeps it — see clearAll,
+       * where the term is treated as the intent behind the listing rather than
+       * as one of the constraints on it.
+       */}
       <form
+        role="search"
         className="pb-4"
+        onSubmit={(event) => {
+          event.preventDefault();
+          setParam({ q: termText.trim() === '' ? null : termText.trim() });
+        }}
+      >
+        <label
+          htmlFor="catalog-search"
+          className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle"
+        >
+          {t('catalog.searchTheCatalogue')}
+        </label>
+
+        <div className="mt-2.5 flex items-stretch gap-2">
+          <div className="relative min-w-0 flex-1">
+            <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-subtle" />
+            <input
+              id="catalog-search"
+              // `text`, not `search`: `type=search` gives WebKit its own clear
+              // button, and the chip above the grid is already how a term is
+              // removed.
+              type="text"
+              value={termText}
+              onChange={(event) => {
+                setTermText(event.target.value);
+              }}
+              placeholder={t('catalog.nameOrCode')}
+              autoComplete="off"
+              enterKeyHint="search"
+              maxLength={300}
+              className="h-9 w-full rounded-md border border-border-strong bg-surface pl-8 pr-3 text-sm text-ink placeholder:text-ink-subtle"
+            />
+          </div>
+
+          <Button type="submit" variant="primary" size="sm" className="h-9 shrink-0">
+            {t('common.search')}
+          </Button>
+        </div>
+      </form>
+
+      <form
+        className="py-4"
         onSubmit={(event) => {
           event.preventDefault();
           applyPrice();
@@ -927,7 +993,7 @@ export function CatalogPage(): React.JSX.Element {
               </svg>
               Filters
               {applied.length > 0 && (
-                <span className="ml-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1.5 text-xxs font-semibold text-white">
+                <span className="ml-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-fill px-1.5 text-xxs font-semibold text-white">
                   {applied.length}
                 </span>
               )}
@@ -986,7 +1052,7 @@ export function CatalogPage(): React.JSX.Element {
         </Modal>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[16rem_1fr]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[16rem_minmax(0,1fr)]">
         {/* Desktop keeps the sidebar: on a wide screen the filters are cheap
             to show and expensive to hide, and a sticky column means they stay
             reachable however far down the grid you are.

@@ -135,7 +135,8 @@ export const ModelName = {
   ErpInventorySnapshot: 'ErpInventorySnapshot',
   IntegrationEvent: 'IntegrationEvent',
   ErpWebhookReceipt: 'ErpWebhookReceipt',
-  CustomerAutoPaySetting: 'CustomerAutoPaySetting'
+  CustomerAutoPaySetting: 'CustomerAutoPaySetting',
+  WishlistItem: 'WishlistItem'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -164,6 +165,9 @@ export const UserScalarFieldEnum = {
   status: 'status',
   emailVerifiedAt: 'emailVerifiedAt',
   phoneVerifiedAt: 'phoneVerifiedAt',
+  pendingEmail: 'pendingEmail',
+  pendingEmailNormalized: 'pendingEmailNormalized',
+  pendingPhone: 'pendingPhone',
   mustChangePassword: 'mustChangePassword',
   temporaryPasswordExpiresAt: 'temporaryPasswordExpiresAt',
   mfaSecretEnc: 'mfaSecretEnc',
@@ -605,8 +609,11 @@ export const CustomerProfileScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   fullName: 'fullName',
+  firstName: 'firstName',
+  lastName: 'lastName',
   organization: 'organization',
   department: 'department',
+  jobTitle: 'jobTitle',
   phone: 'phone',
   gstin: 'gstin',
   customerCode: 'customerCode',
@@ -1479,6 +1486,8 @@ export const AssistantConversationScalarFieldEnum = {
   visitorEmailNormalized: 'visitorEmailNormalized',
   sessionTokenHash: 'sessionTokenHash',
   customerProfileId: 'customerProfileId',
+  title: 'title',
+  hiddenAt: 'hiddenAt',
   messageCount: 'messageCount',
   lastMessageAt: 'lastMessageAt',
   ipAddress: 'ipAddress',
@@ -1842,6 +1851,17 @@ export const CustomerAutoPaySettingScalarFieldEnum = {
 export type CustomerAutoPaySettingScalarFieldEnum = (typeof CustomerAutoPaySettingScalarFieldEnum)[keyof typeof CustomerAutoPaySettingScalarFieldEnum]
 
 
+export const WishlistItemScalarFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  productId: 'productId',
+  variantKey: 'variantKey',
+  createdAt: 'createdAt'
+} as const
+
+export type WishlistItemScalarFieldEnum = (typeof WishlistItemScalarFieldEnum)[keyof typeof WishlistItemScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1879,6 +1899,9 @@ export const UserOrderByRelevanceFieldEnum = {
   emailNormalized: 'emailNormalized',
   phone: 'phone',
   passwordHash: 'passwordHash',
+  pendingEmail: 'pendingEmail',
+  pendingEmailNormalized: 'pendingEmailNormalized',
+  pendingPhone: 'pendingPhone',
   mfaSecretEnc: 'mfaSecretEnc',
   preferredLanguage: 'preferredLanguage'
 } as const
@@ -2202,8 +2225,11 @@ export const CustomerProfileOrderByRelevanceFieldEnum = {
   id: 'id',
   userId: 'userId',
   fullName: 'fullName',
+  firstName: 'firstName',
+  lastName: 'lastName',
   organization: 'organization',
   department: 'department',
+  jobTitle: 'jobTitle',
   phone: 'phone',
   gstin: 'gstin',
   customerCode: 'customerCode',
@@ -2770,6 +2796,7 @@ export const AssistantConversationOrderByRelevanceFieldEnum = {
   visitorEmailNormalized: 'visitorEmailNormalized',
   sessionTokenHash: 'sessionTokenHash',
   customerProfileId: 'customerProfileId',
+  title: 'title',
   ipAddress: 'ipAddress',
   userAgent: 'userAgent'
 } as const
@@ -3000,4 +3027,14 @@ export const CustomerAutoPaySettingOrderByRelevanceFieldEnum = {
 } as const
 
 export type CustomerAutoPaySettingOrderByRelevanceFieldEnum = (typeof CustomerAutoPaySettingOrderByRelevanceFieldEnum)[keyof typeof CustomerAutoPaySettingOrderByRelevanceFieldEnum]
+
+
+export const WishlistItemOrderByRelevanceFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  productId: 'productId',
+  variantKey: 'variantKey'
+} as const
+
+export type WishlistItemOrderByRelevanceFieldEnum = (typeof WishlistItemOrderByRelevanceFieldEnum)[keyof typeof WishlistItemOrderByRelevanceFieldEnum]
 

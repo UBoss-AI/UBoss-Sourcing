@@ -286,7 +286,7 @@ function BusinessPanel(): React.JSX.Element {
           {!canWrite && <Callout tone="neutral">{t('settings.youCanReadTheseSettings')}</Callout>}
 
           <FieldGroup legend="Identity" hint={t('settings.howTheBusinessNamesItself')}>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field
                 label={t('settings.legalName')}
                 hint={t('settings.theRegisteredEntityUsedOn')}
@@ -409,7 +409,7 @@ function BusinessPanel(): React.JSX.Element {
             hint={t('settings.whereCustomersAreToldTo')}
             className="border-t border-border-subtle pt-5"
           >
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field
                 label={t('settings.supportEmail')}
                 error={errors.supportEmail?.message}
@@ -446,7 +446,7 @@ function BusinessPanel(): React.JSX.Element {
             hint={t('settings.prefixesApplyToNumbersIssued')}
             className="border-t border-border-subtle pt-5"
           >
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label={t('settings.orderNumberPrefix')} error={errors.orderPrefix?.message}>
                 {({ inputId, describedBy }) => (
                   <Input
@@ -617,7 +617,7 @@ function TaxClassDialog({
           </Callout>
         )}
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field
             label={t('settings.code')}
             hint={t('settings.usedInImportsAndExports')}
@@ -647,7 +647,7 @@ function TaxClassDialog({
           </Field>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label={t('settings.rate')} error={errors.ratePercent?.message} required>
             {({ inputId, describedBy }) => (
               <Input

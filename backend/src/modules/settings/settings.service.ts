@@ -815,11 +815,21 @@ export async function getStorefrontConfig(): Promise<Record<string, unknown>> {
       // somebody who needs to order today should learn that before typing.
       selfRegistrationRequiresApproval: env.CUSTOMER_SELF_REGISTRATION_REQUIRES_APPROVAL,
       recurringOrders: env.FEATURE_RECURRING_ORDERS,
-      // Whether this deployment has an Anthropic key configured. The
-      // storefront mounts the chat widget only when this is true, so a
-      // deployment that has not set one shows no chat button at all rather
-      // than a button that 404s.
+      // Whether this deployment has an AI provider key configured. The
+      // storefront offers AI Mode only when this is true, so a deployment that
+      // has not set one shows no AI tab at all rather than a tab that 404s.
       assistant: isAssistantConfigured(),
+      /*
+       * Whether the camera button on the storefront search bar does anything.
+       *
+       * The same key, because image search is a vision call on the same
+       * provider — a separate flag would be two names for one fact and would
+       * eventually disagree with itself. It travels as its own field anyway,
+       * so that a deployment which later gets a dedicated similarity index can
+       * turn the camera on without an AI chat key, and so the storefront never
+       * has to infer one capability from another.
+       */
+      imageSearch: isAssistantConfigured(),
     },
 
     /**

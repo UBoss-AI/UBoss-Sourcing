@@ -285,6 +285,42 @@ export async function requireCustomer(
   request.auth = auth;
 }
 
+/**
+ * A customer session if there is one, and no objection if there is not.
+ *
+ * For the handful of routes that answer anybody but answer a signed-in
+ * customer *better* — AI Mode is the one that exists today, where a guest may
+ * ask the catalogue a question and a customer gets their history alongside it.
+ *
+ * The rule is: **no credential means guest; a credential means prove it.** A
+ * request carrying no access token at all is simply anonymous. A request that
+ * presents one is asking to be treated as that customer, so it goes through
+ * the full check — expiry, revocation, surface, CSRF, account status — and a
+ * failure is a failure rather than a quiet demotion. Swallowing those would
+ * mean a customer whose session died silently became a stranger to their own
+ * conversation, and it would let a cross-site POST that fails the CSRF check
+ * carry on as a guest instead of being refused.
+ *
+ * Handlers therefore read `request.auth` as optional. `currentUser` is the
+ * wrong accessor here — it throws — so use `request.auth` directly and branch.
+ */
+export async function optionalCustomer(
+  request: FastifyRequest,
+  _reply: FastifyReply,
+): Promise<void> {
+  if (extractAccessToken(request, 'CUSTOMER') === null) return;
+
+  const auth = await authenticate(request, 'CUSTOMER');
+
+  // Same reasoning as `requireCustomer`: a customer user with no profile
+  // cannot own anything, so no ownership check downstream could succeed.
+  if (auth.customerProfileId === null) {
+    throw forbidden(ErrorCode.ACCOUNT_NOT_ACTIVATED, 'This account is not fully set up.');
+  }
+
+  request.auth = auth;
+}
+
 /** Any authenticated principal, either surface. For profile and logout routes. */
 export function requireAuthenticated(kind: UserKind) {
   return async function guard(request: FastifyRequest, _reply: FastifyReply): Promise<void> {

@@ -325,7 +325,7 @@ export function WarehouseFormDialog({
           </Callout>
         )}
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label={t('warehouses.form.code')} hint={t('warehouses.form.codeHint')} required>
             {({ inputId, describedBy }) => (
               <Input
@@ -440,7 +440,7 @@ export function WarehouseFormDialog({
         </div>
 
         <FieldGroup legend={t('warehouses.form.addressLegend')} hint={t('warehouses.form.addressHint')}>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label={t('warehouses.form.line1')}>
               {({ inputId }) => (
                 <Input
@@ -514,7 +514,7 @@ export function WarehouseFormDialog({
           hint={t('warehouses.form.positionHint')}
         >
           <div className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label={t('warehouses.form.latitude')}>
                 {({ inputId }) => (
                   <Input

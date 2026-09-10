@@ -30,7 +30,9 @@ export type UserStatus = (typeof UserStatus)[keyof typeof UserStatus]
 export const AuthTokenType = {
   INVITATION: 'INVITATION',
   EMAIL_VERIFICATION: 'EMAIL_VERIFICATION',
-  PASSWORD_RESET: 'PASSWORD_RESET'
+  PASSWORD_RESET: 'PASSWORD_RESET',
+  EMAIL_CHANGE: 'EMAIL_CHANGE',
+  PHONE_CHANGE: 'PHONE_CHANGE'
 } as const
 
 export type AuthTokenType = (typeof AuthTokenType)[keyof typeof AuthTokenType]

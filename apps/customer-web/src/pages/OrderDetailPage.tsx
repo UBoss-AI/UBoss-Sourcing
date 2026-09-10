@@ -233,7 +233,7 @@ export function OrderDetailPage(): React.JSX.Element {
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="space-y-6">
           {/* --- Items ------------------------------------------------------ */}
           <section
@@ -365,7 +365,7 @@ export function OrderDetailPage(): React.JSX.Element {
                           'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2',
                           isLatest
                             ? 'border-brand bg-surface text-brand'
-                            : 'border-brand bg-brand text-white',
+                            : 'border-brand bg-brand-fill text-white',
                         )}
                       >
                         {isLatest ? (
@@ -404,7 +404,7 @@ export function OrderDetailPage(): React.JSX.Element {
               {t('orderDetail.delivery')}
             </h2>
 
-            <div className="mt-4 grid gap-6 sm:grid-cols-2">
+            <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2">
               <AddressBlock
                 title={t('orderDetail.deliveryAddress')}
                 address={order.shippingAddress}

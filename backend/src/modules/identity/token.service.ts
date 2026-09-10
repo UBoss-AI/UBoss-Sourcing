@@ -20,13 +20,25 @@ import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { revokeAllUserSessions } from './session.service.js';
 
-export type TokenPurpose = 'INVITATION' | 'EMAIL_VERIFICATION' | 'PASSWORD_RESET';
+export type TokenPurpose =
+  | 'INVITATION'
+  | 'EMAIL_VERIFICATION'
+  | 'PASSWORD_RESET'
+  | 'EMAIL_CHANGE'
+  | 'PHONE_CHANGE';
 
 /** Lifetimes, in hours. Invitations are generous; resets deliberately are not. */
 const TOKEN_TTL_HOURS: Readonly<Record<TokenPurpose, number>> = Object.freeze({
   INVITATION: 168, // 7 days - a business buyer may not check mail immediately.
   EMAIL_VERIFICATION: 48,
   PASSWORD_RESET: 1, // Short: a reset link in an inbox is a standing key.
+  // Changing the address the account signs in with. Two hours, which is long
+  // enough to walk to another machine and short enough that an abandoned
+  // change does not sit live in a mailbox for a week. Deliberately not the 48
+  // that first verification gets: nobody is blocked while this is pending -
+  // the account carries on working on the address it already has.
+  EMAIL_CHANGE: 2,
+  PHONE_CHANGE: 2,
 });
 
 export interface IssuedToken {
@@ -222,6 +234,27 @@ export async function consumeEmailVerificationToken(token: string): Promise<Cons
 }
 
 /**
+ * Redeem a link confirming a new email address or telephone number.
+ *
+ * Thin, like the one above, and for the same reason: all this guarantees is
+ * that the link was genuine, unexpired and spent exactly once. Whether there is
+ * still a pending value to promote, and whether the address is still free, are
+ * questions for `customers/contact-change.service.ts` — and both have to be
+ * asked again at this point, because minutes have passed since they were last
+ * true.
+ *
+ * The purpose is passed in rather than inferred, so a link minted to prove
+ * somebody owns a new telephone number cannot be replayed to promote a pending
+ * email address. `consumeToken` refuses a mismatched purpose outright.
+ */
+export async function consumeContactChangeToken(
+  token: string,
+  purpose: 'EMAIL_CHANGE' | 'PHONE_CHANGE',
+): Promise<ConsumedToken> {
+  return consumeToken(token, purpose);
+}
+
+/**
  * Begin a password reset.
  *
  * Returns the token only when the account exists and can actually be reset.
@@ -309,14 +342,30 @@ export function buildTokenUrl(purpose: TokenPurpose, token: string, audience: Us
   const base =
     audience === 'ADMIN' ? env.ADMIN_WEB_PUBLIC_URL : env.CUSTOMER_WEB_PUBLIC_URL;
 
+  /*
+   * Where the link lands.
+   *
+   * The two contact-change purposes share one page, and it needs to know which
+   * of the two it is confirming — the pending address and the pending number
+   * are promoted by different endpoints, and a page that guessed would ask the
+   * server to promote something that is not pending. So the purpose travels in
+   * the URL beside the token. It is neither secret nor trusted: the token's own
+   * stored purpose is what the server checks.
+   */
   const path =
     purpose === 'INVITATION'
       ? '/activate'
       : purpose === 'PASSWORD_RESET'
         ? '/reset-password'
-        : '/verify-email';
+        : purpose === 'EMAIL_CHANGE' || purpose === 'PHONE_CHANGE'
+          ? '/confirm-contact'
+          : '/verify-email';
 
-  return `${base.replace(/\/$/, '')}${path}?token=${encodeURIComponent(token)}`;
+  const query = new URLSearchParams({ token });
+  if (purpose === 'EMAIL_CHANGE') query.set('kind', 'email');
+  if (purpose === 'PHONE_CHANGE') query.set('kind', 'phone');
+
+  return `${base.replace(/\/$/, '')}${path}?${query.toString()}`;
 }
 
 export type UserKindHint = 'ADMIN' | 'CUSTOMER';

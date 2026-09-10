@@ -30,10 +30,20 @@
 import type { FastifyInstance } from 'fastify';
 import type { Prisma } from '../../generated/prisma/client.js';
 import { z } from 'zod';
-import { notFound } from '../../domain/errors.js';
+import { AppError, ErrorCode, badRequest, notFound } from '../../domain/errors.js';
 import { serialiseMoney } from '../../domain/money.js';
 import { prisma } from '../../infra/prisma.js';
 import { NO_VARIANT_KEY } from '../../infra/ids.js';
+import { assertWithinSizeLimit, sniffImageType } from '../../infra/storage/index.js';
+import { requireCustomer } from '../plugins/auth.js';
+import {
+  AssistantBusyError,
+  isAssistantConfigured,
+} from '../../modules/assistant/assistant.service.js';
+import {
+  ImageSearchUnreadableError,
+  analyseProductImage,
+} from '../../modules/assistant/image-search.service.js';
 import type { PUBLIC_PRODUCT_SELECT } from '../../modules/catalog/catalog.visibility.js';
 import {
   publicProductSelect,
@@ -802,6 +812,198 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
       soldInCurrencies: soldIn,
     });
   });
+
+  // --- Image search --------------------------------------------------------
+
+  /**
+   * Find products from a photograph.
+   *
+   * The one authenticated route in this file, and the exception is deliberate.
+   * Everything else here is a database read that costs the deployment a few
+   * milliseconds; this one spends the operator's AI provider budget on every
+   * call. Leaving it open would mean any script on the internet could bill a
+   * self-hosted deployment for as many vision calls as it cared to make, which
+   * is the same reasoning that put `/assistant/*` behind the session guard —
+   * see the header of `assistant.public.ts`. Guests still browse, search and
+   * filter the whole catalogue; what they cannot do is spend somebody's money.
+   *
+   * Rate limited well below the chat endpoint on top of that: a vision call is
+   * the most expensive single request this API makes, and nobody legitimately
+   * photographs ten products a minute.
+   *
+   * The upload is handled exactly as the admin media upload is. The client's
+   * `Content-Type` and filename are both ignored: the real type comes from the
+   * magic bytes, so neither a spoofed MIME type nor a `.jpg` that is really an
+   * SVG has anywhere to go.
+   *
+   * The bytes are never stored. They go to the provider and are dropped when
+   * the request ends — a photograph taken inside a hospital store room is not
+   * something this system should be holding on to, and there is nothing to be
+   * gained by keeping it.
+   */
+  app.post(
+    '/image-search',
+    {
+      preHandler: requireCustomer,
+      config: { rateLimit: { max: 12, timeWindow: '5 minutes' } },
+    },
+    async (request, reply) => {
+      // 404 rather than 403 on a deployment with no AI key, matching the
+      // assistant routes: the endpoint does not meaningfully exist, and that
+      // is how the storefront learns not to render the camera button.
+      if (!isAssistantConfigured()) throw notFound('Image search');
+
+      const query = detailQuerySchema.parse(request.query);
+      const currency = await currencyForRequest(query.currency);
+      const language = languageForRequest(query.language);
+      const shelf = await loadShelfContext(query.country);
+
+      const upload = await request.file();
+      if (upload === undefined) {
+        throw badRequest(ErrorCode.VALIDATION_FAILED, 'No image was uploaded.', [
+          { field: 'image', code: 'REQUIRED' },
+        ]);
+      }
+
+      const buffer = await upload.toBuffer();
+      assertWithinSizeLimit(buffer.byteLength);
+      const sniffed = sniffImageType(buffer);
+
+      /*
+       * The customer is watching a spinner over their own photograph. If they
+       * navigate away, stop paying for the answer.
+       *
+       * `reply.raw`, not `request.raw`, and the difference is not cosmetic —
+       * it is a bug that aborts every single request. An `IncomingMessage`
+       * emits `close` when the request stream is finished, and `toBuffer()`
+       * above finishes it: listening there cancels the provider call the
+       * instant the upload has been read, every time, and the only symptom is
+       * a 500 with `This operation was aborted` in the log.
+       *
+       * The `ServerResponse` emits `close` when the socket goes, which is the
+       * event actually being asked about. It also emits it after a normal
+       * reply, hence the `writableEnded` guard — by then the await has
+       * resolved and aborting would be a no-op, but a signal that fires on
+       * success is a trap for the next person reading this.
+       */
+      const abort = new AbortController();
+      reply.raw.on('close', () => {
+        if (!reply.raw.writableEnded) abort.abort();
+      });
+
+      let analysis;
+      try {
+        analysis = await analyseProductImage(
+          { data: buffer, mimeType: sniffed.mimeType },
+          { signal: abort.signal },
+        );
+      } catch (error) {
+        if (error instanceof AssistantBusyError) {
+          // The provider's own wording names quota metrics and internal
+          // detail, so it is logged in full and never sent: "out of quota" and
+          // "briefly overloaded" need different actions from the operator.
+          request.log.error({ err: error }, 'image search provider unavailable');
+          throw new AppError({
+            statusCode: 503,
+            code: ErrorCode.IMAGE_SEARCH_BUSY,
+            message: 'Image search is busy right now. Please try again in a moment.',
+          });
+        }
+
+        if (error instanceof ImageSearchUnreadableError) {
+          request.log.warn('image search reply could not be parsed');
+          throw new AppError({
+            statusCode: 502,
+            code: ErrorCode.IMAGE_SEARCH_UNREADABLE,
+            message:
+              'Image search could not read that photograph. Try a clearer one, or search by name.',
+          });
+        }
+
+        throw error;
+      }
+
+      // Counts and identifiers only. Not the image, not the description, and
+      // nothing about who uploaded it — the same rule the chat route follows.
+      request.log.info(
+        {
+          model: analysis.model,
+          inputTokens: analysis.inputTokens,
+          outputTokens: analysis.outputTokens,
+          matches: analysis.slugs.length,
+          imageBytes: buffer.byteLength,
+        },
+        'image search',
+      );
+
+      if (analysis.slugs.length === 0) {
+        return reply.status(200).send({
+          description: analysis.description,
+          terms: analysis.terms,
+          products: [],
+          currency,
+          country: shelf.country,
+        });
+      }
+
+      // Priced through exactly the same path as the grid, so a card that came
+      // from a photograph and the same card in the catalogue cannot quote two
+      // different numbers.
+      const products = await prisma.product.findMany({
+        where: { ...publicProductWhere(), slug: { in: analysis.slugs } },
+        select: publicProductSelect(language),
+      });
+
+      const prices = await loadPricesForCurrency(
+        products.flatMap((product) => [
+          { productId: product.id, variantId: null },
+          ...product.variants.map((variant) => ({
+            productId: product.id,
+            variantId: variant.id,
+          })),
+        ]),
+        currency,
+      );
+
+      /*
+       * Back into the model's order, best match first.
+       *
+       * `findMany` returns whatever the index gives it, and re-sorting by the
+       * model's ranking is the whole value of having asked for a ranking. A
+       * product with no price row in this currency is not sold in it and is
+       * dropped, the same as it would be from the grid — showing a card with
+       * no price is worse than showing one card fewer.
+       */
+      const bySlug = new Map(products.map((product) => [product.slug, product]));
+
+      const ordered = analysis.slugs
+        .map((slug) => bySlug.get(slug))
+        .filter((product): product is (typeof products)[number] => product !== undefined)
+        .map((product) => ({
+          product,
+          price: prices.get(priceKey(product.id, null)) ?? null,
+        }))
+        .filter((entry) => entry.price !== null);
+
+      return reply.status(200).send({
+        /**
+         * What the picture was understood to be.
+         *
+         * Shown to the customer beside the results, and not decoration: this
+         * match is on what the model recognises the item as, so a misreading
+         * has to be visible as a misreading rather than looking like a
+         * catalogue full of the wrong stock.
+         */
+        description: analysis.description,
+        terms: analysis.terms,
+        products: ordered.map((entry) =>
+          serialiseProduct(entry.product, currency, entry.price, prices, shelf),
+        ),
+        currency,
+        country: shelf.country,
+      });
+    },
+  );
 
   return Promise.resolve();
 }

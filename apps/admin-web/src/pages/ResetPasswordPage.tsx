@@ -82,7 +82,7 @@ function Shell({ children }: { children: React.ReactNode }): React.JSX.Element {
         <div className="mb-6 flex flex-col items-center">
           <span
             aria-hidden="true"
-            className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-accent text-sm font-bold text-white"
+            className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-brand-fill text-sm font-bold text-white"
           >
             U
           </span>
@@ -112,7 +112,7 @@ function Failure({ code, message }: { code: string; message: string }): React.JS
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <Link
             to="/forgot-password"
-            className="inline-flex h-10 items-center rounded-md bg-accent px-4 text-sm font-medium text-white hover:bg-accent-hover"
+            className="inline-flex h-10 items-center rounded-md bg-brand-fill px-4 text-sm font-medium text-white hover:bg-brand-fill-hover"
           >
             {t('auth.reset.emailNewLink')}
           </Link>
@@ -168,7 +168,7 @@ export function ResetPasswordPage(): React.JSX.Element {
           <div className="mt-6 flex justify-center">
             <Link
               to="/login"
-              className="inline-flex h-10 items-center rounded-md bg-accent px-5 text-sm font-medium text-white"
+              className="inline-flex h-10 items-center rounded-md bg-brand-fill px-5 text-sm font-medium text-white"
             >
               {t('auth.reset.goToSignIn')}
             </Link>

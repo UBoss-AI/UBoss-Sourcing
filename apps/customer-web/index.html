@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#1e3a8a" />
+    <!-- The colour of the mobile browser's own toolbar. White, to match the
+         sticky header directly under it; ThemeProvider rewrites this to the
+         dark surface when the dark palette is in force. -->
+    <meta name="theme-color" content="#ffffff" />
     <!-- Per-route title and description are set at runtime; this is the
          fallback a crawler sees before the app boots. -->
     <title>UBOSS Sourcing</title>
@@ -17,6 +20,33 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <!--
+      The theme, before the first paint.
+
+      This has to be inline, blocking, and in the head. React mounts after the
+      document has been painted once, so a visitor who has chosen dark would
+      otherwise get a white flash on every single page load - the one bug that
+      makes a dark theme feel bolted on. Six lines of blocking script in the
+      head is the whole fix, and it is the reason src/app/ThemeProvider.tsx
+      does not try to do this job itself.
+
+      It writes nothing when the choice is "system" (or when there is no
+      choice, or storage is unreadable): the absence of `data-theme` is what
+      hands the decision to the `prefers-color-scheme` block in index.css, and
+      writing the resolved value there would freeze a visitor into whichever
+      theme their machine happened to be in at that moment.
+
+      `uboss.theme` and these three values are shared with
+      src/app/ThemeProvider.tsx. Change both or neither.
+    -->
+    <script>
+      try {
+        var t = localStorage.getItem('uboss.theme');
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        /* Storage refused. The operating system's setting still applies. */
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

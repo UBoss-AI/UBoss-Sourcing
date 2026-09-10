@@ -333,7 +333,7 @@ export function NotificationBell(): React.JSX.Element {
             aria-hidden="true"
             className={cx(
               'absolute -right-0.5 -top-0.5 flex h-[1.05rem] min-w-[1.05rem] items-center',
-              'justify-center rounded-full bg-danger px-1 text-xxs font-semibold leading-none',
+              'justify-center rounded-full bg-danger-fill px-1 text-xxs font-semibold leading-none',
               'text-white ring-2 ring-surface',
             )}
           >

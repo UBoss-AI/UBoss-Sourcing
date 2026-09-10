@@ -36,6 +36,28 @@ export const NotificationEvent = {
   /// A new staff account and the temporary password that opens it once.
   STAFF_TEMPORARY_PASSWORD: 'staff.temporary_password',
   USER_PASSWORD_RESET: 'user.password_reset',
+  /// Confirm an address somebody has asked to move their account TO. Sent to
+  /// the new address and nowhere else, because owning that mailbox is the only
+  /// thing this link proves.
+  USER_EMAIL_CHANGE_CONFIRM: 'user.email_change_confirm',
+  /// Tell the address the account currently uses that a move was requested.
+  ///
+  /// Sent to the OLD address, carries no link, and is the whole reason a
+  /// contact change is worth two emails: if somebody else has got into the
+  /// account, this is the message that reaches the real holder while their
+  /// address still works. It says how to stop it.
+  USER_EMAIL_CHANGE_REQUESTED: 'user.email_change_requested',
+  /// Confirm a new telephone number.
+  ///
+  /// Goes to the account's email address, not to the number. This deployment
+  /// has no SMS driver — see the note on `users.pendingPhone`. So the link
+  /// proves control of the account, which is what stops somebody else changing
+  /// the number; it does not prove control of the number itself.
+  USER_PHONE_CHANGE_CONFIRM: 'user.phone_change_confirm',
+  /// The account was closed by its own holder. Sent as it happens, because a
+  /// deactivation somebody did not ask for is something they need to hear
+  /// about while they can still get it reversed.
+  USER_ACCOUNT_DEACTIVATED: 'user.account_deactivated',
   ORDER_SUBMITTED: 'order.submitted',
   ORDER_CONFIRMED: 'order.confirmed',
   ORDER_CANCELLED: 'order.cancelled',
@@ -224,6 +246,51 @@ const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string
         'A password reset was requested for your account.\n\n' +
         'Reset it here (the link expires on {{expiresAt}}):\n{{resetUrl}}\n\n' +
         'If you did not request this, you can ignore this email; your password is unchanged.\n',
+    },
+    [NotificationEvent.USER_EMAIL_CHANGE_CONFIRM]: {
+      subject: 'Confirm your new email address for {{businessName}}',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'You asked to move your {{businessName}} account to this address.\n\n' +
+        'Confirm it here (the link expires on {{expiresAt}}):\n{{confirmUrl}}\n\n' +
+        'Nothing has changed yet. Until you confirm, the account carries on using\n' +
+        '{{currentEmail}} and every order confirmation still goes there.\n\n' +
+        'If you did not ask for this, ignore this email and no change will be made.\n',
+    },
+    [NotificationEvent.USER_EMAIL_CHANGE_REQUESTED]: {
+      subject: 'Someone asked to change the email address on your {{businessName}} account',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'A request was made to move your {{businessName}} account to {{pendingEmail}}.\n\n' +
+        'Nothing has changed yet. A confirmation link was sent to that address, and the\n' +
+        'account keeps using this one until the link is followed.\n\n' +
+        'If that was you, there is nothing to do here.\n\n' +
+        'If it was not you, change your password now and the pending request stops\n' +
+        'being usable: {{passwordUrl}}\n\n' +
+        'Either way, please tell {{supportEmail}} if you were not expecting this.\n',
+    },
+    [NotificationEvent.USER_PHONE_CHANGE_CONFIRM]: {
+      subject: 'Confirm the new telephone number on your {{businessName}} account',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'You asked to change the telephone number on your {{businessName}} account to\n' +
+        '{{pendingPhone}}.\n\n' +
+        'Confirm it here (the link expires on {{expiresAt}}):\n{{confirmUrl}}\n\n' +
+        'This link is sent to your email address rather than to the number itself, so\n' +
+        'confirming it proves the change came from you.\n\n' +
+        'If you did not ask for this, ignore this email and the number is unchanged.\n',
+    },
+    [NotificationEvent.USER_ACCOUNT_DEACTIVATED]: {
+      subject: 'Your {{businessName}} account has been closed',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Your {{businessName}} account was closed at your request and can no longer be\n' +
+        'signed in to.\n\n' +
+        'What was done with it: {{summary}}\n\n' +
+        'Your order history and invoices are kept, because tax law requires them to be.\n' +
+        'Nothing else has been deleted — if you want the account reopened, or you want\n' +
+        'your data erased, write to {{supportEmail}}.\n\n' +
+        'If you did not ask for this, contact {{supportEmail}} immediately.\n',
     },
     [NotificationEvent.ORDER_SUBMITTED]: {
       subject: 'Order {{orderNumber}} received',

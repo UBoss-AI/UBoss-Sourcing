@@ -546,7 +546,7 @@ export function ErpSettingsPage(): React.JSX.Element {
             )}
 
             {values.authMethod === 'API_KEY' && (
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field label={t('erp.form.headerName')} hint={t('erp.form.headerNameHint')}>
                   {({ inputId, describedBy }) => (
                     <Input
@@ -606,7 +606,7 @@ export function ErpSettingsPage(): React.JSX.Element {
             )}
 
             {values.authMethod === 'BASIC' && (
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field
                   label={t('erp.form.username')}
                   required={!isEditingExisting}
@@ -669,7 +669,7 @@ export function ErpSettingsPage(): React.JSX.Element {
                   )}
                 </Field>
 
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <Field
                     label={t('erp.form.clientId')}
                     required={!isEditingExisting}
@@ -733,7 +733,7 @@ export function ErpSettingsPage(): React.JSX.Element {
             bodyClassName={BODY}
           >
             {ENDPOINT_KEYS.map((key) => (
-              <div key={key} className="grid gap-3 sm:grid-cols-[1fr_8rem]">
+              <div key={key} className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_8rem]">
                 <Field label={t(`erp.endpoint.${key}`)} error={fieldErrors[`endpoints.${key}`]}>
                   {({ inputId, describedBy }) => (
                     <Input
@@ -806,7 +806,7 @@ export function ErpSettingsPage(): React.JSX.Element {
 
             {/* Generated from what the server says it can read, so a field
                 added to MAPPING_FIELDS appears here without a redeploy. */}
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {mappingFields.map((field) => (
                 <Field
                   key={field.key}
@@ -870,7 +870,7 @@ export function ErpSettingsPage(): React.JSX.Element {
             </label>
 
             {values.webhookEnabled && (
-              <div className="grid gap-4 border-l-2 border-border-subtle pl-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 border-l-2 border-border-subtle pl-4 sm:grid-cols-2">
                 <Field label={t('erp.form.signingSecret')} hint={t('erp.form.signingSecretHint')}>
                   {({ inputId, describedBy }) => (
                     <Input
@@ -1156,7 +1156,7 @@ export function ErpSettingsPage(): React.JSX.Element {
 
             <p className="text-xs leading-relaxed text-ink-muted">{t('erp.testChangesNothing')}</p>
 
-            <dl className="grid gap-3 text-sm sm:grid-cols-3">
+            <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-3">
               <div>
                 <dt className="text-xs text-ink-muted">{t('erp.lastSuccessfulSync')}</dt>
                 <dd className="text-ink">{formatDateTime(selected.lastSyncSuccessAt)}</dd>

@@ -481,7 +481,8 @@ export const ModelName = {
   ErpInventorySnapshot: 'ErpInventorySnapshot',
   IntegrationEvent: 'IntegrationEvent',
   ErpWebhookReceipt: 'ErpWebhookReceipt',
-  CustomerAutoPaySetting: 'CustomerAutoPaySetting'
+  CustomerAutoPaySetting: 'CustomerAutoPaySetting',
+  WishlistItem: 'WishlistItem'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -497,7 +498,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productMedia" | "productAttribute" | "inventoryLocation" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productMedia" | "productAttribute" | "inventoryLocation" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -6111,6 +6112,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    WishlistItem: {
+      payload: Prisma.$WishlistItemPayload<ExtArgs>
+      fields: Prisma.WishlistItemFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.WishlistItemFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WishlistItemPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.WishlistItemFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WishlistItemPayload>
+        }
+        findFirst: {
+          args: Prisma.WishlistItemFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WishlistItemPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.WishlistItemFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WishlistItemPayload>
+        }
+        findMany: {
+          args: Prisma.WishlistItemFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WishlistItemPayload>[]
+        }
+        create: {
+          args: Prisma.WishlistItemCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WishlistItemPayload>
+        }
+        createMany: {
+          args: Prisma.WishlistItemCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.WishlistItemDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WishlistItemPayload>
+        }
+        update: {
+          args: Prisma.WishlistItemUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WishlistItemPayload>
+        }
+        deleteMany: {
+          args: Prisma.WishlistItemDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.WishlistItemUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.WishlistItemUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WishlistItemPayload>
+        }
+        aggregate: {
+          args: Prisma.WishlistItemAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateWishlistItem>
+        }
+        groupBy: {
+          args: Prisma.WishlistItemGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WishlistItemGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.WishlistItemCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WishlistItemCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -6160,6 +6227,9 @@ export const UserScalarFieldEnum = {
   status: 'status',
   emailVerifiedAt: 'emailVerifiedAt',
   phoneVerifiedAt: 'phoneVerifiedAt',
+  pendingEmail: 'pendingEmail',
+  pendingEmailNormalized: 'pendingEmailNormalized',
+  pendingPhone: 'pendingPhone',
   mustChangePassword: 'mustChangePassword',
   temporaryPasswordExpiresAt: 'temporaryPasswordExpiresAt',
   mfaSecretEnc: 'mfaSecretEnc',
@@ -6601,8 +6671,11 @@ export const CustomerProfileScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   fullName: 'fullName',
+  firstName: 'firstName',
+  lastName: 'lastName',
   organization: 'organization',
   department: 'department',
+  jobTitle: 'jobTitle',
   phone: 'phone',
   gstin: 'gstin',
   customerCode: 'customerCode',
@@ -7475,6 +7548,8 @@ export const AssistantConversationScalarFieldEnum = {
   visitorEmailNormalized: 'visitorEmailNormalized',
   sessionTokenHash: 'sessionTokenHash',
   customerProfileId: 'customerProfileId',
+  title: 'title',
+  hiddenAt: 'hiddenAt',
   messageCount: 'messageCount',
   lastMessageAt: 'lastMessageAt',
   ipAddress: 'ipAddress',
@@ -7838,6 +7913,17 @@ export const CustomerAutoPaySettingScalarFieldEnum = {
 export type CustomerAutoPaySettingScalarFieldEnum = (typeof CustomerAutoPaySettingScalarFieldEnum)[keyof typeof CustomerAutoPaySettingScalarFieldEnum]
 
 
+export const WishlistItemScalarFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  productId: 'productId',
+  variantKey: 'variantKey',
+  createdAt: 'createdAt'
+} as const
+
+export type WishlistItemScalarFieldEnum = (typeof WishlistItemScalarFieldEnum)[keyof typeof WishlistItemScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -7875,6 +7961,9 @@ export const UserOrderByRelevanceFieldEnum = {
   emailNormalized: 'emailNormalized',
   phone: 'phone',
   passwordHash: 'passwordHash',
+  pendingEmail: 'pendingEmail',
+  pendingEmailNormalized: 'pendingEmailNormalized',
+  pendingPhone: 'pendingPhone',
   mfaSecretEnc: 'mfaSecretEnc',
   preferredLanguage: 'preferredLanguage'
 } as const
@@ -8198,8 +8287,11 @@ export const CustomerProfileOrderByRelevanceFieldEnum = {
   id: 'id',
   userId: 'userId',
   fullName: 'fullName',
+  firstName: 'firstName',
+  lastName: 'lastName',
   organization: 'organization',
   department: 'department',
+  jobTitle: 'jobTitle',
   phone: 'phone',
   gstin: 'gstin',
   customerCode: 'customerCode',
@@ -8766,6 +8858,7 @@ export const AssistantConversationOrderByRelevanceFieldEnum = {
   visitorEmailNormalized: 'visitorEmailNormalized',
   sessionTokenHash: 'sessionTokenHash',
   customerProfileId: 'customerProfileId',
+  title: 'title',
   ipAddress: 'ipAddress',
   userAgent: 'userAgent'
 } as const
@@ -8996,6 +9089,16 @@ export const CustomerAutoPaySettingOrderByRelevanceFieldEnum = {
 } as const
 
 export type CustomerAutoPaySettingOrderByRelevanceFieldEnum = (typeof CustomerAutoPaySettingOrderByRelevanceFieldEnum)[keyof typeof CustomerAutoPaySettingOrderByRelevanceFieldEnum]
+
+
+export const WishlistItemOrderByRelevanceFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  productId: 'productId',
+  variantKey: 'variantKey'
+} as const
+
+export type WishlistItemOrderByRelevanceFieldEnum = (typeof WishlistItemOrderByRelevanceFieldEnum)[keyof typeof WishlistItemOrderByRelevanceFieldEnum]
 
 
 
@@ -9708,6 +9811,7 @@ export type GlobalOmitConfig = {
   integrationEvent?: Prisma.IntegrationEventOmit
   erpWebhookReceipt?: Prisma.ErpWebhookReceiptOmit
   customerAutoPaySetting?: Prisma.CustomerAutoPaySettingOmit
+  wishlistItem?: Prisma.WishlistItemOmit
 }
 
 /* Types for Logging */

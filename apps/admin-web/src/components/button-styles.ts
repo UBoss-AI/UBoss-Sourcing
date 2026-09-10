@@ -47,19 +47,21 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
  * which is the worst possible moment for it to become hard to read.
  */
 export const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
-  // The fill is `action-strong` (#C2410C) rather than `action` (#EA580C):
-  // white on #EA580C is 3.56:1 and fails AA for a label, white on #C2410C is
-  // 5.14:1 and passes. See the token comment in index.css.
+  // The plate is `action-fill` (#C2410C) rather than `action` (#EA580C): white
+  // on #EA580C is 3.56:1 and fails AA for a label, white on #C2410C is 5.14:1
+  // and passes. It is the -fill step rather than `action-strong` because in
+  // dark mode `action-strong` lightens for text and would take the label with
+  // it. See the token comment in index.css.
   action:
-    'bg-action-strong text-white shadow-card hover:bg-action-strong-hover ' +
+    'bg-action-fill text-white shadow-card hover:bg-action-fill-hover ' +
     'focus-visible:ring-action-strong disabled:bg-ink-subtle disabled:shadow-none',
   primary:
-    'bg-accent text-white shadow-card hover:bg-accent-hover ' +
-    'focus-visible:ring-accent disabled:bg-ink-subtle disabled:shadow-none',
+    'bg-brand-fill text-white shadow-card hover:bg-brand-fill-hover ' +
+    'focus-visible:ring-brand disabled:bg-ink-subtle disabled:shadow-none',
   // Recurring schedules. Teal, so acting on a standing arrangement is
   // visibly not the same as acting on a one-off order.
   operational:
-    'bg-operational text-white shadow-card hover:bg-operational-hover ' +
+    'bg-operational-fill text-white shadow-card hover:bg-operational-fill-hover ' +
     'focus-visible:ring-operational disabled:bg-ink-subtle disabled:shadow-none',
   secondary:
     'bg-surface text-ink border border-border-strong shadow-card ' +
@@ -69,7 +71,7 @@ export const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
     'text-ink-muted hover:bg-surface-hover hover:text-ink ' +
     'disabled:bg-transparent disabled:text-ink-subtle',
   danger:
-    'bg-danger text-white shadow-card hover:bg-danger-hover ' +
+    'bg-danger-fill text-white shadow-card hover:bg-danger-fill-hover ' +
     'focus-visible:ring-danger disabled:bg-ink-subtle disabled:shadow-none',
   /*
    * The on-dark pair, and nothing calls them today.

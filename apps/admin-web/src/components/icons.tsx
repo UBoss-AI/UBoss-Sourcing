@@ -359,3 +359,41 @@ export function BellIcon(props: IconProps): React.JSX.Element {
     </Icon>
   );
 }
+
+// ---------------------------------------------------------------------------
+// Appearance
+// ---------------------------------------------------------------------------
+
+/** Light theme. A sun, with eight rays rather than a filled disc. */
+export function SunIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="4.2" />
+      <path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2" />
+      <path d="m5.4 5.4 1.6 1.6M17 17l1.6 1.6M18.6 5.4 17 7M7 17l-1.6 1.6" />
+    </Icon>
+  );
+}
+
+/** Dark theme. A crescent, drawn as one path so it keeps its weight at 20px. */
+export function MoonIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M20 14.4A8.4 8.4 0 0 1 9.6 4a8.6 8.6 0 1 0 10.4 10.4Z" />
+    </Icon>
+  );
+}
+
+/**
+ * Follow the operating system. A display, because that is where the setting
+ * being deferred to lives — a half sun / half moon glyph reads as a third
+ * theme rather than as "whatever the machine says".
+ */
+export function DisplayIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <rect x="2.8" y="4.2" width="18.4" height="12.4" rx="1.8" />
+      <path d="M9 20.2h6M12 16.6v3.6" />
+    </Icon>
+  );
+}

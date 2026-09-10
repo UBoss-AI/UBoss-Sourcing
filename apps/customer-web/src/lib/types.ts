@@ -59,8 +59,21 @@ export interface StorefrontConfig {
      */
     selfRegistrationRequiresApproval?: boolean;
     recurringOrders: boolean;
-    /** Whether this deployment has the chat assistant configured. */
+    /** Whether this deployment has an AI provider configured, and so AI Mode. */
     assistant: boolean;
+    /**
+     * Whether the camera button on the search bar can do anything.
+     *
+     * Today it tracks `assistant` exactly — image search is a vision call on
+     * the same provider — but it travels as its own field so the storefront
+     * never infers one capability from another, and so a deployment that later
+     * gets a dedicated similarity index can turn the camera on without an AI
+     * chat key.
+     *
+     * Optional because a config response cached from before this field existed
+     * would otherwise be read as `false`, which is the safe answer either way.
+     */
+    imageSearch?: boolean;
   };
 
   /**
@@ -468,16 +481,105 @@ export interface Address {
 export interface CustomerProfile {
   id: string;
   email: string;
+  /** When the address was confirmed. Null on an account that never has been. */
+  emailVerifiedAt: string | null;
+  /**
+   * The canonical name, used on every order, invoice and delivery note.
+   *
+   * Composed server-side from `firstName`/`lastName` whenever those are sent —
+   * see `updateCustomer`. Never split client-side to fill the two fields
+   * below: "Van der Berg" is one surname and "Jean Paul" is one forename, and
+   * a guessed split is one the customer cannot tell was guessed.
+   */
   fullName: string | null;
+  firstName: string | null;
+  lastName: string | null;
   organization: string | null;
   department: string | null;
+  jobTitle: string | null;
+  /** The delivery contact number on the profile. A courier rings this one. */
   phone: string | null;
+  /**
+   * The number on the identity, and whether it has been confirmed.
+   *
+   * A different column from `phone` above, because they answer different
+   * questions: this one identifies the account and only moves through the
+   * verified change flow.
+   */
+  accountPhone: string | null;
+  accountPhoneVerifiedAt: string | null;
+  /** Waiting on a confirmation link. Null when there is no change in flight. */
+  pendingEmail: string | null;
+  pendingPhone: string | null;
+  /** All three mean "never chosen" when null, not a default. */
+  preferredCountry: string | null;
+  preferredCurrency: string | null;
+  preferredLanguage: string | null;
   gstin: string | null;
+  vatNumber: string | null;
+  /** Null means "never checked", which is not the same as invalid. */
+  vatNumberValid: boolean | null;
+  vatNumberCheckedAt: string | null;
   consentAcceptedAt: string | null;
+  consentVersion: string | null;
   activatedAt: string | null;
   lastLoginAt: string | null;
   orderCount: number;
   scheduleCount: number;
+  wishlistCount: number;
+}
+
+/** What closing an account would do, before it is done. */
+export interface ClosureImpact {
+  activeScheduleCount: number;
+  hasAutoPay: boolean;
+  /** Orders still owing money. They survive closure and are still owed. */
+  unpaidOrderCount: number;
+}
+
+export interface WishlistItem {
+  id: string;
+  productId: string;
+  productName: string;
+  productSlug: string;
+  sku: string;
+  variant: { id: string; name: string; sku: string } | null;
+  imageUrl: string | null;
+  /** Null where the product is not priced in the requested currency. */
+  priceMinor: string | null;
+  currency: string;
+  /** Whether it could be added to a basket right now. */
+  isAvailable: boolean;
+  savedAt: string;
+}
+
+export interface AccountCouponOffer {
+  code: string;
+  name: string;
+  description: string | null;
+  discountPercent: string;
+  /** Minor units, as a string. Null when this currency has no threshold row. */
+  minOrderMinor: string | null;
+  validUntil: string | null;
+}
+
+export interface AccountCouponUse {
+  code: string;
+  name: string;
+  orderNumber: string;
+  discountMinor: string;
+  currency: string;
+  usedAt: string;
+}
+
+export interface AccountNotification {
+  id: string;
+  /** The event that produced it, e.g. `order.confirmed`. */
+  eventKey: string;
+  subject: string;
+  sentAt: string | null;
+  relatedType: string | null;
+  relatedId: string | null;
 }
 
 export interface AccountResponse {

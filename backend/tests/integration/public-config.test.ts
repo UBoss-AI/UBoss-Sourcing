@@ -71,8 +71,13 @@ describe('GET /api/v1/config', () => {
     expect(Object.keys(body.features).sort()).toEqual([
       // Whether this deployment has an AI key configured. A boolean, never the
       // key or the model name: the storefront only needs to know whether to
-      // mount the chat widget.
+      // offer AI Mode.
       'assistant',
+      // Whether the camera button on the search bar can do anything. Tracks
+      // `assistant` today — image search is a vision call on the same provider
+      // — but travels as its own field so the storefront never infers one
+      // capability from another.
+      'imageSearch',
       'recurringOrders',
       'selfRegistration',
       // Whether a confirmed sign-up still waits for a member of staff. The

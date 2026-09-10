@@ -28,7 +28,13 @@
 import { ApiError, GoogleGenAI } from '@google/genai';
 import { env } from '../../config/env.js';
 import { AssistantBusyError } from './provider.js';
-import type { AssistantProvider, AssistantRequest, AssistantResult } from './provider.js';
+import type {
+  AssistantProvider,
+  AssistantRequest,
+  AssistantResult,
+  AssistantVisionRequest,
+  AssistantVisionResult,
+} from './provider.js';
 
 /** Built once per process: the client is a thin HTTP wrapper and is reusable. */
 let client: GoogleGenAI | null = null;
@@ -169,5 +175,59 @@ export const geminiProvider: AssistantProvider = {
         finishReason === 'BLOCKLIST',
       model: env.GEMINI_MODEL,
     };
+  },
+
+  /**
+   * One image, one answer, no stream.
+   *
+   * `generateContent` rather than the streaming call: the reply is JSON read in
+   * one piece by a parser, and there is no panel filling in as it arrives.
+   *
+   * The image goes in as `inlineData`, which is the right call at this size —
+   * the Files API exists for uploads measured in megabytes that get reused, and
+   * this one is a single photograph capped at `UPLOAD_MAX_BYTES` and used once.
+   * `thinkingBudget` stays at 0 for the same reason it is 0 on the chat path:
+   * the answer is a lookup against a list that has been handed over, not a
+   * problem to reason about.
+   */
+  async describeImage(request: AssistantVisionRequest): Promise<AssistantVisionResult> {
+    try {
+      const response = await genai().models.generateContent({
+        model: env.GEMINI_MODEL,
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              {
+                inlineData: {
+                  mimeType: request.image.mimeType,
+                  data: request.image.data.toString('base64'),
+                },
+              },
+              { text: request.prompt },
+            ],
+          },
+        ],
+        config: {
+          systemInstruction: {
+            parts: [{ text: request.catalogue }, { text: request.systemPrompt }],
+          },
+          maxOutputTokens: request.maxTokens,
+          thinkingConfig: { thinkingBudget: 0 },
+          ...(request.signal === undefined ? {} : { abortSignal: request.signal }),
+        },
+      });
+
+      return {
+        text: response.text ?? '',
+        model: env.GEMINI_MODEL,
+        inputTokens: response.usageMetadata?.promptTokenCount ?? 0,
+        outputTokens: response.usageMetadata?.candidatesTokenCount ?? 0,
+      };
+    } catch (error) {
+      const busy = classify(error);
+      if (busy !== null) throw busy;
+      throw error;
+    }
   },
 };

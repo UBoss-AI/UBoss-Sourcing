@@ -1,14 +1,20 @@
 /**
  * The language picker.
  *
- * Three placements, one control underneath:
+ * Two placements, one control underneath:
  *
  *   - `auth` sits above the sign-in and activation forms. This is the one that
  *     matters most: somebody who cannot read the interface cannot navigate to
  *     a setting buried inside it, so the escape hatch has to be on the first
  *     screen they land on, before they have an account to store it against.
- *   - `header` rides the header next to the currency switcher.
  *   - `inline` is the plain form for a settings panel.
+ *
+ * There used to be a third, `header`, which rode the header beside a currency
+ * switcher. Both of those are gone: the language, the country and the currency
+ * are one control there now — see `components/market/MarketMenu.tsx` — because
+ * three native selects in a row came to 481px of chrome in a 345px viewport.
+ * A `fill` prop went with it, whose whole job was making one of the three give
+ * way to the other two.
  *
  * Every option is listed in its own language and never translated into the
  * current one. Somebody stuck in a language they cannot read is scanning for
@@ -26,7 +32,7 @@ import { isLanguageCode } from './config';
 import { useI18n } from './i18n-context';
 import { LANGUAGES } from './languages';
 
-type Placement = 'auth' | 'header' | 'inline';
+type Placement = 'auth' | 'inline';
 
 interface LanguageSwitcherProps {
   placement?: Placement;
@@ -56,12 +62,9 @@ export function LanguageSwitcher({
         // sits at the same weight as every other select in the app instead of
         // being whatever shape the operating system felt like drawing.
         'select-chevron rounded-md border bg-surface text-ink',
-        placement === 'header'
-          ? // Shorter and quieter than the settings form below, because up
-            // here it is one of three market controls in a row rather than a
-            // labelled field. Same skin as the currency switcher beside it.
-            'h-10 border-border-strong pl-2.5 pr-7 text-xs font-medium'
-          : 'h-10 w-full border-border-strong px-3 pr-9 text-sm',
+        // One skin for both remaining placements: a labelled field. The
+        // shorter, quieter variant existed only for the header row.
+        'h-10 w-full border-border-strong px-3 pr-9 text-sm',
       )}
     >
       {LANGUAGES.map((entry) => (
@@ -71,15 +74,6 @@ export function LanguageSwitcher({
       ))}
     </select>
   );
-
-  if (placement === 'header') {
-    return (
-      <label className={cx('flex items-center', className)}>
-        <span className="sr-only">{t('language.label')}</span>
-        {select}
-      </label>
-    );
-  }
 
   if (placement === 'auth') {
     return (

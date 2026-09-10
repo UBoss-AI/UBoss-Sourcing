@@ -404,7 +404,7 @@ export function ManufacturersPage(): React.JSX.Element {
               </Callout>
             )}
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label={t('operators.role')} required>
                 {({ inputId }) => (
                   <Select
@@ -480,7 +480,7 @@ export function ManufacturersPage(): React.JSX.Element {
               </Field>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label={t('operators.line1')} required>
                 {({ inputId }) => (
                   <Input
@@ -530,7 +530,7 @@ export function ManufacturersPage(): React.JSX.Element {
               </Field>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label={t('operators.email')} hint={t('operators.emailHint')} required>
                 {({ inputId, describedBy }) => (
                   <Input

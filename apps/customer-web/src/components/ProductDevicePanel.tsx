@@ -74,7 +74,7 @@ export function ProductDevicePanel({
           </div>
         )}
 
-        <dl className="grid gap-x-6 gap-y-3 px-4 py-3 text-sm sm:grid-cols-2">
+        <dl className="grid grid-cols-1 gap-x-6 gap-y-3 px-4 py-3 text-sm sm:grid-cols-2">
           <div>
             <dt className="text-xs font-medium uppercase tracking-wide text-ink-subtle">
               {t('device.class')}

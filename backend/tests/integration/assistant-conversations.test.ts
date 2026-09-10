@@ -29,15 +29,17 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import type { LightMyRequestResponse } from 'fastify';
 import { signInAdmin } from '../support/admin-session.js';
+import { env } from '../../src/config/env.js';
 import { ROLE_DEFINITIONS, Permission, Role } from '../../src/domain/permissions.js';
 import { buildApp } from '../../src/http/app.js';
-import { hashPassword } from '../../src/infra/crypto.js';
+import { hashPassword, sha256Hex } from '../../src/infra/crypto.js';
 import { newId } from '../../src/infra/ids.js';
 import { prisma } from '../../src/infra/prisma.js';
 import {
   appendMessage,
   authoriseConversation,
 } from '../../src/modules/assistant/conversation.service.js';
+import type { ConversationOwner } from '../../src/modules/assistant/conversation.service.js';
 
 const PASSWORD = 'OwnerTestPass!2026';
 
@@ -160,7 +162,42 @@ async function createCustomer(
   };
 }
 
-/** Start a conversation the way the widget does: signed in, and with no body. */
+/**
+ * Open a conversation as a guest, returning its id and its token.
+ *
+ * No cookie, no CSRF header, nothing: this is a browser that has never signed
+ * in, which is the whole point of the routes being open.
+ */
+async function startAsGuest(): Promise<{ conversationId: string; conversationToken: string }> {
+  const response = await app.inject({ method: 'POST', url: '/api/v1/assistant/start' });
+  expect(response.statusCode, response.body).toBe(201);
+
+  return JSON.parse(response.body) as { conversationId: string; conversationToken: string };
+}
+
+/** Just the id, for the cases that do not care about the token. */
+async function guestConversation(): Promise<string> {
+  return (await startAsGuest()).conversationId;
+}
+
+/**
+ * Flip `ASSISTANT_ALLOW_GUESTS` for one test.
+ *
+ * `beforeEach` puts it back, so a test that closes the door cannot leave it
+ * closed for the next one.
+ */
+function withGuests(allowed: boolean): void {
+  Object.assign(env as unknown as { ASSISTANT_ALLOW_GUESTS: boolean }, {
+    ASSISTANT_ALLOW_GUESTS: allowed,
+  });
+}
+
+/** A session, as the conversation service understands ownership. */
+function asCustomer(session: CustomerSession): ConversationOwner {
+  return { kind: 'customer', customerProfileId: session.profileId ?? '' };
+}
+
+/** Start a conversation the way AI Mode does: signed in, and with no body. */
 async function start(
   session: CustomerSession,
   payload: Record<string, unknown> = {},
@@ -229,6 +266,9 @@ beforeEach(async () => {
   await app.ready();
   await reset();
   await seedRoles();
+  // Whatever the deployment's own .env says, these tests describe a store
+  // that lets guests in — except the one that deliberately closes the door.
+  withGuests(true);
 });
 
 afterAll(async () => {
@@ -238,7 +278,44 @@ afterAll(async () => {
 // ---------------------------------------------------------------------------
 
 describe('who may use the assistant', () => {
-  it('refuses a guest outright, on both routes', async () => {
+  it('lets a guest start, and hands them the only proof it will ever give', async () => {
+    const started = await app.inject({ method: 'POST', url: '/api/v1/assistant/start' });
+
+    expect(started.statusCode, started.body).toBe(201);
+
+    const body = JSON.parse(started.body) as Record<string, unknown>;
+    expect(body.conversationId).toHaveLength(26);
+    // A conversation token, because a guest has no account to be recognised
+    // by. It is returned exactly once and only its hash is kept.
+    expect(body.conversationToken).toMatch(/^[A-Za-z0-9_-]{32,86}$/);
+
+    const row = await prisma.assistantConversation.findUniqueOrThrow({
+      where: { id: String(body.conversationId) },
+    });
+    expect(row.customerProfileId).toBeNull();
+    expect(row.sessionTokenHash).not.toBeNull();
+    // The secret itself is never stored, so a database read cannot resume the
+    // conversation and neither can a leaked backup.
+    expect(row.sessionTokenHash).not.toBe(body.conversationToken);
+  });
+
+  it('still asks a guest for nothing about themselves', async () => {
+    const conversationId = await guestConversation();
+
+    const row = await prisma.assistantConversation.findUniqueOrThrow({
+      where: { id: conversationId },
+    });
+
+    // The capture form is gone for guests too. Anonymous is the honest word,
+    // and it is cheaper than an unchecked claim.
+    expect(row.visitorName).toBeNull();
+    expect(row.visitorPhone).toBeNull();
+    expect(row.visitorEmail).toBeNull();
+  });
+
+  it('refuses a guest when the operator has switched guests off', async () => {
+    withGuests(false);
+
     const started = await app.inject({ method: 'POST', url: '/api/v1/assistant/start' });
     expect(started.statusCode).toBe(401);
 
@@ -247,11 +324,20 @@ describe('who may use the assistant', () => {
       url: '/api/v1/assistant/chat',
       payload: { conversationId: newId(), message: 'Do you stock 22G safety cannulae?' },
     });
-
-    // 401 and not 400: the body is never even looked at. A guest must not be
-    // able to learn what shape a valid request has, let alone reach the
-    // provider by guessing it.
     expect(message.statusCode).toBe(401);
+  });
+
+  it('never lets a guest reach the history routes, whatever the flag says', async () => {
+    // A history belongs to an account. There is no token that stands in for
+    // one, so these stay 401 even while guests may chat.
+    for (const [method, url] of [
+      ['GET', '/api/v1/assistant/conversations'],
+      ['GET', `/api/v1/assistant/conversations/${newId()}`],
+      ['DELETE', `/api/v1/assistant/conversations/${newId()}`],
+    ] as const) {
+      const response = await app.inject({ method, url });
+      expect(response.statusCode, `${method} ${url}`).toBe(401);
+    }
   });
 
   it('lets a signed-in customer start, and asks them for nothing', async () => {
@@ -319,9 +405,23 @@ describe('who may use the assistant', () => {
       payload: {},
     });
 
-    // 401, not 403: the admin cookies are named apart from the customer ones,
-    // so nothing this browser holds is even offered to the customer surface.
-    expect(response.statusCode).toBe(401);
+    /*
+     * 201, but as a *guest* — and that is the property under test.
+     *
+     * The admin cookies are named apart from the customer ones, so nothing
+     * this browser holds is even offered to the customer surface. Since guests
+     * may chat, a member of staff on the storefront is simply an anonymous
+     * visitor; what they must never be is a customer. The row proves it: no
+     * owner, and a guest token instead.
+     */
+    expect(response.statusCode, response.body).toBe(201);
+
+    const body = JSON.parse(response.body) as { conversationId: string };
+    const row = await prisma.assistantConversation.findUniqueOrThrow({
+      where: { id: body.conversationId },
+    });
+    expect(row.customerProfileId).toBeNull();
+    expect(row.sessionTokenHash).not.toBeNull();
   });
 
   /*
@@ -390,7 +490,7 @@ describe('whose conversation it is', () => {
     const buyer = await createCustomer('buyer@hospital.test');
     const id = await startedId(buyer);
 
-    const conversation = await authoriseConversation(id, buyer.profileId ?? '');
+    const conversation = await authoriseConversation(id, asCustomer(buyer));
 
     expect(conversation?.id).toBe(id);
     expect(conversation?.messageCount).toBe(0);
@@ -401,8 +501,8 @@ describe('whose conversation it is', () => {
     const other = await createCustomer('other@clinic.test');
     const id = await startedId(buyer);
 
-    expect(await authoriseConversation(id, other.profileId ?? '')).toBeNull();
-    expect(await authoriseConversation(newId(), buyer.profileId ?? '')).toBeNull();
+    expect(await authoriseConversation(id, asCustomer(other))).toBeNull();
+    expect(await authoriseConversation(newId(), asCustomer(buyer))).toBeNull();
   });
 
   /*
@@ -681,5 +781,388 @@ describe('what staff can read', () => {
     expect(await matches('9820011223')).toEqual(['Rohit Desai']);
 
     expect(await matches('nobody-by-this-name')).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// AI Mode: the customer's own conversation history
+//
+// The corner chat widget kept one conversation id in `sessionStorage` and
+// forgot it when the tab closed. AI Mode is a page with a history that belongs
+// to the account, which adds four routes and exactly one thing worth holding
+// down: none of them may be widened by anything a browser sends. Every read and
+// write below is scoped to the caller's own `customerProfileId`, taken from the
+// session guard, and somebody else's conversation is indistinguishable from one
+// that does not exist.
+// ---------------------------------------------------------------------------
+
+/** GET the caller's own history. */
+async function listMine(session: CustomerSession): Promise<LightMyRequestResponse> {
+  return app.inject({
+    method: 'GET',
+    url: '/api/v1/assistant/conversations',
+    headers: { cookie: session.cookies },
+  });
+}
+
+function summariesOf(
+  response: LightMyRequestResponse,
+): { id: string; title: string | null; preview: string | null }[] {
+  return (
+    JSON.parse(response.body) as {
+      conversations: { id: string; title: string | null; preview: string | null }[];
+    }
+  ).conversations;
+}
+
+/** A conversation with a question in it, so it is not filtered out as empty. */
+async function conversationWithQuestion(
+  session: CustomerSession,
+  question: string,
+): Promise<string> {
+  const id = await startedId(session);
+  await appendMessage(id, 'VISITOR', question);
+  return id;
+}
+
+describe("a customer's own conversation history", () => {
+  it('refuses a guest on all four routes', async () => {
+    const id = newId();
+
+    for (const [method, url] of [
+      ['GET', '/api/v1/assistant/conversations'],
+      ['GET', `/api/v1/assistant/conversations/${id}`],
+      ['PATCH', `/api/v1/assistant/conversations/${id}`],
+      ['DELETE', `/api/v1/assistant/conversations/${id}`],
+    ] as const) {
+      const response = await app.inject({ method, url, payload: { title: 'x' } });
+      expect(response.statusCode, `${method} ${url}`).toBe(401);
+    }
+  });
+
+  it('lists the caller their own threads and nobody else the same', async () => {
+    const buyer = await createCustomer('buyer@hospital.test');
+    const other = await createCustomer('other@clinic.test');
+
+    const mine = await conversationWithQuestion(buyer, 'Do you stock 22G safety cannulae?');
+    await conversationWithQuestion(other, 'What is your lead time on suction units?');
+
+    const listed = summariesOf(await listMine(buyer));
+
+    expect(listed).toHaveLength(1);
+    expect(listed[0]?.id).toBe(mine);
+    // The opening question stands in for a name until somebody renames it.
+    expect(listed[0]?.title).toBeNull();
+    expect(listed[0]?.preview).toBe('Do you stock 22G safety cannulae?');
+  });
+
+  it('leaves out a conversation the customer never asked anything in', async () => {
+    const buyer = await createCustomer('buyer@hospital.test');
+
+    // A page somebody opened and closed again. It is not a conversation, and a
+    // sidebar that grows a blank row on every visit is a bug people report.
+    await startedId(buyer);
+
+    expect(summariesOf(await listMine(buyer))).toEqual([]);
+  });
+
+  it('reads one transcript back in order, with the database roles translated', async () => {
+    const buyer = await createCustomer('buyer@hospital.test');
+    const id = await conversationWithQuestion(buyer, 'Which feeding tubes do you list?');
+    await appendMessage(id, 'ASSISTANT', 'Three, in 8 Fr, 10 Fr and 12 Fr.');
+
+    const response = await app.inject({
+      method: 'GET',
+      url: `/api/v1/assistant/conversations/${id}`,
+      headers: { cookie: buyer.cookies },
+    });
+
+    expect(response.statusCode, response.body).toBe(200);
+
+    const { conversation } = JSON.parse(response.body) as {
+      conversation: { messages: { role: string; content: string }[] };
+    };
+
+    // `user` / `assistant`, not the column's `VISITOR` / `ASSISTANT`: the page
+    // renders a chat transcript and should not have to know that the column was
+    // named in the era of the guest widget.
+    expect(conversation.messages.map((message) => message.role)).toEqual(['user', 'assistant']);
+    expect(conversation.messages[0]?.content).toBe('Which feeding tubes do you list?');
+  });
+
+  it("answers 404 for another customer's conversation, never 403", async () => {
+    const buyer = await createCustomer('buyer@hospital.test');
+    const other = await createCustomer('other@clinic.test');
+
+    const theirs = await conversationWithQuestion(other, 'Do you deliver to Pune?');
+
+    for (const [method, payload] of [
+      ['GET', undefined],
+      ['PATCH', { title: 'Mine now' }],
+      ['DELETE', undefined],
+    ] as const) {
+      const response = await app.inject({
+        method,
+        url: `/api/v1/assistant/conversations/${theirs}`,
+        headers: { cookie: buyer.cookies, 'x-csrf-token': buyer.csrfToken },
+        ...(payload === undefined ? {} : { payload }),
+      });
+
+      // 404 and not 403. An owner mismatch that answered differently from a
+      // missing row would turn an id into a way of asking whether somebody
+      // else's conversation exists.
+      expect(response.statusCode, `${method} ${response.body}`).toBe(404);
+    }
+
+    // And nothing was written by the attempts above.
+    const row = await prisma.assistantConversation.findUniqueOrThrow({ where: { id: theirs } });
+    expect(row.title).toBeNull();
+    expect(row.hiddenAt).toBeNull();
+  });
+
+  it('renames a thread, and an empty title restores the question fallback', async () => {
+    const buyer = await createCustomer('buyer@hospital.test');
+    const id = await conversationWithQuestion(buyer, 'Do you stock 22G safety cannulae?');
+
+    const renamed = await app.inject({
+      method: 'PATCH',
+      url: `/api/v1/assistant/conversations/${id}`,
+      headers: { cookie: buyer.cookies, 'x-csrf-token': buyer.csrfToken },
+      payload: { title: 'Cannula sizes' },
+    });
+
+    expect(renamed.statusCode, renamed.body).toBe(204);
+    expect(summariesOf(await listMine(buyer))[0]?.title).toBe('Cannula sizes');
+
+    const cleared = await app.inject({
+      method: 'PATCH',
+      url: `/api/v1/assistant/conversations/${id}`,
+      headers: { cookie: buyer.cookies, 'x-csrf-token': buyer.csrfToken },
+      payload: { title: '' },
+    });
+
+    expect(cleared.statusCode, cleared.body).toBe(204);
+
+    // Null, not the empty string: clearing the box means "use my question
+    // again", and a row titled '' would render as a blank line in the sidebar.
+    const listed = summariesOf(await listMine(buyer))[0];
+    expect(listed?.title).toBeNull();
+    expect(listed?.preview).toBe('Do you stock 22G safety cannulae?');
+  });
+
+  it('deletes from the customer side without destroying the record staff read', async () => {
+    const buyer = await createCustomer('buyer@hospital.test');
+    const id = await conversationWithQuestion(buyer, 'Which nebuliser masks fit a 22 mm port?');
+
+    const deleted = await app.inject({
+      method: 'DELETE',
+      url: `/api/v1/assistant/conversations/${id}`,
+      headers: { cookie: buyer.cookies, 'x-csrf-token': buyer.csrfToken },
+    });
+
+    expect(deleted.statusCode, deleted.body).toBe(204);
+
+    // Gone from every customer-facing read...
+    expect(summariesOf(await listMine(buyer))).toEqual([]);
+
+    const reread = await app.inject({
+      method: 'GET',
+      url: `/api/v1/assistant/conversations/${id}`,
+      headers: { cookie: buyer.cookies },
+    });
+    expect(reread.statusCode).toBe(404);
+
+    // ...and it cannot be carried on, which is the half that matters most: a
+    // deleted thread must not keep accepting turns.
+    expect(await authoriseConversation(id, asCustomer(buyer))).toBeNull();
+
+    // But the transcript itself survives. What this deployment's AI told a
+    // buyer about a medical device is a record it has to be able to produce; a
+    // sidebar tidy-up is not a decision to destroy it, and erasure under
+    // Art. 17 is a different act with its own route.
+    const row = await prisma.assistantConversation.findUniqueOrThrow({ where: { id } });
+    expect(row.hiddenAt).not.toBeNull();
+    expect(await prisma.assistantMessage.count({ where: { conversationId: id } })).toBe(1);
+  });
+
+  it('refuses a body carrying anything the rename did not ask for', async () => {
+    const buyer = await createCustomer('buyer@hospital.test');
+    const id = await conversationWithQuestion(buyer, 'Do you deliver on Saturdays?');
+
+    const response = await app.inject({
+      method: 'PATCH',
+      url: `/api/v1/assistant/conversations/${id}`,
+      headers: { cookie: buyer.cookies, 'x-csrf-token': buyer.csrfToken },
+      payload: { title: 'Fine', customerProfileId: newId() },
+    });
+
+    // Strict schemas everywhere on this surface: an unexpected field is a 400
+    // that leaves a trace, not a silent strip that returns 200.
+    expect(response.statusCode).toBe(400);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The guest boundary
+//
+// Guests may chat, so the question that matters is what a guest token buys and
+// what it does not. One thing: the single conversation it was minted for. It is
+// not a key to anybody else's, it is not a substitute for an account, and the
+// customer path and the guest path cannot be crossed in either direction.
+// ---------------------------------------------------------------------------
+
+describe('what a guest token is, and is not', () => {
+  it('opens the conversation it was minted for', async () => {
+    const { conversationId, conversationToken } = await startAsGuest();
+
+    const conversation = await authoriseConversation(conversationId, {
+      kind: 'guest',
+      sessionTokenHash: sha256Hex(conversationToken),
+    });
+
+    expect(conversation?.id).toBe(conversationId);
+  });
+
+  it('opens nothing else, and no other token opens it', async () => {
+    const mine = await startAsGuest();
+    const theirs = await startAsGuest();
+
+    // Somebody else's conversation, with my token.
+    expect(
+      await authoriseConversation(theirs.conversationId, {
+        kind: 'guest',
+        sessionTokenHash: sha256Hex(mine.conversationToken),
+      }),
+    ).toBeNull();
+
+    // My conversation, with a token that was never issued.
+    expect(
+      await authoriseConversation(mine.conversationId, {
+        kind: 'guest',
+        sessionTokenHash: sha256Hex('f'.repeat(64)),
+      }),
+    ).toBeNull();
+  });
+
+  it("is not a key to a customer's conversation", async () => {
+    const buyer = await createCustomer('buyer@hospital.test');
+    const owned = await startedId(buyer);
+    const guest = await startAsGuest();
+
+    // A row with an account behind it is unreachable by the guest branch even
+    // when the hash somehow matched, because that branch demands a row with no
+    // owner at all.
+    expect(
+      await authoriseConversation(owned, {
+        kind: 'guest',
+        sessionTokenHash: sha256Hex(guest.conversationToken),
+      }),
+    ).toBeNull();
+  });
+
+  it("is not something a customer can use to pick up a guest's thread", async () => {
+    const buyer = await createCustomer('buyer@hospital.test');
+    const guest = await startAsGuest();
+
+    // The other direction: a signed-in customer naming a guest conversation by
+    // its id. It has no owner, so it is not theirs.
+    expect(await authoriseConversation(guest.conversationId, asCustomer(buyer))).toBeNull();
+  });
+
+  it('answers 404 over HTTP when a guest names a conversation that is not theirs', async () => {
+    const mine = await startAsGuest();
+    const theirs = await startAsGuest();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/assistant/chat',
+      payload: {
+        conversationId: theirs.conversationId,
+        message: 'Do you stock 22G safety cannulae?',
+        conversationToken: mine.conversationToken,
+      },
+    });
+
+    // 404, never 403: whether that conversation exists is not something an
+    // anonymous caller gets to learn.
+    expect(response.statusCode, response.body).toBe(404);
+  });
+
+  it('answers 404 when a guest sends no token at all', async () => {
+    const { conversationId } = await startAsGuest();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/assistant/chat',
+      payload: { conversationId, message: 'Do you stock 22G safety cannulae?' },
+    });
+
+    expect(response.statusCode, response.body).toBe(404);
+  });
+
+  it('rejects a token that is not the shape a token has', async () => {
+    const { conversationId } = await startAsGuest();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/assistant/chat',
+      payload: {
+        conversationId,
+        message: 'Do you stock 22G safety cannulae?',
+        conversationToken: 'far too short',
+      },
+    });
+
+    // 400 at the schema, before a SHA-256 and a database read are spent on a
+    // value that cannot possibly match.
+    expect(response.statusCode).toBe(400);
+  });
+
+  it('leaves a guest conversation out of every account history', async () => {
+    const buyer = await createCustomer('buyer@hospital.test');
+    const guest = await startAsGuest();
+    await appendMessage(guest.conversationId, 'VISITOR', 'Do you deliver to Pune?');
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/api/v1/assistant/conversations',
+      headers: { cookie: buyer.cookies },
+    });
+
+    expect(response.statusCode, response.body).toBe(200);
+    // A guest's thread belongs to nobody, so it appears in nobody's sidebar —
+    // not even that of a customer who happens to be on the same machine.
+    expect((JSON.parse(response.body) as { conversations: unknown[] }).conversations).toEqual([]);
+  });
+
+  it('still records a guest transcript for staff', async () => {
+    const guest = await startAsGuest();
+    await appendMessage(guest.conversationId, 'VISITOR', 'Which feeding tubes do you list?');
+
+    await createAdmin('owner@test.local', Role.BUSINESS_OWNER);
+    const cookie = await signInStaff('owner@test.local');
+
+    const listed = await app.inject({
+      method: 'GET',
+      url: '/api/v1/admin/assistant/conversations',
+      headers: { cookie },
+    });
+    expect(listed.statusCode, listed.body).toBe(200);
+
+    const rows = (
+      JSON.parse(listed.body) as {
+        conversations: { firstQuestion: string | null; isVerifiedContact: boolean; name: string | null }[];
+      }
+    ).conversations;
+
+    // The point of keeping the transcript server-side does not depend on who
+    // asked: staff read what this deployment's AI said, whoever it said it to.
+    expect(rows.map((row) => row.firstQuestion)).toContain(
+      'Which feeding tubes do you list?',
+    );
+    // And it is marked as what it is — nobody verified anything about them.
+    expect(rows.find((row) => row.firstQuestion === 'Which feeding tubes do you list?')).toMatchObject(
+      { isVerifiedContact: false, name: null },
+    );
   });
 });

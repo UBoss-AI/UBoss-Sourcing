@@ -500,7 +500,7 @@ export function CouponsPage(): React.JSX.Element {
 
           <FieldGroup legend="Identity">
             <div className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field
                   label={t('coupons.code')}
                   required
@@ -562,7 +562,7 @@ export function CouponsPage(): React.JSX.Element {
             className="border-t border-border-subtle pt-5"
           >
             <div className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <Field label={t('coupons.discount')} required>
                   {({ inputId }) => (
                     <Input
@@ -649,7 +649,7 @@ export function CouponsPage(): React.JSX.Element {
             hint={t('coupons.setPerCurrencyBecauseA')}
             className="border-t border-border-subtle pt-5"
           >
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {currencies.map((currency) => (
                 <label key={currency.code} className="flex items-center gap-2">
                   <span className="w-24 shrink-0 text-xs font-medium text-ink-muted">
@@ -681,7 +681,7 @@ export function CouponsPage(): React.JSX.Element {
             className="border-t border-border-subtle pt-5"
           >
             <div className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field label={t('coupons.starts')} hint={t('coupons.blankMeansImmediately')}>
                   {({ inputId, describedBy }) => (
                     <Input

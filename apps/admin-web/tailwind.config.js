@@ -24,6 +24,11 @@ export default {
         'surface-hover': 'rgb(var(--surface-hover) / <alpha-value>)',
         'surface-inverse': 'rgb(var(--surface-inverse) / <alpha-value>)',
         'surface-inverse-hover': 'rgb(var(--surface-inverse-hover) / <alpha-value>)',
+        // The plate a product photograph sits on. White in BOTH themes — see
+        // the token comment in index.css for the one reason that is right.
+        'surface-media': 'rgb(var(--surface-media) / <alpha-value>)',
+        // The blurred wash behind the greeting graphic. Never behind text.
+        bloom: 'rgb(var(--bloom) / <alpha-value>)',
 
         // --- Borders ----------------------------------------------------
         border: 'rgb(var(--border) / <alpha-value>)',
@@ -52,6 +57,8 @@ export default {
         'accent-soft': 'rgb(var(--brand-soft) / <alpha-value>)',
         brand: 'rgb(var(--brand) / <alpha-value>)',
         'brand-hover': 'rgb(var(--brand-hover) / <alpha-value>)',
+        'brand-fill': 'rgb(var(--brand-fill) / <alpha-value>)',
+        'brand-fill-hover': 'rgb(var(--brand-fill-hover) / <alpha-value>)',
         'brand-soft': 'rgb(var(--brand-soft) / <alpha-value>)',
         'brand-soft-hover': 'rgb(var(--brand-soft-hover) / <alpha-value>)',
 
@@ -61,6 +68,8 @@ export default {
         action: 'rgb(var(--action) / <alpha-value>)',
         'action-strong': 'rgb(var(--action-strong) / <alpha-value>)',
         'action-strong-hover': 'rgb(var(--action-strong-hover) / <alpha-value>)',
+        'action-fill': 'rgb(var(--action-fill) / <alpha-value>)',
+        'action-fill-hover': 'rgb(var(--action-fill-hover) / <alpha-value>)',
         'action-soft': 'rgb(var(--action-soft) / <alpha-value>)',
         'action-soft-hover': 'rgb(var(--action-soft-hover) / <alpha-value>)',
 
@@ -68,17 +77,25 @@ export default {
         // Recurring schedules and positive process cues.
         operational: 'rgb(var(--operational) / <alpha-value>)',
         'operational-hover': 'rgb(var(--operational-hover) / <alpha-value>)',
+        'operational-fill': 'rgb(var(--operational-fill) / <alpha-value>)',
+        'operational-fill-hover': 'rgb(var(--operational-fill-hover) / <alpha-value>)',
         'operational-soft': 'rgb(var(--operational-soft) / <alpha-value>)',
 
         // --- Status -----------------------------------------------------
         danger: 'rgb(var(--danger) / <alpha-value>)',
         'danger-hover': 'rgb(var(--danger-hover) / <alpha-value>)',
+        'danger-fill': 'rgb(var(--danger-fill) / <alpha-value>)',
+        'danger-fill-hover': 'rgb(var(--danger-fill-hover) / <alpha-value>)',
         'danger-soft': 'rgb(var(--danger-soft) / <alpha-value>)',
         success: 'rgb(var(--success) / <alpha-value>)',
         'success-hover': 'rgb(var(--success-hover) / <alpha-value>)',
+        'success-fill': 'rgb(var(--success-fill) / <alpha-value>)',
+        'success-fill-hover': 'rgb(var(--success-fill-hover) / <alpha-value>)',
         'success-soft': 'rgb(var(--success-soft) / <alpha-value>)',
         warning: 'rgb(var(--warning) / <alpha-value>)',
         'warning-hover': 'rgb(var(--warning-hover) / <alpha-value>)',
+        'warning-fill': 'rgb(var(--warning-fill) / <alpha-value>)',
+        'warning-fill-hover': 'rgb(var(--warning-fill-hover) / <alpha-value>)',
         'warning-soft': 'rgb(var(--warning-soft) / <alpha-value>)',
 
         // --- Focus ------------------------------------------------------

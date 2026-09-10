@@ -122,7 +122,7 @@ export function LoginPage(): React.JSX.Element {
         <div className="mb-6 flex flex-col items-center">
           <span
             aria-hidden="true"
-            className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-accent text-sm font-bold text-white"
+            className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-brand-fill text-sm font-bold text-white"
           >
             U
           </span>

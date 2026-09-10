@@ -1,18 +1,24 @@
 /**
  * Home — the greeting page.
  *
- * Two jobs, in this order: say what this deployment does and get somebody into
- * the catalogue, and — for a customer who is already signed in — say what is
- * arranged and what is not finished. Everything below the greeting comes from
- * the API: the categories with products in them, and the newest published
- * lines. Nothing is hard-coded, so the storefront reflects whatever the admin
- * has published without a redeploy.
+ * One job: say what this deployment does, and get somebody to say what they
+ * are looking for. Everything on it comes from the API — the categories with
+ * products in them, and, once asked for, the catalogue itself. Nothing is
+ * hard-coded, so the storefront reflects whatever the admin has published
+ * without a redeploy.
  *
- * Guests see all of the catalogue half of it. A storefront that asks a
- * stranger to sign in before showing a price has already lost them; the
- * sign-in wall belongs at the cart, which is exactly where the backend puts
- * it. What a guest does *not* see is any action that would only bounce them
- * off a session guard — no AI composer, no account panel.
+ * The page is the same for a guest and for a signed-in customer, apart from
+ * the line above the headline. It used to carry an account panel underneath —
+ * five quick actions, a next-delivery strip and an auto-pay promotion — and
+ * that is gone: every one of those destinations is now in the account menu in
+ * the header, which is where somebody looking for their own account goes, and
+ * a landing page that spends its second screen on links for the minority who
+ * are signed in is a landing page not doing its one job. Nothing was lost with
+ * it; see `components/account/AccountMenu.tsx`.
+ *
+ * A storefront that asks a stranger to sign in before showing a price has
+ * already lost them; the sign-in wall belongs at the cart, which is exactly
+ * where the backend puts it.
  *
  * Three constraints shape the design, and the first two come from UBOSS being
  * self-hosted — every buyer runs their own deployment:
@@ -38,14 +44,12 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from '@/auth/session-context';
 import { useStorefront } from '@/app/storefront-context';
-import { GreetingPanel } from '@/components/greeting/GreetingPanel';
+import { HeroSearch } from '@/components/hero-search/HeroSearch';
+import { InlineProducts } from '@/components/home/InlineProducts';
 import { SourcingHub } from '@/components/greeting/SourcingHub';
-import { useGreetingStatus } from '@/components/greeting/greeting-status';
-import { ProductCard, ProductCardSkeleton } from '@/components/ProductCard';
-import { ButtonLink, ErrorState } from '@/components/ui';
+import { useAccountIdentity } from '@/pages/account/useAccountIdentity';
 import {
   BoxIcon,
-  BriefcaseIcon,
   ChevronRightIcon,
   ClockIcon,
   CurrencyIcon,
@@ -55,12 +59,11 @@ import {
   HexIcon,
   LayersIcon,
   RepeatIcon,
-  TruckIcon,
 } from '@/components/icons';
 import { api } from '@/lib/api';
 import { useLocale } from '@/app/locale-context';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
-import type { CategoryNode, ProductListResponse } from '@/lib/types';
+import type { CategoryNode } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
 
 // ---------------------------------------------------------------------------
@@ -82,8 +85,8 @@ import { useI18n } from '@/i18n/i18n-context';
 function GreetingBackdrop(): React.JSX.Element {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-sky-50 via-white to-white" />
-      <div className="absolute -right-24 -top-40 h-[34rem] w-[34rem] rounded-full bg-sky-200/40 blur-3xl" />
+      <div className="absolute inset-0 bg-gradient-to-b from-bloom/30 via-surface to-surface" />
+      <div className="absolute -right-24 -top-40 h-[34rem] w-[34rem] rounded-full bg-bloom/40 blur-3xl" />
       <div className="absolute -bottom-40 -left-24 h-96 w-96 rounded-full bg-brand/[0.07] blur-3xl" />
       <div
         className="absolute inset-0"
@@ -92,8 +95,8 @@ function GreetingBackdrop(): React.JSX.Element {
         // considerably easier to read than the bracket syntax for it.
         style={{
           backgroundImage:
-            'linear-gradient(to right, rgba(29,78,216,0.045) 1px, transparent 1px),' +
-            'linear-gradient(to bottom, rgba(29,78,216,0.045) 1px, transparent 1px)',
+            'linear-gradient(to right, rgb(var(--brand) / 0.045) 1px, transparent 1px),' +
+            'linear-gradient(to bottom, rgb(var(--brand) / 0.045) 1px, transparent 1px)',
           backgroundSize: '44px 44px',
           // The grid belongs behind the headline and the hub, not behind the
           // trust strip at the bottom, where it would fight with the text.
@@ -102,63 +105,6 @@ function GreetingBackdrop(): React.JSX.Element {
         }}
       />
     </div>
-  );
-}
-
-/**
- * The operational trust strip.
- *
- * Sits inside the greeting rather than under it, so the headline, the buttons
- * and the reasons to believe them are one block instead of three stacked
- * bands.
- *
- * The third entry's supporting line is the only thing here that varies: when
- * an operator has recurring orders switched off, promising scheduled
- * deliveries would be a lie, and reordering from history — which every
- * deployment has — is the truthful version of the same reassurance.
- */
-function TrustStrip(): React.JSX.Element {
-  const { t } = useI18n();
-  const { features } = useStorefront();
-
-  const items = [
-    {
-      icon: BriefcaseIcon,
-      label: t('home.businessPurchasing'),
-      detail: t('home.minimumQuantities'),
-    },
-    {
-      icon: TruckIcon,
-      label: t('home.reliableFulfilment'),
-      detail: t('home.everyOrderTracked'),
-    },
-    {
-      icon: RepeatIcon,
-      label: t('home.repeatOrdering'),
-      detail: features.recurringOrders
-        ? t('home.putRegularLinesOnASchedule')
-        : t('home.reorderAnyPastOrder'),
-    },
-  ];
-
-  return (
-    // Three across only from `lg`. At `sm` each column would be about 150px
-    // of text once the icon and the padding are taken out, which turns two
-    // lines of supporting copy into eight — the strip stacks instead, and
-    // stacked it still reads as one band because of the dividers.
-    <ul className="relative grid divide-y divide-border border-t border-border bg-surface/60 backdrop-blur-sm lg:grid-cols-3 lg:divide-x lg:divide-y-0">
-      {items.map(({ icon: ItemIcon, label, detail }) => (
-        <li key={label} className="flex items-start gap-3 px-6 py-5 lg:px-8">
-          <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-brand-soft text-brand ring-1 ring-inset ring-brand/15">
-            <ItemIcon className="h-[1.15rem] w-[1.15rem]" />
-          </span>
-          <span className="min-w-0">
-            <span className="block text-sm font-semibold text-ink">{label}</span>
-            <span className="mt-0.5 block text-xs leading-relaxed text-ink-muted">{detail}</span>
-          </span>
-        </li>
-      ))}
-    </ul>
   );
 }
 
@@ -183,10 +129,10 @@ function Greeting(): React.JSX.Element {
   const { isCustomer, isLoading } = useSession();
   const { currency } = useLocale();
 
-  const { greetingName } = useGreetingStatus({
-    isCustomer,
-    hasRecurringOrders: features.recurringOrders,
-  });
+  // Only the name, and only to decide the line above the headline. Shared with
+  // the header button and the profile sidebar, so all three greet somebody the
+  // same way — and so opening the account menu on this page costs no request.
+  const { shortName } = useAccountIdentity(isCustomer);
 
   // Read from config, not written here. A chip that would be false for a
   // given deployment is simply absent from its storefront.
@@ -199,17 +145,38 @@ function Greeting(): React.JSX.Element {
   ].filter((entry): entry is { icon: typeof ClockIcon; label: string } => entry !== null);
 
   const eyebrow = !isLoading && isCustomer
-    ? greetingName === null
+    ? shortName === null
       ? t('greeting.welcomeBack')
-      : t('greeting.welcomeBackNamed', { name: greetingName })
+      : t('greeting.welcomeBackNamed', { name: shortName })
     : t('greeting.eyebrow');
 
   return (
     <section className="relative mb-10 overflow-hidden rounded-2xl border border-border shadow-lift">
       <GreetingBackdrop />
 
-      <div className="relative grid gap-12 px-6 py-12 sm:px-10 sm:py-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,32rem)] lg:items-center lg:gap-10 lg:py-16">
-        <div className="max-w-2xl">
+      {/*
+       * `lg:items-stretch`, and a shorter band than it had.
+       *
+       * The row's height is set by the hub, which is a 34rem square. The text
+       * column is about 100px shorter than that, and with `items-center` the
+       * difference was split above and below it — so the card opened with
+       * ~113px of nothing above the eyebrow while the hub beside it started at
+       * the padding. Two columns starting at different heights inside one card
+       * reads as a mistake, because it is one.
+       *
+       * Stretched, the column fills the row and `justify-between` spends the
+       * slack in the one place it belongs: between the search bar and the
+       * trust strip, which is a gap the composition wanted anyway. The eyebrow
+       * now lines up with the top of the hub and the strip with its bottom.
+       *
+       * The padding came down with it (64px to 48px at `lg`), because the
+       * band was tall enough to push the categories under the fold on a
+       * laptop, and the first thing below the hero is the thing this page is
+       * for.
+       */}
+      <div className="relative grid grid-cols-1 gap-12 px-6 py-10 sm:px-10 sm:py-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:items-stretch lg:gap-10 lg:py-12">
+        <div className="flex max-w-2xl flex-col lg:justify-between">
+          <div>
           <p className="text-xxs font-semibold uppercase tracking-[0.18em] text-brand">{eyebrow}</p>
 
           <h1 className="mt-3 text-3xl font-semibold tracking-tight text-ink sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
@@ -222,40 +189,44 @@ function Greeting(): React.JSX.Element {
               : t('greeting.leadGuest', { store: business.displayName })}
           </p>
 
-          {/* Two actions, two jobs, two hues.
+          {/*
+           * The search module, where two call-to-action buttons used to be.
            *
-           * Orange is the conversion path: getting into the catalogue is the
-           * thing this page exists to cause, and `action-strong` (#C2410C)
-           * carries white at 5.14:1 — the accent #EA580C would be 3.56:1 and
-           * fail AA under a label.
+           * The buttons said "Browse the catalogue" and "Sign in", and the
+           * first of those asked somebody to go and look for a thing they
+           * could already name. A search bar lets them say it — which on a
+           * catalogue of several thousand consumables is the difference
+           * between a landing page and a front door.
            *
-           * The second button is the one that changes with the session. A
-           * guest gets exactly one sign-in action and it is a filled primary
-           * button rather than a text link, so it is unmissable without
-           * displacing the catalogue as the thing the page is asking for. A
-           * customer gets their account instead — offering "Sign in" to
-           * somebody already signed in is the classic way a landing page
-           * announces that it has not read the session.
+           * Nothing was lost with them. Submitting an empty box goes to the
+           * same browse-all page the orange button did, and the sign-in path
+           * is in the header on every screen and behind AI Mode for anybody who
+           * needs it. See `components/hero-search/HeroSearch.tsx`.
            */}
-          <div className="mt-8 flex flex-wrap gap-3">
-            <ButtonLink to="/products" variant="action" size="lg">
-              {t('home.browseTheCatalogue')}
-            </ButtonLink>
+          <HeroSearch />
 
-            {/* Never rendered while the session is still unknown: a Sign in
-                button that flashes for a signed-in customer looks broken. */}
-            {!isLoading &&
-              (isCustomer ? (
-                <ButtonLink to="/account/orders" variant="secondary" size="lg">
-                  {t('greeting.action.dashboard')}
-                </ButtonLink>
-              ) : (
-                <ButtonLink to="/login" variant="primary" size="lg">
-                  {t('home.signInToOrder')}
-                </ButtonLink>
-              ))}
+          {/* A guest still gets one plain way in, under the bar rather than
+              beside it: the search box is what this block is asking for, and a
+              filled button next to it would compete with the thing it is
+              asking for. Never rendered while the session is unknown — a Sign
+              in link that flashes for a signed-in customer looks broken. */}
+          {!isLoading && !isCustomer && (
+            <p className="mt-4 text-sm text-ink-muted">
+              {t('home.orSignInPrompt')}{' '}
+              <Link
+                to="/login"
+                className="font-medium text-brand underline underline-offset-2 hover:text-brand-hover"
+              >
+                {t('home.signInToOrder')}
+              </Link>
+            </p>
+          )}
+
           </div>
 
+          {/* The second flex child, so the slack in a stretched column lands
+              here rather than above the eyebrow. `mt-8` is the minimum gap;
+              on a tall row it grows. */}
           <ul className="mt-8 flex flex-wrap gap-x-5 gap-y-2.5">
             {indicators.map(({ icon: IndicatorIcon, label }) => (
               <li
@@ -273,8 +244,6 @@ function Greeting(): React.JSX.Element {
             `aria-hidden` and it is not hidden on a phone — it rearranges. */}
         <SourcingHub />
       </div>
-
-      <TrustStrip />
     </section>
   );
 }
@@ -356,8 +325,8 @@ function CategoryStrip(): React.JSX.Element | null {
                     className="absolute inset-0"
                     style={{
                       backgroundImage:
-                        'linear-gradient(to right, rgba(29,78,216,0.07) 1px, transparent 1px),' +
-                        'linear-gradient(to bottom, rgba(29,78,216,0.07) 1px, transparent 1px)',
+                        'linear-gradient(to right, rgb(var(--brand) / 0.07) 1px, transparent 1px),' +
+                        'linear-gradient(to bottom, rgb(var(--brand) / 0.07) 1px, transparent 1px)',
                       backgroundSize: '8px 8px',
                     }}
                   />
@@ -385,115 +354,6 @@ function CategoryStrip(): React.JSX.Element | null {
 }
 
 // ---------------------------------------------------------------------------
-// Product discovery
-// ---------------------------------------------------------------------------
-
-/**
- * The newest published products, and a way past them.
- *
- * Deliberately *not* "most ordered" or "popular": the catalogue API exposes
- * `sort=newest` and nothing about demand, and a shelf labelled "best sellers"
- * that is really "whatever was published last" is a lie the customer cannot
- * check. The pathway out of the section is the honest way to give this page a
- * second act.
- */
-function NewestProducts(): React.JSX.Element {
-  const { t, language } = useI18n();
-
-  const { currency, country } = useLocale();
-
-  const query = useQuery({
-    queryKey: ['products', { sort: 'newest', limit: 8, currency, country, language }],
-    queryFn: () =>
-      api.get<ProductListResponse>('/catalog/products', {
-        query: { limit: 8, sort: 'newest', currency, country: country ?? undefined, language },
-      }),
-  });
-
-  const hasProducts = query.data !== undefined && query.data.products.length > 0;
-
-  return (
-    <section aria-labelledby="latest-products">
-      <header className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="min-w-0">
-          <p className="text-xxs font-semibold uppercase tracking-[0.14em] text-ink-subtle">
-            {t('home.catalogue')}
-          </p>
-          <h2 id="latest-products" className="mt-1.5 text-title-lg text-ink">
-            {t('home.latestProducts')}
-          </h2>
-          <p className="mt-1 max-w-prose text-sm text-ink-muted">
-            {t('home.mostRecentlyPublished', { currency })}
-          </p>
-        </div>
-
-        <Link
-          to="/products"
-          className="inline-flex shrink-0 items-center gap-1 rounded text-sm font-medium text-brand hover:underline"
-        >
-          {t('home.viewAllProducts')}
-          <ChevronRightIcon className="h-4 w-4" />
-        </Link>
-      </header>
-
-      {query.isError && (
-        <ErrorState
-          error={query.error}
-          onRetry={() => {
-            void query.refetch();
-          }}
-        />
-      )}
-
-      {query.isPending && (
-        <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {Array.from({ length: 8 }, (_, index) => (
-            <li key={index}>
-              <ProductCardSkeleton />
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {query.data !== undefined &&
-        (query.data.products.length === 0 ? (
-          <div className="rounded-lg border border-border bg-surface px-6 py-14 text-center shadow-card">
-            <p className="text-base font-medium text-ink">{t('home.nothingIsPublishedYet')}</p>
-            <p className="mx-auto mt-1.5 max-w-md text-sm text-ink-muted">
-              {t('home.productsAppearHereAsSoon')}
-            </p>
-          </div>
-        ) : (
-          <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {query.data.products.map((product) => (
-              <li key={product.id}>
-                <ProductCard product={product} />
-              </li>
-            ))}
-          </ul>
-        ))}
-
-      {/* The secondary pathway. Eight cards is a taste of the catalogue, and
-          the customer who has scrolled past all of them has demonstrated
-          exactly one thing: they want the rest. Repeated here rather than only
-          in the section header, because on a phone the header is by then
-          several screens above. */}
-      {hasProducts && (
-        <div className="mt-8 flex flex-col items-center gap-4 rounded-lg border border-border bg-surface px-6 py-8 text-center shadow-card">
-          <div>
-            <p className="text-title-sm text-ink">{t('home.lookingForSomethingSpecific')}</p>
-            <p className="mx-auto mt-1.5 max-w-lg text-sm leading-relaxed text-ink-muted">
-              {t('home.theFullCatalogueCanBe')}
-            </p>
-          </div>
-          <ButtonLink to="/products" variant="secondary" size="lg">
-            {t('home.viewAllProducts')}
-          </ButtonLink>
-        </div>
-      )}
-    </section>
-  );
-}
 
 export function HomePage(): React.JSX.Element {
   const { t } = useI18n();
@@ -508,15 +368,28 @@ export function HomePage(): React.JSX.Element {
     business.displayName,
   );
 
+  /*
+   * The product list is simply on the page.
+   *
+   * This used to be conditional, on which of two tabs the hero's search
+   * module was showing — state this page owned so that choosing AI Mode could
+   * take the list away. AI Mode is a link to its own page now, so Products is
+   * the only thing the bar under the headline can be, and there is no second
+   * answer to "what am I looking at" for the list to compete with.
+   *
+   * Two earlier attempts are worth not repeating. Fetching only once the tab
+   * was *pressed* left a visibly selected tab with nothing under it, which
+   * reads as a broken page to a first-time visitor. Scrolling the list into
+   * view when it appeared was right for a press and wrong on arrival, and now
+   * that it is never revealed by a press there is nothing left to scroll to.
+   */
   return (
     <>
       <Greeting />
-      {/* Below the greeting rather than inside it: it is about an account, and
-          a guest — who is most of the traffic — renders nothing at all here,
-          not even an empty spacer. */}
-      <GreetingPanel />
+
       <CategoryStrip />
-      <NewestProducts />
+
+      <InlineProducts />
     </>
   );
 }

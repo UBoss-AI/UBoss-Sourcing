@@ -393,7 +393,15 @@ export function BulkCurrencyPricingDialog({
               </p>
             ) : (
               <>
-                <table className="w-full text-sm">
+                {/* `table-fixed`, because the product cell truncates. Under
+                    the default auto layout a cell's column is sized from its
+                    min-content, and a `truncate` span's min-content is the
+                    whole un-wrapped name — so the column grew to fit the text
+                    the ellipsis was there to hide, and on a phone-width
+                    dialog it pushed the two money columns out. Fixed layout
+                    hands the widths to the header row below and the truncate
+                    then does what it says. */}
+                <table className="w-full table-fixed text-sm">
                   <caption className="sr-only">
                     {t('bulkPricing.tableCaption', {
                       shown: preview.sample.length,
@@ -405,10 +413,10 @@ export function BulkCurrencyPricingDialog({
                       <th scope="col" className="pb-1.5 font-medium">
                         {t('bulkPricing.columnProduct')}
                       </th>
-                      <th scope="col" className="pb-1.5 text-right font-medium">
+                      <th scope="col" className="w-[26%] pb-1.5 text-right font-medium">
                         {preview.sourceCurrency}
                       </th>
-                      <th scope="col" className="pb-1.5 text-right font-medium">
+                      <th scope="col" className="w-[26%] pb-1.5 text-right font-medium">
                         {preview.targetCurrency}
                       </th>
                     </tr>

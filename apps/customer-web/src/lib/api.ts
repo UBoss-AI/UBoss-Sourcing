@@ -382,6 +382,74 @@ export async function requestStream(
   return requestStream(path, { ...options, retryOnUnauthorised: false });
 }
 
+/**
+ * A POST carrying a file.
+ *
+ * `request` above cannot serve this: it sets `Content-Type: application/json`
+ * and stringifies the body, and a multipart upload needs the browser to write
+ * the header itself — including the boundary, which nothing here can know.
+ * Setting `Content-Type: multipart/form-data` by hand omits the boundary and
+ * the server rejects the body; the fix is to set no content type at all.
+ *
+ * Everything else this module promises still applies, and that is why this
+ * lives here rather than in the caller: `credentials: 'include'`, the
+ * double-submit CSRF header, the error envelope, and one shared refresh on a
+ * 401 with the session announced as ended when the refresh fails.
+ *
+ * The retry after a refresh re-sends the same `FormData`. That is safe for the
+ * one caller this has — image search reads the file and returns a result — and
+ * it is not safe in general: a `FormData` built from a stream would already be
+ * consumed. Anything that uploads a stream needs its own path.
+ */
+export async function postFile<T>(
+  path: string,
+  form: FormData,
+  options: {
+    query?: Record<string, string | number | undefined>;
+    signal?: AbortSignal;
+    retryOnUnauthorised?: boolean;
+  } = {},
+): Promise<T> {
+  const csrf = readCsrfToken();
+
+  let response: Response;
+
+  try {
+    response = await fetch(buildUrl(path, options.query), {
+      method: 'POST',
+      credentials: 'include',
+      // No Content-Type. The browser writes it, with the boundary.
+      headers: csrf === null ? {} : { [CSRF_HEADER]: csrf },
+      body: form,
+      ...(options.signal === undefined ? {} : { signal: options.signal }),
+    });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') throw error;
+
+    const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
+
+    throw new NetworkError(
+      isOffline
+        ? 'You appear to be offline. Check your connection and try again.'
+        : 'Could not reach the store. Please try again.',
+      isOffline,
+    );
+  }
+
+  if (response.ok) return (await parseBody(response)) as T;
+
+  const payload = await parseBody(response);
+
+  if (response.status === 401 && (options.retryOnUnauthorised ?? true)) {
+    const refreshed = await refreshSession();
+    if (refreshed) return postFile<T>(path, form, { ...options, retryOnUnauthorised: false });
+
+    announceSessionEnded();
+  }
+
+  throw toApiError(response.status, payload, response.headers.get('retry-after'));
+}
+
 export const api = {
   get: <T>(path: string, options?: Omit<RequestOptions, 'method' | 'body'>): Promise<T> =>
     request<T>(path, { ...options, method: 'GET' }),

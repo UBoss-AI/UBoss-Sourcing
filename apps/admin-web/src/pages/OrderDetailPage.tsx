@@ -365,7 +365,7 @@ export function OrderDetailPage(): React.JSX.Element {
         }
       />
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_20rem]">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="space-y-5">
           {isAwaitingApproval && (
             <Card
@@ -549,7 +549,7 @@ export function OrderDetailPage(): React.JSX.Element {
             title={t('orderDetail.delivery')}
             description={order.shippingMethodName ?? undefined}
           >
-            <div className="grid gap-6 px-5 py-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 px-5 py-4 sm:grid-cols-2">
               <AddressBlock
                 title={t('orderDetail.shippingAddress')}
                 address={order.shippingAddress}

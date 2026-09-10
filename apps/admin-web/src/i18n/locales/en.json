@@ -1918,5 +1918,10 @@
   "erp.deleteConnection": "Delete this connection",
   "erp.deleteConnectionDescription": "Removes the connection, its credentials and the stock it reported. Orders already sent to the ERP are unaffected.",
   "erp.confirmDelete": "Yes, delete it",
-  "erp.notCalled": "Not tested"
+  "erp.notCalled": "Not tested",
+  "theme.label": "Appearance",
+  "theme.optionSystem": "Match my device",
+  "theme.optionLight": "Light theme",
+  "theme.optionDark": "Dark theme",
+  "theme.pressToChange": "Press to change it."
 }

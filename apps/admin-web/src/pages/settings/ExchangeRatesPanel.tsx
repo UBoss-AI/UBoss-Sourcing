@@ -150,7 +150,7 @@ export function ExchangeRatesPanel(): React.JSX.Element {
             </span>
           </label>
 
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Field label={t('exchangeRates.marginLabel')} hint={t('exchangeRates.marginHint')}>
               {({ inputId, describedBy }) => (
                 <Input

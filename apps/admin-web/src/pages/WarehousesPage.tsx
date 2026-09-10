@@ -532,7 +532,7 @@ export function WarehousesPage(): React.JSX.Element {
                   map is the half that needs the room. */}
               <div
                 className={cx(
-                  'grid gap-4',
+                  'grid grid-cols-1 gap-4',
                   selected !== null && 'lg:grid-cols-[minmax(0,1fr)_22rem]',
                 )}
               >

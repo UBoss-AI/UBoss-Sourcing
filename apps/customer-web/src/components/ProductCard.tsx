@@ -42,6 +42,7 @@ import { Link } from 'react-router-dom';
 import { Badge } from './ui';
 import { formatMoney, formatNumber } from '@/lib/format';
 import type { Product } from '@/lib/types';
+import { useTilt } from '@/lib/pointer-tilt';
 import { useI18n } from '@/i18n/i18n-context';
 
 /**
@@ -100,6 +101,11 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
    */
   const hasRuleChips = hasDiscount || rules.minOrderQty > 1 || rules.qtyIncrement > 1;
 
+  // The lean towards the pointer. Mouse only, and nothing under reduced
+  // motion — see lib/pointer-tilt.ts, which explains why this is four CSS
+  // variables written through a ref rather than anything React re-renders.
+  const tilt = useTilt();
+
   return (
     // Rests on the page at `shadow-card` and rises to `shadow-card-hover` —
     // two adjacent rungs of the shared elevation ladder, rather than the jump
@@ -114,15 +120,24 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
     // link's overlay resolves against, so the anchor below covers this card
     // and nothing outside it.
     <article
-      className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface
-                 shadow-card transition-[box-shadow,border-color] hover:border-border-hover
+      ref={tilt.ref}
+      onPointerEnter={tilt.onPointerEnter}
+      onPointerMove={tilt.onPointerMove}
+      onPointerLeave={tilt.onPointerLeave}
+      // `tilt` adds the lean and the highlight; everything else here is what
+      // the card already did. The two are layered rather than merged on
+      // purpose: the shadow and the border still carry the hover on a touch
+      // screen, on a keyboard, and for anybody who has asked for less
+      // motion, none of which get a tilt at all.
+      className="tilt group relative flex h-full flex-col overflow-hidden rounded-lg border border-border
+                 bg-surface shadow-card transition-[box-shadow,border-color,transform] hover:border-border-hover
                  hover:shadow-card-hover focus-within:border-brand/40 focus-within:shadow-card-hover"
     >
       {/* The media frame sits on the sunken ground with generous inset. Most
           of this catalogue is `object-contain` product photography on white,
           which on a white card has no edge at all — the frame is what makes it
           read as a photograph of a thing rather than as floating shapes. */}
-      <div className="aspect-square w-full overflow-hidden border-b border-border-subtle bg-surface-sunken">
+      <div className="relative aspect-square w-full overflow-hidden border-b border-border-subtle bg-surface-sunken">
         {product.primaryImage === null ? (
           <ImageFallback />
         ) : (
@@ -138,6 +153,15 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
             className="h-full w-full object-contain p-5 transition-transform duration-200 group-hover:scale-[1.03]"
           />
         )}
+
+        {/* The specular, over the photograph and nowhere else.
+
+            It was briefly over the whole card, which put an 18% blue veil
+            across the price and the product code — a contrast cost for a
+            decoration, and the one thing this card must never trade. On the
+            media frame it is doing what a specular actually does: sliding
+            across the surface of the thing being looked at. */}
+        <span aria-hidden="true" className="tilt-sheen" />
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-4">

@@ -43,10 +43,14 @@ export const FALLBACK_CONFIG: StorefrontConfig = {
     // one is the worse of the two mistakes.
     selfRegistrationRequiresApproval: true,
     recurringOrders: false,
-    // Off until the real config says otherwise: a chat button that appears
-    // before we know the deployment has a key is a button that opens onto a
+    // Off until the real config says otherwise: an AI Mode tab that appears
+    // before we know the deployment has a key is a tab that opens onto a
     // 404.
     assistant: false,
+    // Same reasoning. The camera button on the search bar spends the
+    // operator's provider budget, and offering it on a deployment that has
+    // configured no provider is a button that can only fail.
+    imageSearch: false,
   },
   // Nothing claimed until the real config arrives. `isAi` is still true,
   // because if this widget ever renders it is an AI widget - the flag says

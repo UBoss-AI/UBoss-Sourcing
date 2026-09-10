@@ -734,7 +734,7 @@ export function DescriptionList({
   return (
     <dl
       className={cx(
-        'grid gap-x-6 gap-y-3 text-sm',
+        'grid grid-cols-1 gap-x-6 gap-y-3 text-sm',
         columns === 1 ? '' : columns === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-2 lg:grid-cols-3',
         className,
       )}

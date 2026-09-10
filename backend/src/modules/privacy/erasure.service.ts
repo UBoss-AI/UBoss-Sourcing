@@ -271,6 +271,12 @@ export async function executeErasure(input: {
       // Carts cascade to their items and reservations.
       deleted.carts = (await tx.cart.deleteMany({ where: { customerProfileId: profile.id } })).count;
 
+      // Saved lines. Nothing legally requires a record of what somebody was
+      // thinking of ordering, and every row names the subject directly.
+      deleted.wishlistItems = (
+        await tx.wishlistItem.deleteMany({ where: { customerProfileId: profile.id } })
+      ).count;
+
       // Address books need two passes, because a recurring schedule holds a
       // non-nullable reference to the address it ships to and the foreign key
       // is Restrict. The rows a cancelled schedule still points at cannot be

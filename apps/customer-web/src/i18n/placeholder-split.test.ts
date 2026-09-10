@@ -1,13 +1,17 @@
 /**
  * The sentences that are split rather than interpolated.
  *
- * Three lines on the storefront draw one word inside their own element - an
- * order number in monospace, a spend figure in medium, a support address as a
- * link - so they call `t` with no values and split the result on the
- * placeholder. That works on two conditions, and neither is obvious from the
- * call site: i18next has to leave an unfilled `{{slot}}` alone, and every
- * translation has to still contain it. A translation that drops the
- * placeholder does not throw; it silently loses the order number.
+ * Two lines on the storefront draw one word inside their own element - an
+ * order number in monospace, a spend figure in medium - so they call `t` with
+ * no values and split the result on the placeholder. That works on two
+ * conditions, and neither is obvious from the call site: i18next has to leave
+ * an unfilled `{{slot}}` alone, and every translation has to still contain it.
+ * A translation that drops the placeholder does not throw; it silently loses
+ * the order number.
+ *
+ * There used to be a third, `chat.lengthLimitReached`, which split a sentence
+ * around a mailto link in the corner chat widget. The widget is gone - AI Mode
+ * is a page now - and the key with it.
  */
 import { describe, expect, it } from 'vitest';
 import { i18n, NAMESPACE } from './config';
@@ -16,7 +20,6 @@ import { LANGUAGES } from './languages';
 const SPLIT_SENTENCES = [
   { key: 'payment.orderIsPaid', slot: '{{order}}' },
   { key: 'profile.leftToSpendThisMonth', slot: '{{amount}}' },
-  { key: 'chat.lengthLimitReached', slot: '{{email}}' },
 ] as const;
 
 describe('sentences that are split on a placeholder', () => {

@@ -605,3 +605,27 @@ export type ErpWebhookReceipt = Prisma.ErpWebhookReceiptModel
  * disable/enable cycle.
  */
 export type CustomerAutoPaySetting = Prisma.CustomerAutoPaySettingModel
+/**
+ * Model WishlistItem
+ * *
+ *  * A line somebody has kept without buying it.
+ *  *
+ *  * The whole model, deliberately: a link to a person, a link to a product, and
+ *  * when. No quantity, no note, no ordering column. A wishlist that carries a
+ *  * quantity is a second basket with none of a basket's rules — no minimum, no
+ *  * increment, no stock reservation, no price — and the moment one exists
+ *  * somebody will try to check it out.
+ *  *
+ *  * `variantKey` is the same device the cart and the schedule items use, and for
+ *  * the same MariaDB reason recorded in this file's header: a UNIQUE index here
+ *  * treats every NULL as distinct, so a nullable `variantId` inside the
+ *  * composite unique would NOT stop the same variant being saved twice. The key
+ *  * is the variant ULID, or `''` for the base product, and is never null.
+ *  *
+ *  * There is no `variant` relation and that is not an omission. A variant can be
+ *  * deleted while a wishlist row still names it, and the alternative — a foreign
+ *  * key with ON DELETE RESTRICT — would make somebody else's saved item a reason
+ *  * an administrator cannot tidy up a product. The reader resolves the key if it
+ *  * still resolves, and shows the base product if it does not.
+ */
+export type WishlistItem = Prisma.WishlistItemModel

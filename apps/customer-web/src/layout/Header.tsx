@@ -1,43 +1,60 @@
 /**
- * Storefront header: brand, search, category navigation, account and cart.
+ * Storefront header: brand, appearance, market, account and cart.
  *
- * Decisions worth keeping:
+ * One band, five controls. Two things that used to be here are gone, and both
+ * removals are the point of the current shape:
  *
- *   - **Search is a real `<form>` with a submit.** Typing and pressing Enter
- *     must work; a search box that only responds to a click on a magnifying
- *     glass excludes every keyboard user and most mobile keyboards. The
- *     magnifying glass inside the field is decoration on top of that, not the
- *     mechanism.
+ *   - **The global search box.** The greeting page now opens on a large tabbed
+ *     search module — AI Mode or Products, over one bar — and a second, smaller
+ *     search field in the chrome directly above it was two front doors to the
+ *     same room. Worse, they behaved differently: the header field always went
+ *     to `/search`, the hero bar goes to the catalogue with the filters and
+ *     facets applied. Searching from anywhere is still one press away: the
+ *     brand goes home, and the catalogue page carries its own search field
+ *     with the filters it belongs to.
+ *   - **The category bar.** A second sticky row spending 44px of every
+ *     viewport on the top-level departments, which are also the first thing on
+ *     the greeting page and the whole left rail of the catalogue page. On a
+ *     phone it scrolled sideways, which meant the department you were in was
+ *     frequently half off screen — a navigation aid you have to navigate.
+ *
+ * What is left is deliberately not padded out to fill the space they left.
+ * Identity on the left, the five controls on the right, and nothing in the
+ * middle: a header with a 600px hole in it is what a removed search box looks
+ * like, and a header that owns its width is what this is.
+ *
+ * The other decisions worth keeping:
+ *
  *   - **The cart badge is announced.** `aria-label` carries the count, so a
  *     screen reader hears "Cart, 3 items" rather than "Cart" and a bare number
  *     floating beside it.
  *   - **Nothing on the buy path is dropped on a phone.** Below `sm` the cart
- *     and account labels collapse to their icons, but the controls themselves
- *     stay — currency, account and cart are all still one tap away, and search
- *     gets its own row rather than being hidden behind a toggle.
- *   - **Two bands, two jobs.** The upper band is identity and account state;
- *     the lower one is where you are in the catalogue. They are separated by a
- *     hairline rather than by two different colours, which is what stops
- *     "who am I" and "what am I browsing" competing for the same strip.
- *   - **The chrome is white, over a sky-tinted page.** It used to be a navy
- *     band. The separation now comes from the page ground being cool and the
- *     header being pure white with a shadow under it — see `--surface-sunken`
- *     in index.css, which is the one value the whole scheme hangs off. Every
- *     control up here is therefore an ordinary on-light control, and the app
- *     no longer needs a second set of them drawn for a dark surface.
+ *     label and the account name collapse to their icons, but the controls
+ *     themselves stay — appearance, market, account and cart are all still
+ *     one tap away. There is no longer a second row to reflow into, because
+ *     with search and the category bar gone the five fit at 345px.
+ *   - **The chrome is a plain surface over a tinted page.** It used to be a
+ *     navy band. The separation now comes from the page ground being cooler
+ *     and darker than the header, with a shadow under it — see
+ *     `--surface-sunken` in index.css, which is the one value the whole scheme
+ *     hangs off, and which holds in both themes. Every control up here is
+ *     therefore an ordinary on-surface control in either palette, and the app
+ *     needs no second set of them drawn for a dark band.
+ *   - **On a short viewport the band trims its padding.** A phone held
+ *     sideways is ~400px tall, where a 64px sticky header is a sixth of the
+ *     screen.
  */
-import { useEffect, useId, useRef, useState } from 'react';
-import { Link, NavLink, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from '@/auth/session-context';
 import { useStorefront } from '@/app/storefront-context';
 import { api } from '@/lib/api';
-import { cx } from '@/lib/cx';
-import { CartIcon, ChevronDownIcon, SearchIcon } from '@/components/icons';
-import type { CategoryNode, Cart } from '@/lib/types';
-import { useLocale } from '@/app/locale-context';
+import { AccountMenu } from '@/components/account/AccountMenu';
+import { MarketMenu } from '@/components/market/MarketMenu';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { CartIcon } from '@/components/icons';
+import type { Cart } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
-import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
 
 /**
  * The brand lockup.
@@ -55,25 +72,33 @@ function BrandMark(): React.JSX.Element {
   return (
     <Link
       to="/"
-      className="-mx-2 flex shrink-0 items-center gap-3 rounded-md px-2 py-1.5 transition-colors hover:bg-surface-hover"
+      // `min-w-0 shrink` rather than `shrink-0`: the display name is a
+      // per-deployment setting and can be long, and a lockup that refuses to
+      // shrink pushes the cart off a phone instead of letting the name
+      // truncate. The logo plate keeps its own `shrink-0`, so what gives way
+      // is the wording and never the mark.
+      className="-mx-2 flex min-w-0 shrink items-center gap-2.5 rounded-md px-2 py-1.5 transition-colors hover:bg-surface-hover sm:gap-3"
     >
       {business.logo === null ? (
         <span
           aria-hidden="true"
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand text-base font-bold text-white shadow-card"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand-fill text-base font-bold text-white shadow-card"
         >
           {business.displayName.slice(0, 1).toUpperCase()}
         </span>
       ) : (
         // A white plate with a hairline, not a bare image: a logo drawn for a
         // white page and one drawn for a dark one both have to survive here,
-        // and only a plate makes that true of both.
+        // and only a plate makes that true of both. `surface-media` rather
+        // than `surface`, so it stays white in the dark theme as well: a logo
+        // is somebody else's artwork and is frequently a dark PNG with no
+        // transparency, which on a dark plate is a black square.
         <img
           src={business.logo.url}
           alt=""
           width={40}
           height={40}
-          className="h-10 w-10 shrink-0 rounded-md border border-border bg-white object-contain p-1"
+          className="h-10 w-10 shrink-0 rounded-md border border-border bg-surface-media object-contain p-1"
         />
       )}
 
@@ -89,164 +114,6 @@ function BrandMark(): React.JSX.Element {
         </span>
       </span>
     </Link>
-  );
-}
-
-function SearchBox(): React.JSX.Element {
-  const { t } = useI18n();
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const location = useLocation();
-  const [term, setTerm] = useState(searchParams.get('q') ?? '');
-
-  // Keep the box in step with the URL, so a browser Back out of a search
-  // clears the box rather than leaving a term that no longer applies.
-  useEffect(() => {
-    setTerm(location.pathname === '/search' ? (searchParams.get('q') ?? '') : '');
-  }, [location.pathname, searchParams]);
-
-  return (
-    <form
-      role="search"
-      // No ring around the group any more. It was there because on the navy
-      // band the blue submit button's outer edge was 1.6:1 against its own
-      // surround and the composite control had no perceivable boundary; on
-      // white the field's own `border-strong` is 3.31:1 and the button is
-      // 6.70:1, so each half identifies itself (WCAG 1.4.11) and a second
-      // outline would only be a doubled edge.
-      className="relative flex flex-1 items-stretch rounded-md"
-      onSubmit={(event) => {
-        event.preventDefault();
-        const trimmed = term.trim();
-        if (trimmed.length === 0) return;
-        void navigate(`/search?q=${encodeURIComponent(trimmed)}`);
-      }}
-    >
-      <label htmlFor="storefront-search" className="sr-only">
-        {t('header.searchProducts')}
-      </label>
-
-      {/* Decoration only, and `pointer-events-none` so it cannot swallow the
-          click that should land in the field behind it. */}
-      <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-subtle" />
-
-      <input
-        id="storefront-search"
-        type="search"
-        value={term}
-        placeholder={t('header.searchPlaceholder')}
-        onChange={(event) => {
-          setTerm(event.target.value);
-        }}
-        className="h-10 min-w-0 flex-1 rounded-l-md border border-r-0 border-border-strong bg-surface pl-9 pr-3 text-sm text-ink placeholder:text-ink-subtle"
-      />
-
-      <button
-        type="submit"
-        className="h-10 shrink-0 rounded-r-md bg-brand px-4 text-sm font-medium text-white transition-colors hover:bg-brand-hover"
-      >
-        {t('header.searchSubmit')}
-      </button>
-    </form>
-  );
-}
-
-/**
- * Currency switcher.
- *
- * Every price on the site is quoted in this, and switching reprices the whole
- * catalogue from the server - it is not a client-side conversion. Hidden when
- * the store sells in only one currency, where a control with one option is
- * just noise.
- *
- * Kept in the header at every width. A buyer comparing a quote in the wrong
- * currency is the single most expensive misreading this storefront can cause,
- * so it does not get folded away on a phone.
- */
-function CurrencySwitcher(): React.JSX.Element | null {
-  const locale = useLocale();
-  const { t } = useI18n();
-
-  if (locale.currencies.length < 2) return null;
-
-  return (
-    <label className="flex items-center">
-      <span className="sr-only">{t('header.currency')}</span>
-      <select
-        value={locale.currency}
-        onChange={(event) => {
-          void locale.setCurrency(event.target.value);
-        }}
-        // `select-chevron` replaces the platform arrow (index.css), so this
-        // sits at the same weight as the app's other selects instead of being
-        // whatever shape the operating system felt like drawing.
-        className="select-chevron h-10 rounded-md border border-border-strong bg-surface pl-2.5 pr-7 text-xs font-medium text-ink"
-      >
-        {locale.currencies.map((entry) => (
-          <option key={entry.code} value={entry.code}>
-            {entry.symbol.trim()} {entry.code}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
-}
-
-/**
- * Where the shopper is ordering from.
- *
- * A separate control from the currency beside it, because they are separate
- * questions with different answers: a Polish buyer paying in euro is ordinary,
- * and so are Germany, the Netherlands and Ireland sharing one currency and
- * charging 19%, 21% and 23% on the same box. The currency chooses which price
- * list is read; this chooses what those figures become once the destination's
- * tax is applied, and every price on the site is requoted the moment it
- * changes.
- *
- * It lives in the header rather than only in the first-run picker because a
- * location is not answered once and forever: people buy for a second site,
- * ship to a different country, or simply want to see what an order would cost
- * elsewhere before committing to it. A question that can only be answered once
- * is a question that gets answered wrongly.
- *
- * Choosing a country adopts that country's default currency, which is what
- * somebody selecting "Germany" means. The currency switcher next door is how
- * they say otherwise, and it leaves the country alone.
- */
-function LocationSwitcher(): React.JSX.Element | null {
-  const locale = useLocale();
-  const { t } = useI18n();
-
-  // Nothing to choose between. A single-market deployment gets no control, the
-  // same rule the currency switcher follows.
-  if (locale.countries.length < 2) return null;
-
-  return (
-    <label className="flex items-center">
-      <span className="sr-only">{t('header.shippingTo')}</span>
-      <select
-        // Empty while unanswered, so the placeholder shows rather than the
-        // control silently claiming a country the shopper never picked.
-        value={locale.country ?? ''}
-        onChange={(event) => {
-          void locale.choose(event.target.value);
-        }}
-        // Same skin as the currency control beside it — the two read as one
-        // pair of market settings, which is what they are.
-        className="select-chevron h-10 max-w-[9rem] truncate rounded-md border border-border-strong bg-surface pl-2.5 pr-7 text-xs font-medium text-ink"
-      >
-        {locale.country === null && (
-          <option value="" disabled>
-            {t('header.shippingTo')}
-          </option>
-        )}
-        {locale.countries.map((entry) => (
-          <option key={entry.code} value={entry.code}>
-            {entry.name}
-          </option>
-        ))}
-      </select>
-    </label>
   );
 }
 
@@ -288,14 +155,17 @@ function CartLink(): React.JSX.Element {
       {count > 0 && (
         <span
           aria-hidden="true"
-          // #EA580C carrying ink rather than white: 5.02:1, where white on it
-          // would be 3.56:1. The count is also in this link's aria-label, so
-          // nothing depends on reading the badge.
+          // `action-fill` (#C2410C) with white on it: 4.95:1, and the same
+          // value in both themes. It used to be #EA580C carrying ink, which
+          // was 5.02:1 on white and 1.64:1 the moment `--ink` went light for
+          // the dark theme — a legible badge becoming an orange smudge. The
+          // count is also in this link's aria-label, so nothing *depends* on
+          // reading it, which is exactly why the regression would have shipped.
           //
           // The ring is the chrome behind it, so the badge is cut out of the
           // header rather than sitting on the tinted control it overlaps —
           // without it the two orange edges merge at this size.
-          className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-action px-1 text-xxs font-bold text-ink ring-2 ring-surface"
+          className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-action-fill px-1 text-xxs font-bold text-white ring-2 ring-surface"
         >
           {count > 99 ? '99+' : count}
         </span>
@@ -304,246 +174,53 @@ function CartLink(): React.JSX.Element {
   );
 }
 
-function AccountMenu(): React.JSX.Element {
-  const { user, isCustomer, logout } = useSession();
-  const { t } = useI18n();
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  // Generated rather than a literal: the header renders once, but a literal id
-  // is the kind that survives into a second instance and quietly makes
-  // `aria-controls` point at whichever one the browser found first.
-  const panelId = useId();
-
-  // Close on outside click or Escape. Without the Escape handler a keyboard
-  // user who opens the menu has no way back out.
-  useEffect(() => {
-    if (!isOpen) return undefined;
-
-    const onPointerDown = (event: MouseEvent): void => {
-      if (containerRef.current?.contains(event.target as Node) !== true) setIsOpen(false);
-    };
-    const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') setIsOpen(false);
-    };
-
-    document.addEventListener('mousedown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown);
-
-    return () => {
-      document.removeEventListener('mousedown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, [isOpen]);
-
-  if (!isCustomer) {
-    return (
-      <Link
-        to="/login"
-        className="inline-flex h-10 shrink-0 items-center rounded-md border border-border-strong bg-surface px-3 text-sm font-medium text-ink shadow-card transition-colors hover:border-border-hover hover:bg-surface-hover sm:px-4"
-      >
-        {t('header.signIn')}
-      </Link>
-    );
-  }
-
-  return (
-    <div ref={containerRef} className="relative">
-      <button
-        type="button"
-        onClick={() => {
-          setIsOpen((open) => !open);
-        }}
-        aria-expanded={isOpen}
-        // Deliberately NOT aria-haspopup="menu". That role promises a
-        // composite widget: Tab enters it once and arrow keys move between
-        // items, per the ARIA authoring practices. This is a list of links,
-        // and announcing it as a menu would describe keyboard behaviour it
-        // does not have. `aria-expanded` is the whole contract for a
-        // disclosure.
-        aria-controls={panelId}
-        // Named explicitly: the trigger is the avatar alone, and the avatar is
-        // aria-hidden, so without this the button has no accessible name.
-        aria-label={t('header.account')}
-        className="flex h-10 items-center gap-2 rounded-md px-2 text-sm font-medium text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink sm:px-3"
-      >
-        <span
-          aria-hidden="true"
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xxs font-semibold text-brand ring-1 ring-inset ring-brand/20"
-        >
-          {(user?.email ?? '?').slice(0, 2).toUpperCase()}
-        </span>
-        <ChevronDownIcon
-          className={cx('h-4 w-4 text-ink-subtle transition-transform', isOpen && 'rotate-180')}
-        />
-      </button>
-
-      {isOpen && (
-        <nav
-          id={panelId}
-          aria-label={t('header.account')}
-          className="absolute right-0 z-40 mt-2 w-60 rounded-lg border border-border bg-surface p-1.5 shadow-popover"
-        >
-          <p className="border-b border-border px-3 pb-2.5 pt-2">
-            <span className="block text-xxs font-medium uppercase tracking-wider text-ink-subtle">
-              {t('header.signedInAs')}
-            </span>
-            <span className="mt-0.5 block truncate text-sm font-medium text-ink">
-              {user?.email}
-            </span>
-          </p>
-
-          <div className="pt-1.5">
-            {(
-              [
-                ['/account/orders', t('header.myOrders')],
-                ['/account/schedules', t('header.repeatPurchases')],
-                ['/account/addresses', t('header.addresses')],
-                ['/account/autopay', t('header.autoPay')],
-                ['/account/profile', t('header.profile')],
-              ] satisfies [string, string][]
-            ).map(([to, label]) => (
-              <Link
-                key={to}
-                to={to}
-                // No role="menuitem": it would replace "link" in the
-                // announcement, and a user who cannot tell that following this
-                // navigates has been told less, not more.
-                onClick={() => {
-                  setIsOpen(false);
-                }}
-                className="block rounded px-3 py-2 text-sm text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink"
-              >
-                {label}
-              </Link>
-            ))}
-          </div>
-
-          <button
-            type="button"
-            onClick={() => {
-              setIsOpen(false);
-              void logout();
-            }}
-            className="mt-1.5 block w-full rounded border-t border-border px-3 py-2 text-left text-sm text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink"
-          >
-            {t('header.signOut')}
-          </button>
-        </nav>
-      )}
-    </div>
-  );
-}
-
-/**
- * The category bar.
- *
- * The active entry is a filled pill, not just a colour change on the word.
- * "Where am I in the catalogue" is the question this bar exists to answer, and
- * a recoloured word in a row of words answers it faintly — especially once the
- * row scrolls sideways on a phone and the entry you are on may be half off
- * screen. `NavLink` also sets `aria-current="page"`, so the state is carried
- * for a screen reader and not only in the fill.
- */
-function CategoryBar(): React.JSX.Element | null {
-  const { t, language } = useI18n();
-  const categories = useQuery({
-    queryKey: ['categories', language],
-    queryFn: () =>
-      api.get<{ categories: CategoryNode[] }>('/catalog/categories', { query: { language } }),
-    staleTime: 5 * 60_000,
-  });
-
-  const roots = (categories.data?.categories ?? []).filter((node) => node.productCount > 0);
-
-  if (roots.length === 0) return null;
-
-  const entryClass = ({ isActive }: { isActive: boolean }): string =>
-    cx(
-      'block whitespace-nowrap rounded-md px-3 py-1.5 text-sm transition-colors',
-      isActive
-        ? 'bg-brand-soft font-semibold text-brand ring-1 ring-inset ring-brand/25'
-        : 'font-medium text-ink-muted hover:bg-surface-hover hover:text-ink',
-    );
-
-  return (
-    <nav
-      aria-label={t('header.categories')}
-      className="border-b border-border bg-surface"
-    >
-      <div className="mx-auto max-w-content overflow-x-auto px-4">
-        <ul className="flex items-center gap-1 py-2">
-          <li className="shrink-0">
-            <NavLink to="/products" end className={entryClass}>
-              {t('header.allProducts')}
-            </NavLink>
-          </li>
-
-          {/* Separates "everything" from the individual departments, so the
-              first category does not read as a sibling of All products. */}
-          <li aria-hidden="true" className="mx-1.5 h-5 w-px shrink-0 bg-border" />
-
-          {roots.map((category) => (
-            <li key={category.id} className="shrink-0">
-              <NavLink to={`/category/${category.slug}`} className={entryClass}>
-                {category.name}
-              </NavLink>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </nav>
-  );
-}
-
 export function Header(): React.JSX.Element {
   return (
-    // `shadow-card` on the whole header, not on the category bar inside it:
-    // the two bands are one white block resting on a sky page, and the shadow
-    // is what says so. Opaque, not translucent — a sticky header that lets the
-    // page show through is where catalogue text and header text overlap while
-    // you scroll.
-    <header className="sticky top-0 z-30 shadow-card">
+    /*
+     * `shadow-card` on the header: it is one white block resting on a sky
+     * page, and the shadow is what says so. Opaque, not translucent — a sticky
+     * header that lets the page show through is where catalogue text and
+     * header text overlap while you scroll.
+     */
+    <header className="sticky top-0 z-30 border-b border-border-subtle bg-surface shadow-card">
       {/*
-       * The identity band. White, with a hairline under it rather than a
-       * change of colour: the split between "who am I" and "what am I
-       * browsing" is worth a line, not a second surface.
+       * `gap-2` at the smallest width, not `gap-3`.
+       *
+       * Measured, not guessed: with the appearance control added the five
+       * controls plus a truncated brand came to 330px, and the storefront
+       * commits to working from 320px. Six pixels of gap is what stood
+       * between that and the page scrolling sideways, and the page not
+       * scrolling sideways is a rule rather than a preference — see *How the
+       * product reflows*. The brand is already truncating at this width, so
+       * widening the gap only moves where the ellipsis falls.
        */}
-      <div className="border-b border-border-subtle bg-surface">
-        <div className="mx-auto flex max-w-content items-center gap-4 px-4 py-3 sm:gap-6">
-          <BrandMark />
+      <div className="mx-auto flex max-w-content items-center gap-2 px-4 py-3 [@media(max-height:480px)]:py-1.5 sm:gap-6">
+        <BrandMark />
 
-          {/* The search field takes the middle of the band from `md` up, and
-              is capped so it does not stretch to a 1600px line on a wide
-              monitor — a search box the width of a desk reads as a text area. */}
-          <div className="hidden flex-1 justify-center md:flex">
-            <div className="flex w-full max-w-xl">
-              <SearchBox />
-            </div>
-          </div>
+        {/*
+         * `ml-auto` rather than a flexible spacer in the middle.
+         *
+         * The brand shrinks and the controls do not, so the gap between them
+         * is whatever is left over — which is the behaviour that was wanted
+         * when the search box was there and is still the behaviour that is
+         * wanted now. A `flex-1` element in the middle would be a named,
+         * measurable hole where a control used to be.
+         */}
+        <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
+          {/* First, and the quietest of the four: it is the only one that
+              changes nothing about the order somebody is placing. An
+              unlabelled icon button beside the market chip rather than a
+              fourth panel — see ThemeToggle for why it cycles. */}
+          <ThemeToggle />
 
-          <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
-            {/* Language, then location, then currency: the three read as a set
-                of market settings, ordered from the one that decides whether
-                the rest of the header is legible to the one that decides what
-                the numbers in it mean. All stay on the band at every width for
-                the same reason — folding any of them away on a phone hides it
-                from the person most likely to need it. */}
-            <LanguageSwitcher placement="header" />
-            <LocationSwitcher />
-            <CurrencySwitcher />
-            <AccountMenu />
-            <CartLink />
-          </div>
-        </div>
-
-        {/* On a narrow screen the search box gets its own row rather than being
-            squeezed out of the header entirely. */}
-        <div className="mx-auto max-w-content px-4 pb-3 md:hidden">
-          <SearchBox />
+          {/* Market before account: what language this page is in and what
+              its numbers mean is the question a buyer answers on arrival, and
+              the account is what they do afterwards. */}
+          <MarketMenu />
+          <AccountMenu />
+          <CartLink />
         </div>
       </div>
-
-      <CategoryBar />
     </header>
   );
 }

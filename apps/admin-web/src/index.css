@@ -14,6 +14,17 @@
  * Raw RGB channels rather than finished colours, so Tailwind's `<alpha-value>`
  * syntax works — `bg-brand/10` needs the channels.
  *
+ * There is a light palette and a dark one, and every hue that appears both as
+ * a fill and as text carries two tokens rather than one: the bare name is the
+ * TEXT step and lightens in dark mode, `--x-fill` is the SOLID step that stays
+ * saturated under a light label. In light mode the two hold the same value, so
+ * they cost the light theme nothing. The arithmetic proving one value cannot do
+ * both jobs on a dark card is written out at the top of the storefront's
+ * index.css and is not repeated here — this palette is that palette.
+ *
+ * `scripts/contrast-audit.cjs` measures every pair in both palettes and fails
+ * the build on either.
+ *
  * Note on `accent`: this panel was built calling the primary blue `accent`,
  * and ninety class attributes still say `bg-accent`. Rather than rename them,
  * `accent*` is mapped onto the `--brand*` tokens in tailwind.config.js. There
@@ -43,6 +54,8 @@
        Also addressable as `accent` throughout this app. */
     --brand: 29 78 216;
     --brand-hover: 30 64 175;
+    --brand-fill: 29 78 216;
+    --brand-fill-hover: 30 64 175;
     --brand-soft: 239 246 255;
     --brand-soft-hover: 219 234 254;
 
@@ -55,11 +68,16 @@
 
          `action`        #EA580C, the accent. Non-text uses — emphasis
                          borders and tinted panels.
-         `action-strong` #C2410C, the fill under a *white* label, where
-                         #EA580C would land at 3.56:1 and fail AA. */
+         `action-strong` #C2410C, orange as TEXT — the `action` badge tone.
+                         #EA580C would land at 3.56:1 on white and fail AA.
+         `action-fill`   the plate under a *white* label. Identical to
+                         `action-strong` here; in dark mode it stays deep while
+                         `action-strong` lightens to stay readable. */
     --action: 234 88 12;
     --action-strong: 194 65 12;
     --action-strong-hover: 154 52 18;
+    --action-fill: 194 65 12;
+    --action-fill-hover: 154 52 18;
     --action-soft: 255 247 237;
     --action-soft-hover: 255 237 213;
 
@@ -68,6 +86,8 @@
        every other primary action already uses. */
     --operational: 15 118 110;
     --operational-hover: 17 94 89;
+    --operational-fill: 15 118 110;
+    --operational-fill-hover: 17 94 89;
     --operational-soft: 240 253 250;
 
     /* --- Status -------------------------------------------------------
@@ -76,12 +96,18 @@
        failing AA at the exact moment the pointer was on it. */
     --success: 21 128 61;
     --success-hover: 22 101 52;
+    --success-fill: 21 128 61;
+    --success-fill-hover: 22 101 52;
     --success-soft: 240 253 244;
     --warning: 161 98 7;
     --warning-hover: 133 77 14;
+    --warning-fill: 161 98 7;
+    --warning-fill-hover: 133 77 14;
     --warning-soft: 254 252 232;
     --danger: 185 28 28;
     --danger-hover: 153 27 27;
+    --danger-fill: 185 28 28;
+    --danger-fill-hover: 153 27 27;
     --danger-soft: 254 242 242;
 
     /* ===================================================================
@@ -89,6 +115,10 @@
      * =================================================================== */
     --surface: 255 255 255;
     --surface-raised: 255 255 255;
+    /* The plate a product photograph sits on. White in BOTH themes: every
+       product image in this catalogue is shot on white, and dropping one onto
+       a dark card puts a bright rectangle in the middle of it. */
+    --surface-media: 255 255 255;
     /*
      * The page ground, and the reason the whole product reads as sky.
      *
@@ -111,6 +141,9 @@
     --surface-hover: 235 243 253;
     --surface-inverse: 12 35 80;
     --surface-inverse-hover: 19 49 104;
+    /* Shared with the storefront, where it is the blurred wash behind the
+       greeting graphic. Unused here, and kept so the palettes stay one set. */
+    --bloom: 186 230 253;
 
     /* ===================================================================
      * Borders
@@ -183,12 +216,174 @@
      * theme would be unwelcome — it is that half a dark theme, chosen by the
      * browser on our behalf, is worse than none.
      */
-    color-scheme: light;
+    color-scheme: light dark;
     /* An admin panel is a tool. Motion is a distraction unless it carries
        meaning, and it costs people who are sensitive to it. */
     scroll-behavior: smooth;
     /* An anchored heading clears the sticky top bar instead of hiding under it. */
     scroll-padding-top: 5rem;
+  }
+
+  /* =====================================================================
+   * DARK
+   *
+   * Declared once, in `@mixin`-free plain CSS, and applied from two places:
+   *
+   *   1. `@media (prefers-color-scheme: dark)`, narrowed by
+   *      `:root:not([data-theme='light'])` — so the operating system's
+   *      setting is honoured by default and an explicit *light* choice still
+   *      wins over it.
+   *   2. `:root[data-theme='dark']` — so an explicit *dark* choice wins even
+   *      on a machine set to light.
+   *
+   * Both blocks carry the same declarations. Duplication rather than a
+   * `:where()` selector list, because a selector list would make the whole
+   * block depend on `prefers-color-scheme` support: a browser that does not
+   * understand the media query would drop the explicit choice with it, and
+   * the toggle would silently stop working rather than degrade.
+   *
+   * ---
+   *
+   * How the values were chosen, because "make it darker" is not a method:
+   *
+   *   - **The ground is navy, not black.** This product is blue; a neutral
+   *     grey dark theme reads as a different application wearing the same
+   *     logo. Every surface is the same hue family as the light theme's sky
+   *     page, rotated to the other end.
+   *   - **Cards are lighter than the page**, the same way round as in light
+   *     mode. Inverting that — a dark card on a lighter page — is the single
+   *     most common way a dark theme stops reading as the same product.
+   *   - **The text steps clear 4.5:1 on the card, on the page and on a
+   *     hovered row**, which is the same three grounds the light theme's
+   *     `ink-subtle` was tuned against and is what the audit checks.
+   *   - **Every `-fill` keeps a white label above 4.5:1** while its bare
+   *     sibling lightens for text. See the header of this file.
+   *   - **`surface-inverse` and `navy` stay dark**, so the two `inverse`
+   *     button variants and the dialog scrim — the three places that draw a
+   *     light label on a dark plate — keep working without a second set of
+   *     rules. A dark theme where the "on dark" variant becomes "on light" is
+   *     a dark theme that has to reimplement its own components.
+   * ===================================================================== */
+
+  /* stylelint-disable-next-line no-duplicate-selectors */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      --brand: 138 180 255;
+      --brand-hover: 176 205 255;
+      --brand-fill: 37 92 214;
+      --brand-fill-hover: 45 104 232;
+      --brand-soft: 23 40 74;
+      --brand-soft-hover: 30 53 96;
+
+      --action: 253 168 108;
+      /* The text step lightens; the plate does not. `--action-fill` is left to
+         inherit its light value — a #C2410C plate carrying white reads the
+         same on navy as on white (4.95:1), and deepening on hover is the
+         direction the light theme goes too. */
+      --action-strong: 251 178 118;
+      --action-strong-hover: 253 200 152;
+      --action-soft: 61 30 12;
+      --action-soft-hover: 76 38 15;
+
+      --operational: 94 210 199;
+      --operational-hover: 141 226 218;
+      --operational-fill: 13 106 99;
+      --operational-fill-hover: 16 126 118;
+      --operational-soft: 12 48 46;
+
+      --success: 110 219 148;
+      --success-hover: 152 232 179;
+      --success-fill: 21 118 57;
+      --success-fill-hover: 25 138 67;
+      --success-soft: 12 48 27;
+
+      --warning: 240 190 90;
+      --warning-hover: 246 210 139;
+      --warning-fill: 140 85 6;
+      --warning-fill-hover: 161 98 7;
+      --warning-soft: 58 41 8;
+
+      --danger: 255 154 148;
+      --danger-hover: 255 186 182;
+      --danger-fill: 176 32 32;
+      --danger-fill-hover: 196 40 40;
+      --danger-soft: 66 22 22;
+
+      --surface: 20 30 48;
+      --surface-raised: 26 38 58;
+      --surface-sunken: 12 19 32;
+      --surface-hover: 30 43 65;
+      --surface-media: 255 255 255;
+      --bloom: 40 70 132;
+
+      --border: 40 55 79;
+      --border-subtle: 30 43 64;
+      --border-strong: 116 136 164;
+      --border-hover: 148 167 193;
+
+      --ink: 232 238 248;
+      --ink-muted: 175 189 210;
+      --ink-subtle: 145 161 185;
+
+      --ring: 138 180 255;
+    }
+  }
+
+  :root[data-theme='dark'] {
+    --brand: 138 180 255;
+    --brand-hover: 176 205 255;
+    --brand-fill: 37 92 214;
+    --brand-fill-hover: 45 104 232;
+    --brand-soft: 23 40 74;
+    --brand-soft-hover: 30 53 96;
+
+    --action: 253 168 108;
+    --action-strong: 251 178 118;
+    --action-strong-hover: 253 200 152;
+    --action-soft: 61 30 12;
+    --action-soft-hover: 76 38 15;
+
+    --operational: 94 210 199;
+    --operational-hover: 141 226 218;
+    --operational-fill: 13 106 99;
+    --operational-fill-hover: 16 126 118;
+    --operational-soft: 12 48 46;
+
+    --success: 110 219 148;
+    --success-hover: 152 232 179;
+    --success-fill: 21 118 57;
+    --success-fill-hover: 25 138 67;
+    --success-soft: 12 48 27;
+
+    --warning: 240 190 90;
+    --warning-hover: 246 210 139;
+    --warning-fill: 140 85 6;
+    --warning-fill-hover: 161 98 7;
+    --warning-soft: 58 41 8;
+
+    --danger: 255 154 148;
+    --danger-hover: 255 186 182;
+    --danger-fill: 176 32 32;
+    --danger-fill-hover: 196 40 40;
+    --danger-soft: 66 22 22;
+
+    --surface: 20 30 48;
+    --surface-raised: 26 38 58;
+    --surface-sunken: 12 19 32;
+    --surface-hover: 30 43 65;
+    --surface-media: 255 255 255;
+    --bloom: 40 70 132;
+
+    --border: 40 55 79;
+    --border-subtle: 30 43 64;
+    --border-strong: 116 136 164;
+    --border-hover: 148 167 193;
+
+    --ink: 232 238 248;
+    --ink-muted: 175 189 210;
+    --ink-subtle: 145 161 185;
+
+    --ring: 138 180 255;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -206,6 +401,15 @@
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
     }
+  }
+
+  /* An explicit choice pins what the browser draws for itself. */
+  html[data-theme='light'] {
+    color-scheme: light;
+  }
+
+  html[data-theme='dark'] {
+    color-scheme: dark;
   }
 
   body {
@@ -304,6 +508,30 @@
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
     background-size: 1rem 1rem;
+  }
+
+  /*
+   * The same arrow, drawn in the dark theme's `--ink-muted`.
+   *
+   * Two images rather than one that follows the token, because neither
+   * available mechanism works here: a `url()` cannot read a CSS variable, and
+   * masking the element to paint the arrow with `background-color` would mask
+   * the `<select>`'s own text and border along with it — a `<select>` is a
+   * replaced element and has no pseudo-element to hang the arrow on.
+   *
+   * These live in the same `@layer` as the rule above on purpose. `.select-chevron`
+   * is a components-layer rule, and a base-layer override would lose to it
+   * however specific it was, which is exactly the kind of silent miss that
+   * leaves one control looking wrong in one theme.
+   */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) .select-chevron {
+      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23AFBDD2' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+    }
+  }
+
+  :root[data-theme='dark'] .select-chevron {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23AFBDD2' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
   }
 
   /* A disabled control's arrow dims with the rest of it. */

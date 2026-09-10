@@ -139,6 +139,7 @@ from what the software actually does; the retention column follows from §2.2.
 | Payment processing | Provider transaction references, amounts, status | Customers | Art. 6(1)(b) + 6(1)(c) | As above. No card data is ever stored |
 | Recurring order authority | Schedule, consent timestamp and version, mandate reference | Customers | Art. 6(1)(b) + explicit consent recorded per schedule | Until cancelled, then tax retention |
 | Purchasing limits and credit control | Per-currency caps, approval thresholds, internal notes | Customers | Art. 6(1)(f) legitimate interest | Life of account |
+| Lines saved without buying them | Product and variant reference, timestamp | Customers | Art. 6(1)(b) contract — the customer asked for the list | Life of account. Deleted outright on erasure |
 | Storefront enquiries | Name, mobile, email, organisation, transcript, IP, user-agent | Prospective customers | Art. 6(1)(f), or 6(1)(a) if you present it as consent | `RETENTION_ASSISTANT_CONVERSATION_DAYS` |
 | Security and accountability logging | Actor, action, resource, before/after, IP, user-agent | Staff and customers | Art. 6(1)(c) + 6(1)(f) | `RETENTION_AUDIT_LOG_DAYS` |
 | Staff account management | Email, roles, MFA state, sign-in history | Staff | Art. 6(1)(b) employment | Life of employment + `<DECIDE>` |
@@ -187,6 +188,11 @@ This software sets **only** strictly necessary cookies:
 | `uboss_shop_rt` / `uboss_admin_rt` | Refresh token, httpOnly |
 | `uboss_shop_csrf` / `uboss_admin_csrf` | CSRF double-submit token, readable by the page |
 | `uboss.language` (localStorage) | The language the visitor picked |
+| `uboss.locale` (localStorage) | The country and currency a **signed-out** visitor picked, so a stranger is not asked again on every page. A signed-in customer's answer lives on their profile instead, and signing in adopts whatever was chosen before |
+| `uboss.locale.declined` (localStorage) | Currencies the interface language offered and the visitor turned down. A "stop asking me" flag, deliberately not a profile column: it is not a preference, and it is not worth a migration and a round trip per deployment to carry a dismissal between somebody's devices |
+
+None of the three identifies a person, and none is read by the server. They are
+the visitor's own answers, kept so the question is asked once.
 
 Under Art. 5(3) of the ePrivacy Directive these are exempt from consent: they
 are strictly necessary to provide the service the user asked for. **You do not

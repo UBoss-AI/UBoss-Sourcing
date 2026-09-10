@@ -1916,5 +1916,10 @@
   "erp.deleteConnection": "Diese Verbindung löschen",
   "erp.deleteConnectionDescription": "Löscht die Verbindung, die zugehörigen Anmeldedaten und den gemeldeten Lagerbestand. Bereits an das ERP-System gesendete Aufträge bleiben davon unberührt.",
   "erp.confirmDelete": "Ja, bitte löschen Sie es.",
-  "erp.notCalled": "Nicht getestet"
+  "erp.notCalled": "Nicht getestet",
+  "theme.label": "Darstellung",
+  "theme.optionSystem": "Wie mein Gerät",
+  "theme.optionLight": "Helles Design",
+  "theme.optionDark": "Dunkles Design",
+  "theme.pressToChange": "Zum Ändern drücken."
 }

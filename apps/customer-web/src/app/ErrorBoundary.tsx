@@ -58,7 +58,7 @@ export class ErrorBoundary extends Component<Props, State> {
               onClick={() => {
                 window.location.reload();
               }}
-              className="inline-flex h-10 items-center rounded-md bg-brand px-4 text-sm font-medium text-white hover:bg-brand-hover"
+              className="inline-flex h-10 items-center rounded-md bg-brand-fill px-4 text-sm font-medium text-white hover:bg-brand-fill-hover"
             >
               {i18n.t('errorBoundary.reload')}
             </button>

@@ -94,7 +94,7 @@ export function Footer(): React.JSX.Element {
             {business.logo === null ? (
               <span
                 aria-hidden="true"
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand text-base font-bold text-white"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand-fill text-base font-bold text-white"
               >
                 {business.displayName.slice(0, 1).toUpperCase()}
               </span>
@@ -104,7 +104,7 @@ export function Footer(): React.JSX.Element {
                 alt=""
                 width={40}
                 height={40}
-                className="h-10 w-10 shrink-0 rounded-md border border-border bg-white object-contain p-1"
+                className="h-10 w-10 shrink-0 rounded-md border border-border bg-surface-media object-contain p-1"
               />
             )}
             <h2 className="min-w-0 text-title-xs text-ink">{business.displayName}</h2>
@@ -115,7 +115,7 @@ export function Footer(): React.JSX.Element {
           </p>
         </div>
 
-        <div className="grid gap-10 sm:grid-cols-2 lg:flex lg:shrink-0 lg:gap-16">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:flex lg:shrink-0 lg:gap-16">
           <div>
             <ColumnHeading>{t('footer.shop')}</ColumnHeading>
             <ul className="mt-3 space-y-2">

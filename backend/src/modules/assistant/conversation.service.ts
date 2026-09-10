@@ -1,30 +1,43 @@
 /**
- * Chat conversations, and the customer behind each one.
+ * Chat conversations, and whoever is behind each one.
  *
- * The widget used to ask a visitor for a name, a mobile number and an email
- * before it would answer anything. It no longer asks for any of the three: the
- * assistant is behind the customer session now, so who is asking is something
- * the request already proves. Three decisions worth stating:
+ * There are two kinds, and the difference runs through this whole file:
  *
- *   1. **The owner is authenticated, not typed.** `customerProfileId` comes
- *      from the session guard on the route, never from the request body, and
- *      it is the only thing `/assistant/chat` authorises against. A row here
- *      says "this customer asked this", which is a stronger claim than
- *      anything the old capture form could make — it never verified a single
- *      character of what somebody typed into it.
+ *   - **A customer's**, owned by `customerProfileId` and therefore theirs on
+ *     every machine they sign in from. These are what AI Mode's history lists.
+ *   - **A guest's**, owned by an opaque token their browser holds for the life
+ *     of the tab. Anyone may ask this catalogue a question without opening an
+ *     account, on the same reasoning that puts the sign-in wall at the cart
+ *     rather than the front door — see `ASSISTANT_ALLOW_GUESTS`, which lets an
+ *     operator close it again, and read the note there on what it costs.
  *
- *   2. **The transcript is server-side.** The browser holds a conversation id
+ * Four decisions worth stating:
+ *
+ *   1. **The owner is never typed by whoever is asking.** A customer's comes
+ *      from the session guard on the route. A guest's is a secret this server
+ *      minted and only that browser holds — not a name, an email or a phone
+ *      number somebody entered into a box. The widget used to collect all
+ *      three before it would answer anything, and verified none of them; that
+ *      form is gone and is not coming back. Anonymous is the honest word for a
+ *      visitor, and it is cheaper for everyone than an unchecked claim.
+ *
+ *   2. **The two authorities do not cross.** A row is owned by an account or
+ *      by a token, never both, and each branch of `authoriseConversation`
+ *      demands the column the other one leaves null.
+ *
+ *   3. **The transcript is server-side.** The browser holds a conversation id
  *      and nothing else; the turns live in the database. Before this, the
  *      client posted the whole history back on every turn — fine for a
  *      stateless endpoint, useless as a record: an administrator would be
  *      reading whatever the browser chose to send.
  *
- *   3. **Nothing here deletes history.** The `visitor*` columns are nullable
+ *   4. **Nothing here deletes history.** The `visitor*` columns are nullable
  *      and no longer written, but the rows that have them keep them until the
  *      retention sweep or an erasure request takes them. See the model
  *      comments in `schema.prisma`.
  */
 import { AssistantMessageRole } from '../../generated/prisma/client.js';
+import { safeCompare } from '../../infra/crypto.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import type { AssistantTurn } from './provider.js';
@@ -38,26 +51,45 @@ import type { AssistantTurn } from './provider.js';
  */
 const HISTORY_TURNS = 20;
 
+/**
+ * Who a conversation belongs to.
+ *
+ * Two shapes, and they are deliberately not interchangeable. A signed-in
+ * customer owns their conversations through their account, so they follow them
+ * from one machine to the next and appear in their AI Mode history. A guest
+ * owns exactly one, through an opaque token their browser holds for the life
+ * of the tab, and it appears in nobody's history because there is no account
+ * for it to belong to.
+ *
+ * Written as a discriminated union rather than two nullable fields because the
+ * one thing that must never happen is a guest token opening a customer's
+ * conversation, or the reverse. A union makes the wrong call a type error
+ * instead of a runtime check somebody can forget.
+ */
+export type ConversationOwner =
+  | { kind: 'customer'; customerProfileId: string }
+  | { kind: 'guest'; sessionTokenHash: string };
+
 export interface StartedConversation {
   conversationId: string;
 }
 
 /**
- * Open a conversation for the signed-in customer.
+ * Open a conversation.
  *
- * Nothing is asked of them first. The old flow took a name, a mobile number
- * and an email before it would answer a question; all three are either already
- * known from the account or not needed to answer one, and asking a customer
- * who has just signed in to type their own email is friction that buys
- * nothing.
+ * Nothing is asked of anybody first. The original flow took a name, a mobile
+ * number and an email before it would answer a question; none of the three was
+ * ever verified, so it bought friction rather than safety, and it is not
+ * coming back — a guest is anonymous here in the ordinary sense of the word.
  *
- * `customerProfileId` is required rather than optional. It comes from the
- * route's session guard, and it is what every later read and write on this
- * conversation is checked against — there is no unowned conversation for an
- * ownership check to fall through.
+ * The owner decides which column is written. A customer conversation carries
+ * `customerProfileId` and no token; a guest conversation carries the SHA-256
+ * of the token handed back to the browser and no owner. Never both: a row with
+ * both would be reachable by two different authorities, which is exactly the
+ * confusion the union above exists to prevent.
  */
 export async function startConversation(
-  owner: { customerProfileId: string },
+  owner: ConversationOwner,
   context: { ipAddress: string | null; userAgent: string | null },
 ): Promise<StartedConversation> {
   const id = newId();
@@ -65,7 +97,8 @@ export async function startConversation(
   await prisma.assistantConversation.create({
     data: {
       id,
-      customerProfileId: owner.customerProfileId,
+      customerProfileId: owner.kind === 'customer' ? owner.customerProfileId : null,
+      sessionTokenHash: owner.kind === 'guest' ? owner.sessionTokenHash : null,
       ipAddress: context.ipAddress,
       userAgent: context.userAgent,
     },
@@ -75,32 +108,222 @@ export async function startConversation(
 }
 
 /**
- * The conversation, if it is this customer's.
+ * The conversation, if this caller is the one who owns it.
  *
- * Ownership is the whole check. There is no opaque per-conversation token any
- * more: that existed because the endpoint had no session and something had to
- * separate one anonymous visitor from another. A session does that now, and
- * minting a second bearer secret alongside it would only be one more thing to
- * leak.
+ * Ownership is the whole check, and which authority proves it depends on who
+ * is asking. A customer proves it with their account, which the session guard
+ * established. A guest proves it with the token they were handed when the
+ * conversation was opened — an opaque secret their browser holds, matched
+ * against the hash stored on the row, never against anything they can guess.
  *
- * Null covers both "no such conversation" and "not yours", and the route turns
- * both into a 404 — an owner mismatch must not be distinguishable from a
- * missing row, or the id becomes a way to ask whether somebody else's
- * conversation exists.
+ * The two authorities do not cross. A guest token cannot open a conversation
+ * that has an owner, and a customer cannot pick up a guest conversation by its
+ * id: a row is either owned or tokened, and each branch demands the column the
+ * other one leaves null.
+ *
+ * Null covers "no such conversation", "not yours" and "you deleted it", and
+ * the route turns all three into a 404 — an owner mismatch must not be
+ * distinguishable from a missing row, or the id becomes a way to ask whether
+ * somebody else's conversation exists.
  */
 export async function authoriseConversation(
   conversationId: string,
-  customerProfileId: string,
+  owner: ConversationOwner,
 ): Promise<{ id: string; messageCount: number } | null> {
   const conversation = await prisma.assistantConversation.findUnique({
     where: { id: conversationId },
-    select: { id: true, messageCount: true, customerProfileId: true },
+    select: {
+      id: true,
+      messageCount: true,
+      customerProfileId: true,
+      sessionTokenHash: true,
+      hiddenAt: true,
+    },
   });
 
   if (conversation === null) return null;
-  if (conversation.customerProfileId !== customerProfileId) return null;
+
+  // Deleted from the customer's own history. The row survives for staff and
+  // for the retention sweep; it is not a thread anybody can go on adding to.
+  if (conversation.hiddenAt !== null) return null;
+
+  if (owner.kind === 'customer') {
+    if (conversation.customerProfileId !== owner.customerProfileId) return null;
+    return { id: conversation.id, messageCount: conversation.messageCount };
+  }
+
+  // A guest. The row must have no account behind it — otherwise a token would
+  // be a second key to a customer's conversation — and its stored hash must
+  // match. Compared in constant time: it is a bearer secret, and the fact that
+  // both sides are already hashes is not a reason to leak the comparison.
+  if (conversation.customerProfileId !== null) return null;
+  if (conversation.sessionTokenHash === null) return null;
+  if (!safeCompare(conversation.sessionTokenHash, owner.sessionTokenHash)) return null;
 
   return { id: conversation.id, messageCount: conversation.messageCount };
+}
+
+// ---------------------------------------------------------------------------
+// The customer's own history
+//
+// Everything below is read and written under the caller's own
+// `customerProfileId`, which comes from the route's session guard and never
+// from the request. That is the whole of the isolation between one customer's
+// AI Mode sidebar and another's: there is no query here that can be widened by
+// anything the browser sends.
+// ---------------------------------------------------------------------------
+
+/** How many threads the sidebar shows. Beyond this, the oldest fall off. */
+const HISTORY_LIMIT = 50;
+
+export interface CustomerConversationSummary {
+  id: string;
+  /** What the customer renamed it to, or null to fall back to `preview`. */
+  title: string | null;
+  /** The opening question, so an unnamed thread still reads as something. */
+  preview: string | null;
+  messageCount: number;
+  lastMessageAt: string | null;
+  createdAt: string;
+}
+
+/**
+ * The threads in this customer's sidebar, most recently active first.
+ *
+ * Empty conversations are excluded for the same reason the admin list excludes
+ * them: a panel somebody opened and closed again is not a conversation, and a
+ * sidebar that grows a blank row every time the page is visited is a bug
+ * customers report.
+ */
+export async function listCustomerConversations(
+  customerProfileId: string,
+): Promise<CustomerConversationSummary[]> {
+  const rows = await prisma.assistantConversation.findMany({
+    where: { customerProfileId, hiddenAt: null, messageCount: { gt: 0 } },
+    orderBy: [{ lastMessageAt: 'desc' }, { id: 'desc' }],
+    take: HISTORY_LIMIT,
+    select: {
+      id: true,
+      title: true,
+      messageCount: true,
+      lastMessageAt: true,
+      createdAt: true,
+      messages: {
+        where: { role: AssistantMessageRole.VISITOR },
+        orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+        take: 1,
+        select: { content: true },
+      },
+    },
+  });
+
+  return rows.map((row) => ({
+    id: row.id,
+    title: row.title,
+    // Trimmed to a sidebar's worth. The full question is one click away and
+    // sending 8,000 characters per row to render 40 of them is not a list.
+    preview: row.messages[0]?.content.slice(0, 160) ?? null,
+    messageCount: row.messageCount,
+    lastMessageAt: row.lastMessageAt?.toISOString() ?? null,
+    createdAt: row.createdAt.toISOString(),
+  }));
+}
+
+export interface CustomerConversationDetail extends CustomerConversationSummary {
+  messages: { id: string; role: 'user' | 'assistant'; content: string; createdAt: string }[];
+}
+
+/**
+ * One thread in full, for the customer who owns it.
+ *
+ * The roles come back as `user` / `assistant` rather than the database's
+ * `VISITOR` / `ASSISTANT`: this feeds a chat transcript, and the page should
+ * not have to know that the column was named in the era of the guest widget.
+ */
+export async function customerConversation(
+  conversationId: string,
+  customerProfileId: string,
+): Promise<CustomerConversationDetail | null> {
+  const row = await prisma.assistantConversation.findUnique({
+    where: { id: conversationId },
+    select: {
+      id: true,
+      title: true,
+      customerProfileId: true,
+      hiddenAt: true,
+      messageCount: true,
+      lastMessageAt: true,
+      createdAt: true,
+      messages: {
+        orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+        select: { id: true, role: true, content: true, createdAt: true },
+      },
+    },
+  });
+
+  if (row === null) return null;
+  if (row.customerProfileId !== customerProfileId) return null;
+  if (row.hiddenAt !== null) return null;
+
+  const firstQuestion =
+    row.messages.find((message) => message.role === AssistantMessageRole.VISITOR)?.content ?? null;
+
+  return {
+    id: row.id,
+    title: row.title,
+    preview: firstQuestion?.slice(0, 160) ?? null,
+    messageCount: row.messageCount,
+    lastMessageAt: row.lastMessageAt?.toISOString() ?? null,
+    createdAt: row.createdAt.toISOString(),
+    messages: row.messages.map((message) => ({
+      id: message.id,
+      role: message.role === AssistantMessageRole.VISITOR ? ('user' as const) : ('assistant' as const),
+      content: message.content,
+      createdAt: message.createdAt.toISOString(),
+    })),
+  };
+}
+
+/**
+ * Rename a thread, or clear the name back to the opening-question fallback.
+ *
+ * `updateMany` with the owner in the `where`, not a `findUnique` followed by an
+ * `update`: one statement that cannot be raced, and a row belonging to somebody
+ * else simply matches nothing. The count is what tells the route whether to
+ * answer 200 or 404.
+ */
+export async function renameCustomerConversation(
+  conversationId: string,
+  customerProfileId: string,
+  title: string | null,
+): Promise<boolean> {
+  const result = await prisma.assistantConversation.updateMany({
+    where: { id: conversationId, customerProfileId, hiddenAt: null },
+    data: { title },
+  });
+
+  return result.count > 0;
+}
+
+/**
+ * Remove a thread from the customer's history.
+ *
+ * Soft, and the model comment in `schema.prisma` says why at length: what the
+ * AI told a buyer about a medical device is a record this deployment has to be
+ * able to produce, and a sidebar tidy-up is not a decision to destroy it. From
+ * the customer's side the effect is total — it is gone from the list, gone from
+ * the reads, and `authoriseConversation` will not let it be continued.
+ */
+export async function hideCustomerConversation(
+  conversationId: string,
+  customerProfileId: string,
+): Promise<boolean> {
+  const result = await prisma.assistantConversation.updateMany({
+    where: { id: conversationId, customerProfileId, hiddenAt: null },
+    data: { hiddenAt: new Date() },
+  });
+
+  return result.count > 0;
 }
 
 /**

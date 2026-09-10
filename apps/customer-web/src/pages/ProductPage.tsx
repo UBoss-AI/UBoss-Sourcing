@@ -38,6 +38,7 @@ import { useStorefront } from '@/app/storefront-context';
 import { useLocale } from '@/app/locale-context';
 import { useToast } from '@/components/toast-context';
 import { QuantityInput } from '@/components/QuantityInput';
+import { SaveForLaterButton } from '@/components/SaveForLaterButton';
 import { clampToRules, describeRules } from '@/lib/quantity-rules';
 import { Badge, Button, ButtonLink, ErrorState, LoadingState } from '@/components/ui';
 import { BoxIcon, CurrencyIcon, TruckIcon } from '@/components/icons';
@@ -243,7 +244,7 @@ function VariantPicker({
                     aria-hidden="true"
                     className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 ${
                       isChosen
-                        ? 'border-brand bg-brand text-white'
+                        ? 'border-brand bg-brand-fill text-white'
                         : 'border-border-strong bg-surface'
                     }`}
                   >
@@ -439,7 +440,7 @@ function OrderingInformation({ product }: { product: Product }): React.JSX.Eleme
         {t('product.orderingInformation')}
       </h2>
 
-      <dl className="mt-3 grid gap-x-5 gap-y-3.5 sm:grid-cols-2">
+      <dl className="mt-3 grid grid-cols-1 gap-x-5 gap-y-3.5 sm:grid-cols-2">
         {facts.map((fact) => (
           <div key={fact.key} className="flex gap-2.5">
             <span
@@ -722,7 +723,7 @@ export function ProductPage(): React.JSX.Element {
         </ol>
       </nav>
 
-      <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-10">
         <Gallery product={product} />
 
         <div className="min-w-0">
@@ -878,21 +879,50 @@ export function ProductPage(): React.JSX.Element {
                       {t('product.scheduleOneOptionAtATime')}
                     </p>
                   )}
+
+                  {/*
+                   * Save for later, under the two commitments rather than
+                   * beside them: it is not a commitment, and a third
+                   * full-height button in that row would read as a third way
+                   * to buy this.
+                   *
+                   * `scheduleLine` is reused for the option, and it is the
+                   * right value for the same reason it is right there — it is
+                   * the single chosen line, or undefined when there is not
+                   * exactly one. With two options chosen the base product is
+                   * saved, which is the honest answer: the wishlist holds one
+                   * line per option and picking one of two arbitrarily would
+                   * be a guess.
+                   */}
+                  <div className="border-t border-border-subtle pt-2.5">
+                    <SaveForLaterButton
+                      productId={product.id}
+                      productSlug={product.slug}
+                      variantId={scheduleLine?.variantId ?? null}
+                    />
+                  </div>
                 </div>
               ) : (
                 <div className="rounded-md border border-border bg-surface-sunken p-4">
                   <p className="text-sm text-ink">{t('product.signInToAddThis')}</p>
-                  <Button
-                    variant="primary"
-                    className="mt-3"
-                    onClick={() => {
-                      void navigate('/login', {
-                        state: { from: `/product/${product.slug}` },
-                      });
-                    }}
-                  >
-                    {t('product.signInToOrder')}
-                  </Button>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <Button
+                      variant="primary"
+                      onClick={() => {
+                        void navigate('/login', {
+                          state: { from: `/product/${product.slug}` },
+                        });
+                      }}
+                    >
+                      {t('product.signInToOrder')}
+                    </Button>
+
+                    {/* Offered to a guest too. Somebody browsing without an
+                        account is exactly who wants to keep a line for later,
+                        and the control explains what signing in buys them
+                        rather than being absent. */}
+                    <SaveForLaterButton productId={product.id} productSlug={product.slug} />
+                  </div>
                 </div>
               )}
             </div>
@@ -911,7 +941,7 @@ export function ProductPage(): React.JSX.Element {
           wider half and is capped at a reading measure; the specifications sit
           beside it on a desktop and stack underneath on a phone. */}
       {hasDetail && (
-        <div className="mt-12 grid gap-8 border-t border-border pt-8 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-10">
+        <div className="mt-12 grid grid-cols-1 gap-8 border-t border-border pt-8 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-10">
           {(product.description !== null || product.descriptionHtml !== null) && (
             <section aria-labelledby="description-heading" className="min-w-0">
               <h2 id="description-heading" className="text-title-sm text-ink">
@@ -948,7 +978,7 @@ export function ProductPage(): React.JSX.Element {
                 {product.attributes.map((attribute) => (
                   <div
                     key={attribute.name}
-                    className="grid gap-0.5 px-4 py-3 text-sm sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-4"
+                    className="grid grid-cols-1 gap-0.5 px-4 py-3 text-sm sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-4"
                   >
                     <dt className="text-xs font-medium uppercase tracking-wide text-ink-subtle sm:text-sm sm:normal-case sm:tracking-normal sm:text-ink-muted">
                       {attribute.name}

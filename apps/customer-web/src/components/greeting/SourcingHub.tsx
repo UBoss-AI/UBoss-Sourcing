@@ -1,36 +1,45 @@
 /**
  * The sourcing hub.
  *
- * One orb, two counter-rotating orbits and six capabilities arranged around
+ * One glass orb, two counter-rotating orbits and four capabilities riding
  * them. It is the greeting page's main visual and its main navigation at the
  * same time, which is the only thing that justifies its size: a decorative
  * diagram this large would be 500px of scroll between a customer and the
  * catalogue.
  *
- * Three decisions are worth knowing before changing anything here.
+ * Four decisions are worth knowing before changing anything here.
  *
  * **The word in the middle does not rotate.** The orb underneath it turns, its
- * highlight orbits, and the rings turn in opposite directions — but the label
- * is a sibling layer with no transform at all. A word painted onto a spinning
- * sphere is unreadable for most of every revolution, and a transformed layer
- * can pick up a half-pixel blur on its text even when it is standing still.
+ * highlight orbits, the wireframe turns in three dimensions and the whole ring
+ * of cards sweeps round it — but the label is a sibling layer with no
+ * transform at all. A word painted onto a spinning sphere is unreadable for
+ * most of every revolution, and a transformed layer can pick up a half-pixel
+ * blur on its text even when it is standing still.
  *
- * **Six nodes, one list, two arrangements.** From `lg` they lift out onto a
- * circle; below it they sit in a grid under the orb. Same DOM, same six
- * controls, same tab order — the difference is entirely in
+ * **The cards orbit and their wording does not.** Each card sits inside a
+ * layer turning the opposite way at the same period as the ring it rides, so
+ * the two cancel and the text is upright in every frame. The pairing is in
+ * `orchestration.css` and the periods are custom properties precisely so the
+ * two halves cannot drift apart — a card whose counter-rotation is a second
+ * out slowly tips over.
+ *
+ * **Four nodes, one list, two arrangements.** From `lg` they lift out onto a
+ * turning circle; below it they sit still in a grid under the orb. Same DOM,
+ * same four controls, same tab order — the difference is entirely in
  * `orchestration.css`. A radial layout that merely scaled down would put one
- * node's label on top of another's at phone width, and a control you cannot
- * read is a control you cannot press.
+ * node's label on top of another's at phone width, and a rotating one would
+ * have them take turns covering each other.
  *
  * **Hovering does not re-render.** The active node is written to a
  * `data-orch-active` attribute and the pointer parallax to two custom
  * properties, both straight onto the DOM node. Moving a mouse across the hero
- * would otherwise re-render six tiles, an SVG and everything below them, sixty
- * times a second, for a glow.
+ * would otherwise re-render four tiles, an SVG and everything below them,
+ * sixty times a second, for a glow.
  *
  * What a node *does* is not decided here — see `orchestration-nodes.ts`, which
  * is where the rule that a node never links somewhere the person pressing it
- * cannot go actually lives.
+ * cannot go actually lives, and which records why Warehouse Network and
+ * Inventory Sync are no longer among them.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties, RefObject } from 'react';
@@ -39,7 +48,6 @@ import { useSession } from '@/auth/session-context';
 import { useStorefront } from '@/app/storefront-context';
 import { BoxIcon, ChevronRightIcon, CloseIcon } from '@/components/icons';
 import { cx } from '@/lib/cx';
-import { openAssistantPanel } from '@/lib/assistant-panel';
 import { useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
 import {
@@ -55,7 +63,11 @@ import {
   resolveNode,
   svgRotation,
 } from './orchestration-nodes';
-import type { OrchestrationNode, OrchestrationNodeId } from './orchestration-nodes';
+import type {
+  OrchestrationNode,
+  OrchestrationNodeId,
+  OrchestrationRing,
+} from './orchestration-nodes';
 import './orchestration.css';
 
 /** `style` with the custom properties this component feeds the stylesheet. */
@@ -63,6 +75,11 @@ type CssVars = CSSProperties & Record<`--${string}`, string>;
 
 /** How far the deepest layer drifts with the pointer, in pixels. */
 const PARALLAX_PX = 10;
+
+/** The nodes on one orbit, in table order. */
+function nodesOn(ring: OrchestrationRing): readonly OrchestrationNode[] {
+  return ORCHESTRATION_NODES.filter((node) => node.ring === ring);
+}
 
 // ---------------------------------------------------------------------------
 // Pointer parallax
@@ -166,11 +183,63 @@ function motes(radius: number, angles: readonly number[]): React.JSX.Element[] {
 }
 
 /**
+ * The spokes belonging to one orbit, and the lights that travel them.
+ *
+ * Grouped by ring because the group is what turns: a spoke has to stay under
+ * the card it points at, and the cards on the two rings are travelling in
+ * opposite directions. One group for all four would leave half the lines
+ * pointing at empty space.
+ */
+function Spokes({ ring }: { ring: OrchestrationRing }): React.JSX.Element {
+  return (
+    <g className={`orch-spokes orch-spokes--${ring}`}>
+      {nodesOn(ring).map((node) => {
+        const from = pointAt(node.angle, LINE_START);
+        const to = pointAt(node.angle, LINE_END);
+
+        return (
+          <line
+            key={node.id}
+            className="orch-line"
+            data-node={node.id}
+            x1={from.x}
+            y1={from.y}
+            x2={to.x}
+            y2={to.y}
+            strokeLinecap="round"
+          />
+        );
+      })}
+
+      {/* One light per spoke. Each starts at the centre of a group the
+          drawing has already turned to that spoke's angle, so the animation
+          only has to push it along the local x-axis — a translate, not a
+          dash offset, and therefore no repaint. */}
+      {nodesOn(ring).map((node, index) => (
+        <g
+          key={node.id}
+          transform={`rotate(${svgRotation(node.angle)} ${HUB_CENTRE} ${HUB_CENTRE})`}
+        >
+          <circle
+            className="orch-pulse"
+            data-node={node.id}
+            cx={HUB_CENTRE}
+            cy={HUB_CENTRE}
+            r={2.6}
+            style={{ '--orch-delay': `${(index * 1.1).toFixed(2)}s` } as CssVars}
+          />
+        </g>
+      ))}
+    </g>
+  );
+}
+
+/**
  * Rings, radial lines and the lights that travel them.
  *
  * `aria-hidden`, and it means it: every name in this picture is also rendered
  * as text in the node beside it, so a screen reader that read the diagram
- * would hear the same six words twice.
+ * would hear the same four words twice.
  */
 function HubWeb(): React.JSX.Element {
   return (
@@ -191,25 +260,10 @@ function HubWeb(): React.JSX.Element {
 
       <circle cx={HUB_CENTRE} cy={HUB_CENTRE} r={188} fill="url(#orch-halo)" />
 
-      {/* Drawn before the rings, so an orbit passes in front of a spoke
+      {/* Drawn before the orbits, so a ring passes in front of a spoke
           rather than being cut in half by one. */}
-      {ORCHESTRATION_NODES.map((node) => {
-        const from = pointAt(node.angle, LINE_START);
-        const to = pointAt(node.angle, LINE_END);
-
-        return (
-          <line
-            key={node.id}
-            className="orch-line"
-            data-node={node.id}
-            x1={from.x}
-            y1={from.y}
-            x2={to.x}
-            y2={to.y}
-            strokeLinecap="round"
-          />
-        );
-      })}
+      <Spokes ring="inner" />
+      <Spokes ring="outer" />
 
       <g className="orch-ring orch-ring--inner">
         <circle
@@ -234,22 +288,6 @@ function HubWeb(): React.JSX.Element {
         />
         {motes(RING_OUTER, [70, 190, 310])}
       </g>
-
-      {/* One light per spoke. Each starts at the centre of a group the
-          drawing has already turned to that spoke's angle, so the animation
-          only has to push it along the local x-axis — a translate, not a
-          dash offset, and therefore no repaint. */}
-      {ORCHESTRATION_NODES.map((node, index) => (
-        <g key={node.id} transform={`rotate(${svgRotation(node.angle)} ${HUB_CENTRE} ${HUB_CENTRE})`}>
-          <circle
-            className="orch-pulse"
-            cx={HUB_CENTRE}
-            cy={HUB_CENTRE}
-            r={2.6}
-            style={{ '--orch-delay': `${(index * 0.73).toFixed(2)}s` } as CssVars}
-          />
-        </g>
-      ))}
     </svg>
   );
 }
@@ -258,7 +296,16 @@ function HubWeb(): React.JSX.Element {
 function HubCore({ label }: { label: string }): React.JSX.Element {
   return (
     <div className="orch-hub">
+      {/* Under everything, in the order they stack: the breathing aura, the
+          static ground it breathes over, then the arc that travels the rim.
+          All three are decoration and none of them is readable, so all three
+          are `aria-hidden` like the sphere itself. */}
+      <span aria-hidden="true" className="orch-hub-aura" />
       <span aria-hidden="true" className="orch-hub-glow" />
+      <span aria-hidden="true" className="orch-hub-sweep" />
+      {/* Concentric hairlines outside the sphere. They hold still, which is
+          what makes everything turning inside them legible as turning. */}
+      <span aria-hidden="true" className="orch-hub-rings" />
 
       <div aria-hidden="true" className="orch-orb">
         <div className="orch-orb-wire">
@@ -268,6 +315,8 @@ function HubCore({ label }: { label: string }): React.JSX.Element {
         </div>
         <span className="orch-orb-equator" />
         <div className="orch-orb-sheen" />
+        {/* Last, so the glass sits over the gleam rather than under it. */}
+        <span className="orch-orb-glass" />
       </div>
 
       {/* The fixed layer. Not inside `.orch-orb`, which rotates and clips. */}
@@ -297,7 +346,7 @@ interface HubNote {
 
 const NODE_SHELL =
   'orch-node-control flex w-full items-center gap-3 rounded-lg border border-border ' +
-  'bg-surface/80 p-3 text-left shadow-card backdrop-blur-sm transition-[border-color,box-shadow] ' +
+  'bg-surface/85 p-3 text-left shadow-card backdrop-blur-sm transition-[border-color,box-shadow] ' +
   'hover:border-brand/40 hover:shadow-card-hover lg:flex-col lg:gap-2 lg:p-3.5 lg:text-center ' +
   'disabled:opacity-60';
 
@@ -335,7 +384,7 @@ function NodeTile({
    * The name is the capability, the description is the supporting line.
    * Composing both into one label instead would have a screen reader announce
    * "AI Assistant Ask about a product before you order it, button", which is
-   * a sentence nobody can skim a list of six of.
+   * a sentence nobody can skim a list of four of.
    */
   const shared = {
     className: NODE_SHELL,
@@ -364,7 +413,14 @@ function NodeTile({
         <span id={labelId} className="block text-sm font-semibold leading-snug text-ink">
           {t(node.labelKey)}
         </span>
-        <span id={hintId} className="mt-0.5 block text-xs leading-snug text-ink-muted">
+        {/* Two lines from `lg`, where every card is one fixed height and a
+            third line would be the one that made the ring too tall. Clamped
+            rather than shortened, because the full sentence is what the phone
+            list shows and what a screen reader reads either way. */}
+        <span
+          id={hintId}
+          className="mt-0.5 block text-xs leading-snug text-ink-muted lg:line-clamp-2"
+        >
           {t(node.hintKey)}
         </span>
       </span>
@@ -374,42 +430,53 @@ function NodeTile({
   const position = nodePosition(node.angle);
 
   return (
-    <li
-      className="orch-node"
-      style={
-        {
-          '--orch-x': position.left,
-          '--orch-y': position.top,
-        } as CssVars
-      }
-    >
-      {/* The float is on this wrapper and nowhere else. Putting it on the
-          `<li>` would fight the centring transform; putting it on the control
-          would fight the press feedback. */}
-      <div
-        className="orch-node-float"
-        style={{ '--orch-delay': `${(index * 0.55).toFixed(2)}s` } as CssVars}
-      >
-        {outcome.kind === 'link' ? (
-          <Link to={outcome.to} {...shared}>
-            {body}
-          </Link>
-        ) : (
-          <button
-            type="button"
-            // Inert only for the moment before `/auth/me` settles. Offering a
-            // guest's answer and then swapping it for a customer's is the
-            // flicker every session-aware tile starts with.
-            disabled={outcome.kind === 'pending'}
-            aria-busy={outcome.kind === 'pending'}
-            onClick={() => {
-              onPress(node);
-            }}
-            {...shared}
-          >
-            {body}
-          </button>
-        )}
+    /*
+     * Four nested wrappers, and each one does exactly one job. They look like
+     * excess until you try to merge two of them:
+     *
+     *   `.orch-node`       covers the whole stage, so the orbit below has its
+     *                      centre on the orb.
+     *   `.orch-node-orbit` turns. Its direction and period come from the ring.
+     *   `.orch-node-seat`  sits at the node's angle and centres itself there.
+     *   `.orch-node-spin`  turns back, cancelling the orbit for the text.
+     *   `.orch-node-float` bobs. Outside the cancellation, or the bob would
+     *                      change direction as the card went round.
+     *
+     * Below `lg` none of them animate and the whole stack collapses to plain
+     * blocks inside a grid item.
+     */
+    <li className="orch-node" data-ring={node.ring}>
+      <div className="orch-node-orbit">
+        <div className="orch-node-seat" style={{ '--orch-x': position.left, '--orch-y': position.top } as CssVars}>
+          <div className="orch-node-spin">
+            <div
+              className="orch-node-float"
+              style={{ '--orch-delay': `${(index * 0.55).toFixed(2)}s` } as CssVars}
+            >
+              {outcome.kind === 'link' ? (
+                <Link to={outcome.to} {...shared}>
+                  {body}
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  // Inert only for the moment before `/auth/me` settles.
+                  // Offering a guest's answer and then swapping it for a
+                  // customer's is the flicker every session-aware tile starts
+                  // with.
+                  disabled={outcome.kind === 'pending'}
+                  aria-busy={outcome.kind === 'pending'}
+                  onClick={() => {
+                    onPress(node);
+                  }}
+                  {...shared}
+                >
+                  {body}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </li>
   );
@@ -446,12 +513,6 @@ export function SourcingHub(): React.JSX.Element {
         hasRecurringOrders: features.recurringOrders,
       });
 
-      if (outcome.kind === 'assistant') {
-        setNote(null);
-        openAssistantPanel();
-        return;
-      }
-
       if (outcome.kind === 'note') {
         setNote({
           id: node.id,
@@ -473,17 +534,23 @@ export function SourcingHub(): React.JSX.Element {
           <HubCore label={t('greeting.hub.sourcing')} />
         </div>
 
-        <ul className="orch-nodes">
-          {ORCHESTRATION_NODES.map((node, index) => (
-            <NodeTile
-              key={node.id}
-              node={node}
-              index={index}
-              onActivate={setActive}
-              onPress={press}
-            />
-          ))}
-        </ul>
+        {/* The parallax layer. Outside the `<ul>` because the ul's children
+            rotate, and a translate inside a rotating subtree is a translate
+            that rotates with it — the whole ring would swing a few pixels
+            round the orb once a minute, which reads as a wobble. */}
+        <div className="orch-nodes-layer">
+          <ul className="orch-nodes">
+            {ORCHESTRATION_NODES.map((node, index) => (
+              <NodeTile
+                key={node.id}
+                node={node}
+                index={index}
+                onActivate={setActive}
+                onPress={press}
+              />
+            ))}
+          </ul>
+        </div>
       </div>
 
       {/*

@@ -13,22 +13,16 @@
  *     never reloads and a screen reader would otherwise never learn the page
  *     changed.
  */
-import { Suspense, lazy, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { ServiceBanner } from '@/app/ServiceBanner';
-import { useStorefront } from '@/app/storefront-context';
 import { CountryPicker } from '@/components/CountryPicker';
 import { MarketSuggestionBanner } from '@/components/MarketSuggestionBanner';
+import { cx } from '@/lib/cx';
+import { AI_MODE_PATH } from '@/lib/ai-mode';
 import { Footer } from './Footer';
 import { Header } from './Header';
 import { useI18n } from '@/i18n/i18n-context';
-
-/*
- * Split out of the main bundle. The widget is chrome, not content: the
- * catalogue must render before a chat button costs anybody a byte, and a
- * deployment with no AI key never loads this chunk at all.
- */
-const ChatWidget = lazy(async () => import('@/components/ChatWidget'));
 
 /** True while the browser reports no connectivity. */
 function useOnlineStatus(): boolean {
@@ -75,7 +69,23 @@ export function StoreLayout(): React.JSX.Element {
   const isOnline = useOnlineStatus();
   const location = useLocation();
   const mainRef = useRef<HTMLElement>(null);
-  const { features } = useStorefront();
+
+  /*
+   * AI Mode takes the whole frame under the header.
+   *
+   * The storefront's reading measure — `max-w-content`, with padding — is
+   * right for a catalogue and wrong for a two-pane chat application: a
+   * conversation sidebar inside a centred 80rem column with 16px gutters is a
+   * page pretending to be an app. So this one route drops the measure, the
+   * padding and the footer, and takes the remaining height instead.
+   *
+   * Height comes from the flex column rather than from a `calc()` against the
+   * header: the header is two rows on a narrow screen and one on a wide one,
+   * and every viewport-minus-a-guess is wrong on one of them. `min-h-0` is the
+   * load-bearing half — without it a flex child refuses to shrink below its
+   * content and the transcript scrolls the document instead of itself.
+   */
+  const isImmersive = location.pathname === AI_MODE_PATH;
 
   // A single-page app does not reload, so focus stays where it was and a
   // screen reader never learns the page changed. Moving focus to the main
@@ -88,7 +98,22 @@ export function StoreLayout(): React.JSX.Element {
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-screen flex-col">
+    /*
+     * `min-h-screen` everywhere except AI Mode, where it has to be an exact
+     * `h-[100dvh]`.
+     *
+     * The difference is load bearing rather than cosmetic. `min-height` leaves
+     * the column's height content-driven, so `flex-1` on `<main>` has no
+     * leftover space to claim and the transcript grows the document instead of
+     * scrolling inside itself — the composer then sits below the fold and the
+     * page scrolls under a fixed header. A definite height is what gives
+     * `flex-1` something to fill.
+     *
+     * `dvh` rather than `vh`: on a phone the two differ by the height of a
+     * collapsing browser toolbar, and `vh` is the one that puts the Send button
+     * under it.
+     */
+    <div className={cx('flex flex-col', isImmersive ? 'h-[100dvh]' : 'min-h-screen')}>
       <a href="#main" className="skip-link">
         {t('storeLayout.skipToContent')}
       </a>
@@ -112,22 +137,18 @@ export function StoreLayout(): React.JSX.Element {
         id="main"
         ref={mainRef}
         tabIndex={-1}
-        className="mx-auto w-full max-w-content flex-1 px-4 py-6 outline-none sm:py-8"
+        className={cx(
+          'w-full flex-1 outline-none',
+          isImmersive ? 'min-h-0' : 'mx-auto max-w-content px-4 py-6 sm:py-8',
+        )}
       >
         <Outlet />
       </main>
 
-      <Footer />
-
-      {/* After the footer in the DOM so it comes last in the tab order — a
-          floating button is the least important thing on the page and must not
-          sit between the content and the footer links. `position: fixed` puts
-          it bottom-right regardless. */}
-      {features.assistant && (
-        <Suspense fallback={null}>
-          <ChatWidget />
-        </Suspense>
-      )}
+      {/* No footer under a full-height application pane: it would either be
+          pushed off screen or steal the height the transcript needs. Every
+          link in it is still one press away in the header. */}
+      {!isImmersive && <Footer />}
     </div>
   );
 }

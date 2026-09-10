@@ -410,7 +410,7 @@ export function ReportsPage(): React.JSX.Element {
           {sales.data !== undefined && (
             <div className="space-y-4 px-5 py-4">
               {/* The four that get quoted. */}
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 <Metric
                   label={t('reports.orders')}
                   value={formatNumber(sales.data.summary.orderCount)}
@@ -438,7 +438,7 @@ export function ReportsPage(): React.JSX.Element {
               </div>
 
               {/* The four they break down into. Same cards, one step quieter. */}
-              <div className="grid gap-3 border-t border-border-subtle pt-4 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="grid grid-cols-1 gap-3 border-t border-border-subtle pt-4 sm:grid-cols-2 xl:grid-cols-4">
                 <Metric label={t('reports.tax')} value={formatMoney(sales.data.summary.tax)} />
                 <Metric
                   label={t('reports.shipping')}
@@ -457,7 +457,7 @@ export function ReportsPage(): React.JSX.Element {
           )}
         </Card>
 
-        <div className="grid gap-5 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           <Card
             title={t('reports.ordersByStatus')}
             description={t('reports.everyOrderPlacedInThe')}

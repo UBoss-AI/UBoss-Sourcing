@@ -21,6 +21,7 @@ import type { LocaleState } from '@/app/locale-context';
 import { SessionContext } from '@/auth/session-context';
 import type { SessionState } from '@/auth/session-context';
 import { ToastProvider } from '@/components/toast';
+import { ThemeProvider } from '@/app/ThemeProvider';
 import { i18n } from '@/i18n/config';
 import type { StorefrontConfig } from '@/lib/types';
 
@@ -91,22 +92,28 @@ export function renderWithProviders(
 
   return render(
     <MemoryRouter initialEntries={[options.route ?? '/']}>
-      {/* Real English copy, not raw keys. Without this a test asserting on
-          "Your cart is empty" fails against the key name, which reads as a
-          broken component rather than a missing provider. */}
-      <I18nextProvider i18n={i18n}>
-        <QueryClientProvider client={queryClient}>
-          <StorefrontContext.Provider value={options.config ?? FALLBACK_CONFIG}>
-            <ToastProvider>
-              <SessionContext.Provider value={options.session ?? makeSession()}>
-                <LocaleContext.Provider value={options.locale ?? makeLocale()}>
-                  {ui}
-                </LocaleContext.Provider>
-              </SessionContext.Provider>
-            </ToastProvider>
-          </StorefrontContext.Provider>
-        </QueryClientProvider>
-      </I18nextProvider>
+      {/* The real theme provider, not a stub. It reads `localStorage` and
+          `matchMedia` through guards that already tolerate jsdom having
+          neither, and stubbing it here would make the appearance control the
+          one component in the app whose tests never touch what ships. */}
+      <ThemeProvider>
+        {/* Real English copy, not raw keys. Without this a test asserting on
+            "Your cart is empty" fails against the key name, which reads as a
+            broken component rather than a missing provider. */}
+        <I18nextProvider i18n={i18n}>
+          <QueryClientProvider client={queryClient}>
+            <StorefrontContext.Provider value={options.config ?? FALLBACK_CONFIG}>
+              <ToastProvider>
+                <SessionContext.Provider value={options.session ?? makeSession()}>
+                  <LocaleContext.Provider value={options.locale ?? makeLocale()}>
+                    {ui}
+                  </LocaleContext.Provider>
+                </SessionContext.Provider>
+              </ToastProvider>
+            </StorefrontContext.Provider>
+          </QueryClientProvider>
+        </I18nextProvider>
+      </ThemeProvider>
     </MemoryRouter>,
   );
 }

@@ -56,6 +56,9 @@ export const SECTIONS = Object.freeze({
     'recurringSchedules',
     'savedPaymentMethods',
     'carts',
+    // Lines saved without buying them. A record of what somebody was thinking
+    // of ordering, which is plainly theirs, and short enough to disclose whole.
+    'wishlist',
     'couponRedemptions',
     'chatEnquiries',
     'sessions',
@@ -226,6 +229,7 @@ export async function buildCustomerBundle(subject: BundleSubject): Promise<Recor
     redemptions,
     enquiries,
     sessions,
+    wishlist,
   ] = await Promise.all([
       prisma.address.findMany({
         where: { customerProfileId: profile.id },
@@ -455,6 +459,24 @@ export async function buildCustomerBundle(subject: BundleSubject): Promise<Recor
           revokedReason: true,
         },
       }),
+
+      /*
+       * Lines the subject saved without buying them.
+       *
+       * A short list and an obviously personal one — it is a record of what
+       * somebody was thinking of ordering — so it is disclosed in full rather
+       * than summarised. The product is named as well as identified: an id
+       * tells the subject nothing about what they had saved.
+       */
+      prisma.wishlistItem.findMany({
+        where: { customerProfileId: profile.id },
+        orderBy: { createdAt: 'asc' },
+        select: {
+          variantKey: true,
+          createdAt: true,
+          product: { select: { name: true, sku: true } },
+        },
+      }),
     ]);
 
   return envelope(subject, {
@@ -568,6 +590,15 @@ export async function buildCustomerBundle(subject: BundleSubject): Promise<Recor
         quantity: item.quantity,
         addedAt: iso(item.createdAt),
       })),
+    })),
+
+    wishlist: wishlist.map((item) => ({
+      productName: item.product.name,
+      sku: item.product.sku,
+      // The empty string means the base product rather than a variant. Sent as
+      // null so the subject reads an absence rather than a sentinel.
+      variantId: item.variantKey === '' ? null : item.variantKey,
+      savedAt: iso(item.createdAt),
     })),
 
     couponRedemptions: redemptions.map((redemption) => ({

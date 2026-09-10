@@ -280,7 +280,7 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
                 className={cx(
                   'h-8 rounded-md px-3 text-xs font-semibold transition-[background-color,border-color,color]',
                   code === selected
-                    ? 'bg-accent text-white shadow-card'
+                    ? 'bg-brand-fill text-white shadow-card'
                     : 'border border-border-strong bg-surface text-ink hover:border-border-hover hover:bg-surface-hover',
                 )}
               >
@@ -309,7 +309,7 @@ function LimitsPanel({ customer }: { customer: CustomerDetail }): React.JSX.Elem
 
           {current !== undefined && (
             <div className="mt-4 space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field
                   label={`Minimum per order (${selected})`}
                   hint={t('customerDetail.blankMeansNoMinimum')}
@@ -540,7 +540,7 @@ export function CustomerDetailPage(): React.JSX.Element {
         }
       />
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_20rem]">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="space-y-5">
           <Card title={t('customerDetail.account')}>
             <DescriptionList

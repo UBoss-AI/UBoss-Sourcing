@@ -1,5 +1,5 @@
 /**
- * The greeting page's hub and account panel.
+ * The greeting page's sourcing hub.
  *
  * What these are actually guarding is the one rule the whole feature rests on:
  * **a node never offers something the person pressing it cannot have.** A
@@ -9,22 +9,27 @@
  * review sails straight past, because it looks perfect until it is pressed.
  *
  * The animation itself is not asserted here and cannot be: jsdom has no
- * layout, no computed transform and no `matchMedia`, so "the orb rotates" is
- * not a thing this suite can know. What it *can* know is the structural fact
- * the animation depends on — that the word in the middle is not inside the
- * element that spins — and that is checked below. The motion itself is
- * verified by a person in a browser, including with reduced motion switched
- * on, which `docs/ACCESSIBILITY.md` already says is how this project treats
- * the properties jsdom cannot see.
+ * layout, no computed transform and no `matchMedia`, so "the ring rotates" is
+ * not a thing this suite can know. What it *can* know is the structural facts
+ * the animation depends on, and those are the ones that break silently:
+ *
+ *   - the word in the middle is not inside the element that spins;
+ *   - every card sits inside an orbit layer AND a counter-rotation layer, in
+ *     that order, because the second is what keeps the wording upright while
+ *     the first sweeps it round the orb;
+ *   - both rings are populated, because they turn in opposite directions and a
+ *     ring with nothing on it is four cards rotating as one rigid cross.
+ *
+ * The motion itself is verified by a person in a browser, including with
+ * reduced motion switched on, which `docs/ACCESSIBILITY.md` already says is
+ * how this project treats the properties jsdom cannot see.
  */
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { GreetingPanel } from './GreetingPanel';
 import { SourcingHub } from './SourcingHub';
-import { resolveNode } from './orchestration-nodes';
+import { ORCHESTRATION_NODES, resolveNode } from './orchestration-nodes';
 import type { OrchestrationAccess } from './orchestration-nodes';
-import { ASSISTANT_OPEN_EVENT } from '@/lib/assistant-panel';
 import { FALLBACK_CONFIG } from '@/app/storefront-context';
 import { expectNoA11yViolations } from '@/test/axe';
 import { jsonResponse, makeSession, renderWithProviders } from '@/test/harness';
@@ -59,127 +64,15 @@ function makeAccess(overrides: Partial<OrchestrationAccess> = {}): Orchestration
   };
 }
 
-/** One active plan, running a week on Tuesday. */
-function makeSchedule(overrides: Record<string, unknown> = {}): Record<string, unknown> {
-  return {
-    id: 'sch-1',
-    name: 'Theatre consumables',
-    status: 'ACTIVE',
-    summary: 'Every 7 days at 06:00 (Asia/Kolkata)',
-    frequency: 'WEEKLY',
-    intervalDays: null,
-    weekday: 2,
-    monthDay: null,
-    timezone: 'Asia/Kolkata',
-    runAtMinute: 360,
-    startDate: '2026-09-01',
-    endDate: null,
-    maxOccurrences: null,
-    occurrenceCount: 3,
-    nextRunAt: '2026-09-15T00:30:00.000Z',
-    lastRunAt: '2026-09-08T00:30:00.000Z',
-    paymentMode: 'AUTO',
-    payerEmail: null,
-    hasMandate: true,
-    consentAcceptedAt: '2026-08-01T09:00:00.000Z',
-    failureCount: 0,
-    maxFailures: 3,
-    pausedReason: null,
-    cancelReason: null,
-    itemCount: 4,
-    ...overrides,
-  };
-}
-
-function makeAutoPay(overrides: Record<string, unknown> = {}): Record<string, unknown> {
-  return {
-    status: 'ACTIVE',
-    enabled: true,
-    paymentMethodId: 'pm-1',
-    paymentMethodLabel: 'Visa ending 4242',
-    paymentMethodUsable: true,
-    maxTransactionMinor: null,
-    approvalThresholdMinor: null,
-    limitCurrency: null,
-    retryPreference: 'STANDARD',
-    notifyOnCharge: true,
-    notifyOnFailure: true,
-    consentAcceptedAt: '2026-08-01T09:00:00.000Z',
-    consentVersion: '1',
-    consentWithdrawnAt: null,
-    enabledAt: '2026-08-01T09:00:00.000Z',
-    pausedAt: null,
-    currentConsentVersion: '1',
-    ...overrides,
-  };
-}
-
 const fetchMock = vi.fn();
-
-/** Serve the three optional reads the account panel makes. */
-function serveAccount({
-  fullName = 'Priya Nair',
-  schedules = [makeSchedule()],
-  autoPay = makeAutoPay(),
-  autoPayAvailable = true,
-}: {
-  fullName?: string | null;
-  schedules?: Record<string, unknown>[];
-  autoPay?: Record<string, unknown>;
-  autoPayAvailable?: boolean;
-} = {}): void {
-  fetchMock.mockImplementation((url: string) => {
-    if (url.includes('/account/autopay')) {
-      return Promise.resolve(
-        jsonResponse({ autoPay, available: autoPayAvailable, consentVersion: '1' }),
-      );
-    }
-
-    if (url.includes('/account/profile')) {
-      return Promise.resolve(
-        jsonResponse({
-          profile: {
-            id: 'profile-1',
-            email: 'buyer@example.test',
-            fullName,
-            organization: null,
-            department: null,
-            phone: null,
-            gstin: null,
-            consentAcceptedAt: null,
-            activatedAt: null,
-            lastLoginAt: null,
-            orderCount: 2,
-            scheduleCount: schedules.length,
-          },
-          purchasingLimits: {
-            perOrderMinMinor: null,
-            perOrderMaxMinor: null,
-            requiresOrderApproval: false,
-            currency: 'INR',
-          },
-          spend: {
-            monthToDateMinor: '0',
-            capMinor: null,
-            remainingMinor: null,
-            currency: 'INR',
-          },
-        }),
-      );
-    }
-
-    if (url.includes('/recurring-schedules')) {
-      return Promise.resolve(jsonResponse({ schedules }));
-    }
-
-    return Promise.resolve(jsonResponse({}));
-  });
-}
 
 beforeEach(() => {
   vi.stubGlobal('fetch', fetchMock);
   fetchMock.mockReset();
-  serveAccount();
+  // The hub itself reads nothing. The header identity hook the greeting shares
+  // may, depending on what a test renders, so an empty 200 keeps a stray read
+  // from failing a test about something else.
+  fetchMock.mockImplementation(() => Promise.resolve(jsonResponse({})));
 });
 
 afterEach(() => {
@@ -205,7 +98,7 @@ describe('what a node does', () => {
   it('never links a guest into a route the session guard would bounce', () => {
     const guest = makeAccess({ isCustomer: false });
 
-    for (const id of ['schedules', 'autopay', 'assistant'] as const) {
+    for (const id of ['schedules', 'autopay'] as const) {
       const outcome = resolveNode(id, guest);
 
       expect(outcome.kind).toBe('note');
@@ -214,11 +107,16 @@ describe('what a node does', () => {
     }
   });
 
-  it('offers a guest no AI action at all, only a way in', () => {
-    const outcome = resolveNode('assistant', makeAccess({ isCustomer: false }));
-
-    expect(outcome.kind).not.toBe('assistant');
-    expect(outcome).toMatchObject({ to: '/login' });
+  it('sends everybody to the AI Mode page, signed in or not', () => {
+    // The corner chat widget is gone and AI Mode is open, so this is an
+    // ordinary link for both — no intent for the hub to translate into a
+    // window event, and no sign-in note, because there is nowhere a guest
+    // pressing it cannot go.
+    expect(resolveNode('assistant', makeAccess())).toEqual({ kind: 'link', to: '/ai' });
+    expect(resolveNode('assistant', makeAccess({ isCustomer: false }))).toEqual({
+      kind: 'link',
+      to: '/ai',
+    });
   });
 
   it('explains a capability this deployment has switched off instead of linking to it', () => {
@@ -234,34 +132,60 @@ describe('what a node does', () => {
   });
 
   it('decides nothing while the session is still unknown', () => {
-    // Both of these would otherwise answer "sign in" and then change their
-    // minds 200ms later, which is the flicker the pending state exists for.
+    // This would otherwise answer "sign in" and then change its mind 200ms
+    // later, which is the flicker the pending state exists for.
     expect(resolveNode('autopay', makeAccess({ isSessionLoading: true }))).toEqual({
       kind: 'pending',
     });
+    // The assistant is deliberately absent from that: its answer does not
+    // depend on the session, so there is nothing to hold back for.
     expect(resolveNode('assistant', makeAccess({ isSessionLoading: true }))).toEqual({
-      kind: 'pending',
+      kind: 'link',
+      to: '/ai',
     });
   });
 
-  it('keeps the two administrator-owned nodes out of a customer route', () => {
-    // Warehouses and ERP have no customer screen and are not supposed to grow
-    // one: a connection is a URL plus a credential belonging to whoever runs
-    // the installation. Both explain, whoever is asking.
+  it('keeps the administrator-owned node out of a customer route', () => {
+    // ERP has no customer screen and is not supposed to grow one: a connection
+    // is a URL plus a credential belonging to whoever runs the installation.
+    // It explains itself, whoever is asking.
     for (const access of [makeAccess(), makeAccess({ isCustomer: false })]) {
       expect(resolveNode('erp', access).kind).toBe('note');
-      expect(resolveNode('warehouses', access)).toMatchObject({
-        kind: 'note',
-        to: '/products',
-      });
     }
   });
+});
 
-  it('sends inventory to the catalogue, which is open to everybody', () => {
-    expect(resolveNode('inventory', makeAccess({ isCustomer: false }))).toEqual({
-      kind: 'link',
-      to: '/products',
-    });
+// ---------------------------------------------------------------------------
+// What is on the circle
+// ---------------------------------------------------------------------------
+
+describe('the node table', () => {
+  it('carries four capabilities and no operator logistics', () => {
+    // Warehouse Network and Inventory Sync were removed deliberately: both
+    // described the operator's own network rather than anything a buyer could
+    // act on, and both resolved to the catalogue, which the search bar beside
+    // this drawing already reaches. Re-adding either without a customer screen
+    // behind it should fail here first.
+    expect(ORCHESTRATION_NODES.map((node) => node.id)).toEqual([
+      'assistant',
+      'schedules',
+      'erp',
+      'autopay',
+    ]);
+  });
+
+  it('puts nodes on both rings, and spaces them evenly', () => {
+    const rings = new Set(ORCHESTRATION_NODES.map((node) => node.ring));
+
+    // The two rings turn in opposite directions. If every node were on one of
+    // them the arrangement would be a rigid cross being spun, which is the
+    // thing the two-ring split exists to avoid.
+    expect(rings).toEqual(new Set(['inner', 'outer']));
+
+    // 90° apart, on the diagonals. Evenly spaced is what keeps two labels from
+    // arriving in the same place once the whole ring is turning.
+    const angles = [...ORCHESTRATION_NODES.map((node) => node.angle)].sort((a, b) => a - b);
+    expect(angles).toEqual([-135, -45, 45, 135]);
   });
 });
 
@@ -270,29 +194,22 @@ describe('what a node does', () => {
 // ---------------------------------------------------------------------------
 
 describe('the sourcing hub', () => {
-  it('renders all six capabilities as one list of controls', () => {
+  it('renders all four capabilities as one list of controls', () => {
     renderWithProviders(<SourcingHub />, { config: makeConfig() });
 
     const list = screen.getByRole('list');
 
     // Some are links and some are buttons — which one a node is depends on
     // whether it has anywhere to send this particular visitor. What matters
-    // here is that all six are controls in one list, in one tab order.
+    // here is that all four are controls in one list, in one tab order.
     const controls = [
       ...within(list).getAllByRole('link'),
       ...within(list).getAllByRole('button'),
-    ].map((element) => element.getAttribute('aria-labelledby'));
+    ];
 
-    expect(controls).toHaveLength(6);
+    expect(controls).toHaveLength(4);
 
-    for (const label of [
-      'AI Assistant',
-      'Warehouse Network',
-      'Scheduled Orders',
-      'ERP Integration',
-      'Autopay',
-      'Inventory Sync',
-    ]) {
+    for (const label of ['AI Assistant', 'Schedule your Cart', 'ERP Integration', 'Autopay']) {
       expect(within(list).getByText(label)).toBeInTheDocument();
     }
   });
@@ -318,11 +235,47 @@ describe('the sourcing hub', () => {
     expect(label.closest('.orch-hub-label')).not.toBeNull();
   });
 
+  /*
+   * The same rule one level out: the cards orbit, and their wording does not.
+   *
+   * The orbit and the counter-rotation are a matched pair — same period,
+   * opposite direction — and the only thing that makes a card readable while
+   * it travels. Deleting one of the two wrappers as "an extra div" is the
+   * change this exists to catch, and it would look perfectly fine in a
+   * screenshot: the cards would simply be upside down for half of every
+   * minute.
+   */
+  it('wraps every card in an orbit layer and a counter-rotation inside it', () => {
+    const { container } = renderWithProviders(<SourcingHub />, { config: makeConfig() });
+
+    const nodes = [...container.querySelectorAll('.orch-node')];
+    expect(nodes).toHaveLength(4);
+
+    for (const node of nodes) {
+      // The ring is on the node, because it decides both the direction of the
+      // orbit and the direction of the cancellation.
+      expect(['inner', 'outer']).toContain(node.getAttribute('data-ring'));
+
+      const control = node.querySelector('.orch-node-control');
+      expect(control).not.toBeNull();
+
+      const spin = control?.closest('.orch-node-spin') ?? null;
+      const orbit = control?.closest('.orch-node-orbit') ?? null;
+
+      expect(spin).not.toBeNull();
+      expect(orbit).not.toBeNull();
+      // Order matters: the cancellation has to be *inside* the orbit. Outside
+      // it, the two would compose the other way round and the card would still
+      // turn over.
+      expect(orbit?.contains(spin as Node)).toBe(true);
+    }
+  });
+
   it('says nothing to a screen reader that the nodes do not already say', () => {
     const { container } = renderWithProviders(<SourcingHub />, { config: makeConfig() });
 
     // Every name in the drawing is also rendered as text in the node beside
-    // it. A diagram that announced itself would read the same six words twice.
+    // it. A diagram that announced itself would read the same four words twice.
     expect(container.querySelector('svg.orch-web')?.getAttribute('aria-hidden')).toBe('true');
   });
 
@@ -332,7 +285,7 @@ describe('the sourcing hub', () => {
     const node = screen.getByRole('button', { name: 'ERP Integration' });
 
     // Not one merged label: "ERP Integration Orders handed to your own system,
-    // button" is not a thing anybody can skim a list of six of.
+    // button" is not a thing anybody can skim a list of four of.
     expect(node).toHaveAccessibleName('ERP Integration');
     expect(node).toHaveAccessibleDescription('Orders handed to your own system');
   });
@@ -340,7 +293,7 @@ describe('the sourcing hub', () => {
   it('takes a customer straight to the screen a node stands for', () => {
     renderWithProviders(<SourcingHub />, { config: makeConfig() });
 
-    expect(screen.getByRole('link', { name: 'Scheduled Orders' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Schedule your Cart' })).toHaveAttribute(
       'href',
       '/account/schedules',
     );
@@ -354,40 +307,29 @@ describe('the sourcing hub', () => {
     const user = userEvent.setup();
     renderWithProviders(<SourcingHub />, { config: makeConfig(), session: GUEST });
 
-    await user.click(screen.getByRole('button', { name: 'Scheduled Orders' }));
+    await user.click(screen.getByRole('button', { name: 'Schedule your Cart' }));
 
     const note = await screen.findByRole('status');
     expect(within(note).getByText(/Sign in to plan a delivery/)).toBeInTheDocument();
     expect(within(note).getByRole('link', { name: /Sign in/ })).toHaveAttribute('href', '/login');
   });
 
-  it('does not offer a guest an AI composer, only a way in', async () => {
-    const user = userEvent.setup();
-    const opened = vi.fn();
-    window.addEventListener(ASSISTANT_OPEN_EVENT, opened);
-
+  it('links a guest to AI Mode as well', () => {
     renderWithProviders(<SourcingHub />, { config: makeConfig(), session: GUEST });
-    await user.click(screen.getByRole('button', { name: 'AI Assistant' }));
 
-    expect(opened).not.toHaveBeenCalled();
-    expect(await screen.findByRole('status')).toHaveTextContent(/signed-in account/);
-
-    window.removeEventListener(ASSISTANT_OPEN_EVENT, opened);
+    // A link, not a button raising a sign-in note: somebody deciding whether
+    // this catalogue has what they need may ask before opening an account.
+    expect(screen.getByRole('link', { name: 'AI Assistant' })).toHaveAttribute('href', '/ai');
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
 
-  it('opens the chat panel for a customer instead of navigating anywhere', async () => {
-    const user = userEvent.setup();
-    const opened = vi.fn();
-    window.addEventListener(ASSISTANT_OPEN_EVENT, opened);
-
+  it('links a customer straight to the AI Mode page', () => {
+    // No panel to open and no event to dispatch: AI Mode is a page, so the
+    // node is a link and middle-click and Open in new tab both work.
     renderWithProviders(<SourcingHub />, { config: makeConfig() });
-    await user.click(screen.getByRole('button', { name: 'AI Assistant' }));
 
-    expect(opened).toHaveBeenCalledTimes(1);
-    // Nothing to dismiss: the panel it opened is the answer.
+    expect(screen.getByRole('link', { name: 'AI Assistant' })).toHaveAttribute('href', '/ai');
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
-
-    window.removeEventListener(ASSISTANT_OPEN_EVENT, opened);
   });
 
   it('highlights the spoke belonging to the node under the pointer', async () => {
@@ -407,170 +349,20 @@ describe('the sourcing hub', () => {
     expect(root).not.toHaveAttribute('data-orch-active');
   });
 
-  it('leaves every node inert until the session is known', () => {
+  it('leaves a session-dependent node inert until the session is known', () => {
     renderWithProviders(<SourcingHub />, {
       config: makeConfig(),
       session: makeSession({ isLoading: true, isCustomer: false, user: null }),
     });
 
     expect(screen.getByRole('button', { name: 'Autopay' })).toBeDisabled();
-    // The ones that do not depend on the session are not held up by it.
-    expect(screen.getByRole('link', { name: 'Inventory Sync' })).toBeInTheDocument();
+    // The one that does not depend on the session is not held up by it.
+    expect(screen.getByRole('link', { name: 'AI Assistant' })).toBeInTheDocument();
   });
 
   it('has no accessibility violations', async () => {
     const { container } = renderWithProviders(<SourcingHub />, { config: makeConfig() });
 
     await expectNoA11yViolations(container);
-  });
-});
-
-// ---------------------------------------------------------------------------
-// The account panel
-// ---------------------------------------------------------------------------
-
-describe('the account panel', () => {
-  it('renders nothing at all for a guest', () => {
-    renderWithProviders(<GreetingPanel />, { config: makeConfig(), session: GUEST });
-
-    expect(screen.queryByRole('region', { name: 'Your account' })).not.toBeInTheDocument();
-    // And asks the account API for nothing, either. Every read is `enabled`
-    // behind the customer gate, so a stranger on the front page makes exactly
-    // the requests they made before this panel existed: none.
-    expect(fetchMock).not.toHaveBeenCalled();
-  });
-
-  it('shows the soonest delivery and a way to manage it', async () => {
-    renderWithProviders(<GreetingPanel />, { config: makeConfig() });
-
-    expect(await screen.findByText('Next scheduled order')).toBeInTheDocument();
-    expect(screen.getByText(/Theatre consumables/)).toBeInTheDocument();
-    // The server's own words for the recurrence, never rebuilt here.
-    expect(screen.getByText(/Every 7 days at 06:00/)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Manage schedule/ })).toHaveAttribute(
-      'href',
-      '/account/schedules/sch-1',
-    );
-  });
-
-  it('picks the soonest of several plans, not the first one listed', async () => {
-    serveAccount({
-      schedules: [
-        makeSchedule({ id: 'sch-late', name: 'Quarterly', nextRunAt: '2026-12-01T00:30:00.000Z' }),
-        makeSchedule({ id: 'sch-soon', name: 'Weekly', nextRunAt: '2026-09-11T00:30:00.000Z' }),
-      ],
-    });
-
-    renderWithProviders(<GreetingPanel />, { config: makeConfig() });
-
-    expect(await screen.findByRole('link', { name: /Manage schedule/ })).toHaveAttribute(
-      'href',
-      '/account/schedules/sch-soon',
-    );
-  });
-
-  it('says a charge will fail before it fails', async () => {
-    serveAccount({ autoPay: makeAutoPay({ paymentMethodUsable: false }) });
-
-    renderWithProviders(<GreetingPanel />, { config: makeConfig() });
-
-    expect(await screen.findByText('Payment action required')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Open Autopay/ })).toHaveAttribute(
-      'href',
-      '/account/autopay',
-    );
-  });
-
-  it('reports a paused authority as its own thing, not as a broken card', async () => {
-    serveAccount({ autoPay: makeAutoPay({ status: 'PAUSED', enabled: true }) });
-
-    renderWithProviders(<GreetingPanel />, { config: makeConfig() });
-
-    expect(await screen.findByText('Autopay is paused')).toBeInTheDocument();
-    expect(screen.queryByText('Payment action required')).not.toBeInTheDocument();
-  });
-
-  it('warns when something is scheduled and nothing can pay for it', async () => {
-    serveAccount({
-      autoPay: makeAutoPay({ status: 'DISABLED', enabled: false, paymentMethodId: null }),
-    });
-
-    renderWithProviders(<GreetingPanel />, { config: makeConfig() });
-
-    expect(await screen.findByText('Payment action required')).toBeInTheDocument();
-    expect(screen.getByText(/no standing authority to charge/)).toBeInTheDocument();
-  });
-
-  /*
-   * Guidance is guidance. Every action above it stays live, because a
-   * customer who has not finished setting up auto-pay can still order — and a
-   * setup notice that disables the buttons beside it turns a five-minute task
-   * into a support call.
-   */
-  it('never lets setup guidance take an action away', async () => {
-    serveAccount({ autoPay: makeAutoPay({ paymentMethodUsable: false }) });
-
-    renderWithProviders(<GreetingPanel />, { config: makeConfig() });
-
-    expect(await screen.findByText('Payment action required')).toBeInTheDocument();
-
-    for (const name of ['View dashboard', 'Build a cart', 'Schedule a cart']) {
-      expect(screen.getByRole('link', { name: new RegExp(name) })).toBeInTheDocument();
-    }
-  });
-
-  it('explains the ERP hand-off rather than pretending to be able to do it', async () => {
-    const user = userEvent.setup();
-    renderWithProviders(<GreetingPanel />, { config: makeConfig() });
-
-    const toggle = await screen.findByRole('button', { name: /Connect ERP API/ });
-    expect(toggle).toHaveAttribute('aria-expanded', 'false');
-
-    await user.click(toggle);
-
-    expect(toggle).toHaveAttribute('aria-expanded', 'true');
-    expect(screen.getByText(/created by an administrator under Settings/)).toBeInTheDocument();
-  });
-
-  it('offers no repeat-purchase action on a deployment that has them switched off', async () => {
-    renderWithProviders(<GreetingPanel />, { config: makeConfig({ recurringOrders: false }) });
-
-    expect(await screen.findByRole('link', { name: /View dashboard/ })).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: /Schedule a cart/ })).not.toBeInTheDocument();
-    expect(screen.queryByText('Next scheduled order')).not.toBeInTheDocument();
-  });
-
-  it('offers no AI action on a deployment with no assistant', async () => {
-    renderWithProviders(<GreetingPanel />, { config: makeConfig({ assistant: false }) });
-
-    expect(await screen.findByRole('link', { name: /View dashboard/ })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /Ask AI/ })).not.toBeInTheDocument();
-  });
-
-  it('survives an account with no name on it', async () => {
-    serveAccount({ fullName: null, schedules: [] });
-
-    renderWithProviders(<GreetingPanel />, { config: makeConfig() });
-
-    // The panel still renders; nothing anywhere says "undefined".
-    expect(await screen.findByText(/no repeat purchases running/)).toBeInTheDocument();
-    expect(screen.getByText('Your account')).toBeInTheDocument();
-  });
-
-  it('keeps the page usable when the account reads fail', async () => {
-    fetchMock.mockImplementation(() => Promise.resolve(jsonResponse({}, 500)));
-
-    renderWithProviders(<GreetingPanel />, { config: makeConfig() });
-
-    expect(await screen.findByText(/could not be loaded/)).toBeInTheDocument();
-    // The actions are not casualties of a failed summary.
-    expect(screen.getByRole('link', { name: /Build a cart/ })).toBeInTheDocument();
-  });
-
-  it('has no accessibility violations', async () => {
-    renderWithProviders(<GreetingPanel />, { config: makeConfig() });
-    const panel = await screen.findByRole('region', { name: 'Your account' });
-
-    await expectNoA11yViolations(panel);
   });
 });

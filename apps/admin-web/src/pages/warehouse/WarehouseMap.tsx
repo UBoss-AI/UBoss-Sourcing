@@ -23,6 +23,19 @@
  * its own tile server, and one whose operator will not send warehouse
  * coordinates to Google, both need a map that works - and one that has
  * configured nothing at all needs a screen that still says something true.
+ *
+ * ---
+ *
+ * **The tiles do not follow the dark theme, and that is deliberate.** The map
+ * imagery is the operator's: a Cloud console map style on the Google path, and
+ * whatever XYZ service they pointed at on the raster path. Neither has a dark
+ * variant this app is entitled to assume exists, and the usual shortcut -
+ * a CSS `filter: invert()` over the tile layer - turns their basemap into a
+ * photographic negative where water reads as land and their own labels come
+ * out inverted. So a light map sits in a dark panel, which is what a photo
+ * does too. The chrome around it, the markers and the popups are all drawn
+ * from tokens and do follow the theme, so the frame is right even where the
+ * picture inside it is somebody else's.
  */
 import type { MapConfig, Warehouse } from '@/lib/warehouses';
 import { WarehouseMapGoogle } from './WarehouseMapGoogle';

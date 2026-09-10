@@ -87,12 +87,40 @@ export function Modal({
       className={cx(
         'w-full p-0',
         size === 'lg' ? 'max-w-3xl' : 'max-w-lg',
+        // A column, capped to the viewport, with only the body scrolling.
+        //
+        // The body used to carry `max-h-[70vh]` on its own, which is fine
+        // until the viewport is short: on a phone in landscape, 70vh of body
+        // plus a header and a footer is taller than the screen, and what fell
+        // off the bottom was the footer — the row with Save and Cancel in it.
+        // `dvh` rather than `vh` so a mobile browser's collapsing toolbar is
+        // counted rather than guessed at.
+        'flex max-h-[calc(100dvh-2rem)] flex-col',
+        /*
+         * A closed dialog is hidden. This line is not redundant.
+         *
+         * The browser's own stylesheet hides `dialog:not([open])` with
+         * `display: none`, and the `flex` above — which this dialog needs for
+         * its header/body/footer column — silently overrides it. A
+         * `<Modal isOpen={false}>` therefore renders *in the page flow*, as a
+         * bordered card with a title and a confirm button sitting in the
+         * middle of whatever screen mounted it.
+         *
+         * Callers work around it by mounting the Modal only while open, which
+         * works and is a rule somebody will eventually not know about — the
+         * storefront had exactly that bug on its profile screen. Same fix,
+         * same file, both apps.
+         *
+         * `:not([open])` is specificity 0,2,0 against `.flex`'s 0,1,0, so it
+         * wins; `showModal()` adds the attribute and `flex` takes over again.
+         */
+        '[&:not([open])]:hidden',
         'rounded-lg border border-border bg-surface text-ink shadow-overlay',
         'backdrop:bg-navy/50 backdrop:backdrop-blur-sm',
         'open:animate-dialog-in backdrop:animate-fade-in',
       )}
     >
-      <div className="flex items-start justify-between gap-4 border-b border-border-subtle px-6 py-4">
+      <div className="flex shrink-0 items-start justify-between gap-4 border-b border-border-subtle px-4 py-4 sm:px-6">
         <div className="min-w-0">
           <h2 id={titleId} className="text-title-xs text-ink">
             {title}
@@ -108,10 +136,13 @@ export function Modal({
         </Button>
       </div>
 
-      <div className="max-h-[70vh] overflow-y-auto px-6 py-4">{children}</div>
+      {/* `min-h-0` is what makes the cap above work: a flex child's default
+          minimum is its content, so without it the body refuses to shrink and
+          the dialog grows past the viewport again. */}
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-6">{children}</div>
 
       {footer !== undefined && (
-        <div className="flex flex-wrap justify-end gap-2 border-t border-border-subtle bg-surface-sunken px-6 py-4">
+        <div className="flex shrink-0 flex-wrap justify-end gap-2 border-t border-border-subtle bg-surface-sunken px-4 py-4 sm:px-6">
           {footer}
         </div>
       )}

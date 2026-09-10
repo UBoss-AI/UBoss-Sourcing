@@ -221,7 +221,7 @@ function TranscriptDialog({
                   <div
                     className={
                       message.role === 'VISITOR'
-                        ? 'rounded-lg bg-brand px-3 py-2 text-sm leading-relaxed text-white'
+                        ? 'rounded-lg bg-brand-fill px-3 py-2 text-sm leading-relaxed text-white'
                         : 'rounded-lg bg-surface-sunken px-3 py-2 text-sm leading-relaxed text-ink ring-1 ring-inset ring-border'
                     }
                   >

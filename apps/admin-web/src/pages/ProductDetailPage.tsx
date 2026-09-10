@@ -944,7 +944,7 @@ export function ProductDetailPage(): React.JSX.Element {
         }
       />
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_20rem]">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="space-y-5">
           <Card title={t('productDetail.details')}>
             <form
@@ -960,7 +960,7 @@ export function ProductDetailPage(): React.JSX.Element {
                 </Callout>
               )}
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field label={t('productDetail.name')} error={errors.name?.message} required>
                   {({ inputId, describedBy }) => (
                     <Input
@@ -1061,7 +1061,7 @@ export function ProductDetailPage(): React.JSX.Element {
           </Card>
 
           <Card title={t('productDetail.pricing')}>
-            <div className="grid gap-4 px-5 py-4 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 px-5 py-4 sm:grid-cols-3">
               <Field
                 label={`Price (${currency})`}
                 hint={t('productDetail.majorUnitsEG45')}
@@ -1133,7 +1133,7 @@ export function ProductDetailPage(): React.JSX.Element {
             title={t('productDetail.orderingRules')}
             description={t('productDetail.enforcedOnEveryCartChange')}
           >
-            <div className="grid gap-4 px-5 py-4 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 px-5 py-4 sm:grid-cols-3">
               <Field label={t('productDetail.minimumQuantity')} error={errors.minOrderQty?.message}>
                 {({ inputId, describedBy }) => (
                   <Input

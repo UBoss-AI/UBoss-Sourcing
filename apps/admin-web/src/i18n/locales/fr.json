@@ -1932,5 +1932,10 @@
   "erp.deleteConnection": "Supprimer cette connexion",
   "erp.deleteConnectionDescription": "Supprime la connexion, ses identifiants et le stock qu'elle a déclaré. Les commandes déjà envoyées à l'ERP ne sont pas affectées.",
   "erp.confirmDelete": "Oui, supprimez-le",
-  "erp.notCalled": "Non testé"
+  "erp.notCalled": "Non testé",
+  "theme.label": "Apparence",
+  "theme.optionSystem": "Comme mon appareil",
+  "theme.optionLight": "Thème clair",
+  "theme.optionDark": "Thème sombre",
+  "theme.pressToChange": "Appuyez pour la modifier."
 }

@@ -1916,5 +1916,10 @@
   "erp.deleteConnection": "Διαγραφή αυτής της σύνδεσης",
   "erp.deleteConnectionDescription": "Διαγράφει τη σύνδεση, τα διαπιστευτήριά της και το απόθεμα που είχε δηλώσει. Οι παραγγελίες που έχουν ήδη αποσταλεί στο ERP δεν επηρεάζονται.",
   "erp.confirmDelete": "Ναι, διαγραφή",
-  "erp.notCalled": "Δεν έχει δοκιμαστεί"
+  "erp.notCalled": "Δεν έχει δοκιμαστεί",
+  "theme.label": "Εμφάνιση",
+  "theme.optionSystem": "Όπως η συσκευή μου",
+  "theme.optionLight": "Φωτεινό θέμα",
+  "theme.optionDark": "Σκούρο θέμα",
+  "theme.pressToChange": "Πατήστε για αλλαγή."
 }

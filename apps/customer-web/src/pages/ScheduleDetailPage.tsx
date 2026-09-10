@@ -193,7 +193,7 @@ export function ScheduleDetailPage(): React.JSX.Element {
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="space-y-6">
           {/* --- The schedule ------------------------------------------------ */}
           <section
@@ -204,7 +204,7 @@ export function ScheduleDetailPage(): React.JSX.Element {
               {t('scheduleDetail.schedule')}
             </h2>
 
-            <dl className="mt-3 grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
+            <dl className="mt-3 grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
               <div>
                 <dt className="text-xxs uppercase tracking-wider text-ink-subtle">
                   {t('scheduleDetail.nextDelivery')}

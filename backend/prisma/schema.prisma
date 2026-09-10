@@ -59,6 +59,33 @@ model User {
   emailVerifiedAt DateTime? @db.DateTime(3)
   phoneVerifiedAt DateTime? @db.DateTime(3)
 
+  /// An address the holder has asked to move to, not yet confirmed.
+  ///
+  /// Parked here rather than written over `email`, because `email` is what the
+  /// account signs in with and what every order confirmation, payment link and
+  /// invitation is sent to. Writing an unconfirmed address into it means one
+  /// typo locks somebody out of their own purchasing account with no way back
+  /// in — the confirmation link would go to the address that does not exist.
+  ///
+  /// `pendingEmailNormalized` exists for exactly one reason: to be checked
+  /// against `emailNormalized` before the move is offered, so two accounts
+  /// cannot both be moving to the same address and discover it at the moment
+  /// the second one confirms. It is deliberately NOT unique — a collision here
+  /// is a race to be refused politely, not a database error.
+  pendingEmail           String? @db.VarChar(320)
+  pendingEmailNormalized String? @db.VarChar(320)
+
+  /// A telephone number the holder has asked to move to, not yet confirmed.
+  ///
+  /// Same rule as the address above, and worth stating plainly: this
+  /// deployment has no SMS driver — `NotificationChannel` names SMS and
+  /// nothing sends it — so the code that confirms this number is delivered to
+  /// the account's verified email address. That proves control of the account,
+  /// which is what stops somebody else changing the number; it does not prove
+  /// control of the number itself. Wiring an SMS provider is what upgrades
+  /// this, and the only thing that has to change is where the code is sent.
+  pendingPhone String? @db.VarChar(32)
+
   /// Set when the account was opened with a system-issued temporary password.
   /// While it is true the session may sign in and do exactly one thing: choose
   /// a real password. Every other admin route refuses it.
@@ -225,6 +252,14 @@ enum AuthTokenType {
   INVITATION
   EMAIL_VERIFICATION
   PASSWORD_RESET
+  /// Confirming a NEW email address the holder has asked to move to. The
+  /// address itself is parked in `users.pendingEmail` until this is consumed:
+  /// an unverified address must never become the one the account signs in
+  /// with, or a typo locks somebody out of their own purchasing account.
+  EMAIL_CHANGE
+  /// Confirming a new telephone number, the same way. See the note on
+  /// `users.pendingPhone` for what actually carries the code today.
+  PHONE_CHANGE
 }
 
 model AuthToken {
@@ -699,6 +734,7 @@ model Product {
   substituteForItems RecurringScheduleItem[] @relation("ScheduleItemSubstitute")
   prices             ProductPrice[]
   translations       ProductTranslation[]
+  wishlistItems      WishlistItem[]
 
   @@index([categoryId, status, isPublished], map: "ix_product_category_visibility")
   @@index([status, isPublished, archivedAt], map: "ix_product_visibility")
@@ -1051,9 +1087,30 @@ model CustomerProfile {
   id     String @id @db.Char(26)
   userId String @unique(map: "uq_customer_profile_user") @db.Char(26)
 
-  fullName     String  @db.VarChar(255)
+  /// The name every other screen in the product uses: an order, an invoice, a
+  /// delivery note, the greeting in the header.
+  ///
+  /// It stays the single canonical name even though `firstName`/`lastName`
+  /// exist below, and it is COMPOSED from them whenever they are supplied —
+  /// see `updateCustomer`. Two independent sources for "what is this person
+  /// called" is how an invoice ends up disagreeing with a delivery note.
+  fullName String @db.VarChar(255)
+
+  /// The name captured in two parts, because that is how a person fills in a
+  /// form and because a name split on the first space is not a name: "Van der
+  /// Berg" and "Jean Paul" both come apart wrongly. Nullable, and legitimately
+  /// so — accounts created by invitation, by import or by an administrator
+  /// have only the one field, and guessing a split for them would be worse
+  /// than leaving these empty and showing `fullName`.
+  firstName String? @db.VarChar(120)
+  lastName  String? @db.VarChar(120)
+
   organization String? @db.VarChar(255)
   department   String? @db.VarChar(128)
+  /// What this person does, as they describe it. Distinct from `department`,
+  /// which is where in the organisation the order is being placed from: "Head
+  /// of Theatre Procurement" in "Surgical Services".
+  jobTitle     String? @db.VarChar(128)
   phone        String? @db.VarChar(32)
   gstin        String? @db.VarChar(32)
   customerCode String? @unique(map: "uq_customer_code") @db.VarChar(32)
@@ -1125,6 +1182,7 @@ model CustomerProfile {
 
   couponRedemptions CouponRedemption[]
   limits            CustomerLimit[]
+  wishlistItems     WishlistItem[]
 
   assistantConversations AssistantConversation[]
 
@@ -3295,6 +3353,31 @@ model AssistantConversation {
   /// the record that an enquiry happened with them.
   customerProfileId String? @db.Char(26)
 
+  /// What the customer calls this conversation in their own history list.
+  ///
+  /// Nullable, and usually stays that way: the AI Mode sidebar falls back to
+  /// the opening question, which is a better label than anything generated
+  /// and costs no provider call to produce. It is set only when somebody
+  /// renames a thread by hand.
+  ///
+  /// Not indexed. A customer has tens of conversations, not thousands, and the
+  /// list is already narrowed to one owner by
+  /// `ix_assistant_conversation_customer`.
+  title String? @db.VarChar(120)
+
+  /// When the customer removed this conversation from their own history.
+  ///
+  /// A soft delete, deliberately. The transcript is a record of what this
+  /// deployment's AI told a buyer about a medical device; a customer tidying
+  /// their sidebar is not a reason to destroy it. Staff still read it under
+  /// Enquiries, and the retention sweep is what eventually clears it.
+  ///
+  /// What the flag does guarantee is exactly what was asked for: the
+  /// conversation is gone from every customer-facing read, and the assistant
+  /// refuses to continue it. Erasure under Art. 17 is a different act with a
+  /// different route, and that one still deletes the rows outright.
+  hiddenAt DateTime? @db.DateTime(3)
+
   /// Denormalised so the enquiry list can be ordered and read without loading
   /// every transcript.
   messageCount  Int       @default(0)
@@ -4583,4 +4666,51 @@ model CustomerAutoPaySetting {
   @@index([status], map: "ix_autopay_status")
   @@index([paymentMethodId], map: "ix_autopay_payment_method")
   @@map("customer_autopay_settings")
+}
+
+// ===========================================================================
+// SAVED FOR LATER
+// ===========================================================================
+
+/**
+ * A line somebody has kept without buying it.
+ *
+ * The whole model, deliberately: a link to a person, a link to a product, and
+ * when. No quantity, no note, no ordering column. A wishlist that carries a
+ * quantity is a second basket with none of a basket's rules — no minimum, no
+ * increment, no stock reservation, no price — and the moment one exists
+ * somebody will try to check it out.
+ *
+ * `variantKey` is the same device the cart and the schedule items use, and for
+ * the same MariaDB reason recorded in this file's header: a UNIQUE index here
+ * treats every NULL as distinct, so a nullable `variantId` inside the
+ * composite unique would NOT stop the same variant being saved twice. The key
+ * is the variant ULID, or `''` for the base product, and is never null.
+ *
+ * There is no `variant` relation and that is not an omission. A variant can be
+ * deleted while a wishlist row still names it, and the alternative — a foreign
+ * key with ON DELETE RESTRICT — would make somebody else's saved item a reason
+ * an administrator cannot tidy up a product. The reader resolves the key if it
+ * still resolves, and shows the base product if it does not.
+ */
+model WishlistItem {
+  id                String @id @db.Char(26)
+  customerProfileId String @db.Char(26)
+  productId         String @db.Char(26)
+
+  /// The variant ULID, or '' for the base product. Never null - see above.
+  variantKey String @default("") @db.Char(26)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  customerProfile CustomerProfile @relation(fields: [customerProfileId], references: [id], onDelete: Cascade)
+  /// Cascade, not Restrict. A product being removed from the catalogue should
+  /// not be blocked by somebody having saved it, and a saved line pointing at
+  /// a product that no longer exists is not worth keeping.
+  product         Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([customerProfileId, productId, variantKey], map: "uq_wishlist_item")
+  @@index([customerProfileId, createdAt], map: "ix_wishlist_customer_time")
+  @@index([productId], map: "ix_wishlist_product")
+  @@map("wishlist_items")
 }

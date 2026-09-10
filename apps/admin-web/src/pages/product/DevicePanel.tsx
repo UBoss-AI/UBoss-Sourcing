@@ -281,7 +281,7 @@ export function DevicePanel({ productId }: { productId: string }): React.JSX.Ele
             </Callout>
           )}
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label={t('device.class')} hint={t('device.classHint')} required>
               {({ inputId, describedBy }) => (
                 <Select

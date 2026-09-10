@@ -213,12 +213,26 @@ export function SpecificationsPanel({
                   : `Already used by row ${String(repeatOf + 1)}. Each name may appear once.`;
               const valueError = rowErrors?.[index]?.value?.message;
 
+              // Wrapping flex, not a three-track grid.
+              //
+              // This panel's width is not the viewport's — it sits in the main
+              // column of a page that also has a 20rem aside and, above `lg`,
+              // a 15rem sidebar. So a `sm:` breakpoint says nothing useful
+              // about how much room the row actually has, and the grid it used
+              // to be proved it: at 1024px the two `1fr` tracks were squeezed
+              // to 21px and 30px by an `auto` track holding four controls, and
+              // the name field overflowed its own column.
+              //
+              // Flex wrapping asks the right question instead — each part
+              // states the width it needs and drops to the next line when the
+              // row cannot give it, whatever the container happens to be. Same
+              // three-across layout wherever there is room for it.
               return (
                 <li
                   key={field.id}
-                  className="grid gap-2 rounded-md border border-border bg-surface-sunken p-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_auto]"
+                  className="flex flex-wrap gap-2 rounded-md border border-border bg-surface-sunken p-3"
                 >
-                  <div>
+                  <div className="min-w-[8rem] flex-1">
                     <label className="sr-only" htmlFor={`spec-name-${field.id}`}>
                       Specification {index + 1} name
                     </label>
@@ -234,7 +248,7 @@ export function SpecificationsPanel({
                     )}
                   </div>
 
-                  <div>
+                  <div className="min-w-[10rem] flex-[1.4]">
                     <label className="sr-only" htmlFor={`spec-value-${field.id}`}>
                       Specification {index + 1} value
                     </label>
@@ -251,7 +265,11 @@ export function SpecificationsPanel({
                   </div>
 
                   {canEdit && (
-                    <div className="flex items-start gap-2">
+                    // `flex-wrap`: the Filterable checkbox is `nowrap` and the
+                    // four controls together are 252px, which does not fit the
+                    // 206px a 320px screen leaves this row. Wrapped, the
+                    // checkbox takes a line and the three buttons the next.
+                    <div className="flex flex-wrap items-start gap-2">
                       <label className="flex h-10 cursor-pointer items-center gap-1.5 whitespace-nowrap text-sm text-ink">
                         <Checkbox {...register(`rows.${index}.isFilterable`)} />
                         {t('specifications.filterable')}

@@ -242,6 +242,65 @@ const OPERATIONS: Readonly<Record<string, OperationDoc>> = Object.freeze({
     tags: ['Catalog (Public)'],
     auth: 'none',
   },
+  'POST /api/v1/catalog/image-search': {
+    summary: 'Find products from a photograph (multipart)',
+    description:
+      'The only authenticated route under `/catalog`. Every other read here costs a database ' +
+      'query; this one spends the operator\'s AI provider budget per call, so it sits behind ' +
+      'the customer session for the same reason `/assistant/*` does. Rate limited to 12 in ' +
+      'five minutes.\n\n' +
+      'The image type is sniffed from magic bytes and the client `Content-Type` is ignored; ' +
+      'SVG is refused. The bytes are sent to the provider and never stored.\n\n' +
+      'This matches on what the model recognises the item to BE, against the published ' +
+      'catalogue index — it is not a perceptual-similarity search over product photographs, ' +
+      'and `description` is returned so the shopper can see how their picture was read. ' +
+      'Products come back in the same shape and the same prices as the listing. ' +
+      '503 `IMAGE_SEARCH_BUSY` is the provider over quota or overloaded; 502 ' +
+      '`IMAGE_SEARCH_UNREADABLE` is a reply that could not be used. Neither is an outage.',
+    tags: ['Catalog (Public)'],
+    auth: 'customer',
+    responses: {
+      '200': ok(ref('ProductListResponse'), 'Plus `description` and `terms`; no pagination'),
+      '404': ok(ref('ErrorEnvelope'), 'No AI provider is configured on this deployment'),
+      '502': ok(ref('ErrorEnvelope'), 'IMAGE_SEARCH_UNREADABLE'),
+      '503': ok(ref('ErrorEnvelope'), 'IMAGE_SEARCH_BUSY'),
+    },
+  },
+
+  // --- Assistant (AI Mode) ---
+  //
+  // The customer's own conversation history. Every one of these is scoped to
+  // the caller's `customerProfileId`, taken from the session guard: a
+  // conversation belonging to somebody else answers 404, never 403, so an id
+  // reveals nothing about whose it is.
+  'GET /api/v1/assistant/conversations': {
+    summary: "The signed-in customer's AI Mode history",
+    description: 'Most recently active first. Conversations with no messages are omitted.',
+    tags: ['Assistant'],
+    auth: 'customer',
+  },
+  'GET /api/v1/assistant/conversations/:id': {
+    summary: 'One conversation in full',
+    tags: ['Assistant'],
+    auth: 'customer',
+    responses: { '404': ok(ref('ErrorEnvelope'), 'Missing, not yours, or deleted') },
+  },
+  'PATCH /api/v1/assistant/conversations/:id': {
+    summary: 'Rename a conversation',
+    description: 'An empty `title` clears the name and restores the opening-question fallback.',
+    tags: ['Assistant'],
+    auth: 'customer',
+  },
+  'DELETE /api/v1/assistant/conversations/:id': {
+    summary: "Remove a conversation from the customer's history",
+    description:
+      'A soft delete. It leaves every customer-facing read and cannot be continued, but the ' +
+      'transcript survives for staff and for the retention sweep — what the AI told a buyer ' +
+      'about a medical device is a record the deployment has to be able to produce. Erasure ' +
+      'under Art. 17 is a different act with its own route, and that one deletes the rows.',
+    tags: ['Assistant'],
+    auth: 'customer',
+  },
 
   // --- Admin catalog ---
   'POST /api/v1/admin/products': {
@@ -478,6 +537,140 @@ const OPERATIONS: Readonly<Record<string, OperationDoc>> = Object.freeze({
   },
   'GET /api/v1/account/profile': {
     summary: 'The signed-in customer profile and spend summary',
+    description:
+      'Also carries whatever contact change is waiting to be confirmed — `pendingEmail` and ' +
+      '`pendingPhone` — because the profile screen has to render the pending value beside the ' +
+      'live one, and two reads for one panel is two chances for them to disagree on screen.',
+    tags: ['Account'],
+    auth: 'customer',
+  },
+
+  // --- Changing the two things that identify the account ---
+  //
+  // Neither endpoint takes effect on its own. The requested value is parked in
+  // `users.pendingEmail` / `users.pendingPhone`, a single-use link is minted,
+  // and only consuming that link promotes it. `users.email` is what the
+  // account signs in with and where every order confirmation, payment link and
+  // invoice is sent, so one typo written straight into it locks somebody out
+  // of their own purchasing account with no way back in.
+  'POST /api/v1/account/email-change': {
+    summary: 'Ask to move the account to a new email address',
+    description:
+      'Answers 202 — accepted, not done. Two emails are sent: the confirmation link to the new ' +
+      'address, and a warning with no link to the address the account still uses, which is what ' +
+      'reaches the real holder if somebody else has got into the account. Refuses with ' +
+      'EMAIL_ALREADY_IN_USE when another account signs in with, or is already moving to, that ' +
+      'address — deliberately the same answer in both cases, so this is not an oracle for ' +
+      'whether a given company buys here.',
+    tags: ['Account'],
+    auth: 'customer',
+  },
+  'POST /api/v1/account/email-change/confirm': {
+    summary: 'Confirm a new email address',
+    description:
+      'Promotes the pending address, marks it verified and revokes EVERY session including the ' +
+      'caller’s: the address is the sign-in identity, so a token minted against the old one is ' +
+      'a credential for an account that no longer exists under that name. Uniqueness is checked ' +
+      'again here, because minutes have passed since the request.',
+    tags: ['Account'],
+    auth: 'customer',
+  },
+  'DELETE /api/v1/account/email-change': {
+    summary: 'Abandon a pending email change',
+    tags: ['Account'],
+    auth: 'customer',
+  },
+  'POST /api/v1/account/phone-change': {
+    summary: 'Ask to change the telephone number on the account',
+    description:
+      'The confirmation link is sent to the account’s EMAIL address, not to the number: this ' +
+      'installation has no SMS driver. Following it proves control of the account, which is what ' +
+      'stops somebody else altering the number; it does not prove control of the number itself.',
+    tags: ['Account'],
+    auth: 'customer',
+  },
+  'POST /api/v1/account/phone-change/confirm': {
+    summary: 'Confirm a new telephone number',
+    description:
+      'Moves both copies — `users.phone` on the identity and `customer_profiles.phone` on the ' +
+      'delivery contact — and leaves the sessions alone, because a number is not the sign-in ' +
+      'identity.',
+    tags: ['Account'],
+    auth: 'customer',
+  },
+  'DELETE /api/v1/account/phone-change': {
+    summary: 'Abandon a pending telephone change',
+    tags: ['Account'],
+    auth: 'customer',
+  },
+
+  // --- Closing the account ---
+  'GET /api/v1/account/closure': {
+    summary: 'What closing this account would do',
+    description:
+      'The customer’s own live arrangements: how many scheduled orders would be paused, whether ' +
+      'a charging authority would be withdrawn, and how many orders are still owed. Read by the ' +
+      'confirmation dialog so the warning names real numbers rather than describing the feature.',
+    tags: ['Account'],
+    auth: 'customer',
+  },
+  'POST /api/v1/account/deactivate': {
+    summary: 'Close the account, from the holder’s own side',
+    description:
+      'Requires the current password. Pauses every ACTIVE scheduled order through the schedule ' +
+      'state machine, withdraws auto-pay, sets the user DEACTIVATED and revokes every session — ' +
+      'in that order, because a deactivated account with a live mandate and a live schedule is a ' +
+      'worker charging somebody weeks after they closed their account. Nothing is deleted. ' +
+      'Erasure is a different act with its own route: POST /account/data-requests with ERASURE.',
+    tags: ['Account'],
+    auth: 'customer',
+  },
+
+  // --- Coupons, notifications and saved lines ---
+  'GET /api/v1/account/coupons': {
+    summary: 'Coupons this customer can use, and the ones they have used',
+    description:
+      'The available list is the same `listPublicCoupons` the cart reads, so a code offered here ' +
+      'is a code the cart will accept. It deliberately does not say whether a coupon is ' +
+      'eligible: eligibility depends on what is in the basket, and only the cart can evaluate ' +
+      'that. The minimum order value is stated instead.',
+    tags: ['Account'],
+    auth: 'customer',
+  },
+  'GET /api/v1/account/notifications': {
+    summary: 'What this deployment has sent to this customer',
+    description:
+      'Outbox rows matched on the recipient address, and only those actually SENT — a queued ' +
+      'message has not arrived and a failed one never will. The message BODY is never returned: ' +
+      'these are rendered emails and several carry a single-use link, so a list endpoint that ' +
+      'handed them back would turn one borrowed session into every live link the account has ' +
+      'ever been sent.',
+    tags: ['Account'],
+    auth: 'customer',
+  },
+  'GET /api/v1/account/wishlist': {
+    summary: 'Lines saved without buying them',
+    description:
+      'Priced through the same shelf-pricing path as the catalogue, so a saved line carries the ' +
+      'destination’s tax like every other figure on the storefront. A line whose product has ' +
+      'been unpublished, or is not priced in the currency asked for, is returned with ' +
+      '`isAvailable` false and a null price rather than being hidden.',
+    tags: ['Account'],
+    auth: 'customer',
+  },
+  'POST /api/v1/account/wishlist': {
+    summary: 'Save a line for later',
+    description:
+      'Idempotent: saving something already saved answers 200 with the same id, because pressing ' +
+      'a heart that is already filled in is the customer getting what they wanted. Refuses a ' +
+      'product that is not publicly visible, so this is not a way to probe for product ids in a ' +
+      'catalogue the caller cannot browse.',
+    tags: ['Account'],
+    auth: 'customer',
+  },
+  'DELETE /api/v1/account/wishlist/:itemId': {
+    summary: 'Remove a saved line',
+    description: 'Scoped to the caller’s own profile; another customer’s line is not found.',
     tags: ['Account'],
     auth: 'customer',
   },

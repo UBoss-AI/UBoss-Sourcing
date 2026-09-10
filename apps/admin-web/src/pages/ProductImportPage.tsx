@@ -83,7 +83,7 @@ function StepHeading({
         aria-hidden="true"
         className={cx(
           'flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold',
-          done === true ? 'bg-success text-white' : 'bg-accent-soft text-accent',
+          done === true ? 'bg-success-fill text-white' : 'bg-accent-soft text-accent',
         )}
       >
         {done === true ? '✓' : step}

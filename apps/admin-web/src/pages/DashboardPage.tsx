@@ -166,7 +166,7 @@ function PanelLink({ to, children }: { to: string; children: React.ReactNode }):
   return (
     <Link
       to={to}
-      className="inline-flex items-center gap-0.5 rounded text-xs font-medium text-accent underline-offset-2 transition-colors hover:text-accent-hover hover:underline"
+      className="-mx-1 inline-flex min-h-[1.75rem] items-center gap-0.5 rounded px-1 text-xs font-medium text-accent underline-offset-2 transition-colors hover:text-accent-hover hover:underline"
     >
       {children}
       <ChevronRightIcon className="h-3.5 w-3.5" />
@@ -181,7 +181,7 @@ function RowLink({ to, label }: { to: string; label: string }): React.JSX.Elemen
   return (
     <Link
       to={to}
-      className="rounded text-xs font-medium text-accent underline-offset-2 transition-colors hover:text-accent-hover hover:underline"
+      className="-mx-1 inline-flex min-h-[1.75rem] items-center rounded px-1 text-xs font-medium text-accent underline-offset-2 transition-colors hover:text-accent-hover hover:underline"
     >
       {t('dashboard.open')}
       <span className="sr-only"> {label}</span>
@@ -557,7 +557,7 @@ export function DashboardPage(): React.JSX.Element {
            */}
           <section
             aria-label={t('dashboard.keyFigures')}
-            className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-6"
+            className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-6"
           >
             <Metric
               label={t('label.orders')}
@@ -639,7 +639,7 @@ export function DashboardPage(): React.JSX.Element {
             />
           </section>
 
-          <div className="grid gap-5 xl:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
             <Card
               title={t('dashboard.ordersByStatus')}
               description={t('dashboard.whereEveryOrderInThis')}

@@ -16,7 +16,16 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { env } from '../../config/env.js';
 import { AssistantBusyError } from './provider.js';
-import type { AssistantProvider, AssistantRequest, AssistantResult } from './provider.js';
+import type {
+  AssistantProvider,
+  AssistantRequest,
+  AssistantResult,
+  AssistantVisionRequest,
+  AssistantVisionResult,
+} from './provider.js';
+
+/** The four types `sniffImageType` can produce, which is what Claude accepts. */
+type ClaudeImageType = 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif';
 
 let client: Anthropic | null = null;
 
@@ -81,6 +90,76 @@ export const anthropicProvider: AssistantProvider = {
       finishReason: message.stop_reason,
       refused: message.stop_reason === 'refusal',
       model: env.ANTHROPIC_MODEL,
+    };
+  },
+
+  /**
+   * One image, one answer, no stream.
+   *
+   * `messages.create` rather than `messages.stream`: the reply is JSON that a
+   * parser reads in one piece, and nobody is watching it arrive token by token
+   * — the customer is watching a spinner over their own photograph.
+   *
+   * The catalogue index goes in the system block with `cache_control`, exactly
+   * as it does on the chat path and for the same reason: it is byte-identical
+   * for every caller on the deployment, and it is by far the largest part of
+   * the prompt. The image is the only per-request bytes and it comes after.
+   */
+  async describeImage(request: AssistantVisionRequest): Promise<AssistantVisionResult> {
+    let message;
+
+    try {
+      message = await anthropic().messages.create(
+        {
+          model: env.ANTHROPIC_MODEL,
+          max_tokens: request.maxTokens,
+          system: [
+            { type: 'text', text: request.systemPrompt },
+            {
+              type: 'text',
+              text: request.catalogue,
+              cache_control: { type: 'ephemeral' },
+            },
+          ],
+          output_config: { effort: 'low' },
+          messages: [
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'image',
+                  source: {
+                    type: 'base64',
+                    media_type: request.image.mimeType as ClaudeImageType,
+                    data: request.image.data.toString('base64'),
+                  },
+                },
+                { type: 'text', text: request.prompt },
+              ],
+            },
+          ],
+        },
+        request.signal === undefined ? undefined : { signal: request.signal },
+      );
+    } catch (error) {
+      if (error instanceof Anthropic.RateLimitError) {
+        throw new AssistantBusyError(error.message, false);
+      }
+      throw error;
+    }
+
+    // Only the text blocks. A reply carrying anything else is not something
+    // this caller can parse, and concatenating the text is the whole of it.
+    const text = message.content
+      .filter((block): block is Anthropic.TextBlock => block.type === 'text')
+      .map((block) => block.text)
+      .join('');
+
+    return {
+      text,
+      model: env.ANTHROPIC_MODEL,
+      inputTokens: message.usage.input_tokens,
+      outputTokens: message.usage.output_tokens,
     };
   },
 };

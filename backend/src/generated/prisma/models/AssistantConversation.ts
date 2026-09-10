@@ -42,6 +42,8 @@ export type AssistantConversationMinAggregateOutputType = {
   visitorEmailNormalized: string | null
   sessionTokenHash: string | null
   customerProfileId: string | null
+  title: string | null
+  hiddenAt: Date | null
   messageCount: number | null
   lastMessageAt: Date | null
   ipAddress: string | null
@@ -58,6 +60,8 @@ export type AssistantConversationMaxAggregateOutputType = {
   visitorEmailNormalized: string | null
   sessionTokenHash: string | null
   customerProfileId: string | null
+  title: string | null
+  hiddenAt: Date | null
   messageCount: number | null
   lastMessageAt: Date | null
   ipAddress: string | null
@@ -74,6 +78,8 @@ export type AssistantConversationCountAggregateOutputType = {
   visitorEmailNormalized: number
   sessionTokenHash: number
   customerProfileId: number
+  title: number
+  hiddenAt: number
   messageCount: number
   lastMessageAt: number
   ipAddress: number
@@ -100,6 +106,8 @@ export type AssistantConversationMinAggregateInputType = {
   visitorEmailNormalized?: true
   sessionTokenHash?: true
   customerProfileId?: true
+  title?: true
+  hiddenAt?: true
   messageCount?: true
   lastMessageAt?: true
   ipAddress?: true
@@ -116,6 +124,8 @@ export type AssistantConversationMaxAggregateInputType = {
   visitorEmailNormalized?: true
   sessionTokenHash?: true
   customerProfileId?: true
+  title?: true
+  hiddenAt?: true
   messageCount?: true
   lastMessageAt?: true
   ipAddress?: true
@@ -132,6 +142,8 @@ export type AssistantConversationCountAggregateInputType = {
   visitorEmailNormalized?: true
   sessionTokenHash?: true
   customerProfileId?: true
+  title?: true
+  hiddenAt?: true
   messageCount?: true
   lastMessageAt?: true
   ipAddress?: true
@@ -235,6 +247,8 @@ export type AssistantConversationGroupByOutputType = {
   visitorEmailNormalized: string | null
   sessionTokenHash: string | null
   customerProfileId: string | null
+  title: string | null
+  hiddenAt: Date | null
   messageCount: number
   lastMessageAt: Date | null
   ipAddress: string | null
@@ -274,6 +288,8 @@ export type AssistantConversationWhereInput = {
   visitorEmailNormalized?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
   sessionTokenHash?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
   customerProfileId?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
+  title?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
+  hiddenAt?: Prisma.DateTimeNullableFilter<"AssistantConversation"> | Date | string | null
   messageCount?: Prisma.IntFilter<"AssistantConversation"> | number
   lastMessageAt?: Prisma.DateTimeNullableFilter<"AssistantConversation"> | Date | string | null
   ipAddress?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
@@ -292,6 +308,8 @@ export type AssistantConversationOrderByWithRelationInput = {
   visitorEmailNormalized?: Prisma.SortOrderInput | Prisma.SortOrder
   sessionTokenHash?: Prisma.SortOrderInput | Prisma.SortOrder
   customerProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
+  title?: Prisma.SortOrderInput | Prisma.SortOrder
+  hiddenAt?: Prisma.SortOrderInput | Prisma.SortOrder
   messageCount?: Prisma.SortOrder
   lastMessageAt?: Prisma.SortOrderInput | Prisma.SortOrder
   ipAddress?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -314,6 +332,8 @@ export type AssistantConversationWhereUniqueInput = Prisma.AtLeast<{
   visitorEmailNormalized?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
   sessionTokenHash?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
   customerProfileId?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
+  title?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
+  hiddenAt?: Prisma.DateTimeNullableFilter<"AssistantConversation"> | Date | string | null
   messageCount?: Prisma.IntFilter<"AssistantConversation"> | number
   lastMessageAt?: Prisma.DateTimeNullableFilter<"AssistantConversation"> | Date | string | null
   ipAddress?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
@@ -332,6 +352,8 @@ export type AssistantConversationOrderByWithAggregationInput = {
   visitorEmailNormalized?: Prisma.SortOrderInput | Prisma.SortOrder
   sessionTokenHash?: Prisma.SortOrderInput | Prisma.SortOrder
   customerProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
+  title?: Prisma.SortOrderInput | Prisma.SortOrder
+  hiddenAt?: Prisma.SortOrderInput | Prisma.SortOrder
   messageCount?: Prisma.SortOrder
   lastMessageAt?: Prisma.SortOrderInput | Prisma.SortOrder
   ipAddress?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -356,6 +378,8 @@ export type AssistantConversationScalarWhereWithAggregatesInput = {
   visitorEmailNormalized?: Prisma.StringNullableWithAggregatesFilter<"AssistantConversation"> | string | null
   sessionTokenHash?: Prisma.StringNullableWithAggregatesFilter<"AssistantConversation"> | string | null
   customerProfileId?: Prisma.StringNullableWithAggregatesFilter<"AssistantConversation"> | string | null
+  title?: Prisma.StringNullableWithAggregatesFilter<"AssistantConversation"> | string | null
+  hiddenAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AssistantConversation"> | Date | string | null
   messageCount?: Prisma.IntWithAggregatesFilter<"AssistantConversation"> | number
   lastMessageAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AssistantConversation"> | Date | string | null
   ipAddress?: Prisma.StringNullableWithAggregatesFilter<"AssistantConversation"> | string | null
@@ -371,6 +395,8 @@ export type AssistantConversationCreateInput = {
   visitorEmail?: string | null
   visitorEmailNormalized?: string | null
   sessionTokenHash?: string | null
+  title?: string | null
+  hiddenAt?: Date | string | null
   messageCount?: number
   lastMessageAt?: Date | string | null
   ipAddress?: string | null
@@ -389,6 +415,8 @@ export type AssistantConversationUncheckedCreateInput = {
   visitorEmailNormalized?: string | null
   sessionTokenHash?: string | null
   customerProfileId?: string | null
+  title?: string | null
+  hiddenAt?: Date | string | null
   messageCount?: number
   lastMessageAt?: Date | string | null
   ipAddress?: string | null
@@ -405,6 +433,8 @@ export type AssistantConversationUpdateInput = {
   visitorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visitorEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sessionTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   messageCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -423,6 +453,8 @@ export type AssistantConversationUncheckedUpdateInput = {
   visitorEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sessionTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   messageCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -440,6 +472,8 @@ export type AssistantConversationCreateManyInput = {
   visitorEmailNormalized?: string | null
   sessionTokenHash?: string | null
   customerProfileId?: string | null
+  title?: string | null
+  hiddenAt?: Date | string | null
   messageCount?: number
   lastMessageAt?: Date | string | null
   ipAddress?: string | null
@@ -455,6 +489,8 @@ export type AssistantConversationUpdateManyMutationInput = {
   visitorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visitorEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sessionTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   messageCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -471,6 +507,8 @@ export type AssistantConversationUncheckedUpdateManyInput = {
   visitorEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sessionTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   messageCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -503,6 +541,8 @@ export type AssistantConversationCountOrderByAggregateInput = {
   visitorEmailNormalized?: Prisma.SortOrder
   sessionTokenHash?: Prisma.SortOrder
   customerProfileId?: Prisma.SortOrder
+  title?: Prisma.SortOrder
+  hiddenAt?: Prisma.SortOrder
   messageCount?: Prisma.SortOrder
   lastMessageAt?: Prisma.SortOrder
   ipAddress?: Prisma.SortOrder
@@ -523,6 +563,8 @@ export type AssistantConversationMaxOrderByAggregateInput = {
   visitorEmailNormalized?: Prisma.SortOrder
   sessionTokenHash?: Prisma.SortOrder
   customerProfileId?: Prisma.SortOrder
+  title?: Prisma.SortOrder
+  hiddenAt?: Prisma.SortOrder
   messageCount?: Prisma.SortOrder
   lastMessageAt?: Prisma.SortOrder
   ipAddress?: Prisma.SortOrder
@@ -539,6 +581,8 @@ export type AssistantConversationMinOrderByAggregateInput = {
   visitorEmailNormalized?: Prisma.SortOrder
   sessionTokenHash?: Prisma.SortOrder
   customerProfileId?: Prisma.SortOrder
+  title?: Prisma.SortOrder
+  hiddenAt?: Prisma.SortOrder
   messageCount?: Prisma.SortOrder
   lastMessageAt?: Prisma.SortOrder
   ipAddress?: Prisma.SortOrder
@@ -619,6 +663,8 @@ export type AssistantConversationCreateWithoutCustomerProfileInput = {
   visitorEmail?: string | null
   visitorEmailNormalized?: string | null
   sessionTokenHash?: string | null
+  title?: string | null
+  hiddenAt?: Date | string | null
   messageCount?: number
   lastMessageAt?: Date | string | null
   ipAddress?: string | null
@@ -635,6 +681,8 @@ export type AssistantConversationUncheckedCreateWithoutCustomerProfileInput = {
   visitorEmail?: string | null
   visitorEmailNormalized?: string | null
   sessionTokenHash?: string | null
+  title?: string | null
+  hiddenAt?: Date | string | null
   messageCount?: number
   lastMessageAt?: Date | string | null
   ipAddress?: string | null
@@ -681,6 +729,8 @@ export type AssistantConversationScalarWhereInput = {
   visitorEmailNormalized?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
   sessionTokenHash?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
   customerProfileId?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
+  title?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
+  hiddenAt?: Prisma.DateTimeNullableFilter<"AssistantConversation"> | Date | string | null
   messageCount?: Prisma.IntFilter<"AssistantConversation"> | number
   lastMessageAt?: Prisma.DateTimeNullableFilter<"AssistantConversation"> | Date | string | null
   ipAddress?: Prisma.StringNullableFilter<"AssistantConversation"> | string | null
@@ -696,6 +746,8 @@ export type AssistantConversationCreateWithoutMessagesInput = {
   visitorEmail?: string | null
   visitorEmailNormalized?: string | null
   sessionTokenHash?: string | null
+  title?: string | null
+  hiddenAt?: Date | string | null
   messageCount?: number
   lastMessageAt?: Date | string | null
   ipAddress?: string | null
@@ -713,6 +765,8 @@ export type AssistantConversationUncheckedCreateWithoutMessagesInput = {
   visitorEmailNormalized?: string | null
   sessionTokenHash?: string | null
   customerProfileId?: string | null
+  title?: string | null
+  hiddenAt?: Date | string | null
   messageCount?: number
   lastMessageAt?: Date | string | null
   ipAddress?: string | null
@@ -744,6 +798,8 @@ export type AssistantConversationUpdateWithoutMessagesInput = {
   visitorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visitorEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sessionTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   messageCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -761,6 +817,8 @@ export type AssistantConversationUncheckedUpdateWithoutMessagesInput = {
   visitorEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sessionTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   messageCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -776,6 +834,8 @@ export type AssistantConversationCreateManyCustomerProfileInput = {
   visitorEmail?: string | null
   visitorEmailNormalized?: string | null
   sessionTokenHash?: string | null
+  title?: string | null
+  hiddenAt?: Date | string | null
   messageCount?: number
   lastMessageAt?: Date | string | null
   ipAddress?: string | null
@@ -791,6 +851,8 @@ export type AssistantConversationUpdateWithoutCustomerProfileInput = {
   visitorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visitorEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sessionTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   messageCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -807,6 +869,8 @@ export type AssistantConversationUncheckedUpdateWithoutCustomerProfileInput = {
   visitorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visitorEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sessionTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   messageCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -823,6 +887,8 @@ export type AssistantConversationUncheckedUpdateManyWithoutCustomerProfileInput 
   visitorEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visitorEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sessionTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   messageCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -870,6 +936,8 @@ export type AssistantConversationSelect<ExtArgs extends runtime.Types.Extensions
   visitorEmailNormalized?: boolean
   sessionTokenHash?: boolean
   customerProfileId?: boolean
+  title?: boolean
+  hiddenAt?: boolean
   messageCount?: boolean
   lastMessageAt?: boolean
   ipAddress?: boolean
@@ -891,6 +959,8 @@ export type AssistantConversationSelectScalar = {
   visitorEmailNormalized?: boolean
   sessionTokenHash?: boolean
   customerProfileId?: boolean
+  title?: boolean
+  hiddenAt?: boolean
   messageCount?: boolean
   lastMessageAt?: boolean
   ipAddress?: boolean
@@ -899,7 +969,7 @@ export type AssistantConversationSelectScalar = {
   updatedAt?: boolean
 }
 
-export type AssistantConversationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "visitorName" | "visitorPhone" | "visitorEmail" | "visitorEmailNormalized" | "sessionTokenHash" | "customerProfileId" | "messageCount" | "lastMessageAt" | "ipAddress" | "userAgent" | "createdAt" | "updatedAt", ExtArgs["result"]["assistantConversation"]>
+export type AssistantConversationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "visitorName" | "visitorPhone" | "visitorEmail" | "visitorEmailNormalized" | "sessionTokenHash" | "customerProfileId" | "title" | "hiddenAt" | "messageCount" | "lastMessageAt" | "ipAddress" | "userAgent" | "createdAt" | "updatedAt", ExtArgs["result"]["assistantConversation"]>
 export type AssistantConversationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customerProfile?: boolean | Prisma.AssistantConversation$customerProfileArgs<ExtArgs>
   messages?: boolean | Prisma.AssistantConversation$messagesArgs<ExtArgs>
@@ -954,6 +1024,33 @@ export type $AssistantConversationPayload<ExtArgs extends runtime.Types.Extensio
      * the record that an enquiry happened with them.
      */
     customerProfileId: string | null
+    /**
+     * What the customer calls this conversation in their own history list.
+     * 
+     * Nullable, and usually stays that way: the AI Mode sidebar falls back to
+     * the opening question, which is a better label than anything generated
+     * and costs no provider call to produce. It is set only when somebody
+     * renames a thread by hand.
+     * 
+     * Not indexed. A customer has tens of conversations, not thousands, and the
+     * list is already narrowed to one owner by
+     * `ix_assistant_conversation_customer`.
+     */
+    title: string | null
+    /**
+     * When the customer removed this conversation from their own history.
+     * 
+     * A soft delete, deliberately. The transcript is a record of what this
+     * deployment's AI told a buyer about a medical device; a customer tidying
+     * their sidebar is not a reason to destroy it. Staff still read it under
+     * Enquiries, and the retention sweep is what eventually clears it.
+     * 
+     * What the flag does guarantee is exactly what was asked for: the
+     * conversation is gone from every customer-facing read, and the assistant
+     * refuses to continue it. Erasure under Art. 17 is a different act with a
+     * different route, and that one still deletes the rows outright.
+     */
+    hiddenAt: Date | null
     /**
      * Denormalised so the enquiry list can be ordered and read without loading
      * every transcript.
@@ -1342,6 +1439,8 @@ export interface AssistantConversationFieldRefs {
   readonly visitorEmailNormalized: Prisma.FieldRef<"AssistantConversation", 'String'>
   readonly sessionTokenHash: Prisma.FieldRef<"AssistantConversation", 'String'>
   readonly customerProfileId: Prisma.FieldRef<"AssistantConversation", 'String'>
+  readonly title: Prisma.FieldRef<"AssistantConversation", 'String'>
+  readonly hiddenAt: Prisma.FieldRef<"AssistantConversation", 'DateTime'>
   readonly messageCount: Prisma.FieldRef<"AssistantConversation", 'Int'>
   readonly lastMessageAt: Prisma.FieldRef<"AssistantConversation", 'DateTime'>
   readonly ipAddress: Prisma.FieldRef<"AssistantConversation", 'String'>

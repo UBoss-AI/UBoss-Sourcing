@@ -12,6 +12,27 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <!--
+      The theme, before the first paint. Identical to the storefront's, and for
+      the same reason: React mounts after the document has been painted once,
+      so without this a member of staff who has chosen dark gets a white flash
+      on every page load. See apps/customer-web/index.html for the long note.
+
+      Nothing is written when the choice is "system" - the absence of
+      `data-theme` is what hands the decision to the `prefers-color-scheme`
+      block in index.css.
+
+      `uboss.theme` and these three values are shared with
+      src/app/ThemeProvider.tsx. Change both or neither.
+    -->
+    <script>
+      try {
+        var t = localStorage.getItem('uboss.theme');
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        /* Storage refused. The operating system's setting still applies. */
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

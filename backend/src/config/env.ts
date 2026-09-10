@@ -490,6 +490,37 @@ const envSchema = z
     ASSISTANT_MAX_TURNS: intFromString(2, 100).default(20),
     ASSISTANT_RATE_LIMIT_PER_5MIN: intFromString(1, 1000).default(20),
 
+    /**
+     * May somebody who is not signed in use AI Mode?
+     *
+     * On by default, because a buyer evaluating this catalogue should be able
+     * to ask what is in it before opening an account — the same reasoning that
+     * puts the sign-in wall at the cart rather than the front door.
+     *
+     * Understand what it costs before leaving it on. An anonymous caller
+     * spends the operator's AI provider budget, and no rate limit makes that
+     * free: it bounds the spend, it does not remove it. A deployment that
+     * would rather pay only for its own customers sets this to `false`, and
+     * AI Mode then offers a guest a way in instead of a composer — exactly as
+     * it did before guests were let in.
+     *
+     * What a guest can never do, whatever this is set to: read anybody else's
+     * conversation, keep a history, or name a model, a system prompt or a
+     * token budget. Ownership and the fixed parameters are enforced the same
+     * way for everyone.
+     */
+    ASSISTANT_ALLOW_GUESTS: booleanFromString.default(true),
+
+    /**
+     * The chat allowance for a caller with no account, per IP per 5 minutes.
+     *
+     * Lower than the signed-in one on purpose. A customer is one identified
+     * business whose spend the operator can attribute and, if it comes to it,
+     * bill against an account; a guest is an address. It is not so low that a
+     * procurement office behind one NAT address cannot try the assistant out.
+     */
+    ASSISTANT_GUEST_RATE_LIMIT_PER_5MIN: intFromString(1, 1000).default(10),
+
     // --- Data protection (GDPR) ---
     //
     // Storage limitation (Art. 5(1)(e)) is a number, not an intention: personal

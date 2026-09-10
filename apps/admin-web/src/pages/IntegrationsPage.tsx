@@ -259,7 +259,7 @@ function ConnectionDialog({
           </Callout>
         )}
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label={t('integrations.gateway')}>
             {({ inputId }) => (
               <Select id={inputId} disabled={existing !== null} {...register('provider')}>
@@ -388,7 +388,7 @@ function GatewaySteps(): React.JSX.Element {
   ];
 
   return (
-    <ol className="grid gap-3 border-b border-border-subtle bg-surface-sunken px-5 py-4 sm:grid-cols-3">
+    <ol className="grid grid-cols-1 gap-3 border-b border-border-subtle bg-surface-sunken px-5 py-4 sm:grid-cols-3">
       {steps.map((step, index) => (
         <li key={step.title} className="flex gap-2.5">
           <span

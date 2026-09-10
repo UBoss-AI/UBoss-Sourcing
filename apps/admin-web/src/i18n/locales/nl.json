@@ -1916,5 +1916,10 @@
   "erp.deleteConnection": "Deze verbinding verwijderen",
   "erp.deleteConnectionDescription": "Hiermee worden de verbinding, de bijbehorende inloggegevens en de gerapporteerde voorraad verwijderd. Bestellingen die reeds naar het ERP-systeem zijn verzonden, blijven hierdoor ongewijzigd.",
   "erp.confirmDelete": "Ja, verwijder het",
-  "erp.notCalled": "Niet getest"
+  "erp.notCalled": "Niet getest",
+  "theme.label": "Weergave",
+  "theme.optionSystem": "Zoals mijn apparaat",
+  "theme.optionLight": "Licht thema",
+  "theme.optionDark": "Donker thema",
+  "theme.pressToChange": "Druk om te wijzigen."
 }

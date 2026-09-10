@@ -147,7 +147,7 @@ export function ProductSafetyPanel({
         )}
 
         {hasIdentifiers && (
-          <dl className="grid gap-x-6 gap-y-2 border-b border-border-subtle px-4 py-3 text-sm sm:grid-cols-2">
+          <dl className="grid grid-cols-1 gap-x-6 gap-y-2 border-b border-border-subtle px-4 py-3 text-sm sm:grid-cols-2">
             {safety.modelIdentifier !== null && (
               <div>
                 <dt className="text-xs font-medium uppercase tracking-wide text-ink-subtle">
@@ -168,7 +168,7 @@ export function ProductSafetyPanel({
         )}
 
         {hasOperators && (
-          <div className="grid gap-6 px-4 py-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 px-4 py-3 sm:grid-cols-2">
             {safety.manufacturer !== null && (
               <OperatorBlock operator={safety.manufacturer} heading={t('safety.manufacturer')} />
             )}
