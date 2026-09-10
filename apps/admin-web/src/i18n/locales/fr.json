@@ -112,7 +112,6 @@
   "shell.closeNavigation": "Fermer la navigation",
   "shell.signOut": "Se déconnecter",
   "shell.signingOut": "Déconnexion…",
-  "shell.signedInFrom": "Connecté depuis {{place}}",
   "nav.group.overview": "Vue d'ensemble",
   "nav.group.catalogue": "Catalogue",
   "nav.group.sales": "Ventes",
@@ -1937,5 +1936,9 @@
   "theme.optionSystem": "Comme mon appareil",
   "theme.optionLight": "Thème clair",
   "theme.optionDark": "Thème sombre",
-  "theme.pressToChange": "Appuyez pour la modifier."
+  "theme.pressToChange": "Appuyez pour la modifier.",
+  "locale.trigger": "Langue et marché",
+  "locale.marketHeading": "Prix affichés pour",
+  "locale.sessionHeading": "Connecté depuis",
+  "locale.notAChoice": "Déterminé par le lieu de cette connexion et non modifiable ici : les prix que vous vérifiez doivent être ceux que paie réellement le client devant vous."
 }

@@ -15,6 +15,9 @@
 # updated in step with PROJECT-GUIDE.md whenever the project changes.
 PROJECT-GUIDE.hinglish.md
 
-# 121MB of Chrome profiles and screenshots from local browser tooling.
-# One `git add -A` away from being in the history permanently.
+# Scratch from the local browser and slide tooling: Chrome profiles,
+# screenshots, and a node_modules install of its own. One `git add -A` away
+# from being in the history permanently, where it cannot practically be
+# removed again.
 output/
+.ppt-build/

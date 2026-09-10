@@ -112,7 +112,6 @@
   "shell.closeNavigation": "Chiudi la navigazione",
   "shell.signOut": "Esci",
   "shell.signingOut": "Disconnessione…",
-  "shell.signedInFrom": "Accesso effettuato da {{place}}",
   "nav.group.overview": "Panoramica",
   "nav.group.catalogue": "Catalogo",
   "nav.group.sales": "Vendite",
@@ -1937,5 +1936,9 @@
   "theme.optionSystem": "Come il mio dispositivo",
   "theme.optionLight": "Tema chiaro",
   "theme.optionDark": "Tema scuro",
-  "theme.pressToChange": "Prema per cambiarlo."
+  "theme.pressToChange": "Prema per cambiarlo.",
+  "locale.trigger": "Lingua e mercato",
+  "locale.marketHeading": "Prezzi mostrati per",
+  "locale.sessionHeading": "Accesso da",
+  "locale.notAChoice": "Deriva da dove è stato effettuato questo accesso e non è modificabile qui: i prezzi che controlla devono essere quelli che il cliente davanti a lei paga davvero."
 }

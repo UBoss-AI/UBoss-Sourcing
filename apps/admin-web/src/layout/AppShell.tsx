@@ -26,11 +26,10 @@ import { cx } from '@/lib/cx';
 import { roleLabel } from '@/lib/permissions';
 import { translateKey, useI18n } from '@/i18n/i18n-context';
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
-import { MarketIndicator } from './MarketIndicator';
 import { locateRoute, visibleNavigation } from './navigation';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { LocaleMenu } from './LocaleMenu';
 import { NotificationBell } from './NotificationBell';
-import { SessionLocation } from './SessionLocation';
 
 /**
  * The brand block.
@@ -497,23 +496,29 @@ export function AppShell(): React.JSX.Element {
                 presses to be here, not four screens away in Settings. */}
             <ThemeToggle />
 
-            {/* Where this sign-in came from, and which market that makes the
-                panel quote prices for. Two facts, deliberately two chips: one
-                is the place a person recognises and the other is a country a
-                price depends on, and in a single-market deployment only the
-                first of them has anything to say. Both are labels rather than
-                controls - neither is a choice - and both render themselves
-                away when they would be saying nothing. */}
-            <SessionLocation />
-            <MarketIndicator />
-
-            {/* Beside the account menu, on every page the bar can hold it.
-                The panel is a tool people work in all day; the language it is
-                in belongs where they can see and change it, not behind a
-                settings screen. Below `sm` there is no room for it up here
-                and it moves to the foot of the navigation drawer — which is
-                navigation, not a settings screen. See MobileDrawer. */}
-            <LanguageSwitcher placement="header" className="hidden sm:flex" />
+            {/*
+              * Language, the market the panel is pricing against, and where
+              * this sign-in was made — one control.
+              *
+              * It was three: a language `<select>`, a location chip and a
+              * market chip. They answer one question between them ("where am
+              * I and what am I reading?"), and three of them in a bar that
+              * also carries a page title, a bell and an account menu is why
+              * the account menu was the first thing to get squeezed on a
+              * laptop. The storefront had the same problem with three
+              * `<select>`s and one control was the answer there too.
+              *
+              * The market and the location stay *labels* inside it. Neither is
+              * a choice, for reasons that predate this control and are argued
+              * in `LocaleMenu`'s own note: a picker over either would let
+              * somebody read prices for a market nobody sells in, or claim a
+              * place they are not in.
+              *
+              * Below `sm` there is no room for it up here, and the language
+              * moves to the foot of the navigation drawer — which is
+              * navigation, not a settings screen. See MobileDrawer.
+              */}
+            <LocaleMenu className="hidden sm:block" />
 
             <UserMenu />
           </header>

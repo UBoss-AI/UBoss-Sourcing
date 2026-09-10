@@ -112,7 +112,6 @@
   "shell.closeNavigation": "Zamknij nawigację",
   "shell.signOut": "Wyloguj się",
   "shell.signingOut": "Wylogowywanie…",
-  "shell.signedInFrom": "Zalogowano z: {{place}}",
   "nav.group.overview": "Przegląd",
   "nav.group.catalogue": "Katalog",
   "nav.group.sales": "Sprzedaż",
@@ -1953,5 +1952,9 @@
   "theme.optionSystem": "Jak moje urządzenie",
   "theme.optionLight": "Motyw jasny",
   "theme.optionDark": "Motyw ciemny",
-  "theme.pressToChange": "Naciśnij, aby zmienić."
+  "theme.pressToChange": "Naciśnij, aby zmienić.",
+  "locale.trigger": "Język i rynek",
+  "locale.marketHeading": "Ceny pokazane dla",
+  "locale.sessionHeading": "Zalogowano z",
+  "locale.notAChoice": "Wynika z miejsca tego logowania i nie można tego tutaj zmienić: ceny, które sprawdzasz, muszą być tymi, które klient przed tobą naprawdę płaci."
 }

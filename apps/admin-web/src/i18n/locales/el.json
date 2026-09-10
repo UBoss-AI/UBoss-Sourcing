@@ -112,7 +112,6 @@
   "shell.closeNavigation": "Κλείσιμο πλοήγησης",
   "shell.signOut": "Αποσύνδεση",
   "shell.signingOut": "Αποσύνδεση…",
-  "shell.signedInFrom": "Σύνδεση από {{place}}",
   "nav.group.overview": "Επισκόπηση",
   "nav.group.catalogue": "Κατάλογος",
   "nav.group.sales": "Πωλήσεις",
@@ -1921,5 +1920,9 @@
   "theme.optionSystem": "Όπως η συσκευή μου",
   "theme.optionLight": "Φωτεινό θέμα",
   "theme.optionDark": "Σκούρο θέμα",
-  "theme.pressToChange": "Πατήστε για αλλαγή."
+  "theme.pressToChange": "Πατήστε για αλλαγή.",
+  "locale.trigger": "Γλώσσα και αγορά",
+  "locale.marketHeading": "Τιμές για",
+  "locale.sessionHeading": "Σύνδεση από",
+  "locale.notAChoice": "Προκύπτει από το πού έγινε αυτή η σύνδεση και δεν αλλάζει εδώ: οι τιμές που ελέγχετε πρέπει να είναι αυτές που πληρώνει πραγματικά ο πελάτης μπροστά σας."
 }

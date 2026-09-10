@@ -112,7 +112,6 @@
   "shell.closeNavigation": "Close navigation",
   "shell.signOut": "Sign out",
   "shell.signingOut": "Signing out…",
-  "shell.signedInFrom": "Signed in from {{place}}",
   "nav.group.overview": "Overview",
   "nav.group.catalogue": "Catalogue",
   "nav.group.sales": "Sales",
@@ -1923,5 +1922,9 @@
   "theme.optionSystem": "Match my device",
   "theme.optionLight": "Light theme",
   "theme.optionDark": "Dark theme",
-  "theme.pressToChange": "Press to change it."
+  "theme.pressToChange": "Press to change it.",
+  "locale.trigger": "Language and market",
+  "locale.marketHeading": "Prices shown for",
+  "locale.sessionHeading": "Signed in from",
+  "locale.notAChoice": "Resolved from where this sign-in was made, and not editable here: the prices you check have to be the ones a customer in front of you actually pays."
 }

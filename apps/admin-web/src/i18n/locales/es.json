@@ -112,7 +112,6 @@
   "shell.closeNavigation": "Cerrar la navegación",
   "shell.signOut": "Cerrar sesión",
   "shell.signingOut": "Cerrando sesión…",
-  "shell.signedInFrom": "Sesión iniciada desde {{place}}",
   "nav.group.overview": "Resumen",
   "nav.group.catalogue": "Catálogo",
   "nav.group.sales": "Ventas",
@@ -1937,5 +1936,9 @@
   "theme.optionSystem": "Igual que mi dispositivo",
   "theme.optionLight": "Tema claro",
   "theme.optionDark": "Tema oscuro",
-  "theme.pressToChange": "Pulse para cambiarla."
+  "theme.pressToChange": "Pulse para cambiarla.",
+  "locale.trigger": "Idioma y mercado",
+  "locale.marketHeading": "Precios mostrados para",
+  "locale.sessionHeading": "Sesión iniciada desde",
+  "locale.notAChoice": "Se resuelve según el lugar desde donde se inició esta sesión y no se puede editar aquí: los precios que comprueba deben ser los que paga realmente el cliente que tiene delante."
 }

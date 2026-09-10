@@ -112,7 +112,6 @@
   "shell.closeNavigation": "Navigatie sluiten",
   "shell.signOut": "Uitloggen",
   "shell.signingOut": "Bezig met uitloggen…",
-  "shell.signedInFrom": "Aangemeld vanuit {{place}}",
   "nav.group.overview": "Overzicht",
   "nav.group.catalogue": "Catalogus",
   "nav.group.sales": "Verkoop",
@@ -1921,5 +1920,9 @@
   "theme.optionSystem": "Zoals mijn apparaat",
   "theme.optionLight": "Licht thema",
   "theme.optionDark": "Donker thema",
-  "theme.pressToChange": "Druk om te wijzigen."
+  "theme.pressToChange": "Druk om te wijzigen.",
+  "locale.trigger": "Taal en markt",
+  "locale.marketHeading": "Prijzen voor",
+  "locale.sessionHeading": "Aangemeld vanuit",
+  "locale.notAChoice": "Volgt uit waar deze aanmelding is gedaan en is hier niet te wijzigen: de prijzen die u controleert moeten de prijzen zijn die een klant tegenover u werkelijk betaalt."
 }

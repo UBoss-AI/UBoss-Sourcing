@@ -1957,7 +1957,7 @@ carries four facts, and the panel uses each of them:
 
 | Field on `/me` | What it is | What it changes |
 |---|---|---|
-| `locationPlace` | The geocoded place, or the coordinates when no geocoder answered | A chip in the **top bar on every page**: *"Signed in from Mitte, Berlin"* |
+| `locationPlace` | The geocoded place, or the coordinates when no geocoder answered | A row in the **top bar's locale panel**, under *Signed in from* |
 | `locationCountry` | ISO-3166-1 alpha-2, or null | The market every price in the panel is quoted for |
 | `locationCurrency` | What `countries.currencyCode` says that market pays in, or null | Which per-currency price list every customer-facing figure is read from |
 | `locationLanguage` | What `countries.languageCode` says an office there reads, or null | The interface language, once per sign-in country |
@@ -1968,6 +1968,51 @@ and a laptop handed around a warehouse — should still be able to say which
 sign-in is on screen. It shows the first two parts of the geocoded name with
 the whole string in its tooltip, and it renders nothing at all when the browser
 told the session nothing.
+
+**All of it is one control in the top bar now.** The place, the market and the
+language switch were three separate chips: a `<select>`, a location chip and a
+market chip. They answer one question between them — *where am I, and what am
+I reading?* — and three of them in a bar that also carries the page title, the
+notification bell and the account menu is why the account menu was the first
+thing to be squeezed on a laptop. The storefront had the same problem with
+three `<select>`s and one control was the answer there too, so the panel now
+uses the same shape: the country's flag, the language code, a chevron, and a
+panel underneath.
+
+It uses the **same drawn flags as the storefront** — `CountryFlag`, copied
+across like `ui.tsx` and `icons.tsx` before it, because a country drawn two
+ways in one product is one country too many. A correction goes in both files
+or it has not been made.
+
+What the panel holds, and the distinction is the whole point:
+
+| In the panel | What it is |
+|---|---|
+| Language | A **choice**, as chips, each named in its own language |
+| Prices shown for | A **label**: the country and its currency |
+| Signed in from | A **label**: the short place, with the full geocoded string under it |
+
+**The two labels stay labels, and the panel says so in words.** This control
+looks like the storefront's, where the market *is* a choice, so somebody
+hunting for the picker will read the sentence rather than a source comment they
+never open: *"Resolved from where this sign-in was made, and not editable here:
+the prices you check have to be the ones a customer in front of you actually
+pays."*
+
+**The flag follows the country; the market label follows the price.** Those are
+two different questions and they were briefly answered by one condition. "Which
+country is this sign-in from" has an answer whenever the browser resolved one.
+"Does being in that country change a price" is narrower — it needs EU VAT
+configured, or a market whose currency is not the seller's — and in a
+single-market deployment the answer is no. Gating the flag on the narrow
+question hid it on every such install while the panel was perfectly able to say
+India, so the flag now shows whenever a country is known and only the *market
+sentence* waits for a price difference that actually exists.
+
+Each part disappears independently. With no country resolved, no market that
+changes a price and no geocoded place, this is a language control with a
+flagless trigger — which is exactly what a single-market deployment with the
+location feature switched off should see.
 
 **The language switch is a starting point, not a lock.** It applies once per
 sign-in *country*, remembered in the browser under
@@ -2018,7 +2063,7 @@ Three consequences worth knowing:
   says so.
 - **Nothing changes where nothing changes.** With no country resolved, each row
   is quoted in the currency its own price is authored in — exactly what the
-  console did before it knew about markets. And the top-bar market chip
+  console did before it knew about markets. And the locale panel's market row
   appears only when being in that country moves a price at all: a different
   rate (EU VAT configured) or a different price list (the market's currency is
   not the base one). In a single-market Indian shop it never appears.
@@ -4511,7 +4556,8 @@ UBoss-Software/
 | Change how a photograph is matched to products | `backend/src/modules/assistant/image-search.service.ts` |
 | Move a control in the storefront header | `apps/customer-web/src/layout/Header.tsx` — the comment beside each breakpoint says what it is holding |
 | Change what the language/country/currency control offers | `components/market/MarketMenu.tsx`; `/account/region` asks the same three questions and both go through `LocaleProvider.choose` |
-| Add or correct a flag | `components/CountryFlag.tsx` — bands plus at most one mark; an unlisted country falls back to a letter chip |
+| Change the panel's language, market or sign-in place control | `apps/admin-web/src/layout/LocaleMenu.tsx` — one control; the market and the place are deliberately labels, and it says why |
+| Add or correct a flag | `components/CountryFlag.tsx` in **both** apps — bands plus at most one mark; an unlisted country falls back to a letter chip |
 | Add a destination to the account menu **and** the account sidebar | `pages/account/account-nav.ts` — one table, both surfaces |
 | Change what the account dropdown looks like | `components/account/AccountMenu.tsx` |
 | Change the account area's frame or its sidebar | `pages/account/AccountLayout.tsx` |

@@ -112,7 +112,6 @@
   "shell.closeNavigation": "Navigation schließen",
   "shell.signOut": "Abmelden",
   "shell.signingOut": "Abmeldung läuft…",
-  "shell.signedInFrom": "Angemeldet aus {{place}}",
   "nav.group.overview": "Übersicht",
   "nav.group.catalogue": "Katalog",
   "nav.group.sales": "Vertrieb",
@@ -1921,5 +1920,9 @@
   "theme.optionSystem": "Wie mein Gerät",
   "theme.optionLight": "Helles Design",
   "theme.optionDark": "Dunkles Design",
-  "theme.pressToChange": "Zum Ändern drücken."
+  "theme.pressToChange": "Zum Ändern drücken.",
+  "locale.trigger": "Sprache und Markt",
+  "locale.marketHeading": "Preise angezeigt für",
+  "locale.sessionHeading": "Angemeldet aus",
+  "locale.notAChoice": "Ergibt sich daraus, von wo diese Anmeldung erfolgte, und ist hier nicht änderbar: die Preise, die Sie prüfen, müssen die sein, die ein Kunde vor Ihnen tatsächlich zahlt."
 }
