@@ -95,6 +95,12 @@ function serve(options: ServeOptions = {}): void {
               providerOrderId: 'order_TEST123',
               amount: money('53690'),
               checkoutPayload: { key: 'rzp_test_abc', order_id: 'order_TEST123', amount: 53690 },
+              instrument: 'CREDIT_CARD',
+              // The ordinary case: open the gateway's own sheet. The two other
+              // values, AUTHENTICATE and AWAIT_CONFIRMATION, only arise for a
+              // card the customer saved earlier, which this file's fixture
+              // deliberately does not have.
+              next: 'OPEN_PROVIDER_UI',
             },
             201,
           ),

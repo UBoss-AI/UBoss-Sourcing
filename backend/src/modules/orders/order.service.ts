@@ -15,6 +15,7 @@
  */
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import { serialiseMoney } from '../../domain/money.js';
+import type { PaymentInstrument } from '../../domain/payment-instrument.js';
 import {
   assertTotalsConsistent,
   type PricedLine,
@@ -141,6 +142,23 @@ export interface CheckoutInput {
    */
   preferredPaymentProvider?: 'RAZORPAY' | 'STRIPE';
   preferredPaymentMethod?: 'ANY' | 'UPI';
+  /**
+   * What the customer chose to pay with, in the words they were shown.
+   *
+   * The pair above records a gateway; this records an instrument, and only
+   * this one was ever on the customer's screen. Kept apart because they change
+   * for different reasons - an operator disconnecting a gateway must not
+   * rewrite what a customer picked last week.
+   */
+  preferredPaymentInstrument?: PaymentInstrument;
+  /**
+   * A saved card of theirs, chosen at checkout.
+   *
+   * A preference, exactly like the fields above, and re-checked against the
+   * customer when the payment actually starts. Storing it here is what lets a
+   * reload of the payment page offer the same card rather than starting over.
+   */
+  preferredPaymentMethodId?: string;
   customerNote?: string | null;
   actor: OrderActor;
 }
@@ -265,6 +283,10 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
           input.paymentMode === 'ONLINE' ? (input.preferredPaymentProvider ?? null) : null,
         preferredPaymentMethod:
           input.paymentMode === 'ONLINE' ? (input.preferredPaymentMethod ?? null) : null,
+        preferredPaymentInstrument:
+          input.paymentMode === 'ONLINE' ? (input.preferredPaymentInstrument ?? null) : null,
+        preferredPaymentMethodId:
+          input.paymentMode === 'ONLINE' ? (input.preferredPaymentMethodId ?? null) : null,
         customerNote: input.customerNote ?? null,
         placedAt: new Date(),
         // Why this was taxed the way it was, frozen alongside the numbers it

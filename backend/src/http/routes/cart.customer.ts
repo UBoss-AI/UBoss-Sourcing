@@ -9,6 +9,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { ErrorCode, badRequest } from '../../domain/errors.js';
+import { PaymentInstrumentValues } from '../../domain/payment-instrument.js';
 import {
   addItem,
   addItems,
@@ -59,6 +60,13 @@ const checkoutSchema = z.object({
   // what every caller written before this did.
   preferredPaymentProvider: z.enum(['RAZORPAY', 'STRIPE']).optional(),
   preferredPaymentMethod: z.enum(['ANY', 'UPI']).optional(),
+  // What the customer actually chose, in the words the storefront showed them.
+  // The gateway is derived from this at payment time; the two fields above are
+  // what an API client naming a gateway directly still uses.
+  preferredPaymentInstrument: z.enum(PaymentInstrumentValues).optional(),
+  // A card of theirs, picked at checkout. Re-checked against the customer when
+  // the payment starts - this is a preference, never an authorisation.
+  preferredPaymentMethodId: z.string().length(26).optional(),
   customerNote: z.string().max(2000).nullable().optional(),
 });
 
@@ -235,6 +243,12 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
             ...(body.preferredPaymentMethod === undefined
               ? {}
               : { preferredPaymentMethod: body.preferredPaymentMethod }),
+            ...(body.preferredPaymentInstrument === undefined
+              ? {}
+              : { preferredPaymentInstrument: body.preferredPaymentInstrument }),
+            ...(body.preferredPaymentMethodId === undefined
+              ? {}
+              : { preferredPaymentMethodId: body.preferredPaymentMethodId }),
             customerNote: body.customerNote ?? null,
             actor: {
               userId: auth.id,

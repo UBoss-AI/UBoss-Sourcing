@@ -65,6 +65,28 @@ export interface CreatePaymentInput {
    * same payment with a different sheet.
    */
   methodHint?: PaymentMethodHint;
+  /**
+   * The gateway's own customer record, when this customer has one.
+   *
+   * Passing it is what lets the gateway show the customer their saved cards,
+   * and what keeps a newly saved card attached to the record their existing
+   * ones hang off rather than to a fresh parallel one.
+   *
+   * Part of the replayed payload for the same reason `methodHint` is: a retry
+   * that dropped it would reopen the same payment with the saved cards
+   * missing.
+   */
+  providerCustomerId?: string | null;
+  /**
+   * Ask the gateway to tokenise whatever card is used, so it can be offered
+   * back at the next checkout.
+   *
+   * Only ever true when the customer ticked the box. It is not a preference
+   * this application may set on their behalf: storing a payment credential
+   * needs their agreement under both the RBI's tokenisation rules and the
+   * GDPR, and a pre-ticked or implied consent is not one.
+   */
+  saveCard?: boolean;
   /** Idempotency key passed through where the provider supports one. */
   idempotencyKey: string;
 }
@@ -139,6 +161,23 @@ export interface VerifiedEvent {
   providerSetupIntentId?: string | null;
   /** Set on SETUP_COMPLETED. The reusable instrument it produced. */
   providerPaymentMethodId?: string | null;
+  /**
+   * A card this payment tokenised, when the customer asked for it.
+   *
+   * Carries references and nothing else. What the card LOOKS like - brand,
+   * last four, funding - is read back from the provider by
+   * `fetchVaultedCard`, not taken from here, for the same reason enrolment
+   * re-reads a SetupIntent: the provider is the authority on what it stored,
+   * and one path that reads it is easier to keep honest than two.
+   *
+   * Reported only on a capture. A token from a payment that failed is a card
+   * the customer never successfully used, and offering it back to them later
+   * would be offering a card nothing shows works.
+   */
+  vaultedCard?: {
+    providerTokenId: string;
+    providerCustomerId: string | null;
+  } | null;
   amountMinor: bigint | null;
   currency: string | null;
   method: string | null;
@@ -359,6 +398,171 @@ export interface OffSessionProvider extends PaymentProvider {
    * the provider believes is live.
    */
   detachPaymentMethod(providerPaymentMethodId: string): Promise<void>;
+}
+
+// ---------------------------------------------------------------------------
+// Storing a card at a checkout
+// ---------------------------------------------------------------------------
+//
+// Different from the off-session machinery above, and kept apart from it on
+// purpose. Off-session means "charge this while nobody is looking", and only a
+// gateway with a SetupIntent-shaped enrolment can honour it. Storing a card at
+// a checkout is a smaller thing: the customer is present, they are paying now,
+// and they have asked not to have to type the card again next time.
+//
+// Both gateways can do the smaller thing. Only one of them can do the larger.
+
+/**
+ * A stored card, as much as anybody is allowed to know about it.
+ *
+ * Display fields only. Not one of them can pay for anything, and that is the
+ * point: this is what a person needs to recognise their own card in a list,
+ * and it is the whole of what this application ever holds about a card.
+ */
+export interface VaultedCardDetails {
+  providerTokenId: string;
+  providerCustomerId: string | null;
+  brand: string | null;
+  last4: string | null;
+  expMonth: number | null;
+  expYear: number | null;
+  /**
+   * The provider's own word for credit vs debit - Stripe's `funding`,
+   * Razorpay's `card.type`. Passed through unmapped; turning it into an
+   * instrument is `fundingFor`'s job in domain/payment-instrument.ts, and it
+   * happens in exactly one place.
+   */
+  funding: string | null;
+  country: string | null;
+}
+
+export interface EnsureVaultCustomerInput {
+  /** The gateway's existing customer id for this person, when there is one. */
+  providerCustomerId?: string | null;
+  customerEmail: string | null;
+  customerName: string | null;
+  customerPhone: string | null;
+  /** Ours, sent as metadata so the gateway's dashboard traces back here. */
+  customerProfileId: string;
+}
+
+/**
+ * A gateway that can keep a card on file for a customer.
+ *
+ * What is kept is a **token**, never a card number. Since the RBI's rules of
+ * October 2022 a merchant may not store a PAN at all, and no deployment of
+ * this software is inside PCI DSS scope - so what comes back is a reference
+ * plus the brand and last four digits a person recognises their own card by.
+ */
+export interface CardVaultProvider extends PaymentProvider {
+  /**
+   * Find or create the gateway's customer record.
+   *
+   * Idempotent from the caller's side: given an existing id it returns it
+   * unchanged rather than making a second record, because a customer with two
+   * records at the gateway has cards that nothing joins back together.
+   */
+  ensureVaultCustomer(input: EnsureVaultCustomerInput): Promise<string>;
+
+  /**
+   * Read back a stored card, so it can be shown to the person who owns it.
+   *
+   * The provider is the authority on what it stored - the same rule
+   * `fetchSetupIntent` exists for. Returns null when the token is not there,
+   * which is a real answer rather than an error: a customer can delete a card
+   * in the gateway's own portal without telling this system.
+   */
+  fetchVaultedCard(
+    providerCustomerId: string,
+    providerTokenId: string,
+  ): Promise<VaultedCardDetails | null>;
+
+  /**
+   * Stop a stored card being usable, at the gateway.
+   *
+   * Called when the customer removes it here. Marking our row detached while
+   * the gateway still holds a chargeable token would leave the two disagreeing
+   * about something that can take money.
+   */
+  forgetVaultedCard(providerCustomerId: string, providerTokenId: string): Promise<void>;
+}
+
+export function supportsCardVault(provider: PaymentProvider): provider is CardVaultProvider {
+  const candidate = provider as Partial<CardVaultProvider>;
+  return (
+    typeof candidate.ensureVaultCustomer === 'function' &&
+    typeof candidate.fetchVaultedCard === 'function' &&
+    typeof candidate.forgetVaultedCard === 'function'
+  );
+}
+
+export interface OnSessionChargeInput {
+  orderId: string;
+  orderNumber: string;
+  amountMinor: bigint;
+  currency: string;
+  providerCustomerId: string;
+  providerPaymentMethodId: string;
+  /**
+   * Where the gateway sends the customer back after a full-page
+   * authentication challenge. Required even when one is not expected: the
+   * gateway refuses to start a challenge it cannot return from.
+   */
+  returnUrl: string;
+  idempotencyKey: string;
+}
+
+export interface OnSessionChargeResult {
+  providerOrderId: string;
+  providerPaymentId: string | null;
+  status: NormalisedPaymentStatus;
+  /**
+   * The bank wants the cardholder to authenticate.
+   *
+   * Unlike the off-session case this is entirely ordinary and entirely
+   * recoverable - the cardholder is right there. The caller hands
+   * `clientSecret` to the browser, which completes the challenge and then
+   * waits for the webhook like any other payment.
+   */
+  requiresAction: boolean;
+  /** Authorises the browser to finish THIS payment. Never stored. */
+  clientSecret: string | null;
+  /**
+   * The publishable key the browser needs to run the challenge.
+   *
+   * Public by design - it is the same key the gateway's own sheet is opened
+   * with. Returned here rather than read off the provider so that the secret
+   * half of the credential pair has no path to a response object at all.
+   */
+  publishableKey: string;
+  amountMinor: bigint;
+  currency: string;
+  failureCode: string | null;
+  failureMessage: string | null;
+}
+
+/**
+ * A gateway that can charge a stored card directly, with the customer present.
+ *
+ * Stripe can: the token is ours to name in a PaymentIntent. **Razorpay cannot**
+ * - charging a specific saved token needs its server-to-server API, which is
+ * open only to merchants holding PCI-DSS certification, and a company that
+ * installs a purchasing system does not hold one. Razorpay's saved cards are
+ * therefore chosen inside Razorpay's own sheet, which we open with the
+ * customer's id so the cards are already there.
+ *
+ * Separate from `CardVaultProvider` so that the difference is a compile error
+ * rather than a runtime surprise at a checkout.
+ */
+export interface DirectCardChargeProvider extends CardVaultProvider {
+  chargeSavedCardOnSession(input: OnSessionChargeInput): Promise<OnSessionChargeResult>;
+}
+
+export function supportsDirectCardCharge(
+  provider: PaymentProvider,
+): provider is DirectCardChargeProvider {
+  const candidate = provider as Partial<DirectCardChargeProvider>;
+  return supportsCardVault(provider) && typeof candidate.chargeSavedCardOnSession === 'function';
 }
 
 /** Narrow a provider to one that can charge off-session. */

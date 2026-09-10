@@ -67,6 +67,8 @@ export type OrderMinAggregateOutputType = {
   paymentMode: $Enums.PaymentIntentMode | null
   preferredPaymentProvider: $Enums.PaymentProviderKind | null
   preferredPaymentMethod: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId: string | null
   taxTreatment: $Enums.TaxTreatment | null
   taxCountry: string | null
   sellerVatNumberSnapshot: string | null
@@ -102,6 +104,8 @@ export type OrderMaxAggregateOutputType = {
   paymentMode: $Enums.PaymentIntentMode | null
   preferredPaymentProvider: $Enums.PaymentProviderKind | null
   preferredPaymentMethod: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId: string | null
   taxTreatment: $Enums.TaxTreatment | null
   taxCountry: string | null
   sellerVatNumberSnapshot: string | null
@@ -139,6 +143,8 @@ export type OrderCountAggregateOutputType = {
   paymentMode: number
   preferredPaymentProvider: number
   preferredPaymentMethod: number
+  preferredPaymentInstrument: number
+  preferredPaymentMethodId: number
   taxTreatment: number
   taxCountry: number
   sellerVatNumberSnapshot: number
@@ -196,6 +202,8 @@ export type OrderMinAggregateInputType = {
   paymentMode?: true
   preferredPaymentProvider?: true
   preferredPaymentMethod?: true
+  preferredPaymentInstrument?: true
+  preferredPaymentMethodId?: true
   taxTreatment?: true
   taxCountry?: true
   sellerVatNumberSnapshot?: true
@@ -231,6 +239,8 @@ export type OrderMaxAggregateInputType = {
   paymentMode?: true
   preferredPaymentProvider?: true
   preferredPaymentMethod?: true
+  preferredPaymentInstrument?: true
+  preferredPaymentMethodId?: true
   taxTreatment?: true
   taxCountry?: true
   sellerVatNumberSnapshot?: true
@@ -268,6 +278,8 @@ export type OrderCountAggregateInputType = {
   paymentMode?: true
   preferredPaymentProvider?: true
   preferredPaymentMethod?: true
+  preferredPaymentInstrument?: true
+  preferredPaymentMethodId?: true
   taxTreatment?: true
   taxCountry?: true
   sellerVatNumberSnapshot?: true
@@ -392,6 +404,8 @@ export type OrderGroupByOutputType = {
   paymentMode: $Enums.PaymentIntentMode
   preferredPaymentProvider: $Enums.PaymentProviderKind | null
   preferredPaymentMethod: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId: string | null
   taxTreatment: $Enums.TaxTreatment
   taxCountry: string | null
   sellerVatNumberSnapshot: string | null
@@ -452,6 +466,8 @@ export type OrderWhereInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFilter<"Order"> | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.EnumPaymentProviderKindNullableFilter<"Order"> | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.EnumPaymentMethodPreferenceNullableFilter<"Order"> | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.EnumPaymentInstrumentKindNullableFilter<"Order"> | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.StringNullableFilter<"Order"> | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentFilter<"Order"> | $Enums.TaxTreatment
   taxCountry?: Prisma.StringNullableFilter<"Order"> | string | null
   sellerVatNumberSnapshot?: Prisma.StringNullableFilter<"Order"> | string | null
@@ -464,6 +480,7 @@ export type OrderWhereInput = {
   cancelReason?: Prisma.StringNullableFilter<"Order"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Order"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Order"> | Date | string
+  preferredPaymentCard?: Prisma.XOR<Prisma.CustomerPaymentMethodNullableScalarRelationFilter, Prisma.CustomerPaymentMethodWhereInput> | null
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
   cart?: Prisma.XOR<Prisma.CartNullableScalarRelationFilter, Prisma.CartWhereInput> | null
   items?: Prisma.OrderItemListRelationFilter
@@ -505,6 +522,8 @@ export type OrderOrderByWithRelationInput = {
   paymentMode?: Prisma.SortOrder
   preferredPaymentProvider?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredPaymentMethod?: Prisma.SortOrderInput | Prisma.SortOrder
+  preferredPaymentInstrument?: Prisma.SortOrderInput | Prisma.SortOrder
+  preferredPaymentMethodId?: Prisma.SortOrderInput | Prisma.SortOrder
   taxTreatment?: Prisma.SortOrder
   taxCountry?: Prisma.SortOrderInput | Prisma.SortOrder
   sellerVatNumberSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -517,6 +536,7 @@ export type OrderOrderByWithRelationInput = {
   cancelReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodOrderByWithRelationInput
   customerProfile?: Prisma.CustomerProfileOrderByWithRelationInput
   cart?: Prisma.CartOrderByWithRelationInput
   items?: Prisma.OrderItemOrderByRelationAggregateInput
@@ -562,6 +582,8 @@ export type OrderWhereUniqueInput = Prisma.AtLeast<{
   paymentMode?: Prisma.EnumPaymentIntentModeFilter<"Order"> | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.EnumPaymentProviderKindNullableFilter<"Order"> | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.EnumPaymentMethodPreferenceNullableFilter<"Order"> | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.EnumPaymentInstrumentKindNullableFilter<"Order"> | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.StringNullableFilter<"Order"> | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentFilter<"Order"> | $Enums.TaxTreatment
   taxCountry?: Prisma.StringNullableFilter<"Order"> | string | null
   sellerVatNumberSnapshot?: Prisma.StringNullableFilter<"Order"> | string | null
@@ -574,6 +596,7 @@ export type OrderWhereUniqueInput = Prisma.AtLeast<{
   cancelReason?: Prisma.StringNullableFilter<"Order"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Order"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Order"> | Date | string
+  preferredPaymentCard?: Prisma.XOR<Prisma.CustomerPaymentMethodNullableScalarRelationFilter, Prisma.CustomerPaymentMethodWhereInput> | null
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
   cart?: Prisma.XOR<Prisma.CartNullableScalarRelationFilter, Prisma.CartWhereInput> | null
   items?: Prisma.OrderItemListRelationFilter
@@ -615,6 +638,8 @@ export type OrderOrderByWithAggregationInput = {
   paymentMode?: Prisma.SortOrder
   preferredPaymentProvider?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredPaymentMethod?: Prisma.SortOrderInput | Prisma.SortOrder
+  preferredPaymentInstrument?: Prisma.SortOrderInput | Prisma.SortOrder
+  preferredPaymentMethodId?: Prisma.SortOrderInput | Prisma.SortOrder
   taxTreatment?: Prisma.SortOrder
   taxCountry?: Prisma.SortOrderInput | Prisma.SortOrder
   sellerVatNumberSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -660,6 +685,8 @@ export type OrderScalarWhereWithAggregatesInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeWithAggregatesFilter<"Order"> | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.EnumPaymentProviderKindNullableWithAggregatesFilter<"Order"> | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.EnumPaymentMethodPreferenceNullableWithAggregatesFilter<"Order"> | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.EnumPaymentInstrumentKindNullableWithAggregatesFilter<"Order"> | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentWithAggregatesFilter<"Order"> | $Enums.TaxTreatment
   taxCountry?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
   sellerVatNumberSnapshot?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
@@ -694,6 +721,7 @@ export type OrderCreateInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -706,6 +734,7 @@ export type OrderCreateInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
@@ -747,6 +776,8 @@ export type OrderUncheckedCreateInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -794,6 +825,7 @@ export type OrderUpdateInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -806,6 +838,7 @@ export type OrderUpdateInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
@@ -847,6 +880,8 @@ export type OrderUncheckedUpdateInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -897,6 +932,8 @@ export type OrderCreateManyInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -931,6 +968,7 @@ export type OrderUpdateManyMutationInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -968,6 +1006,8 @@ export type OrderUncheckedUpdateManyInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1026,6 +1066,8 @@ export type OrderCountOrderByAggregateInput = {
   paymentMode?: Prisma.SortOrder
   preferredPaymentProvider?: Prisma.SortOrder
   preferredPaymentMethod?: Prisma.SortOrder
+  preferredPaymentInstrument?: Prisma.SortOrder
+  preferredPaymentMethodId?: Prisma.SortOrder
   taxTreatment?: Prisma.SortOrder
   taxCountry?: Prisma.SortOrder
   sellerVatNumberSnapshot?: Prisma.SortOrder
@@ -1071,6 +1113,8 @@ export type OrderMaxOrderByAggregateInput = {
   paymentMode?: Prisma.SortOrder
   preferredPaymentProvider?: Prisma.SortOrder
   preferredPaymentMethod?: Prisma.SortOrder
+  preferredPaymentInstrument?: Prisma.SortOrder
+  preferredPaymentMethodId?: Prisma.SortOrder
   taxTreatment?: Prisma.SortOrder
   taxCountry?: Prisma.SortOrder
   sellerVatNumberSnapshot?: Prisma.SortOrder
@@ -1106,6 +1150,8 @@ export type OrderMinOrderByAggregateInput = {
   paymentMode?: Prisma.SortOrder
   preferredPaymentProvider?: Prisma.SortOrder
   preferredPaymentMethod?: Prisma.SortOrder
+  preferredPaymentInstrument?: Prisma.SortOrder
+  preferredPaymentMethodId?: Prisma.SortOrder
   taxTreatment?: Prisma.SortOrder
   taxCountry?: Prisma.SortOrder
   sellerVatNumberSnapshot?: Prisma.SortOrder
@@ -1255,6 +1301,10 @@ export type NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput = {
   set?: $Enums.PaymentMethodPreference | null
 }
 
+export type NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput = {
+  set?: $Enums.PaymentInstrumentKind | null
+}
+
 export type EnumTaxTreatmentFieldUpdateOperationsInput = {
   set?: $Enums.TaxTreatment
 }
@@ -1391,6 +1441,48 @@ export type OrderUncheckedUpdateOneWithoutOccurrenceNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.OrderUpdateToOneWithWhereWithoutOccurrenceInput, Prisma.OrderUpdateWithoutOccurrenceInput>, Prisma.OrderUncheckedUpdateWithoutOccurrenceInput>
 }
 
+export type OrderCreateNestedManyWithoutPreferredPaymentCardInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutPreferredPaymentCardInput, Prisma.OrderUncheckedCreateWithoutPreferredPaymentCardInput> | Prisma.OrderCreateWithoutPreferredPaymentCardInput[] | Prisma.OrderUncheckedCreateWithoutPreferredPaymentCardInput[]
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutPreferredPaymentCardInput | Prisma.OrderCreateOrConnectWithoutPreferredPaymentCardInput[]
+  createMany?: Prisma.OrderCreateManyPreferredPaymentCardInputEnvelope
+  connect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+}
+
+export type OrderUncheckedCreateNestedManyWithoutPreferredPaymentCardInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutPreferredPaymentCardInput, Prisma.OrderUncheckedCreateWithoutPreferredPaymentCardInput> | Prisma.OrderCreateWithoutPreferredPaymentCardInput[] | Prisma.OrderUncheckedCreateWithoutPreferredPaymentCardInput[]
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutPreferredPaymentCardInput | Prisma.OrderCreateOrConnectWithoutPreferredPaymentCardInput[]
+  createMany?: Prisma.OrderCreateManyPreferredPaymentCardInputEnvelope
+  connect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+}
+
+export type OrderUpdateManyWithoutPreferredPaymentCardNestedInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutPreferredPaymentCardInput, Prisma.OrderUncheckedCreateWithoutPreferredPaymentCardInput> | Prisma.OrderCreateWithoutPreferredPaymentCardInput[] | Prisma.OrderUncheckedCreateWithoutPreferredPaymentCardInput[]
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutPreferredPaymentCardInput | Prisma.OrderCreateOrConnectWithoutPreferredPaymentCardInput[]
+  upsert?: Prisma.OrderUpsertWithWhereUniqueWithoutPreferredPaymentCardInput | Prisma.OrderUpsertWithWhereUniqueWithoutPreferredPaymentCardInput[]
+  createMany?: Prisma.OrderCreateManyPreferredPaymentCardInputEnvelope
+  set?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  disconnect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  delete?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  connect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  update?: Prisma.OrderUpdateWithWhereUniqueWithoutPreferredPaymentCardInput | Prisma.OrderUpdateWithWhereUniqueWithoutPreferredPaymentCardInput[]
+  updateMany?: Prisma.OrderUpdateManyWithWhereWithoutPreferredPaymentCardInput | Prisma.OrderUpdateManyWithWhereWithoutPreferredPaymentCardInput[]
+  deleteMany?: Prisma.OrderScalarWhereInput | Prisma.OrderScalarWhereInput[]
+}
+
+export type OrderUncheckedUpdateManyWithoutPreferredPaymentCardNestedInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutPreferredPaymentCardInput, Prisma.OrderUncheckedCreateWithoutPreferredPaymentCardInput> | Prisma.OrderCreateWithoutPreferredPaymentCardInput[] | Prisma.OrderUncheckedCreateWithoutPreferredPaymentCardInput[]
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutPreferredPaymentCardInput | Prisma.OrderCreateOrConnectWithoutPreferredPaymentCardInput[]
+  upsert?: Prisma.OrderUpsertWithWhereUniqueWithoutPreferredPaymentCardInput | Prisma.OrderUpsertWithWhereUniqueWithoutPreferredPaymentCardInput[]
+  createMany?: Prisma.OrderCreateManyPreferredPaymentCardInputEnvelope
+  set?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  disconnect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  delete?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  connect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  update?: Prisma.OrderUpdateWithWhereUniqueWithoutPreferredPaymentCardInput | Prisma.OrderUpdateWithWhereUniqueWithoutPreferredPaymentCardInput[]
+  updateMany?: Prisma.OrderUpdateManyWithWhereWithoutPreferredPaymentCardInput | Prisma.OrderUpdateManyWithWhereWithoutPreferredPaymentCardInput[]
+  deleteMany?: Prisma.OrderScalarWhereInput | Prisma.OrderScalarWhereInput[]
+}
+
 export type OrderCreateNestedOneWithoutErpPushInput = {
   create?: Prisma.XOR<Prisma.OrderCreateWithoutErpPushInput, Prisma.OrderUncheckedCreateWithoutErpPushInput>
   connectOrCreate?: Prisma.OrderCreateOrConnectWithoutErpPushInput
@@ -1481,6 +1573,7 @@ export type OrderCreateWithoutReservationsInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -1493,6 +1586,7 @@ export type OrderCreateWithoutReservationsInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
@@ -1533,6 +1627,8 @@ export type OrderUncheckedCreateWithoutReservationsInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -1595,6 +1691,7 @@ export type OrderUpdateWithoutReservationsInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1607,6 +1704,7 @@ export type OrderUpdateWithoutReservationsInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
@@ -1647,6 +1745,8 @@ export type OrderUncheckedUpdateWithoutReservationsInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1693,6 +1793,7 @@ export type OrderCreateWithoutCustomerProfileInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -1705,6 +1806,7 @@ export type OrderCreateWithoutCustomerProfileInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
@@ -1744,6 +1846,8 @@ export type OrderUncheckedCreateWithoutCustomerProfileInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -1823,6 +1927,8 @@ export type OrderScalarWhereInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFilter<"Order"> | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.EnumPaymentProviderKindNullableFilter<"Order"> | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.EnumPaymentMethodPreferenceNullableFilter<"Order"> | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.EnumPaymentInstrumentKindNullableFilter<"Order"> | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.StringNullableFilter<"Order"> | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentFilter<"Order"> | $Enums.TaxTreatment
   taxCountry?: Prisma.StringNullableFilter<"Order"> | string | null
   sellerVatNumberSnapshot?: Prisma.StringNullableFilter<"Order"> | string | null
@@ -1857,6 +1963,7 @@ export type OrderCreateWithoutCartInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -1869,6 +1976,7 @@ export type OrderCreateWithoutCartInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
@@ -1908,6 +2016,8 @@ export type OrderUncheckedCreateWithoutCartInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -1981,6 +2091,7 @@ export type OrderCreateWithoutItemsInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -1993,6 +2104,7 @@ export type OrderCreateWithoutItemsInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
@@ -2033,6 +2145,8 @@ export type OrderUncheckedCreateWithoutItemsInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -2095,6 +2209,7 @@ export type OrderUpdateWithoutItemsInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2107,6 +2222,7 @@ export type OrderUpdateWithoutItemsInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
@@ -2147,6 +2263,8 @@ export type OrderUncheckedUpdateWithoutItemsInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2193,6 +2311,7 @@ export type OrderCreateWithoutStatusHistoryInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -2205,6 +2324,7 @@ export type OrderCreateWithoutStatusHistoryInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
@@ -2245,6 +2365,8 @@ export type OrderUncheckedCreateWithoutStatusHistoryInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -2307,6 +2429,7 @@ export type OrderUpdateWithoutStatusHistoryInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2319,6 +2442,7 @@ export type OrderUpdateWithoutStatusHistoryInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
@@ -2359,6 +2483,8 @@ export type OrderUncheckedUpdateWithoutStatusHistoryInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2405,6 +2531,7 @@ export type OrderCreateWithoutApprovalsInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -2417,6 +2544,7 @@ export type OrderCreateWithoutApprovalsInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
@@ -2457,6 +2585,8 @@ export type OrderUncheckedCreateWithoutApprovalsInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -2519,6 +2649,7 @@ export type OrderUpdateWithoutApprovalsInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2531,6 +2662,7 @@ export type OrderUpdateWithoutApprovalsInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
@@ -2571,6 +2703,8 @@ export type OrderUncheckedUpdateWithoutApprovalsInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2617,6 +2751,7 @@ export type OrderCreateWithoutPaymentsInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -2629,6 +2764,7 @@ export type OrderCreateWithoutPaymentsInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
@@ -2669,6 +2805,8 @@ export type OrderUncheckedCreateWithoutPaymentsInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -2731,6 +2869,7 @@ export type OrderUpdateWithoutPaymentsInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2743,6 +2882,7 @@ export type OrderUpdateWithoutPaymentsInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
@@ -2783,6 +2923,8 @@ export type OrderUncheckedUpdateWithoutPaymentsInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2829,6 +2971,7 @@ export type OrderCreateWithoutPaymentEventsInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -2841,6 +2984,7 @@ export type OrderCreateWithoutPaymentEventsInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
@@ -2881,6 +3025,8 @@ export type OrderUncheckedCreateWithoutPaymentEventsInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -2943,6 +3089,7 @@ export type OrderUpdateWithoutPaymentEventsInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2955,6 +3102,7 @@ export type OrderUpdateWithoutPaymentEventsInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
@@ -2995,6 +3143,8 @@ export type OrderUncheckedUpdateWithoutPaymentEventsInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3041,6 +3191,7 @@ export type OrderCreateWithoutPaymentLinksInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -3053,6 +3204,7 @@ export type OrderCreateWithoutPaymentLinksInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
@@ -3093,6 +3245,8 @@ export type OrderUncheckedCreateWithoutPaymentLinksInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -3155,6 +3309,7 @@ export type OrderUpdateWithoutPaymentLinksInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3167,6 +3322,7 @@ export type OrderUpdateWithoutPaymentLinksInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
@@ -3207,6 +3363,8 @@ export type OrderUncheckedUpdateWithoutPaymentLinksInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3253,6 +3411,7 @@ export type OrderCreateWithoutRefundsInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -3265,6 +3424,7 @@ export type OrderCreateWithoutRefundsInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
@@ -3305,6 +3465,8 @@ export type OrderUncheckedCreateWithoutRefundsInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -3367,6 +3529,7 @@ export type OrderUpdateWithoutRefundsInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3379,6 +3542,7 @@ export type OrderUpdateWithoutRefundsInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
@@ -3419,6 +3583,8 @@ export type OrderUncheckedUpdateWithoutRefundsInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3465,6 +3631,7 @@ export type OrderCreateWithoutOccurrenceInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -3477,6 +3644,7 @@ export type OrderCreateWithoutOccurrenceInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
@@ -3516,6 +3684,8 @@ export type OrderUncheckedCreateWithoutOccurrenceInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -3579,6 +3749,7 @@ export type OrderUpdateWithoutOccurrenceInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3591,6 +3762,7 @@ export type OrderUpdateWithoutOccurrenceInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
@@ -3630,6 +3802,8 @@ export type OrderUncheckedUpdateWithoutOccurrenceInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3657,6 +3831,134 @@ export type OrderUncheckedUpdateWithoutOccurrenceInput = {
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
 }
 
+export type OrderCreateWithoutPreferredPaymentCardInput = {
+  id: string
+  orderNumber: string
+  source?: $Enums.OrderSource
+  status?: $Enums.OrderStatus
+  currency: string
+  subtotalMinor?: bigint | number
+  discountMinor?: bigint | number
+  taxMinor?: bigint | number
+  shippingMinor?: bigint | number
+  grandTotalMinor?: bigint | number
+  paidMinor?: bigint | number
+  refundedMinor?: bigint | number
+  billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: string | null
+  shippingMethodName?: string | null
+  paymentMode?: $Enums.PaymentIntentMode
+  preferredPaymentProvider?: $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  taxTreatment?: $Enums.TaxTreatment
+  taxCountry?: string | null
+  sellerVatNumberSnapshot?: string | null
+  buyerVatNumberSnapshot?: string | null
+  customerNote?: string | null
+  internalNote?: string | null
+  placedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
+  cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
+  approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
+  payments?: Prisma.PaymentTransactionCreateNestedManyWithoutOrderInput
+  paymentLinks?: Prisma.PaymentLinkCreateNestedManyWithoutOrderInput
+  refunds?: Prisma.RefundCreateNestedManyWithoutOrderInput
+  shipments?: Prisma.ShipmentCreateNestedManyWithoutOrderInput
+  returnRequests?: Prisma.ReturnRequestCreateNestedManyWithoutOrderInput
+  reservations?: Prisma.StockReservationCreateNestedManyWithoutOrderInput
+  paymentEvents?: Prisma.PaymentEventCreateNestedManyWithoutOrderInput
+  occurrence?: Prisma.ScheduleOccurrenceCreateNestedOneWithoutOrderInput
+  couponRedemption?: Prisma.CouponRedemptionCreateNestedOneWithoutOrderInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
+  erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
+}
+
+export type OrderUncheckedCreateWithoutPreferredPaymentCardInput = {
+  id: string
+  orderNumber: string
+  customerProfileId: string
+  cartId?: string | null
+  source?: $Enums.OrderSource
+  scheduleOccurrenceId?: string | null
+  status?: $Enums.OrderStatus
+  currency: string
+  subtotalMinor?: bigint | number
+  discountMinor?: bigint | number
+  taxMinor?: bigint | number
+  shippingMinor?: bigint | number
+  grandTotalMinor?: bigint | number
+  paidMinor?: bigint | number
+  refundedMinor?: bigint | number
+  billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: string | null
+  shippingMethodName?: string | null
+  paymentMode?: $Enums.PaymentIntentMode
+  preferredPaymentProvider?: $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  taxTreatment?: $Enums.TaxTreatment
+  taxCountry?: string | null
+  sellerVatNumberSnapshot?: string | null
+  buyerVatNumberSnapshot?: string | null
+  customerNote?: string | null
+  internalNote?: string | null
+  placedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+  approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
+  payments?: Prisma.PaymentTransactionUncheckedCreateNestedManyWithoutOrderInput
+  paymentLinks?: Prisma.PaymentLinkUncheckedCreateNestedManyWithoutOrderInput
+  refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutOrderInput
+  shipments?: Prisma.ShipmentUncheckedCreateNestedManyWithoutOrderInput
+  returnRequests?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutOrderInput
+  reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutOrderInput
+  paymentEvents?: Prisma.PaymentEventUncheckedCreateNestedManyWithoutOrderInput
+  couponRedemption?: Prisma.CouponRedemptionUncheckedCreateNestedOneWithoutOrderInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
+  erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
+}
+
+export type OrderCreateOrConnectWithoutPreferredPaymentCardInput = {
+  where: Prisma.OrderWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrderCreateWithoutPreferredPaymentCardInput, Prisma.OrderUncheckedCreateWithoutPreferredPaymentCardInput>
+}
+
+export type OrderCreateManyPreferredPaymentCardInputEnvelope = {
+  data: Prisma.OrderCreateManyPreferredPaymentCardInput | Prisma.OrderCreateManyPreferredPaymentCardInput[]
+  skipDuplicates?: boolean
+}
+
+export type OrderUpsertWithWhereUniqueWithoutPreferredPaymentCardInput = {
+  where: Prisma.OrderWhereUniqueInput
+  update: Prisma.XOR<Prisma.OrderUpdateWithoutPreferredPaymentCardInput, Prisma.OrderUncheckedUpdateWithoutPreferredPaymentCardInput>
+  create: Prisma.XOR<Prisma.OrderCreateWithoutPreferredPaymentCardInput, Prisma.OrderUncheckedCreateWithoutPreferredPaymentCardInput>
+}
+
+export type OrderUpdateWithWhereUniqueWithoutPreferredPaymentCardInput = {
+  where: Prisma.OrderWhereUniqueInput
+  data: Prisma.XOR<Prisma.OrderUpdateWithoutPreferredPaymentCardInput, Prisma.OrderUncheckedUpdateWithoutPreferredPaymentCardInput>
+}
+
+export type OrderUpdateManyWithWhereWithoutPreferredPaymentCardInput = {
+  where: Prisma.OrderScalarWhereInput
+  data: Prisma.XOR<Prisma.OrderUpdateManyMutationInput, Prisma.OrderUncheckedUpdateManyWithoutPreferredPaymentCardInput>
+}
+
 export type OrderCreateWithoutErpPushInput = {
   id: string
   orderNumber: string
@@ -3677,6 +3979,7 @@ export type OrderCreateWithoutErpPushInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -3689,6 +3992,7 @@ export type OrderCreateWithoutErpPushInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
@@ -3729,6 +4033,8 @@ export type OrderUncheckedCreateWithoutErpPushInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -3791,6 +4097,7 @@ export type OrderUpdateWithoutErpPushInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3803,6 +4110,7 @@ export type OrderUpdateWithoutErpPushInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
@@ -3843,6 +4151,8 @@ export type OrderUncheckedUpdateWithoutErpPushInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3889,6 +4199,7 @@ export type OrderCreateWithoutShipmentsInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -3901,6 +4212,7 @@ export type OrderCreateWithoutShipmentsInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
@@ -3941,6 +4253,8 @@ export type OrderUncheckedCreateWithoutShipmentsInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -4003,6 +4317,7 @@ export type OrderUpdateWithoutShipmentsInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4015,6 +4330,7 @@ export type OrderUpdateWithoutShipmentsInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
@@ -4055,6 +4371,8 @@ export type OrderUncheckedUpdateWithoutShipmentsInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4101,6 +4419,7 @@ export type OrderCreateWithoutReturnRequestsInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -4113,6 +4432,7 @@ export type OrderCreateWithoutReturnRequestsInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
@@ -4153,6 +4473,8 @@ export type OrderUncheckedCreateWithoutReturnRequestsInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -4215,6 +4537,7 @@ export type OrderUpdateWithoutReturnRequestsInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4227,6 +4550,7 @@ export type OrderUpdateWithoutReturnRequestsInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
@@ -4267,6 +4591,8 @@ export type OrderUncheckedUpdateWithoutReturnRequestsInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4313,6 +4639,7 @@ export type OrderCreateWithoutCouponRedemptionInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -4325,6 +4652,7 @@ export type OrderCreateWithoutCouponRedemptionInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
@@ -4365,6 +4693,8 @@ export type OrderUncheckedCreateWithoutCouponRedemptionInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -4427,6 +4757,7 @@ export type OrderUpdateWithoutCouponRedemptionInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4439,6 +4770,7 @@ export type OrderUpdateWithoutCouponRedemptionInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
@@ -4479,6 +4811,8 @@ export type OrderUncheckedUpdateWithoutCouponRedemptionInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4525,6 +4859,7 @@ export type OrderCreateWithoutInvoicesInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -4537,6 +4872,7 @@ export type OrderCreateWithoutInvoicesInput = {
   cancelReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
@@ -4577,6 +4913,8 @@ export type OrderUncheckedCreateWithoutInvoicesInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -4639,6 +4977,7 @@ export type OrderUpdateWithoutInvoicesInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4651,6 +4990,7 @@ export type OrderUpdateWithoutInvoicesInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
@@ -4691,6 +5031,8 @@ export type OrderUncheckedUpdateWithoutInvoicesInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4739,6 +5081,8 @@ export type OrderCreateManyCustomerProfileInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -4773,6 +5117,7 @@ export type OrderUpdateWithoutCustomerProfileInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4785,6 +5130,7 @@ export type OrderUpdateWithoutCustomerProfileInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
@@ -4824,6 +5170,8 @@ export type OrderUncheckedUpdateWithoutCustomerProfileInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4873,6 +5221,8 @@ export type OrderUncheckedUpdateManyWithoutCustomerProfileInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4909,6 +5259,8 @@ export type OrderCreateManyCartInput = {
   paymentMode?: $Enums.PaymentIntentMode
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
   taxTreatment?: $Enums.TaxTreatment
   taxCountry?: string | null
   sellerVatNumberSnapshot?: string | null
@@ -4943,6 +5295,7 @@ export type OrderUpdateWithoutCartInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4955,6 +5308,7 @@ export type OrderUpdateWithoutCartInput = {
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
@@ -4994,6 +5348,8 @@ export type OrderUncheckedUpdateWithoutCartInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5043,6 +5399,186 @@ export type OrderUncheckedUpdateManyWithoutCartInput = {
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
+  taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  buyerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type OrderCreateManyPreferredPaymentCardInput = {
+  id: string
+  orderNumber: string
+  customerProfileId: string
+  cartId?: string | null
+  source?: $Enums.OrderSource
+  scheduleOccurrenceId?: string | null
+  status?: $Enums.OrderStatus
+  currency: string
+  subtotalMinor?: bigint | number
+  discountMinor?: bigint | number
+  taxMinor?: bigint | number
+  shippingMinor?: bigint | number
+  grandTotalMinor?: bigint | number
+  paidMinor?: bigint | number
+  refundedMinor?: bigint | number
+  billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: string | null
+  shippingMethodName?: string | null
+  paymentMode?: $Enums.PaymentIntentMode
+  preferredPaymentProvider?: $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  taxTreatment?: $Enums.TaxTreatment
+  taxCountry?: string | null
+  sellerVatNumberSnapshot?: string | null
+  buyerVatNumberSnapshot?: string | null
+  customerNote?: string | null
+  internalNote?: string | null
+  placedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type OrderUpdateWithoutPreferredPaymentCardInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.EnumOrderSourceFieldUpdateOperationsInput | $Enums.OrderSource
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
+  taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  buyerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
+  cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+  approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
+  payments?: Prisma.PaymentTransactionUpdateManyWithoutOrderNestedInput
+  paymentLinks?: Prisma.PaymentLinkUpdateManyWithoutOrderNestedInput
+  refunds?: Prisma.RefundUpdateManyWithoutOrderNestedInput
+  shipments?: Prisma.ShipmentUpdateManyWithoutOrderNestedInput
+  returnRequests?: Prisma.ReturnRequestUpdateManyWithoutOrderNestedInput
+  reservations?: Prisma.StockReservationUpdateManyWithoutOrderNestedInput
+  paymentEvents?: Prisma.PaymentEventUpdateManyWithoutOrderNestedInput
+  occurrence?: Prisma.ScheduleOccurrenceUpdateOneWithoutOrderNestedInput
+  couponRedemption?: Prisma.CouponRedemptionUpdateOneWithoutOrderNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
+  erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
+}
+
+export type OrderUncheckedUpdateWithoutPreferredPaymentCardInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  cartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumOrderSourceFieldUpdateOperationsInput | $Enums.OrderSource
+  scheduleOccurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
+  taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  buyerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+  approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
+  payments?: Prisma.PaymentTransactionUncheckedUpdateManyWithoutOrderNestedInput
+  paymentLinks?: Prisma.PaymentLinkUncheckedUpdateManyWithoutOrderNestedInput
+  refunds?: Prisma.RefundUncheckedUpdateManyWithoutOrderNestedInput
+  shipments?: Prisma.ShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  returnRequests?: Prisma.ReturnRequestUncheckedUpdateManyWithoutOrderNestedInput
+  reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutOrderNestedInput
+  paymentEvents?: Prisma.PaymentEventUncheckedUpdateManyWithoutOrderNestedInput
+  couponRedemption?: Prisma.CouponRedemptionUncheckedUpdateOneWithoutOrderNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
+}
+
+export type OrderUncheckedUpdateManyWithoutPreferredPaymentCardInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  cartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumOrderSourceFieldUpdateOperationsInput | $Enums.OrderSource
+  scheduleOccurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5201,6 +5737,8 @@ export type OrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   paymentMode?: boolean
   preferredPaymentProvider?: boolean
   preferredPaymentMethod?: boolean
+  preferredPaymentInstrument?: boolean
+  preferredPaymentMethodId?: boolean
   taxTreatment?: boolean
   taxCountry?: boolean
   sellerVatNumberSnapshot?: boolean
@@ -5213,6 +5751,7 @@ export type OrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   cancelReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  preferredPaymentCard?: boolean | Prisma.Order$preferredPaymentCardArgs<ExtArgs>
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   cart?: boolean | Prisma.Order$cartArgs<ExtArgs>
   items?: boolean | Prisma.Order$itemsArgs<ExtArgs>
@@ -5257,6 +5796,8 @@ export type OrderSelectScalar = {
   paymentMode?: boolean
   preferredPaymentProvider?: boolean
   preferredPaymentMethod?: boolean
+  preferredPaymentInstrument?: boolean
+  preferredPaymentMethodId?: boolean
   taxTreatment?: boolean
   taxCountry?: boolean
   sellerVatNumberSnapshot?: boolean
@@ -5271,8 +5812,9 @@ export type OrderSelectScalar = {
   updatedAt?: boolean
 }
 
-export type OrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderNumber" | "customerProfileId" | "cartId" | "source" | "scheduleOccurrenceId" | "status" | "currency" | "subtotalMinor" | "discountMinor" | "taxMinor" | "shippingMinor" | "grandTotalMinor" | "paidMinor" | "refundedMinor" | "billingAddressJson" | "shippingAddressJson" | "shippingMethodCode" | "shippingMethodName" | "paymentMode" | "preferredPaymentProvider" | "preferredPaymentMethod" | "taxTreatment" | "taxCountry" | "sellerVatNumberSnapshot" | "buyerVatNumberSnapshot" | "customerNote" | "internalNote" | "placedAt" | "confirmedAt" | "cancelledAt" | "cancelReason" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
+export type OrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderNumber" | "customerProfileId" | "cartId" | "source" | "scheduleOccurrenceId" | "status" | "currency" | "subtotalMinor" | "discountMinor" | "taxMinor" | "shippingMinor" | "grandTotalMinor" | "paidMinor" | "refundedMinor" | "billingAddressJson" | "shippingAddressJson" | "shippingMethodCode" | "shippingMethodName" | "paymentMode" | "preferredPaymentProvider" | "preferredPaymentMethod" | "preferredPaymentInstrument" | "preferredPaymentMethodId" | "taxTreatment" | "taxCountry" | "sellerVatNumberSnapshot" | "buyerVatNumberSnapshot" | "customerNote" | "internalNote" | "placedAt" | "confirmedAt" | "cancelledAt" | "cancelReason" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
 export type OrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  preferredPaymentCard?: boolean | Prisma.Order$preferredPaymentCardArgs<ExtArgs>
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   cart?: boolean | Prisma.Order$cartArgs<ExtArgs>
   items?: boolean | Prisma.Order$itemsArgs<ExtArgs>
@@ -5295,6 +5837,7 @@ export type OrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 export type $OrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Order"
   objects: {
+    preferredPaymentCard: Prisma.$CustomerPaymentMethodPayload<ExtArgs> | null
     customerProfile: Prisma.$CustomerProfilePayload<ExtArgs>
     cart: Prisma.$CartPayload<ExtArgs> | null
     items: Prisma.$OrderItemPayload<ExtArgs>[]
@@ -5363,6 +5906,31 @@ export type $OrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
      */
     preferredPaymentProvider: $Enums.PaymentProviderKind | null
     preferredPaymentMethod: $Enums.PaymentMethodPreference | null
+    /**
+     * What the customer actually chose at checkout, in their own vocabulary.
+     * 
+     * The pair above records which *gateway* was resolved; this records which
+     * *instrument* was asked for, which is the only one of the two the customer
+     * ever saw. They are kept apart because they answer different questions and
+     * change for different reasons: an operator who disconnects Razorpay
+     * changes the gateway an old order would resolve to, and must not thereby
+     * rewrite what the customer picked.
+     * 
+     * Its own column rather than a third member of `PaymentMethodPreference`,
+     * because that is a physical `ENUM('ANY','UPI')` and widening it would mean
+     * a `MODIFY COLUMN` over every historical order to record something none of
+     * them expressed.
+     */
+    preferredPaymentInstrument: $Enums.PaymentInstrumentKind | null
+    /**
+     * The saved card the customer picked at checkout, when they picked one.
+     * 
+     * `SetNull`: removing a card must not remove the order it once paid for.
+     * The order keeps its instrument choice and simply stops naming an
+     * instrument that no longer exists, which is what the payment page then
+     * asks them to replace.
+     */
+    preferredPaymentMethodId: string | null
     /**
      * Why this order was taxed the way it was, and under whose rates. Frozen
      * here rather than recomputed, because rates change and VAT numbers get
@@ -5729,6 +6297,7 @@ readonly fields: OrderFieldRefs;
  */
 export interface Prisma__OrderClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  preferredPaymentCard<T extends Prisma.Order$preferredPaymentCardArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$preferredPaymentCardArgs<ExtArgs>>): Prisma.Prisma__CustomerPaymentMethodClient<runtime.Types.Result.GetResult<Prisma.$CustomerPaymentMethodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   customerProfile<T extends Prisma.CustomerProfileDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfileDefaultArgs<ExtArgs>>): Prisma.Prisma__CustomerProfileClient<runtime.Types.Result.GetResult<Prisma.$CustomerProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   cart<T extends Prisma.Order$cartArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$cartArgs<ExtArgs>>): Prisma.Prisma__CartClient<runtime.Types.Result.GetResult<Prisma.$CartPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   items<T extends Prisma.Order$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -5796,6 +6365,8 @@ export interface OrderFieldRefs {
   readonly paymentMode: Prisma.FieldRef<"Order", 'PaymentIntentMode'>
   readonly preferredPaymentProvider: Prisma.FieldRef<"Order", 'PaymentProviderKind'>
   readonly preferredPaymentMethod: Prisma.FieldRef<"Order", 'PaymentMethodPreference'>
+  readonly preferredPaymentInstrument: Prisma.FieldRef<"Order", 'PaymentInstrumentKind'>
+  readonly preferredPaymentMethodId: Prisma.FieldRef<"Order", 'String'>
   readonly taxTreatment: Prisma.FieldRef<"Order", 'TaxTreatment'>
   readonly taxCountry: Prisma.FieldRef<"Order", 'String'>
   readonly sellerVatNumberSnapshot: Prisma.FieldRef<"Order", 'String'>
@@ -6153,6 +6724,25 @@ export type OrderDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Limit how many Orders to delete.
    */
   limit?: number
+}
+
+/**
+ * Order.preferredPaymentCard
+ */
+export type Order$preferredPaymentCardArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerPaymentMethod
+   */
+  select?: Prisma.CustomerPaymentMethodSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerPaymentMethod
+   */
+  omit?: Prisma.CustomerPaymentMethodOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerPaymentMethodInclude<ExtArgs> | null
+  where?: Prisma.CustomerPaymentMethodWhereInput
 }
 
 /**

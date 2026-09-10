@@ -51,6 +51,11 @@ interface SavedCard {
   expYear: number | null;
   status: string;
   isDefault: boolean;
+  /**
+   * What its owner agreed to. Only `OFF_SESSION` may be charged with nobody
+   * watching, which is the whole of what this screen does.
+   */
+  consentScope: string;
 }
 
 /** What the form holds. Amounts are major-unit strings, as typed. */
@@ -66,9 +71,18 @@ interface FormState {
 }
 
 function initialForm(settings: AutoPaySettings, cards: SavedCard[]): FormState {
+  // Only cards that carry an off-session mandate, for the same reason
+  // `usableCards` filters them: `isDefault` is shared with the checkout, so
+  // the customer's default may well be a card saved there — and preselecting
+  // one would put a card in this box that the server is going to refuse.
+  const chargeable = cards.filter((card) => card.consentScope === 'OFF_SESSION');
+
   return {
     paymentMethodId:
-      settings.paymentMethodId ?? cards.find((card) => card.isDefault)?.id ?? cards[0]?.id ?? '',
+      settings.paymentMethodId ??
+      chargeable.find((card) => card.isDefault)?.id ??
+      chargeable[0]?.id ??
+      '',
     maxTransaction: minorToInput(settings.maxTransactionMinor),
     approvalThreshold: minorToInput(settings.approvalThresholdMinor),
     limitCurrency: settings.limitCurrency ?? '',
@@ -250,7 +264,22 @@ export function AutoPayPage(): React.JSX.Element {
     );
   }
 
-  const usableCards = cards.filter((card) => card.status === 'ACTIVE');
+  /*
+   * Only cards whose owner authorised charges they will not see.
+   *
+   * A card can now also be stored at a checkout, under the much narrower "keep
+   * this so I need not type it again". Those rows sit in the same table and
+   * look identical — same brand, same last four — but the server refuses to
+   * charge one off-session, and it is right to.
+   *
+   * So they are filtered out here rather than offered and then rejected. A
+   * customer who picked one would fill in this whole form, press Save, and be
+   * told no by a message about consent scopes they never agreed to think
+   * about.
+   */
+  const usableCards = cards.filter(
+    (card) => card.status === 'ACTIVE' && card.consentScope === 'OFF_SESSION',
+  );
   const hasUsableCard = usableCards.length > 0;
 
   /** Convert what was typed, or record which field could not be. */

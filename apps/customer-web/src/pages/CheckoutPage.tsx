@@ -32,7 +32,9 @@ import { CheckoutSteps } from '@/components/CheckoutSteps';
 import { checkoutSteps } from '@/lib/checkout-steps';
 import { GrandTotalRow, TotalRow } from '@/components/Totals';
 import { PageEmptyState } from '@/components/PageEmptyState';
-import { AlertIcon, CardIcon, CheckIcon, LinkIcon, ShieldIcon } from '@/components/icons';
+import { AlertIcon, CardIcon, LinkIcon, ShieldIcon, UpiIcon } from '@/components/icons';
+import { SavedCardChoice, SelectedFlag } from '@/components/SavedCardList';
+import { choiceCardClass } from '@/lib/cards';
 import { Button, ButtonLink, ErrorState, Field, LoadingState, Textarea } from '@/components/ui';
 import { NetworkError, api, newIdempotencyKey } from '@/lib/api';
 import { cx } from '@/lib/cx';
@@ -42,55 +44,32 @@ import type {
   Address,
   Cart,
   CheckoutResult,
-  PaymentGateways,
-  PaymentMethodHint,
-  PaymentProviderKind,
+  PaymentInstrument,
+  PaymentInstruments,
+  SavedCard,
 } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
+import type { TranslationKey } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
 
 type PaymentMode = 'ONLINE' | 'PAYMENT_LINK';
 
 /**
- * Whether a gateway may be offered for the money in the cart.
+ * The words for each instrument, and the line under each one.
  *
- * A gateway that cannot settle the cart's currency is worse than absent: the
- * customer picks it, reaches the sheet, and is declined for a reason nothing
- * on this page explained. `currencies: null` means the gateway itself imposes
- * no limit, which is Stripe.
+ * A table rather than a switch so the three read together: whether they are
+ * parallel, whether any of them promises something the others do not. They are
+ * the only names a customer ever sees for how they are paying - no gateway is
+ * mentioned on this page at all.
  */
-function gatewayHandles(currencies: string[] | null, currency: string): boolean {
-  return currencies === null || currencies.includes(currency);
-}
-
-/**
- * The shared look of every choosable card on this page — an address, a way to
- * pay. Selection is carried by three signals at once, because one is never
- * enough: the ring, the radio, and the "Selected" tick in the corner. Someone
- * who cannot separate the blue ring from the grey border can still see which
- * card has the tick.
- */
-function choiceCardClass(isSelected: boolean, size: 'md' | 'sm' = 'md'): string {
-  return cx(
-    'relative flex cursor-pointer gap-3 rounded-lg border transition-colors',
-    size === 'md' ? 'p-4' : 'p-3',
-    isSelected
-      ? 'border-brand bg-brand-soft ring-2 ring-brand ring-offset-1 ring-offset-surface'
-      : 'border-border bg-surface hover:border-brand/50 hover:bg-surface-hover',
-  );
-}
-
-/** The corner tick. Text as well as a glyph, so it survives a greyscale print. */
-function SelectedFlag(): React.JSX.Element {
-  const { t } = useI18n();
-
-  return (
-    <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-brand-fill px-2 py-0.5 text-xxs font-semibold text-white">
-      <CheckIcon className="h-3 w-3" />
-      {t('checkout.selected')}
-    </span>
-  );
-}
+const INSTRUMENT_COPY: Record<
+  PaymentInstrument,
+  { title: TranslationKey; body: TranslationKey }
+> = {
+  CREDIT_CARD: { title: 'checkout.payWithCreditCard', body: 'checkout.creditCardHint' },
+  DEBIT_CARD: { title: 'checkout.payWithDebitCard', body: 'checkout.debitCardHint' },
+  UPI: { title: 'checkout.payWithUpi', body: 'checkout.upiHint' },
+};
 
 function AddressCard({
   address,
@@ -214,11 +193,17 @@ export function CheckoutPage(): React.JSX.Element {
   const [billingAddressId, setBillingAddressId] = useState<string | null>(null);
   const [paymentMode, setPaymentMode] = useState<PaymentMode>('ONLINE');
   /**
-   * The gateway and instrument the customer picked, or null while the offer
-   * list is still loading and the default is not yet known.
+   * What the customer is paying with, or null while the offer is still
+   * loading and there is nothing honest to preselect.
    */
-  const [gateway, setGateway] = useState<PaymentProviderKind | null>(null);
-  const [methodHint, setMethodHint] = useState<PaymentMethodHint>('ANY');
+  const [instrument, setInstrument] = useState<PaymentInstrument | null>(null);
+  /**
+   * One of their own cards, or null for a card they have not entered yet.
+   *
+   * Held per instrument implicitly: changing the instrument clears it, because
+   * a card filed under Debit is not an answer to "Pay with Credit Card".
+   */
+  const [savedCardId, setSavedCardId] = useState<string | null>(null);
   const [customerNote, setCustomerNote] = useState('');
   const [isAddingAddress, setIsAddingAddress] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -245,9 +230,40 @@ export function CheckoutPage(): React.JSX.Element {
     queryFn: () => api.get<{ cart: Cart }>('/cart'),
   });
 
-  const gateways = useQuery({
-    queryKey: ['payment-gateways'],
-    queryFn: () => api.get<PaymentGateways>('/payments/gateways'),
+  const cartCurrency = cart.data?.cart.currency ?? null;
+
+  /**
+   * How this cart may be paid for.
+   *
+   * Keyed on the currency and asked once the cart is known, because a gateway
+   * that cannot settle this cart's money must not contribute an option to it.
+   * The answer names instruments only - which gateway serves each is decided
+   * on the server and never reaches this page.
+   */
+  const instruments = useQuery({
+    queryKey: ['payment-instruments', cartCurrency],
+    queryFn: () =>
+      api.get<PaymentInstruments>(
+        `/payments/instruments?currency=${encodeURIComponent(cartCurrency ?? '')}`,
+      ),
+    enabled: cartCurrency !== null,
+  });
+
+  /**
+   * Cards this customer has already stored.
+   *
+   * Not fatal if it fails, and deliberately not blocking: somebody who has
+   * never saved a card must not be held at a spinner for a list that will be
+   * empty, and somebody whose list cannot be loaded can still pay by typing
+   * their card as they always could.
+   */
+  const savedCards = useQuery({
+    queryKey: ['payment-methods'],
+    queryFn: () =>
+      api
+        .get<{ paymentMethods: SavedCard[] }>('/account/payment-methods')
+        .then((response) => response.paymentMethods),
+    retry: false,
   });
 
   const usableAddresses = useMemo(
@@ -255,51 +271,51 @@ export function CheckoutPage(): React.JSX.Element {
     [addresses.data],
   );
 
-  const cartCurrency = cart.data?.cart.currency ?? null;
+  const offeredInstruments = useMemo(
+    () => instruments.data?.instruments ?? [],
+    [instruments.data],
+  );
 
   /**
-   * The gateways that can actually take this cart's money.
+   * Settle on an instrument once the offer is known, and re-settle if what is
+   * on offer later changes under the customer.
    *
-   * Filtered here rather than on the server because the currency belongs to
-   * the cart, and the gateway list is cached across carts.
-   */
-  const offeredGateways = useMemo(() => {
-    if (cartCurrency === null) return [];
-
-    return (gateways.data?.gateways ?? []).filter((entry) =>
-      gatewayHandles(entry.currencies, cartCurrency),
-    );
-  }, [gateways.data, cartCurrency]);
-
-  /**
-   * Settle on a gateway once the offer is known, and re-settle if the cart's
-   * currency later rules the chosen one out.
-   *
-   * The server's default wins when it is on offer; otherwise the first that
-   * is. A single gateway is still "chosen" rather than special-cased, so what
-   * gets sent to the payment page does not depend on how many there happen to
-   * be.
+   * The first offered is chosen, which is Credit Card wherever cards can be
+   * taken at all. There is no server-side "default instrument" to honour and
+   * there should not be: which gateway an operator prefers says nothing about
+   * how a particular customer wants to pay.
    */
   useEffect(() => {
-    if (offeredGateways.length === 0) return;
-    if (gateway !== null && offeredGateways.some((entry) => entry.provider === gateway)) return;
+    if (offeredInstruments.length === 0) return;
+    if (instrument !== null && offeredInstruments.some((o) => o.instrument === instrument)) return;
 
-    const preferred =
-      offeredGateways.find((entry) => entry.provider === gateways.data?.defaultProvider) ??
-      offeredGateways[0];
+    setInstrument(offeredInstruments[0]?.instrument ?? null);
+    setSavedCardId(null);
+  }, [offeredInstruments, instrument]);
 
-    setGateway(preferred?.provider ?? null);
-    setMethodHint('ANY');
-  }, [offeredGateways, gateway, gateways.data]);
-
-  /** Instruments the chosen gateway can be asked for, beyond its own default. */
-  const extraMethods = useMemo(
-    () =>
-      (offeredGateways.find((entry) => entry.provider === gateway)?.methods ?? []).filter(
-        (method) => method !== 'ANY',
-      ),
-    [offeredGateways, gateway],
+  /** What the chosen instrument allows. Undefined only while it is loading. */
+  const chosenOffer = useMemo(
+    () => offeredInstruments.find((offer) => offer.instrument === instrument) ?? null,
+    [offeredInstruments, instrument],
   );
+
+  /**
+   * The customer's stored cards that suit the instrument they picked.
+   *
+   * A card of unknown funding - prepaid, or one the gateway would not describe
+   * - carries `instrument: null` and appears under both card headings. That is
+   * deliberate: it is a perfectly usable card, and filing it wrongly under one
+   * heading would be worse than showing it under both.
+   */
+  const cardsForInstrument = useMemo(() => {
+    if (instrument === null || instrument === 'UPI') return [];
+
+    return (savedCards.data ?? []).filter(
+      (card) =>
+        card.status === 'ACTIVE' &&
+        (card.instrument === null || card.instrument === instrument),
+    );
+  }, [savedCards.data, instrument]);
 
   // Preselect the customer's default so the common case is zero clicks.
   useEffect(() => {
@@ -320,9 +336,15 @@ export function CheckoutPage(): React.JSX.Element {
           ...(billingSameAsShipping || billingAddressId === null ? {} : { billingAddressId }),
           paymentMode,
           // Recorded on the order, so a reload of the payment page — or coming
-          // back to it later — offers the same gateway rather than the default.
-          ...(paymentMode === 'ONLINE' && gateway !== null
-            ? { preferredPaymentProvider: gateway, preferredPaymentMethod: methodHint }
+          // back to it from an email hours later — offers what the customer
+          // chose rather than starting the decision again. No gateway is sent:
+          // the server resolves one from the instrument, which is the only
+          // half of it this page ever knew about.
+          ...(paymentMode === 'ONLINE' && instrument !== null
+            ? { preferredPaymentInstrument: instrument }
+            : {}),
+          ...(paymentMode === 'ONLINE' && savedCardId !== null
+            ? { preferredPaymentMethodId: savedCardId }
             : {}),
           customerNote: customerNote.trim() === '' ? null : customerNote.trim(),
         },
@@ -558,116 +580,160 @@ export function CheckoutPage(): React.JSX.Element {
                 </PaymentChoice>
 
                 {/*
-                  The gateway, and what it should open on.
+                  What the customer is actually paying with.
 
                   Nested under "Pay now" because that is the only mode it
-                  applies to — a payment link is sent, not opened, and the
-                  gateway behind it is the operator's business. Hidden entirely
-                  when there is nothing to choose between: one connected
-                  gateway with no named instrument is not a decision, and a
-                  radio group of one only asks the customer to confirm
-                  something they were never given a say in.
+                  applies to — a payment link is sent, not opened.
+
+                  This used to be a choice between "Razorpay" and "Stripe",
+                  which is the operator's plumbing on the customer's screen.
+                  Nobody buying consumables knows which acquirer they would
+                  rather settle through, and asking put a decision in front of
+                  them that they had no basis for making. Now the question is
+                  the one they can answer — which instrument? — and the gateway
+                  is resolved from the answer on the server.
+
+                  Always shown, even with one option. Unlike a gateway list,
+                  where a group of one asked the customer to confirm something
+                  they were never given a say in, "Credit card or debit card?"
+                  is a real question with a real consequence: it decides which
+                  of their saved cards they are offered.
                 */}
-                {paymentMode === 'ONLINE' &&
-                  (offeredGateways.length > 1 || extraMethods.length > 0) && (
-                    <fieldset className="ml-4 border-l border-border pl-4 sm:ml-6 sm:pl-5">
-                      <legend className="text-xs font-medium text-ink-muted">
-                        {t('checkout.payWith')}
-                      </legend>
+                {paymentMode === 'ONLINE' && (
+                  <fieldset className="ml-4 border-l border-border pl-4 sm:ml-6 sm:pl-5">
+                    <legend className="text-xs font-medium text-ink-muted">
+                      {t('checkout.payWith')}
+                    </legend>
 
+                    {instruments.isPending ? (
+                      <p className="mt-2.5 text-xs text-ink-muted">
+                        {t('checkout.loadingWaysToPay')}
+                      </p>
+                    ) : offeredInstruments.length === 0 ? (
+                      /*
+                        Nothing connected, or nothing that settles this cart's
+                        currency. Said plainly rather than shown as an empty
+                        radio group: the customer can still place the order and
+                        pay by link, and that is the useful thing to tell them.
+                      */
+                      <p
+                        role="status"
+                        className="mt-2.5 rounded-md border border-warning/30 bg-warning-soft px-3 py-2 text-xs text-ink"
+                      >
+                        {t('checkout.noWayToPayOnline')}
+                      </p>
+                    ) : (
                       <div className="mt-2.5 space-y-2">
-                        {offeredGateways.map((entry) => (
-                          <label
-                            key={entry.provider}
-                            className={choiceCardClass(gateway === entry.provider, 'sm')}
-                          >
-                            <input
-                              type="radio"
-                              name="paymentGateway"
-                              className="mt-0.5 h-4 w-4 shrink-0 border-border-strong text-brand"
-                              checked={gateway === entry.provider}
-                              onChange={() => {
-                                setGateway(entry.provider);
-                                // The instrument belonged to the gateway being
-                                // left behind. Carrying "UPI" onto Stripe would
-                                // promise something Stripe cannot settle.
-                                setMethodHint('ANY');
-                              }}
-                            />
-                            <span className="min-w-0 pr-16 text-sm">
-                              <span className="block text-title-xs text-ink">{entry.label}</span>
-                              {/*
-                                UPI is named here only when this account
-                                actually has it, for the same reason the
-                                instrument choice below is: it is the one
-                                instrument a customer might pick the gateway
-                                *for*, and the line under a radio button is
-                                read as a reason to choose it. The account this
-                                was found on has UPI switched off, and this
-                                line went on advertising it.
-                              */}
-                              <span className="mt-0.5 block text-xs leading-relaxed text-ink-muted">
-                                {entry.provider !== 'RAZORPAY'
-                                  ? t('checkout.cardsAndWallets')
-                                  : entry.methods.includes('UPI')
-                                    ? t('checkout.cardsUpiAndMore')
-                                    : t('checkout.cardsNetbankingAndWallets')}
-                              </span>
-                            </span>
-                            {gateway === entry.provider && <SelectedFlag />}
-                          </label>
-                        ))}
-                      </div>
+                        {offeredInstruments.map((offer) => {
+                          const copy = INSTRUMENT_COPY[offer.instrument];
+                          const isSelected = instrument === offer.instrument;
 
-                      {/*
-                        Instruments the chosen gateway can be opened on. Only
-                        UPI is named today, and only Razorpay offers it — but
-                        the server asks that Razorpay account whether UPI is
-                        actually switched on, so this can be absent even with
-                        Razorpay picked. Read the list, never infer it from the
-                        gateway: promising the UPI tab to an account that has
-                        no UPI tab lands the customer on a card form.
-                      */}
-                      {extraMethods.length > 0 && (
-                        <div className="mt-3">
-                          <span className="text-xs font-medium text-ink-muted">
-                            {t('checkout.openCheckoutOn')}
-                          </span>
-
-                          <div className="mt-2 flex flex-wrap gap-2">
-                            {(['ANY', ...extraMethods] as PaymentMethodHint[]).map((method) => (
-                              <label
-                                key={method}
-                                className={cx(
-                                  'flex cursor-pointer items-center gap-2 rounded-md border px-3 py-1.5 text-xs transition-colors',
-                                  methodHint === method
-                                    ? 'border-brand bg-brand-soft text-ink ring-1 ring-brand'
-                                    : 'border-border bg-surface text-ink-muted hover:border-brand/50',
-                                )}
-                              >
+                          return (
+                            <div key={offer.instrument}>
+                              <label className={choiceCardClass(isSelected, 'sm')}>
                                 <input
                                   type="radio"
-                                  name="paymentMethodHint"
-                                  className="h-3.5 w-3.5 border-border-strong text-brand"
-                                  checked={methodHint === method}
+                                  name="paymentInstrument"
+                                  className="mt-0.5 h-4 w-4 shrink-0 border-border-strong text-brand"
+                                  checked={isSelected}
                                   onChange={() => {
-                                    setMethodHint(method);
+                                    setInstrument(offer.instrument);
+                                    // The card belonged to the instrument being
+                                    // left behind. Carrying a debit card onto
+                                    // "Pay with Credit Card" would offer
+                                    // something the server then refuses.
+                                    setSavedCardId(null);
                                   }}
                                 />
-                                {method === 'ANY' ? t('checkout.allMethods') : t('checkout.upi')}
+                                <span
+                                  aria-hidden="true"
+                                  className={cx(
+                                    'flex h-8 w-8 shrink-0 items-center justify-center rounded-md',
+                                    isSelected
+                                      ? 'bg-brand-fill text-white'
+                                      : 'bg-surface-sunken text-ink-muted',
+                                  )}
+                                >
+                                  {offer.instrument === 'UPI' ? (
+                                    <UpiIcon className="h-4 w-4" />
+                                  ) : (
+                                    <CardIcon className="h-4 w-4" />
+                                  )}
+                                </span>
+                                <span className="min-w-0 pr-16 text-sm">
+                                  <span className="block text-title-xs text-ink">
+                                    {t(copy.title)}
+                                  </span>
+                                  <span className="mt-0.5 block text-xs leading-relaxed text-ink-muted">
+                                    {t(copy.body)}
+                                  </span>
+                                </span>
+                                {isSelected && <SelectedFlag />}
                               </label>
-                            ))}
-                          </div>
 
-                          {methodHint === 'UPI' && (
-                            <p className="mt-2 text-xs leading-relaxed text-ink-muted">
-                              {t('checkout.upiOpensOnTheUpiTab')}
-                            </p>
-                          )}
-                        </div>
-                      )}
-                    </fieldset>
-                  )}
+                              {/*
+                                The customer's own cards, under the instrument
+                                they belong to.
+
+                                Only under the selected one — a list of cards
+                                under an option nobody has chosen is noise, and
+                                it would make the three options look unequal.
+                                Absent entirely for somebody who has never
+                                saved a card, which is everybody's first order.
+                              */}
+                              {isSelected && cardsForInstrument.length > 0 && (
+                                <div className="ml-7 mt-2 space-y-2 border-l border-border-subtle pl-3">
+                                  {cardsForInstrument.map((card) => (
+                                    <SavedCardChoice
+                                      key={card.id}
+                                      card={card}
+                                      name="savedCard"
+                                      isSelected={savedCardId === card.id}
+                                      onSelect={() => {
+                                        setSavedCardId(card.id);
+                                      }}
+                                    />
+                                  ))}
+
+                                  {/*
+                                    Not a card, and deliberately styled as one
+                                    of the choices rather than as a button: it
+                                    is the same decision as picking a saved
+                                    card, and it is what a customer who does
+                                    not recognise any of the cards listed needs
+                                    to find without hunting.
+                                  */}
+                                  <label className={choiceCardClass(savedCardId === null, 'sm')}>
+                                    <input
+                                      type="radio"
+                                      name="savedCard"
+                                      className="mt-0.5 h-4 w-4 shrink-0 border-border-strong text-brand"
+                                      checked={savedCardId === null}
+                                      onChange={() => {
+                                        setSavedCardId(null);
+                                      }}
+                                    />
+                                    <span className="min-w-0 pr-16 text-sm">
+                                      <span className="block font-medium text-ink">
+                                        {t('checkout.useANewCard')}
+                                      </span>
+                                      <span className="mt-0.5 block text-xs leading-relaxed text-ink-muted">
+                                        {chosenOffer?.canSaveCard === true
+                                          ? t('checkout.useANewCardHintSavable')
+                                          : t('checkout.useANewCardHint')}
+                                      </span>
+                                    </span>
+                                    {savedCardId === null && <SelectedFlag />}
+                                  </label>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </fieldset>
+                )}
 
                 <PaymentChoice
                   isSelected={paymentMode === 'PAYMENT_LINK'}

@@ -3006,8 +3006,12 @@ This is the most important flow in the system.
         Finance approves it ───────────────────▶│
                                                 ▼
 ┌── 3. PAYMENT ────────────────────────────────────────────────┐
-│ The customer is shown the gateway's payment sheet            │
-│ (Razorpay or Stripe) and pays.                               │
+│ At checkout the customer chose an INSTRUMENT — Pay with      │
+│ Credit Card, Pay with Debit Card, or Pay with UPI. They were │
+│ never shown a gateway; the server resolves one from that     │
+│ choice (see 9.3.1).                                          │
+│                                                              │
+│ They either enter a card, or pick one they saved before.     │
 │                                                              │
 │ The browser then returns to /order-confirmation/:orderId.    │
 │ THIS REDIRECT CONFIRMS NOTHING.                              │
@@ -3025,6 +3029,107 @@ This is the most important flow in the system.
 │   · Confirmation email queued                                │
 └──────────────────────────────────────────────────────────────┘
 ```
+
+## 9.3.1 How the customer is asked to pay
+
+The checkout used to ask which **gateway** should take the money — a radio
+button reading "Razorpay" beside one reading "Stripe". That is the operator's
+plumbing on the customer's screen. Nobody buying laboratory consumables knows
+which acquirer they would rather settle through, and asking put a decision in
+front of them that they had no basis for making.
+
+The question is now the one they can answer:
+
+```
+How would you like to pay?
+  ● Pay now
+      ● Pay with Credit Card     ← their saved credit cards, + "use a different card"
+      ○ Pay with Debit Card      ← their saved debit cards
+      ○ Pay with UPI             ← only where a gateway actually has UPI
+  ○ Send a payment link
+```
+
+**No gateway is ever named to a customer.** `GET /payments/instruments` answers
+with instruments only, and `domain/payment-instrument.ts` turns one into a
+gateway — that file is the single place the mapping lives.
+
+It **refuses rather than substitutes**. A customer who chose UPI and is
+silently handed a card form has been told something untrue by this application,
+so a UPI order with no UPI gateway is `PAYMENT_INSTRUMENT_UNAVAILABLE`, not a
+quiet fallback to Stripe.
+
+### Credit or debit is discovered, not declared
+
+No gateway can tell which a card is until it has been entered. So:
+
+- A **saved** card is filed under the funding the gateway reported for it, and
+  appears only under that heading.
+- A card of **unknown** funding — prepaid, or one the gateway would not
+  describe — appears under **both**. Telling somebody their credit card is a
+  debit card is worse than telling them nothing.
+- A **new** card: the choice is a routing hint. Whatever button was pressed,
+  the card is filed under what it turns out to be. Nobody is blocked for
+  tapping "Credit" and entering a debit card.
+
+### The two consents, which are not degrees of one thing
+
+`customer_payment_methods.consentScope` says what a stored card's owner agreed
+to, and the two values are **different agreements**:
+
+| Scope | What was agreed | Where it comes from |
+|---|---|---|
+| `CHECKOUT` | "keep this so I need not type it again" | the tick on the payment page |
+| `OFF_SESSION` | "charge this while I am not here" | Autopay enrolment |
+
+`assertChargeable` in `payment-method.service.ts` refuses anything that is not
+`OFF_SESSION`. **That single guard is what stops a card somebody saved to avoid
+retyping it being charged in the night by the Autopay worker** — the two rows
+are otherwise identical, same table, same token, same last four digits.
+
+### What is actually stored
+
+A **token held by the gateway**. Never a card number.
+
+Since 1 October 2022 the RBI forbids a merchant storing card numbers at all,
+and holding one would move every deployment of UBOSS inside PCI DSS scope —
+which a company that installed a purchasing system has not signed up for. What
+this database holds is a reference plus the brand and last four digits, which
+is what a person recognises their own card by and can pay for nothing.
+
+### The two gateways are not symmetrical
+
+| | Stripe | Razorpay |
+|---|---|---|
+| Save a card at a checkout | yes | yes |
+| Charge a saved card from **our** pages | yes | **no** |
+| Charge a saved card off-session (Autopay) | yes | no |
+
+Razorpay's saved cards are picked **inside Razorpay's own sheet**, which is
+opened with the customer's `customer_id` so their cards are already sitting
+there needing only a CVV. This is not a shortcut: charging one named Razorpay
+token needs its server-to-server API, which is open only to merchants holding
+PCI-DSS certification, and a UBOSS buyer will not have one.
+
+The difference is a compile error rather than a runtime surprise —
+`CardVaultProvider` and `DirectCardChargeProvider` are separate interfaces in
+`modules/payments/provider.ts`, and Razorpay implements only the first.
+
+### Where a Razorpay token comes from
+
+Razorpay has no SetupIntent. A card becomes reusable **by being paid with**,
+and the token id arrives on the `payment.captured` webhook — which makes this
+the only place in the codebase where a stored payment credential is created by
+an incoming event rather than by a request somebody made. Three consequences,
+all in `applyEvent`:
+
+1. It is read from a **signature-verified** webhook. The browser's success
+   callback says nothing about it and is not consulted.
+2. Only on a **capture**. A token from a failed payment is a card nothing shows
+   works.
+3. It **cannot harm the payment**. Storing the card is attempted after the
+   money is applied and every failure is swallowed: a card that fails to store
+   costs the customer a retype next time, and must never cost them a confirmed
+   order they have already paid for.
 
 ### Why the redirect confirms nothing
 
@@ -4038,6 +4143,35 @@ The dialog carries its own consent tick, never pre-ticked, and it is a
 different tick from the Autopay one: this one says the card may be *stored in
 a form that can be charged later*, which is the thing a customer typing a card
 into a checkout has not agreed to.
+
+### The other way a card gets saved
+
+A card can also be kept at a checkout, and that is a **narrower** thing. The
+tick sits on the payment page — beside the Pay button, where the card is
+actually typed, which is the only moment the offer means anything — and it says
+"save this card for next time", not "charge this while I am away".
+
+Also never pre-ticked. A pre-ticked box is not consent under the GDPR, and a
+payment credential is exactly what that rule was written for.
+
+The two paths differ in where the truth comes from:
+
+| | Autopay enrolment | Saved at a checkout |
+|---|---|---|
+| Trigger | the customer confirms a SetupIntent | a signature-verified capture webhook |
+| Stripe asks for | `usage: 'off_session'` | `setup_future_usage: 'on_session'` |
+| Scope stored | `OFF_SESSION` | `CHECKOUT` |
+| Gateways | Stripe only | Stripe and Razorpay |
+| Can Autopay charge it? | yes | **no** — `assertChargeable` refuses |
+
+Both read the card's display fields back **from the gateway** rather than
+taking them from a browser or an event body. The provider is the authority on
+what it stored, and one path that reads it is easier to keep honest than two.
+
+Both are visible at **Account → Saved cards**, where a checkout-saved card is
+badged "Checkout only" — the two are otherwise indistinguishable on screen, and
+that badge is the only thing telling a customer why one of their cards is not
+offered on the Autopay page.
 
 ### Coordination, in order
 

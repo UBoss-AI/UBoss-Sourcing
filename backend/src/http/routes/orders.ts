@@ -154,6 +154,19 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
         billingAddress: order.billingAddressJson,
         shippingMethodName: order.shippingMethodName,
         customerNote: order.customerNote,
+        /*
+         * How the customer said they would pay, and with which of their cards.
+         *
+         * The payment page reads these back rather than being handed them, so
+         * a reload - or coming back to an unpaid order from an email hours
+         * later - offers the same thing they chose rather than starting over.
+         *
+         * The gateway is deliberately NOT here. It is resolved from the
+         * instrument at payment time and is the operator's business; a
+         * customer's order record has no reason to name an acquirer.
+         */
+        preferredPaymentInstrument: order.preferredPaymentInstrument,
+        preferredPaymentMethodId: order.preferredPaymentMethodId,
         // `internalNote` is deliberately absent: it is written by staff about
         // the order and is not the customer's to read.
         cancelReason: order.cancelReason,

@@ -33,6 +33,8 @@ import {
   PageHeader,
 } from '@/components/ui';
 import { CardIcon, CheckIcon, ChevronRightIcon, ShieldIcon, TrashIcon } from '@/components/icons';
+import { cardExpiry, useCardLabel } from '@/lib/cards';
+import type { SavedCard } from '@/lib/types';
 import { api } from '@/lib/api';
 import { errorMessage } from '@/lib/errors';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
@@ -40,34 +42,11 @@ import { useI18n } from '@/i18n/i18n-context';
 import { AccountPanel } from './AccountPanel';
 
 /**
- * What the server is willing to say about a stored card.
- *
- * Brand and last four are the most a page may know, and they are enough: they
- * are what a person recognises their own card by.
+ * Shared with the checkout, which reads the same list to offer the customer
+ * their own cards. One key, so saving a card at a payment and coming back here
+ * shows it without a reload.
  */
-interface SavedCard {
-  id: string;
-  brand: string | null;
-  last4: string | null;
-  expMonth: number | null;
-  expYear: number | null;
-  status: string;
-  isDefault: boolean;
-}
-
 const PAYMENT_METHODS_KEY = ['payment-methods'];
-
-function cardLabel(card: SavedCard, fallback: string): string {
-  if (card.last4 === null) return fallback;
-  const brand = card.brand ?? fallback;
-  return `${brand} •••• ${card.last4}`;
-}
-
-/** Two digits, so 3/2027 does not read as an odd date beside 11/2026. */
-function expiry(card: SavedCard): string | null {
-  if (card.expMonth === null || card.expYear === null) return null;
-  return `${String(card.expMonth).padStart(2, '0')}/${String(card.expYear).slice(-2)}`;
-}
 
 export function PaymentMethodsPage(): React.JSX.Element {
   const { t } = useI18n();
@@ -75,6 +54,7 @@ export function PaymentMethodsPage(): React.JSX.Element {
   const { isCustomer } = useSession();
   const toast = useToast();
   const queryClient = useQueryClient();
+  const cardLabel = useCardLabel();
 
   useDocumentMeta(
     { title: t('account.nav.savedPaymentMethods'), noIndex: true },
@@ -161,8 +141,8 @@ export function PaymentMethodsPage(): React.JSX.Element {
           ) : (
             <ul className="divide-y divide-border-subtle">
               {saved.map((card) => {
-                const label = cardLabel(card, t('paymentMethods.card'));
-                const expires = expiry(card);
+                const label = cardLabel(card);
+                const expires = cardExpiry(card);
                 const isUsable = card.status === 'ACTIVE';
 
                 return (
@@ -185,6 +165,32 @@ export function PaymentMethodsPage(): React.JSX.Element {
                         )}
                         {!isUsable && (
                           <Badge tone="warning">{t('paymentMethods.notUsable')}</Badge>
+                        )}
+                        {/*
+                          Which of the two headings this card sits under at a
+                          checkout. Absent where the gateway would not say -
+                          a prepaid card - and it is offered under both there,
+                          so a label here would be a claim nothing supports.
+                        */}
+                        {card.instrument !== null && (
+                          <Badge tone="neutral">
+                            {card.instrument === 'CREDIT_CARD'
+                              ? t('paymentMethods.creditCard')
+                              : t('paymentMethods.debitCard')}
+                          </Badge>
+                        )}
+                        {/*
+                          What this card is allowed to do, which is the fact a
+                          customer looking at a list of identical-looking cards
+                          most needs and cannot otherwise see.
+
+                          Only the narrower scope is labelled. A card that can
+                          be charged unattended is the assumption this screen
+                          was built around, and badging every one of those
+                          would make the exception invisible among them.
+                        */}
+                        {isUsable && card.consentScope === 'CHECKOUT' && (
+                          <Badge tone="neutral">{t('paymentMethods.checkoutOnly')}</Badge>
                         )}
                       </span>
                       {expires !== null && (

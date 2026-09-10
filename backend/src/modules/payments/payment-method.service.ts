@@ -25,13 +25,19 @@
  *      to make this table a worse thing to leak than it has to be.
  */
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
+import { fundingFor, type PaymentInstrument } from '../../domain/payment-instrument.js';
 import { sha256Hex } from '../../infra/crypto.js';
 import { newId } from '../../infra/ids.js';
 import { logger } from '../../infra/logger.js';
 import { prisma } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { loadActiveProvider } from './payment.service.js';
-import { supportsOffSession, type OffSessionProvider } from './provider.js';
+import {
+  supportsCardVault,
+  supportsOffSession,
+  type OffSessionProvider,
+  type VaultedCardDetails,
+} from './provider.js';
 
 /**
  * The consent text version a new enrolment is recorded against.
@@ -171,6 +177,24 @@ export interface StoredPaymentMethodView {
   funding: string | null;
   status: string;
   isDefault: boolean;
+  /**
+   * Which instrument this card is offered under at a checkout, derived from
+   * the provider's own `funding`.
+   *
+   * Null when the provider would not say - a prepaid card, or one it reports
+   * as `unknown`. Such a card is still perfectly usable; it simply appears
+   * under both Credit and Debit rather than being filed wrongly under one.
+   */
+  instrument: PaymentInstrument | null;
+  /**
+   * What its owner agreed to. See `PaymentConsentScope` in the schema.
+   *
+   * Sent to the storefront because the two scopes are not interchangeable
+   * there either: only an OFF_SESSION card may be picked for a scheduled
+   * order, and a screen that offered a CHECKOUT one would be offering
+   * something the server is about to refuse.
+   */
+  consentScope: string;
   consentAcceptedAt: string;
   consentVersion: string;
   createdAt: string;
@@ -285,6 +309,11 @@ export async function completePaymentMethodEnrolment(
         funding: setup.card?.funding ?? null,
         country: setup.card?.country ?? null,
         status: 'ACTIVE',
+        // Stated rather than left to the column default. This function is the
+        // auto-pay enrolment path and only ever the auto-pay enrolment path -
+        // the customer has just agreed to charges they will not see - and a
+        // reader should not have to go to the schema to learn that.
+        consentScope: 'OFF_SESSION',
         consentAcceptedAt: now,
         consentVersion: input.consentVersion ?? OFF_SESSION_CONSENT_VERSION,
         // Hashed. See the header.
@@ -328,6 +357,161 @@ export async function completePaymentMethodEnrolment(
   return toView(created);
 }
 
+/**
+ * The consent text version a card saved at a checkout is recorded against.
+ *
+ * Separate from `OFF_SESSION_CONSENT_VERSION` and versioned separately,
+ * because the two say different things and will change for different reasons.
+ * This one is "keep this so I need not type it again"; the other authorises
+ * charges nobody is watching.
+ */
+export const CHECKOUT_CONSENT_VERSION = 'checkout-v1';
+
+export interface RecordVaultedCardInput {
+  customerProfileId: string;
+  provider: 'RAZORPAY' | 'STRIPE';
+  card: VaultedCardDetails;
+  /** Where the consent came from, for the record. Hashed before storage. */
+  ipAddress?: string | null;
+  userAgent?: string | null;
+}
+
+/**
+ * Store a card the customer asked to keep while paying for an order.
+ *
+ * The counterpart to `completePaymentMethodEnrolment`, for the other way a
+ * card can come to be stored, and it differs in three ways that matter:
+ *
+ *   1. **The consent is narrower.** `CHECKOUT`, not `OFF_SESSION`. Nothing may
+ *      charge this card without the customer present, and `assertChargeable`
+ *      is what makes that true rather than a comment.
+ *
+ *   2. **The trigger is a verified webhook, not a browser.** The customer's
+ *      tab said nothing; a signature-checked capture event did, and the card's
+ *      display fields were then read back from the gateway. So the same rule
+ *      holds as everywhere else here: the provider is the authority.
+ *
+ *   3. **It must never break the payment.** A card that fails to store is a
+ *      customer who has to type it again next time. An exception escaping into
+ *      the capture path would be an order that never reaches CONFIRMED - money
+ *      taken, nothing delivered. So this returns null on trouble and the
+ *      caller carries on.
+ *
+ * Idempotent on `(provider, providerPaymentMethodId)`, which is a unique index.
+ * A re-delivered webhook finds the existing row and changes nothing.
+ */
+export async function recordCardSavedAtCheckout(
+  input: RecordVaultedCardInput,
+): Promise<StoredPaymentMethodView | null> {
+  const { card } = input;
+
+  if (card.providerTokenId.length === 0) return null;
+
+  const existing = await prisma.customerPaymentMethod.findUnique({
+    where: {
+      provider_providerPaymentMethodId: {
+        provider: input.provider,
+        providerPaymentMethodId: card.providerTokenId,
+      },
+    },
+  });
+
+  if (existing !== null) {
+    // Somebody else's card arriving under this customer would be a serious
+    // mix-up. Refused rather than reconciled - the same rule the enrolment
+    // path applies, and for the same reason.
+    if (existing.customerProfileId !== input.customerProfileId) {
+      logger.error(
+        {
+          paymentMethodId: existing.id,
+          expectedCustomerProfileId: input.customerProfileId,
+          actualCustomerProfileId: existing.customerProfileId,
+        },
+        'a payment tokenised a card that is already saved to another customer',
+      );
+      return null;
+    }
+
+    return toView(existing);
+  }
+
+  /*
+   * Default only when there is nothing else.
+   *
+   * `isDefault` is what the auto-pay screen preselects, and a card saved at a
+   * checkout cannot be used there. Making one the default whenever it is
+   * newest would put a card in that box which the server then refuses, and the
+   * customer would have no idea why. With no other card at all the field is
+   * simply the only answer available.
+   */
+  const otherCount = await prisma.customerPaymentMethod.count({
+    where: { customerProfileId: input.customerProfileId, status: 'ACTIVE' },
+  });
+
+  const id = newId();
+
+  try {
+    const created = await prisma.$transaction(async (tx) => {
+      const row = await tx.customerPaymentMethod.create({
+        data: {
+          id,
+          customerProfileId: input.customerProfileId,
+          provider: input.provider,
+          providerCustomerId: card.providerCustomerId ?? '',
+          providerPaymentMethodId: card.providerTokenId,
+          brand: card.brand,
+          last4: card.last4,
+          expMonth: card.expMonth,
+          expYear: card.expYear,
+          funding: card.funding,
+          country: card.country,
+          status: 'ACTIVE',
+          consentScope: 'CHECKOUT',
+          consentAcceptedAt: new Date(),
+          consentVersion: CHECKOUT_CONSENT_VERSION,
+          consentIpHash:
+            input.ipAddress === null || input.ipAddress === undefined
+              ? null
+              : sha256Hex(input.ipAddress),
+          consentUserAgent: input.userAgent?.slice(0, 256) ?? null,
+          isDefault: otherCount === 0,
+        },
+      });
+
+      await recordAudit(
+        {
+          action: AuditAction.PAYMENT_METHOD_SAVED,
+          resourceType: 'customer_payment_method',
+          resourceId: id,
+          // The gateway reported it, off a verified event. No human did this.
+          actorType: 'PROVIDER',
+          actorUserId: null,
+          after: {
+            provider: input.provider,
+            brand: row.brand,
+            last4: row.last4,
+            consentScope: 'CHECKOUT',
+            consentVersion: row.consentVersion,
+          },
+        },
+        tx,
+      );
+
+      return row;
+    });
+
+    return toView(created);
+  } catch (error) {
+    // Storing the card is a convenience; the payment behind it is not. See
+    // point 3 in the header.
+    logger.error(
+      { err: error, provider: input.provider },
+      'could not store a card the customer saved at checkout',
+    );
+    return null;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Listing, defaults, removal
 // ---------------------------------------------------------------------------
@@ -347,6 +531,8 @@ function toView(row: PaymentMethodRow): StoredPaymentMethodView {
     funding: row.funding,
     status: row.status,
     isDefault: row.isDefault,
+    instrument: fundingFor(row.funding),
+    consentScope: row.consentScope,
     consentAcceptedAt: row.consentAcceptedAt.toISOString(),
     consentVersion: row.consentVersion,
     createdAt: row.createdAt.toISOString(),
@@ -477,15 +663,42 @@ export async function removePaymentMethod(
   // Detach at the provider first. Marking our row DETACHED while the provider
   // still holds a chargeable card would leave the two disagreeing about
   // something that can take money.
+  //
+  // At the card's OWN gateway, not the default one. A deployment can have both
+  // connected, and asking Stripe to forget a Razorpay token would report a
+  // success that removed nothing.
   try {
-    const { provider } = await loadOffSessionProvider();
-    await provider.detachPaymentMethod(row.providerPaymentMethodId);
+    const loaded = await loadActiveProvider(row.provider);
+
+    if (loaded.kind !== row.provider) {
+      // The gateway this card belongs to is no longer connected, so there is
+      // nothing to call. The row is still marked removed below: leaving a card
+      // on the customer's screen that this deployment can neither charge nor
+      // delete would be worse than a token outliving us at a gateway the
+      // operator has disconnected.
+      logger.warn(
+        { paymentMethodId, provider: row.provider },
+        'the gateway a saved card belongs to is not connected; removing it here only',
+      );
+    } else if (supportsCardVault(loaded.provider)) {
+      await loaded.provider.forgetVaultedCard(
+        row.providerCustomerId,
+        row.providerPaymentMethodId,
+      );
+    }
   } catch (error) {
-    // An already-detached card, or one Stripe has never heard of, is the state
-    // being asked for. Anything else and the customer is told it failed rather
-    // than shown a card that is gone here and live there.
+    // An already-detached card, or one the gateway has never heard of, is the
+    // state being asked for. Anything else and the customer is told it failed
+    // rather than shown a card that is gone here and live there.
+    //
+    // Both gateways' spellings, because either can own the card:
+    // Stripe says "No such PaymentMethod" / resource_missing / not attached,
+    // Razorpay answers a deleted token with a not-found description.
     const message = error instanceof Error ? error.message : 'unknown error';
-    const alreadyGone = /No such PaymentMethod|resource_missing|not attached/i.test(message);
+    const alreadyGone =
+      /No such PaymentMethod|resource_missing|not attached|does not exist|not found/i.test(
+        message,
+      );
 
     if (!alreadyGone) {
       logger.error(
@@ -537,9 +750,37 @@ export async function removePaymentMethod(
  */
 export function assertChargeable(row: {
   status: string;
+  consentScope: string;
   expMonth: number | null;
   expYear: number | null;
 }): void {
+  /*
+   * The card's owner has to have agreed to THIS, not merely to something.
+   *
+   * A card stored at a checkout was stored under "keep this so I need not type
+   * it again" - an agreement whose every charge the customer watches happen.
+   * Charging it off-session would be taking money under an authority nobody
+   * gave, and it would be an easy mistake to make: the row looks identical in
+   * every other respect to one enrolled for auto-pay.
+   *
+   * Checked first, before status and expiry, because it is the only one of the
+   * three that is a question about consent rather than about whether the card
+   * still works. A card can be perfectly good and still not be ours to charge.
+   *
+   * This is the single place the two scopes are held apart. Every off-session
+   * path in this codebase reaches it - the auto-pay evaluator, schedule
+   * enrolment, and `chargeOrderOffSession` itself - so a new caller that
+   * forgets is refused rather than trusted.
+   */
+  if (row.consentScope !== 'OFF_SESSION') {
+    throw conflict(
+      ErrorCode.PAYMENT_METHOD_NOT_CHARGEABLE,
+      'That card was saved for faster checkout, not for automatic payments. ' +
+        'To use it for a scheduled order, add it again from the Autopay screen.',
+      [{ code: 'CONSENT_SCOPE', meta: { consentScope: row.consentScope } }],
+    );
+  }
+
   if (row.status !== 'ACTIVE') {
     throw conflict(
       ErrorCode.SCHEDULE_PAYMENT_METHOD_INVALID,

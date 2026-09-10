@@ -183,6 +183,15 @@ export const PaymentMethodPreference = {
 export type PaymentMethodPreference = (typeof PaymentMethodPreference)[keyof typeof PaymentMethodPreference]
 
 
+export const PaymentInstrumentKind = {
+  CREDIT_CARD: 'CREDIT_CARD',
+  DEBIT_CARD: 'DEBIT_CARD',
+  UPI: 'UPI'
+} as const
+
+export type PaymentInstrumentKind = (typeof PaymentInstrumentKind)[keyof typeof PaymentInstrumentKind]
+
+
 export const PaymentMode = {
   TEST: 'TEST',
   LIVE: 'LIVE'
@@ -318,6 +327,14 @@ export const StoredPaymentMethodStatus = {
 } as const
 
 export type StoredPaymentMethodStatus = (typeof StoredPaymentMethodStatus)[keyof typeof StoredPaymentMethodStatus]
+
+
+export const PaymentConsentScope = {
+  CHECKOUT: 'CHECKOUT',
+  OFF_SESSION: 'OFF_SESSION'
+} as const
+
+export type PaymentConsentScope = (typeof PaymentConsentScope)[keyof typeof PaymentConsentScope]
 
 
 export const ShipmentStatus = {

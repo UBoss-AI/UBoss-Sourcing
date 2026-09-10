@@ -289,6 +289,25 @@ export function CardIcon(props: IconProps): React.JSX.Element {
   );
 }
 
+/**
+ * A phone with an arrow leaving it — paying from a handset.
+ *
+ * Deliberately generic rather than UPI's own mark. A payment network's logo is
+ * its trademark and comes with usage rules an operator would have to accept on
+ * their own behalf; a shape that reads as "pay from your phone" says the same
+ * thing beside a label that already reads "Pay with UPI", and it stays correct
+ * if a deployment's gateway offers a different wallet later.
+ */
+export function UpiIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <rect x="5.4" y="2.6" width="10.2" height="18.8" rx="2.2" />
+      <path d="M10.2 18.4h1" />
+      <path d="M14.6 9.6h5.2m0 0-1.9-1.9m1.9 1.9-1.9 1.9" />
+    </Icon>
+  );
+}
+
 export function LinkIcon(props: IconProps): React.JSX.Element {
   return (
     <Icon {...props}>

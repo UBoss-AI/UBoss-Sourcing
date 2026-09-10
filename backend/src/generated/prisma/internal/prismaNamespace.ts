@@ -6777,6 +6777,8 @@ export const OrderScalarFieldEnum = {
   paymentMode: 'paymentMode',
   preferredPaymentProvider: 'preferredPaymentProvider',
   preferredPaymentMethod: 'preferredPaymentMethod',
+  preferredPaymentInstrument: 'preferredPaymentInstrument',
+  preferredPaymentMethodId: 'preferredPaymentMethodId',
   taxTreatment: 'taxTreatment',
   taxCountry: 'taxCountry',
   sellerVatNumberSnapshot: 'sellerVatNumberSnapshot',
@@ -7097,6 +7099,7 @@ export const CustomerPaymentMethodScalarFieldEnum = {
   funding: 'funding',
   country: 'country',
   status: 'status',
+  consentScope: 'consentScope',
   consentAcceptedAt: 'consentAcceptedAt',
   consentVersion: 'consentVersion',
   consentIpHash: 'consentIpHash',
@@ -8356,6 +8359,7 @@ export const OrderOrderByRelevanceFieldEnum = {
   currency: 'currency',
   shippingMethodCode: 'shippingMethodCode',
   shippingMethodName: 'shippingMethodName',
+  preferredPaymentMethodId: 'preferredPaymentMethodId',
   taxCountry: 'taxCountry',
   sellerVatNumberSnapshot: 'sellerVatNumberSnapshot',
   buyerVatNumberSnapshot: 'buyerVatNumberSnapshot',
@@ -9283,6 +9287,13 @@ export type EnumPaymentMethodPreferenceFieldRefInput<$PrismaModel> = FieldRefInp
 
 
 /**
+ * Reference to a field of type 'PaymentInstrumentKind'
+ */
+export type EnumPaymentInstrumentKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentInstrumentKind'>
+    
+
+
+/**
  * Reference to a field of type 'TaxTreatment'
  */
 export type EnumTaxTreatmentFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TaxTreatment'>
@@ -9384,6 +9395,13 @@ export type EnumErpPushStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
  * Reference to a field of type 'StoredPaymentMethodStatus'
  */
 export type EnumStoredPaymentMethodStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StoredPaymentMethodStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'PaymentConsentScope'
+ */
+export type EnumPaymentConsentScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentConsentScope'>
     
 
 

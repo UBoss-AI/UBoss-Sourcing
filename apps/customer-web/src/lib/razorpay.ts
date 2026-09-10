@@ -150,6 +150,8 @@ export async function openRazorpayCheckout(
       prefill_name: prefillName,
       prefill_contact: prefillContact,
       prefill_method: prefillMethod,
+      customer_id: customerId,
+      save,
     } = checkoutPayload;
 
     const instance = new Razorpay({
@@ -159,6 +161,27 @@ export async function openRazorpayCheckout(
       currency,
       name,
       description,
+      /*
+       * The customer's record at Razorpay, and whether to keep the card.
+       *
+       * Given a `customer_id`, Razorpay's sheet shows this customer the cards
+       * they have saved before and asks only for the CVV. That is where a
+       * saved Razorpay card is actually chosen - not on our own pages - and it
+       * is not a shortcut: charging one named token directly needs Razorpay's
+       * server-to-server API, which is open only to merchants holding PCI-DSS
+       * certification.
+       *
+       * `save` is 1 only because the customer ticked our box, and Razorpay
+       * asks them again inside the sheet as its own tokenisation rules
+       * require. Somebody who changes their mind in there is not overridden.
+       *
+       * Both omitted rather than sent empty: Razorpay treats an empty
+       * `customer_id` as a malformed one and refuses to open at all.
+       */
+      ...(typeof customerId === 'string' && customerId !== ''
+        ? { customer_id: customerId }
+        : {}),
+      ...(save === 1 ? { save: 1 } : {}),
       prefill: {
         email: prefillEmail,
         name: prefillName,

@@ -382,6 +382,18 @@ export async function buildCustomerBundle(subject: BundleSubject): Promise<Recor
           country: true,
           status: true,
           isDefault: true,
+          // What the customer agreed to when this card was stored, which is
+          // the single most consequential fact about the row: it is the
+          // difference between a card that can only be used with them present
+          // and one that authorises charges they will not see. Art. 15(1)(a)
+          // asks what the data is processed for, and this field IS the answer
+          // for this table.
+          //
+          // Added by hand, and worth saying why: this select is the export's
+          // real column list, and nothing in the test suite compares it to the
+          // schema. A column left out here is silently missing from every copy
+          // a customer ever receives, with no test going red.
+          consentScope: true,
           consentAcceptedAt: true,
           consentVersion: true,
           consentUserAgent: true,

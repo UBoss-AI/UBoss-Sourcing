@@ -12,7 +12,7 @@
  * bytes - so a change to the verification logic fails these tests.
  */
 import { createHmac } from 'node:crypto';
-import { afterAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { env } from '../../src/config/env.js';
 import { newId } from '../../src/infra/ids.js';
 import { prisma } from '../../src/infra/prisma.js';
@@ -23,6 +23,7 @@ import {
   loadActiveProvider,
   processWebhook,
 } from '../../src/modules/payments/payment.service.js';
+import { assertChargeable } from '../../src/modules/payments/payment-method.service.js';
 import { receiveStock, getAvailability } from '../../src/modules/inventory/inventory.service.js';
 import { addItem } from '../../src/modules/cart/cart.service.js';
 import { submitCheckout } from '../../src/modules/orders/order.service.js';
@@ -96,6 +97,10 @@ async function resetAll(): Promise<void> {
   await prisma.cartItem.deleteMany({});
   await prisma.cart.deleteMany({});
   await prisma.numberSequence.deleteMany({});
+  // Would go anyway when the profile does - the relation cascades - but named
+  // here like everything else, so the list reads as what this file creates
+  // rather than as what happens to survive.
+  await prisma.customerPaymentMethod.deleteMany({});
   await prisma.product.deleteMany({});
   await prisma.category.deleteMany({});
   await prisma.taxClass.deleteMany({});
@@ -1076,5 +1081,203 @@ describe('the offer matches what resolution can deliver', () => {
     const { gateways, defaultProvider } = await availableGateways();
 
     expect(gateways.map((entry) => entry.provider)).toContain(defaultProvider);
+  });
+});
+
+/**
+ * A card the customer asked to keep while paying.
+ *
+ * Razorpay has no SetupIntent: a card becomes reusable by being paid with, and
+ * the token arrives on the capture webhook. That makes this the first path in
+ * this codebase where a stored payment credential is created by an incoming
+ * event rather than by a request somebody made, which is worth testing
+ * carefully for three separate reasons:
+ *
+ *   1. Razorpay retries webhooks for days. Two deliveries must not become two
+ *      cards on the customer's screen.
+ *   2. A token means something only for a payment that actually succeeded.
+ *      One from a failed payment is a card nothing shows works.
+ *   3. Storing the card must be unable to harm the payment. A gateway that
+ *      will not describe the token costs the customer a retype next time - it
+ *      must not cost them a confirmed order after the money has moved.
+ */
+describe('a card saved while paying', () => {
+  /**
+   * Answer Razorpay's Tokens API, and count how often it is asked.
+   *
+   * Only that one endpoint is stubbed. Anything else this path reaches
+   * rejects loudly rather than resolving to undefined, so an unexpected call
+   * shows up as a failure instead of as a mystery.
+   */
+  function stubTokenRead(token: Record<string, unknown> | null): { calls: () => number } {
+    let calls = 0;
+
+    vi.stubGlobal('fetch', (input: string | URL) => {
+      const url = typeof input === 'string' ? input : input.toString();
+
+      if (/\/customers\/[^/]+\/tokens\//.test(url)) {
+        calls += 1;
+
+        if (token === null) {
+          return Promise.resolve(
+            new Response(JSON.stringify({ error: { description: 'token not found' } }), {
+              status: 400,
+            }),
+          );
+        }
+
+        return Promise.resolve(new Response(JSON.stringify(token), { status: 200 }));
+      }
+
+      return Promise.reject(new Error(`unstubbed fetch: ${url}`));
+    });
+
+    return { calls: () => calls };
+  }
+
+  const savedCardToken = {
+    id: 'token_saved_card_1',
+    method: 'card',
+    card: {
+      last4: '4242',
+      network: 'Visa',
+      type: 'credit',
+      international: false,
+      expiry_month: 11,
+      expiry_year: 2030,
+    },
+  };
+
+  /** A capture that also reports a tokenised card. */
+  function capturedWithToken(params: {
+    providerOrderId: string;
+    amountMinor: number;
+    tokenId?: string;
+  }): Record<string, unknown> {
+    const base = capturedPayload({
+      providerOrderId: params.providerOrderId,
+      amountMinor: params.amountMinor,
+    });
+
+    const payload = base.payload as { payment: { entity: Record<string, unknown> } };
+
+    payload.payment.entity.method = 'card';
+    payload.payment.entity.customer_id = 'cust_razorpay_1';
+    payload.payment.entity.token_id = params.tokenId ?? savedCardToken.id;
+
+    return base;
+  }
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('stores the card, filed under the funding the gateway reported', async () => {
+    const { orderId, providerOrderId, amountMinor } = await orderAwaitingPayment();
+    stubTokenRead(savedCardToken);
+
+    const event = signedWebhook(
+      capturedWithToken({ providerOrderId, amountMinor: Number(amountMinor) }),
+    );
+
+    expect((await processWebhook(event.rawBody, event.headers)).accepted).toBe(true);
+
+    const cards = await prisma.customerPaymentMethod.findMany({ where: { customerProfileId } });
+
+    expect(cards).toHaveLength(1);
+    expect(cards[0]?.providerPaymentMethodId).toBe(savedCardToken.id);
+    expect(cards[0]?.provider).toBe('RAZORPAY');
+    expect(cards[0]?.last4).toBe('4242');
+    expect(cards[0]?.brand).toBe('Visa');
+    // Razorpay's `type: 'credit'`. This is what puts the card under "Pay with
+    // Credit Card" at the next checkout rather than under Debit.
+    expect(cards[0]?.funding).toBe('credit');
+
+    // And the payment itself still landed.
+    const order = await prisma.order.findUniqueOrThrow({ where: { id: orderId } });
+    expect(order.status).toBe('CONFIRMED');
+  });
+
+  /**
+   * The most important one in this block.
+   *
+   * A card saved at a checkout carries "keep this so I need not type it
+   * again". It is not a mandate, and the row is indistinguishable from one in
+   * every other respect - so if this scope were written wrongly, the auto-pay
+   * worker would charge it in the night under an authority nobody gave.
+   */
+  it('records it as chargeable only with the customer present', async () => {
+    const { providerOrderId, amountMinor } = await orderAwaitingPayment();
+    stubTokenRead(savedCardToken);
+
+    const event = signedWebhook(
+      capturedWithToken({ providerOrderId, amountMinor: Number(amountMinor) }),
+    );
+    await processWebhook(event.rawBody, event.headers);
+
+    const card = await prisma.customerPaymentMethod.findFirstOrThrow({
+      where: { customerProfileId },
+    });
+
+    expect(card.consentScope).toBe('CHECKOUT');
+    expect(() => {
+      assertChargeable(card);
+    }).toThrow(/saved for faster checkout/i);
+  });
+
+  it('does not make a second card when Razorpay redelivers the event', async () => {
+    const { providerOrderId, amountMinor } = await orderAwaitingPayment();
+    stubTokenRead(savedCardToken);
+
+    const payload = capturedWithToken({
+      providerOrderId,
+      amountMinor: Number(amountMinor),
+    });
+
+    // The same delivery twice, headers and all. Razorpay retries for three
+    // days, and `x-razorpay-event-id` is what makes the second a duplicate.
+    const delivery = signedWebhook(payload);
+
+    await processWebhook(delivery.rawBody, delivery.headers);
+    await processWebhook(delivery.rawBody, { ...delivery.headers });
+
+    expect(await prisma.customerPaymentMethod.count({ where: { customerProfileId } })).toBe(1);
+  });
+
+  it('confirms the order even when the card cannot be read back', async () => {
+    const { orderId, providerOrderId, amountMinor } = await orderAwaitingPayment();
+    // The gateway no longer has the token - deleted in the customer's banking
+    // app between paying and this webhook arriving. A real answer, not a
+    // failure, and certainly not a reason to leave an order unconfirmed.
+    stubTokenRead(null);
+
+    const event = signedWebhook(
+      capturedWithToken({ providerOrderId, amountMinor: Number(amountMinor) }),
+    );
+
+    expect((await processWebhook(event.rawBody, event.headers)).accepted).toBe(true);
+
+    expect(await prisma.customerPaymentMethod.count({ where: { customerProfileId } })).toBe(0);
+
+    const order = await prisma.order.findUniqueOrThrow({ where: { id: orderId } });
+    expect(order.status).toBe('CONFIRMED');
+  });
+
+  it('stores nothing for a payment that carried no token', async () => {
+    const { providerOrderId, amountMinor } = await orderAwaitingPayment();
+    const probe = stubTokenRead(savedCardToken);
+
+    // An ordinary payment: the customer did not tick the box, so Razorpay
+    // sends no `token_id`. The tokens API must not be consulted at all - a
+    // card nobody asked to save must not be stored because the plumbing
+    // happened to be able to.
+    const event = signedWebhook(
+      capturedPayload({ providerOrderId, amountMinor: Number(amountMinor) }),
+    );
+
+    await processWebhook(event.rawBody, event.headers);
+
+    expect(probe.calls()).toBe(0);
+    expect(await prisma.customerPaymentMethod.count({ where: { customerProfileId } })).toBe(0);
   });
 });

@@ -446,6 +446,19 @@ const OPERATIONS: Readonly<Record<string, OperationDoc>> = Object.freeze({
     auth: 'customer',
     responses: { '200': ok(ref('PaymentGatewaysResponse')) },
   },
+  'GET /api/v1/payments/instruments': {
+    summary: 'How a customer may pay for a cart in this currency',
+    description:
+      'What the storefront asks a customer, in the words they are shown: Credit Card, Debit ' +
+      'Card, UPI. Deliberately names no gateway — which acquirer settles a payment is the ' +
+      'operator’s business and is resolved from the instrument on the server. Reads the same ' +
+      'connected-gateway state as /payments/gateways, so the two cannot disagree. ' +
+      '`canSaveCard` says whether the card may be kept for next time; ' +
+      '`savedCardsChargeableHere` is false on Razorpay, whose saved cards are picked inside ' +
+      'its own sheet. The currency comes from the cart and is required.',
+    tags: ['Payments'],
+    auth: 'customer',
+  },
   'GET /api/v1/payments/orders/:orderId/status': {
     summary: 'Poll payment status after returning from the provider',
     description:
@@ -1556,6 +1569,23 @@ const SCHEMAS: Readonly<Record<string, unknown>> = Object.freeze({
           'Which instruments to open the gateway sheet on. Honoured by Razorpay and ignored by ' +
           'gateways that have no such instrument; the sheet still offers everything the gateway ' +
           'supports.',
+      },
+      preferredPaymentInstrument: {
+        type: 'string',
+        enum: ['CREDIT_CARD', 'DEBIT_CARD', 'UPI'],
+        description:
+          'What the customer chose to pay with, in the words the storefront showed them. ' +
+          'Supersedes preferredPaymentProvider, which exists only for clients written before ' +
+          'instruments did: the gateway is resolved from this on the server, and no gateway is ' +
+          'ever named to a customer. Refused rather than substituted if no connected gateway ' +
+          'can serve it — see PAYMENT_INSTRUMENT_UNAVAILABLE.',
+      },
+      preferredPaymentMethodId: {
+        type: 'string',
+        description:
+          'One of the customer’s own saved cards, chosen at checkout. A preference like the ' +
+          'fields above, re-checked against the customer when the payment actually starts — ' +
+          'naming another customer’s card is refused, never charged.',
       },
       customerNote: { type: 'string', nullable: true },
     },

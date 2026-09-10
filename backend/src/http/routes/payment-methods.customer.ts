@@ -35,22 +35,31 @@ export function registerCustomerPaymentMethodRoutes(app: FastifyInstance): Promi
   app.addHook('preHandler', requireCustomer);
 
   /**
-   * Refuse the whole surface when auto-pay is off.
+   * The auto-pay flag gates ENROLMENT, not the whole surface.
    *
-   * A stored card exists only to be charged off-session. Letting a customer
-   * save one where nothing can ever charge it would be collecting a payment
-   * credential for no purpose, which is exactly what a deployment that turned
-   * the flag off has decided not to do.
+   * It used to refuse everything here, and that was right while a stored card
+   * existed only to be charged off-session: collecting a payment credential
+   * nothing could ever charge would be collecting it for no purpose.
+   *
+   * A card can now also be stored at a checkout, purely so the customer need
+   * not retype it. That is useful in a deployment that has no auto-pay at all,
+   * and refusing it would leave those customers unable to see or delete cards
+   * they already have - which is not a feature being off, it is data they
+   * cannot reach.
+   *
+   * So listing, defaulting and removal are always allowed, and only the two
+   * routes that begin an off-session enrolment stay behind the flag. Each says
+   * so at its own definition rather than here, because a blanket hook is
+   * exactly how the previous over-reach happened.
    */
-  app.addHook('preHandler', async () => {
+  const assertEnrolmentEnabled = (): void => {
     if (!env.FEATURE_SUBSCRIPTION_AUTOPAY) {
       throw forbidden(
         ErrorCode.FEATURE_DISABLED,
         'Saving a card for automatic payments is not enabled for this store.',
       );
     }
-    await Promise.resolve();
-  });
+  };
 
   app.get('/', async (request, reply) => {
     const auth = currentUser(request);
@@ -70,6 +79,8 @@ export function registerCustomerPaymentMethodRoutes(app: FastifyInstance): Promi
     '/setup-intent',
     { config: { rateLimit: { max: 10, timeWindow: '15 minutes' } } },
     async (request, reply) => {
+      assertEnrolmentEnabled();
+
       const auth = currentUser(request);
 
       const setup = await beginPaymentMethodEnrolment(auth.customerProfileId ?? '', {
@@ -93,6 +104,8 @@ export function registerCustomerPaymentMethodRoutes(app: FastifyInstance): Promi
     '/',
     { config: { rateLimit: { max: 20, timeWindow: '15 minutes' } } },
     async (request, reply) => {
+      assertEnrolmentEnabled();
+
       const auth = currentUser(request);
 
       const body = z

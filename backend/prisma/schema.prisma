@@ -1381,6 +1381,30 @@ model Order {
   preferredPaymentProvider PaymentProviderKind?
   preferredPaymentMethod   PaymentMethodPreference?
 
+  /// What the customer actually chose at checkout, in their own vocabulary.
+  ///
+  /// The pair above records which *gateway* was resolved; this records which
+  /// *instrument* was asked for, which is the only one of the two the customer
+  /// ever saw. They are kept apart because they answer different questions and
+  /// change for different reasons: an operator who disconnects Razorpay
+  /// changes the gateway an old order would resolve to, and must not thereby
+  /// rewrite what the customer picked.
+  ///
+  /// Its own column rather than a third member of `PaymentMethodPreference`,
+  /// because that is a physical `ENUM('ANY','UPI')` and widening it would mean
+  /// a `MODIFY COLUMN` over every historical order to record something none of
+  /// them expressed.
+  preferredPaymentInstrument PaymentInstrumentKind?
+
+  /// The saved card the customer picked at checkout, when they picked one.
+  ///
+  /// `SetNull`: removing a card must not remove the order it once paid for.
+  /// The order keeps its instrument choice and simply stops naming an
+  /// instrument that no longer exists, which is what the payment page then
+  /// asks them to replace.
+  preferredPaymentMethodId String?                @db.Char(26)
+  preferredPaymentCard     CustomerPaymentMethod? @relation(fields: [preferredPaymentMethodId], references: [id], onDelete: SetNull)
+
   /// Why this order was taxed the way it was, and under whose rates. Frozen
   /// here rather than recomputed, because rates change and VAT numbers get
   /// cancelled - and an invoice already issued must not start disagreeing with
@@ -1569,6 +1593,24 @@ enum PaymentProviderKind {
 /// distinguishable from "no choice was ever recorded".
 enum PaymentMethodPreference {
   ANY
+  UPI
+}
+
+/// What the customer chose to pay with, in the words they were shown.
+///
+/// The storefront names instruments, never gateways: "Pay with Credit Card" is
+/// a question a person can answer, "Razorpay or Stripe" is not. The mapping
+/// from one of these to a gateway lives in `domain/payment-instrument.ts` and
+/// nowhere else.
+///
+/// CREDIT_CARD and DEBIT_CARD are separate members even though every gateway
+/// treats both as "card", because they are separate to the customer and
+/// because a saved card is filed under the funding type the provider reported
+/// for it. Which of the two a *new* card turns out to be is discovered after
+/// it is entered, never assumed from which button was pressed.
+enum PaymentInstrumentKind {
+  CREDIT_CARD
+  DEBIT_CARD
   UPI
 }
 
@@ -2162,10 +2204,21 @@ enum ErpPushStatus {
 /// A reusable payment instrument's usability.
 enum StoredPaymentMethodStatus {
   ACTIVE
-  /// Detached at Stripe - by the customer here, or in Stripe's dashboard.
+  /// Detached at the provider - by the customer here, or in the provider's
+  /// own dashboard.
   DETACHED
-  /// The card's expiry has passed, or Stripe reported it unusable.
+  /// The card's expiry has passed, or the provider reported it unusable.
   EXPIRED
+}
+
+/// What a stored card's owner agreed to. See `CustomerPaymentMethod`.
+///
+/// Ordered narrowest first. OFF_SESSION implies everything CHECKOUT allows;
+/// the reverse is emphatically not true, and `assertChargeable` is where that
+/// asymmetry is enforced.
+enum PaymentConsentScope {
+  CHECKOUT
+  OFF_SESSION
 }
 
 model ScheduleOccurrence {
@@ -2307,14 +2360,31 @@ model CustomerPaymentMethod {
 
   status StoredPaymentMethodStatus @default(ACTIVE)
 
-  /// --- Off-session consent (Stripe's requirement, and the law's) ---
-  consentAcceptedAt DateTime @db.DateTime(3)
-  consentVersion    String   @db.VarChar(32)
+  /// --- Consent (the provider's requirement, and the law's) ---
+  ///
+  /// What the customer agreed to when this card was stored. The two scopes are
+  /// not degrees of the same permission - they are different agreements, and
+  /// conflating them is how a card someone saved to avoid retyping it ends up
+  /// being charged in the night.
+  ///
+  /// CHECKOUT   - "keep this so I need not type it again", given at a checkout
+  ///              with the customer present. Every charge against it is
+  ///              on-session, and the customer sees each one happen.
+  /// OFF_SESSION- "charge this while I am not here", given at auto-pay
+  ///              enrolment. Strictly more than the above.
+  ///
+  /// `assertChargeable` refuses anything that is not OFF_SESSION, which is the
+  /// single place that separation is enforced. Defaulted to OFF_SESSION so
+  /// that every row written before this column existed - all of which were
+  /// auto-pay enrolments - keeps exactly the meaning it was created with.
+  consentScope      PaymentConsentScope @default(OFF_SESSION)
+  consentAcceptedAt DateTime            @db.DateTime(3)
+  consentVersion    String              @db.VarChar(32)
   /// Hashed, never the address itself: it is evidence that consent came from
   /// somewhere, and keeping the raw IP would make this table a worse thing to
   /// leak than it needs to be.
-  consentIpHash     String?  @db.VarChar(64)
-  consentUserAgent  String?  @db.VarChar(256)
+  consentIpHash     String?             @db.VarChar(64)
+  consentUserAgent  String?             @db.VarChar(256)
 
   /// The customer's default for new plans. Enforced in the service, not the
   /// schema: a partial unique index on (customerProfileId) WHERE isDefault is
@@ -2334,6 +2404,10 @@ model CustomerPaymentMethod {
   /// - which `assertAutoPayChargeable` then refuses - rather than deleting the
   /// customer's limits and preferences along with it.
   autoPaySettings CustomerAutoPaySetting[]
+
+  /// Orders whose customer picked this card at checkout. `SetNull` on the
+  /// other side: removing a card must leave the order standing.
+  orders Order[]
 
   /// One row per instrument. A repeated SetupIntent confirmation collides here
   /// rather than giving the customer the same card twice.

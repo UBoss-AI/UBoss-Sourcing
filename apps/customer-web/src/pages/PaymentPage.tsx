@@ -34,9 +34,15 @@ import { NetworkError, api, newIdempotencyKey } from '@/lib/api';
 import { cx } from '@/lib/cx';
 import { formatMoney } from '@/lib/format';
 import { openRazorpayCheckout, type CheckoutOutcome } from '@/lib/razorpay';
+import { loadStripeJs } from '@/lib/stripe';
 import { StripePaymentDialog } from '@/components/StripePaymentDialog';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
-import type { OrderDetail, PaymentSession, PaymentStatus } from '@/lib/types';
+import type {
+  OrderDetail,
+  PaymentInstruments,
+  PaymentSession,
+  PaymentStatus,
+} from '@/lib/types';
 import { translateKey, useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
@@ -143,6 +149,20 @@ export function PaymentPage(): React.JSX.Element {
    */
   const [stripeSession, setStripeSession] = useState<PaymentSession | null>(null);
 
+  /**
+   * Whether to keep the card being entered.
+   *
+   * Lives here rather than at the checkout because this is where the card is
+   * actually typed, which is the only moment the offer means anything — and it
+   * is where every shop the customer has used puts it.
+   *
+   * Starts false and stays false unless they tick it. A pre-ticked consent is
+   * not consent under the GDPR, and storing a payment credential is exactly
+   * the kind of thing that rule exists for. `CardSetupDialog` has held the
+   * same line since it was written.
+   */
+  const [saveCard, setSaveCard] = useState(false);
+
   const replayState = location.state as { replayed?: boolean } | null;
   const wasReplayed = replayState?.replayed === true;
 
@@ -161,6 +181,27 @@ export function PaymentPage(): React.JSX.Element {
     queryKey: ['order', orderId],
     queryFn: () => api.get<{ order: OrderDetail }>(`/orders/${String(orderId)}`),
     enabled: orderId !== undefined,
+  });
+
+  const orderCurrency = order.data?.order.currency ?? null;
+
+  /**
+   * What this order's chosen instrument allows.
+   *
+   * Asked only to decide whether to offer the "save this card" tick. The
+   * instrument itself was settled at the checkout and is on the order; this is
+   * the one fact about it that lives with the gateway rather than the order,
+   * and offering to save a card where nothing can store one would be a promise
+   * this page cannot keep.
+   */
+  const instruments = useQuery({
+    queryKey: ['payment-instruments', orderCurrency],
+    queryFn: () =>
+      api.get<PaymentInstruments>(
+        `/payments/instruments?currency=${encodeURIComponent(orderCurrency ?? '')}`,
+      ),
+    enabled: orderCurrency !== null,
+    retry: false,
   });
 
   /**
@@ -263,15 +304,66 @@ export function PaymentPage(): React.JSX.Element {
     setPhase('opening');
 
     try {
-      // No gateway is named here on purpose. The customer's pick is on the
-      // order, so the server reads it back for us — which is what makes a
-      // reload of this page, or a return to it hours later, open the same
-      // sheet rather than the default.
+      // No gateway is named here on purpose — nor is the instrument. Both are
+      // on the order, so the server reads them back for us, which is what
+      // makes a reload of this page, or a return to it hours later, offer the
+      // same thing rather than the default.
+      //
+      // One thing this page knows that the order does not: whether the
+      // customer ticked the box just now.
+      //
+      // Deliberately not sending where to return to after an authentication
+      // challenge. The server builds that from its own configuration - a
+      // browser-supplied return address would be an open redirect with a
+      // payment gateway's credibility behind it.
       const session = await api.post<PaymentSession>(
         `/payments/orders/${String(orderId)}/session`,
-        undefined,
+        { saveCard },
         { idempotencyKey },
       );
+
+      /*
+       * A charge the server has already made against a card they saved
+       * earlier, which the bank now wants them to confirm.
+       *
+       * The only Stripe call on this page that confirms nothing. There is no
+       * form to read and no decision to make here: the payment exists, and
+       * this runs the issuer's challenge against it. Its answer is not
+       * forwarded anywhere either — the wait below is for the backend, exactly
+       * as it is for every other route through this page.
+       */
+      if (session.next === 'AUTHENTICATE') {
+        setPhase('in-provider');
+
+        const factory = await loadStripeJs(t);
+        const stripe = factory(String(session.checkoutPayload.key ?? ''));
+
+        const result = await stripe.handleNextAction({
+          clientSecret: String(session.checkoutPayload.client_secret ?? ''),
+        });
+
+        if (result.error !== undefined) {
+          setPhase('unpaid');
+          setMessage(result.error.message ?? t('common.paymentDidNotGoThrough'));
+          return;
+        }
+
+        setPhase('processing');
+        return;
+      }
+
+      /*
+       * A saved card that went through with no challenge at all.
+       *
+       * Nothing for the customer to do, and nothing for this browser to open.
+       * It goes straight into the same wait every other payment ends in —
+       * "submitted" is still not "paid", and the webhook is still the only
+       * thing that changes that.
+       */
+      if (session.next === 'AWAIT_CONFIRMATION') {
+        setPhase('processing');
+        return;
+      }
 
       if (session.provider === 'STRIPE') {
         // Mounted rather than awaited. The dialog calls back with the same
@@ -304,7 +396,7 @@ export function PaymentPage(): React.JSX.Element {
         errorMessage(t, error, t('payment.couldNotBeStarted')),
       );
     }
-  }, [orderId, idempotencyKey, handleOutcome, t]);
+  }, [orderId, idempotencyKey, handleOutcome, saveCard, t]);
 
   if (order.isPending) return <LoadingState label={t('payment.loadingYourOrder')} />;
 
@@ -321,6 +413,24 @@ export function PaymentPage(): React.JSX.Element {
 
   const currentOrder = order.data.order;
   const outstanding = currentOrder.totals.grandTotal;
+
+  /**
+   * Whether to offer to keep the card.
+   *
+   * Four conditions, and every one of them removes an offer that could not be
+   * honoured or that makes no sense: the order has to be paid by card, the
+   * customer must not already be using a card they saved, the gateway behind
+   * that instrument has to be able to store one, and the offer list has to
+   * have actually loaded. A tick nobody can act on is worse than no tick.
+   */
+  const canOfferToSaveCard =
+    currentOrder.preferredPaymentInstrument !== null &&
+    currentOrder.preferredPaymentInstrument !== 'UPI' &&
+    currentOrder.preferredPaymentMethodId === null &&
+    (instruments.data?.instruments ?? []).some(
+      (offer) =>
+        offer.instrument === currentOrder.preferredPaymentInstrument && offer.canSaveCard,
+    );
 
   // Already settled before this page even opened — a webhook can land while
   // the customer is still on the provider's screen.
@@ -457,6 +567,47 @@ export function PaymentPage(): React.JSX.Element {
         {/* --- Actions ------------------------------------------------------ */}
         {(phase === 'idle' || phase === 'unpaid') && (
           <div className="mt-6 space-y-3">
+            {/*
+              Keep this card for next time.
+
+              Offered here rather than at the checkout because this is where the
+              card is actually typed, which is the only moment the question
+              means anything.
+
+              Hidden in three cases, each for its own reason: when the customer
+              is already paying with a card they saved (there is nothing new to
+              keep), when the order is a UPI payment (there is no card), and
+              when the gateway behind this order cannot store one (the offer
+              could not be honoured).
+
+              Never pre-ticked. A pre-ticked box is not consent under the GDPR,
+              and what is being consented to here is a payment credential being
+              kept — which is the kind of thing that rule was written for.
+
+              What actually gets stored is a token held by the gateway, never a
+              card number: since October 2022 the RBI forbids a merchant
+              storing one, and no deployment of this software is inside PCI DSS
+              scope.
+            */}
+            {canOfferToSaveCard && (
+              <label className="flex cursor-pointer items-start gap-3 rounded-md bg-surface-sunken px-4 py-3 text-xs">
+                <input
+                  type="checkbox"
+                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-border-strong text-brand"
+                  checked={saveCard}
+                  onChange={(event) => {
+                    setSaveCard(event.target.checked);
+                  }}
+                />
+                <span className="min-w-0">
+                  <span className="block font-medium text-ink">{t('payment.saveThisCard')}</span>
+                  <span className="mt-0.5 block leading-relaxed text-ink-muted">
+                    {t('payment.saveThisCardHint')}
+                  </span>
+                </span>
+              </label>
+            )}
+
             <Button
               variant="action"
               size="lg"

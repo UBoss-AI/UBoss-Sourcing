@@ -221,6 +221,22 @@ export const ErrorCode = {
   /// Saving a payment method without the off-session consent that makes it
   /// chargeable. Stripe's rules require the record, and so does the law.
   PAYMENT_SETUP_CONSENT_REQUIRED: 'PAYMENT_SETUP_CONSENT_REQUIRED',
+  /// The customer asked to pay with an instrument this deployment cannot
+  /// offer for this cart - UPI where no gateway serves it, or a card in a
+  /// currency no connected gateway settles.
+  ///
+  /// Distinct from PAYMENT_PROVIDER_NOT_CONFIGURED, which says the operator
+  /// has connected nothing at all. This one says something is connected and it
+  /// cannot do the specific thing that was asked for, which is a different
+  /// sentence to a customer and a different job for an administrator.
+  PAYMENT_INSTRUMENT_UNAVAILABLE: 'PAYMENT_INSTRUMENT_UNAVAILABLE',
+  /// A stored card was named for a charge its owner never agreed to.
+  ///
+  /// Raised when a card saved at a checkout - "keep this so I need not type it
+  /// again" - is put forward for an off-session charge, which is a different
+  /// agreement the customer has not given. Also covers a card whose provider
+  /// is no longer connected.
+  PAYMENT_METHOD_NOT_CHARGEABLE: 'PAYMENT_METHOD_NOT_CHARGEABLE',
 
   // --- Localisation & currency ---
   CURRENCY_NOT_SUPPORTED: 'CURRENCY_NOT_SUPPORTED',

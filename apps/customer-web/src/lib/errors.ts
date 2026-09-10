@@ -30,6 +30,24 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
       return t('common.unexpectedResponse', { status: String(error.status) });
     }
 
+    /*
+     * Two refusals a customer meets while choosing how to pay, translated
+     * here rather than passed through in the server's English.
+     *
+     * The rule above - use the backend's sentence, it knows why - is the right
+     * default and stays the default. It is wrong for exactly these two: they
+     * are reached by pressing a button on a checkout page, in the middle of a
+     * flow the customer is already partway through, and a sentence in the
+     * wrong language at that moment reads as the site breaking rather than as
+     * an answer. Every other code still falls through below.
+     */
+    if (error.code === 'PAYMENT_INSTRUMENT_UNAVAILABLE') {
+      return t('payment.thatWayOfPayingIsUnavailable');
+    }
+    if (error.code === 'PAYMENT_METHOD_NOT_CHARGEABLE') {
+      return t('payment.thatCardCannotBeUsed');
+    }
+
     if (error.message.length > 0) return error.message;
   }
 

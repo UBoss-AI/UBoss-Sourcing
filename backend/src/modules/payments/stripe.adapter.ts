@@ -33,10 +33,14 @@ import {
   type CreatePaymentResult,
   type CreateSetupIntentInput,
   type CreateSetupIntentResult,
+  type DirectCardChargeProvider,
+  type EnsureVaultCustomerInput,
   type NormalisedPaymentStatus,
   type OffSessionChargeInput,
   type OffSessionChargeResult,
   type OffSessionProvider,
+  type OnSessionChargeInput,
+  type OnSessionChargeResult,
   type PaymentMethodHint,
   type PaymentStatusResult,
   type ProviderCredentials,
@@ -44,6 +48,7 @@ import {
   type RefundInput,
   type RefundResult,
   type SetupIntentResult,
+  type VaultedCardDetails,
   type VerifiedEvent,
 } from './provider.js';
 
@@ -105,6 +110,16 @@ interface StripePaymentIntent {
   status: string;
   client_secret?: string | null;
   payment_method_types?: string[];
+  /** The Customer, when the intent was created against one. */
+  customer?: string | null;
+  /** The PaymentMethod used, as a bare id on a webhook object. */
+  payment_method?: string | null;
+  /**
+   * Set only when the intent was created asking to keep the card - so its
+   * presence on an event is Stripe's own confirmation that a reusable
+   * PaymentMethod came out of this payment.
+   */
+  setup_future_usage?: string | null;
   /** A charge id when unexpanded, the charge object when expanded. */
   latest_charge?: string | StripeCharge | null;
   last_payment_error?: {
@@ -268,7 +283,7 @@ function chargeIdOf(intent: StripePaymentIntent): string | null {
   return charge?.id ?? null;
 }
 
-export class StripeAdapter implements OffSessionProvider {
+export class StripeAdapter implements OffSessionProvider, DirectCardChargeProvider {
   readonly kind = 'STRIPE' as const;
   readonly mode: ProviderMode;
 
@@ -457,6 +472,8 @@ export class StripeAdapter implements OffSessionProvider {
       });
     }
 
+    const providerCustomerId = input.providerCustomerId ?? null;
+
     const intent = await this.request<StripePaymentIntent>(
       'POST',
       '/payment_intents',
@@ -467,6 +484,26 @@ export class StripeAdapter implements OffSessionProvider {
         // cards, plus iDEAL/Bancontact/SEPA where the deployment sells into
         // Europe - without this file enumerating them.
         automatic_payment_methods: { enabled: true },
+        // The customer's record at Stripe, so a card saved here attaches to it
+        // rather than to a fresh one their existing cards cannot be found from.
+        ...(providerCustomerId === null ? {} : { customer: providerCustomerId }),
+        /*
+         * Tokenise this card for reuse - but only for reuse WITH THE CUSTOMER
+         * PRESENT.
+         *
+         * `on_session` rather than `off_session` is the whole point. The
+         * customer ticked a box at a checkout saying they would rather not
+         * retype the card; they did not authorise this application to charge
+         * it while they are asleep. Stripe records the difference, the
+         * cardholder's bank sees the difference in the SCA exemption claimed,
+         * and `consentScope` records it here. Sending `off_session` for a
+         * checkout tick would claim a mandate nobody gave.
+         *
+         * Requires a customer to attach to, so it is set only alongside one.
+         */
+        ...(input.saveCard === true && providerCustomerId !== null
+          ? { setup_future_usage: 'on_session' }
+          : {}),
         description: `Order ${input.orderNumber}`,
         // Our identifiers, so a Stripe dashboard row traces back to an order.
         metadata: {
@@ -648,7 +685,16 @@ export class StripeAdapter implements OffSessionProvider {
    * records that nothing joins back together. The email is passed through
    * Stripe's search rather than being trusted as unique on our side.
    */
-  private async ensureCustomer(input: CreateSetupIntentInput): Promise<string> {
+  private async ensureCustomer(
+    input: {
+      providerCustomerId?: string | null;
+      customerEmail: string | null;
+      customerName: string | null;
+      customerPhone?: string | null;
+      customerProfileId: string;
+    },
+    idempotencyKey: string,
+  ): Promise<string> {
     if (input.providerCustomerId !== null && input.providerCustomerId !== undefined) {
       const existing = input.providerCustomerId;
       if (existing.length > 0) return existing;
@@ -660,18 +706,159 @@ export class StripeAdapter implements OffSessionProvider {
       {
         email: input.customerEmail ?? undefined,
         name: input.customerName ?? undefined,
+        phone: input.customerPhone ?? undefined,
         metadata: { uboss_customer_profile_id: input.customerProfileId },
       },
-      // Keyed on our profile id, so a double-submit of the enrolment form
-      // cannot mint two Customers for one person.
-      `${input.idempotencyKey}:customer`,
+      idempotencyKey,
     );
 
     return created.id;
   }
 
+  /**
+   * The Customer a card stored at a checkout hangs off.
+   *
+   * The same Stripe Customer the auto-pay path uses, reached by a different
+   * door. Keyed on our profile id rather than on a per-request value, so a
+   * customer who saves a card at one checkout and another card six weeks later
+   * ends up with both on one record - which is what makes the second checkout
+   * able to offer them the first card.
+   */
+  async ensureVaultCustomer(input: EnsureVaultCustomerInput): Promise<string> {
+    return this.ensureCustomer(input, `vault-customer:${input.customerProfileId}`);
+  }
+
+  /**
+   * Read a stored card back from Stripe.
+   *
+   * A PaymentMethod Stripe has never heard of, or one already detached, comes
+   * back as null rather than as an error: the customer may have removed it in
+   * Stripe's own portal, and that is a real answer to "what does this card
+   * look like", not a failure worth propagating into a webhook.
+   */
+  async fetchVaultedCard(
+    _providerCustomerId: string,
+    providerTokenId: string,
+  ): Promise<VaultedCardDetails | null> {
+    let method: StripePaymentMethod;
+    try {
+      method = await this.request<StripePaymentMethod>(
+        'GET',
+        `/payment_methods/${encodeURIComponent(providerTokenId)}`,
+      );
+    } catch (error) {
+      if (error instanceof PaymentProviderError && !error.retryable) {
+        logger.info(
+          { providerPaymentMethodId: providerTokenId },
+          'stripe does not have that payment method; treating it as gone',
+        );
+        return null;
+      }
+      throw error;
+    }
+
+    const card = cardDetailsOf(method);
+
+    return {
+      providerTokenId: method.id,
+      providerCustomerId: typeof method.customer === 'string' ? method.customer : null,
+      brand: card?.brand ?? null,
+      last4: card?.last4 ?? null,
+      expMonth: card?.expMonth ?? null,
+      expYear: card?.expYear ?? null,
+      funding: card?.funding ?? null,
+      country: card?.country ?? null,
+    };
+  }
+
+  /**
+   * Forget a card stored at a checkout.
+   *
+   * Stripe detaches a PaymentMethod from its Customer rather than deleting a
+   * token, so this is the same call the auto-pay path makes and the
+   * `providerCustomerId` is not needed. It is in the signature because
+   * Razorpay's token API does need one, and an interface that bent to whichever
+   * gateway was implemented first would not survive the second.
+   */
+  async forgetVaultedCard(_providerCustomerId: string, providerTokenId: string): Promise<void> {
+    await this.detachPaymentMethod(providerTokenId);
+  }
+
+  /**
+   * Charge a stored card with the customer watching.
+   *
+   * The on-session twin of `chargeOffSession`, and the differences are the
+   * whole point:
+   *
+   *   `off_session: false` - the cardholder is here. Stripe may therefore ask
+   *                          them to authenticate, which is an ordinary
+   *                          outcome rather than the dead end it is at 06:00
+   *                          in a worker.
+   *   `return_url`         - required even when no challenge is expected.
+   *                          Stripe refuses to begin one it cannot bring the
+   *                          customer back from.
+   *
+   * `confirm: true` means the charge is attempted in this one call, on the
+   * server. The browser never confirms a payment of its own accord; at most it
+   * answers a challenge against the client secret handed back here. Nothing
+   * about the result is believed from the browser afterwards - the webhook
+   * still is the only thing that marks an order paid.
+   */
+  async chargeSavedCardOnSession(input: OnSessionChargeInput): Promise<OnSessionChargeResult> {
+    const amount = Number(input.amountMinor);
+
+    if (!Number.isSafeInteger(amount) || amount <= 0) {
+      throw new PaymentProviderError({
+        message: `Refusing to charge an implausible amount: ${input.amountMinor.toString()}`,
+      });
+    }
+
+    const intent = await this.request<StripePaymentIntent>(
+      'POST',
+      '/payment_intents',
+      {
+        amount,
+        currency: input.currency.toLowerCase(),
+        customer: input.providerCustomerId,
+        payment_method: input.providerPaymentMethodId,
+        confirm: true,
+        off_session: false,
+        return_url: input.returnUrl,
+        description: `Order ${input.orderNumber}`,
+        metadata: {
+          uboss_order_id: input.orderId,
+          uboss_order_number: input.orderNumber,
+        },
+      },
+      input.idempotencyKey,
+    );
+
+    if (typeof intent.client_secret !== 'string' || intent.client_secret.length === 0) {
+      throw new PaymentProviderError({
+        message: 'Stripe charged the saved card but returned no client secret.',
+      });
+    }
+
+    return {
+      providerOrderId: intent.id,
+      providerPaymentId: chargeIdOf(intent),
+      status: INTENT_STATUS_MAP[intent.status] ?? 'PENDING',
+      requiresAction:
+        intent.status === 'requires_action' || intent.status === 'requires_confirmation',
+      clientSecret: intent.client_secret,
+      publishableKey: this.credentials.keyId,
+      amountMinor: BigInt(intent.amount),
+      currency: normaliseCurrency(intent.currency),
+      failureCode:
+        intent.last_payment_error?.decline_code ?? intent.last_payment_error?.code ?? null,
+      failureMessage: intent.last_payment_error?.message ?? null,
+    };
+  }
+
   async createSetupIntent(input: CreateSetupIntentInput): Promise<CreateSetupIntentResult> {
-    const customerId = await this.ensureCustomer(input);
+    // Keyed on the enrolment request, so a double-submitted form cannot mint
+    // two Customers for one person.
+    const customerId = await this.ensureCustomer(input, `${input.idempotencyKey}:customer`);
 
     const intent = await this.request<StripeSetupIntent>(
       'POST',
@@ -998,6 +1185,30 @@ export class StripeAdapter implements OffSessionProvider {
         amountMinor: BigInt(intent.amount_received ?? intent.amount),
         currency: normaliseCurrency(intent.currency),
         method: intent.payment_method_types?.[0] ?? null,
+        /*
+         * A card this payment kept for next time.
+         *
+         * `setup_future_usage` is present only because the PaymentIntent was
+         * created with it, which happens only when the customer ticked the box
+         * - so its presence here is Stripe confirming, over a signed channel,
+         * that a reusable PaymentMethod now exists. Reading the flag rather
+         * than merely the presence of `payment_method` matters: every card
+         * payment has a PaymentMethod, and vaulting them all would store cards
+         * nobody asked to store.
+         *
+         * References only. What the card looks like is read back from Stripe
+         * by the service - see `storeVaultedCardFromEvent`.
+         */
+        vaultedCard:
+          typeof intent.setup_future_usage === 'string' &&
+          intent.setup_future_usage.length > 0 &&
+          typeof intent.payment_method === 'string' &&
+          intent.payment_method.length > 0
+            ? {
+                providerTokenId: intent.payment_method,
+                providerCustomerId: typeof intent.customer === 'string' ? intent.customer : null,
+              }
+            : null,
       };
     }
 

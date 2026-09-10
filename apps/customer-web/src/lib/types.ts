@@ -701,6 +701,19 @@ export interface OrderDetail extends OrderListItem {
   cancelReason: string | null;
   shipments: OrderShipment[];
   approval: OrderApproval | null;
+  /**
+   * How the customer said they would pay, and with which of their cards.
+   *
+   * Read back by the payment page rather than carried there in navigation
+   * state, so a reload — or returning to an unpaid order from an email hours
+   * later — offers what they chose rather than starting the decision again.
+   *
+   * No gateway appears here. It is resolved from the instrument on the server
+   * and is the operator's business, not something a customer's order record
+   * has any reason to name.
+   */
+  preferredPaymentInstrument: PaymentInstrument | null;
+  preferredPaymentMethodId: string | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -734,6 +747,80 @@ export interface PaymentGateways {
   defaultProvider: PaymentProviderKind | null;
 }
 
+/**
+ * What the customer is asked to pay with.
+ *
+ * Instruments, not gateways. Nobody buying laboratory consumables knows or
+ * cares which acquirer settles the money, and asking them to choose between
+ * two of them is asking a question they have no basis for answering. Which
+ * gateway serves each of these is decided on the server and never travels
+ * here as a choice.
+ */
+export type PaymentInstrument = 'CREDIT_CARD' | 'DEBIT_CARD' | 'UPI';
+
+/** One way to pay, as offered by `GET /payments/instruments`. */
+export interface InstrumentOffer {
+  instrument: PaymentInstrument;
+  /**
+   * Whether a card paid with here can be kept for next time.
+   *
+   * False for UPI, which produces nothing to keep, and false where the gateway
+   * behind it cannot store one. The "save this card" tick is hidden rather
+   * than shown-and-ignored: an offer the server cannot honour is worse than no
+   * offer.
+   */
+  canSaveCard: boolean;
+  /**
+   * Whether a saved card can be charged from these pages.
+   *
+   * True on Stripe. False on Razorpay, whose saved cards are picked inside its
+   * own sheet - charging one named token needs a server-to-server API open
+   * only to PCI-DSS-certified merchants. Used to word what happens next, not
+   * to hide anything.
+   */
+  savedCardsChargeableHere: boolean;
+}
+
+/** What `GET /payments/instruments?currency=` returns. */
+export interface PaymentInstruments {
+  instruments: InstrumentOffer[];
+}
+
+/**
+ * A card the customer has stored, as much as anyone is allowed to know.
+ *
+ * Brand and last four and nothing else that could pay for anything. No card
+ * number reaches this application, let alone this browser - what is stored is
+ * a token held by the gateway, which is both what the RBI requires since
+ * October 2022 and what keeps every deployment out of PCI DSS scope.
+ */
+export interface SavedCard {
+  id: string;
+  provider: string;
+  brand: string | null;
+  last4: string | null;
+  expMonth: number | null;
+  expYear: number | null;
+  funding: string | null;
+  status: string;
+  isDefault: boolean;
+  /**
+   * Which heading this card appears under at a checkout. Null when the gateway
+   * would not say - a prepaid card - in which case it appears under both
+   * rather than being filed wrongly under one.
+   */
+  instrument: PaymentInstrument | null;
+  /**
+   * What its owner agreed to.
+   *
+   * `CHECKOUT` means "keep this so I need not retype it"; `OFF_SESSION` means
+   * "charge this while I am not here". Only the latter may be chosen for a
+   * scheduled order, and offering a `CHECKOUT` card there would be offering
+   * something the server is about to refuse.
+   */
+  consentScope: string;
+}
+
 /** What `POST /payments/orders/:orderId/session` returns. */
 export interface PaymentSession {
   paymentTransactionId: string;
@@ -753,6 +840,25 @@ export interface PaymentSession {
    * server, and nothing in here is worth logging.
    */
   checkoutPayload: Record<string, string | number>;
+  /** What the customer picked, echoed back so a reload shows the same thing. */
+  instrument: PaymentInstrument | null;
+  /**
+   * What this browser has to do next.
+   *
+   * Three genuinely different situations that cannot be told apart from the
+   * rest of this object:
+   *
+   *   OPEN_PROVIDER_UI   - mount the gateway's form or sheet. The ordinary
+   *                        case for a new card, for UPI, and for every
+   *                        Razorpay payment.
+   *   AUTHENTICATE       - the charge is already under way on a stored card
+   *                        and the bank wants the cardholder. Run the
+   *                        challenge against `client_secret`.
+   *   AWAIT_CONFIRMATION - it went through with no challenge. Nothing to do
+   *                        but wait for the backend, which is still the only
+   *                        thing that can say the order is paid.
+   */
+  next: 'OPEN_PROVIDER_UI' | 'AUTHENTICATE' | 'AWAIT_CONFIRMATION';
 }
 
 /** What `POST /cart/checkout` returns. */

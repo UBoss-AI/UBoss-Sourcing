@@ -13,6 +13,14 @@
  */
 import { ErrorCode, badRequest, conflict, forbidden, notFound } from '../../domain/errors.js';
 import { serialiseMoney } from '../../domain/money.js';
+import {
+  cardSuitsInstrument,
+  isCardInstrument,
+  offerableInstruments,
+  resolveInstrument,
+  type GatewayOffer,
+  type PaymentInstrument,
+} from '../../domain/payment-instrument.js';
 import { decryptSecret, encryptSecret, maskSecret } from '../../infra/crypto.js';
 import { newId } from '../../infra/ids.js';
 import { logger } from '../../infra/logger.js';
@@ -27,12 +35,19 @@ import {
 import { transitionOrder } from '../orders/order.service.js';
 import { RazorpayAdapter } from './razorpay.adapter.js';
 import { StripeAdapter } from './stripe.adapter.js';
-import { assertChargeable, markPaymentMethodExpired } from './payment-method.service.js';
+import {
+  assertChargeable,
+  markPaymentMethodExpired,
+  recordCardSavedAtCheckout,
+} from './payment-method.service.js';
 import {
   PaymentProviderError,
+  supportsCardVault,
+  supportsDirectCardCharge,
   supportsOffSession,
   modeForCredential,
   type CreatePaymentResult,
+  type DirectCardChargeProvider,
   type PaymentMethodHint,
   type PaymentProvider,
   type ProviderCredentials,
@@ -306,6 +321,117 @@ export async function availableGateways(): Promise<{
   return { gateways, defaultProvider };
 }
 
+/**
+ * What the storefront may put in front of a customer, and what it may promise
+ * about each option.
+ *
+ * The gateway is deliberately absent. A customer choosing how to pay is
+ * choosing an instrument; which acquirer settles it is the operator's business
+ * and is resolved server-side by `resolveInstrument`. Naming Razorpay or
+ * Stripe on a checkout page asks somebody to decide something they have no
+ * basis for deciding, and tells a passer-by how the shop is wired.
+ */
+export interface InstrumentOffer {
+  instrument: PaymentInstrument;
+  /**
+   * Whether a card paid with here can be kept for next time.
+   *
+   * False for UPI, which produces nothing to keep, and false where the gateway
+   * that would take the payment cannot vault a card. The storefront hides the
+   * "save this card" tick when it is false rather than offering a promise
+   * nothing downstream can honour.
+   */
+  canSaveCard: boolean;
+  /**
+   * Whether a saved card can be charged from our own pages.
+   *
+   * True on Stripe. False on Razorpay, where charging one named token needs a
+   * server-to-server API open only to PCI-DSS-certified merchants - so its
+   * saved cards are picked inside Razorpay's own sheet instead. The storefront
+   * uses this to word what happens next, rather than to hide anything.
+   */
+  savedCardsChargeableHere: boolean;
+}
+
+/**
+ * Which instruments this deployment can offer for a cart in this currency.
+ *
+ * Wraps `availableGateways` rather than replacing it: what is connected is
+ * still the same question, only answered in the customer's vocabulary. The
+ * currency comes from the cart, which is why this is asked per checkout and
+ * not cached across them.
+ */
+export async function gatewayOffers(): Promise<GatewayOffer[]> {
+  const { gateways } = await availableGateways();
+
+  return gateways.map((gateway) => ({
+    provider: gateway.provider,
+    currencies: gateway.currencies,
+    hasUpi: gateway.methods.includes('UPI'),
+    // Asserted from the adapter class rather than assumed from the gateway's
+    // name, so an adapter that later drops the capability stops being offered
+    // instead of failing at a checkout.
+    canStoreCards: CARD_VAULT_CAPABLE.has(gateway.provider),
+  }));
+}
+
+export async function availableInstruments(currency: string): Promise<{
+  instruments: InstrumentOffer[];
+}> {
+  const offers = await gatewayOffers();
+  const instruments = offerableInstruments(offers, currency);
+
+  return {
+    instruments: instruments.map((instrument) => {
+      // What this instrument would actually resolve to, so the two answers
+      // below describe the gateway that will really take the payment.
+      const usable = offers.filter(
+        (offer) =>
+          (offer.currencies === null || offer.currencies.includes(currency.toUpperCase())) &&
+          (instrument !== 'UPI' || offer.hasUpi),
+      );
+
+      const chosen = usable[0] ?? null;
+
+      return {
+        instrument,
+        canSaveCard:
+          isCardInstrument(instrument) && chosen !== null && chosen.canStoreCards,
+        savedCardsChargeableHere:
+          isCardInstrument(instrument) &&
+          chosen !== null &&
+          DIRECT_CARD_CHARGE_CAPABLE.has(chosen.provider),
+      };
+    }),
+  };
+}
+
+/**
+ * Which adapters can vault a card, and which can charge a vaulted one.
+ *
+ * Derived once from the classes themselves rather than written out as a list
+ * of provider names, so the two sets cannot drift from what the adapters
+ * actually implement. `supportsCardVault` and `supportsDirectCardCharge` are
+ * the same narrows the payment path uses.
+ */
+const CAPABILITY_PROBE_CREDENTIALS: ProviderCredentials = {
+  keyId: '',
+  keySecret: '',
+  webhookSecret: '',
+};
+
+const CARD_VAULT_CAPABLE: ReadonlySet<ProviderKind> = new Set(
+  (['RAZORPAY', 'STRIPE'] as const).filter((kind) =>
+    supportsCardVault(buildProvider(kind, CAPABILITY_PROBE_CREDENTIALS)),
+  ),
+);
+
+const DIRECT_CARD_CHARGE_CAPABLE: ReadonlySet<ProviderKind> = new Set(
+  (['RAZORPAY', 'STRIPE'] as const).filter((kind) =>
+    supportsDirectCardCharge(buildProvider(kind, CAPABILITY_PROBE_CREDENTIALS)),
+  ),
+);
+
 /** Just enough of a connection row to build an adapter from it. */
 interface CredentialRow {
   id: string;
@@ -425,7 +551,74 @@ export interface CreateOrderPaymentInput {
   preferredProvider?: ProviderKind;
   /** Which instruments to put in front of them. See `PaymentMethodHint`. */
   methodHint?: PaymentMethodHint;
+  /**
+   * What the customer chose to pay with, in their own words.
+   *
+   * Takes precedence over `preferredProvider`, which it exists to replace: an
+   * instrument is a decision the customer can actually make, and the gateway
+   * is derived from it. Absent for an order placed before instruments existed,
+   * or by an API client that names a gateway directly - both of which still
+   * work, through the older path below.
+   */
+  instrument?: PaymentInstrument;
+  /**
+   * A card of theirs to pay with, rather than a fresh one.
+   *
+   * Always re-checked against the customer here. A client naming somebody
+   * else's card must reach a refusal, not a charge.
+   */
+  savedPaymentMethodId?: string | null;
+  /**
+   * Whether to keep the card used for this payment.
+   *
+   * Only ever true because the customer ticked a box. Ignored for UPI, which
+   * produces nothing to keep, and for a payment already using a stored card.
+   */
+  saveCard?: boolean;
 }
+
+/**
+ * Where a gateway sends the customer back after an authentication challenge.
+ *
+ * Built here rather than accepted from the browser. Stripe requires one before
+ * it will begin a full-page challenge, and a client-supplied value would be an
+ * open redirect carrying a payment gateway's credibility - somebody who has
+ * just authenticated with their bank and lands on a lookalike has every reason
+ * to believe it.
+ *
+ * `CUSTOMER_WEB_PUBLIC_URL` is what this codebase already means by "where the
+ * storefront is": it addresses payment links, sign-in links and every
+ * verification email. Using it here keeps one answer to that question rather
+ * than two that will eventually disagree.
+ *
+ * `stripe_return=1` is the marker the payment page looks for. It reads nothing
+ * else off the URL - Stripe appends its own status parameters, and those come
+ * through the customer's browser, which is not a trusted reporter of whether
+ * money moved.
+ */
+function paymentReturnUrl(orderId: string): string {
+  const base = env.CUSTOMER_WEB_PUBLIC_URL.replace(/\/$/, '');
+  return `${base}/checkout/payment/${orderId}?stripe_return=1`;
+}
+
+/**
+ * What the browser has to do next.
+ *
+ * Three genuinely different situations, and the storefront cannot infer which
+ * one it is in from the rest of the response:
+ *
+ *   OPEN_PROVIDER_UI    - mount the gateway's form or sheet. The ordinary case
+ *                         for a new card, for UPI, and for every Razorpay
+ *                         payment including one using a saved card, because
+ *                         Razorpay's saved cards live inside its own sheet.
+ *   AUTHENTICATE        - the charge is already under way on a stored card and
+ *                         the bank wants the cardholder. Hand `client_secret`
+ *                         to Stripe.js and let it run the challenge.
+ *   AWAIT_CONFIRMATION  - the charge went through without one. Nothing for the
+ *                         browser to do but wait for the webhook, which is
+ *                         still the only thing that marks the order paid.
+ */
+export type PaymentNextStep = 'OPEN_PROVIDER_UI' | 'AUTHENTICATE' | 'AWAIT_CONFIRMATION';
 
 export interface CreateOrderPaymentResult {
   paymentTransactionId: string;
@@ -434,6 +627,108 @@ export interface CreateOrderPaymentResult {
   providerOrderId: string;
   amount: ReturnType<typeof serialiseMoney>;
   checkoutPayload: Record<string, string | number>;
+  /** What the customer picked, echoed back so a reload shows the same thing. */
+  instrument: PaymentInstrument | null;
+  next: PaymentNextStep;
+}
+
+/**
+ * Load a saved card and prove the customer may pay this order with it.
+ *
+ * Four separate questions, and each one is a way this could go wrong:
+ *
+ *   · Is it theirs? Scoped in the query, so somebody else's id is a not-found
+ *     rather than a leak that the card exists.
+ *   · Is it usable? A detached or expired card must not be charged.
+ *   · Is it at the gateway that is about to be used? A Stripe token means
+ *     nothing to Razorpay, and a deployment can have both connected.
+ *   · Does it match what they said they were paying with? A card filed under
+ *     Debit offered against "Pay with Credit Card" means the two screens have
+ *     drifted apart, and guessing which one is right is not this function's
+ *     job.
+ *
+ * Deliberately does NOT call `assertChargeable`: that one is about off-session
+ * authority, which is a stricter thing than this path needs and would refuse
+ * every card saved at a checkout - see its own comment.
+ */
+async function loadSavedCardForOrder(
+  paymentMethodId: string,
+  customerProfileId: string,
+  providerKind: ProviderKind,
+  instrument: PaymentInstrument | null,
+): Promise<{ id: string; providerCustomerId: string; providerPaymentMethodId: string } | null> {
+  const row = await prisma.customerPaymentMethod.findFirst({
+    where: { id: paymentMethodId, customerProfileId },
+  });
+
+  if (row === null) throw notFound('Payment method');
+
+  if (row.status !== 'ACTIVE') {
+    throw conflict(
+      ErrorCode.PAYMENT_METHOD_NOT_CHARGEABLE,
+      'That card can no longer be used. Please choose another, or enter a new one.',
+      [{ code: 'METHOD_STATUS', meta: { status: row.status } }],
+    );
+  }
+
+  if (row.provider !== providerKind) {
+    throw conflict(
+      ErrorCode.PAYMENT_METHOD_NOT_CHARGEABLE,
+      'That card was saved with a payment provider this store no longer uses. ' +
+        'Please enter the card again.',
+    );
+  }
+
+  if (instrument !== null && !cardSuitsInstrument(row.funding, instrument)) {
+    throw badRequest(
+      ErrorCode.PAYMENT_METHOD_NOT_CHARGEABLE,
+      instrument === 'CREDIT_CARD'
+        ? 'That is a debit card. Choose "Pay with Debit Card", or pick another card.'
+        : 'That is a credit card. Choose "Pay with Credit Card", or pick another card.',
+      [{ field: 'savedPaymentMethodId', code: 'FUNDING_MISMATCH' }],
+    );
+  }
+
+  return {
+    id: row.id,
+    providerCustomerId: row.providerCustomerId,
+    providerPaymentMethodId: row.providerPaymentMethodId,
+  };
+}
+
+/**
+ * Find or make the customer's record at the gateway.
+ *
+ * Swallows failures on purpose. Being unable to create a gateway customer
+ * costs the customer the option of saving their card; letting it throw would
+ * cost them the ability to buy anything, which is a wildly disproportionate
+ * response to a convenience feature being unavailable.
+ */
+async function ensureVaultCustomerFor(
+  provider: PaymentProvider,
+  order: {
+    customerProfileId: string;
+    customerProfile: { fullName: string; phone: string | null; user: { email: string } };
+  },
+  existingProviderCustomerId: string | null,
+): Promise<string | null> {
+  if (!supportsCardVault(provider)) return null;
+
+  try {
+    return await provider.ensureVaultCustomer({
+      providerCustomerId: existingProviderCustomerId,
+      customerEmail: order.customerProfile.user.email,
+      customerName: order.customerProfile.fullName,
+      customerPhone: order.customerProfile.phone,
+      customerProfileId: order.customerProfileId,
+    });
+  } catch (error) {
+    logger.warn(
+      { err: error, provider: provider.kind },
+      'could not prepare a gateway customer record; the card cannot be saved this time',
+    );
+    return null;
+  }
 }
 
 /**
@@ -481,7 +776,58 @@ export async function createOrderPayment(
   const preferredProvider = input.preferredProvider ?? order.preferredPaymentProvider ?? undefined;
   const preferredMethod = input.methodHint ?? order.preferredPaymentMethod ?? undefined;
 
-  const { provider, connectionId } = await loadActiveProvider(preferredProvider);
+  /**
+   * The instrument, which is what the customer actually chose.
+   *
+   * Same precedence as the pair above and for the same reason: the request may
+   * override, so a customer whose card was declined can come back and pick
+   * differently, but silence means "what this order already says".
+   */
+  const instrument: PaymentInstrument | null =
+    input.instrument ?? order.preferredPaymentInstrument ?? null;
+
+  /**
+   * Resolve the gateway from the instrument, where there is one.
+   *
+   * Two paths on purpose, not one with a default. An order that expressed an
+   * instrument is resolved by `resolveInstrument`, which refuses rather than
+   * substituting - a customer who chose UPI and is silently handed a card form
+   * has been told something untrue. An order that expressed none is an older
+   * order or an API client naming a gateway directly, and keeps exactly the
+   * behaviour it had before instruments existed.
+   */
+  const resolved =
+    instrument === null
+      ? null
+      : resolveInstrument(
+          instrument,
+          order.currency,
+          await gatewayOffers(),
+          preferredProvider ?? (await availableGateways()).defaultProvider,
+        );
+
+  const { provider, connectionId } = await loadActiveProvider(
+    resolved?.provider ?? preferredProvider,
+  );
+
+  /*
+   * The gateway that answered may not be the one the instrument needs.
+   *
+   * `loadActiveProvider` treats its argument as a preference and will hand
+   * back something else rather than fail. That is right for a gateway
+   * preference and wrong for an instrument: nothing but Razorpay can settle a
+   * UPI payment, so a UPI order that resolved onto Stripe must be refused here
+   * rather than opened on a card form the customer did not ask for.
+   */
+  if (resolved !== null && provider.kind !== resolved.provider) {
+    throw badRequest(
+      ErrorCode.PAYMENT_INSTRUMENT_UNAVAILABLE,
+      instrument === 'UPI'
+        ? 'UPI is no longer available for this order. Please pay by card instead.'
+        : 'That way of paying is no longer available for this order.',
+      [{ field: 'instrument', code: 'INSTRUMENT_UNAVAILABLE', meta: { instrument } }],
+    );
+  }
 
   /**
    * A hint the resolved gateway can actually act on.
@@ -493,7 +839,48 @@ export async function createOrderPayment(
    * dropped with the gateway it belonged to.
    */
   const methodHint: PaymentMethodHint =
-    preferredMethod === 'UPI' && provider.kind === 'RAZORPAY' ? 'UPI' : 'ANY';
+    (resolved?.methodHint ?? preferredMethod) === 'UPI' && provider.kind === 'RAZORPAY'
+      ? 'UPI'
+      : 'ANY';
+
+  /**
+   * The card the customer picked, if they picked one of theirs.
+   *
+   * Loaded scoped to this customer, so a client naming somebody else's card id
+   * gets a not-found rather than a charge. Every other check on it lives in
+   * `assertSavedCardUsable`.
+   */
+  const savedCard =
+    input.savedPaymentMethodId === null || input.savedPaymentMethodId === undefined
+      ? null
+      : await loadSavedCardForOrder(
+          input.savedPaymentMethodId,
+          order.customerProfileId,
+          provider.kind,
+          instrument,
+        );
+
+  /**
+   * The customer's record at the gateway, when this payment needs one.
+   *
+   * Needed to store a card, and needed on Razorpay to show the customer the
+   * cards they have already stored. Reused from a card of theirs when one
+   * exists, so a second card joins the first rather than starting a parallel
+   * record nothing joins back together.
+   *
+   * Best-effort: a gateway that will not create a customer record must not
+   * stop the customer paying. They lose the option to save the card, which is
+   * a convenience, not the purchase.
+   */
+  const wantsVault =
+    instrument !== null &&
+    isCardInstrument(instrument) &&
+    (input.saveCard === true || savedCard !== null);
+
+  const providerCustomerId =
+    wantsVault && supportsCardVault(provider)
+      ? await ensureVaultCustomerFor(provider, order, savedCard?.providerCustomerId ?? null)
+      : null;
 
   /**
    * An earlier attempt with this same key.
@@ -536,6 +923,11 @@ export async function createOrderPayment(
         customerName: order.customerProfile.fullName,
         customerPhone: order.customerProfile.phone,
         methodHint,
+        // Part of the replayed payload for the same reason `methodHint` is: a
+        // retry that dropped these would reopen the same payment with the
+        // customer's saved cards missing from the sheet.
+        providerCustomerId,
+        saveCard: input.saveCard === true,
       });
     } catch (error) {
       if (error instanceof PaymentProviderError) {
@@ -555,7 +947,53 @@ export async function createOrderPayment(
       providerOrderId: existing.providerOrderId ?? '',
       amount: serialiseMoney(existing.amountMinor, existing.currency),
       checkoutPayload: replayPayload,
+      instrument,
+      /*
+       * A replay resumes what the first attempt started.
+       *
+       * For a charge already made against a stored card, that is the
+       * authentication step - not a card form. Stripe's replayed payload
+       * carries the same client secret, so the browser either finishes the
+       * challenge the customer walked away from or, if the payment has since
+       * succeeded, finds nothing left to do and falls straight into the wait.
+       * Reopening the Payment Element on an intent that already has a payment
+       * method attached would ask them to enter a card they have paid with.
+       *
+       * Everything else reopens the gateway's own UI, which is where it was.
+       */
+      next:
+        savedCard !== null && supportsDirectCardCharge(provider)
+          ? 'AUTHENTICATE'
+          : 'OPEN_PROVIDER_UI',
     };
+  }
+
+  /*
+   * A stored card that this gateway can charge directly.
+   *
+   * Stripe only. The card is charged here, on the server, in one call - the
+   * browser is never asked to confirm a payment of its own accord, and at most
+   * answers an authentication challenge against the client secret handed back.
+   *
+   * Razorpay falls past this into the ordinary sheet below, carrying
+   * `providerCustomerId` so the customer's saved cards are waiting for them
+   * inside it. That is not a shortcut: charging one named Razorpay token needs
+   * its server-to-server API, which is open only to PCI-DSS-certified
+   * merchants, and no deployment of this software is one.
+   */
+  if (savedCard !== null && supportsDirectCardCharge(provider)) {
+    return chargeSavedCardForOrder({
+      provider,
+      connectionId,
+      order,
+      outstanding,
+      savedCard,
+      instrument,
+      idempotencyKey: input.idempotencyKey,
+      returnUrl: paymentReturnUrl(order.id),
+      actorUserId: input.actorUserId,
+      correlationId: input.correlationId ?? null,
+    });
   }
 
   let created: CreatePaymentResult;
@@ -569,6 +1007,8 @@ export async function createOrderPayment(
       customerName: order.customerProfile.fullName,
       customerPhone: order.customerProfile.phone,
       methodHint,
+      providerCustomerId,
+      saveCard: input.saveCard === true,
       idempotencyKey: input.idempotencyKey,
     });
   } catch (error) {
@@ -624,7 +1064,181 @@ export async function createOrderPayment(
     providerOrderId: created.providerOrderId,
     amount: serialiseMoney(outstanding, order.currency),
     checkoutPayload: created.checkoutPayload,
+    instrument,
+    next: 'OPEN_PROVIDER_UI',
   };
+}
+
+/**
+ * Charge a card the customer has already stored, with them watching.
+ *
+ * Split out of `createOrderPayment` because it is a genuinely different act:
+ * the money is attempted in this one call rather than in a sheet the customer
+ * drives, so the transaction row is written from a result that already exists
+ * instead of from an intent that has yet to be confirmed.
+ *
+ * Three things it holds to, all of which match the surrounding module:
+ *
+ *   1. **The row is written whatever the outcome.** A declined charge still
+ *      produced a payment at the gateway, and the idempotency key has been
+ *      spent. Without a row, a retry would collide on the unique index with
+ *      nothing to replay.
+ *
+ *   2. **`CREATED` is the status, not `CAPTURED`.** Even a charge Stripe says
+ *      succeeded is not applied here. It is applied by the webhook, through
+ *      the same guarded path every other payment goes through, so this module
+ *      keeps exactly one place that turns money into a CONFIRMED order.
+ *
+ *   3. **Authentication required is not a failure.** The cardholder is here
+ *      and can answer. It comes back as `AUTHENTICATE` with the client secret
+ *      the browser needs, and the order stays payable.
+ */
+async function chargeSavedCardForOrder(params: {
+  provider: DirectCardChargeProvider;
+  connectionId: string;
+  order: {
+    id: string;
+    orderNumber: string;
+    currency: string;
+  };
+  outstanding: bigint;
+  savedCard: { id: string; providerCustomerId: string; providerPaymentMethodId: string };
+  instrument: PaymentInstrument | null;
+  idempotencyKey: string;
+  returnUrl: string;
+  actorUserId: string | null;
+  correlationId: string | null;
+}): Promise<CreateOrderPaymentResult> {
+  const { provider, order, savedCard } = params;
+
+  let charge;
+  try {
+    charge = await provider.chargeSavedCardOnSession({
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      amountMinor: params.outstanding,
+      currency: order.currency,
+      providerCustomerId: savedCard.providerCustomerId,
+      providerPaymentMethodId: savedCard.providerPaymentMethodId,
+      returnUrl: paymentReturnUrl(order.id),
+      idempotencyKey: params.idempotencyKey,
+    });
+  } catch (error) {
+    if (error instanceof PaymentProviderError) {
+      // A declined card reaches the customer as the gateway's own sentence,
+      // which explains it better than anything this file could write.
+      throw badRequest(ErrorCode.PAYMENT_PROVIDER_ERROR, error.message, [
+        { code: error.providerCode ?? 'PROVIDER_ERROR', field: 'payment' },
+      ]);
+    }
+    throw error;
+  }
+
+  const transactionId = newId();
+
+  await prisma.paymentTransaction.create({
+    data: {
+      id: transactionId,
+      orderId: order.id,
+      connectionId: params.connectionId,
+      provider: provider.kind,
+      mode: provider.mode,
+      providerOrderId: charge.providerOrderId,
+      // See point 2. The webhook applies the capture.
+      status: 'CREATED',
+      amountMinor: params.outstanding,
+      currency: order.currency,
+      idempotencyKey: params.idempotencyKey,
+    },
+  });
+
+  await recordAudit({
+    action: AuditAction.PAYMENT_CREATED,
+    resourceType: 'payment',
+    resourceId: transactionId,
+    actorType: 'CUSTOMER',
+    actorUserId: params.actorUserId,
+    after: {
+      orderId: order.id,
+      providerOrderId: charge.providerOrderId,
+      amountMinor: params.outstanding,
+      provider: provider.kind,
+      mode: provider.mode,
+      // Recorded because "which stored card" is the first question asked of a
+      // disputed charge, and the token itself is never written to a log.
+      paymentMethodId: savedCard.id,
+      requiresAction: charge.requiresAction,
+    },
+    correlationId: params.correlationId,
+  });
+
+  return {
+    paymentTransactionId: transactionId,
+    provider: provider.kind,
+    mode: provider.mode,
+    providerOrderId: charge.providerOrderId,
+    amount: serialiseMoney(params.outstanding, order.currency),
+    // The publishable key and the client secret, and nothing else. The secret
+    // key never leaves this process, and the client secret authorises
+    // finishing this one payment.
+    checkoutPayload: {
+      key: charge.publishableKey,
+      client_secret: charge.clientSecret ?? '',
+    },
+    instrument: params.instrument,
+    next: charge.requiresAction ? 'AUTHENTICATE' : 'AWAIT_CONFIRMATION',
+  };
+}
+
+/**
+ * Store a card a captured payment tokenised.
+ *
+ * The webhook carries references only. What the card looks like is read back
+ * from the gateway here, which is the same rule enrolment follows: the
+ * provider is the authority on what it stored, and a display field taken from
+ * an event body is a second source that will eventually disagree with the
+ * first.
+ *
+ * Every failure is swallowed. The caller is inside the path that confirms an
+ * order, and nothing about a convenience feature may put that at risk.
+ */
+async function storeVaultedCardFromEvent(
+  providerKind: ProviderKind,
+  customerProfileId: string,
+  vaulted: { providerTokenId: string; providerCustomerId: string | null },
+): Promise<void> {
+  const loaded = await loadActiveProvider(providerKind);
+
+  if (loaded.kind !== providerKind || !supportsCardVault(loaded.provider)) {
+    logger.warn(
+      { provider: providerKind },
+      'a payment tokenised a card but its gateway can no longer be asked about it',
+    );
+    return;
+  }
+
+  const details = await loaded.provider.fetchVaultedCard(
+    vaulted.providerCustomerId ?? '',
+    vaulted.providerTokenId,
+  );
+
+  if (details === null) {
+    // The gateway does not have it. Nothing to store, and nothing wrong: a
+    // customer can delete a card in the gateway's own portal between paying
+    // and this webhook arriving.
+    return;
+  }
+
+  await recordCardSavedAtCheckout({
+    customerProfileId,
+    provider: providerKind,
+    card: {
+      ...details,
+      // The event's customer id wins where the gateway did not echo one back:
+      // it came from the payment that actually created the token.
+      providerCustomerId: details.providerCustomerId ?? vaulted.providerCustomerId,
+    },
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -1238,6 +1852,31 @@ async function applyEvent(
       },
       correlationId: correlationId ?? null,
     });
+
+    // --- 4b. The card the customer asked to keep --------------------------
+    //
+    // Reached only when the gateway reports having tokenised one, which it
+    // does only when the customer ticked the box and completed whatever
+    // additional confirmation its own rules require. The browser said nothing
+    // about this; a signature-verified capture did.
+    //
+    // Placed after the money is applied and deliberately unable to affect it.
+    // A card that fails to store costs the customer a retype at their next
+    // order; a throw here would cost them a confirmed order they have already
+    // paid for. `storeVaultedCardFromEvent` swallows its own failures for the
+    // same reason, and this `catch` is the second belt.
+    if (event.vaultedCard !== null && event.vaultedCard !== undefined) {
+      await storeVaultedCardFromEvent(
+        transaction.provider,
+        order.customerProfileId,
+        event.vaultedCard,
+      ).catch((error: unknown) => {
+        logger.error(
+          { err: error, orderId: order.id },
+          'could not store the card a customer saved while paying',
+        );
+      });
+    }
 
     // --- 5. Everything that follows a confirmed payment -------------------
     //

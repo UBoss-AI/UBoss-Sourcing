@@ -89,6 +89,22 @@ export interface StripeJs {
     confirmParams?: { return_url?: string; payment_method_data?: Record<string, unknown> };
     redirect?: 'if_required' | 'always';
   }) => Promise<StripeSetupResult>;
+  /**
+   * Answer an authentication challenge on a payment the SERVER has already
+   * confirmed.
+   *
+   * The one Stripe call this application makes that does not confirm anything.
+   * When a customer pays with a card they saved earlier, the backend creates
+   * and confirms the PaymentIntent in a single server-side call - the browser
+   * is never handed the job of deciding that a payment should happen. If the
+   * bank then wants the cardholder, this runs that challenge and nothing else.
+   *
+   * So there is no `elements` here and no confirm parameters: there is no form
+   * to read and no decision to make. It takes a client secret, shows whatever
+   * the issuer asks for, and reports how it ended - and even that report is
+   * not believed. The order becomes paid when the webhook says so.
+   */
+  handleNextAction: (options: { clientSecret: string }) => Promise<StripeConfirmResult>;
 }
 
 type StripeConstructor = (publishableKey: string, options?: Record<string, unknown>) => StripeJs;

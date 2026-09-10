@@ -14,6 +14,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { ErrorCode, badRequest, notFound } from '../../domain/errors.js';
+import { PaymentInstrumentValues } from '../../domain/payment-instrument.js';
 import { Permission } from '../../domain/permissions.js';
 import { logger } from '../../infra/logger.js';
 import { prisma } from '../../infra/prisma.js';
@@ -25,6 +26,7 @@ import {
 } from '../../modules/payments/payment-link.service.js';
 import {
   availableGateways,
+  availableInstruments,
   createOrderPayment,
   getPaymentStatusForOrder,
   loadActiveProvider,
@@ -156,6 +158,30 @@ export function registerPaymentRoutes(app: FastifyInstance): Promise<void> {
     return reply.status(200).send(await availableGateways());
   });
 
+  /**
+   * How the customer may pay, in the words they will be shown.
+   *
+   * Replaces `/gateways` for the storefront. It answers with instruments -
+   * Credit Card, Debit Card, UPI - and never names Razorpay or Stripe, because
+   * which acquirer settles a payment is the operator's business and a customer
+   * asked to choose between two of them has no basis for preferring either.
+   *
+   * `/gateways` is kept for the admin console and for API clients written
+   * before this existed. Both endpoints read the same connected-gateway state,
+   * so they cannot disagree about what is available.
+   *
+   * The currency is required and comes from the cart: a gateway that cannot
+   * settle it must not be counted, and this endpoint is asked once per
+   * checkout rather than cached across carts.
+   */
+  app.get('/instruments', { preHandler: requireCustomer }, async (request, reply) => {
+    const { currency } = z
+      .object({ currency: z.string().trim().length(3).toUpperCase() })
+      .parse(request.query);
+
+    return reply.status(200).send(await availableInstruments(currency));
+  });
+
   app.post(
     '/orders/:orderId/session',
     {
@@ -187,6 +213,37 @@ export function registerPaymentRoutes(app: FastifyInstance): Promise<void> {
         .object({
           provider: z.enum(['RAZORPAY', 'STRIPE']).optional(),
           method: z.enum(['ANY', 'UPI']).optional(),
+          /**
+           * What the customer chose to pay with. Supersedes `provider`, which
+           * is kept only for clients written before instruments existed.
+           */
+          instrument: z.enum(PaymentInstrumentValues).optional(),
+          /** One of their own saved cards, rather than a fresh one. */
+          savedPaymentMethodId: z.string().length(26).optional(),
+          /**
+           * Whether to keep the card afterwards.
+           *
+           * Sent only when the customer ticked the box, and never defaulted
+           * true: storing a payment credential needs their agreement, and a
+           * default is not one.
+           */
+          saveCard: z.boolean().optional(),
+          /*
+           * There is deliberately no `returnUrl` here.
+           *
+           * A gateway needs somewhere to send the customer back to after a
+           * full-page authentication challenge, and the obvious thing is to
+           * let the browser say where it is. That would be an open redirect
+           * with a payment gateway's credibility behind it - somebody who has
+           * just authenticated with their bank and lands on a lookalike has
+           * every reason to believe it.
+           *
+           * Policing the value was the first attempt and it was worse than
+           * useless: it added a check that could be got wrong, and it broke
+           * every deployment reached by an origin other than the configured
+           * one. The server already knows where its storefront is, so it
+           * builds the address itself and the browser is not consulted.
+           */
         })
         .default({})
         .parse(request.body ?? {});
@@ -199,6 +256,11 @@ export function registerPaymentRoutes(app: FastifyInstance): Promise<void> {
         correlationId: request.correlationId,
         ...(choice.provider === undefined ? {} : { preferredProvider: choice.provider }),
         ...(choice.method === undefined ? {} : { methodHint: choice.method }),
+        ...(choice.instrument === undefined ? {} : { instrument: choice.instrument }),
+        ...(choice.savedPaymentMethodId === undefined
+          ? {}
+          : { savedPaymentMethodId: choice.savedPaymentMethodId }),
+        ...(choice.saveCard === undefined ? {} : { saveCard: choice.saveCard }),
       });
 
       return reply.status(201).send(result);
