@@ -21,3 +21,13 @@ PROJECT-GUIDE.hinglish.md
 # removed again.
 output/
 .ppt-build/
+
+# The generated screen-flow poster. Built from the screenshots under output/
+# by scripts/build-live-screenshot-flow-ppt.mjs, so it is an artifact of a
+# script that is committed rather than a document anybody edits — 12 MB of it,
+# rebuilt every time the screens change.
+#
+# Named rather than `*.pptx`, deliberately: the hand-made decks in this
+# repository are tracked, and a blanket pattern would quietly keep the next
+# one out of a commit somebody meant to make.
+UBOSS_Sourcing_Screen_Flow_Poster_2026.pptx
