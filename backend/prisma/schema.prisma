@@ -2290,20 +2290,20 @@ model CustomerPaymentMethod {
 
   /// Stripe's Customer id (cus_...). One per customer per provider, reused
   /// across every plan they authorise.
-  providerCustomerId String @db.VarChar(128)
+  providerCustomerId      String  @db.VarChar(128)
   /// Stripe's PaymentMethod id (pm_...). The thing actually charged.
-  providerPaymentMethodId String @db.VarChar(128)
+  providerPaymentMethodId String  @db.VarChar(128)
   /// The SetupIntent that produced it, kept for reconciliation with Stripe.
-  setupIntentId String? @db.VarChar(128)
+  setupIntentId           String? @db.VarChar(128)
 
   /// --- Display only. Stripe returns these; none of them can pay for anything.
-  brand     String? @db.VarChar(32)
-  last4     String? @db.VarChar(4)
-  expMonth  Int?
-  expYear   Int?
-  funding   String? @db.VarChar(16)
+  brand    String? @db.VarChar(32)
+  last4    String? @db.VarChar(4)
+  expMonth Int?
+  expYear  Int?
+  funding  String? @db.VarChar(16)
   /// The card's issuing country, which is what some tax and SCA rules turn on.
-  country   String? @db.Char(2)
+  country  String? @db.Char(2)
 
   status StoredPaymentMethodStatus @default(ACTIVE)
 
@@ -2354,8 +2354,8 @@ model CustomerPaymentMethod {
 /// `orderId` is unique. That is the structural reason a retry cannot create a
 /// second ERP order, and it does not depend on the retry code being careful.
 model ErpOrderPush {
-  id      String @id @db.Char(26)
-  orderId String @unique(map: "uq_erp_push_order") @db.Char(26)
+  id           String  @id @db.Char(26)
+  orderId      String  @unique(map: "uq_erp_push_order") @db.Char(26)
   /// The occurrence that caused it, when a schedule did. NULL for an ordinary
   /// checkout pushed to the ERP.
   occurrenceId String? @unique(map: "uq_erp_push_occurrence") @db.Char(26)
@@ -4343,13 +4343,13 @@ model ErpConnection {
 
   /// Who set it up. Kept for the trail: these rows record somebody pointing
   /// this server at an outbound address and giving it a credential.
-  createdById String?  @db.Char(26)
-  createdAt   DateTime @default(now()) @db.DateTime(3)
-  updatedAt   DateTime @updatedAt @db.DateTime(3)
+  createdById String?   @db.Char(26)
+  createdAt   DateTime  @default(now()) @db.DateTime(3)
+  updatedAt   DateTime  @updatedAt @db.DateTime(3)
   /// Soft delete. A connection with integration events behind it is retired
   /// rather than removed, so the ledger still explains what became of an order
   /// that went through it.
-  deletedAt DateTime? @db.DateTime(3)
+  deletedAt   DateTime? @db.DateTime(3)
 
   syncRuns          ErpInventorySyncRun[]
   snapshots         ErpInventorySnapshot[]
@@ -4412,13 +4412,13 @@ model ErpSyncRecordError {
   syncRunId String @db.Char(26)
 
   /// The SKU or external id the record claimed to be about, when it had one.
-  externalRef String? @db.VarChar(191)
-  field       String? @db.VarChar(128)
-  errorCode   String  @db.VarChar(64)
+  externalRef  String? @db.VarChar(191)
+  field        String? @db.VarChar(128)
+  errorCode    String  @db.VarChar(64)
   /// Already safe for display. Redaction happens before the write, not before
   /// the read - a value reaching this column has been through
   /// `safeErrorMessage`.
-  errorMessage String @db.VarChar(1024)
+  errorMessage String  @db.VarChar(1024)
 
   createdAt DateTime @default(now()) @db.DateTime(3)
 
@@ -4526,7 +4526,7 @@ model ErpInventorySnapshot {
 /// duplicate webhook or a re-run job cannot produce a second ERP order: the
 /// insert collides, instead of the code being careful.
 model IntegrationEvent {
-  id String @id @db.Char(26)
+  id           String  @id @db.Char(26)
   /// Nullable so the row outlives a deleted connection.
   connectionId String? @db.Char(26)
 
@@ -4674,19 +4674,16 @@ model CustomerAutoPaySetting {
 
 /**
  * A line somebody has kept without buying it.
- *
  * The whole model, deliberately: a link to a person, a link to a product, and
  * when. No quantity, no note, no ordering column. A wishlist that carries a
  * quantity is a second basket with none of a basket's rules — no minimum, no
  * increment, no stock reservation, no price — and the moment one exists
  * somebody will try to check it out.
- *
  * `variantKey` is the same device the cart and the schedule items use, and for
  * the same MariaDB reason recorded in this file's header: a UNIQUE index here
  * treats every NULL as distinct, so a nullable `variantId` inside the
  * composite unique would NOT stop the same variant being saved twice. The key
  * is the variant ULID, or `''` for the base product, and is never null.
- *
  * There is no `variant` relation and that is not an omission. A variant can be
  * deleted while a wishlist row still names it, and the alternative — a foreign
  * key with ON DELETE RESTRICT — would make somebody else's saved item a reason
