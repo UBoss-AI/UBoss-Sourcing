@@ -754,7 +754,10 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                         }}
                       />
                     </span>
-                    deliveries
+                    {t('scheduleCart.deliveries', {
+                      count: maxOccurrences,
+                      quantity: formatNumber(maxOccurrences),
+                    })}
                   </label>
                 </div>
               </fieldset>
@@ -989,14 +992,19 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                       ? endDate === ''
                         ? t('scheduleBuilder.chooseADate')
                         : endDate
-                      : `After ${formatNumber(maxOccurrences)} deliveries`}
+                      : t('scheduleDetail.afterNDeliveries', {
+                          count: maxOccurrences,
+                          deliveries: formatNumber(maxOccurrences),
+                        })}
                 </dd>
               </div>
               <div className="flex justify-between gap-3">
                 <dt className="text-ink-muted">{t('scheduleBuilder.items')}</dt>
                 <dd className="text-right text-ink">
-                  {formatNumber(items.length)} product
-                  {items.length === 1 ? '' : 's'}
+                  {t('catalog.productCount', {
+                    count: items.length,
+                    products: formatNumber(items.length),
+                  })}
                 </dd>
               </div>
             </dl>
