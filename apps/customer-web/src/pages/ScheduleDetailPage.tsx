@@ -17,10 +17,22 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
 import { useToast } from '@/components/toast-context';
 import { Modal } from '@/components/Modal';
-import { Badge, Button, ErrorState, Field, LoadingState, Textarea } from '@/components/ui';
+import {
+  Badge,
+  Button,
+  ButtonLink,
+  ErrorState,
+  Field,
+  LoadingState,
+  Textarea,
+} from '@/components/ui';
 import { api } from '@/lib/api';
 import { formatDateTime, formatNumber, humanise } from '@/lib/format';
-import { scheduleStatusLabel, scheduleStatusTone } from '@/lib/order-status';
+import {
+  occurrenceStatusTone,
+  scheduleStatusLabel,
+  scheduleStatusTone,
+} from '@/lib/order-status';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { Schedule } from '@/lib/types';
 import { translateKey, useI18n } from '@/i18n/i18n-context';
@@ -341,18 +353,18 @@ export function ScheduleDetailPage(): React.JSX.Element {
                     className="flex flex-wrap items-center gap-x-3 gap-y-1 px-5 py-3 text-sm"
                   >
                     <span className="whitespace-nowrap text-xs text-ink-subtle">
-                      {formatDateTime(occurrence.scheduledFor)}
+                      {/* `plannedRunAt`, which is what the API sends. This read
+                          `scheduledFor` — a field no response has ever carried
+                          — so every date in this list rendered as an invalid
+                          one. */}
+                      {formatDateTime(occurrence.plannedRunAt)}
                     </span>
 
-                    <Badge
-                      tone={
-                        occurrence.status === 'SUCCEEDED'
-                          ? 'success'
-                          : occurrence.status === 'FAILED'
-                            ? 'danger'
-                            : 'neutral'
-                      }
-                    >
+                    {/* The shared tone table, rather than a local guess at
+                        which statuses exist. The guess it replaced tested for
+                        `SUCCEEDED`, which is not one of them, so a completed
+                        delivery wore the same grey chip as a skipped one. */}
+                    <Badge tone={occurrenceStatusTone(occurrence.status)}>
                       {humanise(occurrence.status)}
                     </Badge>
 
@@ -365,8 +377,17 @@ export function ScheduleDetailPage(): React.JSX.Element {
                       </Link>
                     )}
 
-                    {occurrence.failureReason !== null && (
-                      <span className="w-full text-xs text-danger">{occurrence.failureReason}</span>
+                    {occurrence.failureMessage !== null && (
+                      <span className="w-full text-xs text-danger">
+                        {occurrence.failureMessage}
+                      </span>
+                    )}
+
+                    {/* A skip is not a failure and gets its own line in its
+                        own colour: the plan carried on, and the customer is
+                        owed the reason rather than a bare grey chip. */}
+                    {occurrence.failureMessage === null && occurrence.skipReason !== null && (
+                      <span className="w-full text-xs text-ink-muted">{occurrence.skipReason}</span>
                     )}
                   </li>
                 ))}
@@ -381,6 +402,21 @@ export function ScheduleDetailPage(): React.JSX.Element {
             <h2 className="text-title-sm text-ink">{t('scheduleDetail.manage')}</h2>
 
             <div className="mt-3 space-y-2">
+              {/* Where the products, the quantities and the cadence are
+                  actually changed. This page explains a standing order and
+                  can stop or pause it; Schedule Cart is where it is edited,
+                  and pointing at it here is how somebody who came looking for
+                  "change what is delivered" finds it. */}
+              {schedule.status !== 'CANCELLED' && schedule.status !== 'COMPLETED' && (
+                <ButtonLink
+                  to={`/accounts/schedule?id=${schedule.id}`}
+                  variant="primary"
+                  fullWidth
+                >
+                  {t('scheduleDetail.changeWhatIsDelivered')}
+                </ButtonLink>
+              )}
+
               {schedule.status === 'ACTIVE' && (
                 <Button
                   fullWidth

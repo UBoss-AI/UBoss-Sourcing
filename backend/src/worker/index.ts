@@ -162,6 +162,16 @@ async function maintenance(): Promise<void> {
 
     await queue.enqueue(JobType.RESERVATION_SWEEP, {}, { dedupeKey: `reservation_sweep:${slot}` });
 
+    // Delivery offers nobody accepted. The same beat as the reservation sweep
+    // and for a related reason - both hold a claim on stock that has stopped
+    // meaning anything - and like it, a pass with nothing to do is one
+    // indexed delete that matches no rows.
+    await queue.enqueue(
+      JobType.FULFILMENT_QUOTE_SWEEP,
+      {},
+      { dedupeKey: `fulfilment_quote_sweep:${slot}` },
+    );
+
     // The recurring engine's heartbeat. Claiming is idempotent and a tick with
     // nothing due costs one indexed query, so a steady beat is cheaper than
     // trying to be clever about when to look.
@@ -200,6 +210,31 @@ async function maintenance(): Promise<void> {
       JobType.INTEGRATION_EVENT_RETRY,
       {},
       { dedupeKey: `integration_event_retry:${slot}` },
+    );
+
+    // The outbox for BUYERS' own ERPs. Separate from every ERP_* job above,
+    // which serve the operator's warehouse system: these call systems that
+    // customers run, and the two must not share a failure or a retry budget.
+    // Every row carries its own idempotency key, so a pass can never produce a
+    // second purchase order.
+    await queue.enqueue(
+      JobType.CUSTOMER_ERP_DISPATCH,
+      {},
+      { dedupeKey: `customer_erp_dispatch:${slot}` },
+    );
+
+    // Stock from a buyer's ERP, where it has no webhooks to push with.
+    await queue.enqueue(
+      JobType.CUSTOMER_ERP_POLL,
+      {},
+      { dedupeKey: `customer_erp_poll:${slot}` },
+    );
+
+    // Expired leases, undecided approvals and abandoned OAuth flows.
+    await queue.enqueue(
+      JobType.CUSTOMER_ERP_MAINTENANCE,
+      {},
+      { dedupeKey: `customer_erp_maintenance:${slot}` },
     );
 
     // Cycles that failed before any money moved. Each carries its own retry

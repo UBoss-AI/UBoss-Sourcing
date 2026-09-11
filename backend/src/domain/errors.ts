@@ -146,6 +146,42 @@ export const ErrorCode = {
   ADDRESS_REQUIRED: 'ADDRESS_REQUIRED',
   SHIPPING_METHOD_UNAVAILABLE: 'SHIPPING_METHOD_UNAVAILABLE',
 
+  // --- Fulfilment options ---
+  //
+  // Six codes rather than one, because every one of them has a different next
+  // step for the buyer and a checkout that collapsed them into "something went
+  // wrong" would leave a person re-clicking Pay at a problem only somebody
+  // else can fix.
+
+  /// No warehouse published a lane to this destination for this basket.
+  /// Not an outage and not a rejection of the request - it is the honest
+  /// answer, and the storefront says so and offers the configured shipping
+  /// method instead where there is one.
+  FULFILMENT_NO_ELIGIBLE_WAREHOUSE: 'FULFILMENT_NO_ELIGIBLE_WAREHOUSE',
+  /// The quote lapsed. Nothing is wrong with it except its age; the
+  /// storefront re-asks and shows the options again. Never repriced silently:
+  /// a total the customer never saw is the one thing a checkout may not
+  /// charge.
+  FULFILMENT_QUOTE_EXPIRED: 'FULFILMENT_QUOTE_EXPIRED',
+  /// The quote does not belong to this customer, does not exist, or was taken
+  /// against a country rather than an address. Deliberately one code for all
+  /// three: distinguishing "not yours" from "not there" would make this an
+  /// oracle for other people's quote ids.
+  FULFILMENT_QUOTE_INVALID: 'FULFILMENT_QUOTE_INVALID',
+  /// The basket changed after the quote was taken - a line added in another
+  /// tab, a quantity edited, a coupon applied. The offer was for a different
+  /// basket, so it is refused rather than stretched to cover this one.
+  FULFILMENT_QUOTE_STALE: 'FULFILMENT_QUOTE_STALE',
+  /// The warehouse went into maintenance, was retired, or had its lane to
+  /// this destination closed between the quote and the payment. The customer
+  /// picks again; nothing is switched under them.
+  FULFILMENT_WAREHOUSE_UNAVAILABLE: 'FULFILMENT_WAREHOUSE_UNAVAILABLE',
+  /// Somebody else bought it first. The detail names the lines that are short
+  /// and by how much, because "out of stock" with no line named is not
+  /// something a buyer can act on - and no substitution is made and no other
+  /// warehouse is chosen for them.
+  FULFILMENT_STOCK_CHANGED: 'FULFILMENT_STOCK_CHANGED',
+
   // --- Idempotency ---
   IDEMPOTENCY_KEY_REQUIRED: 'IDEMPOTENCY_KEY_REQUIRED',
   /// Same key, different body. Never silently returns the earlier response.
@@ -192,6 +228,17 @@ export const ErrorCode = {
   SCHEDULE_EDIT_CUTOFF_PASSED: 'SCHEDULE_EDIT_CUTOFF_PASSED',
   /// A date in the past, or a time that has already gone today.
   SCHEDULE_DATE_IN_PAST: 'SCHEDULE_DATE_IN_PAST',
+  /// The date is in the future but inside the notice period - see
+  /// SCHEDULE_MIN_NOTICE_DAYS, and the warehouse's own earliest delivery where
+  /// that is later still.
+  ///
+  /// A separate code from SCHEDULE_DATE_IN_PAST because the two need
+  /// different words in front of a person: "that day has gone" and "we need a
+  /// week" are different problems with different fixes. The detail carries
+  /// `earliest` as a YYYY-MM-DD calendar date, so the storefront can move the
+  /// picker to it rather than leaving somebody guessing how far forward to
+  /// click.
+  SCHEDULE_DATE_TOO_SOON: 'SCHEDULE_DATE_TOO_SOON',
   /// A frequency this deployment does not offer, or one whose parameters do
   /// not fit it (WEEKLY without a weekday, a custom interval out of range).
   SCHEDULE_FREQUENCY_NOT_SUPPORTED: 'SCHEDULE_FREQUENCY_NOT_SUPPORTED',
@@ -371,6 +418,109 @@ export const ErrorCode = {
   /// A pending email or telephone change was confirmed, or resent, when there
   /// is no change in flight to confirm.
   CONTACT_CHANGE_NOT_PENDING: 'CONTACT_CHANGE_NOT_PENDING',
+
+  // --- A buyer's own ERP, and the organisation that owns it ---
+  //
+  // Distinct from every ERP_* code above, which is about the SELLER's ERP and
+  // is read by a member of staff in Settings -> ERP. These are read by a
+  // BUYER, in their own account, about their own SAP or monday.com. The two
+  // sets stay apart because the audiences are different and so are the
+  // remedies: a buyer cannot fix the operator's connection and has no business
+  // being told about it.
+
+  /// The account is not in a buyer organisation yet, and something that needs
+  /// one was attempted. Ordinarily impossible - one is provisioned on first
+  /// use - so this means an account with no customer profile, or an
+  /// organisation that has since been archived.
+  ORGANIZATION_REQUIRED: 'ORGANIZATION_REQUIRED',
+  /// The member's role does not permit this. Configuring credentials and
+  /// mappings is OWNER and INTEGRATION_MANAGER only; a MEMBER may look.
+  ORGANIZATION_ROLE_INSUFFICIENT: 'ORGANIZATION_ROLE_INSUFFICIENT',
+  /// Removing or demoting the last owner was refused. An organisation with no
+  /// owner has nobody who can grant anybody else access to it, which is not a
+  /// state anything can recover from without support.
+  ORGANIZATION_LAST_OWNER: 'ORGANIZATION_LAST_OWNER',
+  /// The invitation does not exist, has expired, was withdrawn, was already
+  /// used, or is addressed to a different email address than the one signed
+  /// in. Deliberately one code for all five: an endpoint that distinguishes
+  /// them is an oracle for who has been invited where.
+  ORGANIZATION_INVITE_INVALID: 'ORGANIZATION_INVITE_INVALID',
+  /// The account already belongs to an organisation. A profile belongs to at
+  /// most one - see `BuyerOrganizationMember` - so joining a second means
+  /// leaving the first, which is a decision rather than a side effect.
+  ORGANIZATION_ALREADY_MEMBER: 'ORGANIZATION_ALREADY_MEMBER',
+
+  /// The address is not one this server will call: not https, missing a host,
+  /// carrying credentials in the URL, resolving to a private, loopback or
+  /// link-local network, or outside the host policy this deployment allows.
+  /// The detail says which.
+  CUSTOMER_ERP_URL_NOT_ALLOWED: 'CUSTOMER_ERP_URL_NOT_ALLOWED',
+  /// An endpoint path pointed at a different origin from the base URL.
+  /// Refused, because an "endpoint" free to leave the authorised host is a
+  /// server-side request forgery primitive with a form field in front of it.
+  CUSTOMER_ERP_ENDPOINT_OFF_ORIGIN: 'CUSTOMER_ERP_ENDPOINT_OFF_ORIGIN',
+  /// Something is being sent that has no endpoint configured for it. Names
+  /// what, because the remedy is either to add the endpoint or to switch that
+  /// event off in the sync rules.
+  CUSTOMER_ERP_ENDPOINT_MISSING: 'CUSTOMER_ERP_ENDPOINT_MISSING',
+  /// The connection is not in a state that allows what was asked - activating
+  /// a draft that has not been tested, resuming one that was never paused.
+  /// The message names the current state.
+  CUSTOMER_ERP_STATE_INVALID: 'CUSTOMER_ERP_STATE_INVALID',
+  /// Activation was refused because no test has passed since the configuration
+  /// last changed. Separate from the code above because it names the remedy.
+  CUSTOMER_ERP_UNTESTED: 'CUSTOMER_ERP_UNTESTED',
+  /// The field mapping is missing something required, maps one field twice, or
+  /// points at a path that is not present in the sample response.
+  CUSTOMER_ERP_MAPPING_INVALID: 'CUSTOMER_ERP_MAPPING_INVALID',
+  /// Activation was refused because the mapping has never been checked against
+  /// a real response from this connection.
+  CUSTOMER_ERP_MAPPING_UNVERIFIED: 'CUSTOMER_ERP_MAPPING_UNVERIFIED',
+  /// The ERP answered, but not with anything this connection can use: not
+  /// JSON, or JSON with no array of records where the mapping says one is.
+  CUSTOMER_ERP_RESPONSE_UNUSABLE: 'CUSTOMER_ERP_RESPONSE_UNUSABLE',
+  /// The buyer's ERP refused our credentials - its own 401 or 403, reported as
+  /// itself rather than as a generic failure, because the remedy is entirely
+  /// different from a network fault.
+  CUSTOMER_ERP_AUTH_FAILED: 'CUSTOMER_ERP_AUTH_FAILED',
+  /// An OAuth access token has expired and could not be refreshed. The buyer
+  /// has to authorise again; the connection sits in ACTION_REQUIRED until they
+  /// do, rather than retrying a grant that will keep being refused.
+  CUSTOMER_ERP_TOKEN_EXPIRED: 'CUSTOMER_ERP_TOKEN_EXPIRED',
+  /// The OAuth authorisation or token exchange failed: a refused grant, a
+  /// mismatched redirect URI, a state that does not belong to this flow.
+  CUSTOMER_ERP_OAUTH_FAILED: 'CUSTOMER_ERP_OAUTH_FAILED',
+  /// The buyer's ERP asked us to slow down. Carries its `Retry-After` where it
+  /// gave one.
+  CUSTOMER_ERP_RATE_LIMITED: 'CUSTOMER_ERP_RATE_LIMITED',
+  /// Repeated failures took the connection out of service. It will not be
+  /// called again until a test passes.
+  CUSTOMER_ERP_SUSPENDED: 'CUSTOMER_ERP_SUSPENDED',
+  /// A webhook arrived whose signature did not verify, whose timestamp was
+  /// outside the replay window, or for a connection with no signing secret.
+  /// Never says which: an endpoint that distinguishes those is an oracle.
+  CUSTOMER_ERP_WEBHOOK_REJECTED: 'CUSTOMER_ERP_WEBHOOK_REJECTED',
+  /// A sync was asked for while one is already running on this connection.
+  CUSTOMER_ERP_SYNC_ALREADY_RUNNING: 'CUSTOMER_ERP_SYNC_ALREADY_RUNNING',
+  /// An event was asked to move somewhere its lifecycle does not allow - most
+  /// often retrying one that has already succeeded, which would mean a second
+  /// purchase order.
+  CUSTOMER_ERP_EVENT_STATE_INVALID: 'CUSTOMER_ERP_EVENT_STATE_INVALID',
+  /// The write is over the organisation's approval threshold, or the policy
+  /// requires a person for this kind of write. An approval has been raised and
+  /// the event is holding; nothing has been sent.
+  CUSTOMER_ERP_APPROVAL_REQUIRED: 'CUSTOMER_ERP_APPROVAL_REQUIRED',
+  /// The organisation already holds as many connections as this deployment
+  /// permits.
+  CUSTOMER_ERP_LIMIT_REACHED: 'CUSTOMER_ERP_LIMIT_REACHED',
+  /// The chosen combination is refused on purpose: a monday personal token on
+  /// a production connection, an automatic inventory write from a sandbox, a
+  /// credential type the selected system does not accept. The message names
+  /// which, because every one of them has a legitimate alternative.
+  CUSTOMER_ERP_CONFIGURATION_REFUSED: 'CUSTOMER_ERP_CONFIGURATION_REFUSED',
+  /// The uploaded OpenAPI document could not be read, or described nothing
+  /// this connector could use.
+  CUSTOMER_ERP_SPEC_UNUSABLE: 'CUSTOMER_ERP_SPEC_UNUSABLE',
 } as const;
 
 export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];

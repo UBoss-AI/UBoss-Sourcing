@@ -8,6 +8,7 @@
  */
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
+import { fromDateColumn } from '../../domain/delivery-dates.js';
 import { notFound } from '../../domain/errors.js';
 import { getInvoiceForOrder } from '../../modules/invoicing/invoice.service.js';
 import { serialiseMoney } from '../../domain/money.js';
@@ -38,6 +39,49 @@ const adminListQuerySchema = listQuerySchema.extend({
 });
 
 type OrderRow = Awaited<ReturnType<typeof prisma.order.findFirstOrThrow>>;
+
+/**
+ * Where this order ships from and what was promised, or null.
+ *
+ * Null on every order placed before fulfilment options existed, and on any
+ * order whose destination no warehouse published a lane to - those are priced
+ * by the configured shipping method and say so through `shippingMethodName`
+ * instead. Two shapes rather than one with empty fields, so a screen cannot
+ * render "Arrives between  and " for an order that never had a window.
+ *
+ * The dates come back as `YYYY-MM-DD` rather than as instants. They are
+ * calendar days - "arrives on the 18th" is the 18th wherever it is read - and
+ * an ISO timestamp would print as the 17th for every reader west of
+ * Greenwich.
+ */
+function serialiseFulfilment(
+  order: OrderRow & { fulfilmentLocation?: { id: string; code: string; name: string } | null },
+): Record<string, unknown> | null {
+  if (
+    order.fulfilmentDispatchDate === null ||
+    order.fulfilmentDeliveryFrom === null ||
+    order.fulfilmentDeliveryTo === null
+  ) {
+    return null;
+  }
+
+  return {
+    warehouse:
+      order.fulfilmentLocation === undefined || order.fulfilmentLocation === null
+        ? null
+        : {
+            id: order.fulfilmentLocation.id,
+            code: order.fulfilmentLocation.code,
+            name: order.fulfilmentLocation.name,
+          },
+    carrier: order.fulfilmentCarrier,
+    serviceLevel: order.fulfilmentServiceLevel,
+    dispatchDate: fromDateColumn(order.fulfilmentDispatchDate),
+    deliveryFromDate: fromDateColumn(order.fulfilmentDeliveryFrom),
+    deliveryToDate: fromDateColumn(order.fulfilmentDeliveryTo),
+    quoteId: order.fulfilmentQuoteId,
+  };
+}
 
 function serialiseTotals(order: OrderRow): Record<string, unknown> {
   return {
@@ -142,6 +186,11 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
         statusHistory: { orderBy: { createdAt: 'asc' } },
         shipments: true,
         approvals: true,
+        // Which building it is coming from. The customer chose it at
+        // checkout, so telling them is the least this screen can do - and
+        // "ships from Antwerp, arriving Thursday to Monday" is the answer
+        // most order-status emails are asking for.
+        fulfilmentLocation: { select: { id: true, code: true, name: true } },
       },
     });
 
@@ -153,6 +202,10 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
         shippingAddress: order.shippingAddressJson,
         billingAddress: order.billingAddressJson,
         shippingMethodName: order.shippingMethodName,
+        // Null where no warehouse option priced this order - see the
+        // serialiser. The shipping method above is the other half of the
+        // pair, and exactly one of the two is ever set.
+        fulfilment: serialiseFulfilment(order),
         customerNote: order.customerNote,
         /*
          * How the customer said they would pay, and with which of their cards.
@@ -325,6 +378,7 @@ export function registerAdminOrderRoutes(app: FastifyInstance): Promise<void> {
           refunds: true,
           shipments: true,
           reservations: true,
+          fulfilmentLocation: { select: { id: true, code: true, name: true } },
           customerProfile: {
             include: { user: { select: { email: true, status: true } } },
           },
@@ -355,6 +409,10 @@ export function registerAdminOrderRoutes(app: FastifyInstance): Promise<void> {
           shippingAddress: order.shippingAddressJson,
           billingAddress: order.billingAddressJson,
           shippingMethodName: order.shippingMethodName,
+          // Where the warehouse team is meant to pick this, and the window
+          // the customer was promised. The same block the customer sees, so
+          // a support conversation is two people reading one fact.
+          fulfilment: serialiseFulfilment(order),
           customerNote: order.customerNote,
           internalNote: order.internalNote,
           cancelReason: order.cancelReason,

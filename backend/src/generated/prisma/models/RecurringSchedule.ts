@@ -105,6 +105,7 @@ export type RecurringScheduleMinAggregateOutputType = {
   pausedById: string | null
   cancelledAt: Date | null
   cancelReason: string | null
+  hiddenAt: Date | null
   leaseOwner: string | null
   leaseExpiresAt: Date | null
   createdAt: Date | null
@@ -158,6 +159,7 @@ export type RecurringScheduleMaxAggregateOutputType = {
   pausedById: string | null
   cancelledAt: Date | null
   cancelReason: string | null
+  hiddenAt: Date | null
   leaseOwner: string | null
   leaseExpiresAt: Date | null
   createdAt: Date | null
@@ -212,6 +214,7 @@ export type RecurringScheduleCountAggregateOutputType = {
   pausedById: number
   cancelledAt: number
   cancelReason: number
+  hiddenAt: number
   leaseOwner: number
   leaseExpiresAt: number
   createdAt: number
@@ -299,6 +302,7 @@ export type RecurringScheduleMinAggregateInputType = {
   pausedById?: true
   cancelledAt?: true
   cancelReason?: true
+  hiddenAt?: true
   leaseOwner?: true
   leaseExpiresAt?: true
   createdAt?: true
@@ -352,6 +356,7 @@ export type RecurringScheduleMaxAggregateInputType = {
   pausedById?: true
   cancelledAt?: true
   cancelReason?: true
+  hiddenAt?: true
   leaseOwner?: true
   leaseExpiresAt?: true
   createdAt?: true
@@ -406,6 +411,7 @@ export type RecurringScheduleCountAggregateInputType = {
   pausedById?: true
   cancelledAt?: true
   cancelReason?: true
+  hiddenAt?: true
   leaseOwner?: true
   leaseExpiresAt?: true
   createdAt?: true
@@ -547,6 +553,7 @@ export type RecurringScheduleGroupByOutputType = {
   pausedById: string | null
   cancelledAt: Date | null
   cancelReason: string | null
+  hiddenAt: Date | null
   leaseOwner: string | null
   leaseExpiresAt: Date | null
   createdAt: Date
@@ -624,6 +631,7 @@ export type RecurringScheduleWhereInput = {
   pausedById?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
   cancelledAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
   cancelReason?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
+  hiddenAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
   leaseOwner?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
   leaseExpiresAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"RecurringSchedule"> | Date | string
@@ -685,6 +693,7 @@ export type RecurringScheduleOrderByWithRelationInput = {
   pausedById?: Prisma.SortOrderInput | Prisma.SortOrder
   cancelledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   cancelReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  hiddenAt?: Prisma.SortOrderInput | Prisma.SortOrder
   leaseOwner?: Prisma.SortOrderInput | Prisma.SortOrder
   leaseExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -750,6 +759,7 @@ export type RecurringScheduleWhereUniqueInput = Prisma.AtLeast<{
   pausedById?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
   cancelledAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
   cancelReason?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
+  hiddenAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
   leaseOwner?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
   leaseExpiresAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"RecurringSchedule"> | Date | string
@@ -811,6 +821,7 @@ export type RecurringScheduleOrderByWithAggregationInput = {
   pausedById?: Prisma.SortOrderInput | Prisma.SortOrder
   cancelledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   cancelReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  hiddenAt?: Prisma.SortOrderInput | Prisma.SortOrder
   leaseOwner?: Prisma.SortOrderInput | Prisma.SortOrder
   leaseExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -873,6 +884,7 @@ export type RecurringScheduleScalarWhereWithAggregatesInput = {
   pausedById?: Prisma.StringNullableWithAggregatesFilter<"RecurringSchedule"> | string | null
   cancelledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RecurringSchedule"> | Date | string | null
   cancelReason?: Prisma.StringNullableWithAggregatesFilter<"RecurringSchedule"> | string | null
+  hiddenAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RecurringSchedule"> | Date | string | null
   leaseOwner?: Prisma.StringNullableWithAggregatesFilter<"RecurringSchedule"> | string | null
   leaseExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RecurringSchedule"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"RecurringSchedule"> | Date | string
@@ -922,6 +934,7 @@ export type RecurringScheduleCreateInput = {
   pausedById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  hiddenAt?: Date | string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -983,6 +996,7 @@ export type RecurringScheduleUncheckedCreateInput = {
   pausedById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  hiddenAt?: Date | string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -1034,6 +1048,7 @@ export type RecurringScheduleUpdateInput = {
   pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1095,6 +1110,7 @@ export type RecurringScheduleUncheckedUpdateInput = {
   pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1151,6 +1167,7 @@ export type RecurringScheduleCreateManyInput = {
   pausedById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  hiddenAt?: Date | string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -1200,6 +1217,7 @@ export type RecurringScheduleUpdateManyMutationInput = {
   pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1254,6 +1272,7 @@ export type RecurringScheduleUncheckedUpdateManyInput = {
   pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1324,6 +1343,7 @@ export type RecurringScheduleCountOrderByAggregateInput = {
   pausedById?: Prisma.SortOrder
   cancelledAt?: Prisma.SortOrder
   cancelReason?: Prisma.SortOrder
+  hiddenAt?: Prisma.SortOrder
   leaseOwner?: Prisma.SortOrder
   leaseExpiresAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -1393,6 +1413,7 @@ export type RecurringScheduleMaxOrderByAggregateInput = {
   pausedById?: Prisma.SortOrder
   cancelledAt?: Prisma.SortOrder
   cancelReason?: Prisma.SortOrder
+  hiddenAt?: Prisma.SortOrder
   leaseOwner?: Prisma.SortOrder
   leaseExpiresAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -1446,6 +1467,7 @@ export type RecurringScheduleMinOrderByAggregateInput = {
   pausedById?: Prisma.SortOrder
   cancelledAt?: Prisma.SortOrder
   cancelReason?: Prisma.SortOrder
+  hiddenAt?: Prisma.SortOrder
   leaseOwner?: Prisma.SortOrder
   leaseExpiresAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -1778,6 +1800,7 @@ export type RecurringScheduleCreateWithoutInventoryLocationInput = {
   pausedById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  hiddenAt?: Date | string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -1837,6 +1860,7 @@ export type RecurringScheduleUncheckedCreateWithoutInventoryLocationInput = {
   pausedById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  hiddenAt?: Date | string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -1922,6 +1946,7 @@ export type RecurringScheduleScalarWhereInput = {
   pausedById?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
   cancelledAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
   cancelReason?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
+  hiddenAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
   leaseOwner?: Prisma.StringNullableFilter<"RecurringSchedule"> | string | null
   leaseExpiresAt?: Prisma.DateTimeNullableFilter<"RecurringSchedule"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"RecurringSchedule"> | Date | string
@@ -1971,6 +1996,7 @@ export type RecurringScheduleCreateWithoutCustomerProfileInput = {
   pausedById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  hiddenAt?: Date | string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -2030,6 +2056,7 @@ export type RecurringScheduleUncheckedCreateWithoutCustomerProfileInput = {
   pausedById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  hiddenAt?: Date | string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -2107,6 +2134,7 @@ export type RecurringScheduleCreateWithoutShippingAddressInput = {
   pausedById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  hiddenAt?: Date | string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -2166,6 +2194,7 @@ export type RecurringScheduleUncheckedCreateWithoutShippingAddressInput = {
   pausedById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  hiddenAt?: Date | string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -2227,6 +2256,7 @@ export type RecurringScheduleCreateWithoutBillingAddressInput = {
   pausedById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  hiddenAt?: Date | string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -2286,6 +2316,7 @@ export type RecurringScheduleUncheckedCreateWithoutBillingAddressInput = {
   pausedById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  hiddenAt?: Date | string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -2379,6 +2410,7 @@ export type RecurringScheduleCreateWithoutItemsInput = {
   pausedById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  hiddenAt?: Date | string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -2439,6 +2471,7 @@ export type RecurringScheduleUncheckedCreateWithoutItemsInput = {
   pausedById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  hiddenAt?: Date | string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -2505,6 +2538,7 @@ export type RecurringScheduleUpdateWithoutItemsInput = {
   pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2565,6 +2599,7 @@ export type RecurringScheduleUncheckedUpdateWithoutItemsInput = {
   pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2615,6 +2650,7 @@ export type RecurringScheduleCreateWithoutOccurrencesInput = {
   pausedById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  hiddenAt?: Date | string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -2675,6 +2711,7 @@ export type RecurringScheduleUncheckedCreateWithoutOccurrencesInput = {
   pausedById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  hiddenAt?: Date | string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -2741,6 +2778,7 @@ export type RecurringScheduleUpdateWithoutOccurrencesInput = {
   pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2801,6 +2839,7 @@ export type RecurringScheduleUncheckedUpdateWithoutOccurrencesInput = {
   pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2851,6 +2890,7 @@ export type RecurringScheduleCreateWithoutPaymentMethodInput = {
   pausedById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  hiddenAt?: Date | string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -2910,6 +2950,7 @@ export type RecurringScheduleUncheckedCreateWithoutPaymentMethodInput = {
   pausedById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  hiddenAt?: Date | string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -2991,6 +3032,7 @@ export type RecurringScheduleCreateManyInventoryLocationInput = {
   pausedById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  hiddenAt?: Date | string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -3040,6 +3082,7 @@ export type RecurringScheduleUpdateWithoutInventoryLocationInput = {
   pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3099,6 +3142,7 @@ export type RecurringScheduleUncheckedUpdateWithoutInventoryLocationInput = {
   pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3154,6 +3198,7 @@ export type RecurringScheduleUncheckedUpdateManyWithoutInventoryLocationInput = 
   pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3207,6 +3252,7 @@ export type RecurringScheduleCreateManyCustomerProfileInput = {
   pausedById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  hiddenAt?: Date | string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -3256,6 +3302,7 @@ export type RecurringScheduleUpdateWithoutCustomerProfileInput = {
   pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3315,6 +3362,7 @@ export type RecurringScheduleUncheckedUpdateWithoutCustomerProfileInput = {
   pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3370,6 +3418,7 @@ export type RecurringScheduleUncheckedUpdateManyWithoutCustomerProfileInput = {
   pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3423,6 +3472,7 @@ export type RecurringScheduleCreateManyShippingAddressInput = {
   pausedById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  hiddenAt?: Date | string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -3476,6 +3526,7 @@ export type RecurringScheduleCreateManyBillingAddressInput = {
   pausedById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  hiddenAt?: Date | string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -3525,6 +3576,7 @@ export type RecurringScheduleUpdateWithoutShippingAddressInput = {
   pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3584,6 +3636,7 @@ export type RecurringScheduleUncheckedUpdateWithoutShippingAddressInput = {
   pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3639,6 +3692,7 @@ export type RecurringScheduleUncheckedUpdateManyWithoutShippingAddressInput = {
   pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3688,6 +3742,7 @@ export type RecurringScheduleUpdateWithoutBillingAddressInput = {
   pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3747,6 +3802,7 @@ export type RecurringScheduleUncheckedUpdateWithoutBillingAddressInput = {
   pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3802,6 +3858,7 @@ export type RecurringScheduleUncheckedUpdateManyWithoutBillingAddressInput = {
   pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3855,6 +3912,7 @@ export type RecurringScheduleCreateManyPaymentMethodInput = {
   pausedById?: string | null
   cancelledAt?: Date | string | null
   cancelReason?: string | null
+  hiddenAt?: Date | string | null
   leaseOwner?: string | null
   leaseExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -3904,6 +3962,7 @@ export type RecurringScheduleUpdateWithoutPaymentMethodInput = {
   pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3963,6 +4022,7 @@ export type RecurringScheduleUncheckedUpdateWithoutPaymentMethodInput = {
   pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4018,6 +4078,7 @@ export type RecurringScheduleUncheckedUpdateManyWithoutPaymentMethodInput = {
   pausedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   leaseOwner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4112,6 +4173,7 @@ export type RecurringScheduleSelect<ExtArgs extends runtime.Types.Extensions.Int
   pausedById?: boolean
   cancelledAt?: boolean
   cancelReason?: boolean
+  hiddenAt?: boolean
   leaseOwner?: boolean
   leaseExpiresAt?: boolean
   createdAt?: boolean
@@ -4176,13 +4238,14 @@ export type RecurringScheduleSelectScalar = {
   pausedById?: boolean
   cancelledAt?: boolean
   cancelReason?: boolean
+  hiddenAt?: boolean
   leaseOwner?: boolean
   leaseExpiresAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type RecurringScheduleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerProfileId" | "name" | "status" | "kind" | "runOnceAt" | "frequency" | "intervalDays" | "weekday" | "monthDay" | "intervalMonths" | "timezone" | "runAtMinute" | "startDate" | "endDate" | "maxOccurrences" | "occurrenceCount" | "nextRunAt" | "lastRunAt" | "paymentMode" | "mandateReference" | "mandateProvider" | "payerEmail" | "paymentMethodId" | "shippingAddressId" | "billingAddressId" | "shippingMethodCode" | "consentAcceptedAt" | "consentVersion" | "repriceApprovalThresholdMinor" | "priceTolerancePercent" | "priceToleranceMinor" | "editCutoffMinutes" | "substitutionPolicy" | "fulfilmentRule" | "inventoryLocationId" | "cartSnapshotJson" | "sourceCartId" | "activatedAt" | "completedAt" | "failureCount" | "maxFailures" | "pausedAt" | "pausedReason" | "pausedById" | "cancelledAt" | "cancelReason" | "leaseOwner" | "leaseExpiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["recurringSchedule"]>
+export type RecurringScheduleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerProfileId" | "name" | "status" | "kind" | "runOnceAt" | "frequency" | "intervalDays" | "weekday" | "monthDay" | "intervalMonths" | "timezone" | "runAtMinute" | "startDate" | "endDate" | "maxOccurrences" | "occurrenceCount" | "nextRunAt" | "lastRunAt" | "paymentMode" | "mandateReference" | "mandateProvider" | "payerEmail" | "paymentMethodId" | "shippingAddressId" | "billingAddressId" | "shippingMethodCode" | "consentAcceptedAt" | "consentVersion" | "repriceApprovalThresholdMinor" | "priceTolerancePercent" | "priceToleranceMinor" | "editCutoffMinutes" | "substitutionPolicy" | "fulfilmentRule" | "inventoryLocationId" | "cartSnapshotJson" | "sourceCartId" | "activatedAt" | "completedAt" | "failureCount" | "maxFailures" | "pausedAt" | "pausedReason" | "pausedById" | "cancelledAt" | "cancelReason" | "hiddenAt" | "leaseOwner" | "leaseExpiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["recurringSchedule"]>
 export type RecurringScheduleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   shippingAddress?: boolean | Prisma.AddressDefaultArgs<ExtArgs>
@@ -4359,6 +4422,28 @@ export type $RecurringSchedulePayload<ExtArgs extends runtime.Types.Extensions.I
     pausedById: string | null
     cancelledAt: Date | null
     cancelReason: string | null
+    /**
+     * When the customer removed this finished plan from their own list.
+     * 
+     * A soft delete, on the same reasoning as `AssistantConversation.hiddenAt`
+     * and with more at stake. This row is the record that a customer authorised
+     * recurring charges: `consentAcceptedAt`, `consentVersion`, the cart they
+     * agreed to, and every occurrence and order hanging off it. Somebody
+     * tidying a list is not a reason to destroy the evidence behind a charge
+     * that may be disputed months later - and `orders` is ON DELETE RESTRICT,
+     * so a real delete could not happen anyway once the plan has run.
+     * 
+     * What the flag does guarantee is what was asked for: the plan is gone from
+     * every customer-facing read. Staff still see it, the GDPR export still
+     * discloses it, and erasure under Art. 17 remains a different act with its
+     * own route.
+     * 
+     * Only ever set on a plan in a terminal status - CANCELLED or COMPLETED.
+     * Hiding a live authority to charge would mean money leaving an account for
+     * a plan the customer can no longer see, which is the one outcome this
+     * column must never enable; `hideSchedule` refuses anything else.
+     */
+    hiddenAt: Date | null
     /**
      * --- Worker lease (stands in for SKIP LOCKED on MariaDB 10.4) ---
      */
@@ -4789,6 +4874,7 @@ export interface RecurringScheduleFieldRefs {
   readonly pausedById: Prisma.FieldRef<"RecurringSchedule", 'String'>
   readonly cancelledAt: Prisma.FieldRef<"RecurringSchedule", 'DateTime'>
   readonly cancelReason: Prisma.FieldRef<"RecurringSchedule", 'String'>
+  readonly hiddenAt: Prisma.FieldRef<"RecurringSchedule", 'DateTime'>
   readonly leaseOwner: Prisma.FieldRef<"RecurringSchedule", 'String'>
   readonly leaseExpiresAt: Prisma.FieldRef<"RecurringSchedule", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"RecurringSchedule", 'DateTime'>

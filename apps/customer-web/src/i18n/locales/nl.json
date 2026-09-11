@@ -1043,8 +1043,6 @@
   "aiMode.deleteBody": "Het gesprek {{name}} wordt uit uw geschiedenis verwijderd en u kunt het niet opnieuw openen.",
   "aiMode.deleteConfirm": "Gesprek verwijderen",
   "aiMode.signOut": "Uitloggen",
-  "aiMode.welcomeHeading": "Wat zoekt u vandaag in te kopen?",
-  "aiMode.welcomeBody": "Stel vragen over producten, voorraad, eerdere bestellingen en periodieke leveringen. Antwoorden komen uit wat {{store}} publiceert, met productcodes en prijzen zoals vermeld.",
   "aiMode.composerLabel": "Uw vraag",
   "aiMode.composerPlaceholder": "Beschrijf wat u nodig hebt",
   "aiMode.attachImage": "Een foto toevoegen",

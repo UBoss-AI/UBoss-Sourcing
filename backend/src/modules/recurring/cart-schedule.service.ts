@@ -29,6 +29,7 @@
  */
 import { env } from '../../config/env.js';
 import { ErrorCode, badRequest, type ErrorCodeValue } from '../../domain/errors.js';
+import { todayIn } from '../../domain/delivery-dates.js';
 import { serialiseMoney } from '../../domain/money.js';
 import {
   describeRule,
@@ -48,6 +49,7 @@ import {
   type ScheduleActor,
   type ScheduleItemInput,
 } from './schedule.service.js';
+import { deliveryNoticeFloor } from './schedule-notice.js';
 import { quoteSchedule, type QuoteProblem, type ScheduleQuote } from './schedule-quote.service.js';
 
 export interface CartScheduleConfig {
@@ -100,6 +102,25 @@ export interface CartSchedulePreview {
   timezone: string;
   /** Latest moment this delivery could still be changed or skipped. */
   editableUntil: string | null;
+  /**
+   * The earliest first-delivery date this configuration allows, `YYYY-MM-DD`.
+   *
+   * The later of the notice period and the chosen warehouse's own soonest -
+   * see `schedule-notice.ts`. Returned on every preview, including the ones
+   * with no problem at all, because the review screen draws its calendar from
+   * it: a picker that greys out the closed days is the difference between a
+   * rule and a rejection, and re-previewing after a warehouse change is how
+   * the screen learns the floor has moved.
+   */
+  earliestDeliveryDate: string;
+  /** The notice period in days, so the screen can state the rule. */
+  noticeDays: number;
+  /**
+   * The chosen warehouse's own soonest, when it is a FIXED_LOCATION plan and
+   * that warehouse publishes a lane to the address. Null otherwise - not
+   * zero, and not a guess.
+   */
+  warehouseEarliestDate: string | null;
   quote: ScheduleQuote;
   deliveryAddress: {
     id: string;
@@ -241,6 +262,40 @@ export async function previewCartSchedule(
     );
   }
 
+  /*
+   * The notice period, as the review screen has to show it.
+   *
+   * Reported as a problem rather than thrown, like every other block on this
+   * screen: a customer adjusting a form should see what is wrong beside the
+   * field, not a toast from a failed request. `createSchedule` throws for
+   * real when they submit, so the two cannot drift - this is the courtesy and
+   * that is the guarantee.
+   */
+  const floor = await deliveryNoticeFloor({
+    scheduleTimezone: timezone,
+    shippingAddressId: config.shippingAddressId,
+    customerProfileId,
+    fulfilmentRule: config.fulfilmentRule ?? 'AUTO',
+    inventoryLocationId: config.inventoryLocationId ?? null,
+  });
+
+  // Measured against the first delivery this configuration produces, not
+  // against the start date - see `assertDeliveryNotice`, which is what
+  // actually refuses the creation this screen is previewing. A configuration
+  // that produces no dates at all already has its own problem above.
+  const firstDeliveryDay = firstRun === null ? null : todayIn(timezone, firstRun);
+
+  if (firstDeliveryDay !== null && firstDeliveryDay < floor.earliest) {
+    problems.push({
+      severity: 'BLOCK',
+      code: ErrorCode.SCHEDULE_DATE_TOO_SOON,
+      message:
+        floor.warehouseEarliest !== null && floor.warehouseEarliest > floor.noticeFloor
+          ? `The warehouse you chose cannot deliver before ${floor.earliest}.`
+          : `The first delivery needs ${String(floor.noticeDays)} days' notice. The earliest we can take is ${floor.earliest}.`,
+    });
+  }
+
   const editCutoffMinutes = env.SCHEDULE_EDIT_CUTOFF_MINUTES;
 
   return {
@@ -267,6 +322,9 @@ export async function previewCartSchedule(
       firstRun === null
         ? null
         : (editableUntil({ nextRunAt: firstRun, editCutoffMinutes })?.toISOString() ?? null),
+    earliestDeliveryDate: floor.earliest,
+    noticeDays: floor.noticeDays,
+    warehouseEarliestDate: floor.warehouseEarliest,
     quote,
     deliveryAddress: address,
     paymentMethod: {

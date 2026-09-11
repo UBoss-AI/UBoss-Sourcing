@@ -12,7 +12,12 @@
  *   - a failed send keeps what was typed and offers to try again, because a
  *     paragraph describing a requirement is expensive to lose;
  *   - the history is a list of the customer's own threads that can be opened,
- *     renamed and deleted, and deleting asks first.
+ *     renamed and deleted, and deleting asks first;
+ *   - the greeting says the customer's own first name, and says nothing where
+ *     there is no name to say;
+ *   - a reply about particular products renders cards built from a CATALOGUE
+ *     read rather than from the reply text, and the reference line the model
+ *     wrote is never shown.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
@@ -83,6 +88,10 @@ function sseResponse(deltas: string[]): Response {
 /** What each endpoint should answer. Every test builds its own. */
 interface Routes {
   conversations?: Conversation[];
+  /** What `/account/profile` answers. Absent means a 404, i.e. no name. */
+  profile?: { fullName: string | null; email: string; organization: string | null };
+  /** What `/catalog/product-cards` answers. */
+  cards?: { products: unknown[]; unresolved: string[] };
   /** Returned by `/start`, as the API does for a caller with no session. */
   guestToken?: string;
   detail?: { messages: { id: string; role: 'user' | 'assistant'; content: string }[] };
@@ -96,6 +105,22 @@ function stubFetch(routes: Routes = {}): void {
     vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
       const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
       routes.onRequest?.(url, init);
+
+      if (url.includes('/catalog/product-cards')) {
+        return Promise.resolve(
+          jsonResponse({
+            products: routes.cards?.products ?? [],
+            unresolved: routes.cards?.unresolved ?? [],
+            currency: 'INR',
+            country: 'IN',
+          }),
+        );
+      }
+
+      if (url.includes('/account/profile')) {
+        if (routes.profile === undefined) return Promise.resolve(jsonResponse({}, 404));
+        return Promise.resolve(jsonResponse({ profile: routes.profile }));
+      }
 
       if (url.includes('/assistant/conversations/')) {
         if (init?.method === 'PATCH' || init?.method === 'DELETE') {
@@ -150,7 +175,7 @@ describe('the empty state', () => {
     renderWithProviders(<AiModePage />, { config: CONFIG });
 
     expect(
-      screen.getByRole('heading', { name: /what are you sourcing today/i }),
+      screen.getByRole('heading', { name: /what are you looking for today/i }),
     ).toBeInTheDocument();
 
     // Every chip is about the catalogue, stock, orders or a schedule — a chip
@@ -344,7 +369,7 @@ describe('the conversation history', () => {
 
     expect(screen.queryByText('Yes, in boxes of 50.')).not.toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { name: /what are you sourcing today/i }),
+      screen.getByRole('heading', { name: /what are you looking for today/i }),
     ).toBeInTheDocument();
   });
 });
@@ -361,8 +386,12 @@ describe('a visitor with no account', () => {
     // need can ask before opening an account.
     expect(screen.getByRole('textbox')).toBeEnabled();
     expect(
-      screen.getByRole('heading', { name: /what are you sourcing today/i }),
+      screen.getByRole('heading', { name: /what are you looking for today/i }),
     ).toBeInTheDocument();
+
+    // And no name line, because a guest has no name. The question stands on
+    // its own rather than leaving a gap where one was meant to be.
+    expect(screen.queryByText(/^Hello,/)).not.toBeInTheDocument();
   });
 
   it('carries the token the API minted on every turn', async () => {
@@ -450,5 +479,200 @@ describe('a visitor with no account', () => {
     // The account is the proof. A token would be ignored, and sending one
     // anyway would be a bearer secret on the wire for no reason.
     expect(sent[0]).not.toHaveProperty('conversationToken');
+  });
+});
+
+describe('the greeting', () => {
+  it('says the first name on the account, and only the first', async () => {
+    stubFetch({
+      profile: {
+        fullName: 'Priya Raman Iyer',
+        email: 'buyer@example.test',
+        organization: 'City Hospital',
+      },
+    });
+
+    renderWithProviders(<AiModePage />, { config: CONFIG });
+
+    // The first word, not the full legal name somebody typed into a
+    // purchasing account.
+    await waitFor(() => {
+      expect(screen.getByText('Hello, Priya')).toBeInTheDocument();
+    });
+    expect(screen.queryByText(/Raman Iyer/)).not.toBeInTheDocument();
+  });
+
+  it('greets an account with no name by asking the question only', async () => {
+    stubFetch({
+      profile: { fullName: null, email: 'ops.procurement@example.test', organization: null },
+    });
+
+    renderWithProviders(<AiModePage />, { config: CONFIG });
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: /what are you looking for today/i }),
+      ).toBeInTheDocument();
+    });
+
+    // Never derived from the address. "Hello, Ops" is worse than no greeting,
+    // and "Hello, ops.procurement@example.test" is worse still.
+    expect(screen.queryByText(/^Hello,/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/ops\.procurement/)).not.toBeInTheDocument();
+  });
+
+  it('shows none of the onboarding paragraph it replaced', () => {
+    stubFetch();
+    renderWithProviders(<AiModePage />, { config: CONFIG });
+
+    expect(screen.queryByText(/what are you sourcing today/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Ask about products, stock, past orders/i)).not.toBeInTheDocument();
+  });
+});
+
+/**
+ * Product cards.
+ *
+ * These assertions are about provenance rather than layout: the card has to
+ * carry the CATALOGUE's name and price, and the reference line the model wrote
+ * must never be read by anybody. A test that only checked "a card appeared"
+ * would pass just as happily against a renderer that trusted generated text,
+ * which is the one thing this feature must not do.
+ */
+describe('the products an answer is about', () => {
+  const CARD = {
+    matchedRef: 'safety-cannula-22g',
+    id: 'prod-1',
+    name: 'Safety Cannula 22G',
+    slug: 'safety-cannula-22g',
+    sku: 'SC-22G',
+    shortDescription: 'Ported safety IV cannula, box of 50.',
+    description: null,
+    descriptionHtml: null,
+    price: { minor: '45050', formatted: '450.50', currency: 'INR' },
+    compareAtPrice: null,
+    tax: {
+      code: 'GST12',
+      name: 'GST 12%',
+      ratePercent: '12',
+      inclusive: false,
+      country: 'IN',
+      treatment: 'FLAT_RATE',
+    },
+    purchaseRules: { minOrderQty: 1, maxOrderQty: null, qtyIncrement: 1, isRecurringEligible: true },
+    category: { id: 'cat-1', name: 'Cannulae', slug: 'cannulae' },
+    isStockTracked: true,
+    hasVariants: false,
+    publishedAt: '2026-01-01T00:00:00.000Z',
+    primaryImage: { url: '/media/cannula.png', altText: 'A safety cannula' },
+    images: [],
+    attributes: [],
+    variants: [],
+    availability: { isStockTracked: true, inStock: true, availableQty: 40 },
+  };
+
+  it('renders cards from the catalogue and never shows the reference line', async () => {
+    const user = userEvent.setup();
+
+    stubFetch({
+      chat: () =>
+        sseResponse(['The 22G safety cannula fits.\n', '[[products: safety-cannula-22g]]']),
+      cards: { products: [CARD], unresolved: [] },
+    });
+
+    renderWithProviders(<AiModePage />, { config: CONFIG });
+
+    await user.type(screen.getByRole('textbox'), 'Which cannula fits a 22G port?');
+    await user.click(screen.getByRole('button', { name: 'Send' }));
+
+    // Drawn from the catalogue read, so the name and the price on screen are
+    // the store's own rather than the model's.
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Safety Cannula 22G' })).toBeInTheDocument();
+    });
+    expect(screen.getByText('₹450.50')).toBeInTheDocument();
+    expect(screen.getByText('SC-22G')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Add Safety Cannula 22G to your cart/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /View the specifications of Safety Cannula 22G/i }),
+    ).toBeInTheDocument();
+
+    // The words of the answer survive; the machinery does not.
+    expect(screen.getByText(/The 22G safety cannula fits\./)).toBeInTheDocument();
+    expect(screen.queryByText(/\[\[products/)).not.toBeInTheDocument();
+  });
+
+  it('asks the catalogue for the references, in the order the reply gave them', async () => {
+    const user = userEvent.setup();
+    const seen: string[] = [];
+
+    stubFetch({
+      chat: () => sseResponse(['Two options.\n[[products: sc-22g, SC-24G]]']),
+      cards: { products: [], unresolved: ['sc-22g', 'SC-24G'] },
+      onRequest: (url) => {
+        if (url.includes('/catalog/product-cards')) seen.push(url);
+      },
+    });
+
+    renderWithProviders(<AiModePage />, { config: CONFIG });
+
+    await user.type(screen.getByRole('textbox'), 'What can replace the 22G?');
+    await user.click(screen.getByRole('button', { name: 'Send' }));
+
+    await waitFor(() => {
+      expect(seen).toHaveLength(1);
+    });
+
+    // Both references, in the model's own order — that order is its
+    // recommendation — and the market they are to be priced for.
+    expect(seen[0]).toContain('refs=sc-22g%2CSC-24G');
+    expect(seen[0]).toContain('currency=INR');
+  });
+
+  it('says so when nothing the answer named is still listed', async () => {
+    const user = userEvent.setup();
+
+    stubFetch({
+      chat: () => sseResponse(['Try this one.\n[[products: withdrawn-item]]']),
+      cards: { products: [], unresolved: ['withdrawn-item'] },
+    });
+
+    renderWithProviders(<AiModePage />, { config: CONFIG });
+
+    await user.type(screen.getByRole('textbox'), 'Do you have the old model?');
+    await user.click(screen.getByRole('button', { name: 'Send' }));
+
+    // Not silence: an answer that named a product and then showed no card
+    // would read as a broken render rather than as a withdrawn product.
+    await waitFor(() => {
+      expect(screen.getByText(/no longer listed here/i)).toBeInTheDocument();
+    });
+  });
+
+  it('leaves an answer about nothing in particular alone', async () => {
+    const user = userEvent.setup();
+    const seen: string[] = [];
+
+    stubFetch({
+      chat: () => sseResponse(['Our support team can quote that for you.']),
+      onRequest: (url) => {
+        if (url.includes('/catalog/product-cards')) seen.push(url);
+      },
+    });
+
+    renderWithProviders(<AiModePage />, { config: CONFIG });
+
+    await user.type(screen.getByRole('textbox'), 'Can I get contract pricing?');
+    await user.click(screen.getByRole('button', { name: 'Send' }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Our support team can quote that/)).toBeInTheDocument();
+    });
+
+    // No references, so no request and no heading over an empty row.
+    expect(seen).toEqual([]);
+    expect(screen.queryByText(/From the catalogue/i)).not.toBeInTheDocument();
   });
 });

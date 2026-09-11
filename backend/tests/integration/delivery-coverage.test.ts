@@ -29,6 +29,7 @@ import { Role } from '../../src/domain/permissions.js';
 import { hashPassword } from '../../src/infra/crypto.js';
 import { newId } from '../../src/infra/ids.js';
 import { prisma } from '../../src/infra/prisma.js';
+import { env } from '../../src/config/env.js';
 
 let app: Awaited<ReturnType<typeof buildApp>>;
 let cookies: string;
@@ -51,13 +52,23 @@ interface CoveredCountry {
   distanceKm: number;
   nearestPoint: { latitude: number; longitude: number };
   area: { type: string; coordinates: unknown } | null;
+  isExcluded: boolean;
+  exclusionReason: string | null;
 }
 
 interface CoverageResponse {
   warehouse: { id: string; code: string; name: string; latitude: number; longitude: number };
   radiusKm: number;
-  home: { code: string | null; name: string; flag: string } | null;
+  radiusSource: 'REQUEST' | 'WAREHOUSE' | 'DEPLOYMENT_DEFAULT';
+  home: {
+    code: string | null;
+    name: string;
+    flag: string;
+    isExcluded: boolean;
+    exclusionReason: string | null;
+  } | null;
   countries: CoveredCountry[];
+  dormantExclusions: { code: string; name: string; flag: string; reason: string | null }[];
   ring: { type: string; coordinates: number[][][] };
   computedAt: string;
 }
@@ -166,6 +177,13 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  // The exclusions cascade with their warehouse, but a test that failed
+  // part-way through its own `finally` would leave one behind - and an
+  // exclusion on a warehouse this file did not create would change what the
+  // next file measures.
+  await prisma.warehouseCountryExclusion.deleteMany({
+    where: { location: { code: { startsWith: PREFIX } } },
+  });
   await prisma.inventoryLocation.deleteMany({ where: { code: { startsWith: PREFIX } } });
   await prisma.userRole.deleteMany({ where: { user: { emailNormalized: EMAIL } } });
   await prisma.user.deleteMany({ where: { emailNormalized: EMAIL } });
@@ -284,8 +302,14 @@ describe('a warehouse with no foreign border in range', () => {
 
 describe('the radius parameter', () => {
   it('falls back to the configured default when none is given', async () => {
-    // tests/setup.ts leaves DELIVERY_COVERAGE_RADIUS_KM at its own default.
-    expect((await coverage(antwerpId)).radiusKm).toBe(100);
+    // tests/setup.ts leaves DELIVERY_COVERAGE_RADIUS_KM at its own default,
+    // which the geofencing work moved from 100 km to 500. These fixtures carry
+    // no radius of their own, so the deployment's is what applies - and the
+    // answer says so, which is the assertion below it.
+    const body = await coverage(antwerpId);
+
+    expect(body.radiusKm).toBe(env.DELIVERY_COVERAGE_RADIUS_KM);
+    expect(body.radiusSource).toBe('DEPLOYMENT_DEFAULT');
   });
 
   it('accepts a fractional radius', async () => {
@@ -335,6 +359,179 @@ describe('warehouses it cannot measure', () => {
     const body = response.json<ErrorResponse>();
     expect(body.error.code).toBe('LOCATION_NOT_PLACED');
     expect(body.error.message).toContain(`${PREFIX}NOWHERE`);
+  });
+});
+
+/**
+ * The geofence: a radius the warehouse owns, and the countries it refuses.
+ *
+ * These are the assertions the whole feature turns on, and they are all about
+ * the same distinction: what geometry can *reach* against what the business
+ * will *serve*. Getting them the wrong way round means either promising a
+ * country somebody deliberately closed, or hiding a decision an operator has
+ * to be able to see and undo.
+ */
+describe('a warehouse with a radius of its own', () => {
+  it('measures its own radius rather than the deployment default', async () => {
+    await prisma.inventoryLocation.update({
+      where: { id: madridId },
+      data: { deliveryRadiusKm: 300 },
+    });
+
+    try {
+      const body = await coverage(madridId);
+
+      expect(body.radiusKm).toBe(300);
+      expect(body.radiusSource).toBe('WAREHOUSE');
+      // 300 km out of central Madrid reaches Portugal and nothing else.
+      expect(body.countries.map((country) => country.code)).toContain('PT');
+    } finally {
+      await prisma.inventoryLocation.update({
+        where: { id: madridId },
+        data: { deliveryRadiusKm: null },
+      });
+    }
+  });
+
+  /**
+   * A radius the caller asked for beats the warehouse's own, and says so.
+   *
+   * That is what the panel's slider needs: trying 800 km on a warehouse that
+   * promises 300 must show what 800 would reach, and must not be presented as
+   * the warehouse's promise.
+   */
+  it('lets a requested radius override it, marked as a request', async () => {
+    await prisma.inventoryLocation.update({
+      where: { id: madridId },
+      data: { deliveryRadiusKm: 300 },
+    });
+
+    try {
+      const body = await coverage(madridId, 'radiusKm=100');
+
+      expect(body.radiusKm).toBe(100);
+      expect(body.radiusSource).toBe('REQUEST');
+      expect(body.countries).toEqual([]);
+    } finally {
+      await prisma.inventoryLocation.update({
+        where: { id: madridId },
+        data: { deliveryRadiusKm: null },
+      });
+    }
+  });
+});
+
+describe('countries the operator has closed', () => {
+  async function close(locationId: string, countryCode: string, reason: string): Promise<void> {
+    await prisma.warehouseCountryExclusion.create({
+      data: { id: newId(), locationId, countryCode, reason },
+    });
+  }
+
+  /**
+   * **The exclusion is reported, not filtered out.**
+   *
+   * A closed country dropped from this answer would be indistinguishable from
+   * one that is forty kilometres too far away - and the first is a decision
+   * somebody made and may want to undo, where the second is a fact about the
+   * ground. The panel draws it in the refusing colour; the storefront is what
+   * withholds it from a buyer.
+   */
+  it('keeps a closed country in the list, flagged and with its reason', async () => {
+    await close(antwerpId, 'NL', 'No customs broker for the Netherlands.');
+
+    try {
+      const body = await coverage(antwerpId, 'radiusKm=100');
+      const netherlands = body.countries.find((country) => country.code === 'NL');
+
+      expect(netherlands).toBeDefined();
+      expect(netherlands?.isExcluded).toBe(true);
+      expect(netherlands?.exclusionReason).toBe('No customs broker for the Netherlands.');
+      // Still measured, still shaded: the geometry is unaffected by the
+      // business decision laid over it.
+      expect(netherlands?.distanceKm).toBeGreaterThan(5);
+      expect(netherlands?.area).not.toBeNull();
+    } finally {
+      await prisma.warehouseCountryExclusion.deleteMany({ where: { locationId: antwerpId } });
+    }
+  });
+
+  it('leaves every other country in range unflagged', async () => {
+    await close(antwerpId, 'NL', 'Closed.');
+
+    try {
+      const body = await coverage(antwerpId, 'radiusKm=250');
+      const others = body.countries.filter((country) => country.code !== 'NL');
+
+      expect(others.length).toBeGreaterThan(0);
+      expect(others.every((country) => !country.isExcluded)).toBe(true);
+    } finally {
+      await prisma.warehouseCountryExclusion.deleteMany({ where: { locationId: antwerpId } });
+    }
+  });
+
+  /**
+   * An exclusion outside the radius is kept and reported separately.
+   *
+   * A radius grows. Somebody who closed a country at 100 km has said something
+   * that must still hold at 800, so the row is never cleaned up for being
+   * inactive - and listing it is how an exclusion added to the wrong warehouse
+   * gets found before the day it starts to bite.
+   */
+  it('reports an exclusion the radius does not reach as dormant', async () => {
+    await close(antwerpId, 'GR', 'Distributor holds Greece.');
+
+    try {
+      const body = await coverage(antwerpId, 'radiusKm=100');
+
+      expect(body.countries.map((country) => country.code)).not.toContain('GR');
+      expect(body.dormantExclusions.map((entry) => entry.code)).toEqual(['GR']);
+      expect(body.dormantExclusions[0]?.reason).toBe('Distributor holds Greece.');
+      expect(body.dormantExclusions[0]?.name).not.toBe('');
+    } finally {
+      await prisma.warehouseCountryExclusion.deleteMany({ where: { locationId: antwerpId } });
+    }
+  });
+
+  it('moves an exclusion out of dormant once the radius reaches it', async () => {
+    await close(antwerpId, 'DE', 'Closed.');
+
+    try {
+      const near = await coverage(antwerpId, 'radiusKm=100');
+      expect(near.dormantExclusions.map((entry) => entry.code)).toEqual(['DE']);
+
+      const far = await coverage(antwerpId, 'radiusKm=250');
+      expect(far.dormantExclusions).toEqual([]);
+      expect(
+        far.countries.find((country) => country.code === 'DE')?.isExcluded,
+      ).toBe(true);
+    } finally {
+      await prisma.warehouseCountryExclusion.deleteMany({ where: { locationId: antwerpId } });
+    }
+  });
+
+  /**
+   * A warehouse may be told not to deliver in its own country.
+   *
+   * Rare and entirely legitimate - a bonded site serving export markets only,
+   * or one whose domestic sales go through a distributor - so the home country
+   * carries the same flag as every other rather than being assumed served.
+   */
+  it('flags the home country when that is the one closed', async () => {
+    await close(antwerpId, 'BE', 'Domestic sales go through the distributor.');
+
+    try {
+      const body = await coverage(antwerpId, 'radiusKm=100');
+
+      expect(body.home?.code).toBe('BE');
+      expect(body.home?.isExcluded).toBe(true);
+      expect(body.home?.exclusionReason).toBe('Domestic sales go through the distributor.');
+      // Not counted as dormant: the radius plainly reaches the country the
+      // warehouse is standing in.
+      expect(body.dormantExclusions).toEqual([]);
+    } finally {
+      await prisma.warehouseCountryExclusion.deleteMany({ where: { locationId: antwerpId } });
+    }
   });
 });
 

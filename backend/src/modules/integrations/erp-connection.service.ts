@@ -6,13 +6,18 @@
  * is a single-row table, so the installation has one ERP and every order goes
  * to it.
  *
- * That was a deliberate change from an earlier draft in which each customer
- * configured their own. A connection is a URL plus a credential that this
- * server then calls; letting a buyer supply either turns a form field into a
- * server-side request forgery primitive, and makes "did this order reach the
- * warehouse" depend on something the buyer set up. The guard in
- * `outbound-http.ts` is kept regardless - it costs nothing, and an address
- * typed by a person is still an address typed by a person.
+ * That is about THIS INSTALLATION's warehouse system, and it is not a claim
+ * that buyers never configure an ERP. They do, in a separate feature with
+ * separate tables: `modules/customer-erp/`, where a buyer connects their own
+ * SAP, monday.com or in-house system so that what they buy here appears there.
+ * The two never meet - different tenants, different credentials, different
+ * jobs - and neither can reach the other's rows.
+ *
+ * What makes it safe for a buyer to supply an address is `outbound-http.ts`:
+ * https only, DNS resolved here, private ranges refused, the socket pinned,
+ * every redirect re-checked. The same guard applies to this connection too,
+ * because an address typed by an administrator is still an address typed by a
+ * person.
  *
  * Three rules about secrets, none of which has an exception:
  *

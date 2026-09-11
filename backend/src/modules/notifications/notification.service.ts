@@ -127,6 +127,30 @@ export const NotificationEvent = {
   /// A refusal, carrying the reason. Art. 12(4) requires both this and the
   /// reminder that the subject may complain to a supervisory authority.
   DATA_REQUEST_REJECTED: 'data_request.rejected',
+
+  // --- A buyer's own organisation and its own ERP ---
+  //
+  // These go to the BUYER, which is what separates them from the ERP_* events
+  // above. Those tell staff that the business's own warehouse system is
+  // struggling; these tell a customer that the SAP system they run themselves
+  // needs something from them. A customer cannot act on the first and staff
+  // cannot act on the second.
+  /// Somebody has been asked to join a buyer organisation. Sent to an address
+  /// that may have no account here at all, so it says what the organisation is
+  /// and who asked.
+  ORGANIZATION_INVITATION: 'organization.invitation',
+  /// The buyer's ERP connection needs a person: an expired authorisation, a
+  /// mapping their ERP has started refusing.
+  CUSTOMER_ERP_ACTION_REQUIRED: 'customer_erp.action_required',
+  /// Repeated failures took the buyer's connection out of service.
+  CUSTOMER_ERP_SUSPENDED: 'customer_erp.suspended',
+  /// A purchase order or a stock write is over the organisation's threshold
+  /// and is waiting for somebody to decide. Nothing has been sent.
+  CUSTOMER_ERP_APPROVAL_NEEDED: 'customer_erp.approval_needed',
+  /// One event has run out of retries and needs a person. Deliberately not
+  /// sent per failed attempt - only when the retries are finished, because a
+  /// message per attempt is a message nobody reads by the third one.
+  CUSTOMER_ERP_EVENT_FAILED: 'customer_erp.event_failed',
 } as const;
 
 export type NotificationEventKey = (typeof NotificationEvent)[keyof typeof NotificationEvent];
@@ -410,6 +434,70 @@ const DEFAULT_TEMPLATES: Readonly<Record<string, { subject: string; body: string
         'Once it is fixed, send it again from the order page. It is sent under the original ' +
         'reference, so nobody is charged twice and the ERP cannot end up with two ' +
         'copies:\n{{orderUrl}}\n',
+    },
+
+    // --- The buyer's own organisation and ERP ---------------------------
+    //
+    // Written for somebody who does not work here. No internal vocabulary, no
+    // status enum names, and every one of them names the screen to open and
+    // the thing to do on it - because the person reading these is the only
+    // person who can fix any of them.
+    [NotificationEvent.ORGANIZATION_INVITATION]: {
+      subject: 'Join {{organizationName}} on {{businessName}}',
+      body:
+        'Hello,\n\n' +
+        '{{inviterName}} has invited you to join {{organizationName}} on {{businessName}} ' +
+        'as {{roleLabel}}.\n\n' +
+        'That gives you access to the ERP integration your organisation has set up here - ' +
+        'the connection between your own purchasing system and your account with us.\n\n' +
+        'Accept the invitation:\n{{acceptUrl}}\n\n' +
+        'The link stops working on {{expiresAt}}. If you were not expecting this, ignore ' +
+        'it - nothing happens until somebody follows the link.\n',
+    },
+    [NotificationEvent.CUSTOMER_ERP_ACTION_REQUIRED]: {
+      subject: 'Your {{connectionName}} connection needs attention',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'The connection between your {{systemLabel}} and your {{businessName}} account has ' +
+        'stopped and is waiting for somebody at your end.\n\n' +
+        'What is needed: {{reason}}\n\n' +
+        'Nothing has been lost. Orders are being taken and recorded as usual, and each one ' +
+        'that could not be sent is held and will go through under its original reference ' +
+        'once the connection is working - so no order can end up in your system twice.\n\n' +
+        'Open the connection here:\n{{connectionUrl}}\n',
+    },
+    [NotificationEvent.CUSTOMER_ERP_SUSPENDED]: {
+      subject: 'Your {{connectionName}} connection has stopped',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'We have stopped calling your {{systemLabel}} after repeated failures.\n\n' +
+        'What we saw: {{reason}}\n\n' +
+        'This is usually a credential that has expired or a system that is not reachable ' +
+        'from the internet. Your orders here are unaffected.\n\n' +
+        'Run Test connection when it is ready, and we will start again from where we left ' +
+        'off:\n{{connectionUrl}}\n',
+    },
+    [NotificationEvent.CUSTOMER_ERP_APPROVAL_NEEDED]: {
+      subject: 'Approval needed before {{summary}}',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        'Something is waiting for a decision before it is sent to your {{systemLabel}}:\n\n' +
+        '{{summary}}\n\n' +
+        'Nothing has been sent. It will wait until {{expiresAt}}, and after that it is ' +
+        'cancelled rather than sent late.\n\n' +
+        'Approve or decline it here:\n{{connectionUrl}}\n',
+    },
+    [NotificationEvent.CUSTOMER_ERP_EVENT_FAILED]: {
+      subject: '{{summary}} could not be sent to your {{systemLabel}}',
+      body:
+        'Hello {{recipientName}},\n\n' +
+        '{{summary}} could not be sent to your {{systemLabel}}, and the automatic retries ' +
+        'have finished.\n\n' +
+        'What your system reported: {{reason}}\n\n' +
+        'The order itself is fine - it is placed, paid where payment was due, and it will ' +
+        'be delivered. What has not happened is the copy of it in your own system.\n\n' +
+        'When the cause is fixed, press Retry on this item. It is sent under its original ' +
+        'reference, so retrying cannot produce a second purchase order:\n{{connectionUrl}}\n',
     },
 
     // --- Auto-pay ------------------------------------------------------

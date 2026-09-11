@@ -268,6 +268,23 @@ export async function executeErasure(input: {
         ).count;
       }
 
+      /**
+       * Delivery options they were offered and did not take.
+       *
+       * Deleted before the carts, because a quote points at one. Only the
+       * ones no order accepted: a quote attached to an order is the evidence
+       * of what the buyer was shown before they agreed to pay, it belongs to
+       * the order's accounting record rather than to the person, and the
+       * foreign key is RESTRICT precisely so a sweep or an erasure cannot
+       * take it. The order itself is retained under Art. 17(3)(b) for the
+       * same reason and is anonymised rather than removed.
+       */
+      deleted.fulfilmentQuotes = (
+        await tx.fulfilmentQuote.deleteMany({
+          where: { customerProfileId: profile.id, orders: { none: {} } },
+        })
+      ).count;
+
       // Carts cascade to their items and reservations.
       deleted.carts = (await tx.cart.deleteMany({ where: { customerProfileId: profile.id } })).count;
 
@@ -276,6 +293,136 @@ export async function executeErasure(input: {
       deleted.wishlistItems = (
         await tx.wishlistItem.deleteMany({ where: { customerProfileId: profile.id } })
       ).count;
+
+      /**
+       * Their place in a buyer organisation.
+       *
+       * The MEMBERSHIP goes: it names the subject and says where they work.
+       * The ORGANISATION and its ERP connection stay, and that distinction is
+       * the whole of this block. A buyer organisation is a company, not a
+       * person - its SAP connection is the company's integration with its own
+       * purchasing system, its purchase orders are the company's commercial
+       * records, and erasing one person's account cannot be allowed to take a
+       * business's integration down with it.
+       *
+       * The one case that needs care is the last owner. Deleting their
+       * membership would leave an organisation nobody can administer, so
+       * ownership is handed to the longest-standing remaining member first.
+       * Where there is nobody left at all, the organisation is archived: it
+       * stops being reachable and its connections stop carrying traffic, which
+       * is the honest outcome for a company whose only account has been erased.
+       */
+      const membership = await tx.buyerOrganizationMember.findUnique({
+        where: { customerProfileId: profile.id },
+        select: { id: true, organizationId: true, role: true },
+      });
+
+      if (membership !== null) {
+        if (membership.role === 'OWNER') {
+          const successor = await tx.buyerOrganizationMember.findFirst({
+            where: {
+              organizationId: membership.organizationId,
+              id: { not: membership.id },
+            },
+            orderBy: [{ role: 'asc' }, { joinedAt: 'asc' }],
+            select: { id: true },
+          });
+
+          if (successor === null) {
+            await tx.buyerOrganization.update({
+              where: { id: membership.organizationId },
+              data: { archivedAt: now },
+            });
+
+            // Nothing runs against an archived organisation. Belt as well as
+            // braces: `resolveMembership` refuses it and the dispatcher checks
+            // the connection state, but a connection left ACTIVE with nobody
+            // able to pause it is not a state to leave behind.
+            await tx.customerErpConnection.updateMany({
+              where: { organizationId: membership.organizationId, deletedAt: null },
+              data: {
+                state: 'DISCONNECTED',
+                stateChangedAt: now,
+                stateReason: 'The last member of this organisation was erased.',
+                nextPollAt: null,
+              },
+            });
+
+            await tx.customerErpCredential.deleteMany({
+              where: {
+                connection: { organizationId: membership.organizationId },
+              },
+            });
+          } else {
+            await tx.buyerOrganizationMember.update({
+              where: { id: successor.id },
+              data: { role: 'OWNER' },
+            });
+          }
+        }
+
+        deleted.organizationMemberships = (
+          await tx.buyerOrganizationMember.deleteMany({
+            where: { customerProfileId: profile.id },
+          })
+        ).count;
+
+        // Invitations this person sent or accepted keep existing - they belong
+        // to the organisation - but stop naming them.
+        await tx.buyerOrganizationInvite.updateMany({
+          where: { invitedByProfileId: profile.id },
+          data: { invitedByProfileId: null },
+        });
+
+        await tx.buyerOrganizationInvite.updateMany({
+          where: { acceptedByProfileId: profile.id },
+          data: { acceptedByProfileId: null },
+        });
+      }
+
+      // Invitations addressed TO the erased address, anywhere. Deleted rather
+      // than anonymised: an invitation is nothing but an email address and a
+      // token, so there is no residue worth keeping.
+      deleted.organizationInvites = (
+        await tx.buyerOrganizationInvite.deleteMany({
+          where: { emailNormalized: existing.emailNormalized },
+        })
+      ).count;
+
+      /**
+       * The buyer's own integration audit trail, where it names this person.
+       *
+       * Anonymised rather than deleted. The rows are the ORGANISATION's record
+       * of who changed its SAP credentials and when - a security log their
+       * IT function is entitled to keep - so the entries survive and stop
+       * identifying the individual. The same treatment, and the same reasoning,
+       * as the operator's own `audit_logs`.
+       */
+      await tx.customerErpAuditLog.updateMany({
+        where: { actorProfileId: profile.id },
+        data: { actorProfileId: null, actorEmail: null, ipAddress: null, userAgent: null },
+      });
+
+      await tx.customerErpApproval.updateMany({
+        where: { decidedByProfileId: profile.id },
+        data: { decidedByProfileId: null },
+      });
+
+      await tx.customerErpSyncJob.updateMany({
+        where: { startedByProfileId: profile.id },
+        data: { startedByProfileId: null },
+      });
+
+      await tx.customerErpConnection.updateMany({
+        where: { createdByProfileId: profile.id },
+        data: { createdByProfileId: null },
+      });
+
+      // An OAuth flow this person started and never finished. Short-lived
+      // anyway, and it holds an encrypted PKCE verifier keyed to them.
+      await tx.customerErpOAuthState.deleteMany({
+        where: { startedByProfileId: profile.id },
+      });
 
       // Address books need two passes, because a recurring schedule holds a
       // non-nullable reference to the address it ships to and the foreign key

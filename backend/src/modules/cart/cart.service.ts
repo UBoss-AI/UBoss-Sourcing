@@ -220,7 +220,27 @@ export async function getOrCreateCart(customerProfileId: string): Promise<string
  */
 export async function resolveCart(
   customerProfileId: string,
-  options: { shippingMethodCode?: string | null; destinationCountry?: string | null } = {},
+  options: {
+    shippingMethodCode?: string | null;
+    destinationCountry?: string | null;
+    /**
+     * Delivery priced by a warehouse lane rather than by a shipping method.
+     *
+     * Wins over `shippingMethodCode` when both are given, and it is the whole
+     * reason fulfilment options can quote a total at all: the fee comes from
+     * `WarehouseDeliveryZone`, which the `shipping_methods` table knows
+     * nothing about.
+     *
+     * It is an *input to the same pricing run*, not a number added afterwards.
+     * That distinction is the point - `priceLines` decides free-above,
+     * assembles the grand total from its own line totals, and
+     * `assertTotalsConsistent` then checks the result. A caller that added a
+     * delivery fee to a finished total would be a second pricing engine, and
+     * the one thing this codebase will not have is two answers to "what does
+     * this basket cost".
+     */
+    shippingOverride?: { priceMinor: Minor; freeAboveMinor: Minor | null } | null;
+  } = {},
 ): Promise<ResolvedCart> {
   const cartId = await getOrCreateCart(customerProfileId);
   const currency = await resolveCurrency(customerProfileId);
@@ -462,7 +482,12 @@ export async function resolveCart(
     excludeCouponId: appliedCoupon?.couponId ?? null,
   });
 
-  const shipping = await resolveShipping(options.shippingMethodCode);
+  // The lane wins over the method. A caller that passes both is checkout
+  // re-pricing a chosen warehouse option while the cart still carries the
+  // method it was browsing with, and the option is what the customer agreed
+  // to.
+  const shipping =
+    options.shippingOverride ?? (await resolveShipping(options.shippingMethodCode));
   const pricing = priceLines(pricingInputs, shipping === null ? {} : { shipping });
 
   // Purchasing limits, using the freshly computed total.

@@ -29,11 +29,14 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
+import { useLocale } from '@/app/locale-context';
 import { useToast } from '@/components/toast-context';
 import { AutoPaySetupDialog } from '@/components/AutoPaySetupDialog';
 import { QuantityInput } from '@/components/QuantityInput';
 import { CouponPanel } from '@/components/CouponPanel';
+import { DeliveryOptionsPanel } from '@/components/DeliveryOptionsPanel';
 import { CheckoutSteps } from '@/components/CheckoutSteps';
+import { CartModeTabs } from '@/components/CartModeTabs';
 import { CART_STEPS } from '@/lib/checkout-steps';
 import { StickyBottomBar } from '@/components/StickyBottomBar';
 import { GrandTotalRow, TotalRow } from '@/components/Totals';
@@ -478,6 +481,10 @@ export function CartPage(): React.JSX.Element {
   const navigate = useNavigate();
   const toast = useToast();
   const { business } = useStorefront();
+  // The shopper's market, which is the destination the delivery options are
+  // measured to. Null until they have answered the country question, and the
+  // panel has a state that says so rather than guessing one.
+  const locale = useLocale();
 
   // Which line is mid-change. Scoped per line so editing one does not freeze
   // the whole cart.
@@ -563,6 +570,11 @@ export function CartPage(): React.JSX.Element {
     return (
       <>
         <CheckoutSteps states={CART_STEPS} />
+        {/* On the empty cart too. Somebody with nothing in their basket is
+            exactly the person who has not yet found out that a standing order
+            is on offer, and a control that appears only once there is
+            something to buy is a control they meet too late. */}
+        <CartModeTabs current="instant" />
         <PageEmptyState
           title={t('cart.emptyTitle')}
           description={t('cart.emptyBody')}
@@ -608,6 +620,17 @@ export function CartPage(): React.JSX.Element {
   return (
     <>
       <CheckoutSteps states={CART_STEPS} />
+
+      {/*
+       * Instant Buy and Schedule Cart, above the heading rather than beside
+       * it.
+       *
+       * Everything below this line is the cart the storefront always had: the
+       * same lines, the same server-owned totals, the same checkout button.
+       * The tab names it, and names the alternative that was previously a link
+       * two screens down the summary panel.
+       */}
+      <CartModeTabs current="instant" />
 
       <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
@@ -714,6 +737,21 @@ export function CartPage(): React.JSX.Element {
             </dl>
 
             <CouponPanel cart={cart} />
+
+            {/* Who can actually deliver this basket, and on what terms. Under
+                the totals rather than above them, because it is the answer to
+                a question the totals raise: the delivery line says what
+                delivery costs, and this says where it would come from and how
+                soon - which is the trade a buyer with two warehouses in reach
+                gets to make. */}
+            <DeliveryOptionsPanel
+              countryCode={locale.country}
+              items={cart.lines.map((line) => ({
+                productId: line.productId,
+                variantId: line.variantId,
+                quantity: line.quantity,
+              }))}
+            />
 
             {cart.requiresApproval && (
               <div

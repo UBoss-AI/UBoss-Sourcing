@@ -145,13 +145,24 @@ describe('what a node does', () => {
     });
   });
 
-  it('keeps the administrator-owned node out of a customer route', () => {
-    // ERP has no customer screen and is not supposed to grow one: a connection
-    // is a URL plus a credential belonging to whoever runs the installation.
-    // It explains itself, whoever is asking.
-    for (const access of [makeAccess(), makeAccess({ isCustomer: false })]) {
-      expect(resolveNode('erp', access).kind).toBe('note');
-    }
+  it('sends a signed-in customer to their own ERP integration', () => {
+    // This node used to explain itself to everybody, because a connection was
+    // a URL plus a credential belonging to whoever runs the installation and
+    // there was no customer screen for one. There is now: a buyer connects
+    // their OWN SAP, monday.com or in-house system, and the risk that kept it
+    // out is handled in `outbound-http.ts` and the credential vault rather
+    // than by declining to offer it.
+    expect(resolveNode('erp', makeAccess())).toEqual({
+      kind: 'link',
+      to: '/account/integrations/erp',
+    });
+  });
+
+  it('asks a guest to sign in rather than linking somewhere they cannot go', () => {
+    // The rule this file exists to hold: a node never links somewhere the
+    // person pressing it cannot get to.
+    expect(resolveNode('erp', makeAccess({ isCustomer: false })).kind).toBe('note');
+    expect(resolveNode('erp', makeAccess({ isSessionLoading: true })).kind).toBe('pending');
   });
 });
 
@@ -200,11 +211,14 @@ describe('the sourcing hub', () => {
     const list = screen.getByRole('list');
 
     // Some are links and some are buttons — which one a node is depends on
-    // whether it has anywhere to send this particular visitor. What matters
-    // here is that all four are controls in one list, in one tab order.
+    // whether it has anywhere to send this particular visitor. For a signed-in
+    // customer with every capability on, all four are links; for a guest, three
+    // of them are buttons carrying a sign-in note. `queryAllByRole` rather than
+    // `getAllByRole`, because either group being empty is a legitimate outcome
+    // and only the total matters here.
     const controls = [
-      ...within(list).getAllByRole('link'),
-      ...within(list).getAllByRole('button'),
+      ...within(list).queryAllByRole('link'),
+      ...within(list).queryAllByRole('button'),
     ];
 
     expect(controls).toHaveLength(4);
@@ -282,7 +296,8 @@ describe('the sourcing hub', () => {
   it('gives each node its own name and its own description', () => {
     renderWithProviders(<SourcingHub />, { config: makeConfig() });
 
-    const node = screen.getByRole('button', { name: 'ERP Integration' });
+    // A link now, not a button: a signed-in customer has somewhere to go.
+    const node = screen.getByRole('link', { name: 'ERP Integration' });
 
     // Not one merged label: "ERP Integration Orders handed to your own system,
     // button" is not a thing anybody can skim a list of four of.
@@ -342,10 +357,10 @@ describe('the sourcing hub', () => {
 
     // The attribute is the whole mechanism — the stylesheet brightens the
     // line from it, and writing it costs no render.
-    await user.hover(screen.getByRole('button', { name: 'ERP Integration' }));
+    await user.hover(screen.getByRole('link', { name: 'ERP Integration' }));
     expect(root).toHaveAttribute('data-orch-active', 'erp');
 
-    await user.unhover(screen.getByRole('button', { name: 'ERP Integration' }));
+    await user.unhover(screen.getByRole('link', { name: 'ERP Integration' }));
     expect(root).not.toHaveAttribute('data-orch-active');
   });
 

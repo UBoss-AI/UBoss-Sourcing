@@ -26,6 +26,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useLocale } from '@/app/locale-context';
 import { useStorefront } from '@/app/storefront-context';
 import { AddressForm } from '@/components/AddressForm';
+import { DatePicker } from '@/components/DatePicker';
 import { QuantityInput } from '@/components/QuantityInput';
 import {
   Badge,
@@ -39,134 +40,34 @@ import {
 } from '@/components/ui';
 import { PageEmptyState } from '@/components/PageEmptyState';
 import { ApiError, NetworkError, api } from '@/lib/api';
+import { formatIsoDate } from '@/lib/calendar-date';
+import { useDeliveryWindow } from '@/lib/delivery-window';
 import { formatMoney, formatNumber } from '@/lib/format';
 import { clampToRules } from '@/lib/quantity-rules';
+/*
+ * The interval mapping, shared with the schedule workspace.
+ *
+ * It used to live in this file. It moved the day a second screen had to make
+ * the same conversion: the workspace changes a plan's cadence, and two copies
+ * of "every three months means EVERY_N_MONTHS with 3" is how a standing order
+ * created on one calendar gets saved back onto another.
+ */
+import {
+  CUSTOM_CADENCES,
+  PRESET_CADENCES,
+  RUN_TIMES,
+  WEEKDAYS,
+  earliestDeliveryDate,
+  noticeDaysFrom,
+  recurrenceFor,
+} from '@/lib/schedule-cadence';
+import type { Cadence } from '@/lib/schedule-cadence';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { AccountResponse, Address, Cart, Product, ScheduleCreated } from '@/lib/types';
 import { translateKey, useI18n } from '@/i18n/i18n-context';
-import type { TranslationKey } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
 
 type PaymentMode = 'AUTO_PAY' | 'PAYMENT_LINK';
-
-/**
- * What the customer picks, which is not what the API stores.
- *
- * "Every three months" is one choice to a person and two fields to the server
- * — a frequency and an interval — and the day it lands on is a third, taken
- * from the start date. Modelling the dropdown as the API's own enum meant
- * every preset needed its own follow-up question, so the six intervals this
- * screen actually offers are their own type and `recurrenceFor` below turns
- * one into the other.
- *
- * The three CUSTOM_ entries are the cadences this builder offered before the
- * presets existed. They are kept because they are real capabilities that
- * shipped and customers are on them — a weekly standing order on a fixed
- * weekday is not expressible as any preset — but they are grouped apart, since
- * almost nobody arrives wanting to nominate a weekday.
- */
-type Cadence =
-  | 'DAYS_15'
-  | 'MONTHS_1'
-  | 'MONTHS_2'
-  | 'MONTHS_3'
-  | 'MONTHS_6'
-  | 'MONTHS_12'
-  | 'CUSTOM_DAYS'
-  | 'CUSTOM_WEEKLY'
-  | 'CUSTOM_MONTHLY';
-
-const PRESET_CADENCES = [
-  { value: 'DAYS_15', labelKey: 'scheduleBuilder.every15Days' },
-  { value: 'MONTHS_1', labelKey: 'scheduleBuilder.everyMonth' },
-  { value: 'MONTHS_2', labelKey: 'scheduleBuilder.every2Months' },
-  { value: 'MONTHS_3', labelKey: 'scheduleBuilder.every3Months' },
-  { value: 'MONTHS_6', labelKey: 'scheduleBuilder.every6Months' },
-  { value: 'MONTHS_12', labelKey: 'scheduleBuilder.everyYear' },
-] as const satisfies readonly { value: Cadence; labelKey: TranslationKey }[];
-
-const CUSTOM_CADENCES = [
-  { value: 'CUSTOM_DAYS', labelKey: 'scheduleBuilder.everySoManyDays' },
-  { value: 'CUSTOM_WEEKLY', labelKey: 'scheduleBuilder.weeklyOnAChosenDay' },
-  { value: 'CUSTOM_MONTHLY', labelKey: 'scheduleBuilder.monthlyOnAChosenDate' },
-] as const satisfies readonly { value: Cadence; labelKey: TranslationKey }[];
-
-/** The day of the month a `YYYY-MM-DD` start date falls on. */
-function dayOfMonthIn(startDate: string): number {
-  const day = Number(startDate.slice(8, 10));
-  return Number.isInteger(day) && day >= 1 && day <= 31 ? day : 1;
-}
-
-/**
- * The recurrence fields for a cadence.
- *
- * Only the fields that cadence needs are returned, and that matters: the
- * server's CHECK constraint requires the column a frequency depends on to be
- * populated, and sending `weekday` alongside a MONTHLY plan would be sending a
- * value nothing reads and the customer never chose.
- *
- * The presets take their day from the start date rather than asking for one.
- * A customer who picked the 9th and "every three months" has already said
- * which day; asking again is a second chance to disagree with themselves.
- */
-function recurrenceFor(
-  cadence: Cadence,
-  startDate: string,
-  custom: { intervalDays: number; weekday: number; monthDay: number },
-): Record<string, string | number> {
-  switch (cadence) {
-    case 'DAYS_15':
-      // A fortnight is genuinely fifteen days here, not BIWEEKLY — that
-      // frequency is anchored to a weekday, and this preset is not about
-      // weekdays at all.
-      return { frequency: 'EVERY_N_DAYS', intervalDays: 15 };
-
-    case 'MONTHS_1':
-      return { frequency: 'MONTHLY', monthDay: dayOfMonthIn(startDate) };
-
-    case 'MONTHS_2':
-      return { frequency: 'EVERY_N_MONTHS', intervalMonths: 2 };
-    case 'MONTHS_3':
-      return { frequency: 'EVERY_N_MONTHS', intervalMonths: 3 };
-    case 'MONTHS_6':
-      return { frequency: 'EVERY_N_MONTHS', intervalMonths: 6 };
-    case 'MONTHS_12':
-      return { frequency: 'EVERY_N_MONTHS', intervalMonths: 12 };
-
-    case 'CUSTOM_DAYS':
-      return { frequency: 'EVERY_N_DAYS', intervalDays: custom.intervalDays };
-    case 'CUSTOM_WEEKLY':
-      return { frequency: 'WEEKLY', weekday: custom.weekday };
-    case 'CUSTOM_MONTHLY':
-      return { frequency: 'MONTHLY', monthDay: custom.monthDay };
-  }
-}
-
-const WEEKDAYS = [
-  { value: 1, labelKey: 'scheduleBuilder.monday' },
-  { value: 2, labelKey: 'scheduleBuilder.tuesday' },
-  { value: 3, labelKey: 'scheduleBuilder.wednesday' },
-  { value: 4, labelKey: 'scheduleBuilder.thursday' },
-  { value: 5, labelKey: 'scheduleBuilder.friday' },
-  { value: 6, labelKey: 'scheduleBuilder.saturday' },
-  { value: 7, labelKey: 'scheduleBuilder.sunday' },
-] as const satisfies readonly { value: number; labelKey: TranslationKey }[];
-
-/** Times of day offered, as minutes past midnight in the schedule's zone. */
-const RUN_TIMES = [
-  { value: 360, label: '06:00' },
-  { value: 480, label: '08:00' },
-  { value: 600, label: '10:00' },
-  { value: 840, label: '14:00' },
-  { value: 1080, label: '18:00' },
-] as const;
-
-/** Today in the schedule's timezone, as YYYY-MM-DD. */
-function todayIn(timezone: string): string {
-  // `en-CA` formats as YYYY-MM-DD, which is what the API expects — and doing
-  // it through Intl means "today" is the customer's today, not the server's.
-  return new Intl.DateTimeFormat('en-CA', { timeZone: timezone }).format(new Date());
-}
 
 interface ScheduleItemDraft {
   productId: string;
@@ -181,11 +82,23 @@ interface ScheduleItemDraft {
 }
 
 export function ScheduleBuilderPage(): React.JSX.Element {
-  const { t } = useI18n();
+  const { t, intlLocale } = useI18n();
 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { business, features } = useStorefront();
+  const { business, features, fulfilment } = useStorefront();
+
+  /*
+   * The soonest first delivery this store will take, on the store's clock.
+   *
+   * The same floor `CadenceFields` draws on the workspace and the same one
+   * `assertDeliveryNotice` enforces on the server - read from the deployment's
+   * own setting rather than from a number in this bundle. Greying out what
+   * will be refused is the difference between a rule and a rejection, and
+   * this screen used to offer today.
+   */
+  const noticeDays = noticeDaysFrom(fulfilment);
+  const localEarliest = earliestDeliveryDate(business.timezone, noticeDays);
 
   const productId = searchParams.get('productId');
   const variantId = searchParams.get('variantId');
@@ -258,7 +171,16 @@ export function ScheduleBuilderPage(): React.JSX.Element {
   const [weekday, setWeekday] = useState(1);
   const [monthDay, setMonthDay] = useState(1);
   const [runAtMinute, setRunAtMinute] = useState(360);
-  const [startDate, setStartDate] = useState(() => todayIn(business.timezone));
+  /*
+   * Opens on the earliest date the store can actually take, not on today.
+   *
+   * Today is a day the calendar below greys out and the server refuses, so
+   * pre-filling it meant every schedule started life invalid and the buyer's
+   * first act on the screen was correcting a value they had not typed.
+   */
+  const [startDate, setStartDate] = useState(() =>
+    earliestDeliveryDate(business.timezone, noticeDaysFrom(fulfilment)),
+  );
   const [endMode, setEndMode] = useState<'never' | 'date' | 'count'>('never');
   const [endDate, setEndDate] = useState('');
   const [maxOccurrences, setMaxOccurrences] = useState(12);
@@ -269,6 +191,21 @@ export function ScheduleBuilderPage(): React.JSX.Element {
   const [consentAccepted, setConsentAccepted] = useState(false);
   const [isAddingAddress, setIsAddingAddress] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  /*
+   * And the floor the API will actually enforce, once an address is chosen.
+   *
+   * Measured on the delivery address's own zone, and raised further by a
+   * pinned warehouse's lane where a plan has one. Falls back to the local
+   * figure until the answer arrives and if the ask fails — see
+   * `lib/delivery-window.ts`.
+   */
+  const deliveryWindow = useDeliveryWindow({
+    shippingAddressId,
+    timezone: business.timezone,
+  });
+
+  const earliestStart = deliveryWindow?.earliest ?? localEarliest;
 
   const usableAddresses = useMemo(
     () => (addresses.data?.addresses ?? []).filter((address) => address.archivedAt === null),
@@ -288,6 +225,21 @@ export function ScheduleBuilderPage(): React.JSX.Element {
       usableAddresses.find((address) => address.isDefaultShipping) ?? usableAddresses[0];
     setShippingAddressId(preferred?.id ?? null);
   }, [usableAddresses, shippingAddressId]);
+
+  /*
+   * Lift a start date that has fallen below the floor.
+   *
+   * Two ways it can, and neither is the buyer typing something silly. The
+   * form mounts before `GET /config` has answered, so it opens on the
+   * fallback notice period and the real one may be longer. And a tab left
+   * open overnight is a tab whose "today" moved while nobody touched it.
+   *
+   * Only ever forwards. A date the buyer chose further out is their choice
+   * and this must not drag it back to the floor.
+   */
+  useEffect(() => {
+    setStartDate((current) => (current < earliestStart ? earliestStart : current));
+  }, [earliestStart]);
 
   // Fill the draft from whichever source the customer arrived through.
   useEffect(() => {
@@ -698,15 +650,27 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                   )}
                 </Field>
 
-                <Field label={t('scheduleBuilder.firstDeliveryOn')}>
-                  {({ inputId }) => (
-                    <Input
+                <Field
+                  label={t('scheduleBuilder.firstDeliveryOn')}
+                  hint={t('scheduleBuilder.firstDeliveryNotice', {
+                    date: formatIsoDate(earliestStart, intlLocale),
+                  })}
+                >
+                  {({ inputId, describedBy }) => (
+                    <DatePicker
                       id={inputId}
-                      type="date"
+                      label={t('scheduleBuilder.firstDeliveryOn')}
                       value={startDate}
-                      min={todayIn(business.timezone)}
-                      onChange={(event) => {
-                        setStartDate(event.target.value);
+                      /*
+                       * The notice period, greyed out rather than merely
+                       * refused. A `type="date"` box with a `min` shows the
+                       * same rule only to a buyer who tries to break it; the
+                       * calendar shows it before they click.
+                       */
+                      min={earliestStart}
+                      describedBy={describedBy}
+                      onChange={(next) => {
+                        setStartDate(next);
                       }}
                     />
                   )}
@@ -743,17 +707,25 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                       }}
                     />
                     {t('scheduleBuilder.stopAfter')}
-                    <Input
-                      type="date"
-                      className="w-44"
-                      value={endDate}
-                      min={startDate}
-                      aria-label={t('scheduleBuilder.stopAfterThisDate')}
-                      disabled={endMode !== 'date'}
-                      onChange={(event) => {
-                        setEndDate(event.target.value);
-                      }}
-                    />
+                    {/* The same calendar as the field above, so the two dates
+                        on this form are chosen the same way. Its floor is the
+                        first delivery rather than the notice period: a plan
+                        that ends before it starts is the only wrong answer
+                        here. */}
+                    {/* The width lives on a wrapper, not on the picker: its
+                        trigger is `w-full` and would win over anything passed
+                        down. */}
+                    <div className="w-44">
+                      <DatePicker
+                        label={t('scheduleBuilder.stopAfterThisDate')}
+                        value={endDate}
+                        min={startDate}
+                        disabled={endMode !== 'date'}
+                        onChange={(next) => {
+                          setEndDate(next);
+                        }}
+                      />
+                    </div>
                   </label>
 
                   <label className="flex flex-wrap items-center gap-2 text-sm text-ink">

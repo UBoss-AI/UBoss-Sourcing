@@ -102,6 +102,7 @@ import { useLingering } from '@/lib/use-lingering';
 import { translateKey, useI18n } from '@/i18n/i18n-context';
 import { WarehouseDetailPanel } from './warehouse/WarehouseDetailPanel';
 import { WarehouseFormDialog } from './warehouse/WarehouseFormDialog';
+import { WarehouseInventoryDialog } from './warehouse/WarehouseInventoryDialog';
 import { WarehouseMap } from './warehouse/WarehouseMap';
 import { DeliveryCoveragePanel } from './warehouse/DeliveryCoveragePanel';
 
@@ -152,6 +153,15 @@ export function WarehousesPage(): React.JSX.Element {
    */
   const [coverageId, setCoverageId] = useState<string | null>(null);
   const [editing, setEditing] = useState<Warehouse | null>(null);
+  /**
+   * The warehouse whose inventory panel is open.
+   *
+   * The id rather than the row, so the dialog follows a refetch: holding the
+   * object would leave it describing a warehouse's stock roll-up from before
+   * somebody received into it, and the panel is the one screen where that
+   * figure is the whole point.
+   */
+  const [inventoryId, setInventoryId] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [confirmRetire, setConfirmRetire] = useState<Warehouse | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Warehouse | null>(null);
@@ -220,11 +230,17 @@ export function WarehousesPage(): React.JSX.Element {
   /**
    * The radius this deployment promises, from the server.
    *
-   * The fallback only ever applies before the first response lands, when there
+   * The *fallback* for a warehouse that has not been given one of its own -
+   * which is what the form shows as the hint under an empty radius box. It is
+   * no longer what the coverage panel measures with: since warehouses carry
+   * their own radius, that is asked for per warehouse and answered by the
+   * server. See `coverageRadiusKm` below.
+   *
+   * The `?? 500` only ever applies before the first response lands, when there
    * is no map drawn and nothing to ask coverage about. It is not a default
    * this frontend gets to have an opinion about.
    */
-  const radiusKm = query.data?.coverage.radiusKm ?? 100;
+  const radiusKm = query.data?.coverage.radiusKm ?? 500;
 
   const mapConfig = query.data?.map ?? { provider: 'NONE' as const };
   const canShowCoverage = supportsDeliveryCoverage(mapConfig);
@@ -240,9 +256,30 @@ export function WarehousesPage(): React.JSX.Element {
    * cover a session of looking around and an invalidation on save, which the
    * existing `invalidate` already performs for every warehouse query.
    */
+  const coverageWarehouse =
+    coverageId === null
+      ? null
+      : (query.data?.warehouses.find((warehouse) => warehouse.id === coverageId) ?? null);
+
+  /**
+   * The radius the *warehouse being pointed at* promises.
+   *
+   * Only used as part of the cache key - the request itself sends no radius,
+   * so the server measures what the warehouse stands behind and says which of
+   * its own two sources that was. Keying on the number is what makes editing a
+   * warehouse from 500 to 800 km refetch instead of serving the old ring.
+   *
+   * Falls back to the deployment's figure for the moment between a warehouse
+   * being pointed at and the list that describes it arriving, which is also
+   * exactly what the server would have used.
+   */
+  const coverageRadiusKm = coverageWarehouse?.delivery.radiusKm ?? radiusKm;
+
   const coverageQuery = useQuery({
-    queryKey: coverageQueryKey(coverageId ?? '', radiusKm),
-    queryFn: () => fetchDeliveryCoverage(coverageId ?? '', radiusKm),
+    queryKey: coverageQueryKey(coverageId ?? '', coverageRadiusKm),
+    // No radius sent. See `fetchDeliveryCoverage` - passing one asks a
+    // hypothetical, and this panel is asking what is true.
+    queryFn: () => fetchDeliveryCoverage(coverageId ?? ''),
     enabled: coverageId !== null && canShowCoverage,
     staleTime: 5 * 60 * 1000,
     // A warehouse with no coordinates will not grow any by being asked twice,
@@ -250,11 +287,6 @@ export function WarehousesPage(): React.JSX.Element {
     retry: (attempt, error) =>
       attempt < 1 && !(error instanceof ApiError && error.code === NOT_PLACED),
   });
-
-  const coverageWarehouse =
-    coverageId === null
-      ? null
-      : (query.data?.warehouses.find((warehouse) => warehouse.id === coverageId) ?? null);
 
   /**
    * Two failures, because they have two fixes.
@@ -288,6 +320,10 @@ export function WarehousesPage(): React.JSX.Element {
     coverageId !== null && coverageWarehouse !== null
       ? {
           warehouseName: coverageWarehouse.name,
+          // The warehouse's own radius, not the deployment's. Carried in the
+          // snapshot so the heading still names the right figure while the
+          // panel fades out - by then the answer it came from is gone.
+          radiusKm: coverageRadiusKm,
           coverage: coverageQuery.data ?? null,
           isLoading: coverageQuery.isPending,
           failure: coverageFailure,
@@ -304,6 +340,10 @@ export function WarehousesPage(): React.JSX.Element {
   const broken = warehouses.filter((warehouse) => warehouse.coordinatesInvalid);
 
   const selected = warehouses.find((warehouse) => warehouse.id === selectedId) ?? null;
+  const inventoryWarehouse =
+    inventoryId === null
+      ? null
+      : (warehouses.find((warehouse) => warehouse.id === inventoryId) ?? null);
 
   /**
    * A marker was clicked or a row was opened.
@@ -375,6 +415,11 @@ export function WarehousesPage(): React.JSX.Element {
       // A warehouse that has just been retired or deleted must not leave a
       // ring on the map for a record that is gone.
       setCoverageId((current) => (current === id ? null : current));
+      // Nor an inventory panel over the top of it. The dialog looks up its
+      // warehouse in the list by id, so leaving this set would blank it the
+      // moment the refetch lands - a dialog that empties itself rather than
+      // closing.
+      setInventoryId((current) => (current === id ? null : current));
       await invalidate();
     },
     onError: (error) => {
@@ -459,6 +504,30 @@ export function WarehousesPage(): React.JSX.Element {
         ),
     },
     {
+      key: 'radius',
+      header: t('warehouses.column.radius'),
+      nowrap: true,
+      secondary: true,
+      tertiary: true,
+      render: (row) => (
+        <div>
+          {/* The same number, and two different statements. A warehouse
+              running on the deployment default has had no decision made about
+              it, which is what an operator setting one up needs to see. */}
+          <p className={row.delivery.radiusIsDefault ? 'text-ink-muted' : 'text-ink'}>
+            {row.delivery.radiusIsDefault
+              ? t('warehouses.radiusDefault', { km: row.delivery.radiusKm })
+              : t('warehouses.radiusOwn', { km: row.delivery.radiusKm })}
+          </p>
+          {row.delivery.excludedCountries.length > 0 && (
+            <p className="text-xxs text-danger">
+              {t('warehouses.excludedCount', { count: row.delivery.excludedCountries.length })}
+            </p>
+          )}
+        </div>
+      ),
+    },
+    {
       key: 'onHand',
       header: t('warehouses.column.onHand'),
       align: 'right',
@@ -507,20 +576,34 @@ export function WarehousesPage(): React.JSX.Element {
       header: t('warehouses.column.action'),
       align: 'right',
       render: (row) => {
-        // Opening the details is a read, so everybody who can see the screen
-        // gets it. Only the edits sit behind the write permission.
+        // Opening the details or the inventory is a read, so everybody who can
+        // see the screen gets both. Only the edits sit behind the write
+        // permission.
         const details = (
-          <Button
-            size="sm"
-            variant={row.id === selectedId ? 'primary' : 'secondary'}
-            onClick={() => {
-              // A toggle, so pressing it again closes the panel rather than
-              // leaving the reader with no way back.
-              setSelectedId((current) => (current === row.id ? null : row.id));
-            }}
-          >
-            {t('warehouses.viewDetails')}
-          </Button>
+          <>
+            {/* The inventory first, because it is the question a warehouse row
+                is most often clicked to answer. */}
+            <Button
+              size="sm"
+              onClick={() => {
+                setInventoryId(row.id);
+              }}
+            >
+              {t('warehouses.inventory')}
+            </Button>
+
+            <Button
+              size="sm"
+              variant={row.id === selectedId ? 'primary' : 'secondary'}
+              onClick={() => {
+                // A toggle, so pressing it again closes the panel rather than
+                // leaving the reader with no way back.
+                setSelectedId((current) => (current === row.id ? null : row.id));
+              }}
+            >
+              {t('warehouses.viewDetails')}
+            </Button>
+          </>
         );
 
         if (!canWrite) return <div className="flex justify-end gap-2">{details}</div>;
@@ -682,7 +765,15 @@ export function WarehousesPage(): React.JSX.Element {
                         coveragePanel === null ? undefined : (
                           <DeliveryCoveragePanel
                             warehouseName={coveragePanel.value.warehouseName}
-                            radiusKm={radiusKm}
+                            // The answer's own radius once it has arrived, and
+                            // the warehouse's stored one while it is on its
+                            // way. Never the deployment default, which is what
+                            // this used to pass and is wrong for any warehouse
+                            // that promises something else.
+                            radiusKm={
+                              coveragePanel.value.coverage?.radiusKm ??
+                              coveragePanel.value.radiusKm
+                            }
                             coverage={coveragePanel.value.coverage}
                             isLoading={coveragePanel.value.isLoading}
                             failure={coveragePanel.value.failure}
@@ -756,6 +847,9 @@ export function WarehousesPage(): React.JSX.Element {
                           },
                         }
                       : {})}
+                    onOpenInventory={() => {
+                      setInventoryId(selected.id);
+                    }}
                     {...(canWrite
                       ? {
                           onEdit: () => {
@@ -863,7 +957,7 @@ export function WarehousesPage(): React.JSX.Element {
               isLoading={query.isPending}
               isRefreshing={query.isFetching && !query.isPending}
               loadingLabel={t('warehouses.loading')}
-              minWidth="76rem"
+              minWidth="88rem"
               emptyTitle={isFiltered ? t('warehouses.noMatchTitle') : t('warehouses.emptyTitle')}
               emptyDescription={
                 isFiltered ? t('warehouses.noMatchDescription') : t('warehouses.emptyDescription')
@@ -882,6 +976,9 @@ export function WarehousesPage(): React.JSX.Element {
       {(isCreating || editing !== null) && (
         <WarehouseFormDialog
           editing={editing}
+          // The deployment's own default, from the response. The form shows it
+          // as the hint under an empty radius box.
+          defaultRadiusKm={radiusKm}
           onClose={() => {
             setIsCreating(false);
             setEditing(null);
@@ -894,6 +991,19 @@ export function WarehousesPage(): React.JSX.Element {
             // brings to the front and the panel describes.
             setSelectedId(warehouse.id);
             void invalidate();
+          }}
+        />
+      )}
+
+      {/* Mounted only while open. A `<Modal isOpen={false}>` used to render in
+          the page flow - see the note on `[&:not([open])]:hidden` in
+          Modal.tsx - and mounting on demand is also what makes the dialog's
+          own state start clean each time it is opened. */}
+      {inventoryWarehouse !== null && (
+        <WarehouseInventoryDialog
+          warehouse={inventoryWarehouse}
+          onClose={() => {
+            setInventoryId(null);
           }}
         />
       )}

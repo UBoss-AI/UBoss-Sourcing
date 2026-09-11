@@ -1055,8 +1055,6 @@
   "aiMode.deleteBody": "La conversation {{name}} sera retirée de votre historique et vous ne pourrez plus l'ouvrir.",
   "aiMode.deleteConfirm": "Supprimer la conversation",
   "aiMode.signOut": "Se déconnecter",
-  "aiMode.welcomeHeading": "Que recherchez-vous aujourd'hui ?",
-  "aiMode.welcomeBody": "Posez vos questions sur les produits, les stocks, les commandes passées et les livraisons récurrentes. Les réponses proviennent de ce que {{store}} publie, avec les références et les prix indiqués.",
   "aiMode.composerLabel": "Votre question",
   "aiMode.composerPlaceholder": "Décrivez ce dont vous avez besoin",
   "aiMode.attachImage": "Joindre une photo",

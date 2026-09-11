@@ -13,6 +13,8 @@
 import type { Prisma } from '../../generated/prisma/client.js';
 import { env } from '../../config/env.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
+import { isValidTimeZone } from '../../domain/recurrence.js';
+import { forwardGeocode } from '../inventory/location.service.js';
 import { newId } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
@@ -44,6 +46,18 @@ export interface AddressInput {
   state: string;
   postalCode: string;
   country: string;
+  /**
+   * The IANA zone this delivery point reads a clock in.
+   *
+   * Stored rather than derived, because a country is not a zone - Spain spans
+   * two and the United States six - and because what it decides is the
+   * customer's "today", which the delivery notice period is counted from. A
+   * value the platform does not recognise is discarded rather than stored: a
+   * bad zone in this column would silently move every date calculation for
+   * this address to UTC, and a stored zone nobody can resolve is worse than
+   * no zone at all.
+   */
+  timezone?: string | null;
   isDefaultBilling?: boolean;
   isDefaultShipping?: boolean;
 }
@@ -240,9 +254,25 @@ function addressCreateData(address: AddressInput, customerProfileId: string): Pr
     state: address.state.trim(),
     postalCode: address.postalCode.trim(),
     country: address.country.trim().toUpperCase(),
+    timezone: acceptableTimezone(address.timezone),
     isDefaultBilling: address.isDefaultBilling ?? false,
     isDefaultShipping: address.isDefaultShipping ?? false,
   };
+}
+
+/**
+ * A timezone worth storing, or null.
+ *
+ * Checked rather than trusted, and discarded rather than refused. A browser
+ * sending a zone this platform cannot resolve - an old alias, a typo, a
+ * value from a locked-down client - should not stop somebody saving their
+ * delivery address, and storing it would be worse than dropping it: every
+ * date calculation against this address would silently fall back to UTC while
+ * the column claimed otherwise.
+ */
+function acceptableTimezone(value: string | null | undefined): string | null {
+  const trimmed = (value ?? '').trim();
+  return trimmed.length > 0 && isValidTimeZone(trimmed) ? trimmed : null;
 }
 
 export interface CreatedCustomer {
@@ -699,6 +729,11 @@ export async function addAddress(
   input: AddressInput,
   actor: CustomerActor,
 ): Promise<{ addressId: string }> {
+  // Outside the transaction, on purpose: this is an outbound HTTP call to a
+  // third party, and holding row locks open across one is how a slow
+  // geocoder becomes a stalled checkout for somebody else.
+  const position = await geocodeAddress(input);
+
   return prisma.$transaction(async (tx) => {
     const profile = await tx.customerProfile.findUnique({
       where: { id: customerProfileId },
@@ -734,7 +769,7 @@ export async function addAddress(
       });
     }
 
-    await tx.address.create({ data });
+    await tx.address.create({ data: { ...data, ...position } });
 
     await recordAudit(
       {
@@ -761,6 +796,50 @@ export async function updateAddress(
   input: Partial<AddressInput>,
   _actor: CustomerActor,
 ): Promise<void> {
+  /*
+   * Re-geocode only when the place itself moved.
+   *
+   * Renaming the contact or correcting a phone number does not move a
+   * building, and spending a geocoder call - and the operator's rate limit -
+   * on it would be waste. The five fields below are the ones that do.
+   *
+   * Read and resolved before the transaction opens, for the same reason as in
+   * `addAddress`.
+   */
+  const placeMoved =
+    input.line1 !== undefined ||
+    input.line2 !== undefined ||
+    input.city !== undefined ||
+    input.state !== undefined ||
+    input.postalCode !== undefined ||
+    input.country !== undefined;
+
+  const existing = placeMoved
+    ? await prisma.address.findFirst({
+        where: { id: addressId, customerProfileId, archivedAt: null },
+        select: {
+          line1: true,
+          line2: true,
+          city: true,
+          state: true,
+          postalCode: true,
+          country: true,
+        },
+      })
+    : null;
+
+  const position =
+    existing === null
+      ? {}
+      : await geocodeAddress({
+          line1: input.line1 ?? existing.line1,
+          line2: input.line2 ?? existing.line2,
+          city: input.city ?? existing.city,
+          state: input.state ?? existing.state,
+          postalCode: input.postalCode ?? existing.postalCode,
+          country: input.country ?? existing.country,
+        });
+
   await prisma.$transaction(async (tx) => {
     // Scoped by customerProfileId, so one customer cannot edit another's
     // address by guessing an id.
@@ -780,6 +859,7 @@ export async function updateAddress(
     if (input.state !== undefined) data.state = input.state.trim();
     if (input.postalCode !== undefined) data.postalCode = input.postalCode.trim();
     if (input.country !== undefined) data.country = input.country.trim().toUpperCase();
+    if (input.timezone !== undefined) data.timezone = acceptableTimezone(input.timezone);
 
     if (input.isDefaultBilling === true) {
       await tx.address.updateMany({
@@ -796,8 +876,56 @@ export async function updateAddress(
       data.isDefaultShipping = true;
     }
 
-    await tx.address.update({ where: { id: addressId }, data });
+    await tx.address.update({ where: { id: addressId }, data: { ...data, ...position } });
   });
+}
+
+/**
+ * Put an address on the map, if anything can.
+ *
+ * Total, like `forwardGeocode` itself: no geocoder configured, a timeout, a
+ * reply in a shape nobody recognises, or simply no match all come back as an
+ * empty patch that changes nothing. A geocoder having a bad afternoon must
+ * not stop somebody saving where they want their order delivered.
+ *
+ * What coordinates buy is precision rather than permission. Eligibility at
+ * checkout is decided by the delivery zones - country and postcode - and an
+ * address with no position is served by exactly the same warehouses. The
+ * difference is the distance printed on each option: measured to the delivery
+ * point where this succeeded, and to the country's nearest border where it
+ * did not.
+ *
+ * A failed lookup deliberately returns `{}` rather than
+ * `{ latitude: null, longitude: null }`. Clearing a position that was found
+ * last week because the geocoder is down today would be losing a fact to a
+ * transient failure.
+ */
+async function geocodeAddress(address: {
+  line1: string;
+  line2?: string | null;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+}): Promise<{ latitude?: string; longitude?: string }> {
+  const query = [
+    address.line1,
+    address.line2 ?? '',
+    address.city,
+    address.state,
+    address.postalCode,
+    address.country,
+  ]
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0)
+    .join(', ');
+
+  const found = await forwardGeocode(query);
+  if (found === null) return {};
+
+  // Exact decimal strings at the column's scale, the way warehouse
+  // coordinates are written, so what is read back is what was stored.
+  return { latitude: found.latitude.toFixed(6), longitude: found.longitude.toFixed(6) };
 }
 
 /**

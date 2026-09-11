@@ -67,6 +67,19 @@ const checkoutSchema = z.object({
   // A card of theirs, picked at checkout. Re-checked against the customer when
   // the payment starts - this is a preference, never an authorisation.
   preferredPaymentMethodId: z.string().length(26).optional(),
+  /**
+   * The warehouse option the customer chose, by quote id.
+   *
+   * Optional. A destination no warehouse publishes a lane to offers nothing
+   * to choose, and checkout there behaves exactly as it did before fulfilment
+   * options existed - so this is additive rather than a new requirement an
+   * existing installation has to satisfy.
+   *
+   * Unlike the payment fields above it is NOT a preference. It is an offer
+   * being accepted, and `assertQuoteUsable` re-checks the warehouse, the
+   * lane, the basket and the stock behind it before anything is written.
+   */
+  fulfilmentQuoteId: z.string().length(26).optional(),
   customerNote: z.string().max(2000).nullable().optional(),
 });
 
@@ -249,6 +262,9 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
             ...(body.preferredPaymentMethodId === undefined
               ? {}
               : { preferredPaymentMethodId: body.preferredPaymentMethodId }),
+            ...(body.fulfilmentQuoteId === undefined
+              ? {}
+              : { fulfilmentQuoteId: body.fulfilmentQuoteId }),
             customerNote: body.customerNote ?? null,
             actor: {
               userId: auth.id,

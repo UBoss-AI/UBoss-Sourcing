@@ -77,6 +77,27 @@ export interface StorefrontConfig {
   };
 
   /**
+   * The two numbers the storefront has to draw a calendar and a warehouse
+   * list from, rather than bake into the bundle.
+   *
+   * Both are deployment settings, and that is the whole point of publishing
+   * them: a figure compiled into JavaScript is a figure the operator who
+   * bought this software cannot change. See the `fulfilment` block in
+   * `settings.service.ts` for the server's side of the same contract.
+   *
+   * Optional as a whole, because a config response cached from before the
+   * block existed legitimately lacks it. Every reader supplies its own
+   * fallback rather than treating absence as zero - a notice period read as
+   * zero would offer tomorrow, which is the one wrong answer.
+   */
+  fulfilment?: {
+    /** Days of notice the first delivery of a schedule needs. */
+    scheduleMinNoticeDays: number;
+    /** How long a warehouse option stays an offer, so checkout can re-ask first. */
+    fulfilmentQuoteTtlSeconds: number;
+  };
+
+  /**
    * What the chat widget has to say about itself before anyone types.
    *
    * AI Act Art. 50(1) obliges the deployer to tell a person they are
@@ -902,6 +923,77 @@ export interface ScheduleItem {
   quantity: number;
   name?: string;
   sku?: string;
+  /** Present on the detail read, so a line can link to its product page. */
+  slug?: string;
+  /**
+   * The product's purchasing rules, on the detail read only.
+   *
+   * The same shape the catalogue sends, so one quantity control takes a
+   * schedule line and a product page line without knowing the difference.
+   * Optional because the list read does not carry items at all.
+   */
+  purchaseRules?: {
+    minOrderQty: number;
+    maxOrderQty: number | null;
+    qtyIncrement: number;
+  };
+}
+
+/**
+ * One thing standing in the way of a delivery.
+ *
+ * Three severities, and they mean genuinely different things: BLOCK is a plan
+ * that cannot run at all, HOLD is this cycle withdrawn and the plan carrying
+ * on, WARN is worth saying and stops nothing. A screen that treats all three
+ * as errors tells a customer their standing order is broken when a price
+ * moved by two rupees.
+ */
+export interface ScheduleProblem {
+  severity: 'BLOCK' | 'HOLD' | 'WARN';
+  code: string;
+  message: string;
+  productId?: string;
+}
+
+/** One priced line of an estimate. */
+export interface ScheduleEstimateLine {
+  productId: string;
+  variantId: string | null;
+  name: string;
+  sku: string;
+  variantName: string | null;
+  imageUrl: string | null;
+  quantity: number;
+  unitPrice: Money;
+  lineTotal: Money;
+  /** Null for a product this store does not count. Never read as zero. */
+  availableQty: number | null;
+  substitutedFor: { productId: string; name: string } | null;
+}
+
+/**
+ * What a schedule would cost if it ran now.
+ *
+ * An estimate, and the screens say so: every occurrence is repriced against
+ * the catalogue, the destination's tax and the customer's limits at the moment
+ * it runs, so a plan created in April at one price has not locked it in.
+ */
+export interface ScheduleEstimate {
+  scheduleId: string;
+  currency: string;
+  lines: ScheduleEstimateLine[];
+  totals: {
+    subtotal: Money;
+    discount: Money;
+    tax: Money;
+    shipping: Money;
+    grandTotal: Money;
+  };
+  /** False is information for the customer, not an error state. */
+  ok: boolean;
+  problems: ScheduleProblem[];
+  /** Null where nothing priced, so a screen shows a dash and not 0.00. */
+  estimatedTotal: Money | null;
 }
 
 /**
@@ -948,14 +1040,43 @@ export interface Schedule {
   pausedReason: string | null;
   cancelReason: string | null;
   itemCount: number;
+  /** ONE_TIME is Buy Later; RECURRING is a standing order. */
+  kind?: string;
+  /**
+   * The moment this plan stops accepting changes for its next delivery.
+   *
+   * Sent so a screen can say what it will refuse instead of offering a button
+   * that then errors. Null when there is no next delivery to be early for.
+   */
+  editableUntil?: string | null;
+  /** Only on a list read that asked to be priced. See `ScheduleEstimate`. */
+  estimatedTotal?: Money | null;
+  estimateOk?: boolean;
+  /** Where it delivers, on the detail read. The whole address, not just an id. */
+  shippingAddress?: Address | null;
+  billingAddress?: Address | null;
   items?: ScheduleItem[];
   occurrences?: {
     id: string;
-    scheduledFor: string;
+    /**
+     * The slot this cycle serves, as the API names it.
+     *
+     * Named `plannedRunAt` because that is the column and the field on the
+     * wire. It was `scheduledFor` here and on no server response, so every
+     * date in the delivery history rendered as an invalid one.
+     */
+    plannedRunAt: string;
     status: string;
     orderId: string | null;
     orderNumber: string | null;
-    failureReason: string | null;
+    total?: Money | null;
+    failureMessage: string | null;
+    skipReason: string | null;
+    /** A customer skip and an engine hold both end in SKIPPED. */
+    skippedByUser?: boolean;
+    attemptCount?: number;
+    /** True only while the customer can still skip or re-date this one. */
+    canModify?: boolean;
   }[];
 }
 

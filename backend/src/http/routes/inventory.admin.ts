@@ -34,6 +34,8 @@ import {
   updateWarehouse,
 } from '../../modules/inventory/location.service.js';
 import { deliveryCoverage } from '../../modules/inventory/delivery-coverage.service.js';
+import { warehouseInventory } from '../../modules/inventory/warehouse-inventory.service.js';
+import { isoCountries } from '../../domain/country-boundaries.js';
 import { env } from '../../config/env.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
 
@@ -101,7 +103,194 @@ const warehouseSchema = z.object({
   erpExternalId: z.string().trim().max(64).nullable().optional(),
   isDefault: z.boolean().optional(),
   isActive: z.boolean().optional(),
+
+  /**
+   * The geofence, in kilometres.
+   *
+   * Nullable *and* optional, the same distinction the coordinates carry:
+   * absent leaves the stored radius alone, explicit null puts the warehouse
+   * back on the deployment's default. Without the difference, a PATCH that
+   * renamed a building would silently change what it promises.
+   *
+   * The ceiling here is the commercial one from the service, not the
+   * database's physical bound - see MAX_DELIVERY_RADIUS_KM in
+   * location.service.ts.
+   */
+  deliveryRadiusKm: z.number().int().min(1).max(2000).nullable().optional(),
+
+  /** The lead-time window in days. Both, or neither - checked in the service. */
+  deliveryLeadTimeMinDays: z.number().int().min(0).max(365).nullable().optional(),
+  deliveryLeadTimeMaxDays: z.number().int().min(0).max(365).nullable().optional(),
+
+  /**
+   * The delivery fee, in minor units, as a digit string.
+   *
+   * A string and not a number, because that is how money crosses this API
+   * everywhere: a JSON number cannot hold a paise-exact amount past 2^53, and
+   * accepting one here would be the one place a float could get into a money
+   * path. Parsed to BigInt in the service.
+   */
+  deliveryFeeMinor: z
+    .string()
+    .trim()
+    .regex(/^\d+$/, 'A delivery fee is a whole number of minor units.')
+    .max(19)
+    .nullable()
+    .optional(),
+  deliveryFeeCurrency: z.string().trim().length(3).toUpperCase().nullable().optional(),
+
+  /**
+   * The countries this warehouse will not deliver to - the whole list.
+   *
+   * Replaces the stored set; `[]` clears it; absent leaves it alone. Not an
+   * add/remove pair, because a delta computed in the browser from a list that
+   * has gone stale closes the wrong country. The codes are checked against ISO
+   * 3166-1 in the service rather than against the `countries` reference table,
+   * which is a much shorter list - see the model comment on
+   * `WarehouseCountryExclusion`.
+   *
+   * Capped at 250 entries: there are fewer countries than that, so a longer
+   * list is a bug in the caller rather than an operator with a lot of opinions.
+   */
+  excludedCountries: z
+    .array(
+      z.object({
+        code: z.string().trim().length(2).toUpperCase(),
+        reason: z.string().trim().max(256).nullable().optional(),
+      }),
+    )
+    .max(250)
+    .optional(),
+
+  /**
+   * The lanes this warehouse delivers on - the whole list.
+   *
+   * Replaces the stored set, `[]` clears it, absent leaves it alone: the
+   * same contract as `excludedCountries` above, and for the same reason.
+   *
+   * **This is what decides whether checkout offers this warehouse**, which
+   * the radius above deliberately does not. See `WarehouseDeliveryZone` in
+   * the schema. Capped at 500: an operator with more lanes than that on one
+   * building is describing a carrier's rate card rather than a warehouse,
+   * and should be importing it rather than typing it into a form.
+   */
+  deliveryZones: z
+    .array(
+      z.object({
+        countryCode: z.string().trim().length(2).toUpperCase(),
+        /** Comma-separated prefixes. Empty means the whole country. */
+        postalPrefixes: z.string().trim().max(512).nullable().optional(),
+        carrierName: z.string().trim().min(1).max(64),
+        serviceLevel: z.string().trim().min(1).max(64),
+        handlingDays: z.number().int().min(0).max(90).optional(),
+        transitMinDays: z.number().int().min(0).max(365),
+        transitMaxDays: z.number().int().min(0).max(365),
+        usesBusinessDays: z.boolean().optional(),
+        // Money as a digit string, as everywhere else in this API: a JSON
+        // number cannot hold a paise-exact amount past 2^53.
+        shippingFeeMinor: z
+          .string()
+          .trim()
+          .regex(/^[0-9]+$/, 'A delivery fee is a whole number of minor units.')
+          .max(19)
+          .optional(),
+        shippingFeeCurrency: z.string().trim().length(3).toUpperCase(),
+        freeAboveMinor: z
+          .string()
+          .trim()
+          .regex(/^[0-9]+$/, 'A free-delivery threshold is a whole number of minor units.')
+          .max(19)
+          .nullable()
+          .optional(),
+        supportsColdChain: z.boolean().optional(),
+        maxWeightGrams: z.number().int().min(1).max(100_000_000).nullable().optional(),
+        isActive: z.boolean().optional(),
+        priority: z.number().int().min(0).max(1000).optional(),
+      }),
+    )
+    .max(500)
+    .optional(),
 });
+
+/**
+ * The delivery settings, forwarded only where the caller mentioned them.
+ *
+ * Shared by POST and PATCH because they must behave identically: absent leaves
+ * the stored value alone and explicit null clears it, and a service that
+ * cannot tell the two apart would let a PATCH renaming a warehouse blank its
+ * geofence. Written once rather than twice so the two routes cannot drift.
+ *
+ * `exactOptionalPropertyTypes` is why this spreads instead of assigning: a key
+ * present with the value `undefined` is not the same as an absent key to the
+ * service's `?? before.x` reads.
+ */
+function deliveryFields(body: {
+  deliveryRadiusKm?: number | null;
+  deliveryLeadTimeMinDays?: number | null;
+  deliveryLeadTimeMaxDays?: number | null;
+  deliveryFeeMinor?: string | null;
+  deliveryFeeCurrency?: string | null;
+  excludedCountries?: { code: string; reason?: string | null }[];
+  deliveryZones?: {
+    countryCode: string;
+    postalPrefixes?: string | null;
+    carrierName: string;
+    serviceLevel: string;
+    handlingDays?: number;
+    transitMinDays: number;
+    transitMaxDays: number;
+    usesBusinessDays?: boolean;
+    shippingFeeMinor?: string;
+    shippingFeeCurrency: string;
+    freeAboveMinor?: string | null;
+    supportsColdChain?: boolean;
+    maxWeightGrams?: number | null;
+    isActive?: boolean;
+    priority?: number;
+  }[];
+}): {
+  deliveryRadiusKm?: number | null;
+  deliveryLeadTimeMinDays?: number | null;
+  deliveryLeadTimeMaxDays?: number | null;
+  deliveryFeeMinor?: string | null;
+  deliveryFeeCurrency?: string | null;
+  excludedCountries?: { code: string; reason?: string | null }[];
+  deliveryZones?: {
+    countryCode: string;
+    postalPrefixes?: string | null;
+    carrierName: string;
+    serviceLevel: string;
+    handlingDays?: number;
+    transitMinDays: number;
+    transitMaxDays: number;
+    usesBusinessDays?: boolean;
+    shippingFeeMinor?: string;
+    shippingFeeCurrency: string;
+    freeAboveMinor?: string | null;
+    supportsColdChain?: boolean;
+    maxWeightGrams?: number | null;
+    isActive?: boolean;
+    priority?: number;
+  }[];
+} {
+  return {
+    ...(body.deliveryRadiusKm === undefined ? {} : { deliveryRadiusKm: body.deliveryRadiusKm }),
+    ...(body.deliveryLeadTimeMinDays === undefined
+      ? {}
+      : { deliveryLeadTimeMinDays: body.deliveryLeadTimeMinDays }),
+    ...(body.deliveryLeadTimeMaxDays === undefined
+      ? {}
+      : { deliveryLeadTimeMaxDays: body.deliveryLeadTimeMaxDays }),
+    ...(body.deliveryFeeMinor === undefined ? {} : { deliveryFeeMinor: body.deliveryFeeMinor }),
+    ...(body.deliveryFeeCurrency === undefined
+      ? {}
+      : { deliveryFeeCurrency: body.deliveryFeeCurrency }),
+    ...(body.excludedCountries === undefined
+      ? {}
+      : { excludedCountries: body.excludedCountries }),
+    ...(body.deliveryZones === undefined ? {} : { deliveryZones: body.deliveryZones }),
+  };
+}
 
 function actorFrom(request: FastifyRequest): {
   userId: string;
@@ -552,6 +741,7 @@ export function registerAdminInventoryRoutes(app: FastifyInstance): Promise<void
           ...(body.erpExternalId === undefined ? {} : { erpExternalId: body.erpExternalId }),
           ...(body.isDefault === undefined ? {} : { isDefault: body.isDefault }),
           ...(body.isActive === undefined ? {} : { isActive: body.isActive }),
+          ...deliveryFields(body),
         },
         actorFrom(request),
       );
@@ -591,6 +781,7 @@ export function registerAdminInventoryRoutes(app: FastifyInstance): Promise<void
           ...(body.erpExternalId === undefined ? {} : { erpExternalId: body.erpExternalId }),
           ...(body.isDefault === undefined ? {} : { isDefault: body.isDefault }),
           ...(body.isActive === undefined ? {} : { isActive: body.isActive }),
+          ...deliveryFields(body),
         },
         actorFrom(request),
       );
@@ -685,21 +876,101 @@ export function registerAdminInventoryRoutes(app: FastifyInstance): Promise<void
            * string in a query. Fractional values are accepted - a 12.5 km
            * urban radius is a real thing - and the bounds are what stop a
            * request asking for the whole hemisphere.
+           *
+           * **No default any more.** Omitting it means "measure what this
+           * warehouse actually promises", which is its own `deliveryRadiusKm`
+           * and the deployment's default where it has none - resolved in the
+           * service, in one place. Filling a default in here would have made
+           * every caller that simply wants the truth pass a number, and the
+           * moment one of them passed the wrong one the panel would be drawing
+           * a ring the warehouse does not stand behind. The panel still sends
+           * one, because its slider is how an operator tries a radius before
+           * committing to it.
            */
-          radiusKm: z.coerce
-            .number()
-            .positive()
-            .max(MAX_COVERAGE_RADIUS_KM)
-            .default(env.DELIVERY_COVERAGE_RADIUS_KM),
+          radiusKm: z.coerce.number().positive().max(MAX_COVERAGE_RADIUS_KM).optional(),
         })
         .parse(request.query);
 
       const coverage = await deliveryCoverage({
         warehouseId: params.id,
-        radiusKm: query.radiusKm,
+        ...(query.radiusKm === undefined ? {} : { radiusKm: query.radiusKm }),
       });
 
       return reply.status(200).send(coverage);
+    },
+  );
+
+  /**
+   * Every country there is, for the exclusion picker.
+   *
+   * **Not `/inventory/warehouse-countries` above, and the difference matters.**
+   * That one lists the countries this deployment *prices in* - the reference
+   * table, a few dozen rows with a currency behind each - and it is the right
+   * list for "where is this warehouse". This one is the ISO 3166-1 list, all
+   * two hundred and fifty of it, and it is the right list for "which countries
+   * may this warehouse be told not to deliver to": a 500 km circle reaches
+   * countries nobody has ever sold into, and those are exactly the ones an
+   * operator most wants to close. A picker built from the reference table
+   * would offer forty and hide the rest.
+   *
+   * Static for the life of the process - it is a list of countries, not of
+   * anything this deployment owns - so it carries a long cache header. The
+   * browser asks once.
+   */
+  app.get(
+    '/inventory/world-countries',
+    { preHandler: requireAdmin(Permission.INVENTORY_READ) },
+    async (_request, reply) => {
+      return reply
+        .header('cache-control', 'private, max-age=86400')
+        .status(200)
+        .send({ countries: isoCountries() });
+    },
+  );
+
+  /**
+   * Everything one warehouse holds, product by product.
+   *
+   * The screen behind "click a warehouse, see its inventory". Distinct from
+   * `GET /inventory?locationId=`, which pages over *balance rows* - and so
+   * cannot show a product the warehouse has none of, because there is no row
+   * to show. This is driven from the catalogue, so every product appears for
+   * every warehouse and an absence is visible as an absence. See the header of
+   * `warehouse-inventory.service.ts`.
+   *
+   * INVENTORY_READ: it is the same stock the Inventory screen already shows,
+   * arranged differently.
+   */
+  app.get(
+    '/inventory/warehouses/:id/inventory',
+    { preHandler: requireAdmin(Permission.INVENTORY_READ) },
+    async (request, reply) => {
+      const params = z.object({ id: z.string().length(26) }).parse(request.params);
+
+      const query = z
+        .object({
+          page: z.coerce.number().int().min(1).max(10_000).default(1),
+          // Products per page, not SKUs - a page boundary never falls inside
+          // one product's variants.
+          limit: z.coerce.number().int().min(1).max(100).default(25),
+          q: z.string().trim().max(120).optional(),
+          categoryId: z.string().length(26).optional(),
+          presence: z
+            .enum(['ALL', 'IN_STOCK', 'OUT_OF_STOCK', 'LOW_STOCK', 'NEVER_STOCKED'])
+            .default('ALL'),
+        })
+        .parse(request.query);
+
+      const inventory = await warehouseInventory({
+        warehouseId: params.id,
+        page: query.page,
+        limit: query.limit,
+        presence: query.presence,
+        ...(query.q === undefined ? {} : { search: query.q }),
+        ...(query.categoryId === undefined ? {} : { categoryId: query.categoryId }),
+      });
+
+      return reply.status(200).send(inventory);
     },
   );
 

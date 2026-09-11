@@ -314,6 +314,29 @@ export async function issueInvoice(input: IssueInvoiceInput): Promise<IssuedInvo
     'invoice issued',
   );
 
+  /**
+   * The buyer's own ERP, where they have connected one.
+   *
+   * After the transaction and unable to affect it: an issued invoice number
+   * belongs to a gap-free sequence, and rolling one back because somebody
+   * else's accounts-payable system was slow is not a trade worth making.
+   *
+   * Queues an outbox row and returns. A no-op where the feature is off, where
+   * the customer is in no buyer organisation, or where their policy has
+   * invoices switched off - and it never throws, so an invoice is issued
+   * whatever happens next.
+   */
+  await import('../customer-erp/pipeline.service.js')
+    .then((pipeline) =>
+      pipeline.dispatchInvoiceIssued(invoice.id, input.correlationId ?? newId()),
+    )
+    .catch((error: unknown) => {
+      logger.error(
+        { err: error, invoiceId: invoice.id },
+        'could not queue an issued invoice for a buyer ERP',
+      );
+    });
+
   return {
     id: invoice.id,
     number: invoice.number,

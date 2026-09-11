@@ -166,6 +166,71 @@ export type ProductAttribute = Prisma.ProductAttributeModel
  */
 export type InventoryLocation = Prisma.InventoryLocationModel
 /**
+ * Model WarehouseCountryExclusion
+ * A country this warehouse will not deliver to, whatever the radius says.
+ * 
+ * The geofence is geometry and geometry knows nothing about business. A
+ * 500 km circle around Antwerp reaches Luxembourg, and a deployment with no
+ * customs paperwork for Luxembourg cannot ship there however near it is. So
+ * the radius decides what is *reachable* and this table decides what is
+ * *offered*, and the two are kept apart on purpose: raising the radius later
+ * must not quietly re-open a country somebody deliberately closed.
+ * 
+ * **There is no foreign key to `countries`, and that is deliberate.** The
+ * `countries` table is the list of markets this deployment prices in - forty
+ * or so rows, each needing a currency. The radius is measured against the
+ * world, all two hundred and forty-odd shapes of it, from
+ * `domain/country-boundaries.ts`. An operator has to be able to close a
+ * country the radius reaches whether or not they sell there today, and an FK
+ * would make exactly the countries they most want to exclude the ones they
+ * cannot name. The code is validated against the ISO list instead, in
+ * `location.service.ts`.
+ * 
+ * One row per excluded country rather than a JSON array on the warehouse,
+ * because the storefront asks the question from the other end - "which
+ * warehouses may serve Belgium" - and that is an indexed lookup here and a
+ * full scan with JSON parsing there.
+ */
+export type WarehouseCountryExclusion = Prisma.WarehouseCountryExclusionModel
+/**
+ * Model WarehouseDeliveryZone
+ * A lane: somewhere this warehouse delivers to, and on what terms.
+ * 
+ * **This table, and not the radius, decides what a buyer is offered.** The
+ * geofence on `inventory_locations` is geometry - a circle intersected with
+ * country polygons - and it answers "what could a van physically reach". That
+ * is a useful thing to draw on a map and a dangerous thing to sell against: a
+ * 500 km circle around Antwerp reaches Luxembourg whether or not anybody has
+ * appointed a carrier there, agreed a transit time, or priced the lane. So
+ * checkout asks this table instead, and a warehouse with no zone covering the
+ * destination is simply not offered - not because it is too far, but because
+ * nobody has said what it would cost or when it would arrive.
+ * 
+ * Four things are stored together because a buyer weighs them together:
+ * 
+ * - **Who carries it and at what service level.** Two lanes to the same
+ * postcode from the same building are an ordinary arrangement - a road
+ * service at four days and an express one at two - and they are two rows.
+ * - **How long it takes**, split into the time to get it out of the door
+ * (`handlingDays`) and the time on the road (`transitMinDays` ..
+ * `transitMaxDays`). Split because they fail differently: a bank holiday
+ * delays the dispatch, a ferry delays the transit, and a single "5 to 7
+ * days" figure cannot be corrected for either.
+ * - **What it costs**, in minor units with its own currency column, like
+ * every other amount in this schema.
+ * - **What it can carry.** `supportsColdChain` is checked against
+ * `products.requiresColdChain`; `maxWeightGrams` against the basket. A
+ * lane that cannot take the goods is not an option however near it is.
+ * 
+ * **Postal codes are prefixes, and the column is never NULL.** An empty
+ * string means the whole country, which is the common case and the one that
+ * has to be expressible. It is `''` rather than NULL because MariaDB treats
+ * every NULL in a UNIQUE index as distinct, so a nullable column here would
+ * let the same warehouse hold two "whole of Belgium" lanes and the operator
+ * would never find out which one priced their order.
+ */
+export type WarehouseDeliveryZone = Prisma.WarehouseDeliveryZoneModel
+/**
  * Model InventoryBalance
  * 
  */
@@ -299,6 +364,16 @@ export type CustomerPaymentMethod = Prisma.CustomerPaymentMethodModel
  * second ERP order, and it does not depend on the retry code being careful.
  */
 export type ErpOrderPush = Prisma.ErpOrderPushModel
+/**
+ * Model FulfilmentQuote
+ * One warehouse's offer for one basket, frozen.
+ * 
+ * Rows are cheap and short-lived: one per eligible option per request, swept
+ * once they expire unless an order points at them. A quote attached to an
+ * order is kept for ever - it is the evidence of what the customer was shown
+ * before they agreed to pay.
+ */
+export type FulfilmentQuote = Prisma.FulfilmentQuoteModel
 /**
  * Model Shipment
  * 
@@ -520,6 +595,27 @@ export type EconomicOperator = Prisma.EconomicOperatorModel
  */
 export type ProductDeviceInfo = Prisma.ProductDeviceInfoModel
 /**
+ * Model ProductCountryRestriction
+ * A country this product may not be delivered to.
+ * 
+ * The regulatory half of "can this be shipped there", and separate from
+ * `WarehouseCountryExclusion` because it is a fact about the *goods* rather
+ * than about a building. A Class III device with no registration in Norway
+ * cannot go there from Antwerp, from Gdansk, or from anywhere else, and
+ * recording that on each warehouse in turn would mean forgetting it on the
+ * one opened next year.
+ * 
+ * Checked at checkout: a warehouse whose basket contains a product restricted
+ * in the destination is not offered, and the buyer is told which line is the
+ * problem rather than being shown an empty list.
+ * 
+ * No foreign key to `countries`, for the same reason the warehouse exclusion
+ * has none: the list of markets a deployment prices in is much shorter than
+ * the list of countries a regulator can close, and an FK would make exactly
+ * the countries most worth restricting the ones nobody can name.
+ */
+export type ProductCountryRestriction = Prisma.ProductCountryRestrictionModel
+/**
  * Model ErpConnection
  * The business's connection to its ERP.
  * 
@@ -626,3 +722,221 @@ export type CustomerAutoPaySetting = Prisma.CustomerAutoPaySettingModel
  *  * still resolves, and shows the base product if it does not.
  */
 export type WishlistItem = Prisma.WishlistItemModel
+/**
+ * Model BuyerOrganization
+ * A buyer business, as a tenant.
+ * 
+ * Created lazily - the first time somebody in an account opens the
+ * integrations area, an organisation is provisioned for them and they become
+ * its OWNER. That is deliberately NOT a match on
+ * `customer_profiles.organization`, which is free text somebody typed:
+ * joining a tenant by typing its name is not an access-control decision, it
+ * is an invitation to read a competitor's purchase orders. Additional people
+ * join by invitation only, and an invitation is addressed to an email address
+ * and accepted by whoever controls it.
+ */
+export type BuyerOrganization = Prisma.BuyerOrganizationModel
+/**
+ * Model BuyerOrganizationMember
+ * One person's place in one buyer organisation.
+ * 
+ * `customerProfileId` is UNIQUE: a profile belongs to at most one
+ * organisation. That is a real restriction and it is the right one for now -
+ * an account that could act for two buyers would need every screen in the
+ * storefront to ask "as whom?", including the cart. When a buyer genuinely
+ * needs that, the answer is a second account.
+ */
+export type BuyerOrganizationMember = Prisma.BuyerOrganizationMemberModel
+/**
+ * Model BuyerOrganizationInvite
+ * An outstanding invitation to join a buyer organisation.
+ * 
+ * Addressed to an email address rather than to an account: the person a buyer
+ * wants to add very often has no account here yet. The token is stored as a
+ * SHA-256 hash for the same reason a password-reset token is - a leaked
+ * database must not hand somebody a working invitation.
+ */
+export type BuyerOrganizationInvite = Prisma.BuyerOrganizationInviteModel
+/**
+ * Model CustomerErpConnection
+ * One buyer organisation's connection to one of its own systems.
+ * 
+ * An organisation may hold several - a sandbox and a production SAP, or SAP
+ * for purchase orders and monday for visibility. The count is capped by
+ * `CUSTOMER_ERP_MAX_CONNECTIONS_PER_ORG`.
+ */
+export type CustomerErpConnection = Prisma.CustomerErpConnectionModel
+/**
+ * Model CustomerErpCredential
+ * One encrypted secret belonging to one connection.
+ * 
+ * This table is the reason no other table has a secret column. Everything in
+ * it is AES-256-GCM ciphertext with AAD binding it to
+ * `customer_erp_credential:<connectionId>:<kind>`, so a row copied into
+ * another connection fails authentication instead of decrypting into a
+ * working credential. `payloadEnc` is a JSON object whose keys depend on
+ * `kind`, and it is decrypted in exactly one module - `credential.service.ts`
+ * - for the duration of one call.
+ * 
+ * **Nothing here is ever returned by any API.** `hint` is what a screen
+ * shows: enough to recognise which key is configured, never enough to use it.
+ */
+export type CustomerErpCredential = Prisma.CustomerErpCredentialModel
+/**
+ * Model CustomerErpEndpoint
+ * One address on the buyer's ERP, and how to talk to it.
+ * 
+ * A table rather than a JSON column on the connection because these are
+ * edited one at a time, validated one at a time, and shown one per row on a
+ * screen - and because "which endpoints has this buyer configured" is a
+ * question support asks.
+ */
+export type CustomerErpEndpoint = Prisma.CustomerErpEndpointModel
+/**
+ * Model CustomerErpFieldMapping
+ * One platform field, and where it lives in the buyer's ERP.
+ * 
+ * `platformField` is from a closed list the service publishes - a buyer
+ * cannot invent one, because nothing would read it. `erpPath` is a dotted
+ * path into the ERP's own JSON for reads, and the field name to write for
+ * writes; for monday it is a column id.
+ */
+export type CustomerErpFieldMapping = Prisma.CustomerErpFieldMappingModel
+/**
+ * Model CustomerErpWarehouseMap
+ * A warehouse here against a plant, storage location or board group there.
+ * 
+ * `inventoryLocationId` has no foreign key on purpose, and this is the same
+ * choice `integration_events.orderId` makes: a buyer's mapping row must not
+ * be able to stop an operator archiving a warehouse, and a mapping naming a
+ * location that no longer exists is a mapping error to report rather than a
+ * referential integrity failure to crash on.
+ */
+export type CustomerErpWarehouseMap = Prisma.CustomerErpWarehouseMapModel
+/**
+ * Model CustomerErpSyncPolicy
+ * What this connection is allowed to do, and when.
+ * 
+ * One row per connection. Separate from the connection itself because these
+ * are the answers a buyer's finance function gives, the connection is the
+ * answer their IT function gives, and the two are edited by different people
+ * on different days.
+ */
+export type CustomerErpSyncPolicy = Prisma.CustomerErpSyncPolicyModel
+/**
+ * Model CustomerErpSyncEvent
+ * One unit of work against a buyer's ERP. The outbox.
+ * 
+ * Everything that touches a buyer's ERP goes through a row here, including
+ * the things that turn out not to need a call at all. That is what makes
+ * "why did my purchase order not appear" answerable: there is always a row,
+ * and it always says what happened.
+ * 
+ * **`idempotencyKey` is the duplicate guard and it is unique across the whole
+ * table.** It is built from
+ * `organizationId:orderId:eventType:eventVersion` - a value derived entirely
+ * from the thing that happened, never from the clock and never from a random
+ * source - so a retry, a redelivered payment webhook and a second worker all
+ * derive the same key and only one of them creates the row. The others find
+ * it. That is the single most important property in this feature: an ERP that
+ * received a purchase order and then received it again has a duplicate
+ * liability on its books.
+ */
+export type CustomerErpSyncEvent = Prisma.CustomerErpSyncEventModel
+/**
+ * Model CustomerErpSyncJob
+ * One pass of scheduled or manual work, and what it did.
+ * 
+ * A job groups events: "sync now" produces one job and however many events it
+ * turns out to need. Kept apart from the events themselves so the dashboard
+ * can say "last sync: 14:05, 312 records, 2 failed" without counting rows.
+ */
+export type CustomerErpSyncJob = Prisma.CustomerErpSyncJobModel
+/**
+ * Model CustomerErpWebhookEvent
+ * An inbound webhook, once it has been through the door.
+ * 
+ * The row is written BEFORE the payload is acted on and the unique index is
+ * what makes a redelivery a no-op. An ERP that retries - and they all retry -
+ * must not apply the same goods receipt twice, and the honest place to stop
+ * that is at the door, keyed on whatever identifier the ERP sends. Where it
+ * sends none, the service uses `sha256:<hex>` of the raw body: two genuinely
+ * identical bodies inside the window are indistinguishable from a redelivery,
+ * and for a stock movement treating them as one is the safe direction to be
+ * wrong in.
+ */
+export type CustomerErpWebhookEvent = Prisma.CustomerErpWebhookEventModel
+/**
+ * Model CustomerErpOrderLink
+ * A platform order against whatever the buyer's ERP made of it.
+ * 
+ * One row per order per connection. This is the row that answers "did my
+ * purchase order get raised, and what is it called over there" - the single
+ * most-asked question this feature has to answer - and it is also what stops
+ * the second attempt raising a second purchase order.
+ */
+export type CustomerErpOrderLink = Prisma.CustomerErpOrderLinkModel
+/**
+ * Model CustomerErpInvoiceLink
+ * A platform invoice against the buyer's copy of it.
+ * 
+ * Amounts are BigInt minor units here as everywhere. An invoice total that
+ * crossed this boundary as a float would eventually disagree with the
+ * document by a unit, and a buyer whose accounts payable disagrees with the
+ * PDF by a unit will not pay either of them.
+ */
+export type CustomerErpInvoiceLink = Prisma.CustomerErpInvoiceLinkModel
+/**
+ * Model CustomerErpInventoryLink
+ * A product here against a material number there, and the quantities each
+ * side believes.
+ * 
+ * The row that makes "on order" a real number rather than an inference.
+ * `variantKey` is the same device the cart, the schedule and the wishlist use
+ * and for the same MariaDB reason recorded in this file's header: a UNIQUE
+ * index treats every NULL as distinct, so a nullable variantId inside the
+ * composite unique would not stop a duplicate.
+ */
+export type CustomerErpInventoryLink = Prisma.CustomerErpInventoryLinkModel
+/**
+ * Model CustomerErpApproval
+ * Somebody in the buyer's organisation being asked before a write happens.
+ * 
+ * Raised when a purchase order is over the organisation's threshold, or when
+ * the policy says stock writes need a person. The event that raised it holds
+ * at SKIPPED and names this row; approving it re-queues the SAME event under
+ * the SAME idempotency key, which is what stops an approval producing a
+ * second purchase order.
+ */
+export type CustomerErpApproval = Prisma.CustomerErpApprovalModel
+/**
+ * Model CustomerErpOAuthState
+ * An OAuth authorisation-code flow in flight.
+ * 
+ * Exists for the ninety seconds between "the buyer pressed Connect" and "the
+ * ERP redirected them back", and holds the two things that make the callback
+ * safe: the `state` that proves the callback belongs to this flow and this
+ * member, and the PKCE verifier that proves the code is being redeemed by
+ * whoever asked for it. The verifier is encrypted like any other secret,
+ * because for its short life it is one.
+ * 
+ * Rows are consumed on use and swept on expiry. A callback for a state that
+ * is not here - or is here and already used - is refused without saying
+ * which.
+ */
+export type CustomerErpOAuthState = Prisma.CustomerErpOAuthStateModel
+/**
+ * Model CustomerErpAuditLog
+ * The buyer's own audit trail over their own integration.
+ * 
+ * Separate from `audit_logs`, which is the OPERATOR's and is readable only by
+ * staff holding `audit.read`. A buyer must be able to answer "who changed our
+ * SAP credentials last Tuesday" without asking their supplier, and must not
+ * be able to read anybody else's answer to the same question. Two tables is
+ * the honest way to have both.
+ * 
+ * Values are redacted on the way in by the same rules the operator trail
+ * uses: a secret's KEY is recorded so "the client secret was rotated" stays
+ * visible, and its VALUE never is.
+ */
+export type CustomerErpAuditLog = Prisma.CustomerErpAuditLogModel

@@ -16,7 +16,9 @@
  * next to the main content, and a screen reader user should be able to jump
  * straight to it rather than tabbing the whole table first.
  */
+import { useEffect, useRef } from 'react';
 import { Badge, Button, DescriptionList } from '@/components/ui';
+import { CountryFlag } from '@/components/CountryFlag';
 import { CloseIcon } from '@/components/icons';
 import { formatDateTime, formatNumber, formatRelative } from '@/lib/format';
 import {
@@ -52,6 +54,15 @@ interface WarehouseDetailPanelProps {
    * draw the ring, rather than present and inert.
    */
   coverage?: { isOpen: boolean; onToggle: () => void };
+  /**
+   * Opens this warehouse's inventory.
+   *
+   * The panel's most-used button, and the reason it is the *primary* action
+   * rather than Edit: somebody who has clicked a warehouse is far more often
+   * asking what is in it than correcting its postcode. Always present - it is
+   * a read, so everybody who can see this screen gets it.
+   */
+  onOpenInventory: () => void;
 }
 
 export function WarehouseDetailPanel({
@@ -59,15 +70,65 @@ export function WarehouseDetailPanel({
   onClose,
   onEdit,
   coverage,
+  onOpenInventory,
 }: WarehouseDetailPanelProps): React.JSX.Element {
   const { t } = useI18n();
 
   const state = warehouseState(warehouse);
   const lines = addressLines(warehouse);
   const localTime = localTimeAt(warehouse.timezone);
+  const delivery = warehouse.delivery;
+
+  /**
+   * Bring the panel into view when it opens.
+   *
+   * **This is a bug fix, not a flourish.** The panel lives beside the map, and
+   * the button that opens it is in the table *below* the map - which on this
+   * screen is around nine hundred pixels further down the page. Pressing
+   * *Details* therefore did the whole job and looked like it had done nothing:
+   * the row tinted, the answer rendered, and every pixel of it was off the top
+   * of the screen. Somebody pressed it twice and closed it again.
+   *
+   * Keyed on the warehouse's id rather than run once on mount, because the
+   * panel is not remounted when a *different* warehouse is selected - React
+   * keeps the same element and swaps its props, so an effect that ran only on
+   * mount would scroll for the first warehouse and never again.
+   *
+   * What gets scrolled to is the panel's **top**, and that is not what
+   * `scrollIntoView({ block: 'nearest' })` does. This panel is taller than
+   * most viewports, so "nearest" satisfies itself by bringing the *bottom*
+   * edge up - which left the reader looking at the middle of a record with no
+   * name on it. `block: 'start'` puts the heading first, which is the only
+   * useful place to start reading one.
+   *
+   * And it only scrolls when the top is not already where somebody could read
+   * it. Scrolling a screen that did not need scrolling is its own small
+   * wrongness, and it is the one noticed on a tall monitor where the map and
+   * the table are both in view at once.
+   */
+  const panelRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (panel === null) return;
+
+    const top = panel.getBoundingClientRect().top;
+    // Off the top, or so near the bottom edge that only a sliver shows.
+    const needsScrolling = top < 0 || top > window.innerHeight - 96;
+
+    if (!needsScrolling) return;
+
+    panel.scrollIntoView({
+      block: 'start',
+      // Honoured by the browser against the reader's own motion preference,
+      // so this needs no `matchMedia` check of its own.
+      behavior: 'smooth',
+    });
+  }, [warehouse.id]);
 
   return (
     <aside
+      ref={panelRef}
       aria-labelledby="warehouse-detail-heading"
       className="flex flex-col rounded-lg border border-border bg-surface shadow-card"
     >
@@ -187,6 +248,104 @@ export function WarehouseDetailPanel({
           ]}
         />
 
+        {/* The geofence, and the two facts a buyer chooses between when more
+            than one warehouse can serve them. Read together, because they are
+            one promise: "500 km, two to four days, twelve euro". */}
+        <section>
+          <h3 className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
+            {t('warehouses.detail.delivery')}
+          </h3>
+
+          <dl className="mt-1 space-y-1 text-sm">
+            <div className="flex gap-2">
+              <dt className="text-ink-muted">{t('warehouses.detail.radius')}</dt>
+              <dd className="min-w-0 flex-1 text-ink">
+                {/* The same number and two different statements. See
+                    `radiusIsDefault` in lib/warehouses.ts. */}
+                {delivery.radiusIsDefault
+                  ? t('warehouses.radiusDefault', { km: delivery.radiusKm })
+                  : t('warehouses.radiusOwn', { km: delivery.radiusKm })}
+              </dd>
+            </div>
+
+            <div className="flex gap-2">
+              <dt className="text-ink-muted">{t('warehouses.detail.leadTime')}</dt>
+              <dd className="min-w-0 flex-1 text-ink">
+                {delivery.leadTimeDays === null ? (
+                  <span className="text-ink-subtle">{t('warehouses.detail.leadTimeUnset')}</span>
+                ) : (
+                  t('warehouses.detail.leadTimeDays', {
+                    min: delivery.leadTimeDays.min,
+                    max: delivery.leadTimeDays.max,
+                  })
+                )}
+              </dd>
+            </div>
+
+            <div className="flex gap-2">
+              <dt className="text-ink-muted">{t('warehouses.detail.fee')}</dt>
+              <dd className="min-w-0 flex-1 text-ink">
+                {delivery.fee === null ? (
+                  <span className="text-ink-subtle">{t('warehouses.detail.feeUnset')}</span>
+                ) : delivery.fee.minor === '0' ? (
+                  // Zero is a real fee, and "0.00 EUR" reads as a bug. It
+                  // means free, so it says free.
+                  <span className="font-medium text-operational">
+                    {t('warehouses.detail.feeFree')}
+                  </span>
+                ) : (
+                  <span className="tabular-nums">
+                    {delivery.fee.formatted} {delivery.fee.currency}
+                  </span>
+                )}
+              </dd>
+            </div>
+          </dl>
+
+          {/* Said in words rather than left to the reader to notice, because
+              the consequence is not obvious: a warehouse with no published
+              lead time is silently absent from a buyer's option list. */}
+          {delivery.leadTimeDays === null && (
+            <p className="mt-1.5 text-xxs leading-relaxed text-ink-muted">
+              {t('warehouses.detail.leadTimeUnsetNote')}
+            </p>
+          )}
+
+          {delivery.radiusIsDefault && (
+            <p className="mt-1.5 text-xxs leading-relaxed text-ink-muted">
+              {t('warehouses.detail.radiusDefaultNote')}
+            </p>
+          )}
+
+          <h4 className="mt-3 text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
+            {t('warehouses.detail.excluded')}
+          </h4>
+
+          {delivery.excludedCountries.length === 0 ? (
+            <p className="mt-1 text-xs text-ink-subtle">{t('warehouses.detail.excludedNone')}</p>
+          ) : (
+            <ul className="mt-1.5 space-y-1">
+              {delivery.excludedCountries.map((country) => (
+                <li
+                  key={country.code}
+                  className="rounded-md border border-danger/25 bg-danger-soft px-2 py-1.5"
+                >
+                  <div className="flex items-baseline gap-1.5">
+                    <CountryFlag code={country.code} className="h-3 w-4 shrink-0" />
+                    <span className="text-xs font-medium text-ink">{country.name}</span>
+                    <span className="font-mono text-xxs text-ink-subtle">{country.code}</span>
+                  </div>
+                  {country.reason !== null && (
+                    <p className="mt-0.5 text-xxs leading-relaxed text-ink-muted">
+                      {country.reason}
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
         <section>
           <h3 className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
             {t('warehouses.detail.erp')}
@@ -228,6 +387,13 @@ export function WarehouseDetailPanel({
           )}
         </section>
 
+        {/* The primary action, and above the coverage toggle and Edit for the
+            same reason: it is what somebody who clicked a warehouse is most
+            often asking for. */}
+        <Button variant="primary" className="w-full" onClick={onOpenInventory}>
+          {t('warehouses.detail.openInventory')}
+        </Button>
+
         {coverage !== undefined && (
           <Button
             variant="secondary"
@@ -245,7 +411,7 @@ export function WarehouseDetailPanel({
         )}
 
         {onEdit !== undefined && (
-          <Button variant="primary" className="w-full" onClick={onEdit}>
+          <Button variant="secondary" className="w-full" onClick={onEdit}>
             {t('warehouses.edit')}
           </Button>
         )}

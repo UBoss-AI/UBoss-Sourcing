@@ -73,6 +73,8 @@ export const ModelName = {
   ProductMedia: 'ProductMedia',
   ProductAttribute: 'ProductAttribute',
   InventoryLocation: 'InventoryLocation',
+  WarehouseCountryExclusion: 'WarehouseCountryExclusion',
+  WarehouseDeliveryZone: 'WarehouseDeliveryZone',
   InventoryBalance: 'InventoryBalance',
   InventoryMovement: 'InventoryMovement',
   StockReservation: 'StockReservation',
@@ -95,6 +97,7 @@ export const ModelName = {
   ScheduleOccurrence: 'ScheduleOccurrence',
   CustomerPaymentMethod: 'CustomerPaymentMethod',
   ErpOrderPush: 'ErpOrderPush',
+  FulfilmentQuote: 'FulfilmentQuote',
   Shipment: 'Shipment',
   ReturnRequest: 'ReturnRequest',
   IntegrationConnection: 'IntegrationConnection',
@@ -129,6 +132,7 @@ export const ModelName = {
   Invoice: 'Invoice',
   EconomicOperator: 'EconomicOperator',
   ProductDeviceInfo: 'ProductDeviceInfo',
+  ProductCountryRestriction: 'ProductCountryRestriction',
   ErpConnection: 'ErpConnection',
   ErpInventorySyncRun: 'ErpInventorySyncRun',
   ErpSyncRecordError: 'ErpSyncRecordError',
@@ -136,7 +140,25 @@ export const ModelName = {
   IntegrationEvent: 'IntegrationEvent',
   ErpWebhookReceipt: 'ErpWebhookReceipt',
   CustomerAutoPaySetting: 'CustomerAutoPaySetting',
-  WishlistItem: 'WishlistItem'
+  WishlistItem: 'WishlistItem',
+  BuyerOrganization: 'BuyerOrganization',
+  BuyerOrganizationMember: 'BuyerOrganizationMember',
+  BuyerOrganizationInvite: 'BuyerOrganizationInvite',
+  CustomerErpConnection: 'CustomerErpConnection',
+  CustomerErpCredential: 'CustomerErpCredential',
+  CustomerErpEndpoint: 'CustomerErpEndpoint',
+  CustomerErpFieldMapping: 'CustomerErpFieldMapping',
+  CustomerErpWarehouseMap: 'CustomerErpWarehouseMap',
+  CustomerErpSyncPolicy: 'CustomerErpSyncPolicy',
+  CustomerErpSyncEvent: 'CustomerErpSyncEvent',
+  CustomerErpSyncJob: 'CustomerErpSyncJob',
+  CustomerErpWebhookEvent: 'CustomerErpWebhookEvent',
+  CustomerErpOrderLink: 'CustomerErpOrderLink',
+  CustomerErpInvoiceLink: 'CustomerErpInvoiceLink',
+  CustomerErpInventoryLink: 'CustomerErpInventoryLink',
+  CustomerErpApproval: 'CustomerErpApproval',
+  CustomerErpOAuthState: 'CustomerErpOAuthState',
+  CustomerErpAuditLog: 'CustomerErpAuditLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -466,6 +488,7 @@ export const ProductScalarFieldEnum = {
   qtyIncrement: 'qtyIncrement',
   isRecurringEligible: 'isRecurringEligible',
   hasVariants: 'hasVariants',
+  requiresColdChain: 'requiresColdChain',
   weightGrams: 'weightGrams',
   metaTitle: 'metaTitle',
   metaDescription: 'metaDescription',
@@ -542,11 +565,52 @@ export const InventoryLocationScalarFieldEnum = {
   erpSyncMessage: 'erpSyncMessage',
   latitude: 'latitude',
   longitude: 'longitude',
+  deliveryRadiusKm: 'deliveryRadiusKm',
+  deliveryLeadTimeMinDays: 'deliveryLeadTimeMinDays',
+  deliveryLeadTimeMaxDays: 'deliveryLeadTimeMaxDays',
+  deliveryFeeMinor: 'deliveryFeeMinor',
+  deliveryFeeCurrency: 'deliveryFeeCurrency',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type InventoryLocationScalarFieldEnum = (typeof InventoryLocationScalarFieldEnum)[keyof typeof InventoryLocationScalarFieldEnum]
+
+
+export const WarehouseCountryExclusionScalarFieldEnum = {
+  id: 'id',
+  locationId: 'locationId',
+  countryCode: 'countryCode',
+  reason: 'reason',
+  createdAt: 'createdAt'
+} as const
+
+export type WarehouseCountryExclusionScalarFieldEnum = (typeof WarehouseCountryExclusionScalarFieldEnum)[keyof typeof WarehouseCountryExclusionScalarFieldEnum]
+
+
+export const WarehouseDeliveryZoneScalarFieldEnum = {
+  id: 'id',
+  locationId: 'locationId',
+  countryCode: 'countryCode',
+  postalPrefixes: 'postalPrefixes',
+  carrierName: 'carrierName',
+  serviceLevel: 'serviceLevel',
+  handlingDays: 'handlingDays',
+  transitMinDays: 'transitMinDays',
+  transitMaxDays: 'transitMaxDays',
+  usesBusinessDays: 'usesBusinessDays',
+  shippingFeeMinor: 'shippingFeeMinor',
+  shippingFeeCurrency: 'shippingFeeCurrency',
+  freeAboveMinor: 'freeAboveMinor',
+  supportsColdChain: 'supportsColdChain',
+  maxWeightGrams: 'maxWeightGrams',
+  isActive: 'isActive',
+  priority: 'priority',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WarehouseDeliveryZoneScalarFieldEnum = (typeof WarehouseDeliveryZoneScalarFieldEnum)[keyof typeof WarehouseDeliveryZoneScalarFieldEnum]
 
 
 export const InventoryBalanceScalarFieldEnum = {
@@ -653,6 +717,9 @@ export const AddressScalarFieldEnum = {
   state: 'state',
   postalCode: 'postalCode',
   country: 'country',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  timezone: 'timezone',
   isDefaultBilling: 'isDefaultBilling',
   isDefaultShipping: 'isDefaultShipping',
   createdAt: 'createdAt',
@@ -713,6 +780,13 @@ export const OrderScalarFieldEnum = {
   shippingMethodCode: 'shippingMethodCode',
   shippingMethodName: 'shippingMethodName',
   paymentMode: 'paymentMode',
+  fulfilmentLocationId: 'fulfilmentLocationId',
+  fulfilmentQuoteId: 'fulfilmentQuoteId',
+  fulfilmentCarrier: 'fulfilmentCarrier',
+  fulfilmentServiceLevel: 'fulfilmentServiceLevel',
+  fulfilmentDispatchDate: 'fulfilmentDispatchDate',
+  fulfilmentDeliveryFrom: 'fulfilmentDeliveryFrom',
+  fulfilmentDeliveryTo: 'fulfilmentDeliveryTo',
   preferredPaymentProvider: 'preferredPaymentProvider',
   preferredPaymentMethod: 'preferredPaymentMethod',
   preferredPaymentInstrument: 'preferredPaymentInstrument',
@@ -967,6 +1041,7 @@ export const RecurringScheduleScalarFieldEnum = {
   pausedById: 'pausedById',
   cancelledAt: 'cancelledAt',
   cancelReason: 'cancelReason',
+  hiddenAt: 'hiddenAt',
   leaseOwner: 'leaseOwner',
   leaseExpiresAt: 'leaseExpiresAt',
   createdAt: 'createdAt',
@@ -1073,6 +1148,40 @@ export const ErpOrderPushScalarFieldEnum = {
 } as const
 
 export type ErpOrderPushScalarFieldEnum = (typeof ErpOrderPushScalarFieldEnum)[keyof typeof ErpOrderPushScalarFieldEnum]
+
+
+export const FulfilmentQuoteScalarFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  cartId: 'cartId',
+  addressId: 'addressId',
+  locationId: 'locationId',
+  zoneId: 'zoneId',
+  destinationCountry: 'destinationCountry',
+  destinationPostalCode: 'destinationPostalCode',
+  isEstimate: 'isEstimate',
+  currency: 'currency',
+  subtotalMinor: 'subtotalMinor',
+  discountMinor: 'discountMinor',
+  taxMinor: 'taxMinor',
+  shippingMinor: 'shippingMinor',
+  grandTotalMinor: 'grandTotalMinor',
+  dispatchDate: 'dispatchDate',
+  deliveryFromDate: 'deliveryFromDate',
+  deliveryToDate: 'deliveryToDate',
+  transitMinDays: 'transitMinDays',
+  transitMaxDays: 'transitMaxDays',
+  handlingDays: 'handlingDays',
+  carrierName: 'carrierName',
+  serviceLevel: 'serviceLevel',
+  distanceKm: 'distanceKm',
+  basketHash: 'basketHash',
+  itemsJson: 'itemsJson',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+} as const
+
+export type FulfilmentQuoteScalarFieldEnum = (typeof FulfilmentQuoteScalarFieldEnum)[keyof typeof FulfilmentQuoteScalarFieldEnum]
 
 
 export const ShipmentScalarFieldEnum = {
@@ -1676,6 +1785,17 @@ export const ProductDeviceInfoScalarFieldEnum = {
 export type ProductDeviceInfoScalarFieldEnum = (typeof ProductDeviceInfoScalarFieldEnum)[keyof typeof ProductDeviceInfoScalarFieldEnum]
 
 
+export const ProductCountryRestrictionScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  countryCode: 'countryCode',
+  reason: 'reason',
+  createdAt: 'createdAt'
+} as const
+
+export type ProductCountryRestrictionScalarFieldEnum = (typeof ProductCountryRestrictionScalarFieldEnum)[keyof typeof ProductCountryRestrictionScalarFieldEnum]
+
+
 export const ErpConnectionScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -1863,6 +1983,412 @@ export const WishlistItemScalarFieldEnum = {
 } as const
 
 export type WishlistItemScalarFieldEnum = (typeof WishlistItemScalarFieldEnum)[keyof typeof WishlistItemScalarFieldEnum]
+
+
+export const BuyerOrganizationScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  nameNormalized: 'nameNormalized',
+  createdByProfileId: 'createdByProfileId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  archivedAt: 'archivedAt'
+} as const
+
+export type BuyerOrganizationScalarFieldEnum = (typeof BuyerOrganizationScalarFieldEnum)[keyof typeof BuyerOrganizationScalarFieldEnum]
+
+
+export const BuyerOrganizationMemberScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  customerProfileId: 'customerProfileId',
+  role: 'role',
+  invitedByProfileId: 'invitedByProfileId',
+  joinedAt: 'joinedAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BuyerOrganizationMemberScalarFieldEnum = (typeof BuyerOrganizationMemberScalarFieldEnum)[keyof typeof BuyerOrganizationMemberScalarFieldEnum]
+
+
+export const BuyerOrganizationInviteScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  emailNormalized: 'emailNormalized',
+  role: 'role',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  invitedByProfileId: 'invitedByProfileId',
+  acceptedAt: 'acceptedAt',
+  acceptedByProfileId: 'acceptedByProfileId',
+  revokedAt: 'revokedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type BuyerOrganizationInviteScalarFieldEnum = (typeof BuyerOrganizationInviteScalarFieldEnum)[keyof typeof BuyerOrganizationInviteScalarFieldEnum]
+
+
+export const CustomerErpConnectionScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  name: 'name',
+  system: 'system',
+  apiStyle: 'apiStyle',
+  environment: 'environment',
+  vendorPreset: 'vendorPreset',
+  erpVersion: 'erpVersion',
+  state: 'state',
+  stateReason: 'stateReason',
+  stateChangedAt: 'stateChangedAt',
+  baseUrl: 'baseUrl',
+  apiVersion: 'apiVersion',
+  networkMode: 'networkMode',
+  networkNotes: 'networkNotes',
+  tenantIdentifier: 'tenantIdentifier',
+  customHeadersJson: 'customHeadersJson',
+  timeoutMs: 'timeoutMs',
+  sapCompanyCode: 'sapCompanyCode',
+  sapPurchasingOrg: 'sapPurchasingOrg',
+  sapPurchasingGroup: 'sapPurchasingGroup',
+  sapPlant: 'sapPlant',
+  sapStorageLocation: 'sapStorageLocation',
+  sapCommunicationScenario: 'sapCommunicationScenario',
+  mondayWorkspaceId: 'mondayWorkspaceId',
+  mondayBoardId: 'mondayBoardId',
+  mondayGroupId: 'mondayGroupId',
+  authMethod: 'authMethod',
+  apiKeyLocation: 'apiKeyLocation',
+  apiKeyName: 'apiKeyName',
+  oauthAuthorizationUrl: 'oauthAuthorizationUrl',
+  oauthTokenUrl: 'oauthTokenUrl',
+  oauthScope: 'oauthScope',
+  oauthUsesPlatformApp: 'oauthUsesPlatformApp',
+  mutualTlsEnabled: 'mutualTlsEnabled',
+  webhookEnabled: 'webhookEnabled',
+  webhookSlug: 'webhookSlug',
+  webhookSignatureHeader: 'webhookSignatureHeader',
+  webhookTimestampHeader: 'webhookTimestampHeader',
+  webhookToleranceSeconds: 'webhookToleranceSeconds',
+  pollingEnabled: 'pollingEnabled',
+  pollingIntervalMinutes: 'pollingIntervalMinutes',
+  pollingTimezone: 'pollingTimezone',
+  lastPolledAt: 'lastPolledAt',
+  nextPollAt: 'nextPollAt',
+  pollCursor: 'pollCursor',
+  lastTestAt: 'lastTestAt',
+  lastTestOk: 'lastTestOk',
+  lastTestHttpStatus: 'lastTestHttpStatus',
+  lastTestDurationMs: 'lastTestDurationMs',
+  lastTestMessage: 'lastTestMessage',
+  mappingVerifiedAt: 'mappingVerifiedAt',
+  consecutiveFailures: 'consecutiveFailures',
+  circuitOpenedAt: 'circuitOpenedAt',
+  lastSuccessAt: 'lastSuccessAt',
+  lastFailureAt: 'lastFailureAt',
+  createdByProfileId: 'createdByProfileId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+} as const
+
+export type CustomerErpConnectionScalarFieldEnum = (typeof CustomerErpConnectionScalarFieldEnum)[keyof typeof CustomerErpConnectionScalarFieldEnum]
+
+
+export const CustomerErpCredentialScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  kind: 'kind',
+  payloadEnc: 'payloadEnc',
+  hint: 'hint',
+  expiresAt: 'expiresAt',
+  grantedScope: 'grantedScope',
+  rotatedAt: 'rotatedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerErpCredentialScalarFieldEnum = (typeof CustomerErpCredentialScalarFieldEnum)[keyof typeof CustomerErpCredentialScalarFieldEnum]
+
+
+export const CustomerErpEndpointScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  purpose: 'purpose',
+  path: 'path',
+  method: 'method',
+  enabled: 'enabled',
+  pagination: 'pagination',
+  paginationConfigJson: 'paginationConfigJson',
+  recordsPath: 'recordsPath',
+  requestTemplateJson: 'requestTemplateJson',
+  queryParamsJson: 'queryParamsJson',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerErpEndpointScalarFieldEnum = (typeof CustomerErpEndpointScalarFieldEnum)[keyof typeof CustomerErpEndpointScalarFieldEnum]
+
+
+export const CustomerErpFieldMappingScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  entity: 'entity',
+  platformField: 'platformField',
+  erpPath: 'erpPath',
+  constantValue: 'constantValue',
+  erpValue: 'erpValue',
+  transform: 'transform',
+  required: 'required',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerErpFieldMappingScalarFieldEnum = (typeof CustomerErpFieldMappingScalarFieldEnum)[keyof typeof CustomerErpFieldMappingScalarFieldEnum]
+
+
+export const CustomerErpWarehouseMapScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  inventoryLocationId: 'inventoryLocationId',
+  erpPlant: 'erpPlant',
+  erpStorageLocation: 'erpStorageLocation',
+  erpBoardId: 'erpBoardId',
+  erpGroupId: 'erpGroupId',
+  isFallback: 'isFallback',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerErpWarehouseMapScalarFieldEnum = (typeof CustomerErpWarehouseMapScalarFieldEnum)[keyof typeof CustomerErpWarehouseMapScalarFieldEnum]
+
+
+export const CustomerErpSyncPolicyScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  sourceOfTruth: 'sourceOfTruth',
+  mode: 'mode',
+  conflictPolicy: 'conflictPolicy',
+  inventoryWriteMode: 'inventoryWriteMode',
+  receiptOnPlatformDelivery: 'receiptOnPlatformDelivery',
+  approvalThresholdMinor: 'approvalThresholdMinor',
+  approvalCurrency: 'approvalCurrency',
+  approvalExpiryHours: 'approvalExpiryHours',
+  sendPurchaseOrders: 'sendPurchaseOrders',
+  sendShipmentStatus: 'sendShipmentStatus',
+  sendGoodsReceipts: 'sendGoodsReceipts',
+  sendInvoices: 'sendInvoices',
+  sendPaymentReferences: 'sendPaymentReferences',
+  syncInventory: 'syncInventory',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerErpSyncPolicyScalarFieldEnum = (typeof CustomerErpSyncPolicyScalarFieldEnum)[keyof typeof CustomerErpSyncPolicyScalarFieldEnum]
+
+
+export const CustomerErpSyncEventScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  eventType: 'eventType',
+  state: 'state',
+  idempotencyKey: 'idempotencyKey',
+  eventVersion: 'eventVersion',
+  orderId: 'orderId',
+  occurrenceId: 'occurrenceId',
+  invoiceId: 'invoiceId',
+  productId: 'productId',
+  correlationId: 'correlationId',
+  requestJson: 'requestJson',
+  responseJson: 'responseJson',
+  erpReference: 'erpReference',
+  attemptCount: 'attemptCount',
+  lastAttemptAt: 'lastAttemptAt',
+  nextRetryAt: 'nextRetryAt',
+  httpStatus: 'httpStatus',
+  durationMs: 'durationMs',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage',
+  skipReason: 'skipReason',
+  approvalId: 'approvalId',
+  leaseOwner: 'leaseOwner',
+  leaseExpiresAt: 'leaseExpiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  completedAt: 'completedAt'
+} as const
+
+export type CustomerErpSyncEventScalarFieldEnum = (typeof CustomerErpSyncEventScalarFieldEnum)[keyof typeof CustomerErpSyncEventScalarFieldEnum]
+
+
+export const CustomerErpSyncJobScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  trigger: 'trigger',
+  status: 'status',
+  isDryRun: 'isDryRun',
+  correlationId: 'correlationId',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  processedCount: 'processedCount',
+  succeededCount: 'succeededCount',
+  skippedCount: 'skippedCount',
+  failedCount: 'failedCount',
+  conflictCount: 'conflictCount',
+  rateLimitedUntil: 'rateLimitedUntil',
+  cursorAfter: 'cursorAfter',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage',
+  startedByProfileId: 'startedByProfileId'
+} as const
+
+export type CustomerErpSyncJobScalarFieldEnum = (typeof CustomerErpSyncJobScalarFieldEnum)[keyof typeof CustomerErpSyncJobScalarFieldEnum]
+
+
+export const CustomerErpWebhookEventScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  externalEventId: 'externalEventId',
+  externalEventType: 'externalEventType',
+  verified: 'verified',
+  rejectionReason: 'rejectionReason',
+  signedAt: 'signedAt',
+  receivedAt: 'receivedAt',
+  processedAt: 'processedAt',
+  syncEventId: 'syncEventId',
+  payloadJson: 'payloadJson',
+  correlationId: 'correlationId'
+} as const
+
+export type CustomerErpWebhookEventScalarFieldEnum = (typeof CustomerErpWebhookEventScalarFieldEnum)[keyof typeof CustomerErpWebhookEventScalarFieldEnum]
+
+
+export const CustomerErpOrderLinkScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  orderId: 'orderId',
+  occurrenceId: 'occurrenceId',
+  erpPurchaseOrderId: 'erpPurchaseOrderId',
+  erpPurchaseOrderNumber: 'erpPurchaseOrderNumber',
+  erpOrderStatus: 'erpOrderStatus',
+  erpGoodsReceiptId: 'erpGoodsReceiptId',
+  goodsReceiptedAt: 'goodsReceiptedAt',
+  onOrderQty: 'onOrderQty',
+  receivedQty: 'receivedQty',
+  shipmentStatus: 'shipmentStatus',
+  trackingNumber: 'trackingNumber',
+  pushedAt: 'pushedAt',
+  lastSyncedAt: 'lastSyncedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerErpOrderLinkScalarFieldEnum = (typeof CustomerErpOrderLinkScalarFieldEnum)[keyof typeof CustomerErpOrderLinkScalarFieldEnum]
+
+
+export const CustomerErpInvoiceLinkScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  invoiceId: 'invoiceId',
+  orderId: 'orderId',
+  erpInvoiceId: 'erpInvoiceId',
+  erpInvoiceNumber: 'erpInvoiceNumber',
+  currency: 'currency',
+  grandTotalMinor: 'grandTotalMinor',
+  taxMinor: 'taxMinor',
+  dueAt: 'dueAt',
+  documentUrl: 'documentUrl',
+  paymentReference: 'paymentReference',
+  paymentStatus: 'paymentStatus',
+  paymentSyncedAt: 'paymentSyncedAt',
+  syncedAt: 'syncedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerErpInvoiceLinkScalarFieldEnum = (typeof CustomerErpInvoiceLinkScalarFieldEnum)[keyof typeof CustomerErpInvoiceLinkScalarFieldEnum]
+
+
+export const CustomerErpInventoryLinkScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  productId: 'productId',
+  variantKey: 'variantKey',
+  erpMaterialNumber: 'erpMaterialNumber',
+  erpPlant: 'erpPlant',
+  onOrderQty: 'onOrderQty',
+  incomingQty: 'incomingQty',
+  onHandQty: 'onHandQty',
+  erpUnitOfMeasure: 'erpUnitOfMeasure',
+  lastAppliedEventId: 'lastAppliedEventId',
+  lastSyncedAt: 'lastSyncedAt',
+  divergenceNote: 'divergenceNote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerErpInventoryLinkScalarFieldEnum = (typeof CustomerErpInventoryLinkScalarFieldEnum)[keyof typeof CustomerErpInventoryLinkScalarFieldEnum]
+
+
+export const CustomerErpApprovalScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  kind: 'kind',
+  state: 'state',
+  syncEventId: 'syncEventId',
+  orderId: 'orderId',
+  amountMinor: 'amountMinor',
+  currency: 'currency',
+  summary: 'summary',
+  requestedAt: 'requestedAt',
+  expiresAt: 'expiresAt',
+  decidedByProfileId: 'decidedByProfileId',
+  decidedAt: 'decidedAt',
+  decisionNote: 'decisionNote'
+} as const
+
+export type CustomerErpApprovalScalarFieldEnum = (typeof CustomerErpApprovalScalarFieldEnum)[keyof typeof CustomerErpApprovalScalarFieldEnum]
+
+
+export const CustomerErpOAuthStateScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  stateToken: 'stateToken',
+  codeVerifierEnc: 'codeVerifierEnc',
+  redirectUri: 'redirectUri',
+  startedByProfileId: 'startedByProfileId',
+  expiresAt: 'expiresAt',
+  consumedAt: 'consumedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type CustomerErpOAuthStateScalarFieldEnum = (typeof CustomerErpOAuthStateScalarFieldEnum)[keyof typeof CustomerErpOAuthStateScalarFieldEnum]
+
+
+export const CustomerErpAuditLogScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  connectionId: 'connectionId',
+  action: 'action',
+  actorProfileId: 'actorProfileId',
+  actorEmail: 'actorEmail',
+  resourceType: 'resourceType',
+  resourceId: 'resourceId',
+  beforeJson: 'beforeJson',
+  afterJson: 'afterJson',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  correlationId: 'correlationId',
+  createdAt: 'createdAt'
+} as const
+
+export type CustomerErpAuditLogScalarFieldEnum = (typeof CustomerErpAuditLogScalarFieldEnum)[keyof typeof CustomerErpAuditLogScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2177,10 +2703,34 @@ export const InventoryLocationOrderByRelevanceFieldEnum = {
   countryCode: 'countryCode',
   timezone: 'timezone',
   erpExternalId: 'erpExternalId',
-  erpSyncMessage: 'erpSyncMessage'
+  erpSyncMessage: 'erpSyncMessage',
+  deliveryFeeCurrency: 'deliveryFeeCurrency'
 } as const
 
 export type InventoryLocationOrderByRelevanceFieldEnum = (typeof InventoryLocationOrderByRelevanceFieldEnum)[keyof typeof InventoryLocationOrderByRelevanceFieldEnum]
+
+
+export const WarehouseCountryExclusionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  locationId: 'locationId',
+  countryCode: 'countryCode',
+  reason: 'reason'
+} as const
+
+export type WarehouseCountryExclusionOrderByRelevanceFieldEnum = (typeof WarehouseCountryExclusionOrderByRelevanceFieldEnum)[keyof typeof WarehouseCountryExclusionOrderByRelevanceFieldEnum]
+
+
+export const WarehouseDeliveryZoneOrderByRelevanceFieldEnum = {
+  id: 'id',
+  locationId: 'locationId',
+  countryCode: 'countryCode',
+  postalPrefixes: 'postalPrefixes',
+  carrierName: 'carrierName',
+  serviceLevel: 'serviceLevel',
+  shippingFeeCurrency: 'shippingFeeCurrency'
+} as const
+
+export type WarehouseDeliveryZoneOrderByRelevanceFieldEnum = (typeof WarehouseDeliveryZoneOrderByRelevanceFieldEnum)[keyof typeof WarehouseDeliveryZoneOrderByRelevanceFieldEnum]
 
 
 export const InventoryBalanceOrderByRelevanceFieldEnum = {
@@ -2260,7 +2810,8 @@ export const AddressOrderByRelevanceFieldEnum = {
   city: 'city',
   state: 'state',
   postalCode: 'postalCode',
-  country: 'country'
+  country: 'country',
+  timezone: 'timezone'
 } as const
 
 export type AddressOrderByRelevanceFieldEnum = (typeof AddressOrderByRelevanceFieldEnum)[keyof typeof AddressOrderByRelevanceFieldEnum]
@@ -2297,6 +2848,10 @@ export const OrderOrderByRelevanceFieldEnum = {
   currency: 'currency',
   shippingMethodCode: 'shippingMethodCode',
   shippingMethodName: 'shippingMethodName',
+  fulfilmentLocationId: 'fulfilmentLocationId',
+  fulfilmentQuoteId: 'fulfilmentQuoteId',
+  fulfilmentCarrier: 'fulfilmentCarrier',
+  fulfilmentServiceLevel: 'fulfilmentServiceLevel',
   preferredPaymentMethodId: 'preferredPaymentMethodId',
   taxCountry: 'taxCountry',
   sellerVatNumberSnapshot: 'sellerVatNumberSnapshot',
@@ -2518,6 +3073,24 @@ export const ErpOrderPushOrderByRelevanceFieldEnum = {
 } as const
 
 export type ErpOrderPushOrderByRelevanceFieldEnum = (typeof ErpOrderPushOrderByRelevanceFieldEnum)[keyof typeof ErpOrderPushOrderByRelevanceFieldEnum]
+
+
+export const FulfilmentQuoteOrderByRelevanceFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  cartId: 'cartId',
+  addressId: 'addressId',
+  locationId: 'locationId',
+  zoneId: 'zoneId',
+  destinationCountry: 'destinationCountry',
+  destinationPostalCode: 'destinationPostalCode',
+  currency: 'currency',
+  carrierName: 'carrierName',
+  serviceLevel: 'serviceLevel',
+  basketHash: 'basketHash'
+} as const
+
+export type FulfilmentQuoteOrderByRelevanceFieldEnum = (typeof FulfilmentQuoteOrderByRelevanceFieldEnum)[keyof typeof FulfilmentQuoteOrderByRelevanceFieldEnum]
 
 
 export const ShipmentOrderByRelevanceFieldEnum = {
@@ -2929,6 +3502,16 @@ export const ProductDeviceInfoOrderByRelevanceFieldEnum = {
 export type ProductDeviceInfoOrderByRelevanceFieldEnum = (typeof ProductDeviceInfoOrderByRelevanceFieldEnum)[keyof typeof ProductDeviceInfoOrderByRelevanceFieldEnum]
 
 
+export const ProductCountryRestrictionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  countryCode: 'countryCode',
+  reason: 'reason'
+} as const
+
+export type ProductCountryRestrictionOrderByRelevanceFieldEnum = (typeof ProductCountryRestrictionOrderByRelevanceFieldEnum)[keyof typeof ProductCountryRestrictionOrderByRelevanceFieldEnum]
+
+
 export const ErpConnectionOrderByRelevanceFieldEnum = {
   id: 'id',
   name: 'name',
@@ -3041,4 +3624,274 @@ export const WishlistItemOrderByRelevanceFieldEnum = {
 } as const
 
 export type WishlistItemOrderByRelevanceFieldEnum = (typeof WishlistItemOrderByRelevanceFieldEnum)[keyof typeof WishlistItemOrderByRelevanceFieldEnum]
+
+
+export const BuyerOrganizationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name',
+  nameNormalized: 'nameNormalized',
+  createdByProfileId: 'createdByProfileId'
+} as const
+
+export type BuyerOrganizationOrderByRelevanceFieldEnum = (typeof BuyerOrganizationOrderByRelevanceFieldEnum)[keyof typeof BuyerOrganizationOrderByRelevanceFieldEnum]
+
+
+export const BuyerOrganizationMemberOrderByRelevanceFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  customerProfileId: 'customerProfileId',
+  invitedByProfileId: 'invitedByProfileId'
+} as const
+
+export type BuyerOrganizationMemberOrderByRelevanceFieldEnum = (typeof BuyerOrganizationMemberOrderByRelevanceFieldEnum)[keyof typeof BuyerOrganizationMemberOrderByRelevanceFieldEnum]
+
+
+export const BuyerOrganizationInviteOrderByRelevanceFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  emailNormalized: 'emailNormalized',
+  tokenHash: 'tokenHash',
+  invitedByProfileId: 'invitedByProfileId',
+  acceptedByProfileId: 'acceptedByProfileId'
+} as const
+
+export type BuyerOrganizationInviteOrderByRelevanceFieldEnum = (typeof BuyerOrganizationInviteOrderByRelevanceFieldEnum)[keyof typeof BuyerOrganizationInviteOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpConnectionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  name: 'name',
+  vendorPreset: 'vendorPreset',
+  erpVersion: 'erpVersion',
+  stateReason: 'stateReason',
+  baseUrl: 'baseUrl',
+  apiVersion: 'apiVersion',
+  networkNotes: 'networkNotes',
+  tenantIdentifier: 'tenantIdentifier',
+  sapCompanyCode: 'sapCompanyCode',
+  sapPurchasingOrg: 'sapPurchasingOrg',
+  sapPurchasingGroup: 'sapPurchasingGroup',
+  sapPlant: 'sapPlant',
+  sapStorageLocation: 'sapStorageLocation',
+  sapCommunicationScenario: 'sapCommunicationScenario',
+  mondayWorkspaceId: 'mondayWorkspaceId',
+  mondayBoardId: 'mondayBoardId',
+  mondayGroupId: 'mondayGroupId',
+  apiKeyName: 'apiKeyName',
+  oauthAuthorizationUrl: 'oauthAuthorizationUrl',
+  oauthTokenUrl: 'oauthTokenUrl',
+  oauthScope: 'oauthScope',
+  webhookSlug: 'webhookSlug',
+  webhookSignatureHeader: 'webhookSignatureHeader',
+  webhookTimestampHeader: 'webhookTimestampHeader',
+  pollingTimezone: 'pollingTimezone',
+  pollCursor: 'pollCursor',
+  lastTestMessage: 'lastTestMessage',
+  createdByProfileId: 'createdByProfileId'
+} as const
+
+export type CustomerErpConnectionOrderByRelevanceFieldEnum = (typeof CustomerErpConnectionOrderByRelevanceFieldEnum)[keyof typeof CustomerErpConnectionOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpCredentialOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  payloadEnc: 'payloadEnc',
+  hint: 'hint',
+  grantedScope: 'grantedScope'
+} as const
+
+export type CustomerErpCredentialOrderByRelevanceFieldEnum = (typeof CustomerErpCredentialOrderByRelevanceFieldEnum)[keyof typeof CustomerErpCredentialOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpEndpointOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  path: 'path',
+  method: 'method',
+  recordsPath: 'recordsPath'
+} as const
+
+export type CustomerErpEndpointOrderByRelevanceFieldEnum = (typeof CustomerErpEndpointOrderByRelevanceFieldEnum)[keyof typeof CustomerErpEndpointOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpFieldMappingOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  platformField: 'platformField',
+  erpPath: 'erpPath',
+  constantValue: 'constantValue',
+  erpValue: 'erpValue',
+  transform: 'transform'
+} as const
+
+export type CustomerErpFieldMappingOrderByRelevanceFieldEnum = (typeof CustomerErpFieldMappingOrderByRelevanceFieldEnum)[keyof typeof CustomerErpFieldMappingOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpWarehouseMapOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  inventoryLocationId: 'inventoryLocationId',
+  erpPlant: 'erpPlant',
+  erpStorageLocation: 'erpStorageLocation',
+  erpBoardId: 'erpBoardId',
+  erpGroupId: 'erpGroupId'
+} as const
+
+export type CustomerErpWarehouseMapOrderByRelevanceFieldEnum = (typeof CustomerErpWarehouseMapOrderByRelevanceFieldEnum)[keyof typeof CustomerErpWarehouseMapOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpSyncPolicyOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  approvalCurrency: 'approvalCurrency'
+} as const
+
+export type CustomerErpSyncPolicyOrderByRelevanceFieldEnum = (typeof CustomerErpSyncPolicyOrderByRelevanceFieldEnum)[keyof typeof CustomerErpSyncPolicyOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpSyncEventOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  idempotencyKey: 'idempotencyKey',
+  orderId: 'orderId',
+  occurrenceId: 'occurrenceId',
+  invoiceId: 'invoiceId',
+  productId: 'productId',
+  correlationId: 'correlationId',
+  erpReference: 'erpReference',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage',
+  skipReason: 'skipReason',
+  approvalId: 'approvalId',
+  leaseOwner: 'leaseOwner'
+} as const
+
+export type CustomerErpSyncEventOrderByRelevanceFieldEnum = (typeof CustomerErpSyncEventOrderByRelevanceFieldEnum)[keyof typeof CustomerErpSyncEventOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpSyncJobOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  trigger: 'trigger',
+  status: 'status',
+  correlationId: 'correlationId',
+  cursorAfter: 'cursorAfter',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage',
+  startedByProfileId: 'startedByProfileId'
+} as const
+
+export type CustomerErpSyncJobOrderByRelevanceFieldEnum = (typeof CustomerErpSyncJobOrderByRelevanceFieldEnum)[keyof typeof CustomerErpSyncJobOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpWebhookEventOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  externalEventId: 'externalEventId',
+  externalEventType: 'externalEventType',
+  rejectionReason: 'rejectionReason',
+  syncEventId: 'syncEventId',
+  correlationId: 'correlationId'
+} as const
+
+export type CustomerErpWebhookEventOrderByRelevanceFieldEnum = (typeof CustomerErpWebhookEventOrderByRelevanceFieldEnum)[keyof typeof CustomerErpWebhookEventOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpOrderLinkOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  orderId: 'orderId',
+  occurrenceId: 'occurrenceId',
+  erpPurchaseOrderId: 'erpPurchaseOrderId',
+  erpPurchaseOrderNumber: 'erpPurchaseOrderNumber',
+  erpOrderStatus: 'erpOrderStatus',
+  erpGoodsReceiptId: 'erpGoodsReceiptId',
+  shipmentStatus: 'shipmentStatus',
+  trackingNumber: 'trackingNumber'
+} as const
+
+export type CustomerErpOrderLinkOrderByRelevanceFieldEnum = (typeof CustomerErpOrderLinkOrderByRelevanceFieldEnum)[keyof typeof CustomerErpOrderLinkOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpInvoiceLinkOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  invoiceId: 'invoiceId',
+  orderId: 'orderId',
+  erpInvoiceId: 'erpInvoiceId',
+  erpInvoiceNumber: 'erpInvoiceNumber',
+  currency: 'currency',
+  documentUrl: 'documentUrl',
+  paymentReference: 'paymentReference',
+  paymentStatus: 'paymentStatus'
+} as const
+
+export type CustomerErpInvoiceLinkOrderByRelevanceFieldEnum = (typeof CustomerErpInvoiceLinkOrderByRelevanceFieldEnum)[keyof typeof CustomerErpInvoiceLinkOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpInventoryLinkOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  productId: 'productId',
+  variantKey: 'variantKey',
+  erpMaterialNumber: 'erpMaterialNumber',
+  erpPlant: 'erpPlant',
+  erpUnitOfMeasure: 'erpUnitOfMeasure',
+  lastAppliedEventId: 'lastAppliedEventId',
+  divergenceNote: 'divergenceNote'
+} as const
+
+export type CustomerErpInventoryLinkOrderByRelevanceFieldEnum = (typeof CustomerErpInventoryLinkOrderByRelevanceFieldEnum)[keyof typeof CustomerErpInventoryLinkOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpApprovalOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  syncEventId: 'syncEventId',
+  orderId: 'orderId',
+  currency: 'currency',
+  summary: 'summary',
+  decidedByProfileId: 'decidedByProfileId',
+  decisionNote: 'decisionNote'
+} as const
+
+export type CustomerErpApprovalOrderByRelevanceFieldEnum = (typeof CustomerErpApprovalOrderByRelevanceFieldEnum)[keyof typeof CustomerErpApprovalOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpOAuthStateOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  stateToken: 'stateToken',
+  codeVerifierEnc: 'codeVerifierEnc',
+  redirectUri: 'redirectUri',
+  startedByProfileId: 'startedByProfileId'
+} as const
+
+export type CustomerErpOAuthStateOrderByRelevanceFieldEnum = (typeof CustomerErpOAuthStateOrderByRelevanceFieldEnum)[keyof typeof CustomerErpOAuthStateOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpAuditLogOrderByRelevanceFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  connectionId: 'connectionId',
+  action: 'action',
+  actorProfileId: 'actorProfileId',
+  actorEmail: 'actorEmail',
+  resourceType: 'resourceType',
+  resourceId: 'resourceId',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  correlationId: 'correlationId'
+} as const
+
+export type CustomerErpAuditLogOrderByRelevanceFieldEnum = (typeof CustomerErpAuditLogOrderByRelevanceFieldEnum)[keyof typeof CustomerErpAuditLogOrderByRelevanceFieldEnum]
 

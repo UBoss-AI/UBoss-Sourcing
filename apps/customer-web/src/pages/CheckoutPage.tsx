@@ -23,7 +23,7 @@
  * complete only once an address is actually selected, and it never touches the
  * Payment step, because no money moves on this page.
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
@@ -36,8 +36,17 @@ import { AlertIcon, CardIcon, LinkIcon, ShieldIcon, UpiIcon } from '@/components
 import { SavedCardChoice, SelectedFlag } from '@/components/SavedCardList';
 import { choiceCardClass } from '@/lib/cards';
 import { Button, ButtonLink, ErrorState, Field, LoadingState, Textarea } from '@/components/ui';
-import { NetworkError, api, newIdempotencyKey } from '@/lib/api';
+import { FulfilmentWarehouseSection } from '@/pages/checkout/FulfilmentWarehouseSection';
+import { ApiError, NetworkError, api, newIdempotencyKey } from '@/lib/api';
+import {
+  fetchWarehouseOptions,
+  revalidateQuote,
+  secondsUntil,
+  warehouseOptionsQueryKey,
+} from '@/lib/fulfilment';
+import type { QuoteCheck, WarehouseOptionsRequest } from '@/lib/fulfilment';
 import { cx } from '@/lib/cx';
+import { formatIsoDate } from '@/lib/calendar-date';
 import { formatMoney, formatNumber } from '@/lib/format';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type {
@@ -53,6 +62,27 @@ import type { TranslationKey } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
 
 type PaymentMode = 'ONLINE' | 'PAYMENT_LINK';
+
+/**
+ * The offer stopped standing between the review screen and Pay.
+ *
+ * Its own class rather than a flag on the result, because the difference that
+ * matters is that **no order was created**. The revalidation runs inside the
+ * submit mutation so one button covers both steps, and a rejection has to
+ * come out of it as a failure or the success handler would navigate to a
+ * payment page for an order that does not exist.
+ */
+class QuoteRejected extends Error {
+  constructor(readonly check: QuoteCheck) {
+    super(check.message ?? 'That delivery option is no longer available.');
+    this.name = 'QuoteRejected';
+  }
+}
+
+/** Every refusal that means "re-ask for warehouse options and show them again". */
+function isFulfilmentRefusal(error: unknown): boolean {
+  return error instanceof QuoteRejected || (error instanceof ApiError && error.code.startsWith('FULFILMENT_'));
+}
 
 /**
  * The words for each instrument, and the line under each one.
@@ -182,7 +212,7 @@ function Section({
 }
 
 export function CheckoutPage(): React.JSX.Element {
-  const { t } = useI18n();
+  const { t, intlLocale } = useI18n();
 
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -327,12 +357,224 @@ export function CheckoutPage(): React.JSX.Element {
     setShippingAddressId(preferred?.id ?? null);
   }, [usableAddresses, shippingAddressId]);
 
+  // --- Which warehouse this order leaves from -------------------------------
+  //
+  // The same basket can often be sent from more than one warehouse, and those
+  // warehouses do not offer the same thing: one is two days away and charges
+  // for it, another is five days away and free. Until this section existed the
+  // customer was given whichever one the server picked and told neither the
+  // date nor the difference.
+  //
+  // Everything below is the server's answer. Nothing here works out a total,
+  // an arrival date or which option is best - see the section component's
+  // header for why that rule is absolute.
+
+  /**
+   * The basket as this page believes it to be, sent so the server can check
+   * it rather than take it on trust.
+   *
+   * A cart changed in another tab makes the two disagree, and the endpoint
+   * refuses with `FULFILMENT_QUOTE_STALE` instead of pricing a basket nobody
+   * owns.
+   */
+  const fulfilmentItems = useMemo(
+    () =>
+      (cart.data?.cart.lines ?? []).map((line) => ({
+        productId: line.productId,
+        variantId: line.variantId,
+        quantity: line.quantity,
+      })),
+    [cart.data],
+  );
+
+  const fulfilmentRequest: WarehouseOptionsRequest = {
+    ...(shippingAddressId === null ? {} : { deliveryAddressId: shippingAddressId }),
+    items: fulfilmentItems,
+    ...(cartCurrency === null ? {} : { currency: cartCurrency }),
+  };
+
+  const warehouseOptions = useQuery({
+    queryKey: warehouseOptionsQueryKey(fulfilmentRequest),
+    queryFn: () => fetchWarehouseOptions(fulfilmentRequest),
+    enabled: shippingAddressId !== null && fulfilmentItems.length > 0,
+    /*
+     * Never held. Availability is the fastest-moving input in this system —
+     * it moves every time anybody else checks out — and each answer writes
+     * quote rows with their own expiry, so a cached one is an offer that has
+     * already started running out.
+     */
+    staleTime: 0,
+    gcTime: 0,
+    // The ask has effects. A silent retry storm would mint quote rows nobody
+    // asked for; the section offers a Retry the customer can see instead.
+    retry: false,
+  });
+
+  /**
+   * The warehouse the customer is on, and whether they put themselves there.
+   *
+   * Two pieces of state rather than one, because the difference decides what
+   * happens when an option disappears. A default may be replaced silently; a
+   * choice may not — moving somebody's order to a warehouse they did not pick
+   * is exactly the substitution this feature must never make.
+   */
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState<string | null>(null);
+  const [hasChosenWarehouse, setHasChosenWarehouse] = useState(false);
+  const [mustChooseAgain, setMustChooseAgain] = useState(false);
+  const [fulfilmentNotice, setFulfilmentNotice] = useState<{
+    tone: 'info' | 'warning';
+    text: string;
+  } | null>(null);
+
+  const fulfilmentData = warehouseOptions.data;
+
+  /**
+   * Does this shop fulfil from warehouses to this address at all?
+   *
+   * The question the button depends on, and it is not the same as "are there
+   * options". A deployment that has never drawn a delivery zone returns no
+   * options and every warehouse under `NO_DELIVERY_ZONE`; it fulfils the old
+   * way — a shipping method and whichever warehouse the server picks — and
+   * this section must not stand in front of its checkout. Blocking on an
+   * empty option list would take every such deployment offline.
+   *
+   * So the test is whether anything here was decided by fulfilment rules that
+   * exist: an offer, a warehouse refused for a reason other than having no
+   * service here, or a product the destination itself will not accept. A list
+   * of nothing but `NO_DELIVERY_ZONE` says the rules do not reach this
+   * address, which is the same answer as having none.
+   */
+  const hasWarehouseAnswer =
+    fulfilmentData !== undefined &&
+    (fulfilmentData.options.length > 0 ||
+      fulfilmentData.restrictedLines.length > 0 ||
+      fulfilmentData.ineligible.some((entry) => entry.reason !== 'NO_DELIVERY_ZONE'));
+
+  /** The default: the server's recommendation, or the first it listed. */
+  const recommendedOption = useMemo(() => {
+    const options = fulfilmentData?.options ?? [];
+    return options.find((option) => option.isRecommended) ?? options[0] ?? null;
+  }, [fulfilmentData]);
+
+  const selectedOption = useMemo(() => {
+    if (fulfilmentData === undefined || fulfilmentData.isEstimate) return null;
+
+    return (
+      fulfilmentData.options.find((option) => option.warehouse.id === selectedWarehouseId) ?? null
+    );
+  }, [fulfilmentData, selectedWarehouseId]);
+
+  // Settle on the recommendation until the customer says otherwise, and
+  // re-settle when a fresh set of options arrives. Skipped once they have
+  // chosen, and skipped while they owe us a new choice.
+  useEffect(() => {
+    if (hasChosenWarehouse || mustChooseAgain) return;
+
+    setSelectedWarehouseId(recommendedOption?.warehouse.id ?? null);
+  }, [recommendedOption, hasChosenWarehouse, mustChooseAgain]);
+
+  /*
+   * The warehouse they chose is not on the new list.
+   *
+   * Its stock went, its lane closed, or the address changed to somewhere it
+   * does not serve. The selection is cleared and they are asked again, which
+   * is the only honest move: the alternative is placing their order somewhere
+   * they never agreed to.
+   */
+  useEffect(() => {
+    if (!hasChosenWarehouse || fulfilmentData === undefined || selectedWarehouseId === null) return;
+    if (fulfilmentData.options.some((option) => option.warehouse.id === selectedWarehouseId)) return;
+
+    setSelectedWarehouseId(null);
+    setHasChosenWarehouse(false);
+    setMustChooseAgain(true);
+    setFulfilmentNotice({ tone: 'warning', text: t('fulfilment.warehouseGone') });
+  }, [fulfilmentData, hasChosenWarehouse, selectedWarehouseId, t]);
+
+  /*
+   * The offer lapses on its own, so re-ask for one just after it does.
+   *
+   * A checkout page left open over lunch is the ordinary case, and the two
+   * ways of handling it are re-asking here or letting the customer press Pay
+   * onto a refusal. The first is the one that keeps a working screen in front
+   * of them.
+   */
+  const soonestExpiry = selectedOption?.expiresAt ?? null;
+  const refetchWarehouseOptions = warehouseOptions.refetch;
+
+  useEffect(() => {
+    if (soonestExpiry === null) return;
+
+    const timer = setTimeout(
+      () => {
+        setFulfilmentNotice({ tone: 'info', text: t('fulfilment.quoteRefreshed') });
+        void refetchWarehouseOptions();
+      },
+      secondsUntil(soonestExpiry) * 1000 + 1000,
+    );
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [soonestExpiry, refetchWarehouseOptions, t]);
+
+  /*
+   * The price of the warehouse they are on moved between two answers.
+   *
+   * Said rather than absorbed. The customer agreed to a figure, and a total
+   * that changes quietly under a card they have already read is the one thing
+   * a checkout must not do — the server refuses such an order for the same
+   * reason, so saying nothing here would only move the surprise to Pay.
+   */
+  const lastSeenTotal = useRef<{ warehouseId: string; minor: string } | null>(null);
+
+  useEffect(() => {
+    if (selectedOption === null) return;
+
+    const seen = lastSeenTotal.current;
+    lastSeenTotal.current = {
+      warehouseId: selectedOption.warehouse.id,
+      minor: selectedOption.totals.grandTotal.minor,
+    };
+
+    if (seen === null || seen.warehouseId !== selectedOption.warehouse.id) return;
+    if (seen.minor === selectedOption.totals.grandTotal.minor) return;
+
+    setFulfilmentNotice({
+      tone: 'warning',
+      text: t('fulfilment.totalChanged', {
+        warehouse: selectedOption.warehouse.name,
+        total: formatMoney(selectedOption.totals.grandTotal),
+      }),
+    });
+  }, [selectedOption, t]);
+
   const submit = useMutation({
-    mutationFn: () =>
-      api.post<CheckoutResult>(
+    mutationFn: async () => {
+      /*
+       * Is the option still an offer? Asked immediately before the order is
+       * created, and nowhere else.
+       *
+       * Everything the review screen showed — the stock, the lane, the
+       * warehouse, the basket — can have moved since it was drawn, and this
+       * is the last moment at which finding out costs the customer nothing.
+       * The server checks all of it again when the order is submitted; asking
+       * first is what turns "your order was refused" into "these options
+       * changed, here they are".
+       */
+      if (selectedOption !== null && shippingAddressId !== null) {
+        const check = await revalidateQuote(selectedOption.quoteId, shippingAddressId);
+        if (!check.ok) throw new QuoteRejected(check);
+      }
+
+      return api.post<CheckoutResult>(
         '/cart/checkout',
         {
           shippingAddressId,
+          // The offer the customer accepted, by id. The server re-checks it
+          // and prices the order through the lane's own delivery fee, so the
+          // total on the chosen card is the total on the order.
+          ...(selectedOption === null ? {} : { fulfilmentQuoteId: selectedOption.quoteId }),
           ...(billingSameAsShipping || billingAddressId === null ? {} : { billingAddressId }),
           paymentMode,
           // Recorded on the order, so a reload of the payment page — or coming
@@ -349,7 +591,8 @@ export function CheckoutPage(): React.JSX.Element {
           customerNote: customerNote.trim() === '' ? null : customerNote.trim(),
         },
         { idempotencyKey },
-      ),
+      );
+    },
     onSuccess: async (result) => {
       setSubmitError(null);
 
@@ -383,6 +626,37 @@ export function CheckoutPage(): React.JSX.Element {
         setSubmitError(
           t('checkout.ifYourOrderDidGoThrough', { message: errorMessage(t, error) }),
         );
+        return;
+      }
+
+      /*
+       * The delivery option went out from under them.
+       *
+       * No order was created — the revalidation runs before the checkout POST,
+       * and the server's own re-check refuses before writing one. So the right
+       * move is to re-ask for options and put the new ones on screen rather
+       * than to leave them pressing a button that will keep failing.
+       *
+       * The refusal keeps its own words. `FULFILMENT_QUOTE_EXPIRED`,
+       * `_STALE`, `_STOCK_CHANGED` and `_WAREHOUSE_UNAVAILABLE` are four
+       * different things that happened, and collapsing them into one sentence
+       * would leave the customer unable to tell which of them they can fix.
+       */
+      if (isFulfilmentRefusal(error)) {
+        setSubmitError(errorMessage(t, error, t('fulfilment.recheckFailed')));
+        setFulfilmentNotice({
+          tone: 'warning',
+          text: errorMessage(t, error, t('fulfilment.recheckFailed')),
+        });
+
+        // Their choice is no longer an offer, so it stops being their choice.
+        // The list they are about to be shown is a fresh decision.
+        setHasChosenWarehouse(false);
+        setMustChooseAgain(true);
+        setSelectedWarehouseId(null);
+
+        void queryClient.invalidateQueries({ queryKey: ['cart'] });
+        void refetchWarehouseOptions();
         return;
       }
 
@@ -426,7 +700,43 @@ export function CheckoutPage(): React.JSX.Element {
     );
   }
 
-  const canSubmit = currentCart.checkoutReady && shippingAddressId !== null && !submit.isPending;
+  /*
+   * Whether the warehouse question is still in the way of the button.
+   *
+   * Three states, and only two of them block:
+   *
+   *   - **Still asking.** Blocked, briefly. Placing an order a second before
+   *     learning that nowhere can send it is not a better outcome for anyone.
+   *   - **Answered, and something is wrong** — nothing can fulfil it, or the
+   *     option they were on has gone and they owe us a new choice. Blocked,
+   *     with the reason on screen beside the button.
+   *   - **The ask failed.** *Not* blocked. A transient failure of this
+   *     endpoint must not take checkout down with it: the order goes through
+   *     the path it took before this feature existed, with no quote attached,
+   *     and the server still refuses anything it cannot stock or ship.
+   */
+  const fulfilmentPending =
+    shippingAddressId !== null && fulfilmentItems.length > 0 && warehouseOptions.isPending;
+
+  const fulfilmentBlocks =
+    fulfilmentPending ||
+    (hasWarehouseAnswer && !fulfilmentData.isEstimate && selectedOption === null);
+
+  const canSubmit =
+    currentCart.checkoutReady &&
+    shippingAddressId !== null &&
+    !fulfilmentBlocks &&
+    !submit.isPending;
+
+  /**
+   * The figures under review.
+   *
+   * The chosen option's, whenever there is one — its delivery fee is what the
+   * server prices the order through, so showing the cart's own shipping line
+   * beside a card quoting a different one would be a screen that quotes one
+   * number and charges another.
+   */
+  const reviewTotals = selectedOption?.totals ?? currentCart.totals;
 
   /**
    * How many of these lines the schedule builder would accept.
@@ -562,8 +872,40 @@ export function CheckoutPage(): React.JSX.Element {
             )}
           </Section>
 
+          {/* --- Where it ships from ---------------------------------------
+              After the address and before the payment, which is the order the
+              decision actually happens in: the options depend on where it is
+              going, and what it costs depends on which one is chosen. */}
+          <Section id="fulfilment-heading" step={2} title={t('fulfilment.heading')}>
+            <FulfilmentWarehouseSection
+              data={fulfilmentData}
+              isPending={warehouseOptions.isPending && shippingAddressId !== null}
+              isRefreshing={warehouseOptions.isFetching && fulfilmentData !== undefined}
+              isError={warehouseOptions.isError}
+              errorText={
+                warehouseOptions.error === null
+                  ? null
+                  : errorMessage(t, warehouseOptions.error, t('fulfilment.failed'))
+              }
+              onRetry={() => {
+                setFulfilmentNotice(null);
+                void refetchWarehouseOptions();
+              }}
+              hasAddress={shippingAddressId !== null}
+              selectedWarehouseId={selectedWarehouseId}
+              notice={fulfilmentNotice}
+              onSelect={(warehouseId) => {
+                setSelectedWarehouseId(warehouseId);
+                setHasChosenWarehouse(true);
+                setMustChooseAgain(false);
+                setFulfilmentNotice(null);
+                setSubmitError(null);
+              }}
+            />
+          </Section>
+
           {/* --- How to pay ------------------------------------------------- */}
-          <Section id="payment-heading" step={2} title={t('checkout.howWouldYouLikeTo')}>
+          <Section id="payment-heading" step={3} title={t('checkout.howWouldYouLikeTo')}>
             <fieldset className="mt-4">
               <legend className="sr-only">{t('checkout.paymentMethod')}</legend>
 
@@ -750,7 +1092,7 @@ export function CheckoutPage(): React.JSX.Element {
           </Section>
 
           {/* --- Note ------------------------------------------------------- */}
-          <Section id="note-heading" step={3} title={t('checkout.anythingWeShouldKnow')}>
+          <Section id="note-heading" step={4} title={t('checkout.anythingWeShouldKnow')}>
             <div className="mt-4">
               <Field
                 label={t('checkout.noteForThisOrder')}
@@ -806,29 +1148,60 @@ export function CheckoutPage(): React.JSX.Element {
               ))}
             </ul>
 
+            {/* The chosen lane, named where the delivery figure is read.
+                A line saying "Delivery ₹125" beside a card that quoted ₹125
+                from Pune is two facts; the same line with no warehouse on it
+                is a figure the customer has to go back and match up. */}
+            {selectedOption !== null && (
+              <p className="mt-3 border-t border-border-subtle pt-3 text-xs leading-relaxed text-ink-muted">
+                {t('fulfilment.chosenWarehouse', { warehouse: selectedOption.warehouse.name })}
+                {' · '}
+                {selectedOption.deliveryFromDate === selectedOption.deliveryToDate
+                  ? t('fulfilment.arrivesOn', {
+                      date: formatIsoDate(selectedOption.deliveryFromDate, intlLocale, {
+                        weekday: 'short',
+                        day: 'numeric',
+                        month: 'short',
+                      }),
+                    })
+                  : t('fulfilment.arrivesBetween', {
+                      from: formatIsoDate(selectedOption.deliveryFromDate, intlLocale, {
+                        weekday: 'short',
+                        day: 'numeric',
+                        month: 'short',
+                      }),
+                      to: formatIsoDate(selectedOption.deliveryToDate, intlLocale, {
+                        weekday: 'short',
+                        day: 'numeric',
+                        month: 'short',
+                      }),
+                    })}
+              </p>
+            )}
+
             <dl className="mt-4 space-y-2.5 border-t border-border-subtle pt-4 text-sm">
               <TotalRow
                 label={t('checkout.subtotal')}
-                value={formatMoney(currentCart.totals.subtotal)}
+                value={formatMoney(reviewTotals.subtotal)}
               />
-              {currentCart.totals.discount.minor !== '0' && (
+              {reviewTotals.discount.minor !== '0' && (
                 <TotalRow
                   label={t('checkout.discount')}
                   tone="credit"
-                  value={<>−{formatMoney(currentCart.totals.discount)}</>}
+                  value={<>−{formatMoney(reviewTotals.discount)}</>}
                 />
               )}
-              <TotalRow label={t('checkout.tax')} value={formatMoney(currentCart.totals.tax)} />
+              <TotalRow label={t('checkout.tax')} value={formatMoney(reviewTotals.tax)} />
               <TotalRow
                 label={t('checkout.delivery')}
-                value={formatMoney(currentCart.totals.shipping)}
+                value={formatMoney(reviewTotals.shipping)}
               />
               {/* Matches the cart's summary: the same figure gets the same
                   treatment in both places, or the total looks like it changed
                   on the way here. */}
               <GrandTotalRow
                 label={t('checkout.total')}
-                value={formatMoney(currentCart.totals.grandTotal)}
+                value={formatMoney(reviewTotals.grandTotal)}
               />
             </dl>
 
@@ -889,10 +1262,23 @@ export function CheckoutPage(): React.JSX.Element {
               {paymentMode === 'ONLINE' ? t('checkout.placeOrderAndPay') : t('checkout.placeOrder')}
             </Button>
 
-            {shippingAddressId === null && (
+            {shippingAddressId === null ? (
               <p className="mt-2 text-center text-xs text-ink-muted">
                 {t('checkout.chooseADeliveryAddressTo')}
               </p>
+            ) : (
+              /* Why the button is off, said beside the button. A disabled
+                 control with the reason three sections up the page is a
+                 control that looks broken. */
+              fulfilmentBlocks && (
+                <p className="mt-2 text-center text-xs text-ink-muted">
+                  {fulfilmentPending
+                    ? t('fulfilment.checking')
+                    : fulfilmentData !== undefined && fulfilmentData.options.length === 0
+                      ? t('fulfilment.cannotFulfil')
+                      : t('fulfilment.mustChoose')}
+                </p>
+              )
             )}
 
             {/*

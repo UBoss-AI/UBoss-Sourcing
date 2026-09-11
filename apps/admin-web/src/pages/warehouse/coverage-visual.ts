@@ -35,6 +35,15 @@ import type { DeliveryCoverage } from '@/lib/delivery-coverage';
 const SOURCE = {
   ring: 'uboss-coverage-ring',
   areas: 'uboss-coverage-areas',
+  /**
+   * The countries in range that the operator has closed.
+   *
+   * A source of its own rather than a flag on `areas`, because the two are
+   * drawn by different layers in different colours - and one source filtered
+   * twice means every paint change has to be made in two `filter` expressions
+   * that can drift apart.
+   */
+  excluded: 'uboss-coverage-excluded',
   routes: 'uboss-coverage-routes',
   targets: 'uboss-coverage-targets',
 } as const;
@@ -45,6 +54,11 @@ const LAYER = {
   ringEdge: 'uboss-coverage-ring-edge',
   areaFill: 'uboss-coverage-area-fill',
   areaEdge: 'uboss-coverage-area-edge',
+  /** The served slices, standing up. Height is proximity - see `areasFor`. */
+  areaExtrude: 'uboss-coverage-area-extrude',
+  excludedFill: 'uboss-coverage-excluded-fill',
+  excludedEdge: 'uboss-coverage-excluded-edge',
+  excludedExtrude: 'uboss-coverage-excluded-extrude',
   route: 'uboss-coverage-route',
   target: 'uboss-coverage-target',
 } as const;
@@ -56,6 +70,12 @@ const LAYER_ORDER = [
   LAYER.ringEdge,
   LAYER.areaFill,
   LAYER.areaEdge,
+  LAYER.excludedFill,
+  LAYER.excludedEdge,
+  // The extrusions last, so they stand in front of every flat wash. Removed
+  // first, which is what `[...LAYER_ORDER].reverse()` in `clear` relies on.
+  LAYER.areaExtrude,
+  LAYER.excludedExtrude,
   LAYER.route,
   LAYER.target,
 ] as const;
@@ -93,6 +113,8 @@ interface Palette {
   brand: string;
   brandSoft: string;
   edge: string;
+  /** The refusing colour, for a country the operator has closed. */
+  danger: string;
 }
 
 /**
@@ -114,6 +136,7 @@ function palette(): Palette {
     brand: token('--brand', '29 78 216'),
     brandSoft: token('--operational', '15 118 110'),
     edge: token('--brand-hover', '30 64 175'),
+    danger: token('--danger', '185 28 28'),
   };
 }
 
@@ -153,43 +176,113 @@ function arc(from: Position, to: Position): Feature<LineString> {
   return { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates } };
 }
 
+/**
+ * The delivery routes: one bowed arc per country the radius reaches.
+ *
+ * **Closed countries get no arc, and that is the one place on this map where
+ * an exclusion is hidden rather than shown.** Everything else here draws a
+ * closed country in the refusing colour, because an operator has to be able to
+ * see the decision they made. An arc is different: it carries a light that
+ * travels out along it, which reads as a van leaving - and animating a
+ * delivery to a country this warehouse will not deliver to is the map telling
+ * a lie about the thing it is for. The country is still shaded, still edged in
+ * red and still listed in the panel; it simply has no journey drawn to it.
+ */
 function routesFor(coverage: DeliveryCoverage): FeatureCollection<LineString> {
   const origin: Position = [coverage.warehouse.longitude, coverage.warehouse.latitude];
 
   return {
     type: 'FeatureCollection',
-    features: coverage.countries.map((country) =>
-      arc(origin, [country.nearestPoint.longitude, country.nearestPoint.latitude]),
-    ),
+    features: coverage.countries
+      .filter((country) => !country.isExcluded)
+      .map((country) =>
+        arc(origin, [country.nearestPoint.longitude, country.nearestPoint.latitude]),
+      ),
   };
 }
 
+/** Where each arc lands. Same rule as the arcs: no target for a closed country. */
 function targetsFor(coverage: DeliveryCoverage): FeatureCollection {
   return {
     type: 'FeatureCollection',
-    features: coverage.countries.map((country) => ({
-      type: 'Feature',
-      properties: { code: country.code ?? '' },
-      geometry: {
-        type: 'Point',
-        coordinates: [country.nearestPoint.longitude, country.nearestPoint.latitude],
-      },
-    })),
-  };
-}
-
-function areasFor(coverage: DeliveryCoverage): FeatureCollection {
-  return {
-    type: 'FeatureCollection',
     features: coverage.countries
-      .filter((country) => country.area !== null)
+      .filter((country) => !country.isExcluded)
       .map((country) => ({
         type: 'Feature',
         properties: { code: country.code ?? '' },
-        // Non-null by the filter above; a country whose overlap with the ring
-        // is a line rather than an area has nothing to shade.
-        geometry: country.area as Polygon,
+        geometry: {
+          type: 'Point',
+          coordinates: [country.nearestPoint.longitude, country.nearestPoint.latitude],
+        },
       })),
+  };
+}
+
+/**
+ * How tall the tallest covered slice stands, in metres.
+ *
+ * The extrusion is the one thing on this map that is genuinely three
+ * dimensional, and what it encodes is *proximity*: the nearest country stands
+ * highest. That is the right way round for a delivery map - the tall block is
+ * the one a van reaches first - and it means the reader can rank the answer by
+ * looking at it rather than by reading six distances.
+ *
+ * 90 km, which sounds enormous and is not: at the zoom a 500 km ring fits into,
+ * a 90 km column is about the height of a modest building on screen. Anything
+ * shorter is invisible under a 52° pitch; anything taller starts hiding the
+ * countries behind it, which is the one thing a coverage map may not do.
+ */
+const EXTRUDE_MAX_M = 90_000;
+
+/** The shortest a slice gets, so a country at the very edge is still a block. */
+const EXTRUDE_MIN_M = 12_000;
+
+/**
+ * The covered slices, split by whether the operator will serve them.
+ *
+ * Two collections rather than one with a flag, because they are drawn by
+ * different layers in different colours - and a single source filtered twice
+ * would mean every paint change had to be made in two `filter` expressions
+ * that could drift apart.
+ *
+ * Each feature carries its own `height`, computed here rather than as a
+ * MapLibre expression over `distanceKm`. The scale needs the radius to divide
+ * by, which the expression would have to be rebuilt for on every answer -
+ * at which point it is a number this function may as well work out.
+ */
+function areasFor(coverage: DeliveryCoverage): {
+  served: FeatureCollection;
+  excluded: FeatureCollection;
+} {
+  const served: Feature[] = [];
+  const excluded: Feature[] = [];
+
+  for (const country of coverage.countries) {
+    // A country whose overlap with the ring is a line rather than an area has
+    // nothing to shade. It still belongs in the list beside the map.
+    if (country.area === null) continue;
+
+    // 1 at the warehouse's own doorstep, 0 at the edge of the radius. Clamped
+    // because a border can measure a hair over the radius - see the note on
+    // the same rounding in the service.
+    const nearness = Math.max(0, Math.min(1, 1 - country.distanceKm / coverage.radiusKm));
+
+    const feature: Feature = {
+      type: 'Feature',
+      properties: {
+        code: country.code ?? '',
+        height: EXTRUDE_MIN_M + nearness * (EXTRUDE_MAX_M - EXTRUDE_MIN_M),
+      },
+      geometry: country.area,
+    };
+
+    if (country.isExcluded) excluded.push(feature);
+    else served.push(feature);
+  }
+
+  return {
+    served: { type: 'FeatureCollection', features: served },
+    excluded: { type: 'FeatureCollection', features: excluded },
   };
 }
 
@@ -398,6 +491,75 @@ export function coverageVisual(map: MapLibreMap): CoverageVisual {
       paint: { 'line-color': colours.brandSoft, 'line-width': 1.4, 'line-opacity': 0.85 },
     });
 
+    // The closed countries, in the refusing colour. Flat wash and edge first,
+    // the standing block below - the same three-layer build as the served
+    // slices so the two read as the same kind of thing in two states.
+    map.addLayer({
+      id: LAYER.excludedFill,
+      type: 'fill',
+      source: SOURCE.excluded,
+      paint: { 'fill-color': colours.danger, 'fill-opacity': 0.2 },
+    });
+
+    map.addLayer({
+      id: LAYER.excludedEdge,
+      type: 'line',
+      source: SOURCE.excluded,
+      paint: {
+        'line-color': colours.danger,
+        'line-width': 1.6,
+        'line-opacity': 0.9,
+        // Dashed, because a dash is a refusal in every map convention there
+        // is - and because it survives being read by somebody who cannot tell
+        // this red from the teal beside it.
+        'line-dasharray': [2, 1.5],
+      },
+    });
+
+    /*
+     * The slices, standing up.
+     *
+     * This is the one genuinely three-dimensional thing on the map, and what
+     * it encodes is proximity: the nearest country stands highest, so the
+     * answer can be ranked by looking at it. `height` is a per-feature
+     * property computed in `areasFor` rather than an expression over
+     * `distanceKm`, because the scale needs the radius to divide by.
+     *
+     * `fill-extrusion-vertical-gradient` is what stops a block reading as a
+     * flat coloured slab: it shades the sides away from the light, which is
+     * the only cue that says "this has sides" at all.
+     */
+    map.addLayer({
+      id: LAYER.areaExtrude,
+      type: 'fill-extrusion',
+      source: SOURCE.areas,
+      paint: {
+        'fill-extrusion-color': colours.brandSoft,
+        'fill-extrusion-height': ['get', 'height'],
+        'fill-extrusion-base': 0,
+        // Translucent, because a coverage map may never hide the country
+        // behind the one in front of it.
+        'fill-extrusion-opacity': 0.45,
+        'fill-extrusion-vertical-gradient': true,
+      },
+    });
+
+    map.addLayer({
+      id: LAYER.excludedExtrude,
+      type: 'fill-extrusion',
+      source: SOURCE.excluded,
+      paint: {
+        'fill-extrusion-color': colours.danger,
+        // Deliberately shorter than the served blocks, and not by a scale
+        // anybody has to read: a closed country is not part of the promise, so
+        // it sits low. Half of what its distance would otherwise earn it.
+        'fill-extrusion-height': ['*', ['get', 'height'], 0.5],
+        'fill-extrusion-base': 0,
+        'fill-extrusion-opacity': 0.4,
+        'fill-extrusion-vertical-gradient': true,
+      },
+    });
+
     map.addLayer({
       id: LAYER.route,
       type: 'line',
@@ -529,7 +691,9 @@ export function coverageVisual(map: MapLibreMap): CoverageVisual {
       type: 'FeatureCollection',
       features: [ring],
     });
-    map.getSource<GeoJSONSource>(SOURCE.areas)?.setData(areasFor(coverage));
+    const areas = areasFor(coverage);
+    map.getSource<GeoJSONSource>(SOURCE.areas)?.setData(areas.served);
+    map.getSource<GeoJSONSource>(SOURCE.excluded)?.setData(areas.excluded);
     map.getSource<GeoJSONSource>(SOURCE.routes)?.setData(routesFor(coverage));
     map.getSource<GeoJSONSource>(SOURCE.targets)?.setData(targetsFor(coverage));
 

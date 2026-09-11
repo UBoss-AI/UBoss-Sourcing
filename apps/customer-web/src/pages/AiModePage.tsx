@@ -47,6 +47,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from '@/auth/session-context';
+import { useAccountIdentity } from '@/pages/account/useAccountIdentity';
 import { useStorefront } from '@/app/storefront-context';
 import { ImageSearchDialog } from '@/components/hero-search/ImageSearchDialog';
 import { Button, Spinner } from '@/components/ui';
@@ -93,6 +94,20 @@ export function AiModePage(): React.JSX.Element {
   const queryClient = useQueryClient();
   const { business, features, assistant } = useStorefront();
   const { user, logout, isCustomer } = useSession();
+
+  /**
+   * The first name on the account, for the greeting, and nothing else.
+   *
+   * The same hook the header button and the account sidebar use, so this page
+   * greets somebody by exactly the name they are greeted by everywhere else -
+   * and shares its query key, so on a signed-in visit it usually costs no
+   * request at all. `shortName` is null for a guest, for an account with no
+   * name typed into it, and while the read is still in flight; all three are
+   * ordinary and the greeting simply drops the name line. It is deliberately
+   * never derived from the email address: `ops.procurement@` is not a person,
+   * and "Hello, Ops" is worse than no name at all.
+   */
+  const identity = useAccountIdentity(isCustomer);
 
   useDocumentMeta({ title: t('aiMode.title'), description: t('aiMode.metaDescription') }, business.displayName);
 
@@ -577,13 +592,43 @@ export function AiModePage(): React.JSX.Element {
         <div ref={transcriptRef} className="min-h-0 flex-1 overflow-y-auto px-3 py-6 sm:px-6">
           <div className="mx-auto max-w-3xl space-y-5">
             {isEmpty ? (
-              <div className="pt-6 text-center sm:pt-12">
-                <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-                  {t('aiMode.welcomeHeading')}
+              <div className="pt-8 text-center sm:pt-16">
+                {/*
+                 * The greeting, and it is two lines rather than a paragraph.
+                 *
+                 * What used to be here was a heading plus four lines
+                 * explaining what the assistant could be asked and where its
+                 * answers came from. All of it true, none of it read: somebody
+                 * who has opened a chat has already decided to type, and an
+                 * onboarding paragraph between them and the composer is a
+                 * thing to scroll past. The starters below say what can be
+                 * asked by being askable, which is a better answer than a
+                 * sentence claiming it.
+                 *
+                 * The name is a separate line above the question rather than
+                 * folded into it, so its absence costs nothing - a guest sees
+                 * the question, correctly positioned, and not a re-flowed
+                 * heading with a gap where a name was meant to be.
+                 *
+                 * The gradient runs the brand blue into its own hover step and
+                 * ends before it reaches the question, which stays solid ink:
+                 * a decorative fill on the words somebody actually has to read
+                 * is a contrast cost for nothing.
+                 */}
+                {identity.shortName !== null && (
+                  <p className="bg-gradient-to-br from-brand to-brand-hover bg-clip-text text-2xl font-semibold tracking-tight text-transparent sm:text-4xl">
+                    {t('aiMode.greeting', { name: identity.shortName })}
+                  </p>
+                )}
+
+                <h1
+                  className={cx(
+                    'text-2xl font-semibold tracking-tight text-ink sm:text-4xl',
+                    identity.shortName !== null && 'mt-1.5',
+                  )}
+                >
+                  {t('aiMode.greetingQuestion')}
                 </h1>
-                <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-ink-muted">
-                  {t('aiMode.welcomeBody', { store: business.displayName })}
-                </p>
 
                 <ul className="mt-8 flex flex-wrap justify-center gap-2">
                   {SUGGESTIONS.map((key) => (
@@ -593,7 +638,7 @@ export function AiModePage(): React.JSX.Element {
                         onClick={() => {
                           void send(t(key));
                         }}
-                        className="rounded-full border border-border bg-surface px-3.5 py-2 text-sm text-ink-muted shadow-card transition-colors hover:border-brand hover:bg-brand-soft hover:text-brand"
+                        className="rounded-full border border-border bg-surface px-3.5 py-2 text-sm text-ink-muted shadow-card transition-[background-color,border-color,color,box-shadow] hover:border-brand hover:bg-brand-soft hover:text-brand hover:shadow-card-hover focus-visible:border-brand focus-visible:bg-brand-soft focus-visible:text-brand motion-reduce:transition-none"
                       >
                         {t(key)}
                       </button>

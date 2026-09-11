@@ -65,6 +65,13 @@ export type OrderMinAggregateOutputType = {
   shippingMethodCode: string | null
   shippingMethodName: string | null
   paymentMode: $Enums.PaymentIntentMode | null
+  fulfilmentLocationId: string | null
+  fulfilmentQuoteId: string | null
+  fulfilmentCarrier: string | null
+  fulfilmentServiceLevel: string | null
+  fulfilmentDispatchDate: Date | null
+  fulfilmentDeliveryFrom: Date | null
+  fulfilmentDeliveryTo: Date | null
   preferredPaymentProvider: $Enums.PaymentProviderKind | null
   preferredPaymentMethod: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument: $Enums.PaymentInstrumentKind | null
@@ -102,6 +109,13 @@ export type OrderMaxAggregateOutputType = {
   shippingMethodCode: string | null
   shippingMethodName: string | null
   paymentMode: $Enums.PaymentIntentMode | null
+  fulfilmentLocationId: string | null
+  fulfilmentQuoteId: string | null
+  fulfilmentCarrier: string | null
+  fulfilmentServiceLevel: string | null
+  fulfilmentDispatchDate: Date | null
+  fulfilmentDeliveryFrom: Date | null
+  fulfilmentDeliveryTo: Date | null
   preferredPaymentProvider: $Enums.PaymentProviderKind | null
   preferredPaymentMethod: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument: $Enums.PaymentInstrumentKind | null
@@ -141,6 +155,13 @@ export type OrderCountAggregateOutputType = {
   shippingMethodCode: number
   shippingMethodName: number
   paymentMode: number
+  fulfilmentLocationId: number
+  fulfilmentQuoteId: number
+  fulfilmentCarrier: number
+  fulfilmentServiceLevel: number
+  fulfilmentDispatchDate: number
+  fulfilmentDeliveryFrom: number
+  fulfilmentDeliveryTo: number
   preferredPaymentProvider: number
   preferredPaymentMethod: number
   preferredPaymentInstrument: number
@@ -200,6 +221,13 @@ export type OrderMinAggregateInputType = {
   shippingMethodCode?: true
   shippingMethodName?: true
   paymentMode?: true
+  fulfilmentLocationId?: true
+  fulfilmentQuoteId?: true
+  fulfilmentCarrier?: true
+  fulfilmentServiceLevel?: true
+  fulfilmentDispatchDate?: true
+  fulfilmentDeliveryFrom?: true
+  fulfilmentDeliveryTo?: true
   preferredPaymentProvider?: true
   preferredPaymentMethod?: true
   preferredPaymentInstrument?: true
@@ -237,6 +265,13 @@ export type OrderMaxAggregateInputType = {
   shippingMethodCode?: true
   shippingMethodName?: true
   paymentMode?: true
+  fulfilmentLocationId?: true
+  fulfilmentQuoteId?: true
+  fulfilmentCarrier?: true
+  fulfilmentServiceLevel?: true
+  fulfilmentDispatchDate?: true
+  fulfilmentDeliveryFrom?: true
+  fulfilmentDeliveryTo?: true
   preferredPaymentProvider?: true
   preferredPaymentMethod?: true
   preferredPaymentInstrument?: true
@@ -276,6 +311,13 @@ export type OrderCountAggregateInputType = {
   shippingMethodCode?: true
   shippingMethodName?: true
   paymentMode?: true
+  fulfilmentLocationId?: true
+  fulfilmentQuoteId?: true
+  fulfilmentCarrier?: true
+  fulfilmentServiceLevel?: true
+  fulfilmentDispatchDate?: true
+  fulfilmentDeliveryFrom?: true
+  fulfilmentDeliveryTo?: true
   preferredPaymentProvider?: true
   preferredPaymentMethod?: true
   preferredPaymentInstrument?: true
@@ -402,6 +444,13 @@ export type OrderGroupByOutputType = {
   shippingMethodCode: string | null
   shippingMethodName: string | null
   paymentMode: $Enums.PaymentIntentMode
+  fulfilmentLocationId: string | null
+  fulfilmentQuoteId: string | null
+  fulfilmentCarrier: string | null
+  fulfilmentServiceLevel: string | null
+  fulfilmentDispatchDate: Date | null
+  fulfilmentDeliveryFrom: Date | null
+  fulfilmentDeliveryTo: Date | null
   preferredPaymentProvider: $Enums.PaymentProviderKind | null
   preferredPaymentMethod: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument: $Enums.PaymentInstrumentKind | null
@@ -464,6 +513,13 @@ export type OrderWhereInput = {
   shippingMethodCode?: Prisma.StringNullableFilter<"Order"> | string | null
   shippingMethodName?: Prisma.StringNullableFilter<"Order"> | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFilter<"Order"> | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.StringNullableFilter<"Order"> | string | null
+  fulfilmentQuoteId?: Prisma.StringNullableFilter<"Order"> | string | null
+  fulfilmentCarrier?: Prisma.StringNullableFilter<"Order"> | string | null
+  fulfilmentServiceLevel?: Prisma.StringNullableFilter<"Order"> | string | null
+  fulfilmentDispatchDate?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
   preferredPaymentProvider?: Prisma.EnumPaymentProviderKindNullableFilter<"Order"> | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.EnumPaymentMethodPreferenceNullableFilter<"Order"> | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.EnumPaymentInstrumentKindNullableFilter<"Order"> | $Enums.PaymentInstrumentKind | null
@@ -483,6 +539,8 @@ export type OrderWhereInput = {
   preferredPaymentCard?: Prisma.XOR<Prisma.CustomerPaymentMethodNullableScalarRelationFilter, Prisma.CustomerPaymentMethodWhereInput> | null
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
   cart?: Prisma.XOR<Prisma.CartNullableScalarRelationFilter, Prisma.CartWhereInput> | null
+  fulfilmentLocation?: Prisma.XOR<Prisma.InventoryLocationNullableScalarRelationFilter, Prisma.InventoryLocationWhereInput> | null
+  fulfilmentQuote?: Prisma.XOR<Prisma.FulfilmentQuoteNullableScalarRelationFilter, Prisma.FulfilmentQuoteWhereInput> | null
   items?: Prisma.OrderItemListRelationFilter
   statusHistory?: Prisma.OrderStatusHistoryListRelationFilter
   approvals?: Prisma.OrderApprovalListRelationFilter
@@ -520,6 +578,13 @@ export type OrderOrderByWithRelationInput = {
   shippingMethodCode?: Prisma.SortOrderInput | Prisma.SortOrder
   shippingMethodName?: Prisma.SortOrderInput | Prisma.SortOrder
   paymentMode?: Prisma.SortOrder
+  fulfilmentLocationId?: Prisma.SortOrderInput | Prisma.SortOrder
+  fulfilmentQuoteId?: Prisma.SortOrderInput | Prisma.SortOrder
+  fulfilmentCarrier?: Prisma.SortOrderInput | Prisma.SortOrder
+  fulfilmentServiceLevel?: Prisma.SortOrderInput | Prisma.SortOrder
+  fulfilmentDispatchDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  fulfilmentDeliveryFrom?: Prisma.SortOrderInput | Prisma.SortOrder
+  fulfilmentDeliveryTo?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredPaymentProvider?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredPaymentMethod?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredPaymentInstrument?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -539,6 +604,8 @@ export type OrderOrderByWithRelationInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodOrderByWithRelationInput
   customerProfile?: Prisma.CustomerProfileOrderByWithRelationInput
   cart?: Prisma.CartOrderByWithRelationInput
+  fulfilmentLocation?: Prisma.InventoryLocationOrderByWithRelationInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteOrderByWithRelationInput
   items?: Prisma.OrderItemOrderByRelationAggregateInput
   statusHistory?: Prisma.OrderStatusHistoryOrderByRelationAggregateInput
   approvals?: Prisma.OrderApprovalOrderByRelationAggregateInput
@@ -580,6 +647,13 @@ export type OrderWhereUniqueInput = Prisma.AtLeast<{
   shippingMethodCode?: Prisma.StringNullableFilter<"Order"> | string | null
   shippingMethodName?: Prisma.StringNullableFilter<"Order"> | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFilter<"Order"> | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.StringNullableFilter<"Order"> | string | null
+  fulfilmentQuoteId?: Prisma.StringNullableFilter<"Order"> | string | null
+  fulfilmentCarrier?: Prisma.StringNullableFilter<"Order"> | string | null
+  fulfilmentServiceLevel?: Prisma.StringNullableFilter<"Order"> | string | null
+  fulfilmentDispatchDate?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
   preferredPaymentProvider?: Prisma.EnumPaymentProviderKindNullableFilter<"Order"> | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.EnumPaymentMethodPreferenceNullableFilter<"Order"> | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.EnumPaymentInstrumentKindNullableFilter<"Order"> | $Enums.PaymentInstrumentKind | null
@@ -599,6 +673,8 @@ export type OrderWhereUniqueInput = Prisma.AtLeast<{
   preferredPaymentCard?: Prisma.XOR<Prisma.CustomerPaymentMethodNullableScalarRelationFilter, Prisma.CustomerPaymentMethodWhereInput> | null
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
   cart?: Prisma.XOR<Prisma.CartNullableScalarRelationFilter, Prisma.CartWhereInput> | null
+  fulfilmentLocation?: Prisma.XOR<Prisma.InventoryLocationNullableScalarRelationFilter, Prisma.InventoryLocationWhereInput> | null
+  fulfilmentQuote?: Prisma.XOR<Prisma.FulfilmentQuoteNullableScalarRelationFilter, Prisma.FulfilmentQuoteWhereInput> | null
   items?: Prisma.OrderItemListRelationFilter
   statusHistory?: Prisma.OrderStatusHistoryListRelationFilter
   approvals?: Prisma.OrderApprovalListRelationFilter
@@ -636,6 +712,13 @@ export type OrderOrderByWithAggregationInput = {
   shippingMethodCode?: Prisma.SortOrderInput | Prisma.SortOrder
   shippingMethodName?: Prisma.SortOrderInput | Prisma.SortOrder
   paymentMode?: Prisma.SortOrder
+  fulfilmentLocationId?: Prisma.SortOrderInput | Prisma.SortOrder
+  fulfilmentQuoteId?: Prisma.SortOrderInput | Prisma.SortOrder
+  fulfilmentCarrier?: Prisma.SortOrderInput | Prisma.SortOrder
+  fulfilmentServiceLevel?: Prisma.SortOrderInput | Prisma.SortOrder
+  fulfilmentDispatchDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  fulfilmentDeliveryFrom?: Prisma.SortOrderInput | Prisma.SortOrder
+  fulfilmentDeliveryTo?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredPaymentProvider?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredPaymentMethod?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredPaymentInstrument?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -683,6 +766,13 @@ export type OrderScalarWhereWithAggregatesInput = {
   shippingMethodCode?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
   shippingMethodName?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeWithAggregatesFilter<"Order"> | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
+  fulfilmentQuoteId?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
+  fulfilmentCarrier?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
+  fulfilmentServiceLevel?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
+  fulfilmentDispatchDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
   preferredPaymentProvider?: Prisma.EnumPaymentProviderKindNullableWithAggregatesFilter<"Order"> | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.EnumPaymentMethodPreferenceNullableWithAggregatesFilter<"Order"> | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.EnumPaymentInstrumentKindNullableWithAggregatesFilter<"Order"> | $Enums.PaymentInstrumentKind | null
@@ -719,6 +809,11 @@ export type OrderCreateInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -737,6 +832,8 @@ export type OrderCreateInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -774,6 +871,13 @@ export type OrderUncheckedCreateInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -823,6 +927,11 @@ export type OrderUpdateInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -841,6 +950,8 @@ export type OrderUpdateInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -878,6 +989,13 @@ export type OrderUncheckedUpdateInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -930,6 +1048,13 @@ export type OrderCreateManyInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -966,6 +1091,11 @@ export type OrderUpdateManyMutationInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -1004,6 +1134,13 @@ export type OrderUncheckedUpdateManyInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -1022,11 +1159,6 @@ export type OrderUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type OrderNullableScalarRelationFilter = {
-  is?: Prisma.OrderWhereInput | null
-  isNot?: Prisma.OrderWhereInput | null
-}
-
 export type OrderListRelationFilter = {
   every?: Prisma.OrderWhereInput
   some?: Prisma.OrderWhereInput
@@ -1035,6 +1167,11 @@ export type OrderListRelationFilter = {
 
 export type OrderOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type OrderNullableScalarRelationFilter = {
+  is?: Prisma.OrderWhereInput | null
+  isNot?: Prisma.OrderWhereInput | null
 }
 
 export type OrderOrderByRelevanceInput = {
@@ -1064,6 +1201,13 @@ export type OrderCountOrderByAggregateInput = {
   shippingMethodCode?: Prisma.SortOrder
   shippingMethodName?: Prisma.SortOrder
   paymentMode?: Prisma.SortOrder
+  fulfilmentLocationId?: Prisma.SortOrder
+  fulfilmentQuoteId?: Prisma.SortOrder
+  fulfilmentCarrier?: Prisma.SortOrder
+  fulfilmentServiceLevel?: Prisma.SortOrder
+  fulfilmentDispatchDate?: Prisma.SortOrder
+  fulfilmentDeliveryFrom?: Prisma.SortOrder
+  fulfilmentDeliveryTo?: Prisma.SortOrder
   preferredPaymentProvider?: Prisma.SortOrder
   preferredPaymentMethod?: Prisma.SortOrder
   preferredPaymentInstrument?: Prisma.SortOrder
@@ -1111,6 +1255,13 @@ export type OrderMaxOrderByAggregateInput = {
   shippingMethodCode?: Prisma.SortOrder
   shippingMethodName?: Prisma.SortOrder
   paymentMode?: Prisma.SortOrder
+  fulfilmentLocationId?: Prisma.SortOrder
+  fulfilmentQuoteId?: Prisma.SortOrder
+  fulfilmentCarrier?: Prisma.SortOrder
+  fulfilmentServiceLevel?: Prisma.SortOrder
+  fulfilmentDispatchDate?: Prisma.SortOrder
+  fulfilmentDeliveryFrom?: Prisma.SortOrder
+  fulfilmentDeliveryTo?: Prisma.SortOrder
   preferredPaymentProvider?: Prisma.SortOrder
   preferredPaymentMethod?: Prisma.SortOrder
   preferredPaymentInstrument?: Prisma.SortOrder
@@ -1148,6 +1299,13 @@ export type OrderMinOrderByAggregateInput = {
   shippingMethodCode?: Prisma.SortOrder
   shippingMethodName?: Prisma.SortOrder
   paymentMode?: Prisma.SortOrder
+  fulfilmentLocationId?: Prisma.SortOrder
+  fulfilmentQuoteId?: Prisma.SortOrder
+  fulfilmentCarrier?: Prisma.SortOrder
+  fulfilmentServiceLevel?: Prisma.SortOrder
+  fulfilmentDispatchDate?: Prisma.SortOrder
+  fulfilmentDeliveryFrom?: Prisma.SortOrder
+  fulfilmentDeliveryTo?: Prisma.SortOrder
   preferredPaymentProvider?: Prisma.SortOrder
   preferredPaymentMethod?: Prisma.SortOrder
   preferredPaymentInstrument?: Prisma.SortOrder
@@ -1179,6 +1337,48 @@ export type OrderSumOrderByAggregateInput = {
 export type OrderScalarRelationFilter = {
   is?: Prisma.OrderWhereInput
   isNot?: Prisma.OrderWhereInput
+}
+
+export type OrderCreateNestedManyWithoutFulfilmentLocationInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutFulfilmentLocationInput, Prisma.OrderUncheckedCreateWithoutFulfilmentLocationInput> | Prisma.OrderCreateWithoutFulfilmentLocationInput[] | Prisma.OrderUncheckedCreateWithoutFulfilmentLocationInput[]
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutFulfilmentLocationInput | Prisma.OrderCreateOrConnectWithoutFulfilmentLocationInput[]
+  createMany?: Prisma.OrderCreateManyFulfilmentLocationInputEnvelope
+  connect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+}
+
+export type OrderUncheckedCreateNestedManyWithoutFulfilmentLocationInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutFulfilmentLocationInput, Prisma.OrderUncheckedCreateWithoutFulfilmentLocationInput> | Prisma.OrderCreateWithoutFulfilmentLocationInput[] | Prisma.OrderUncheckedCreateWithoutFulfilmentLocationInput[]
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutFulfilmentLocationInput | Prisma.OrderCreateOrConnectWithoutFulfilmentLocationInput[]
+  createMany?: Prisma.OrderCreateManyFulfilmentLocationInputEnvelope
+  connect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+}
+
+export type OrderUpdateManyWithoutFulfilmentLocationNestedInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutFulfilmentLocationInput, Prisma.OrderUncheckedCreateWithoutFulfilmentLocationInput> | Prisma.OrderCreateWithoutFulfilmentLocationInput[] | Prisma.OrderUncheckedCreateWithoutFulfilmentLocationInput[]
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutFulfilmentLocationInput | Prisma.OrderCreateOrConnectWithoutFulfilmentLocationInput[]
+  upsert?: Prisma.OrderUpsertWithWhereUniqueWithoutFulfilmentLocationInput | Prisma.OrderUpsertWithWhereUniqueWithoutFulfilmentLocationInput[]
+  createMany?: Prisma.OrderCreateManyFulfilmentLocationInputEnvelope
+  set?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  disconnect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  delete?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  connect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  update?: Prisma.OrderUpdateWithWhereUniqueWithoutFulfilmentLocationInput | Prisma.OrderUpdateWithWhereUniqueWithoutFulfilmentLocationInput[]
+  updateMany?: Prisma.OrderUpdateManyWithWhereWithoutFulfilmentLocationInput | Prisma.OrderUpdateManyWithWhereWithoutFulfilmentLocationInput[]
+  deleteMany?: Prisma.OrderScalarWhereInput | Prisma.OrderScalarWhereInput[]
+}
+
+export type OrderUncheckedUpdateManyWithoutFulfilmentLocationNestedInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutFulfilmentLocationInput, Prisma.OrderUncheckedCreateWithoutFulfilmentLocationInput> | Prisma.OrderCreateWithoutFulfilmentLocationInput[] | Prisma.OrderUncheckedCreateWithoutFulfilmentLocationInput[]
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutFulfilmentLocationInput | Prisma.OrderCreateOrConnectWithoutFulfilmentLocationInput[]
+  upsert?: Prisma.OrderUpsertWithWhereUniqueWithoutFulfilmentLocationInput | Prisma.OrderUpsertWithWhereUniqueWithoutFulfilmentLocationInput[]
+  createMany?: Prisma.OrderCreateManyFulfilmentLocationInputEnvelope
+  set?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  disconnect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  delete?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  connect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  update?: Prisma.OrderUpdateWithWhereUniqueWithoutFulfilmentLocationInput | Prisma.OrderUpdateWithWhereUniqueWithoutFulfilmentLocationInput[]
+  updateMany?: Prisma.OrderUpdateManyWithWhereWithoutFulfilmentLocationInput | Prisma.OrderUpdateManyWithWhereWithoutFulfilmentLocationInput[]
+  deleteMany?: Prisma.OrderScalarWhereInput | Prisma.OrderScalarWhereInput[]
 }
 
 export type OrderCreateNestedOneWithoutReservationsInput = {
@@ -1497,6 +1697,48 @@ export type OrderUpdateOneRequiredWithoutErpPushNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.OrderUpdateToOneWithWhereWithoutErpPushInput, Prisma.OrderUpdateWithoutErpPushInput>, Prisma.OrderUncheckedUpdateWithoutErpPushInput>
 }
 
+export type OrderCreateNestedManyWithoutFulfilmentQuoteInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutFulfilmentQuoteInput, Prisma.OrderUncheckedCreateWithoutFulfilmentQuoteInput> | Prisma.OrderCreateWithoutFulfilmentQuoteInput[] | Prisma.OrderUncheckedCreateWithoutFulfilmentQuoteInput[]
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutFulfilmentQuoteInput | Prisma.OrderCreateOrConnectWithoutFulfilmentQuoteInput[]
+  createMany?: Prisma.OrderCreateManyFulfilmentQuoteInputEnvelope
+  connect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+}
+
+export type OrderUncheckedCreateNestedManyWithoutFulfilmentQuoteInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutFulfilmentQuoteInput, Prisma.OrderUncheckedCreateWithoutFulfilmentQuoteInput> | Prisma.OrderCreateWithoutFulfilmentQuoteInput[] | Prisma.OrderUncheckedCreateWithoutFulfilmentQuoteInput[]
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutFulfilmentQuoteInput | Prisma.OrderCreateOrConnectWithoutFulfilmentQuoteInput[]
+  createMany?: Prisma.OrderCreateManyFulfilmentQuoteInputEnvelope
+  connect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+}
+
+export type OrderUpdateManyWithoutFulfilmentQuoteNestedInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutFulfilmentQuoteInput, Prisma.OrderUncheckedCreateWithoutFulfilmentQuoteInput> | Prisma.OrderCreateWithoutFulfilmentQuoteInput[] | Prisma.OrderUncheckedCreateWithoutFulfilmentQuoteInput[]
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutFulfilmentQuoteInput | Prisma.OrderCreateOrConnectWithoutFulfilmentQuoteInput[]
+  upsert?: Prisma.OrderUpsertWithWhereUniqueWithoutFulfilmentQuoteInput | Prisma.OrderUpsertWithWhereUniqueWithoutFulfilmentQuoteInput[]
+  createMany?: Prisma.OrderCreateManyFulfilmentQuoteInputEnvelope
+  set?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  disconnect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  delete?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  connect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  update?: Prisma.OrderUpdateWithWhereUniqueWithoutFulfilmentQuoteInput | Prisma.OrderUpdateWithWhereUniqueWithoutFulfilmentQuoteInput[]
+  updateMany?: Prisma.OrderUpdateManyWithWhereWithoutFulfilmentQuoteInput | Prisma.OrderUpdateManyWithWhereWithoutFulfilmentQuoteInput[]
+  deleteMany?: Prisma.OrderScalarWhereInput | Prisma.OrderScalarWhereInput[]
+}
+
+export type OrderUncheckedUpdateManyWithoutFulfilmentQuoteNestedInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutFulfilmentQuoteInput, Prisma.OrderUncheckedCreateWithoutFulfilmentQuoteInput> | Prisma.OrderCreateWithoutFulfilmentQuoteInput[] | Prisma.OrderUncheckedCreateWithoutFulfilmentQuoteInput[]
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutFulfilmentQuoteInput | Prisma.OrderCreateOrConnectWithoutFulfilmentQuoteInput[]
+  upsert?: Prisma.OrderUpsertWithWhereUniqueWithoutFulfilmentQuoteInput | Prisma.OrderUpsertWithWhereUniqueWithoutFulfilmentQuoteInput[]
+  createMany?: Prisma.OrderCreateManyFulfilmentQuoteInputEnvelope
+  set?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  disconnect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  delete?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  connect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+  update?: Prisma.OrderUpdateWithWhereUniqueWithoutFulfilmentQuoteInput | Prisma.OrderUpdateWithWhereUniqueWithoutFulfilmentQuoteInput[]
+  updateMany?: Prisma.OrderUpdateManyWithWhereWithoutFulfilmentQuoteInput | Prisma.OrderUpdateManyWithWhereWithoutFulfilmentQuoteInput[]
+  deleteMany?: Prisma.OrderScalarWhereInput | Prisma.OrderScalarWhereInput[]
+}
+
 export type OrderCreateNestedOneWithoutShipmentsInput = {
   create?: Prisma.XOR<Prisma.OrderCreateWithoutShipmentsInput, Prisma.OrderUncheckedCreateWithoutShipmentsInput>
   connectOrCreate?: Prisma.OrderCreateOrConnectWithoutShipmentsInput
@@ -1553,7 +1795,7 @@ export type OrderUpdateOneRequiredWithoutInvoicesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.OrderUpdateToOneWithWhereWithoutInvoicesInput, Prisma.OrderUpdateWithoutInvoicesInput>, Prisma.OrderUncheckedUpdateWithoutInvoicesInput>
 }
 
-export type OrderCreateWithoutReservationsInput = {
+export type OrderCreateWithoutFulfilmentLocationInput = {
   id: string
   orderNumber: string
   source?: $Enums.OrderSource
@@ -1571,6 +1813,11 @@ export type OrderCreateWithoutReservationsInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -1589,6 +1836,199 @@ export type OrderCreateWithoutReservationsInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
+  items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
+  approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
+  payments?: Prisma.PaymentTransactionCreateNestedManyWithoutOrderInput
+  paymentLinks?: Prisma.PaymentLinkCreateNestedManyWithoutOrderInput
+  refunds?: Prisma.RefundCreateNestedManyWithoutOrderInput
+  shipments?: Prisma.ShipmentCreateNestedManyWithoutOrderInput
+  returnRequests?: Prisma.ReturnRequestCreateNestedManyWithoutOrderInput
+  reservations?: Prisma.StockReservationCreateNestedManyWithoutOrderInput
+  paymentEvents?: Prisma.PaymentEventCreateNestedManyWithoutOrderInput
+  occurrence?: Prisma.ScheduleOccurrenceCreateNestedOneWithoutOrderInput
+  couponRedemption?: Prisma.CouponRedemptionCreateNestedOneWithoutOrderInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
+  erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
+}
+
+export type OrderUncheckedCreateWithoutFulfilmentLocationInput = {
+  id: string
+  orderNumber: string
+  customerProfileId: string
+  cartId?: string | null
+  source?: $Enums.OrderSource
+  scheduleOccurrenceId?: string | null
+  status?: $Enums.OrderStatus
+  currency: string
+  subtotalMinor?: bigint | number
+  discountMinor?: bigint | number
+  taxMinor?: bigint | number
+  shippingMinor?: bigint | number
+  grandTotalMinor?: bigint | number
+  paidMinor?: bigint | number
+  refundedMinor?: bigint | number
+  billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: string | null
+  shippingMethodName?: string | null
+  paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
+  preferredPaymentProvider?: $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
+  taxTreatment?: $Enums.TaxTreatment
+  taxCountry?: string | null
+  sellerVatNumberSnapshot?: string | null
+  buyerVatNumberSnapshot?: string | null
+  customerNote?: string | null
+  internalNote?: string | null
+  placedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+  approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
+  payments?: Prisma.PaymentTransactionUncheckedCreateNestedManyWithoutOrderInput
+  paymentLinks?: Prisma.PaymentLinkUncheckedCreateNestedManyWithoutOrderInput
+  refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutOrderInput
+  shipments?: Prisma.ShipmentUncheckedCreateNestedManyWithoutOrderInput
+  returnRequests?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutOrderInput
+  reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutOrderInput
+  paymentEvents?: Prisma.PaymentEventUncheckedCreateNestedManyWithoutOrderInput
+  couponRedemption?: Prisma.CouponRedemptionUncheckedCreateNestedOneWithoutOrderInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
+  erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
+}
+
+export type OrderCreateOrConnectWithoutFulfilmentLocationInput = {
+  where: Prisma.OrderWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrderCreateWithoutFulfilmentLocationInput, Prisma.OrderUncheckedCreateWithoutFulfilmentLocationInput>
+}
+
+export type OrderCreateManyFulfilmentLocationInputEnvelope = {
+  data: Prisma.OrderCreateManyFulfilmentLocationInput | Prisma.OrderCreateManyFulfilmentLocationInput[]
+  skipDuplicates?: boolean
+}
+
+export type OrderUpsertWithWhereUniqueWithoutFulfilmentLocationInput = {
+  where: Prisma.OrderWhereUniqueInput
+  update: Prisma.XOR<Prisma.OrderUpdateWithoutFulfilmentLocationInput, Prisma.OrderUncheckedUpdateWithoutFulfilmentLocationInput>
+  create: Prisma.XOR<Prisma.OrderCreateWithoutFulfilmentLocationInput, Prisma.OrderUncheckedCreateWithoutFulfilmentLocationInput>
+}
+
+export type OrderUpdateWithWhereUniqueWithoutFulfilmentLocationInput = {
+  where: Prisma.OrderWhereUniqueInput
+  data: Prisma.XOR<Prisma.OrderUpdateWithoutFulfilmentLocationInput, Prisma.OrderUncheckedUpdateWithoutFulfilmentLocationInput>
+}
+
+export type OrderUpdateManyWithWhereWithoutFulfilmentLocationInput = {
+  where: Prisma.OrderScalarWhereInput
+  data: Prisma.XOR<Prisma.OrderUpdateManyMutationInput, Prisma.OrderUncheckedUpdateManyWithoutFulfilmentLocationInput>
+}
+
+export type OrderScalarWhereInput = {
+  AND?: Prisma.OrderScalarWhereInput | Prisma.OrderScalarWhereInput[]
+  OR?: Prisma.OrderScalarWhereInput[]
+  NOT?: Prisma.OrderScalarWhereInput | Prisma.OrderScalarWhereInput[]
+  id?: Prisma.StringFilter<"Order"> | string
+  orderNumber?: Prisma.StringFilter<"Order"> | string
+  customerProfileId?: Prisma.StringFilter<"Order"> | string
+  cartId?: Prisma.StringNullableFilter<"Order"> | string | null
+  source?: Prisma.EnumOrderSourceFilter<"Order"> | $Enums.OrderSource
+  scheduleOccurrenceId?: Prisma.StringNullableFilter<"Order"> | string | null
+  status?: Prisma.EnumOrderStatusFilter<"Order"> | $Enums.OrderStatus
+  currency?: Prisma.StringFilter<"Order"> | string
+  subtotalMinor?: Prisma.BigIntFilter<"Order"> | bigint | number
+  discountMinor?: Prisma.BigIntFilter<"Order"> | bigint | number
+  taxMinor?: Prisma.BigIntFilter<"Order"> | bigint | number
+  shippingMinor?: Prisma.BigIntFilter<"Order"> | bigint | number
+  grandTotalMinor?: Prisma.BigIntFilter<"Order"> | bigint | number
+  paidMinor?: Prisma.BigIntFilter<"Order"> | bigint | number
+  refundedMinor?: Prisma.BigIntFilter<"Order"> | bigint | number
+  billingAddressJson?: Prisma.JsonFilter<"Order">
+  shippingAddressJson?: Prisma.JsonFilter<"Order">
+  shippingMethodCode?: Prisma.StringNullableFilter<"Order"> | string | null
+  shippingMethodName?: Prisma.StringNullableFilter<"Order"> | string | null
+  paymentMode?: Prisma.EnumPaymentIntentModeFilter<"Order"> | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.StringNullableFilter<"Order"> | string | null
+  fulfilmentQuoteId?: Prisma.StringNullableFilter<"Order"> | string | null
+  fulfilmentCarrier?: Prisma.StringNullableFilter<"Order"> | string | null
+  fulfilmentServiceLevel?: Prisma.StringNullableFilter<"Order"> | string | null
+  fulfilmentDispatchDate?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
+  preferredPaymentProvider?: Prisma.EnumPaymentProviderKindNullableFilter<"Order"> | $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: Prisma.EnumPaymentMethodPreferenceNullableFilter<"Order"> | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.EnumPaymentInstrumentKindNullableFilter<"Order"> | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.StringNullableFilter<"Order"> | string | null
+  taxTreatment?: Prisma.EnumTaxTreatmentFilter<"Order"> | $Enums.TaxTreatment
+  taxCountry?: Prisma.StringNullableFilter<"Order"> | string | null
+  sellerVatNumberSnapshot?: Prisma.StringNullableFilter<"Order"> | string | null
+  buyerVatNumberSnapshot?: Prisma.StringNullableFilter<"Order"> | string | null
+  customerNote?: Prisma.StringNullableFilter<"Order"> | string | null
+  internalNote?: Prisma.StringNullableFilter<"Order"> | string | null
+  placedAt?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
+  confirmedAt?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
+  cancelledAt?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
+  cancelReason?: Prisma.StringNullableFilter<"Order"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"Order"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Order"> | Date | string
+}
+
+export type OrderCreateWithoutReservationsInput = {
+  id: string
+  orderNumber: string
+  source?: $Enums.OrderSource
+  status?: $Enums.OrderStatus
+  currency: string
+  subtotalMinor?: bigint | number
+  discountMinor?: bigint | number
+  taxMinor?: bigint | number
+  shippingMinor?: bigint | number
+  grandTotalMinor?: bigint | number
+  paidMinor?: bigint | number
+  refundedMinor?: bigint | number
+  billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: string | null
+  shippingMethodName?: string | null
+  paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
+  preferredPaymentProvider?: $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  taxTreatment?: $Enums.TaxTreatment
+  taxCountry?: string | null
+  sellerVatNumberSnapshot?: string | null
+  buyerVatNumberSnapshot?: string | null
+  customerNote?: string | null
+  internalNote?: string | null
+  placedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
+  customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
+  cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -1625,6 +2065,13 @@ export type OrderUncheckedCreateWithoutReservationsInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -1689,6 +2136,11 @@ export type OrderUpdateWithoutReservationsInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -1707,6 +2159,8 @@ export type OrderUpdateWithoutReservationsInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -1743,6 +2197,13 @@ export type OrderUncheckedUpdateWithoutReservationsInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -1791,6 +2252,11 @@ export type OrderCreateWithoutCustomerProfileInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -1808,6 +2274,8 @@ export type OrderCreateWithoutCustomerProfileInput = {
   updatedAt?: Date | string
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -1844,6 +2312,13 @@ export type OrderUncheckedCreateWithoutCustomerProfileInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -1901,48 +2376,6 @@ export type OrderUpdateManyWithWhereWithoutCustomerProfileInput = {
   data: Prisma.XOR<Prisma.OrderUpdateManyMutationInput, Prisma.OrderUncheckedUpdateManyWithoutCustomerProfileInput>
 }
 
-export type OrderScalarWhereInput = {
-  AND?: Prisma.OrderScalarWhereInput | Prisma.OrderScalarWhereInput[]
-  OR?: Prisma.OrderScalarWhereInput[]
-  NOT?: Prisma.OrderScalarWhereInput | Prisma.OrderScalarWhereInput[]
-  id?: Prisma.StringFilter<"Order"> | string
-  orderNumber?: Prisma.StringFilter<"Order"> | string
-  customerProfileId?: Prisma.StringFilter<"Order"> | string
-  cartId?: Prisma.StringNullableFilter<"Order"> | string | null
-  source?: Prisma.EnumOrderSourceFilter<"Order"> | $Enums.OrderSource
-  scheduleOccurrenceId?: Prisma.StringNullableFilter<"Order"> | string | null
-  status?: Prisma.EnumOrderStatusFilter<"Order"> | $Enums.OrderStatus
-  currency?: Prisma.StringFilter<"Order"> | string
-  subtotalMinor?: Prisma.BigIntFilter<"Order"> | bigint | number
-  discountMinor?: Prisma.BigIntFilter<"Order"> | bigint | number
-  taxMinor?: Prisma.BigIntFilter<"Order"> | bigint | number
-  shippingMinor?: Prisma.BigIntFilter<"Order"> | bigint | number
-  grandTotalMinor?: Prisma.BigIntFilter<"Order"> | bigint | number
-  paidMinor?: Prisma.BigIntFilter<"Order"> | bigint | number
-  refundedMinor?: Prisma.BigIntFilter<"Order"> | bigint | number
-  billingAddressJson?: Prisma.JsonFilter<"Order">
-  shippingAddressJson?: Prisma.JsonFilter<"Order">
-  shippingMethodCode?: Prisma.StringNullableFilter<"Order"> | string | null
-  shippingMethodName?: Prisma.StringNullableFilter<"Order"> | string | null
-  paymentMode?: Prisma.EnumPaymentIntentModeFilter<"Order"> | $Enums.PaymentIntentMode
-  preferredPaymentProvider?: Prisma.EnumPaymentProviderKindNullableFilter<"Order"> | $Enums.PaymentProviderKind | null
-  preferredPaymentMethod?: Prisma.EnumPaymentMethodPreferenceNullableFilter<"Order"> | $Enums.PaymentMethodPreference | null
-  preferredPaymentInstrument?: Prisma.EnumPaymentInstrumentKindNullableFilter<"Order"> | $Enums.PaymentInstrumentKind | null
-  preferredPaymentMethodId?: Prisma.StringNullableFilter<"Order"> | string | null
-  taxTreatment?: Prisma.EnumTaxTreatmentFilter<"Order"> | $Enums.TaxTreatment
-  taxCountry?: Prisma.StringNullableFilter<"Order"> | string | null
-  sellerVatNumberSnapshot?: Prisma.StringNullableFilter<"Order"> | string | null
-  buyerVatNumberSnapshot?: Prisma.StringNullableFilter<"Order"> | string | null
-  customerNote?: Prisma.StringNullableFilter<"Order"> | string | null
-  internalNote?: Prisma.StringNullableFilter<"Order"> | string | null
-  placedAt?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
-  confirmedAt?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
-  cancelledAt?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
-  cancelReason?: Prisma.StringNullableFilter<"Order"> | string | null
-  createdAt?: Prisma.DateTimeFilter<"Order"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"Order"> | Date | string
-}
-
 export type OrderCreateWithoutCartInput = {
   id: string
   orderNumber: string
@@ -1961,6 +2394,11 @@ export type OrderCreateWithoutCartInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -1978,6 +2416,8 @@ export type OrderCreateWithoutCartInput = {
   updatedAt?: Date | string
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -2014,6 +2454,13 @@ export type OrderUncheckedCreateWithoutCartInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -2089,6 +2536,11 @@ export type OrderCreateWithoutItemsInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -2107,6 +2559,8 @@ export type OrderCreateWithoutItemsInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
   payments?: Prisma.PaymentTransactionCreateNestedManyWithoutOrderInput
@@ -2143,6 +2597,13 @@ export type OrderUncheckedCreateWithoutItemsInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -2207,6 +2668,11 @@ export type OrderUpdateWithoutItemsInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -2225,6 +2691,8 @@ export type OrderUpdateWithoutItemsInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
   payments?: Prisma.PaymentTransactionUpdateManyWithoutOrderNestedInput
@@ -2261,6 +2729,13 @@ export type OrderUncheckedUpdateWithoutItemsInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -2309,6 +2784,11 @@ export type OrderCreateWithoutStatusHistoryInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -2327,6 +2807,8 @@ export type OrderCreateWithoutStatusHistoryInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
   payments?: Prisma.PaymentTransactionCreateNestedManyWithoutOrderInput
@@ -2363,6 +2845,13 @@ export type OrderUncheckedCreateWithoutStatusHistoryInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -2427,6 +2916,11 @@ export type OrderUpdateWithoutStatusHistoryInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -2445,6 +2939,8 @@ export type OrderUpdateWithoutStatusHistoryInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
   payments?: Prisma.PaymentTransactionUpdateManyWithoutOrderNestedInput
@@ -2481,6 +2977,13 @@ export type OrderUncheckedUpdateWithoutStatusHistoryInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -2529,6 +3032,11 @@ export type OrderCreateWithoutApprovalsInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -2547,6 +3055,8 @@ export type OrderCreateWithoutApprovalsInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   payments?: Prisma.PaymentTransactionCreateNestedManyWithoutOrderInput
@@ -2583,6 +3093,13 @@ export type OrderUncheckedCreateWithoutApprovalsInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -2647,6 +3164,11 @@ export type OrderUpdateWithoutApprovalsInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -2665,6 +3187,8 @@ export type OrderUpdateWithoutApprovalsInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   payments?: Prisma.PaymentTransactionUpdateManyWithoutOrderNestedInput
@@ -2701,6 +3225,13 @@ export type OrderUncheckedUpdateWithoutApprovalsInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -2749,6 +3280,11 @@ export type OrderCreateWithoutPaymentsInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -2767,6 +3303,8 @@ export type OrderCreateWithoutPaymentsInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -2803,6 +3341,13 @@ export type OrderUncheckedCreateWithoutPaymentsInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -2867,6 +3412,11 @@ export type OrderUpdateWithoutPaymentsInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -2885,6 +3435,8 @@ export type OrderUpdateWithoutPaymentsInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -2921,6 +3473,13 @@ export type OrderUncheckedUpdateWithoutPaymentsInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -2969,6 +3528,11 @@ export type OrderCreateWithoutPaymentEventsInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -2987,6 +3551,8 @@ export type OrderCreateWithoutPaymentEventsInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -3023,6 +3589,13 @@ export type OrderUncheckedCreateWithoutPaymentEventsInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -3087,6 +3660,11 @@ export type OrderUpdateWithoutPaymentEventsInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -3105,6 +3683,8 @@ export type OrderUpdateWithoutPaymentEventsInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -3141,6 +3721,13 @@ export type OrderUncheckedUpdateWithoutPaymentEventsInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -3189,6 +3776,11 @@ export type OrderCreateWithoutPaymentLinksInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -3207,6 +3799,8 @@ export type OrderCreateWithoutPaymentLinksInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -3243,6 +3837,13 @@ export type OrderUncheckedCreateWithoutPaymentLinksInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -3307,6 +3908,11 @@ export type OrderUpdateWithoutPaymentLinksInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -3325,6 +3931,8 @@ export type OrderUpdateWithoutPaymentLinksInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -3361,6 +3969,13 @@ export type OrderUncheckedUpdateWithoutPaymentLinksInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -3409,6 +4024,11 @@ export type OrderCreateWithoutRefundsInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -3427,6 +4047,8 @@ export type OrderCreateWithoutRefundsInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -3463,6 +4085,13 @@ export type OrderUncheckedCreateWithoutRefundsInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -3527,6 +4156,11 @@ export type OrderUpdateWithoutRefundsInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -3545,6 +4179,8 @@ export type OrderUpdateWithoutRefundsInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -3581,6 +4217,13 @@ export type OrderUncheckedUpdateWithoutRefundsInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -3629,6 +4272,11 @@ export type OrderCreateWithoutOccurrenceInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -3647,6 +4295,8 @@ export type OrderCreateWithoutOccurrenceInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -3682,6 +4332,13 @@ export type OrderUncheckedCreateWithoutOccurrenceInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -3747,6 +4404,11 @@ export type OrderUpdateWithoutOccurrenceInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -3765,6 +4427,8 @@ export type OrderUpdateWithoutOccurrenceInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -3800,6 +4464,13 @@ export type OrderUncheckedUpdateWithoutOccurrenceInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -3849,6 +4520,11 @@ export type OrderCreateWithoutPreferredPaymentCardInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -3866,6 +4542,8 @@ export type OrderCreateWithoutPreferredPaymentCardInput = {
   updatedAt?: Date | string
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -3903,6 +4581,13 @@ export type OrderUncheckedCreateWithoutPreferredPaymentCardInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -3977,6 +4662,11 @@ export type OrderCreateWithoutErpPushInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -3995,6 +4685,8 @@ export type OrderCreateWithoutErpPushInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -4031,6 +4723,13 @@ export type OrderUncheckedCreateWithoutErpPushInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -4095,6 +4794,11 @@ export type OrderUpdateWithoutErpPushInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -4113,6 +4817,8 @@ export type OrderUpdateWithoutErpPushInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -4149,6 +4855,13 @@ export type OrderUncheckedUpdateWithoutErpPushInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -4179,7 +4892,7 @@ export type OrderUncheckedUpdateWithoutErpPushInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
 }
 
-export type OrderCreateWithoutShipmentsInput = {
+export type OrderCreateWithoutFulfilmentQuoteInput = {
   id: string
   orderNumber: string
   source?: $Enums.OrderSource
@@ -4197,6 +4910,11 @@ export type OrderCreateWithoutShipmentsInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -4215,6 +4933,150 @@ export type OrderCreateWithoutShipmentsInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
+  approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
+  payments?: Prisma.PaymentTransactionCreateNestedManyWithoutOrderInput
+  paymentLinks?: Prisma.PaymentLinkCreateNestedManyWithoutOrderInput
+  refunds?: Prisma.RefundCreateNestedManyWithoutOrderInput
+  shipments?: Prisma.ShipmentCreateNestedManyWithoutOrderInput
+  returnRequests?: Prisma.ReturnRequestCreateNestedManyWithoutOrderInput
+  reservations?: Prisma.StockReservationCreateNestedManyWithoutOrderInput
+  paymentEvents?: Prisma.PaymentEventCreateNestedManyWithoutOrderInput
+  occurrence?: Prisma.ScheduleOccurrenceCreateNestedOneWithoutOrderInput
+  couponRedemption?: Prisma.CouponRedemptionCreateNestedOneWithoutOrderInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutOrderInput
+  erpPush?: Prisma.ErpOrderPushCreateNestedOneWithoutOrderInput
+}
+
+export type OrderUncheckedCreateWithoutFulfilmentQuoteInput = {
+  id: string
+  orderNumber: string
+  customerProfileId: string
+  cartId?: string | null
+  source?: $Enums.OrderSource
+  scheduleOccurrenceId?: string | null
+  status?: $Enums.OrderStatus
+  currency: string
+  subtotalMinor?: bigint | number
+  discountMinor?: bigint | number
+  taxMinor?: bigint | number
+  shippingMinor?: bigint | number
+  grandTotalMinor?: bigint | number
+  paidMinor?: bigint | number
+  refundedMinor?: bigint | number
+  billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: string | null
+  shippingMethodName?: string | null
+  paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
+  preferredPaymentProvider?: $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
+  taxTreatment?: $Enums.TaxTreatment
+  taxCountry?: string | null
+  sellerVatNumberSnapshot?: string | null
+  buyerVatNumberSnapshot?: string | null
+  customerNote?: string | null
+  internalNote?: string | null
+  placedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutOrderInput
+  approvals?: Prisma.OrderApprovalUncheckedCreateNestedManyWithoutOrderInput
+  payments?: Prisma.PaymentTransactionUncheckedCreateNestedManyWithoutOrderInput
+  paymentLinks?: Prisma.PaymentLinkUncheckedCreateNestedManyWithoutOrderInput
+  refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutOrderInput
+  shipments?: Prisma.ShipmentUncheckedCreateNestedManyWithoutOrderInput
+  returnRequests?: Prisma.ReturnRequestUncheckedCreateNestedManyWithoutOrderInput
+  reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutOrderInput
+  paymentEvents?: Prisma.PaymentEventUncheckedCreateNestedManyWithoutOrderInput
+  couponRedemption?: Prisma.CouponRedemptionUncheckedCreateNestedOneWithoutOrderInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutOrderInput
+  erpPush?: Prisma.ErpOrderPushUncheckedCreateNestedOneWithoutOrderInput
+}
+
+export type OrderCreateOrConnectWithoutFulfilmentQuoteInput = {
+  where: Prisma.OrderWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrderCreateWithoutFulfilmentQuoteInput, Prisma.OrderUncheckedCreateWithoutFulfilmentQuoteInput>
+}
+
+export type OrderCreateManyFulfilmentQuoteInputEnvelope = {
+  data: Prisma.OrderCreateManyFulfilmentQuoteInput | Prisma.OrderCreateManyFulfilmentQuoteInput[]
+  skipDuplicates?: boolean
+}
+
+export type OrderUpsertWithWhereUniqueWithoutFulfilmentQuoteInput = {
+  where: Prisma.OrderWhereUniqueInput
+  update: Prisma.XOR<Prisma.OrderUpdateWithoutFulfilmentQuoteInput, Prisma.OrderUncheckedUpdateWithoutFulfilmentQuoteInput>
+  create: Prisma.XOR<Prisma.OrderCreateWithoutFulfilmentQuoteInput, Prisma.OrderUncheckedCreateWithoutFulfilmentQuoteInput>
+}
+
+export type OrderUpdateWithWhereUniqueWithoutFulfilmentQuoteInput = {
+  where: Prisma.OrderWhereUniqueInput
+  data: Prisma.XOR<Prisma.OrderUpdateWithoutFulfilmentQuoteInput, Prisma.OrderUncheckedUpdateWithoutFulfilmentQuoteInput>
+}
+
+export type OrderUpdateManyWithWhereWithoutFulfilmentQuoteInput = {
+  where: Prisma.OrderScalarWhereInput
+  data: Prisma.XOR<Prisma.OrderUpdateManyMutationInput, Prisma.OrderUncheckedUpdateManyWithoutFulfilmentQuoteInput>
+}
+
+export type OrderCreateWithoutShipmentsInput = {
+  id: string
+  orderNumber: string
+  source?: $Enums.OrderSource
+  status?: $Enums.OrderStatus
+  currency: string
+  subtotalMinor?: bigint | number
+  discountMinor?: bigint | number
+  taxMinor?: bigint | number
+  shippingMinor?: bigint | number
+  grandTotalMinor?: bigint | number
+  paidMinor?: bigint | number
+  refundedMinor?: bigint | number
+  billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: string | null
+  shippingMethodName?: string | null
+  paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
+  preferredPaymentProvider?: $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  taxTreatment?: $Enums.TaxTreatment
+  taxCountry?: string | null
+  sellerVatNumberSnapshot?: string | null
+  buyerVatNumberSnapshot?: string | null
+  customerNote?: string | null
+  internalNote?: string | null
+  placedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
+  customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
+  cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -4251,6 +5113,13 @@ export type OrderUncheckedCreateWithoutShipmentsInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -4315,6 +5184,11 @@ export type OrderUpdateWithoutShipmentsInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -4333,6 +5207,8 @@ export type OrderUpdateWithoutShipmentsInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -4369,6 +5245,13 @@ export type OrderUncheckedUpdateWithoutShipmentsInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -4417,6 +5300,11 @@ export type OrderCreateWithoutReturnRequestsInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -4435,6 +5323,8 @@ export type OrderCreateWithoutReturnRequestsInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -4471,6 +5361,13 @@ export type OrderUncheckedCreateWithoutReturnRequestsInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -4535,6 +5432,11 @@ export type OrderUpdateWithoutReturnRequestsInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -4553,6 +5455,8 @@ export type OrderUpdateWithoutReturnRequestsInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -4589,6 +5493,13 @@ export type OrderUncheckedUpdateWithoutReturnRequestsInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -4637,6 +5548,11 @@ export type OrderCreateWithoutCouponRedemptionInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -4655,6 +5571,8 @@ export type OrderCreateWithoutCouponRedemptionInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -4691,6 +5609,13 @@ export type OrderUncheckedCreateWithoutCouponRedemptionInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -4755,6 +5680,11 @@ export type OrderUpdateWithoutCouponRedemptionInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -4773,6 +5703,8 @@ export type OrderUpdateWithoutCouponRedemptionInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -4809,6 +5741,13 @@ export type OrderUncheckedUpdateWithoutCouponRedemptionInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -4857,6 +5796,11 @@ export type OrderCreateWithoutInvoicesInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -4875,6 +5819,8 @@ export type OrderCreateWithoutInvoicesInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodCreateNestedOneWithoutOrdersInput
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutOrdersInput
   cart?: Prisma.CartCreateNestedOneWithoutOrdersInput
+  fulfilmentLocation?: Prisma.InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteCreateNestedOneWithoutOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutOrderInput
   approvals?: Prisma.OrderApprovalCreateNestedManyWithoutOrderInput
@@ -4911,6 +5857,13 @@ export type OrderUncheckedCreateWithoutInvoicesInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -4975,6 +5928,11 @@ export type OrderUpdateWithoutInvoicesInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -4993,6 +5951,8 @@ export type OrderUpdateWithoutInvoicesInput = {
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -5029,6 +5989,13 @@ export type OrderUncheckedUpdateWithoutInvoicesInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -5059,6 +6026,212 @@ export type OrderUncheckedUpdateWithoutInvoicesInput = {
   erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
 }
 
+export type OrderCreateManyFulfilmentLocationInput = {
+  id: string
+  orderNumber: string
+  customerProfileId: string
+  cartId?: string | null
+  source?: $Enums.OrderSource
+  scheduleOccurrenceId?: string | null
+  status?: $Enums.OrderStatus
+  currency: string
+  subtotalMinor?: bigint | number
+  discountMinor?: bigint | number
+  taxMinor?: bigint | number
+  shippingMinor?: bigint | number
+  grandTotalMinor?: bigint | number
+  paidMinor?: bigint | number
+  refundedMinor?: bigint | number
+  billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: string | null
+  shippingMethodName?: string | null
+  paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
+  preferredPaymentProvider?: $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
+  taxTreatment?: $Enums.TaxTreatment
+  taxCountry?: string | null
+  sellerVatNumberSnapshot?: string | null
+  buyerVatNumberSnapshot?: string | null
+  customerNote?: string | null
+  internalNote?: string | null
+  placedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type OrderUpdateWithoutFulfilmentLocationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.EnumOrderSourceFieldUpdateOperationsInput | $Enums.OrderSource
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
+  taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  buyerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
+  cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
+  items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+  approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
+  payments?: Prisma.PaymentTransactionUpdateManyWithoutOrderNestedInput
+  paymentLinks?: Prisma.PaymentLinkUpdateManyWithoutOrderNestedInput
+  refunds?: Prisma.RefundUpdateManyWithoutOrderNestedInput
+  shipments?: Prisma.ShipmentUpdateManyWithoutOrderNestedInput
+  returnRequests?: Prisma.ReturnRequestUpdateManyWithoutOrderNestedInput
+  reservations?: Prisma.StockReservationUpdateManyWithoutOrderNestedInput
+  paymentEvents?: Prisma.PaymentEventUpdateManyWithoutOrderNestedInput
+  occurrence?: Prisma.ScheduleOccurrenceUpdateOneWithoutOrderNestedInput
+  couponRedemption?: Prisma.CouponRedemptionUpdateOneWithoutOrderNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
+  erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
+}
+
+export type OrderUncheckedUpdateWithoutFulfilmentLocationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  cartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumOrderSourceFieldUpdateOperationsInput | $Enums.OrderSource
+  scheduleOccurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
+  taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  buyerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+  approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
+  payments?: Prisma.PaymentTransactionUncheckedUpdateManyWithoutOrderNestedInput
+  paymentLinks?: Prisma.PaymentLinkUncheckedUpdateManyWithoutOrderNestedInput
+  refunds?: Prisma.RefundUncheckedUpdateManyWithoutOrderNestedInput
+  shipments?: Prisma.ShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  returnRequests?: Prisma.ReturnRequestUncheckedUpdateManyWithoutOrderNestedInput
+  reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutOrderNestedInput
+  paymentEvents?: Prisma.PaymentEventUncheckedUpdateManyWithoutOrderNestedInput
+  couponRedemption?: Prisma.CouponRedemptionUncheckedUpdateOneWithoutOrderNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
+}
+
+export type OrderUncheckedUpdateManyWithoutFulfilmentLocationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  cartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumOrderSourceFieldUpdateOperationsInput | $Enums.OrderSource
+  scheduleOccurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
+  taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  buyerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type OrderCreateManyCustomerProfileInput = {
   id: string
   orderNumber: string
@@ -5079,6 +6252,13 @@ export type OrderCreateManyCustomerProfileInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -5115,6 +6295,11 @@ export type OrderUpdateWithoutCustomerProfileInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -5132,6 +6317,8 @@ export type OrderUpdateWithoutCustomerProfileInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -5168,6 +6355,13 @@ export type OrderUncheckedUpdateWithoutCustomerProfileInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -5219,6 +6413,13 @@ export type OrderUncheckedUpdateManyWithoutCustomerProfileInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -5257,6 +6458,13 @@ export type OrderCreateManyCartInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -5293,6 +6501,11 @@ export type OrderUpdateWithoutCartInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -5310,6 +6523,8 @@ export type OrderUpdateWithoutCartInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -5346,6 +6561,13 @@ export type OrderUncheckedUpdateWithoutCartInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -5397,6 +6619,13 @@ export type OrderUncheckedUpdateManyWithoutCartInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -5436,6 +6665,13 @@ export type OrderCreateManyPreferredPaymentCardInput = {
   shippingMethodCode?: string | null
   shippingMethodName?: string | null
   paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentQuoteId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
   preferredPaymentProvider?: $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
@@ -5471,6 +6707,11 @@ export type OrderUpdateWithoutPreferredPaymentCardInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -5488,6 +6729,8 @@ export type OrderUpdateWithoutPreferredPaymentCardInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
   cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  fulfilmentQuote?: Prisma.FulfilmentQuoteUpdateOneWithoutOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
   approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
@@ -5525,6 +6768,13 @@ export type OrderUncheckedUpdateWithoutPreferredPaymentCardInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
@@ -5576,9 +6826,222 @@ export type OrderUncheckedUpdateManyWithoutPreferredPaymentCardInput = {
   shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentQuoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
   preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
   preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
+  taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  buyerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type OrderCreateManyFulfilmentQuoteInput = {
+  id: string
+  orderNumber: string
+  customerProfileId: string
+  cartId?: string | null
+  source?: $Enums.OrderSource
+  scheduleOccurrenceId?: string | null
+  status?: $Enums.OrderStatus
+  currency: string
+  subtotalMinor?: bigint | number
+  discountMinor?: bigint | number
+  taxMinor?: bigint | number
+  shippingMinor?: bigint | number
+  grandTotalMinor?: bigint | number
+  paidMinor?: bigint | number
+  refundedMinor?: bigint | number
+  billingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: string | null
+  shippingMethodName?: string | null
+  paymentMode?: $Enums.PaymentIntentMode
+  fulfilmentLocationId?: string | null
+  fulfilmentCarrier?: string | null
+  fulfilmentServiceLevel?: string | null
+  fulfilmentDispatchDate?: Date | string | null
+  fulfilmentDeliveryFrom?: Date | string | null
+  fulfilmentDeliveryTo?: Date | string | null
+  preferredPaymentProvider?: $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: string | null
+  taxTreatment?: $Enums.TaxTreatment
+  taxCountry?: string | null
+  sellerVatNumberSnapshot?: string | null
+  buyerVatNumberSnapshot?: string | null
+  customerNote?: string | null
+  internalNote?: string | null
+  placedAt?: Date | string | null
+  confirmedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  cancelReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type OrderUpdateWithoutFulfilmentQuoteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.EnumOrderSourceFieldUpdateOperationsInput | $Enums.OrderSource
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
+  taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  buyerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredPaymentCard?: Prisma.CustomerPaymentMethodUpdateOneWithoutOrdersNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutOrdersNestedInput
+  cart?: Prisma.CartUpdateOneWithoutOrdersNestedInput
+  fulfilmentLocation?: Prisma.InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput
+  items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutOrderNestedInput
+  approvals?: Prisma.OrderApprovalUpdateManyWithoutOrderNestedInput
+  payments?: Prisma.PaymentTransactionUpdateManyWithoutOrderNestedInput
+  paymentLinks?: Prisma.PaymentLinkUpdateManyWithoutOrderNestedInput
+  refunds?: Prisma.RefundUpdateManyWithoutOrderNestedInput
+  shipments?: Prisma.ShipmentUpdateManyWithoutOrderNestedInput
+  returnRequests?: Prisma.ReturnRequestUpdateManyWithoutOrderNestedInput
+  reservations?: Prisma.StockReservationUpdateManyWithoutOrderNestedInput
+  paymentEvents?: Prisma.PaymentEventUpdateManyWithoutOrderNestedInput
+  occurrence?: Prisma.ScheduleOccurrenceUpdateOneWithoutOrderNestedInput
+  couponRedemption?: Prisma.CouponRedemptionUpdateOneWithoutOrderNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutOrderNestedInput
+  erpPush?: Prisma.ErpOrderPushUpdateOneWithoutOrderNestedInput
+}
+
+export type OrderUncheckedUpdateWithoutFulfilmentQuoteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  cartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumOrderSourceFieldUpdateOperationsInput | $Enums.OrderSource
+  scheduleOccurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
+  taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  buyerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutOrderNestedInput
+  approvals?: Prisma.OrderApprovalUncheckedUpdateManyWithoutOrderNestedInput
+  payments?: Prisma.PaymentTransactionUncheckedUpdateManyWithoutOrderNestedInput
+  paymentLinks?: Prisma.PaymentLinkUncheckedUpdateManyWithoutOrderNestedInput
+  refunds?: Prisma.RefundUncheckedUpdateManyWithoutOrderNestedInput
+  shipments?: Prisma.ShipmentUncheckedUpdateManyWithoutOrderNestedInput
+  returnRequests?: Prisma.ReturnRequestUncheckedUpdateManyWithoutOrderNestedInput
+  reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutOrderNestedInput
+  paymentEvents?: Prisma.PaymentEventUncheckedUpdateManyWithoutOrderNestedInput
+  couponRedemption?: Prisma.CouponRedemptionUncheckedUpdateOneWithoutOrderNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutOrderNestedInput
+  erpPush?: Prisma.ErpOrderPushUncheckedUpdateOneWithoutOrderNestedInput
+}
+
+export type OrderUncheckedUpdateManyWithoutFulfilmentQuoteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  cartId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumOrderSourceFieldUpdateOperationsInput | $Enums.OrderSource
+  scheduleOccurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  discountMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  taxMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  shippingMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  grandTotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  paidMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  refundedMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  billingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingAddressJson?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  shippingMethodCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shippingMethodName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.EnumPaymentIntentModeFieldUpdateOperationsInput | $Enums.PaymentIntentMode
+  fulfilmentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentCarrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentServiceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fulfilmentDispatchDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fulfilmentDeliveryTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredPaymentProvider?: Prisma.NullableEnumPaymentProviderKindFieldUpdateOperationsInput | $Enums.PaymentProviderKind | null
+  preferredPaymentMethod?: Prisma.NullableEnumPaymentMethodPreferenceFieldUpdateOperationsInput | $Enums.PaymentMethodPreference | null
+  preferredPaymentInstrument?: Prisma.NullableEnumPaymentInstrumentKindFieldUpdateOperationsInput | $Enums.PaymentInstrumentKind | null
+  preferredPaymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxTreatment?: Prisma.EnumTaxTreatmentFieldUpdateOperationsInput | $Enums.TaxTreatment
   taxCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerVatNumberSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5735,6 +7198,13 @@ export type OrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   shippingMethodCode?: boolean
   shippingMethodName?: boolean
   paymentMode?: boolean
+  fulfilmentLocationId?: boolean
+  fulfilmentQuoteId?: boolean
+  fulfilmentCarrier?: boolean
+  fulfilmentServiceLevel?: boolean
+  fulfilmentDispatchDate?: boolean
+  fulfilmentDeliveryFrom?: boolean
+  fulfilmentDeliveryTo?: boolean
   preferredPaymentProvider?: boolean
   preferredPaymentMethod?: boolean
   preferredPaymentInstrument?: boolean
@@ -5754,6 +7224,8 @@ export type OrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   preferredPaymentCard?: boolean | Prisma.Order$preferredPaymentCardArgs<ExtArgs>
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   cart?: boolean | Prisma.Order$cartArgs<ExtArgs>
+  fulfilmentLocation?: boolean | Prisma.Order$fulfilmentLocationArgs<ExtArgs>
+  fulfilmentQuote?: boolean | Prisma.Order$fulfilmentQuoteArgs<ExtArgs>
   items?: boolean | Prisma.Order$itemsArgs<ExtArgs>
   statusHistory?: boolean | Prisma.Order$statusHistoryArgs<ExtArgs>
   approvals?: boolean | Prisma.Order$approvalsArgs<ExtArgs>
@@ -5794,6 +7266,13 @@ export type OrderSelectScalar = {
   shippingMethodCode?: boolean
   shippingMethodName?: boolean
   paymentMode?: boolean
+  fulfilmentLocationId?: boolean
+  fulfilmentQuoteId?: boolean
+  fulfilmentCarrier?: boolean
+  fulfilmentServiceLevel?: boolean
+  fulfilmentDispatchDate?: boolean
+  fulfilmentDeliveryFrom?: boolean
+  fulfilmentDeliveryTo?: boolean
   preferredPaymentProvider?: boolean
   preferredPaymentMethod?: boolean
   preferredPaymentInstrument?: boolean
@@ -5812,11 +7291,13 @@ export type OrderSelectScalar = {
   updatedAt?: boolean
 }
 
-export type OrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderNumber" | "customerProfileId" | "cartId" | "source" | "scheduleOccurrenceId" | "status" | "currency" | "subtotalMinor" | "discountMinor" | "taxMinor" | "shippingMinor" | "grandTotalMinor" | "paidMinor" | "refundedMinor" | "billingAddressJson" | "shippingAddressJson" | "shippingMethodCode" | "shippingMethodName" | "paymentMode" | "preferredPaymentProvider" | "preferredPaymentMethod" | "preferredPaymentInstrument" | "preferredPaymentMethodId" | "taxTreatment" | "taxCountry" | "sellerVatNumberSnapshot" | "buyerVatNumberSnapshot" | "customerNote" | "internalNote" | "placedAt" | "confirmedAt" | "cancelledAt" | "cancelReason" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
+export type OrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderNumber" | "customerProfileId" | "cartId" | "source" | "scheduleOccurrenceId" | "status" | "currency" | "subtotalMinor" | "discountMinor" | "taxMinor" | "shippingMinor" | "grandTotalMinor" | "paidMinor" | "refundedMinor" | "billingAddressJson" | "shippingAddressJson" | "shippingMethodCode" | "shippingMethodName" | "paymentMode" | "fulfilmentLocationId" | "fulfilmentQuoteId" | "fulfilmentCarrier" | "fulfilmentServiceLevel" | "fulfilmentDispatchDate" | "fulfilmentDeliveryFrom" | "fulfilmentDeliveryTo" | "preferredPaymentProvider" | "preferredPaymentMethod" | "preferredPaymentInstrument" | "preferredPaymentMethodId" | "taxTreatment" | "taxCountry" | "sellerVatNumberSnapshot" | "buyerVatNumberSnapshot" | "customerNote" | "internalNote" | "placedAt" | "confirmedAt" | "cancelledAt" | "cancelReason" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
 export type OrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   preferredPaymentCard?: boolean | Prisma.Order$preferredPaymentCardArgs<ExtArgs>
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   cart?: boolean | Prisma.Order$cartArgs<ExtArgs>
+  fulfilmentLocation?: boolean | Prisma.Order$fulfilmentLocationArgs<ExtArgs>
+  fulfilmentQuote?: boolean | Prisma.Order$fulfilmentQuoteArgs<ExtArgs>
   items?: boolean | Prisma.Order$itemsArgs<ExtArgs>
   statusHistory?: boolean | Prisma.Order$statusHistoryArgs<ExtArgs>
   approvals?: boolean | Prisma.Order$approvalsArgs<ExtArgs>
@@ -5840,6 +7321,8 @@ export type $OrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     preferredPaymentCard: Prisma.$CustomerPaymentMethodPayload<ExtArgs> | null
     customerProfile: Prisma.$CustomerProfilePayload<ExtArgs>
     cart: Prisma.$CartPayload<ExtArgs> | null
+    fulfilmentLocation: Prisma.$InventoryLocationPayload<ExtArgs> | null
+    fulfilmentQuote: Prisma.$FulfilmentQuotePayload<ExtArgs> | null
     items: Prisma.$OrderItemPayload<ExtArgs>[]
     statusHistory: Prisma.$OrderStatusHistoryPayload<ExtArgs>[]
     approvals: Prisma.$OrderApprovalPayload<ExtArgs>[]
@@ -5888,6 +7371,35 @@ export type $OrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     shippingMethodCode: string | null
     shippingMethodName: string | null
     paymentMode: $Enums.PaymentIntentMode
+    /**
+     * --- Which warehouse this ships from, and what was promised ---
+     * 
+     * Null on every order placed before fulfilment options existed, and on any
+     * order whose destination no warehouse published a lane for - the shipping
+     * method configured for the deployment still applies to those, exactly as
+     * it always did. This is additive: nothing here is required to place an
+     * order.
+     * 
+     * Restrict on the warehouse, like every other table that points at one:
+     * deleting a building must not orphan the record of where an order was
+     * picked. The quote is Restrict for a stronger reason - it is the evidence
+     * of what the customer was shown before they agreed to pay, and the sweep
+     * that clears lapsed quotes must not be able to take it.
+     */
+    fulfilmentLocationId: string | null
+    fulfilmentQuoteId: string | null
+    /**
+     * The promise itself, copied out of the quote rather than joined to it.
+     * 
+     * The same reasoning as `nameSnapshot` on an order line: a lane can be
+     * repriced or retired, and what the customer was told on the day cannot be
+     * allowed to change with it. `@db.Date` because a delivery date is a day.
+     */
+    fulfilmentCarrier: string | null
+    fulfilmentServiceLevel: string | null
+    fulfilmentDispatchDate: Date | null
+    fulfilmentDeliveryFrom: Date | null
+    fulfilmentDeliveryTo: Date | null
     /**
      * What the customer chose at checkout when there was more than one gateway
      * to choose from.
@@ -6300,6 +7812,8 @@ export interface Prisma__OrderClient<T, Null = never, ExtArgs extends runtime.Ty
   preferredPaymentCard<T extends Prisma.Order$preferredPaymentCardArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$preferredPaymentCardArgs<ExtArgs>>): Prisma.Prisma__CustomerPaymentMethodClient<runtime.Types.Result.GetResult<Prisma.$CustomerPaymentMethodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   customerProfile<T extends Prisma.CustomerProfileDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfileDefaultArgs<ExtArgs>>): Prisma.Prisma__CustomerProfileClient<runtime.Types.Result.GetResult<Prisma.$CustomerProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   cart<T extends Prisma.Order$cartArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$cartArgs<ExtArgs>>): Prisma.Prisma__CartClient<runtime.Types.Result.GetResult<Prisma.$CartPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  fulfilmentLocation<T extends Prisma.Order$fulfilmentLocationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$fulfilmentLocationArgs<ExtArgs>>): Prisma.Prisma__InventoryLocationClient<runtime.Types.Result.GetResult<Prisma.$InventoryLocationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  fulfilmentQuote<T extends Prisma.Order$fulfilmentQuoteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$fulfilmentQuoteArgs<ExtArgs>>): Prisma.Prisma__FulfilmentQuoteClient<runtime.Types.Result.GetResult<Prisma.$FulfilmentQuotePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   items<T extends Prisma.Order$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   statusHistory<T extends Prisma.Order$statusHistoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$statusHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderStatusHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   approvals<T extends Prisma.Order$approvalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$approvalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderApprovalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -6363,6 +7877,13 @@ export interface OrderFieldRefs {
   readonly shippingMethodCode: Prisma.FieldRef<"Order", 'String'>
   readonly shippingMethodName: Prisma.FieldRef<"Order", 'String'>
   readonly paymentMode: Prisma.FieldRef<"Order", 'PaymentIntentMode'>
+  readonly fulfilmentLocationId: Prisma.FieldRef<"Order", 'String'>
+  readonly fulfilmentQuoteId: Prisma.FieldRef<"Order", 'String'>
+  readonly fulfilmentCarrier: Prisma.FieldRef<"Order", 'String'>
+  readonly fulfilmentServiceLevel: Prisma.FieldRef<"Order", 'String'>
+  readonly fulfilmentDispatchDate: Prisma.FieldRef<"Order", 'DateTime'>
+  readonly fulfilmentDeliveryFrom: Prisma.FieldRef<"Order", 'DateTime'>
+  readonly fulfilmentDeliveryTo: Prisma.FieldRef<"Order", 'DateTime'>
   readonly preferredPaymentProvider: Prisma.FieldRef<"Order", 'PaymentProviderKind'>
   readonly preferredPaymentMethod: Prisma.FieldRef<"Order", 'PaymentMethodPreference'>
   readonly preferredPaymentInstrument: Prisma.FieldRef<"Order", 'PaymentInstrumentKind'>
@@ -6762,6 +8283,44 @@ export type Order$cartArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
    */
   include?: Prisma.CartInclude<ExtArgs> | null
   where?: Prisma.CartWhereInput
+}
+
+/**
+ * Order.fulfilmentLocation
+ */
+export type Order$fulfilmentLocationArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the InventoryLocation
+   */
+  select?: Prisma.InventoryLocationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the InventoryLocation
+   */
+  omit?: Prisma.InventoryLocationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryLocationInclude<ExtArgs> | null
+  where?: Prisma.InventoryLocationWhereInput
+}
+
+/**
+ * Order.fulfilmentQuote
+ */
+export type Order$fulfilmentQuoteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FulfilmentQuote
+   */
+  select?: Prisma.FulfilmentQuoteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FulfilmentQuote
+   */
+  omit?: Prisma.FulfilmentQuoteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FulfilmentQuoteInclude<ExtArgs> | null
+  where?: Prisma.FulfilmentQuoteWhereInput
 }
 
 /**

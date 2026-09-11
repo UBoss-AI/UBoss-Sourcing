@@ -70,6 +70,7 @@ export type ProductMinAggregateOutputType = {
   qtyIncrement: number | null
   isRecurringEligible: boolean | null
   hasVariants: boolean | null
+  requiresColdChain: boolean | null
   weightGrams: number | null
   metaTitle: string | null
   metaDescription: string | null
@@ -110,6 +111,7 @@ export type ProductMaxAggregateOutputType = {
   qtyIncrement: number | null
   isRecurringEligible: boolean | null
   hasVariants: boolean | null
+  requiresColdChain: boolean | null
   weightGrams: number | null
   metaTitle: string | null
   metaDescription: string | null
@@ -150,6 +152,7 @@ export type ProductCountAggregateOutputType = {
   qtyIncrement: number
   isRecurringEligible: number
   hasVariants: number
+  requiresColdChain: number
   weightGrams: number
   metaTitle: number
   metaDescription: number
@@ -212,6 +215,7 @@ export type ProductMinAggregateInputType = {
   qtyIncrement?: true
   isRecurringEligible?: true
   hasVariants?: true
+  requiresColdChain?: true
   weightGrams?: true
   metaTitle?: true
   metaDescription?: true
@@ -252,6 +256,7 @@ export type ProductMaxAggregateInputType = {
   qtyIncrement?: true
   isRecurringEligible?: true
   hasVariants?: true
+  requiresColdChain?: true
   weightGrams?: true
   metaTitle?: true
   metaDescription?: true
@@ -292,6 +297,7 @@ export type ProductCountAggregateInputType = {
   qtyIncrement?: true
   isRecurringEligible?: true
   hasVariants?: true
+  requiresColdChain?: true
   weightGrams?: true
   metaTitle?: true
   metaDescription?: true
@@ -419,6 +425,7 @@ export type ProductGroupByOutputType = {
   qtyIncrement: number
   isRecurringEligible: boolean
   hasVariants: boolean
+  requiresColdChain: boolean
   weightGrams: number | null
   metaTitle: string | null
   metaDescription: string | null
@@ -482,6 +489,7 @@ export type ProductWhereInput = {
   qtyIncrement?: Prisma.IntFilter<"Product"> | number
   isRecurringEligible?: Prisma.BoolFilter<"Product"> | boolean
   hasVariants?: Prisma.BoolFilter<"Product"> | boolean
+  requiresColdChain?: Prisma.BoolFilter<"Product"> | boolean
   weightGrams?: Prisma.IntNullableFilter<"Product"> | number | null
   metaTitle?: Prisma.StringNullableFilter<"Product"> | string | null
   metaDescription?: Prisma.StringNullableFilter<"Product"> | string | null
@@ -514,6 +522,7 @@ export type ProductWhereInput = {
   prices?: Prisma.ProductPriceListRelationFilter
   translations?: Prisma.ProductTranslationListRelationFilter
   wishlistItems?: Prisma.WishlistItemListRelationFilter
+  countryRestrictions?: Prisma.ProductCountryRestrictionListRelationFilter
 }
 
 export type ProductOrderByWithRelationInput = {
@@ -540,6 +549,7 @@ export type ProductOrderByWithRelationInput = {
   qtyIncrement?: Prisma.SortOrder
   isRecurringEligible?: Prisma.SortOrder
   hasVariants?: Prisma.SortOrder
+  requiresColdChain?: Prisma.SortOrder
   weightGrams?: Prisma.SortOrderInput | Prisma.SortOrder
   metaTitle?: Prisma.SortOrderInput | Prisma.SortOrder
   metaDescription?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -572,6 +582,7 @@ export type ProductOrderByWithRelationInput = {
   prices?: Prisma.ProductPriceOrderByRelationAggregateInput
   translations?: Prisma.ProductTranslationOrderByRelationAggregateInput
   wishlistItems?: Prisma.WishlistItemOrderByRelationAggregateInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionOrderByRelationAggregateInput
   _relevance?: Prisma.ProductOrderByRelevanceInput
 }
 
@@ -602,6 +613,7 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   qtyIncrement?: Prisma.IntFilter<"Product"> | number
   isRecurringEligible?: Prisma.BoolFilter<"Product"> | boolean
   hasVariants?: Prisma.BoolFilter<"Product"> | boolean
+  requiresColdChain?: Prisma.BoolFilter<"Product"> | boolean
   weightGrams?: Prisma.IntNullableFilter<"Product"> | number | null
   metaTitle?: Prisma.StringNullableFilter<"Product"> | string | null
   metaDescription?: Prisma.StringNullableFilter<"Product"> | string | null
@@ -634,6 +646,7 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   prices?: Prisma.ProductPriceListRelationFilter
   translations?: Prisma.ProductTranslationListRelationFilter
   wishlistItems?: Prisma.WishlistItemListRelationFilter
+  countryRestrictions?: Prisma.ProductCountryRestrictionListRelationFilter
 }, "id" | "slug" | "sku">
 
 export type ProductOrderByWithAggregationInput = {
@@ -660,6 +673,7 @@ export type ProductOrderByWithAggregationInput = {
   qtyIncrement?: Prisma.SortOrder
   isRecurringEligible?: Prisma.SortOrder
   hasVariants?: Prisma.SortOrder
+  requiresColdChain?: Prisma.SortOrder
   weightGrams?: Prisma.SortOrderInput | Prisma.SortOrder
   metaTitle?: Prisma.SortOrderInput | Prisma.SortOrder
   metaDescription?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -708,6 +722,7 @@ export type ProductScalarWhereWithAggregatesInput = {
   qtyIncrement?: Prisma.IntWithAggregatesFilter<"Product"> | number
   isRecurringEligible?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
   hasVariants?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
+  requiresColdChain?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
   weightGrams?: Prisma.IntNullableWithAggregatesFilter<"Product"> | number | null
   metaTitle?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   metaDescription?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
@@ -746,6 +761,7 @@ export type ProductCreateInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -776,6 +792,7 @@ export type ProductCreateInput = {
   prices?: Prisma.ProductPriceCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateInput = {
@@ -802,6 +819,7 @@ export type ProductUncheckedCreateInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -830,6 +848,7 @@ export type ProductUncheckedCreateInput = {
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductUpdateInput = {
@@ -854,6 +873,7 @@ export type ProductUpdateInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -884,6 +904,7 @@ export type ProductUpdateInput = {
   prices?: Prisma.ProductPriceUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateInput = {
@@ -910,6 +931,7 @@ export type ProductUncheckedUpdateInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -938,6 +960,7 @@ export type ProductUncheckedUpdateInput = {
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateManyInput = {
@@ -964,6 +987,7 @@ export type ProductCreateManyInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -1002,6 +1026,7 @@ export type ProductUpdateManyMutationInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1040,6 +1065,7 @@ export type ProductUncheckedUpdateManyInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1096,6 +1122,7 @@ export type ProductCountOrderByAggregateInput = {
   qtyIncrement?: Prisma.SortOrder
   isRecurringEligible?: Prisma.SortOrder
   hasVariants?: Prisma.SortOrder
+  requiresColdChain?: Prisma.SortOrder
   weightGrams?: Prisma.SortOrder
   metaTitle?: Prisma.SortOrder
   metaDescription?: Prisma.SortOrder
@@ -1146,6 +1173,7 @@ export type ProductMaxOrderByAggregateInput = {
   qtyIncrement?: Prisma.SortOrder
   isRecurringEligible?: Prisma.SortOrder
   hasVariants?: Prisma.SortOrder
+  requiresColdChain?: Prisma.SortOrder
   weightGrams?: Prisma.SortOrder
   metaTitle?: Prisma.SortOrder
   metaDescription?: Prisma.SortOrder
@@ -1186,6 +1214,7 @@ export type ProductMinOrderByAggregateInput = {
   qtyIncrement?: Prisma.SortOrder
   isRecurringEligible?: Prisma.SortOrder
   hasVariants?: Prisma.SortOrder
+  requiresColdChain?: Prisma.SortOrder
   weightGrams?: Prisma.SortOrder
   metaTitle?: Prisma.SortOrder
   metaDescription?: Prisma.SortOrder
@@ -1578,6 +1607,20 @@ export type ProductUpdateOneRequiredWithoutDeviceInfoNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutDeviceInfoInput, Prisma.ProductUpdateWithoutDeviceInfoInput>, Prisma.ProductUncheckedUpdateWithoutDeviceInfoInput>
 }
 
+export type ProductCreateNestedOneWithoutCountryRestrictionsInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutCountryRestrictionsInput, Prisma.ProductUncheckedCreateWithoutCountryRestrictionsInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutCountryRestrictionsInput
+  connect?: Prisma.ProductWhereUniqueInput
+}
+
+export type ProductUpdateOneRequiredWithoutCountryRestrictionsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutCountryRestrictionsInput, Prisma.ProductUncheckedCreateWithoutCountryRestrictionsInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutCountryRestrictionsInput
+  upsert?: Prisma.ProductUpsertWithoutCountryRestrictionsInput
+  connect?: Prisma.ProductWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutCountryRestrictionsInput, Prisma.ProductUpdateWithoutCountryRestrictionsInput>, Prisma.ProductUncheckedUpdateWithoutCountryRestrictionsInput>
+}
+
 export type ProductCreateNestedOneWithoutWishlistItemsInput = {
   create?: Prisma.XOR<Prisma.ProductCreateWithoutWishlistItemsInput, Prisma.ProductUncheckedCreateWithoutWishlistItemsInput>
   connectOrCreate?: Prisma.ProductCreateOrConnectWithoutWishlistItemsInput
@@ -1614,6 +1657,7 @@ export type ProductCreateWithoutTaxClassInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -1643,6 +1687,7 @@ export type ProductCreateWithoutTaxClassInput = {
   prices?: Prisma.ProductPriceCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutTaxClassInput = {
@@ -1668,6 +1713,7 @@ export type ProductUncheckedCreateWithoutTaxClassInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -1696,6 +1742,7 @@ export type ProductUncheckedCreateWithoutTaxClassInput = {
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutTaxClassInput = {
@@ -1751,6 +1798,7 @@ export type ProductScalarWhereInput = {
   qtyIncrement?: Prisma.IntFilter<"Product"> | number
   isRecurringEligible?: Prisma.BoolFilter<"Product"> | boolean
   hasVariants?: Prisma.BoolFilter<"Product"> | boolean
+  requiresColdChain?: Prisma.BoolFilter<"Product"> | boolean
   weightGrams?: Prisma.IntNullableFilter<"Product"> | number | null
   metaTitle?: Prisma.StringNullableFilter<"Product"> | string | null
   metaDescription?: Prisma.StringNullableFilter<"Product"> | string | null
@@ -1789,6 +1837,7 @@ export type ProductCreateWithoutCategoryInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -1818,6 +1867,7 @@ export type ProductCreateWithoutCategoryInput = {
   prices?: Prisma.ProductPriceCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutCategoryInput = {
@@ -1843,6 +1893,7 @@ export type ProductUncheckedCreateWithoutCategoryInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -1871,6 +1922,7 @@ export type ProductUncheckedCreateWithoutCategoryInput = {
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutCategoryInput = {
@@ -1921,6 +1973,7 @@ export type ProductCreateWithoutVariantsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -1950,6 +2003,7 @@ export type ProductCreateWithoutVariantsInput = {
   prices?: Prisma.ProductPriceCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutVariantsInput = {
@@ -1976,6 +2030,7 @@ export type ProductUncheckedCreateWithoutVariantsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -2003,6 +2058,7 @@ export type ProductUncheckedCreateWithoutVariantsInput = {
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutVariantsInput = {
@@ -2043,6 +2099,7 @@ export type ProductUpdateWithoutVariantsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2072,6 +2129,7 @@ export type ProductUpdateWithoutVariantsInput = {
   prices?: Prisma.ProductPriceUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutVariantsInput = {
@@ -2098,6 +2156,7 @@ export type ProductUncheckedUpdateWithoutVariantsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2125,6 +2184,7 @@ export type ProductUncheckedUpdateWithoutVariantsInput = {
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutMediaInput = {
@@ -2149,6 +2209,7 @@ export type ProductCreateWithoutMediaInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -2178,6 +2239,7 @@ export type ProductCreateWithoutMediaInput = {
   prices?: Prisma.ProductPriceCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutMediaInput = {
@@ -2204,6 +2266,7 @@ export type ProductUncheckedCreateWithoutMediaInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -2231,6 +2294,7 @@ export type ProductUncheckedCreateWithoutMediaInput = {
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutMediaInput = {
@@ -2271,6 +2335,7 @@ export type ProductUpdateWithoutMediaInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2300,6 +2365,7 @@ export type ProductUpdateWithoutMediaInput = {
   prices?: Prisma.ProductPriceUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutMediaInput = {
@@ -2326,6 +2392,7 @@ export type ProductUncheckedUpdateWithoutMediaInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2353,6 +2420,7 @@ export type ProductUncheckedUpdateWithoutMediaInput = {
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutAttributesInput = {
@@ -2377,6 +2445,7 @@ export type ProductCreateWithoutAttributesInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -2406,6 +2475,7 @@ export type ProductCreateWithoutAttributesInput = {
   prices?: Prisma.ProductPriceCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutAttributesInput = {
@@ -2432,6 +2502,7 @@ export type ProductUncheckedCreateWithoutAttributesInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -2459,6 +2530,7 @@ export type ProductUncheckedCreateWithoutAttributesInput = {
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutAttributesInput = {
@@ -2499,6 +2571,7 @@ export type ProductUpdateWithoutAttributesInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2528,6 +2601,7 @@ export type ProductUpdateWithoutAttributesInput = {
   prices?: Prisma.ProductPriceUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutAttributesInput = {
@@ -2554,6 +2628,7 @@ export type ProductUncheckedUpdateWithoutAttributesInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2581,6 +2656,7 @@ export type ProductUncheckedUpdateWithoutAttributesInput = {
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutInventoryBalancesInput = {
@@ -2605,6 +2681,7 @@ export type ProductCreateWithoutInventoryBalancesInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -2634,6 +2711,7 @@ export type ProductCreateWithoutInventoryBalancesInput = {
   prices?: Prisma.ProductPriceCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutInventoryBalancesInput = {
@@ -2660,6 +2738,7 @@ export type ProductUncheckedCreateWithoutInventoryBalancesInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -2687,6 +2766,7 @@ export type ProductUncheckedCreateWithoutInventoryBalancesInput = {
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutInventoryBalancesInput = {
@@ -2727,6 +2807,7 @@ export type ProductUpdateWithoutInventoryBalancesInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2756,6 +2837,7 @@ export type ProductUpdateWithoutInventoryBalancesInput = {
   prices?: Prisma.ProductPriceUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutInventoryBalancesInput = {
@@ -2782,6 +2864,7 @@ export type ProductUncheckedUpdateWithoutInventoryBalancesInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2809,6 +2892,7 @@ export type ProductUncheckedUpdateWithoutInventoryBalancesInput = {
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutInventoryMovementsInput = {
@@ -2833,6 +2917,7 @@ export type ProductCreateWithoutInventoryMovementsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -2862,6 +2947,7 @@ export type ProductCreateWithoutInventoryMovementsInput = {
   prices?: Prisma.ProductPriceCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutInventoryMovementsInput = {
@@ -2888,6 +2974,7 @@ export type ProductUncheckedCreateWithoutInventoryMovementsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -2915,6 +3002,7 @@ export type ProductUncheckedCreateWithoutInventoryMovementsInput = {
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutInventoryMovementsInput = {
@@ -2955,6 +3043,7 @@ export type ProductUpdateWithoutInventoryMovementsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2984,6 +3073,7 @@ export type ProductUpdateWithoutInventoryMovementsInput = {
   prices?: Prisma.ProductPriceUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutInventoryMovementsInput = {
@@ -3010,6 +3100,7 @@ export type ProductUncheckedUpdateWithoutInventoryMovementsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3037,6 +3128,7 @@ export type ProductUncheckedUpdateWithoutInventoryMovementsInput = {
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutStockReservationsInput = {
@@ -3061,6 +3153,7 @@ export type ProductCreateWithoutStockReservationsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -3090,6 +3183,7 @@ export type ProductCreateWithoutStockReservationsInput = {
   prices?: Prisma.ProductPriceCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutStockReservationsInput = {
@@ -3116,6 +3210,7 @@ export type ProductUncheckedCreateWithoutStockReservationsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -3143,6 +3238,7 @@ export type ProductUncheckedCreateWithoutStockReservationsInput = {
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutStockReservationsInput = {
@@ -3183,6 +3279,7 @@ export type ProductUpdateWithoutStockReservationsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3212,6 +3309,7 @@ export type ProductUpdateWithoutStockReservationsInput = {
   prices?: Prisma.ProductPriceUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutStockReservationsInput = {
@@ -3238,6 +3336,7 @@ export type ProductUncheckedUpdateWithoutStockReservationsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3265,6 +3364,7 @@ export type ProductUncheckedUpdateWithoutStockReservationsInput = {
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutCartItemsInput = {
@@ -3289,6 +3389,7 @@ export type ProductCreateWithoutCartItemsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -3318,6 +3419,7 @@ export type ProductCreateWithoutCartItemsInput = {
   prices?: Prisma.ProductPriceCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutCartItemsInput = {
@@ -3344,6 +3446,7 @@ export type ProductUncheckedCreateWithoutCartItemsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -3371,6 +3474,7 @@ export type ProductUncheckedCreateWithoutCartItemsInput = {
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutCartItemsInput = {
@@ -3411,6 +3515,7 @@ export type ProductUpdateWithoutCartItemsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3440,6 +3545,7 @@ export type ProductUpdateWithoutCartItemsInput = {
   prices?: Prisma.ProductPriceUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutCartItemsInput = {
@@ -3466,6 +3572,7 @@ export type ProductUncheckedUpdateWithoutCartItemsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3493,6 +3600,7 @@ export type ProductUncheckedUpdateWithoutCartItemsInput = {
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutOrderItemsInput = {
@@ -3517,6 +3625,7 @@ export type ProductCreateWithoutOrderItemsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -3546,6 +3655,7 @@ export type ProductCreateWithoutOrderItemsInput = {
   prices?: Prisma.ProductPriceCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutOrderItemsInput = {
@@ -3572,6 +3682,7 @@ export type ProductUncheckedCreateWithoutOrderItemsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -3599,6 +3710,7 @@ export type ProductUncheckedCreateWithoutOrderItemsInput = {
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutOrderItemsInput = {
@@ -3639,6 +3751,7 @@ export type ProductUpdateWithoutOrderItemsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3668,6 +3781,7 @@ export type ProductUpdateWithoutOrderItemsInput = {
   prices?: Prisma.ProductPriceUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutOrderItemsInput = {
@@ -3694,6 +3808,7 @@ export type ProductUncheckedUpdateWithoutOrderItemsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3721,6 +3836,7 @@ export type ProductUncheckedUpdateWithoutOrderItemsInput = {
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutScheduleItemsInput = {
@@ -3745,6 +3861,7 @@ export type ProductCreateWithoutScheduleItemsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -3774,6 +3891,7 @@ export type ProductCreateWithoutScheduleItemsInput = {
   prices?: Prisma.ProductPriceCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutScheduleItemsInput = {
@@ -3800,6 +3918,7 @@ export type ProductUncheckedCreateWithoutScheduleItemsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -3827,6 +3946,7 @@ export type ProductUncheckedCreateWithoutScheduleItemsInput = {
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutScheduleItemsInput = {
@@ -3856,6 +3976,7 @@ export type ProductCreateWithoutSubstituteForItemsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -3885,6 +4006,7 @@ export type ProductCreateWithoutSubstituteForItemsInput = {
   prices?: Prisma.ProductPriceCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutSubstituteForItemsInput = {
@@ -3911,6 +4033,7 @@ export type ProductUncheckedCreateWithoutSubstituteForItemsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -3938,6 +4061,7 @@ export type ProductUncheckedCreateWithoutSubstituteForItemsInput = {
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutSubstituteForItemsInput = {
@@ -3978,6 +4102,7 @@ export type ProductUpdateWithoutScheduleItemsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4007,6 +4132,7 @@ export type ProductUpdateWithoutScheduleItemsInput = {
   prices?: Prisma.ProductPriceUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutScheduleItemsInput = {
@@ -4033,6 +4159,7 @@ export type ProductUncheckedUpdateWithoutScheduleItemsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4060,6 +4187,7 @@ export type ProductUncheckedUpdateWithoutScheduleItemsInput = {
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUpsertWithoutSubstituteForItemsInput = {
@@ -4095,6 +4223,7 @@ export type ProductUpdateWithoutSubstituteForItemsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4124,6 +4253,7 @@ export type ProductUpdateWithoutSubstituteForItemsInput = {
   prices?: Prisma.ProductPriceUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutSubstituteForItemsInput = {
@@ -4150,6 +4280,7 @@ export type ProductUncheckedUpdateWithoutSubstituteForItemsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4177,6 +4308,7 @@ export type ProductUncheckedUpdateWithoutSubstituteForItemsInput = {
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutPricesInput = {
@@ -4201,6 +4333,7 @@ export type ProductCreateWithoutPricesInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -4230,6 +4363,7 @@ export type ProductCreateWithoutPricesInput = {
   substituteForItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutSubstituteProductInput
   translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutPricesInput = {
@@ -4256,6 +4390,7 @@ export type ProductUncheckedCreateWithoutPricesInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -4283,6 +4418,7 @@ export type ProductUncheckedCreateWithoutPricesInput = {
   substituteForItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutSubstituteProductInput
   translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutPricesInput = {
@@ -4323,6 +4459,7 @@ export type ProductUpdateWithoutPricesInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4352,6 +4489,7 @@ export type ProductUpdateWithoutPricesInput = {
   substituteForItems?: Prisma.RecurringScheduleItemUpdateManyWithoutSubstituteProductNestedInput
   translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutPricesInput = {
@@ -4378,6 +4516,7 @@ export type ProductUncheckedUpdateWithoutPricesInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4405,6 +4544,7 @@ export type ProductUncheckedUpdateWithoutPricesInput = {
   substituteForItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteProductNestedInput
   translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutTranslationsInput = {
@@ -4429,6 +4569,7 @@ export type ProductCreateWithoutTranslationsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -4458,6 +4599,7 @@ export type ProductCreateWithoutTranslationsInput = {
   substituteForItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutSubstituteProductInput
   prices?: Prisma.ProductPriceCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutTranslationsInput = {
@@ -4484,6 +4626,7 @@ export type ProductUncheckedCreateWithoutTranslationsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -4511,6 +4654,7 @@ export type ProductUncheckedCreateWithoutTranslationsInput = {
   substituteForItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutSubstituteProductInput
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutTranslationsInput = {
@@ -4551,6 +4695,7 @@ export type ProductUpdateWithoutTranslationsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4580,6 +4725,7 @@ export type ProductUpdateWithoutTranslationsInput = {
   substituteForItems?: Prisma.RecurringScheduleItemUpdateManyWithoutSubstituteProductNestedInput
   prices?: Prisma.ProductPriceUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutTranslationsInput = {
@@ -4606,6 +4752,7 @@ export type ProductUncheckedUpdateWithoutTranslationsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4633,6 +4780,7 @@ export type ProductUncheckedUpdateWithoutTranslationsInput = {
   substituteForItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteProductNestedInput
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutManufacturerInput = {
@@ -4657,6 +4805,7 @@ export type ProductCreateWithoutManufacturerInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -4686,6 +4835,7 @@ export type ProductCreateWithoutManufacturerInput = {
   prices?: Prisma.ProductPriceCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutManufacturerInput = {
@@ -4712,6 +4862,7 @@ export type ProductUncheckedCreateWithoutManufacturerInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -4739,6 +4890,7 @@ export type ProductUncheckedCreateWithoutManufacturerInput = {
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutManufacturerInput = {
@@ -4773,6 +4925,7 @@ export type ProductCreateWithoutEuResponsibleInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -4802,6 +4955,7 @@ export type ProductCreateWithoutEuResponsibleInput = {
   prices?: Prisma.ProductPriceCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutEuResponsibleInput = {
@@ -4828,6 +4982,7 @@ export type ProductUncheckedCreateWithoutEuResponsibleInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -4855,6 +5010,7 @@ export type ProductUncheckedCreateWithoutEuResponsibleInput = {
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutEuResponsibleInput = {
@@ -4921,6 +5077,7 @@ export type ProductCreateWithoutDeviceInfoInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -4950,6 +5107,7 @@ export type ProductCreateWithoutDeviceInfoInput = {
   prices?: Prisma.ProductPriceCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutDeviceInfoInput = {
@@ -4976,6 +5134,7 @@ export type ProductUncheckedCreateWithoutDeviceInfoInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -5003,6 +5162,7 @@ export type ProductUncheckedCreateWithoutDeviceInfoInput = {
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutDeviceInfoInput = {
@@ -5043,6 +5203,7 @@ export type ProductUpdateWithoutDeviceInfoInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5072,6 +5233,7 @@ export type ProductUpdateWithoutDeviceInfoInput = {
   prices?: Prisma.ProductPriceUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutDeviceInfoInput = {
@@ -5098,6 +5260,7 @@ export type ProductUncheckedUpdateWithoutDeviceInfoInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5112,6 +5275,243 @@ export type ProductUncheckedUpdateWithoutDeviceInfoInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
+  media?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
+  attributes?: Prisma.ProductAttributeUncheckedUpdateManyWithoutProductNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutProductNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutProductNestedInput
+  stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutProductNestedInput
+  cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutProductNestedInput
+  orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductNestedInput
+  scheduleItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutProductNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteProductNestedInput
+  prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutProductNestedInput
+  translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
+  wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
+}
+
+export type ProductCreateWithoutCountryRestrictionsInput = {
+  id: string
+  name: string
+  slug: string
+  sku: string
+  shortDescription?: string | null
+  description?: string | null
+  descriptionHtml?: string | null
+  status?: $Enums.CatalogStatus
+  isPublished?: boolean
+  publishedAt?: Date | string | null
+  publishFrom?: Date | string | null
+  basePriceMinor: bigint | number
+  currency: string
+  compareAtPriceMinor?: bigint | number | null
+  isStockTracked?: boolean
+  reorderThreshold?: number
+  minOrderQty?: number
+  maxOrderQty?: number | null
+  qtyIncrement?: number
+  isRecurringEligible?: boolean
+  hasVariants?: boolean
+  requiresColdChain?: boolean
+  weightGrams?: number | null
+  metaTitle?: string | null
+  metaDescription?: string | null
+  gtin?: string | null
+  modelIdentifier?: string | null
+  safetyWarnings?: string | null
+  safetyInstructions?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  createdById?: string | null
+  updatedById?: string | null
+  category: Prisma.CategoryCreateNestedOneWithoutProductsInput
+  taxClass: Prisma.TaxClassCreateNestedOneWithoutProductsInput
+  deviceInfo?: Prisma.ProductDeviceInfoCreateNestedOneWithoutProductInput
+  manufacturer?: Prisma.EconomicOperatorCreateNestedOneWithoutManufacturedProductsInput
+  euResponsible?: Prisma.EconomicOperatorCreateNestedOneWithoutRepresentedProductsInput
+  variants?: Prisma.ProductVariantCreateNestedManyWithoutProductInput
+  media?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
+  attributes?: Prisma.ProductAttributeCreateNestedManyWithoutProductInput
+  inventoryBalances?: Prisma.InventoryBalanceCreateNestedManyWithoutProductInput
+  inventoryMovements?: Prisma.InventoryMovementCreateNestedManyWithoutProductInput
+  stockReservations?: Prisma.StockReservationCreateNestedManyWithoutProductInput
+  cartItems?: Prisma.CartItemCreateNestedManyWithoutProductInput
+  orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductInput
+  scheduleItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutProductInput
+  substituteForItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutSubstituteProductInput
+  prices?: Prisma.ProductPriceCreateNestedManyWithoutProductInput
+  translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
+  wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutProductInput
+}
+
+export type ProductUncheckedCreateWithoutCountryRestrictionsInput = {
+  id: string
+  categoryId: string
+  name: string
+  slug: string
+  sku: string
+  shortDescription?: string | null
+  description?: string | null
+  descriptionHtml?: string | null
+  status?: $Enums.CatalogStatus
+  isPublished?: boolean
+  publishedAt?: Date | string | null
+  publishFrom?: Date | string | null
+  taxClassId: string
+  basePriceMinor: bigint | number
+  currency: string
+  compareAtPriceMinor?: bigint | number | null
+  isStockTracked?: boolean
+  reorderThreshold?: number
+  minOrderQty?: number
+  maxOrderQty?: number | null
+  qtyIncrement?: number
+  isRecurringEligible?: boolean
+  hasVariants?: boolean
+  requiresColdChain?: boolean
+  weightGrams?: number | null
+  metaTitle?: string | null
+  metaDescription?: string | null
+  manufacturerId?: string | null
+  euResponsibleId?: string | null
+  gtin?: string | null
+  modelIdentifier?: string | null
+  safetyWarnings?: string | null
+  safetyInstructions?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  createdById?: string | null
+  updatedById?: string | null
+  deviceInfo?: Prisma.ProductDeviceInfoUncheckedCreateNestedOneWithoutProductInput
+  variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
+  media?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
+  attributes?: Prisma.ProductAttributeUncheckedCreateNestedManyWithoutProductInput
+  inventoryBalances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutProductInput
+  inventoryMovements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutProductInput
+  stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutProductInput
+  cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutProductInput
+  orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductInput
+  scheduleItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutProductInput
+  substituteForItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutSubstituteProductInput
+  prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutProductInput
+  translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
+  wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutProductInput
+}
+
+export type ProductCreateOrConnectWithoutCountryRestrictionsInput = {
+  where: Prisma.ProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductCreateWithoutCountryRestrictionsInput, Prisma.ProductUncheckedCreateWithoutCountryRestrictionsInput>
+}
+
+export type ProductUpsertWithoutCountryRestrictionsInput = {
+  update: Prisma.XOR<Prisma.ProductUpdateWithoutCountryRestrictionsInput, Prisma.ProductUncheckedUpdateWithoutCountryRestrictionsInput>
+  create: Prisma.XOR<Prisma.ProductCreateWithoutCountryRestrictionsInput, Prisma.ProductUncheckedCreateWithoutCountryRestrictionsInput>
+  where?: Prisma.ProductWhereInput
+}
+
+export type ProductUpdateToOneWithWhereWithoutCountryRestrictionsInput = {
+  where?: Prisma.ProductWhereInput
+  data: Prisma.XOR<Prisma.ProductUpdateWithoutCountryRestrictionsInput, Prisma.ProductUncheckedUpdateWithoutCountryRestrictionsInput>
+}
+
+export type ProductUpdateWithoutCountryRestrictionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  sku?: Prisma.StringFieldUpdateOperationsInput | string
+  shortDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCatalogStatusFieldUpdateOperationsInput | $Enums.CatalogStatus
+  isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
+  minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
+  maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
+  isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gtin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  modelIdentifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safetyWarnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safetyInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
+  taxClass?: Prisma.TaxClassUpdateOneRequiredWithoutProductsNestedInput
+  deviceInfo?: Prisma.ProductDeviceInfoUpdateOneWithoutProductNestedInput
+  manufacturer?: Prisma.EconomicOperatorUpdateOneWithoutManufacturedProductsNestedInput
+  euResponsible?: Prisma.EconomicOperatorUpdateOneWithoutRepresentedProductsNestedInput
+  variants?: Prisma.ProductVariantUpdateManyWithoutProductNestedInput
+  media?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
+  attributes?: Prisma.ProductAttributeUpdateManyWithoutProductNestedInput
+  inventoryBalances?: Prisma.InventoryBalanceUpdateManyWithoutProductNestedInput
+  inventoryMovements?: Prisma.InventoryMovementUpdateManyWithoutProductNestedInput
+  stockReservations?: Prisma.StockReservationUpdateManyWithoutProductNestedInput
+  cartItems?: Prisma.CartItemUpdateManyWithoutProductNestedInput
+  orderItems?: Prisma.OrderItemUpdateManyWithoutProductNestedInput
+  scheduleItems?: Prisma.RecurringScheduleItemUpdateManyWithoutProductNestedInput
+  substituteForItems?: Prisma.RecurringScheduleItemUpdateManyWithoutSubstituteProductNestedInput
+  prices?: Prisma.ProductPriceUpdateManyWithoutProductNestedInput
+  translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
+  wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
+}
+
+export type ProductUncheckedUpdateWithoutCountryRestrictionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  sku?: Prisma.StringFieldUpdateOperationsInput | string
+  shortDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCatalogStatusFieldUpdateOperationsInput | $Enums.CatalogStatus
+  isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
+  basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reorderThreshold?: Prisma.IntFieldUpdateOperationsInput | number
+  minOrderQty?: Prisma.IntFieldUpdateOperationsInput | number
+  maxOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
+  isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manufacturerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  euResponsibleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gtin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  modelIdentifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safetyWarnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  safetyInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deviceInfo?: Prisma.ProductDeviceInfoUncheckedUpdateOneWithoutProductNestedInput
   variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
   media?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
   attributes?: Prisma.ProductAttributeUncheckedUpdateManyWithoutProductNestedInput
@@ -5149,6 +5549,7 @@ export type ProductCreateWithoutWishlistItemsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -5178,6 +5579,7 @@ export type ProductCreateWithoutWishlistItemsInput = {
   substituteForItems?: Prisma.RecurringScheduleItemCreateNestedManyWithoutSubstituteProductInput
   prices?: Prisma.ProductPriceCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutWishlistItemsInput = {
@@ -5204,6 +5606,7 @@ export type ProductUncheckedCreateWithoutWishlistItemsInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -5231,6 +5634,7 @@ export type ProductUncheckedCreateWithoutWishlistItemsInput = {
   substituteForItems?: Prisma.RecurringScheduleItemUncheckedCreateNestedManyWithoutSubstituteProductInput
   prices?: Prisma.ProductPriceUncheckedCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutWishlistItemsInput = {
@@ -5271,6 +5675,7 @@ export type ProductUpdateWithoutWishlistItemsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5300,6 +5705,7 @@ export type ProductUpdateWithoutWishlistItemsInput = {
   substituteForItems?: Prisma.RecurringScheduleItemUpdateManyWithoutSubstituteProductNestedInput
   prices?: Prisma.ProductPriceUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutWishlistItemsInput = {
@@ -5326,6 +5732,7 @@ export type ProductUncheckedUpdateWithoutWishlistItemsInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5353,6 +5760,7 @@ export type ProductUncheckedUpdateWithoutWishlistItemsInput = {
   substituteForItems?: Prisma.RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteProductNestedInput
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateManyTaxClassInput = {
@@ -5378,6 +5786,7 @@ export type ProductCreateManyTaxClassInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -5416,6 +5825,7 @@ export type ProductUpdateWithoutTaxClassInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5445,6 +5855,7 @@ export type ProductUpdateWithoutTaxClassInput = {
   prices?: Prisma.ProductPriceUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutTaxClassInput = {
@@ -5470,6 +5881,7 @@ export type ProductUncheckedUpdateWithoutTaxClassInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5498,6 +5910,7 @@ export type ProductUncheckedUpdateWithoutTaxClassInput = {
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateManyWithoutTaxClassInput = {
@@ -5523,6 +5936,7 @@ export type ProductUncheckedUpdateManyWithoutTaxClassInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5562,6 +5976,7 @@ export type ProductCreateManyCategoryInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -5600,6 +6015,7 @@ export type ProductUpdateWithoutCategoryInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5629,6 +6045,7 @@ export type ProductUpdateWithoutCategoryInput = {
   prices?: Prisma.ProductPriceUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutCategoryInput = {
@@ -5654,6 +6071,7 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5682,6 +6100,7 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateManyWithoutCategoryInput = {
@@ -5707,6 +6126,7 @@ export type ProductUncheckedUpdateManyWithoutCategoryInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5747,6 +6167,7 @@ export type ProductCreateManyManufacturerInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -5786,6 +6207,7 @@ export type ProductCreateManyEuResponsibleInput = {
   qtyIncrement?: number
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
@@ -5823,6 +6245,7 @@ export type ProductUpdateWithoutManufacturerInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5852,6 +6275,7 @@ export type ProductUpdateWithoutManufacturerInput = {
   prices?: Prisma.ProductPriceUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutManufacturerInput = {
@@ -5878,6 +6302,7 @@ export type ProductUncheckedUpdateWithoutManufacturerInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5905,6 +6330,7 @@ export type ProductUncheckedUpdateWithoutManufacturerInput = {
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateManyWithoutManufacturerInput = {
@@ -5931,6 +6357,7 @@ export type ProductUncheckedUpdateManyWithoutManufacturerInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5968,6 +6395,7 @@ export type ProductUpdateWithoutEuResponsibleInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5997,6 +6425,7 @@ export type ProductUpdateWithoutEuResponsibleInput = {
   prices?: Prisma.ProductPriceUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutEuResponsibleInput = {
@@ -6023,6 +6452,7 @@ export type ProductUncheckedUpdateWithoutEuResponsibleInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6050,6 +6480,7 @@ export type ProductUncheckedUpdateWithoutEuResponsibleInput = {
   prices?: Prisma.ProductPriceUncheckedUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutProductNestedInput
+  countryRestrictions?: Prisma.ProductCountryRestrictionUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateManyWithoutEuResponsibleInput = {
@@ -6076,6 +6507,7 @@ export type ProductUncheckedUpdateManyWithoutEuResponsibleInput = {
   qtyIncrement?: Prisma.IntFieldUpdateOperationsInput | number
   isRecurringEligible?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hasVariants?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresColdChain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   weightGrams?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6110,6 +6542,7 @@ export type ProductCountOutputType = {
   prices: number
   translations: number
   wishlistItems: number
+  countryRestrictions: number
 }
 
 export type ProductCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -6126,6 +6559,7 @@ export type ProductCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   prices?: boolean | ProductCountOutputTypeCountPricesArgs
   translations?: boolean | ProductCountOutputTypeCountTranslationsArgs
   wishlistItems?: boolean | ProductCountOutputTypeCountWishlistItemsArgs
+  countryRestrictions?: boolean | ProductCountOutputTypeCountCountryRestrictionsArgs
 }
 
 /**
@@ -6229,6 +6663,13 @@ export type ProductCountOutputTypeCountWishlistItemsArgs<ExtArgs extends runtime
   where?: Prisma.WishlistItemWhereInput
 }
 
+/**
+ * ProductCountOutputType without action
+ */
+export type ProductCountOutputTypeCountCountryRestrictionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductCountryRestrictionWhereInput
+}
+
 
 export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -6254,6 +6695,7 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   qtyIncrement?: boolean
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: boolean
   metaTitle?: boolean
   metaDescription?: boolean
@@ -6286,6 +6728,7 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   prices?: boolean | Prisma.Product$pricesArgs<ExtArgs>
   translations?: boolean | Prisma.Product$translationsArgs<ExtArgs>
   wishlistItems?: boolean | Prisma.Product$wishlistItemsArgs<ExtArgs>
+  countryRestrictions?: boolean | Prisma.Product$countryRestrictionsArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["product"]>
 
@@ -6315,6 +6758,7 @@ export type ProductSelectScalar = {
   qtyIncrement?: boolean
   isRecurringEligible?: boolean
   hasVariants?: boolean
+  requiresColdChain?: boolean
   weightGrams?: boolean
   metaTitle?: boolean
   metaDescription?: boolean
@@ -6331,7 +6775,7 @@ export type ProductSelectScalar = {
   updatedById?: boolean
 }
 
-export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "categoryId" | "name" | "slug" | "sku" | "shortDescription" | "description" | "descriptionHtml" | "status" | "isPublished" | "publishedAt" | "publishFrom" | "taxClassId" | "basePriceMinor" | "currency" | "compareAtPriceMinor" | "isStockTracked" | "reorderThreshold" | "minOrderQty" | "maxOrderQty" | "qtyIncrement" | "isRecurringEligible" | "hasVariants" | "weightGrams" | "metaTitle" | "metaDescription" | "manufacturerId" | "euResponsibleId" | "gtin" | "modelIdentifier" | "safetyWarnings" | "safetyInstructions" | "createdAt" | "updatedAt" | "archivedAt" | "createdById" | "updatedById", ExtArgs["result"]["product"]>
+export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "categoryId" | "name" | "slug" | "sku" | "shortDescription" | "description" | "descriptionHtml" | "status" | "isPublished" | "publishedAt" | "publishFrom" | "taxClassId" | "basePriceMinor" | "currency" | "compareAtPriceMinor" | "isStockTracked" | "reorderThreshold" | "minOrderQty" | "maxOrderQty" | "qtyIncrement" | "isRecurringEligible" | "hasVariants" | "requiresColdChain" | "weightGrams" | "metaTitle" | "metaDescription" | "manufacturerId" | "euResponsibleId" | "gtin" | "modelIdentifier" | "safetyWarnings" | "safetyInstructions" | "createdAt" | "updatedAt" | "archivedAt" | "createdById" | "updatedById", ExtArgs["result"]["product"]>
 export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
   taxClass?: boolean | Prisma.TaxClassDefaultArgs<ExtArgs>
@@ -6351,6 +6795,7 @@ export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   prices?: boolean | Prisma.Product$pricesArgs<ExtArgs>
   translations?: boolean | Prisma.Product$translationsArgs<ExtArgs>
   wishlistItems?: boolean | Prisma.Product$wishlistItemsArgs<ExtArgs>
+  countryRestrictions?: boolean | Prisma.Product$countryRestrictionsArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -6384,6 +6829,7 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     prices: Prisma.$ProductPricePayload<ExtArgs>[]
     translations: Prisma.$ProductTranslationPayload<ExtArgs>[]
     wishlistItems: Prisma.$WishlistItemPayload<ExtArgs>[]
+    countryRestrictions: Prisma.$ProductCountryRestrictionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -6421,6 +6867,20 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     qtyIncrement: number
     isRecurringEligible: boolean
     hasVariants: boolean
+    /**
+     * Whether this has to travel refrigerated.
+     * 
+     * A shipping restriction rather than a catalogue fact, and it is here
+     * because it belongs to the product: a reagent needs the cold chain from
+     * whichever building it leaves. What it is checked against is
+     * `WarehouseDeliveryZone.supportsColdChain` - a lane that cannot hold
+     * temperature cannot carry this, however near it is and however much of it
+     * the warehouse holds.
+     * 
+     * Default false, so every product in a running deployment keeps behaving
+     * exactly as it did and no lane is narrowed by this column existing.
+     */
+    requiresColdChain: boolean
     weightGrams: number | null
     metaTitle: string | null
     metaDescription: string | null
@@ -6819,6 +7279,7 @@ export interface Prisma__ProductClient<T, Null = never, ExtArgs extends runtime.
   prices<T extends Prisma.Product$pricesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$pricesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductPricePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   translations<T extends Prisma.Product$translationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$translationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductTranslationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   wishlistItems<T extends Prisma.Product$wishlistItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$wishlistItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WishlistItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  countryRestrictions<T extends Prisma.Product$countryRestrictionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$countryRestrictionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductCountryRestrictionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6871,6 +7332,7 @@ export interface ProductFieldRefs {
   readonly qtyIncrement: Prisma.FieldRef<"Product", 'Int'>
   readonly isRecurringEligible: Prisma.FieldRef<"Product", 'Boolean'>
   readonly hasVariants: Prisma.FieldRef<"Product", 'Boolean'>
+  readonly requiresColdChain: Prisma.FieldRef<"Product", 'Boolean'>
   readonly weightGrams: Prisma.FieldRef<"Product", 'Int'>
   readonly metaTitle: Prisma.FieldRef<"Product", 'String'>
   readonly metaDescription: Prisma.FieldRef<"Product", 'String'>
@@ -7599,6 +8061,30 @@ export type Product$wishlistItemsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.WishlistItemScalarFieldEnum | Prisma.WishlistItemScalarFieldEnum[]
+}
+
+/**
+ * Product.countryRestrictions
+ */
+export type Product$countryRestrictionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductCountryRestriction
+   */
+  select?: Prisma.ProductCountryRestrictionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductCountryRestriction
+   */
+  omit?: Prisma.ProductCountryRestrictionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductCountryRestrictionInclude<ExtArgs> | null
+  where?: Prisma.ProductCountryRestrictionWhereInput
+  orderBy?: Prisma.ProductCountryRestrictionOrderByWithRelationInput | Prisma.ProductCountryRestrictionOrderByWithRelationInput[]
+  cursor?: Prisma.ProductCountryRestrictionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductCountryRestrictionScalarFieldEnum | Prisma.ProductCountryRestrictionScalarFieldEnum[]
 }
 
 /**

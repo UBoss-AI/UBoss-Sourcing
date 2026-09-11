@@ -419,6 +419,8 @@ export const ModelName = {
   ProductMedia: 'ProductMedia',
   ProductAttribute: 'ProductAttribute',
   InventoryLocation: 'InventoryLocation',
+  WarehouseCountryExclusion: 'WarehouseCountryExclusion',
+  WarehouseDeliveryZone: 'WarehouseDeliveryZone',
   InventoryBalance: 'InventoryBalance',
   InventoryMovement: 'InventoryMovement',
   StockReservation: 'StockReservation',
@@ -441,6 +443,7 @@ export const ModelName = {
   ScheduleOccurrence: 'ScheduleOccurrence',
   CustomerPaymentMethod: 'CustomerPaymentMethod',
   ErpOrderPush: 'ErpOrderPush',
+  FulfilmentQuote: 'FulfilmentQuote',
   Shipment: 'Shipment',
   ReturnRequest: 'ReturnRequest',
   IntegrationConnection: 'IntegrationConnection',
@@ -475,6 +478,7 @@ export const ModelName = {
   Invoice: 'Invoice',
   EconomicOperator: 'EconomicOperator',
   ProductDeviceInfo: 'ProductDeviceInfo',
+  ProductCountryRestriction: 'ProductCountryRestriction',
   ErpConnection: 'ErpConnection',
   ErpInventorySyncRun: 'ErpInventorySyncRun',
   ErpSyncRecordError: 'ErpSyncRecordError',
@@ -482,7 +486,25 @@ export const ModelName = {
   IntegrationEvent: 'IntegrationEvent',
   ErpWebhookReceipt: 'ErpWebhookReceipt',
   CustomerAutoPaySetting: 'CustomerAutoPaySetting',
-  WishlistItem: 'WishlistItem'
+  WishlistItem: 'WishlistItem',
+  BuyerOrganization: 'BuyerOrganization',
+  BuyerOrganizationMember: 'BuyerOrganizationMember',
+  BuyerOrganizationInvite: 'BuyerOrganizationInvite',
+  CustomerErpConnection: 'CustomerErpConnection',
+  CustomerErpCredential: 'CustomerErpCredential',
+  CustomerErpEndpoint: 'CustomerErpEndpoint',
+  CustomerErpFieldMapping: 'CustomerErpFieldMapping',
+  CustomerErpWarehouseMap: 'CustomerErpWarehouseMap',
+  CustomerErpSyncPolicy: 'CustomerErpSyncPolicy',
+  CustomerErpSyncEvent: 'CustomerErpSyncEvent',
+  CustomerErpSyncJob: 'CustomerErpSyncJob',
+  CustomerErpWebhookEvent: 'CustomerErpWebhookEvent',
+  CustomerErpOrderLink: 'CustomerErpOrderLink',
+  CustomerErpInvoiceLink: 'CustomerErpInvoiceLink',
+  CustomerErpInventoryLink: 'CustomerErpInventoryLink',
+  CustomerErpApproval: 'CustomerErpApproval',
+  CustomerErpOAuthState: 'CustomerErpOAuthState',
+  CustomerErpAuditLog: 'CustomerErpAuditLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -498,7 +520,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productMedia" | "productAttribute" | "inventoryLocation" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productMedia" | "productAttribute" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1954,6 +1976,138 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    WarehouseCountryExclusion: {
+      payload: Prisma.$WarehouseCountryExclusionPayload<ExtArgs>
+      fields: Prisma.WarehouseCountryExclusionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.WarehouseCountryExclusionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WarehouseCountryExclusionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.WarehouseCountryExclusionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WarehouseCountryExclusionPayload>
+        }
+        findFirst: {
+          args: Prisma.WarehouseCountryExclusionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WarehouseCountryExclusionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.WarehouseCountryExclusionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WarehouseCountryExclusionPayload>
+        }
+        findMany: {
+          args: Prisma.WarehouseCountryExclusionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WarehouseCountryExclusionPayload>[]
+        }
+        create: {
+          args: Prisma.WarehouseCountryExclusionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WarehouseCountryExclusionPayload>
+        }
+        createMany: {
+          args: Prisma.WarehouseCountryExclusionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.WarehouseCountryExclusionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WarehouseCountryExclusionPayload>
+        }
+        update: {
+          args: Prisma.WarehouseCountryExclusionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WarehouseCountryExclusionPayload>
+        }
+        deleteMany: {
+          args: Prisma.WarehouseCountryExclusionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.WarehouseCountryExclusionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.WarehouseCountryExclusionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WarehouseCountryExclusionPayload>
+        }
+        aggregate: {
+          args: Prisma.WarehouseCountryExclusionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateWarehouseCountryExclusion>
+        }
+        groupBy: {
+          args: Prisma.WarehouseCountryExclusionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WarehouseCountryExclusionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.WarehouseCountryExclusionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WarehouseCountryExclusionCountAggregateOutputType> | number
+        }
+      }
+    }
+    WarehouseDeliveryZone: {
+      payload: Prisma.$WarehouseDeliveryZonePayload<ExtArgs>
+      fields: Prisma.WarehouseDeliveryZoneFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.WarehouseDeliveryZoneFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WarehouseDeliveryZonePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.WarehouseDeliveryZoneFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WarehouseDeliveryZonePayload>
+        }
+        findFirst: {
+          args: Prisma.WarehouseDeliveryZoneFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WarehouseDeliveryZonePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.WarehouseDeliveryZoneFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WarehouseDeliveryZonePayload>
+        }
+        findMany: {
+          args: Prisma.WarehouseDeliveryZoneFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WarehouseDeliveryZonePayload>[]
+        }
+        create: {
+          args: Prisma.WarehouseDeliveryZoneCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WarehouseDeliveryZonePayload>
+        }
+        createMany: {
+          args: Prisma.WarehouseDeliveryZoneCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.WarehouseDeliveryZoneDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WarehouseDeliveryZonePayload>
+        }
+        update: {
+          args: Prisma.WarehouseDeliveryZoneUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WarehouseDeliveryZonePayload>
+        }
+        deleteMany: {
+          args: Prisma.WarehouseDeliveryZoneDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.WarehouseDeliveryZoneUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.WarehouseDeliveryZoneUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WarehouseDeliveryZonePayload>
+        }
+        aggregate: {
+          args: Prisma.WarehouseDeliveryZoneAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateWarehouseDeliveryZone>
+        }
+        groupBy: {
+          args: Prisma.WarehouseDeliveryZoneGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WarehouseDeliveryZoneGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.WarehouseDeliveryZoneCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WarehouseDeliveryZoneCountAggregateOutputType> | number
+        }
+      }
+    }
     InventoryBalance: {
       payload: Prisma.$InventoryBalancePayload<ExtArgs>
       fields: Prisma.InventoryBalanceFieldRefs
@@ -3403,6 +3557,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ErpOrderPushCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ErpOrderPushCountAggregateOutputType> | number
+        }
+      }
+    }
+    FulfilmentQuote: {
+      payload: Prisma.$FulfilmentQuotePayload<ExtArgs>
+      fields: Prisma.FulfilmentQuoteFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FulfilmentQuoteFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FulfilmentQuotePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FulfilmentQuoteFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FulfilmentQuotePayload>
+        }
+        findFirst: {
+          args: Prisma.FulfilmentQuoteFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FulfilmentQuotePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FulfilmentQuoteFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FulfilmentQuotePayload>
+        }
+        findMany: {
+          args: Prisma.FulfilmentQuoteFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FulfilmentQuotePayload>[]
+        }
+        create: {
+          args: Prisma.FulfilmentQuoteCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FulfilmentQuotePayload>
+        }
+        createMany: {
+          args: Prisma.FulfilmentQuoteCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.FulfilmentQuoteDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FulfilmentQuotePayload>
+        }
+        update: {
+          args: Prisma.FulfilmentQuoteUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FulfilmentQuotePayload>
+        }
+        deleteMany: {
+          args: Prisma.FulfilmentQuoteDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FulfilmentQuoteUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.FulfilmentQuoteUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FulfilmentQuotePayload>
+        }
+        aggregate: {
+          args: Prisma.FulfilmentQuoteAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFulfilmentQuote>
+        }
+        groupBy: {
+          args: Prisma.FulfilmentQuoteGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FulfilmentQuoteGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FulfilmentQuoteCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FulfilmentQuoteCountAggregateOutputType> | number
         }
       }
     }
@@ -5650,6 +5870,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ProductCountryRestriction: {
+      payload: Prisma.$ProductCountryRestrictionPayload<ExtArgs>
+      fields: Prisma.ProductCountryRestrictionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductCountryRestrictionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductCountryRestrictionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductCountryRestrictionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductCountryRestrictionPayload>
+        }
+        findFirst: {
+          args: Prisma.ProductCountryRestrictionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductCountryRestrictionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductCountryRestrictionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductCountryRestrictionPayload>
+        }
+        findMany: {
+          args: Prisma.ProductCountryRestrictionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductCountryRestrictionPayload>[]
+        }
+        create: {
+          args: Prisma.ProductCountryRestrictionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductCountryRestrictionPayload>
+        }
+        createMany: {
+          args: Prisma.ProductCountryRestrictionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ProductCountryRestrictionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductCountryRestrictionPayload>
+        }
+        update: {
+          args: Prisma.ProductCountryRestrictionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductCountryRestrictionPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductCountryRestrictionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductCountryRestrictionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ProductCountryRestrictionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductCountryRestrictionPayload>
+        }
+        aggregate: {
+          args: Prisma.ProductCountryRestrictionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductCountryRestriction>
+        }
+        groupBy: {
+          args: Prisma.ProductCountryRestrictionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductCountryRestrictionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductCountryRestrictionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductCountryRestrictionCountAggregateOutputType> | number
+        }
+      }
+    }
     ErpConnection: {
       payload: Prisma.$ErpConnectionPayload<ExtArgs>
       fields: Prisma.ErpConnectionFieldRefs
@@ -6178,6 +6464,1194 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BuyerOrganization: {
+      payload: Prisma.$BuyerOrganizationPayload<ExtArgs>
+      fields: Prisma.BuyerOrganizationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BuyerOrganizationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BuyerOrganizationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationPayload>
+        }
+        findFirst: {
+          args: Prisma.BuyerOrganizationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BuyerOrganizationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationPayload>
+        }
+        findMany: {
+          args: Prisma.BuyerOrganizationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationPayload>[]
+        }
+        create: {
+          args: Prisma.BuyerOrganizationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationPayload>
+        }
+        createMany: {
+          args: Prisma.BuyerOrganizationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.BuyerOrganizationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationPayload>
+        }
+        update: {
+          args: Prisma.BuyerOrganizationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationPayload>
+        }
+        deleteMany: {
+          args: Prisma.BuyerOrganizationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BuyerOrganizationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.BuyerOrganizationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationPayload>
+        }
+        aggregate: {
+          args: Prisma.BuyerOrganizationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBuyerOrganization>
+        }
+        groupBy: {
+          args: Prisma.BuyerOrganizationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BuyerOrganizationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BuyerOrganizationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BuyerOrganizationCountAggregateOutputType> | number
+        }
+      }
+    }
+    BuyerOrganizationMember: {
+      payload: Prisma.$BuyerOrganizationMemberPayload<ExtArgs>
+      fields: Prisma.BuyerOrganizationMemberFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BuyerOrganizationMemberFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationMemberPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BuyerOrganizationMemberFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationMemberPayload>
+        }
+        findFirst: {
+          args: Prisma.BuyerOrganizationMemberFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationMemberPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BuyerOrganizationMemberFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationMemberPayload>
+        }
+        findMany: {
+          args: Prisma.BuyerOrganizationMemberFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationMemberPayload>[]
+        }
+        create: {
+          args: Prisma.BuyerOrganizationMemberCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationMemberPayload>
+        }
+        createMany: {
+          args: Prisma.BuyerOrganizationMemberCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.BuyerOrganizationMemberDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationMemberPayload>
+        }
+        update: {
+          args: Prisma.BuyerOrganizationMemberUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationMemberPayload>
+        }
+        deleteMany: {
+          args: Prisma.BuyerOrganizationMemberDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BuyerOrganizationMemberUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.BuyerOrganizationMemberUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationMemberPayload>
+        }
+        aggregate: {
+          args: Prisma.BuyerOrganizationMemberAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBuyerOrganizationMember>
+        }
+        groupBy: {
+          args: Prisma.BuyerOrganizationMemberGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BuyerOrganizationMemberGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BuyerOrganizationMemberCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BuyerOrganizationMemberCountAggregateOutputType> | number
+        }
+      }
+    }
+    BuyerOrganizationInvite: {
+      payload: Prisma.$BuyerOrganizationInvitePayload<ExtArgs>
+      fields: Prisma.BuyerOrganizationInviteFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BuyerOrganizationInviteFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationInvitePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BuyerOrganizationInviteFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationInvitePayload>
+        }
+        findFirst: {
+          args: Prisma.BuyerOrganizationInviteFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationInvitePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BuyerOrganizationInviteFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationInvitePayload>
+        }
+        findMany: {
+          args: Prisma.BuyerOrganizationInviteFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationInvitePayload>[]
+        }
+        create: {
+          args: Prisma.BuyerOrganizationInviteCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationInvitePayload>
+        }
+        createMany: {
+          args: Prisma.BuyerOrganizationInviteCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.BuyerOrganizationInviteDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationInvitePayload>
+        }
+        update: {
+          args: Prisma.BuyerOrganizationInviteUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationInvitePayload>
+        }
+        deleteMany: {
+          args: Prisma.BuyerOrganizationInviteDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BuyerOrganizationInviteUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.BuyerOrganizationInviteUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BuyerOrganizationInvitePayload>
+        }
+        aggregate: {
+          args: Prisma.BuyerOrganizationInviteAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBuyerOrganizationInvite>
+        }
+        groupBy: {
+          args: Prisma.BuyerOrganizationInviteGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BuyerOrganizationInviteGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BuyerOrganizationInviteCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BuyerOrganizationInviteCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerErpConnection: {
+      payload: Prisma.$CustomerErpConnectionPayload<ExtArgs>
+      fields: Prisma.CustomerErpConnectionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerErpConnectionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpConnectionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerErpConnectionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpConnectionPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerErpConnectionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpConnectionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerErpConnectionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpConnectionPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerErpConnectionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpConnectionPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerErpConnectionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpConnectionPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerErpConnectionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CustomerErpConnectionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpConnectionPayload>
+        }
+        update: {
+          args: Prisma.CustomerErpConnectionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpConnectionPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerErpConnectionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerErpConnectionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CustomerErpConnectionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpConnectionPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerErpConnectionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerErpConnection>
+        }
+        groupBy: {
+          args: Prisma.CustomerErpConnectionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpConnectionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerErpConnectionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpConnectionCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerErpCredential: {
+      payload: Prisma.$CustomerErpCredentialPayload<ExtArgs>
+      fields: Prisma.CustomerErpCredentialFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerErpCredentialFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpCredentialPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerErpCredentialFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpCredentialPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerErpCredentialFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpCredentialPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerErpCredentialFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpCredentialPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerErpCredentialFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpCredentialPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerErpCredentialCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpCredentialPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerErpCredentialCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CustomerErpCredentialDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpCredentialPayload>
+        }
+        update: {
+          args: Prisma.CustomerErpCredentialUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpCredentialPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerErpCredentialDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerErpCredentialUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CustomerErpCredentialUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpCredentialPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerErpCredentialAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerErpCredential>
+        }
+        groupBy: {
+          args: Prisma.CustomerErpCredentialGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpCredentialGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerErpCredentialCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpCredentialCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerErpEndpoint: {
+      payload: Prisma.$CustomerErpEndpointPayload<ExtArgs>
+      fields: Prisma.CustomerErpEndpointFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerErpEndpointFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpEndpointPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerErpEndpointFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpEndpointPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerErpEndpointFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpEndpointPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerErpEndpointFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpEndpointPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerErpEndpointFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpEndpointPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerErpEndpointCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpEndpointPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerErpEndpointCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CustomerErpEndpointDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpEndpointPayload>
+        }
+        update: {
+          args: Prisma.CustomerErpEndpointUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpEndpointPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerErpEndpointDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerErpEndpointUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CustomerErpEndpointUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpEndpointPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerErpEndpointAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerErpEndpoint>
+        }
+        groupBy: {
+          args: Prisma.CustomerErpEndpointGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpEndpointGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerErpEndpointCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpEndpointCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerErpFieldMapping: {
+      payload: Prisma.$CustomerErpFieldMappingPayload<ExtArgs>
+      fields: Prisma.CustomerErpFieldMappingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerErpFieldMappingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpFieldMappingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerErpFieldMappingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpFieldMappingPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerErpFieldMappingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpFieldMappingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerErpFieldMappingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpFieldMappingPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerErpFieldMappingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpFieldMappingPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerErpFieldMappingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpFieldMappingPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerErpFieldMappingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CustomerErpFieldMappingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpFieldMappingPayload>
+        }
+        update: {
+          args: Prisma.CustomerErpFieldMappingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpFieldMappingPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerErpFieldMappingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerErpFieldMappingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CustomerErpFieldMappingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpFieldMappingPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerErpFieldMappingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerErpFieldMapping>
+        }
+        groupBy: {
+          args: Prisma.CustomerErpFieldMappingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpFieldMappingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerErpFieldMappingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpFieldMappingCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerErpWarehouseMap: {
+      payload: Prisma.$CustomerErpWarehouseMapPayload<ExtArgs>
+      fields: Prisma.CustomerErpWarehouseMapFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerErpWarehouseMapFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpWarehouseMapPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerErpWarehouseMapFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpWarehouseMapPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerErpWarehouseMapFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpWarehouseMapPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerErpWarehouseMapFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpWarehouseMapPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerErpWarehouseMapFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpWarehouseMapPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerErpWarehouseMapCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpWarehouseMapPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerErpWarehouseMapCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CustomerErpWarehouseMapDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpWarehouseMapPayload>
+        }
+        update: {
+          args: Prisma.CustomerErpWarehouseMapUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpWarehouseMapPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerErpWarehouseMapDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerErpWarehouseMapUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CustomerErpWarehouseMapUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpWarehouseMapPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerErpWarehouseMapAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerErpWarehouseMap>
+        }
+        groupBy: {
+          args: Prisma.CustomerErpWarehouseMapGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpWarehouseMapGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerErpWarehouseMapCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpWarehouseMapCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerErpSyncPolicy: {
+      payload: Prisma.$CustomerErpSyncPolicyPayload<ExtArgs>
+      fields: Prisma.CustomerErpSyncPolicyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerErpSyncPolicyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncPolicyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerErpSyncPolicyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncPolicyPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerErpSyncPolicyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncPolicyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerErpSyncPolicyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncPolicyPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerErpSyncPolicyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncPolicyPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerErpSyncPolicyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncPolicyPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerErpSyncPolicyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CustomerErpSyncPolicyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncPolicyPayload>
+        }
+        update: {
+          args: Prisma.CustomerErpSyncPolicyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncPolicyPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerErpSyncPolicyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerErpSyncPolicyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CustomerErpSyncPolicyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncPolicyPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerErpSyncPolicyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerErpSyncPolicy>
+        }
+        groupBy: {
+          args: Prisma.CustomerErpSyncPolicyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpSyncPolicyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerErpSyncPolicyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpSyncPolicyCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerErpSyncEvent: {
+      payload: Prisma.$CustomerErpSyncEventPayload<ExtArgs>
+      fields: Prisma.CustomerErpSyncEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerErpSyncEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerErpSyncEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncEventPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerErpSyncEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerErpSyncEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncEventPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerErpSyncEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncEventPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerErpSyncEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncEventPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerErpSyncEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CustomerErpSyncEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncEventPayload>
+        }
+        update: {
+          args: Prisma.CustomerErpSyncEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerErpSyncEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerErpSyncEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CustomerErpSyncEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncEventPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerErpSyncEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerErpSyncEvent>
+        }
+        groupBy: {
+          args: Prisma.CustomerErpSyncEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpSyncEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerErpSyncEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpSyncEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerErpSyncJob: {
+      payload: Prisma.$CustomerErpSyncJobPayload<ExtArgs>
+      fields: Prisma.CustomerErpSyncJobFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerErpSyncJobFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncJobPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerErpSyncJobFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncJobPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerErpSyncJobFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncJobPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerErpSyncJobFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncJobPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerErpSyncJobFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncJobPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerErpSyncJobCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncJobPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerErpSyncJobCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CustomerErpSyncJobDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncJobPayload>
+        }
+        update: {
+          args: Prisma.CustomerErpSyncJobUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncJobPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerErpSyncJobDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerErpSyncJobUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CustomerErpSyncJobUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpSyncJobPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerErpSyncJobAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerErpSyncJob>
+        }
+        groupBy: {
+          args: Prisma.CustomerErpSyncJobGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpSyncJobGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerErpSyncJobCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpSyncJobCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerErpWebhookEvent: {
+      payload: Prisma.$CustomerErpWebhookEventPayload<ExtArgs>
+      fields: Prisma.CustomerErpWebhookEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerErpWebhookEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpWebhookEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerErpWebhookEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpWebhookEventPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerErpWebhookEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpWebhookEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerErpWebhookEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpWebhookEventPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerErpWebhookEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpWebhookEventPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerErpWebhookEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpWebhookEventPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerErpWebhookEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CustomerErpWebhookEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpWebhookEventPayload>
+        }
+        update: {
+          args: Prisma.CustomerErpWebhookEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpWebhookEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerErpWebhookEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerErpWebhookEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CustomerErpWebhookEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpWebhookEventPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerErpWebhookEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerErpWebhookEvent>
+        }
+        groupBy: {
+          args: Prisma.CustomerErpWebhookEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpWebhookEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerErpWebhookEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpWebhookEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerErpOrderLink: {
+      payload: Prisma.$CustomerErpOrderLinkPayload<ExtArgs>
+      fields: Prisma.CustomerErpOrderLinkFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerErpOrderLinkFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpOrderLinkPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerErpOrderLinkFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpOrderLinkPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerErpOrderLinkFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpOrderLinkPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerErpOrderLinkFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpOrderLinkPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerErpOrderLinkFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpOrderLinkPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerErpOrderLinkCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpOrderLinkPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerErpOrderLinkCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CustomerErpOrderLinkDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpOrderLinkPayload>
+        }
+        update: {
+          args: Prisma.CustomerErpOrderLinkUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpOrderLinkPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerErpOrderLinkDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerErpOrderLinkUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CustomerErpOrderLinkUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpOrderLinkPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerErpOrderLinkAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerErpOrderLink>
+        }
+        groupBy: {
+          args: Prisma.CustomerErpOrderLinkGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpOrderLinkGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerErpOrderLinkCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpOrderLinkCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerErpInvoiceLink: {
+      payload: Prisma.$CustomerErpInvoiceLinkPayload<ExtArgs>
+      fields: Prisma.CustomerErpInvoiceLinkFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerErpInvoiceLinkFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpInvoiceLinkPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerErpInvoiceLinkFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpInvoiceLinkPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerErpInvoiceLinkFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpInvoiceLinkPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerErpInvoiceLinkFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpInvoiceLinkPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerErpInvoiceLinkFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpInvoiceLinkPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerErpInvoiceLinkCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpInvoiceLinkPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerErpInvoiceLinkCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CustomerErpInvoiceLinkDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpInvoiceLinkPayload>
+        }
+        update: {
+          args: Prisma.CustomerErpInvoiceLinkUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpInvoiceLinkPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerErpInvoiceLinkDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerErpInvoiceLinkUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CustomerErpInvoiceLinkUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpInvoiceLinkPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerErpInvoiceLinkAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerErpInvoiceLink>
+        }
+        groupBy: {
+          args: Prisma.CustomerErpInvoiceLinkGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpInvoiceLinkGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerErpInvoiceLinkCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpInvoiceLinkCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerErpInventoryLink: {
+      payload: Prisma.$CustomerErpInventoryLinkPayload<ExtArgs>
+      fields: Prisma.CustomerErpInventoryLinkFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerErpInventoryLinkFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpInventoryLinkPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerErpInventoryLinkFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpInventoryLinkPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerErpInventoryLinkFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpInventoryLinkPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerErpInventoryLinkFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpInventoryLinkPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerErpInventoryLinkFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpInventoryLinkPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerErpInventoryLinkCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpInventoryLinkPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerErpInventoryLinkCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CustomerErpInventoryLinkDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpInventoryLinkPayload>
+        }
+        update: {
+          args: Prisma.CustomerErpInventoryLinkUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpInventoryLinkPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerErpInventoryLinkDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerErpInventoryLinkUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CustomerErpInventoryLinkUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpInventoryLinkPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerErpInventoryLinkAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerErpInventoryLink>
+        }
+        groupBy: {
+          args: Prisma.CustomerErpInventoryLinkGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpInventoryLinkGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerErpInventoryLinkCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpInventoryLinkCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerErpApproval: {
+      payload: Prisma.$CustomerErpApprovalPayload<ExtArgs>
+      fields: Prisma.CustomerErpApprovalFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerErpApprovalFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpApprovalPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerErpApprovalFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpApprovalPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerErpApprovalFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpApprovalPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerErpApprovalFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpApprovalPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerErpApprovalFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpApprovalPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerErpApprovalCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpApprovalPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerErpApprovalCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CustomerErpApprovalDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpApprovalPayload>
+        }
+        update: {
+          args: Prisma.CustomerErpApprovalUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpApprovalPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerErpApprovalDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerErpApprovalUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CustomerErpApprovalUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpApprovalPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerErpApprovalAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerErpApproval>
+        }
+        groupBy: {
+          args: Prisma.CustomerErpApprovalGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpApprovalGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerErpApprovalCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpApprovalCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerErpOAuthState: {
+      payload: Prisma.$CustomerErpOAuthStatePayload<ExtArgs>
+      fields: Prisma.CustomerErpOAuthStateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerErpOAuthStateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpOAuthStatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerErpOAuthStateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpOAuthStatePayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerErpOAuthStateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpOAuthStatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerErpOAuthStateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpOAuthStatePayload>
+        }
+        findMany: {
+          args: Prisma.CustomerErpOAuthStateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpOAuthStatePayload>[]
+        }
+        create: {
+          args: Prisma.CustomerErpOAuthStateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpOAuthStatePayload>
+        }
+        createMany: {
+          args: Prisma.CustomerErpOAuthStateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CustomerErpOAuthStateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpOAuthStatePayload>
+        }
+        update: {
+          args: Prisma.CustomerErpOAuthStateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpOAuthStatePayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerErpOAuthStateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerErpOAuthStateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CustomerErpOAuthStateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpOAuthStatePayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerErpOAuthStateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerErpOAuthState>
+        }
+        groupBy: {
+          args: Prisma.CustomerErpOAuthStateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpOAuthStateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerErpOAuthStateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpOAuthStateCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerErpAuditLog: {
+      payload: Prisma.$CustomerErpAuditLogPayload<ExtArgs>
+      fields: Prisma.CustomerErpAuditLogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerErpAuditLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpAuditLogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerErpAuditLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpAuditLogPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerErpAuditLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpAuditLogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerErpAuditLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpAuditLogPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerErpAuditLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpAuditLogPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerErpAuditLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpAuditLogPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerErpAuditLogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CustomerErpAuditLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpAuditLogPayload>
+        }
+        update: {
+          args: Prisma.CustomerErpAuditLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpAuditLogPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerErpAuditLogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerErpAuditLogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CustomerErpAuditLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpAuditLogPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerErpAuditLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerErpAuditLog>
+        }
+        groupBy: {
+          args: Prisma.CustomerErpAuditLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpAuditLogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerErpAuditLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpAuditLogCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -6528,6 +8002,7 @@ export const ProductScalarFieldEnum = {
   qtyIncrement: 'qtyIncrement',
   isRecurringEligible: 'isRecurringEligible',
   hasVariants: 'hasVariants',
+  requiresColdChain: 'requiresColdChain',
   weightGrams: 'weightGrams',
   metaTitle: 'metaTitle',
   metaDescription: 'metaDescription',
@@ -6604,11 +8079,52 @@ export const InventoryLocationScalarFieldEnum = {
   erpSyncMessage: 'erpSyncMessage',
   latitude: 'latitude',
   longitude: 'longitude',
+  deliveryRadiusKm: 'deliveryRadiusKm',
+  deliveryLeadTimeMinDays: 'deliveryLeadTimeMinDays',
+  deliveryLeadTimeMaxDays: 'deliveryLeadTimeMaxDays',
+  deliveryFeeMinor: 'deliveryFeeMinor',
+  deliveryFeeCurrency: 'deliveryFeeCurrency',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type InventoryLocationScalarFieldEnum = (typeof InventoryLocationScalarFieldEnum)[keyof typeof InventoryLocationScalarFieldEnum]
+
+
+export const WarehouseCountryExclusionScalarFieldEnum = {
+  id: 'id',
+  locationId: 'locationId',
+  countryCode: 'countryCode',
+  reason: 'reason',
+  createdAt: 'createdAt'
+} as const
+
+export type WarehouseCountryExclusionScalarFieldEnum = (typeof WarehouseCountryExclusionScalarFieldEnum)[keyof typeof WarehouseCountryExclusionScalarFieldEnum]
+
+
+export const WarehouseDeliveryZoneScalarFieldEnum = {
+  id: 'id',
+  locationId: 'locationId',
+  countryCode: 'countryCode',
+  postalPrefixes: 'postalPrefixes',
+  carrierName: 'carrierName',
+  serviceLevel: 'serviceLevel',
+  handlingDays: 'handlingDays',
+  transitMinDays: 'transitMinDays',
+  transitMaxDays: 'transitMaxDays',
+  usesBusinessDays: 'usesBusinessDays',
+  shippingFeeMinor: 'shippingFeeMinor',
+  shippingFeeCurrency: 'shippingFeeCurrency',
+  freeAboveMinor: 'freeAboveMinor',
+  supportsColdChain: 'supportsColdChain',
+  maxWeightGrams: 'maxWeightGrams',
+  isActive: 'isActive',
+  priority: 'priority',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WarehouseDeliveryZoneScalarFieldEnum = (typeof WarehouseDeliveryZoneScalarFieldEnum)[keyof typeof WarehouseDeliveryZoneScalarFieldEnum]
 
 
 export const InventoryBalanceScalarFieldEnum = {
@@ -6715,6 +8231,9 @@ export const AddressScalarFieldEnum = {
   state: 'state',
   postalCode: 'postalCode',
   country: 'country',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  timezone: 'timezone',
   isDefaultBilling: 'isDefaultBilling',
   isDefaultShipping: 'isDefaultShipping',
   createdAt: 'createdAt',
@@ -6775,6 +8294,13 @@ export const OrderScalarFieldEnum = {
   shippingMethodCode: 'shippingMethodCode',
   shippingMethodName: 'shippingMethodName',
   paymentMode: 'paymentMode',
+  fulfilmentLocationId: 'fulfilmentLocationId',
+  fulfilmentQuoteId: 'fulfilmentQuoteId',
+  fulfilmentCarrier: 'fulfilmentCarrier',
+  fulfilmentServiceLevel: 'fulfilmentServiceLevel',
+  fulfilmentDispatchDate: 'fulfilmentDispatchDate',
+  fulfilmentDeliveryFrom: 'fulfilmentDeliveryFrom',
+  fulfilmentDeliveryTo: 'fulfilmentDeliveryTo',
   preferredPaymentProvider: 'preferredPaymentProvider',
   preferredPaymentMethod: 'preferredPaymentMethod',
   preferredPaymentInstrument: 'preferredPaymentInstrument',
@@ -7029,6 +8555,7 @@ export const RecurringScheduleScalarFieldEnum = {
   pausedById: 'pausedById',
   cancelledAt: 'cancelledAt',
   cancelReason: 'cancelReason',
+  hiddenAt: 'hiddenAt',
   leaseOwner: 'leaseOwner',
   leaseExpiresAt: 'leaseExpiresAt',
   createdAt: 'createdAt',
@@ -7135,6 +8662,40 @@ export const ErpOrderPushScalarFieldEnum = {
 } as const
 
 export type ErpOrderPushScalarFieldEnum = (typeof ErpOrderPushScalarFieldEnum)[keyof typeof ErpOrderPushScalarFieldEnum]
+
+
+export const FulfilmentQuoteScalarFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  cartId: 'cartId',
+  addressId: 'addressId',
+  locationId: 'locationId',
+  zoneId: 'zoneId',
+  destinationCountry: 'destinationCountry',
+  destinationPostalCode: 'destinationPostalCode',
+  isEstimate: 'isEstimate',
+  currency: 'currency',
+  subtotalMinor: 'subtotalMinor',
+  discountMinor: 'discountMinor',
+  taxMinor: 'taxMinor',
+  shippingMinor: 'shippingMinor',
+  grandTotalMinor: 'grandTotalMinor',
+  dispatchDate: 'dispatchDate',
+  deliveryFromDate: 'deliveryFromDate',
+  deliveryToDate: 'deliveryToDate',
+  transitMinDays: 'transitMinDays',
+  transitMaxDays: 'transitMaxDays',
+  handlingDays: 'handlingDays',
+  carrierName: 'carrierName',
+  serviceLevel: 'serviceLevel',
+  distanceKm: 'distanceKm',
+  basketHash: 'basketHash',
+  itemsJson: 'itemsJson',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+} as const
+
+export type FulfilmentQuoteScalarFieldEnum = (typeof FulfilmentQuoteScalarFieldEnum)[keyof typeof FulfilmentQuoteScalarFieldEnum]
 
 
 export const ShipmentScalarFieldEnum = {
@@ -7738,6 +9299,17 @@ export const ProductDeviceInfoScalarFieldEnum = {
 export type ProductDeviceInfoScalarFieldEnum = (typeof ProductDeviceInfoScalarFieldEnum)[keyof typeof ProductDeviceInfoScalarFieldEnum]
 
 
+export const ProductCountryRestrictionScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  countryCode: 'countryCode',
+  reason: 'reason',
+  createdAt: 'createdAt'
+} as const
+
+export type ProductCountryRestrictionScalarFieldEnum = (typeof ProductCountryRestrictionScalarFieldEnum)[keyof typeof ProductCountryRestrictionScalarFieldEnum]
+
+
 export const ErpConnectionScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -7925,6 +9497,412 @@ export const WishlistItemScalarFieldEnum = {
 } as const
 
 export type WishlistItemScalarFieldEnum = (typeof WishlistItemScalarFieldEnum)[keyof typeof WishlistItemScalarFieldEnum]
+
+
+export const BuyerOrganizationScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  nameNormalized: 'nameNormalized',
+  createdByProfileId: 'createdByProfileId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  archivedAt: 'archivedAt'
+} as const
+
+export type BuyerOrganizationScalarFieldEnum = (typeof BuyerOrganizationScalarFieldEnum)[keyof typeof BuyerOrganizationScalarFieldEnum]
+
+
+export const BuyerOrganizationMemberScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  customerProfileId: 'customerProfileId',
+  role: 'role',
+  invitedByProfileId: 'invitedByProfileId',
+  joinedAt: 'joinedAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BuyerOrganizationMemberScalarFieldEnum = (typeof BuyerOrganizationMemberScalarFieldEnum)[keyof typeof BuyerOrganizationMemberScalarFieldEnum]
+
+
+export const BuyerOrganizationInviteScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  emailNormalized: 'emailNormalized',
+  role: 'role',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  invitedByProfileId: 'invitedByProfileId',
+  acceptedAt: 'acceptedAt',
+  acceptedByProfileId: 'acceptedByProfileId',
+  revokedAt: 'revokedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type BuyerOrganizationInviteScalarFieldEnum = (typeof BuyerOrganizationInviteScalarFieldEnum)[keyof typeof BuyerOrganizationInviteScalarFieldEnum]
+
+
+export const CustomerErpConnectionScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  name: 'name',
+  system: 'system',
+  apiStyle: 'apiStyle',
+  environment: 'environment',
+  vendorPreset: 'vendorPreset',
+  erpVersion: 'erpVersion',
+  state: 'state',
+  stateReason: 'stateReason',
+  stateChangedAt: 'stateChangedAt',
+  baseUrl: 'baseUrl',
+  apiVersion: 'apiVersion',
+  networkMode: 'networkMode',
+  networkNotes: 'networkNotes',
+  tenantIdentifier: 'tenantIdentifier',
+  customHeadersJson: 'customHeadersJson',
+  timeoutMs: 'timeoutMs',
+  sapCompanyCode: 'sapCompanyCode',
+  sapPurchasingOrg: 'sapPurchasingOrg',
+  sapPurchasingGroup: 'sapPurchasingGroup',
+  sapPlant: 'sapPlant',
+  sapStorageLocation: 'sapStorageLocation',
+  sapCommunicationScenario: 'sapCommunicationScenario',
+  mondayWorkspaceId: 'mondayWorkspaceId',
+  mondayBoardId: 'mondayBoardId',
+  mondayGroupId: 'mondayGroupId',
+  authMethod: 'authMethod',
+  apiKeyLocation: 'apiKeyLocation',
+  apiKeyName: 'apiKeyName',
+  oauthAuthorizationUrl: 'oauthAuthorizationUrl',
+  oauthTokenUrl: 'oauthTokenUrl',
+  oauthScope: 'oauthScope',
+  oauthUsesPlatformApp: 'oauthUsesPlatformApp',
+  mutualTlsEnabled: 'mutualTlsEnabled',
+  webhookEnabled: 'webhookEnabled',
+  webhookSlug: 'webhookSlug',
+  webhookSignatureHeader: 'webhookSignatureHeader',
+  webhookTimestampHeader: 'webhookTimestampHeader',
+  webhookToleranceSeconds: 'webhookToleranceSeconds',
+  pollingEnabled: 'pollingEnabled',
+  pollingIntervalMinutes: 'pollingIntervalMinutes',
+  pollingTimezone: 'pollingTimezone',
+  lastPolledAt: 'lastPolledAt',
+  nextPollAt: 'nextPollAt',
+  pollCursor: 'pollCursor',
+  lastTestAt: 'lastTestAt',
+  lastTestOk: 'lastTestOk',
+  lastTestHttpStatus: 'lastTestHttpStatus',
+  lastTestDurationMs: 'lastTestDurationMs',
+  lastTestMessage: 'lastTestMessage',
+  mappingVerifiedAt: 'mappingVerifiedAt',
+  consecutiveFailures: 'consecutiveFailures',
+  circuitOpenedAt: 'circuitOpenedAt',
+  lastSuccessAt: 'lastSuccessAt',
+  lastFailureAt: 'lastFailureAt',
+  createdByProfileId: 'createdByProfileId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+} as const
+
+export type CustomerErpConnectionScalarFieldEnum = (typeof CustomerErpConnectionScalarFieldEnum)[keyof typeof CustomerErpConnectionScalarFieldEnum]
+
+
+export const CustomerErpCredentialScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  kind: 'kind',
+  payloadEnc: 'payloadEnc',
+  hint: 'hint',
+  expiresAt: 'expiresAt',
+  grantedScope: 'grantedScope',
+  rotatedAt: 'rotatedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerErpCredentialScalarFieldEnum = (typeof CustomerErpCredentialScalarFieldEnum)[keyof typeof CustomerErpCredentialScalarFieldEnum]
+
+
+export const CustomerErpEndpointScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  purpose: 'purpose',
+  path: 'path',
+  method: 'method',
+  enabled: 'enabled',
+  pagination: 'pagination',
+  paginationConfigJson: 'paginationConfigJson',
+  recordsPath: 'recordsPath',
+  requestTemplateJson: 'requestTemplateJson',
+  queryParamsJson: 'queryParamsJson',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerErpEndpointScalarFieldEnum = (typeof CustomerErpEndpointScalarFieldEnum)[keyof typeof CustomerErpEndpointScalarFieldEnum]
+
+
+export const CustomerErpFieldMappingScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  entity: 'entity',
+  platformField: 'platformField',
+  erpPath: 'erpPath',
+  constantValue: 'constantValue',
+  erpValue: 'erpValue',
+  transform: 'transform',
+  required: 'required',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerErpFieldMappingScalarFieldEnum = (typeof CustomerErpFieldMappingScalarFieldEnum)[keyof typeof CustomerErpFieldMappingScalarFieldEnum]
+
+
+export const CustomerErpWarehouseMapScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  inventoryLocationId: 'inventoryLocationId',
+  erpPlant: 'erpPlant',
+  erpStorageLocation: 'erpStorageLocation',
+  erpBoardId: 'erpBoardId',
+  erpGroupId: 'erpGroupId',
+  isFallback: 'isFallback',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerErpWarehouseMapScalarFieldEnum = (typeof CustomerErpWarehouseMapScalarFieldEnum)[keyof typeof CustomerErpWarehouseMapScalarFieldEnum]
+
+
+export const CustomerErpSyncPolicyScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  sourceOfTruth: 'sourceOfTruth',
+  mode: 'mode',
+  conflictPolicy: 'conflictPolicy',
+  inventoryWriteMode: 'inventoryWriteMode',
+  receiptOnPlatformDelivery: 'receiptOnPlatformDelivery',
+  approvalThresholdMinor: 'approvalThresholdMinor',
+  approvalCurrency: 'approvalCurrency',
+  approvalExpiryHours: 'approvalExpiryHours',
+  sendPurchaseOrders: 'sendPurchaseOrders',
+  sendShipmentStatus: 'sendShipmentStatus',
+  sendGoodsReceipts: 'sendGoodsReceipts',
+  sendInvoices: 'sendInvoices',
+  sendPaymentReferences: 'sendPaymentReferences',
+  syncInventory: 'syncInventory',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerErpSyncPolicyScalarFieldEnum = (typeof CustomerErpSyncPolicyScalarFieldEnum)[keyof typeof CustomerErpSyncPolicyScalarFieldEnum]
+
+
+export const CustomerErpSyncEventScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  eventType: 'eventType',
+  state: 'state',
+  idempotencyKey: 'idempotencyKey',
+  eventVersion: 'eventVersion',
+  orderId: 'orderId',
+  occurrenceId: 'occurrenceId',
+  invoiceId: 'invoiceId',
+  productId: 'productId',
+  correlationId: 'correlationId',
+  requestJson: 'requestJson',
+  responseJson: 'responseJson',
+  erpReference: 'erpReference',
+  attemptCount: 'attemptCount',
+  lastAttemptAt: 'lastAttemptAt',
+  nextRetryAt: 'nextRetryAt',
+  httpStatus: 'httpStatus',
+  durationMs: 'durationMs',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage',
+  skipReason: 'skipReason',
+  approvalId: 'approvalId',
+  leaseOwner: 'leaseOwner',
+  leaseExpiresAt: 'leaseExpiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  completedAt: 'completedAt'
+} as const
+
+export type CustomerErpSyncEventScalarFieldEnum = (typeof CustomerErpSyncEventScalarFieldEnum)[keyof typeof CustomerErpSyncEventScalarFieldEnum]
+
+
+export const CustomerErpSyncJobScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  trigger: 'trigger',
+  status: 'status',
+  isDryRun: 'isDryRun',
+  correlationId: 'correlationId',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  processedCount: 'processedCount',
+  succeededCount: 'succeededCount',
+  skippedCount: 'skippedCount',
+  failedCount: 'failedCount',
+  conflictCount: 'conflictCount',
+  rateLimitedUntil: 'rateLimitedUntil',
+  cursorAfter: 'cursorAfter',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage',
+  startedByProfileId: 'startedByProfileId'
+} as const
+
+export type CustomerErpSyncJobScalarFieldEnum = (typeof CustomerErpSyncJobScalarFieldEnum)[keyof typeof CustomerErpSyncJobScalarFieldEnum]
+
+
+export const CustomerErpWebhookEventScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  externalEventId: 'externalEventId',
+  externalEventType: 'externalEventType',
+  verified: 'verified',
+  rejectionReason: 'rejectionReason',
+  signedAt: 'signedAt',
+  receivedAt: 'receivedAt',
+  processedAt: 'processedAt',
+  syncEventId: 'syncEventId',
+  payloadJson: 'payloadJson',
+  correlationId: 'correlationId'
+} as const
+
+export type CustomerErpWebhookEventScalarFieldEnum = (typeof CustomerErpWebhookEventScalarFieldEnum)[keyof typeof CustomerErpWebhookEventScalarFieldEnum]
+
+
+export const CustomerErpOrderLinkScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  orderId: 'orderId',
+  occurrenceId: 'occurrenceId',
+  erpPurchaseOrderId: 'erpPurchaseOrderId',
+  erpPurchaseOrderNumber: 'erpPurchaseOrderNumber',
+  erpOrderStatus: 'erpOrderStatus',
+  erpGoodsReceiptId: 'erpGoodsReceiptId',
+  goodsReceiptedAt: 'goodsReceiptedAt',
+  onOrderQty: 'onOrderQty',
+  receivedQty: 'receivedQty',
+  shipmentStatus: 'shipmentStatus',
+  trackingNumber: 'trackingNumber',
+  pushedAt: 'pushedAt',
+  lastSyncedAt: 'lastSyncedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerErpOrderLinkScalarFieldEnum = (typeof CustomerErpOrderLinkScalarFieldEnum)[keyof typeof CustomerErpOrderLinkScalarFieldEnum]
+
+
+export const CustomerErpInvoiceLinkScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  invoiceId: 'invoiceId',
+  orderId: 'orderId',
+  erpInvoiceId: 'erpInvoiceId',
+  erpInvoiceNumber: 'erpInvoiceNumber',
+  currency: 'currency',
+  grandTotalMinor: 'grandTotalMinor',
+  taxMinor: 'taxMinor',
+  dueAt: 'dueAt',
+  documentUrl: 'documentUrl',
+  paymentReference: 'paymentReference',
+  paymentStatus: 'paymentStatus',
+  paymentSyncedAt: 'paymentSyncedAt',
+  syncedAt: 'syncedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerErpInvoiceLinkScalarFieldEnum = (typeof CustomerErpInvoiceLinkScalarFieldEnum)[keyof typeof CustomerErpInvoiceLinkScalarFieldEnum]
+
+
+export const CustomerErpInventoryLinkScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  productId: 'productId',
+  variantKey: 'variantKey',
+  erpMaterialNumber: 'erpMaterialNumber',
+  erpPlant: 'erpPlant',
+  onOrderQty: 'onOrderQty',
+  incomingQty: 'incomingQty',
+  onHandQty: 'onHandQty',
+  erpUnitOfMeasure: 'erpUnitOfMeasure',
+  lastAppliedEventId: 'lastAppliedEventId',
+  lastSyncedAt: 'lastSyncedAt',
+  divergenceNote: 'divergenceNote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerErpInventoryLinkScalarFieldEnum = (typeof CustomerErpInventoryLinkScalarFieldEnum)[keyof typeof CustomerErpInventoryLinkScalarFieldEnum]
+
+
+export const CustomerErpApprovalScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  kind: 'kind',
+  state: 'state',
+  syncEventId: 'syncEventId',
+  orderId: 'orderId',
+  amountMinor: 'amountMinor',
+  currency: 'currency',
+  summary: 'summary',
+  requestedAt: 'requestedAt',
+  expiresAt: 'expiresAt',
+  decidedByProfileId: 'decidedByProfileId',
+  decidedAt: 'decidedAt',
+  decisionNote: 'decisionNote'
+} as const
+
+export type CustomerErpApprovalScalarFieldEnum = (typeof CustomerErpApprovalScalarFieldEnum)[keyof typeof CustomerErpApprovalScalarFieldEnum]
+
+
+export const CustomerErpOAuthStateScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  stateToken: 'stateToken',
+  codeVerifierEnc: 'codeVerifierEnc',
+  redirectUri: 'redirectUri',
+  startedByProfileId: 'startedByProfileId',
+  expiresAt: 'expiresAt',
+  consumedAt: 'consumedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type CustomerErpOAuthStateScalarFieldEnum = (typeof CustomerErpOAuthStateScalarFieldEnum)[keyof typeof CustomerErpOAuthStateScalarFieldEnum]
+
+
+export const CustomerErpAuditLogScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  connectionId: 'connectionId',
+  action: 'action',
+  actorProfileId: 'actorProfileId',
+  actorEmail: 'actorEmail',
+  resourceType: 'resourceType',
+  resourceId: 'resourceId',
+  beforeJson: 'beforeJson',
+  afterJson: 'afterJson',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  correlationId: 'correlationId',
+  createdAt: 'createdAt'
+} as const
+
+export type CustomerErpAuditLogScalarFieldEnum = (typeof CustomerErpAuditLogScalarFieldEnum)[keyof typeof CustomerErpAuditLogScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -8239,10 +10217,34 @@ export const InventoryLocationOrderByRelevanceFieldEnum = {
   countryCode: 'countryCode',
   timezone: 'timezone',
   erpExternalId: 'erpExternalId',
-  erpSyncMessage: 'erpSyncMessage'
+  erpSyncMessage: 'erpSyncMessage',
+  deliveryFeeCurrency: 'deliveryFeeCurrency'
 } as const
 
 export type InventoryLocationOrderByRelevanceFieldEnum = (typeof InventoryLocationOrderByRelevanceFieldEnum)[keyof typeof InventoryLocationOrderByRelevanceFieldEnum]
+
+
+export const WarehouseCountryExclusionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  locationId: 'locationId',
+  countryCode: 'countryCode',
+  reason: 'reason'
+} as const
+
+export type WarehouseCountryExclusionOrderByRelevanceFieldEnum = (typeof WarehouseCountryExclusionOrderByRelevanceFieldEnum)[keyof typeof WarehouseCountryExclusionOrderByRelevanceFieldEnum]
+
+
+export const WarehouseDeliveryZoneOrderByRelevanceFieldEnum = {
+  id: 'id',
+  locationId: 'locationId',
+  countryCode: 'countryCode',
+  postalPrefixes: 'postalPrefixes',
+  carrierName: 'carrierName',
+  serviceLevel: 'serviceLevel',
+  shippingFeeCurrency: 'shippingFeeCurrency'
+} as const
+
+export type WarehouseDeliveryZoneOrderByRelevanceFieldEnum = (typeof WarehouseDeliveryZoneOrderByRelevanceFieldEnum)[keyof typeof WarehouseDeliveryZoneOrderByRelevanceFieldEnum]
 
 
 export const InventoryBalanceOrderByRelevanceFieldEnum = {
@@ -8322,7 +10324,8 @@ export const AddressOrderByRelevanceFieldEnum = {
   city: 'city',
   state: 'state',
   postalCode: 'postalCode',
-  country: 'country'
+  country: 'country',
+  timezone: 'timezone'
 } as const
 
 export type AddressOrderByRelevanceFieldEnum = (typeof AddressOrderByRelevanceFieldEnum)[keyof typeof AddressOrderByRelevanceFieldEnum]
@@ -8359,6 +10362,10 @@ export const OrderOrderByRelevanceFieldEnum = {
   currency: 'currency',
   shippingMethodCode: 'shippingMethodCode',
   shippingMethodName: 'shippingMethodName',
+  fulfilmentLocationId: 'fulfilmentLocationId',
+  fulfilmentQuoteId: 'fulfilmentQuoteId',
+  fulfilmentCarrier: 'fulfilmentCarrier',
+  fulfilmentServiceLevel: 'fulfilmentServiceLevel',
   preferredPaymentMethodId: 'preferredPaymentMethodId',
   taxCountry: 'taxCountry',
   sellerVatNumberSnapshot: 'sellerVatNumberSnapshot',
@@ -8580,6 +10587,24 @@ export const ErpOrderPushOrderByRelevanceFieldEnum = {
 } as const
 
 export type ErpOrderPushOrderByRelevanceFieldEnum = (typeof ErpOrderPushOrderByRelevanceFieldEnum)[keyof typeof ErpOrderPushOrderByRelevanceFieldEnum]
+
+
+export const FulfilmentQuoteOrderByRelevanceFieldEnum = {
+  id: 'id',
+  customerProfileId: 'customerProfileId',
+  cartId: 'cartId',
+  addressId: 'addressId',
+  locationId: 'locationId',
+  zoneId: 'zoneId',
+  destinationCountry: 'destinationCountry',
+  destinationPostalCode: 'destinationPostalCode',
+  currency: 'currency',
+  carrierName: 'carrierName',
+  serviceLevel: 'serviceLevel',
+  basketHash: 'basketHash'
+} as const
+
+export type FulfilmentQuoteOrderByRelevanceFieldEnum = (typeof FulfilmentQuoteOrderByRelevanceFieldEnum)[keyof typeof FulfilmentQuoteOrderByRelevanceFieldEnum]
 
 
 export const ShipmentOrderByRelevanceFieldEnum = {
@@ -8991,6 +11016,16 @@ export const ProductDeviceInfoOrderByRelevanceFieldEnum = {
 export type ProductDeviceInfoOrderByRelevanceFieldEnum = (typeof ProductDeviceInfoOrderByRelevanceFieldEnum)[keyof typeof ProductDeviceInfoOrderByRelevanceFieldEnum]
 
 
+export const ProductCountryRestrictionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  countryCode: 'countryCode',
+  reason: 'reason'
+} as const
+
+export type ProductCountryRestrictionOrderByRelevanceFieldEnum = (typeof ProductCountryRestrictionOrderByRelevanceFieldEnum)[keyof typeof ProductCountryRestrictionOrderByRelevanceFieldEnum]
+
+
 export const ErpConnectionOrderByRelevanceFieldEnum = {
   id: 'id',
   name: 'name',
@@ -9103,6 +11138,276 @@ export const WishlistItemOrderByRelevanceFieldEnum = {
 } as const
 
 export type WishlistItemOrderByRelevanceFieldEnum = (typeof WishlistItemOrderByRelevanceFieldEnum)[keyof typeof WishlistItemOrderByRelevanceFieldEnum]
+
+
+export const BuyerOrganizationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name',
+  nameNormalized: 'nameNormalized',
+  createdByProfileId: 'createdByProfileId'
+} as const
+
+export type BuyerOrganizationOrderByRelevanceFieldEnum = (typeof BuyerOrganizationOrderByRelevanceFieldEnum)[keyof typeof BuyerOrganizationOrderByRelevanceFieldEnum]
+
+
+export const BuyerOrganizationMemberOrderByRelevanceFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  customerProfileId: 'customerProfileId',
+  invitedByProfileId: 'invitedByProfileId'
+} as const
+
+export type BuyerOrganizationMemberOrderByRelevanceFieldEnum = (typeof BuyerOrganizationMemberOrderByRelevanceFieldEnum)[keyof typeof BuyerOrganizationMemberOrderByRelevanceFieldEnum]
+
+
+export const BuyerOrganizationInviteOrderByRelevanceFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  emailNormalized: 'emailNormalized',
+  tokenHash: 'tokenHash',
+  invitedByProfileId: 'invitedByProfileId',
+  acceptedByProfileId: 'acceptedByProfileId'
+} as const
+
+export type BuyerOrganizationInviteOrderByRelevanceFieldEnum = (typeof BuyerOrganizationInviteOrderByRelevanceFieldEnum)[keyof typeof BuyerOrganizationInviteOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpConnectionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  name: 'name',
+  vendorPreset: 'vendorPreset',
+  erpVersion: 'erpVersion',
+  stateReason: 'stateReason',
+  baseUrl: 'baseUrl',
+  apiVersion: 'apiVersion',
+  networkNotes: 'networkNotes',
+  tenantIdentifier: 'tenantIdentifier',
+  sapCompanyCode: 'sapCompanyCode',
+  sapPurchasingOrg: 'sapPurchasingOrg',
+  sapPurchasingGroup: 'sapPurchasingGroup',
+  sapPlant: 'sapPlant',
+  sapStorageLocation: 'sapStorageLocation',
+  sapCommunicationScenario: 'sapCommunicationScenario',
+  mondayWorkspaceId: 'mondayWorkspaceId',
+  mondayBoardId: 'mondayBoardId',
+  mondayGroupId: 'mondayGroupId',
+  apiKeyName: 'apiKeyName',
+  oauthAuthorizationUrl: 'oauthAuthorizationUrl',
+  oauthTokenUrl: 'oauthTokenUrl',
+  oauthScope: 'oauthScope',
+  webhookSlug: 'webhookSlug',
+  webhookSignatureHeader: 'webhookSignatureHeader',
+  webhookTimestampHeader: 'webhookTimestampHeader',
+  pollingTimezone: 'pollingTimezone',
+  pollCursor: 'pollCursor',
+  lastTestMessage: 'lastTestMessage',
+  createdByProfileId: 'createdByProfileId'
+} as const
+
+export type CustomerErpConnectionOrderByRelevanceFieldEnum = (typeof CustomerErpConnectionOrderByRelevanceFieldEnum)[keyof typeof CustomerErpConnectionOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpCredentialOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  payloadEnc: 'payloadEnc',
+  hint: 'hint',
+  grantedScope: 'grantedScope'
+} as const
+
+export type CustomerErpCredentialOrderByRelevanceFieldEnum = (typeof CustomerErpCredentialOrderByRelevanceFieldEnum)[keyof typeof CustomerErpCredentialOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpEndpointOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  path: 'path',
+  method: 'method',
+  recordsPath: 'recordsPath'
+} as const
+
+export type CustomerErpEndpointOrderByRelevanceFieldEnum = (typeof CustomerErpEndpointOrderByRelevanceFieldEnum)[keyof typeof CustomerErpEndpointOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpFieldMappingOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  platformField: 'platformField',
+  erpPath: 'erpPath',
+  constantValue: 'constantValue',
+  erpValue: 'erpValue',
+  transform: 'transform'
+} as const
+
+export type CustomerErpFieldMappingOrderByRelevanceFieldEnum = (typeof CustomerErpFieldMappingOrderByRelevanceFieldEnum)[keyof typeof CustomerErpFieldMappingOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpWarehouseMapOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  inventoryLocationId: 'inventoryLocationId',
+  erpPlant: 'erpPlant',
+  erpStorageLocation: 'erpStorageLocation',
+  erpBoardId: 'erpBoardId',
+  erpGroupId: 'erpGroupId'
+} as const
+
+export type CustomerErpWarehouseMapOrderByRelevanceFieldEnum = (typeof CustomerErpWarehouseMapOrderByRelevanceFieldEnum)[keyof typeof CustomerErpWarehouseMapOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpSyncPolicyOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  approvalCurrency: 'approvalCurrency'
+} as const
+
+export type CustomerErpSyncPolicyOrderByRelevanceFieldEnum = (typeof CustomerErpSyncPolicyOrderByRelevanceFieldEnum)[keyof typeof CustomerErpSyncPolicyOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpSyncEventOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  idempotencyKey: 'idempotencyKey',
+  orderId: 'orderId',
+  occurrenceId: 'occurrenceId',
+  invoiceId: 'invoiceId',
+  productId: 'productId',
+  correlationId: 'correlationId',
+  erpReference: 'erpReference',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage',
+  skipReason: 'skipReason',
+  approvalId: 'approvalId',
+  leaseOwner: 'leaseOwner'
+} as const
+
+export type CustomerErpSyncEventOrderByRelevanceFieldEnum = (typeof CustomerErpSyncEventOrderByRelevanceFieldEnum)[keyof typeof CustomerErpSyncEventOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpSyncJobOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  trigger: 'trigger',
+  status: 'status',
+  correlationId: 'correlationId',
+  cursorAfter: 'cursorAfter',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage',
+  startedByProfileId: 'startedByProfileId'
+} as const
+
+export type CustomerErpSyncJobOrderByRelevanceFieldEnum = (typeof CustomerErpSyncJobOrderByRelevanceFieldEnum)[keyof typeof CustomerErpSyncJobOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpWebhookEventOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  externalEventId: 'externalEventId',
+  externalEventType: 'externalEventType',
+  rejectionReason: 'rejectionReason',
+  syncEventId: 'syncEventId',
+  correlationId: 'correlationId'
+} as const
+
+export type CustomerErpWebhookEventOrderByRelevanceFieldEnum = (typeof CustomerErpWebhookEventOrderByRelevanceFieldEnum)[keyof typeof CustomerErpWebhookEventOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpOrderLinkOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  orderId: 'orderId',
+  occurrenceId: 'occurrenceId',
+  erpPurchaseOrderId: 'erpPurchaseOrderId',
+  erpPurchaseOrderNumber: 'erpPurchaseOrderNumber',
+  erpOrderStatus: 'erpOrderStatus',
+  erpGoodsReceiptId: 'erpGoodsReceiptId',
+  shipmentStatus: 'shipmentStatus',
+  trackingNumber: 'trackingNumber'
+} as const
+
+export type CustomerErpOrderLinkOrderByRelevanceFieldEnum = (typeof CustomerErpOrderLinkOrderByRelevanceFieldEnum)[keyof typeof CustomerErpOrderLinkOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpInvoiceLinkOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  invoiceId: 'invoiceId',
+  orderId: 'orderId',
+  erpInvoiceId: 'erpInvoiceId',
+  erpInvoiceNumber: 'erpInvoiceNumber',
+  currency: 'currency',
+  documentUrl: 'documentUrl',
+  paymentReference: 'paymentReference',
+  paymentStatus: 'paymentStatus'
+} as const
+
+export type CustomerErpInvoiceLinkOrderByRelevanceFieldEnum = (typeof CustomerErpInvoiceLinkOrderByRelevanceFieldEnum)[keyof typeof CustomerErpInvoiceLinkOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpInventoryLinkOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  productId: 'productId',
+  variantKey: 'variantKey',
+  erpMaterialNumber: 'erpMaterialNumber',
+  erpPlant: 'erpPlant',
+  erpUnitOfMeasure: 'erpUnitOfMeasure',
+  lastAppliedEventId: 'lastAppliedEventId',
+  divergenceNote: 'divergenceNote'
+} as const
+
+export type CustomerErpInventoryLinkOrderByRelevanceFieldEnum = (typeof CustomerErpInventoryLinkOrderByRelevanceFieldEnum)[keyof typeof CustomerErpInventoryLinkOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpApprovalOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  syncEventId: 'syncEventId',
+  orderId: 'orderId',
+  currency: 'currency',
+  summary: 'summary',
+  decidedByProfileId: 'decidedByProfileId',
+  decisionNote: 'decisionNote'
+} as const
+
+export type CustomerErpApprovalOrderByRelevanceFieldEnum = (typeof CustomerErpApprovalOrderByRelevanceFieldEnum)[keyof typeof CustomerErpApprovalOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpOAuthStateOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  stateToken: 'stateToken',
+  codeVerifierEnc: 'codeVerifierEnc',
+  redirectUri: 'redirectUri',
+  startedByProfileId: 'startedByProfileId'
+} as const
+
+export type CustomerErpOAuthStateOrderByRelevanceFieldEnum = (typeof CustomerErpOAuthStateOrderByRelevanceFieldEnum)[keyof typeof CustomerErpOAuthStateOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpAuditLogOrderByRelevanceFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  connectionId: 'connectionId',
+  action: 'action',
+  actorProfileId: 'actorProfileId',
+  actorEmail: 'actorEmail',
+  resourceType: 'resourceType',
+  resourceId: 'resourceId',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  correlationId: 'correlationId'
+} as const
+
+export type CustomerErpAuditLogOrderByRelevanceFieldEnum = (typeof CustomerErpAuditLogOrderByRelevanceFieldEnum)[keyof typeof CustomerErpAuditLogOrderByRelevanceFieldEnum]
 
 
 
@@ -9588,6 +11893,146 @@ export type EnumAutoPayRetryPreferenceFieldRefInput<$PrismaModel> = FieldRefInpu
 
 
 /**
+ * Reference to a field of type 'BuyerOrgRole'
+ */
+export type EnumBuyerOrgRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BuyerOrgRole'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerErpSystem'
+ */
+export type EnumCustomerErpSystemFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerErpSystem'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerErpApiStyle'
+ */
+export type EnumCustomerErpApiStyleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerErpApiStyle'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerErpEnvironment'
+ */
+export type EnumCustomerErpEnvironmentFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerErpEnvironment'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerErpConnectionState'
+ */
+export type EnumCustomerErpConnectionStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerErpConnectionState'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerErpNetworkMode'
+ */
+export type EnumCustomerErpNetworkModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerErpNetworkMode'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerErpAuthMethod'
+ */
+export type EnumCustomerErpAuthMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerErpAuthMethod'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerErpApiKeyLocation'
+ */
+export type EnumCustomerErpApiKeyLocationFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerErpApiKeyLocation'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerErpCredentialKind'
+ */
+export type EnumCustomerErpCredentialKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerErpCredentialKind'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerErpEndpointPurpose'
+ */
+export type EnumCustomerErpEndpointPurposeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerErpEndpointPurpose'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerErpPagination'
+ */
+export type EnumCustomerErpPaginationFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerErpPagination'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerErpMappingEntity'
+ */
+export type EnumCustomerErpMappingEntityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerErpMappingEntity'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerErpSourceOfTruth'
+ */
+export type EnumCustomerErpSourceOfTruthFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerErpSourceOfTruth'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerErpSyncMode'
+ */
+export type EnumCustomerErpSyncModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerErpSyncMode'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerErpConflictPolicy'
+ */
+export type EnumCustomerErpConflictPolicyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerErpConflictPolicy'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerErpWriteMode'
+ */
+export type EnumCustomerErpWriteModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerErpWriteMode'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerErpEventType'
+ */
+export type EnumCustomerErpEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerErpEventType'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerErpEventState'
+ */
+export type EnumCustomerErpEventStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerErpEventState'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerErpApprovalKind'
+ */
+export type EnumCustomerErpApprovalKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerErpApprovalKind'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerErpApprovalState'
+ */
+export type EnumCustomerErpApprovalStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerErpApprovalState'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -9766,6 +12211,8 @@ export type GlobalOmitConfig = {
   productMedia?: Prisma.ProductMediaOmit
   productAttribute?: Prisma.ProductAttributeOmit
   inventoryLocation?: Prisma.InventoryLocationOmit
+  warehouseCountryExclusion?: Prisma.WarehouseCountryExclusionOmit
+  warehouseDeliveryZone?: Prisma.WarehouseDeliveryZoneOmit
   inventoryBalance?: Prisma.InventoryBalanceOmit
   inventoryMovement?: Prisma.InventoryMovementOmit
   stockReservation?: Prisma.StockReservationOmit
@@ -9788,6 +12235,7 @@ export type GlobalOmitConfig = {
   scheduleOccurrence?: Prisma.ScheduleOccurrenceOmit
   customerPaymentMethod?: Prisma.CustomerPaymentMethodOmit
   erpOrderPush?: Prisma.ErpOrderPushOmit
+  fulfilmentQuote?: Prisma.FulfilmentQuoteOmit
   shipment?: Prisma.ShipmentOmit
   returnRequest?: Prisma.ReturnRequestOmit
   integrationConnection?: Prisma.IntegrationConnectionOmit
@@ -9822,6 +12270,7 @@ export type GlobalOmitConfig = {
   invoice?: Prisma.InvoiceOmit
   economicOperator?: Prisma.EconomicOperatorOmit
   productDeviceInfo?: Prisma.ProductDeviceInfoOmit
+  productCountryRestriction?: Prisma.ProductCountryRestrictionOmit
   erpConnection?: Prisma.ErpConnectionOmit
   erpInventorySyncRun?: Prisma.ErpInventorySyncRunOmit
   erpSyncRecordError?: Prisma.ErpSyncRecordErrorOmit
@@ -9830,6 +12279,24 @@ export type GlobalOmitConfig = {
   erpWebhookReceipt?: Prisma.ErpWebhookReceiptOmit
   customerAutoPaySetting?: Prisma.CustomerAutoPaySettingOmit
   wishlistItem?: Prisma.WishlistItemOmit
+  buyerOrganization?: Prisma.BuyerOrganizationOmit
+  buyerOrganizationMember?: Prisma.BuyerOrganizationMemberOmit
+  buyerOrganizationInvite?: Prisma.BuyerOrganizationInviteOmit
+  customerErpConnection?: Prisma.CustomerErpConnectionOmit
+  customerErpCredential?: Prisma.CustomerErpCredentialOmit
+  customerErpEndpoint?: Prisma.CustomerErpEndpointOmit
+  customerErpFieldMapping?: Prisma.CustomerErpFieldMappingOmit
+  customerErpWarehouseMap?: Prisma.CustomerErpWarehouseMapOmit
+  customerErpSyncPolicy?: Prisma.CustomerErpSyncPolicyOmit
+  customerErpSyncEvent?: Prisma.CustomerErpSyncEventOmit
+  customerErpSyncJob?: Prisma.CustomerErpSyncJobOmit
+  customerErpWebhookEvent?: Prisma.CustomerErpWebhookEventOmit
+  customerErpOrderLink?: Prisma.CustomerErpOrderLinkOmit
+  customerErpInvoiceLink?: Prisma.CustomerErpInvoiceLinkOmit
+  customerErpInventoryLink?: Prisma.CustomerErpInventoryLinkOmit
+  customerErpApproval?: Prisma.CustomerErpApprovalOmit
+  customerErpOAuthState?: Prisma.CustomerErpOAuthStateOmit
+  customerErpAuditLog?: Prisma.CustomerErpAuditLogOmit
 }
 
 /* Types for Logging */

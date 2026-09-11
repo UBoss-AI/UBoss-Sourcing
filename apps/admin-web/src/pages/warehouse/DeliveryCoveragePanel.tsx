@@ -140,17 +140,42 @@ function CountryFlap({
           // The glass, per card: a translucent plate that lifts on hover. The
           // ring rather than a border, so the plate keeps its exact size when
           // it lifts and the row below it does not shift by a pixel.
-          'bg-surface/55 ring-1 ring-inset ring-border/70 backdrop-blur-md',
+          'bg-surface/55 backdrop-blur-md ring-1 ring-inset',
           'transition duration-200 ease-out',
-          'hover:-translate-y-px hover:bg-surface/75 hover:ring-brand/45',
+          'hover:-translate-y-px hover:bg-surface/75',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-          isOpen && 'bg-surface/80 ring-brand/50',
+          /*
+           * A closed country is drawn in the refusing colour rather than
+           * dropped from the list.
+           *
+           * The radius decides what geometry reaches; the exclusion list
+           * decides what the business serves. A country hidden here would be
+           * indistinguishable from one 40 km too far away - and the first is a
+           * decision somebody made and may want to undo. So it stays, and it
+           * looks like a refusal.
+           */
+          country.isExcluded
+            ? cx(
+                'ring-danger/45 hover:ring-danger/70',
+                isOpen ? 'bg-danger-soft/85' : 'bg-danger-soft/60',
+              )
+            : cx('ring-border/70 hover:ring-brand/45', isOpen && 'bg-surface/80 ring-brand/50'),
         )}
       >
         <CountryFlag code={country.code ?? '??'} className="h-4 w-6" />
 
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-xs font-semibold text-ink">{country.name}</span>
+          <span
+            className={cx(
+              'block truncate text-xs font-semibold',
+              // Struck through as well as tinted: the state has to survive
+              // being read by somebody who cannot tell the two colours apart,
+              // and the "Closed" chip below says it in words.
+              country.isExcluded ? 'text-ink line-through decoration-danger/70' : 'text-ink',
+            )}
+          >
+            {country.name}
+          </span>
           <span className="block text-xxs tabular-nums text-ink-muted">
             {t('warehouses.coverage.borderDistance', {
               km: kilometres(country.distanceKm, intlLocale),
@@ -159,14 +184,33 @@ function CountryFlap({
         </span>
 
         {/* The code, as the quiet anchor on the right. A reader scanning six
-            of these for "is BE in here" finds two letters faster than a name. */}
-        <span className="shrink-0 rounded bg-brand-soft px-1.5 py-0.5 text-xxs font-bold tracking-wide text-brand">
-          {country.code ?? '—'}
-        </span>
+            of these for "is BE in here" finds two letters faster than a name.
+            A closed country carries the word instead, because the state is
+            what matters more than the code. */}
+        {country.isExcluded ? (
+          <span className="shrink-0 rounded bg-danger-fill px-1.5 py-0.5 text-xxs font-bold tracking-wide text-white">
+            {t('warehouses.coverage.excluded')}
+          </span>
+        ) : (
+          <span className="shrink-0 rounded bg-brand-soft px-1.5 py-0.5 text-xxs font-bold tracking-wide text-brand">
+            {country.code ?? '—'}
+          </span>
+        )}
       </button>
 
       {isOpen && (
         <dl className="mt-1 space-y-1 rounded-lg bg-surface/45 px-2.5 py-2 text-xxs ring-1 ring-inset ring-border/60 backdrop-blur-md">
+          {country.isExcluded && (
+            <>
+              <p className="font-medium leading-relaxed text-danger">
+                {t('warehouses.coverage.excludedNote')}
+              </p>
+              <p className="leading-relaxed text-ink-muted">
+                {country.exclusionReason ?? t('warehouses.coverage.noReason')}
+              </p>
+            </>
+          )}
+
           <div className="flex items-baseline justify-between gap-2">
             <dt className="text-ink-subtle">{t('warehouses.coverage.nearestBorder')}</dt>
             <dd className="tabular-nums text-ink">
@@ -210,6 +254,9 @@ export function DeliveryCoveragePanel({
 
   const radius = kilometres(radiusKm, intlLocale);
 
+  /** How many of the countries in range the operator has closed. */
+  const excludedCount = (coverage?.countries ?? []).filter((country) => country.isExcluded).length;
+
   return (
     <div
       className={cx(
@@ -246,6 +293,19 @@ export function DeliveryCoveragePanel({
           <p className="text-xxs text-ink-muted">
             {t('warehouses.coverage.withinRadius', { km: radius })}
           </p>
+          {/* Where that radius came from. The same number is three different
+              statements - this warehouse's own promise, the deployment's
+              default, or a figure somebody is trying out - and an operator
+              setting up a second warehouse needs to know which. */}
+          {coverage !== null && (
+            <p className="text-xxs text-ink-subtle">
+              {coverage.radiusSource === 'WAREHOUSE'
+                ? t('warehouses.coverage.radiusFromWarehouse')
+                : coverage.radiusSource === 'DEPLOYMENT_DEFAULT'
+                  ? t('warehouses.coverage.radiusFromDefault')
+                  : t('warehouses.coverage.radiusFromRequest')}
+            </p>
+          )}
         </div>
 
         {onClose !== undefined && (
@@ -318,6 +378,15 @@ export function DeliveryCoveragePanel({
                 <p className="mb-1.5 px-0.5 text-xxs font-medium text-ink-subtle">
                   {t('warehouses.coverage.count', { count: coverage.countries.length })}
                 </p>
+                {/* Said separately from the count above rather than folded
+                    into it. "Six countries, two of them closed" is two facts,
+                    and a reader deciding whether the geofence is right needs
+                    the second one to stand out rather than be arithmetic. */}
+                {excludedCount > 0 && (
+                  <p className="mb-1.5 px-0.5 text-xxs font-medium text-danger">
+                    {t('warehouses.coverage.excludedCount', { count: excludedCount })}
+                  </p>
+                )}
                 <ul className="space-y-1.5 [perspective:900px]">
                   {coverage.countries.map((country, index) => (
                     <CountryFlap
@@ -333,6 +402,41 @@ export function DeliveryCoveragePanel({
                   ))}
                 </ul>
               </>
+            )}
+
+            {/*
+              The exclusions that are currently doing nothing.
+
+              Kept and shown rather than quietly dropped: a radius grows, and
+              somebody who closed Switzerland at 300 km has said something that
+              must still hold at 800. It is also how an exclusion added to the
+              wrong warehouse gets found - otherwise it is invisible until the
+              day it starts to bite.
+            */}
+            {coverage.dormantExclusions.length > 0 && (
+              <div className="mt-3 border-t border-border/60 pt-2">
+                <p className="px-0.5 text-xxs font-medium text-ink-subtle">
+                  {t('warehouses.coverage.dormantTitle')}
+                </p>
+                <ul className="mt-1.5 flex flex-wrap gap-1">
+                  {coverage.dormantExclusions.map((country) => (
+                    <li
+                      key={country.code}
+                      className="flex items-center gap-1 rounded bg-surface/55 px-1.5 py-1 ring-1 ring-inset ring-border/60 backdrop-blur-md"
+                      // The reason, on a title rather than in the flow: these
+                      // are not acting on anything today, so they get a line
+                      // of the panel rather than a card each.
+                      title={country.reason ?? t('warehouses.coverage.noReason')}
+                    >
+                      <CountryFlag code={country.code} className="h-3 w-[1.125rem]" />
+                      <span className="text-xxs text-ink-muted">{country.name}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-1 px-0.5 text-xxs leading-relaxed text-ink-subtle">
+                  {t('warehouses.coverage.dormantNote')}
+                </p>
+              </div>
             )}
           </>
         )}

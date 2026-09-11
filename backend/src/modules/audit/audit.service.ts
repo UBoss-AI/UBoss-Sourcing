@@ -131,6 +131,14 @@ export const AuditAction = {
   /// effect, and the one a dispute is measured from.
   SCHEDULE_ACTIVATED: 'schedule.activated',
   SCHEDULE_COMPLETED: 'schedule.completed',
+  /// A finished plan cleared off the customer's own list.
+  ///
+  /// Recorded, and not because hiding a row is a dangerous act - it is the
+  /// least dangerous act in this module. It is recorded because the row stops
+  /// appearing in the customer's reads at that moment, and somebody asking
+  /// later why a plan they remember is not on their screen deserves an answer
+  /// better than "it must have been you".
+  SCHEDULE_HIDDEN: 'schedule.hidden',
   /// One cycle, and what became of it.
   OCCURRENCE_SKIPPED: 'occurrence.skipped',
   OCCURRENCE_CANCELLED: 'occurrence.cancelled',
@@ -212,6 +220,23 @@ export const AuditAction = {
   /// that is not accepting them. Worth a row of its own - a run of these is
   /// either a misconfigured ERP or somebody probing the endpoint.
   ERP_WEBHOOK_REJECTED: 'erp_connection.webhook_rejected',
+
+  // A BUYER's own ERP
+  //
+  // Coarser than the buyer's own trail in `customer_erp_audit_logs`, and kept
+  // apart from the ERP_CONNECTION_* actions above, which are about the
+  // OPERATOR's ERP. These exist because a tenant pointing this server at a new
+  // outbound address, and this server then holding a credential for it, is
+  // something whoever runs the installation is entitled to see - without being
+  // able to see the credential, or the buyer's mappings, or their purchase
+  // orders. The rows carry a host and an organisation id and nothing else.
+  CUSTOMER_ERP_CONNECTION_CREATED: 'customer_erp.connection_created',
+  CUSTOMER_ERP_CONNECTION_ACTIVATED: 'customer_erp.connection_activated',
+  CUSTOMER_ERP_CONNECTION_DISCONNECTED: 'customer_erp.connection_disconnected',
+  /// An inbound delivery was refused. A run of these against one connection is
+  /// either a misconfigured ERP or somebody probing the endpoint, and the
+  /// operator is the only one positioned to notice the second across tenants.
+  CUSTOMER_ERP_WEBHOOK_REJECTED: 'customer_erp.webhook_rejected',
 
   // Auto-pay
   //

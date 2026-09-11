@@ -25,6 +25,7 @@ interface ConfigResponse {
   features: Record<string, unknown>;
   localisation: Record<string, unknown>;
   assistant: Record<string, unknown>;
+  fulfilment: Record<string, unknown>;
 }
 
 describe('GET /api/v1/config', () => {
@@ -45,7 +46,23 @@ describe('GET /api/v1/config', () => {
       'assistant',
       'business',
       'features',
+      // The two rules the storefront has to draw a calendar and a warehouse
+      // list from rather than hard-code. Both are deployment settings, and a
+      // figure baked into a browser bundle is a figure an operator cannot
+      // change.
+      'fulfilment',
       'localisation',
+    ]);
+
+    expect(Object.keys(body.fulfilment).sort()).toEqual([
+      // How long a warehouse option stays an offer, so the checkout page can
+      // re-ask before it lapses rather than after.
+      'fulfilmentQuoteTtlSeconds',
+      // How much notice a first delivery needs. It greys out the first week
+      // of the delivery-date picker; the exact floor for a given address and
+      // warehouse comes from the signed-in endpoint, which knows about lanes
+      // this one has no business publishing to anonymous visitors.
+      'scheduleMinNoticeDays',
     ]);
 
     expect(Object.keys(body.assistant).sort()).toEqual([

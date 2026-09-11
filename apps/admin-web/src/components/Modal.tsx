@@ -23,8 +23,16 @@ interface ModalProps {
   description?: string;
   children: ReactNode;
   footer?: ReactNode;
-  /** Wider dialog for a form with two columns. */
-  size?: 'md' | 'lg';
+  /**
+   * How wide the dialog gets.
+   *
+   * `md` is a question or a single-column form. `lg` is a form with two
+   * columns. `xl` is for a dialog that is a *screen* rather than a form - the
+   * warehouse inventory panel, which carries a toolbar, a grid of product
+   * cards and a pager, and reads as a cramped list at `lg`. Every step is a
+   * `max-w`, so all three still fit a phone.
+   */
+  size?: 'md' | 'lg' | 'xl';
 }
 
 export function Modal({
@@ -86,7 +94,7 @@ export function Modal({
       {...(description === undefined ? {} : { 'aria-describedby': descriptionId })}
       className={cx(
         'w-full p-0',
-        size === 'lg' ? 'max-w-3xl' : 'max-w-lg',
+        size === 'xl' ? 'max-w-[76rem]' : size === 'lg' ? 'max-w-3xl' : 'max-w-lg',
         // A column, capped to the viewport, with only the body scrolling.
         //
         // The body used to carry `max-h-[70vh]` on its own, which is fine
@@ -139,7 +147,19 @@ export function Modal({
       {/* `min-h-0` is what makes the cap above work: a flex child's default
           minimum is its content, so without it the body refuses to shrink and
           the dialog grows past the viewport again. */}
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-6">{children}</div>
+      {/* `data-dialog-body` is a hook for the one thing a dialog's own content
+          sometimes has to do to its scroller: put it back to the top. The
+          warehouse inventory panel pages inside itself, and turning to page
+          three and landing halfway down it is the sort of small wrongness
+          nobody reports and everybody notices. An attribute rather than a
+          forwarded ref, so a caller ten components deep can find it without
+          every layer in between having to pass one down. */}
+      <div
+        data-dialog-body
+        className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-6"
+      >
+        {children}
+      </div>
 
       {footer !== undefined && (
         <div className="flex shrink-0 flex-wrap justify-end gap-2 border-t border-border-subtle bg-surface-sunken px-4 py-4 sm:px-6">

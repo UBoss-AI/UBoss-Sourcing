@@ -393,6 +393,61 @@ interface WarehouseSeed {
   erpSyncedHoursAgo: number | null;
   erpSyncMessage: string | null;
   isActive?: boolean;
+
+  /**
+   * The geofence, in kilometres. Null leaves this warehouse on the
+   * deployment's `DELIVERY_COVERAGE_RADIUS_KM`.
+   *
+   * The fixtures deliberately do not all carry one: a warehouse running on the
+   * deployment default is the ordinary case for an installation that has never
+   * opened the delivery panel, and the screen says something different about
+   * it, so the seed has to produce one.
+   */
+  deliveryRadiusKm: number | null;
+  /** Days, as a window. Both or neither. */
+  deliveryLeadTimeDays: { min: number; max: number } | null;
+  /** Minor units and the currency they are in. Zero is a real fee - free. */
+  deliveryFee: { minor: bigint; currency: string } | null;
+  /**
+   * Countries this warehouse will not deliver to, with the reason.
+   *
+   * Real reasons rather than lorem: the whole point of the field is that the
+   * person reading the row in a year is not the person who wrote it, and a
+   * fixture full of "test" teaches nobody what the field is for.
+   */
+  exclusions: readonly { countryCode: string; reason: string }[];
+
+  /**
+   * The lanes - which is what actually decides whether checkout offers this
+   * warehouse.
+   *
+   * The radius above is geometry and drives the admin map; these are the
+   * business arrangement, and the fixture list carries both precisely so the
+   * difference is visible in a running database. Antwerp reaches the United
+   * Kingdom on the map and has no lane there, which is what a closed country
+   * looks like from the buyer's side.
+   *
+   * One warehouse is left with an empty list on purpose: a building that
+   * holds stock and is offered to nobody is a real state, it is the state
+   * every warehouse is in before somebody configures it, and the panel has to
+   * be able to say so.
+   */
+  zones: readonly {
+    countryCode: string;
+    /** Comma-separated prefixes, or '' for the whole country. */
+    postalPrefixes?: string;
+    carrierName: string;
+    serviceLevel: string;
+    handlingDays: number;
+    transitMinDays: number;
+    transitMaxDays: number;
+    usesBusinessDays?: boolean;
+    feeMinor: bigint;
+    feeCurrency: string;
+    freeAboveMinor?: bigint | null;
+    supportsColdChain?: boolean;
+    priority?: number;
+  }[];
 }
 
 const SEED_WAREHOUSES: readonly WarehouseSeed[] = [
@@ -409,6 +464,79 @@ const SEED_WAREHOUSES: readonly WarehouseSeed[] = [
     erpSyncStatus: 'SYNCED',
     erpSyncedHoursAgo: 2,
     erpSyncMessage: '1,284 SKUs reconciled.',
+    // 500 km from Antwerp is the fixture that makes the coverage panel worth
+    // opening: it reaches the Netherlands, Germany, Luxembourg, France, and
+    // the United Kingdom across the Channel.
+    deliveryRadiusKm: 500,
+    deliveryLeadTimeDays: { min: 2, max: 4 },
+    deliveryFee: { minor: 1200n, currency: 'EUR' },
+    exclusions: [
+      // Reached comfortably inside 500 km and closed anyway, which is the
+      // whole reason exclusions exist: geometry cannot know about paperwork.
+      {
+        countryCode: 'GB',
+        reason: 'Post-Brexit customs broker not appointed yet - route via the Rotterdam agent.',
+      },
+    ],
+    // Two service levels into Belgium is the arrangement the feature exists
+    // for: the same box, two days apart, for the price of a coffee. It is
+    // what makes the Fastest and Lowest Price badges mean two different
+    // cards rather than decorating one.
+    zones: [
+      {
+        countryCode: 'BE',
+        carrierName: 'DPD',
+        serviceLevel: 'Classic',
+        handlingDays: 1,
+        transitMinDays: 1,
+        transitMaxDays: 2,
+        feeMinor: 590n,
+        feeCurrency: 'EUR',
+        freeAboveMinor: 15_000n,
+        priority: 0,
+      },
+      {
+        countryCode: 'BE',
+        carrierName: 'DPD',
+        serviceLevel: 'Express',
+        handlingDays: 0,
+        transitMinDays: 1,
+        transitMaxDays: 1,
+        feeMinor: 1490n,
+        feeCurrency: 'EUR',
+        // The refrigerated lane. Paired with `requiresColdChain` on the
+        // reagent fixtures, so a basket containing one is offered this and
+        // not the Classic beside it.
+        supportsColdChain: true,
+        priority: 1,
+      },
+      {
+        countryCode: 'NL',
+        carrierName: 'PostNL',
+        serviceLevel: 'Standard',
+        handlingDays: 1,
+        transitMinDays: 2,
+        transitMaxDays: 3,
+        feeMinor: 890n,
+        feeCurrency: 'EUR',
+        freeAboveMinor: 25_000n,
+      },
+      {
+        // Postcode-scoped on purpose: Antwerp serves the Rhine-Ruhr belt and
+        // nothing further into Germany. It is the fixture that shows a lane
+        // narrower than a country, which is the case a country-level model
+        // cannot express at all.
+        countryCode: 'DE',
+        postalPrefixes: '40,41,42,44,45,46,47,48',
+        carrierName: 'DHL',
+        serviceLevel: 'Paket',
+        handlingDays: 1,
+        transitMinDays: 2,
+        transitMaxDays: 4,
+        feeMinor: 1290n,
+        feeCurrency: 'EUR',
+      },
+    ],
   },
   {
     // This fixture used to be in Barcelona. Renaming its *code* is something
@@ -432,6 +560,54 @@ const SEED_WAREHOUSES: readonly WarehouseSeed[] = [
     erpSyncStatus: 'SYNCED',
     erpSyncedHoursAgo: 5,
     erpSyncMessage: '903 SKUs reconciled.',
+    // 800 km out of central Spain: Portugal, France, Andorra, and Morocco and
+    // Algeria across the Mediterranean. The two African reaches are what make
+    // this the fixture worth reading - a radius drawn on geography alone will
+    // happily promise a continent nobody has customs cover for.
+    deliveryRadiusKm: 800,
+    deliveryLeadTimeDays: { min: 3, max: 6 },
+    deliveryFee: { minor: 995n, currency: 'EUR' },
+    exclusions: [
+      { countryCode: 'MA', reason: 'No customs agent appointed for Morocco.' },
+      { countryCode: 'DZ', reason: 'No customs agent appointed for Algeria.' },
+    ],
+    zones: [
+      {
+        countryCode: 'ES',
+        carrierName: 'Correos Express',
+        serviceLevel: 'Peninsular',
+        handlingDays: 1,
+        transitMinDays: 1,
+        transitMaxDays: 3,
+        feeMinor: 690n,
+        feeCurrency: 'EUR',
+        freeAboveMinor: 12_000n,
+      },
+      {
+        // Madrid also reaches Belgium, slower and cheaper than Antwerp does.
+        // That overlap is the point of the fixture: a Belgian buyer sees two
+        // warehouses with genuinely different offers and has a choice worth
+        // making.
+        countryCode: 'BE',
+        carrierName: 'SEUR',
+        serviceLevel: 'International Road',
+        handlingDays: 2,
+        transitMinDays: 4,
+        transitMaxDays: 6,
+        feeMinor: 0n,
+        feeCurrency: 'EUR',
+      },
+      {
+        countryCode: 'PT',
+        carrierName: 'CTT Expresso',
+        serviceLevel: 'Standard',
+        handlingDays: 1,
+        transitMinDays: 2,
+        transitMaxDays: 4,
+        feeMinor: 950n,
+        feeCurrency: 'EUR',
+      },
+    ],
   },
   {
     code: 'GR-ATH',
@@ -450,6 +626,43 @@ const SEED_WAREHOUSES: readonly WarehouseSeed[] = [
     // is still whenever it was, which is what `recordErpSync` enforces.
     erpSyncedHoursAgo: 26,
     erpSyncMessage: 'Reconciliation queued behind a stock count.',
+    deliveryRadiusKm: 600,
+    deliveryLeadTimeDays: { min: 4, max: 8 },
+    deliveryFee: { minor: 1500n, currency: 'EUR' },
+    exclusions: [
+      {
+        countryCode: 'TR',
+        reason: 'Distributor holds exclusivity in Türkiye until the 2027 renewal.',
+      },
+    ],
+    zones: [
+      {
+        countryCode: 'GR',
+        carrierName: 'ACS',
+        serviceLevel: 'Standard',
+        handlingDays: 2,
+        transitMinDays: 2,
+        transitMaxDays: 5,
+        feeMinor: 750n,
+        feeCurrency: 'EUR',
+        freeAboveMinor: 20_000n,
+      },
+      {
+        // Calendar days rather than working days, which is the other fixture
+        // worth having: a ferry does not observe a weekend, and a lane that
+        // counted working days would quote four days for a crossing that
+        // takes two.
+        countryCode: 'CY',
+        carrierName: 'ACS',
+        serviceLevel: 'Island Freight',
+        handlingDays: 2,
+        transitMinDays: 4,
+        transitMaxDays: 8,
+        usesBusinessDays: false,
+        feeMinor: 2400n,
+        feeCurrency: 'EUR',
+      },
+    ],
   },
   {
     code: 'PL-GDN',
@@ -464,6 +677,24 @@ const SEED_WAREHOUSES: readonly WarehouseSeed[] = [
     erpSyncStatus: 'FAILED',
     erpSyncedHoursAgo: 73,
     erpSyncMessage: 'ERP rejected 4 SKUs: unit of measure mismatch.',
+    // No radius of its own, on purpose. This is the fixture that shows what a
+    // warehouse nobody has configured looks like: the panel says the
+    // deployment's default applies rather than showing a promise somebody
+    // made. It is also under MAINTENANCE, so the storefront never offers it -
+    // which is the pair of states worth having in a fixture list.
+    deliveryRadiusKm: null,
+    deliveryLeadTimeDays: null,
+    deliveryFee: null,
+    exclusions: [
+      { countryCode: 'BY', reason: 'Sanctions screening - no shipments until further notice.' },
+      { countryCode: 'RU', reason: 'Sanctions screening - no shipments until further notice.' },
+    ],
+    // No lanes, deliberately, and it is the same fixture decision as the null
+    // radius above. This is what a warehouse nobody has configured looks
+    // like: it holds stock, it appears on every map, and checkout offers it
+    // to nobody - because nobody has said what a delivery from here would
+    // cost or when it would arrive, and this software does not invent either.
+    zones: [],
   },
 ];
 
@@ -565,9 +796,14 @@ async function seedWarehouses(): Promise<number> {
       erpLastSyncAt,
       erpSyncMessage: warehouse.erpSyncMessage,
       isActive: warehouse.isActive ?? true,
+      deliveryRadiusKm: warehouse.deliveryRadiusKm,
+      deliveryLeadTimeMinDays: warehouse.deliveryLeadTimeDays?.min ?? null,
+      deliveryLeadTimeMaxDays: warehouse.deliveryLeadTimeDays?.max ?? null,
+      deliveryFeeMinor: warehouse.deliveryFee?.minor ?? null,
+      deliveryFeeCurrency: warehouse.deliveryFee?.currency ?? null,
     };
 
-    await prisma.inventoryLocation.upsert({
+    const row = await prisma.inventoryLocation.upsert({
       where: { code: warehouse.code },
       // Updated as well as created, so re-running the seed refreshes the sync
       // times rather than leaving a fixture that says "last synced in March".
@@ -575,10 +811,326 @@ async function seedWarehouses(): Promise<number> {
       // has promoted stays promoted.
       update: shared,
       create: { id: newId(), code: warehouse.code, isDefault: false, ...shared },
+      select: { id: true },
     });
+
+    /**
+     * The closed countries, replaced outright.
+     *
+     * Delete-and-insert rather than upsert, for the same reason the service
+     * does it that way: the fixture states the whole set, and a country taken
+     * out of this list must actually come off the warehouse on the next seed
+     * rather than linger because nothing deleted it.
+     *
+     * This is the one place the seed overwrites a decision a developer may
+     * have made in the panel. It is the right trade for a fixture list whose
+     * whole purpose is to demonstrate the feature, and it is why the reasons
+     * above read like real ones - a developer who wants their own exclusions
+     * on a fixture warehouse will see them replaced and know why.
+     */
+    await prisma.warehouseCountryExclusion.deleteMany({ where: { locationId: row.id } });
+
+    if (warehouse.exclusions.length > 0) {
+      await prisma.warehouseCountryExclusion.createMany({
+        data: warehouse.exclusions.map((entry) => ({
+          id: newId(),
+          locationId: row.id,
+          countryCode: entry.countryCode,
+          reason: entry.reason,
+        })),
+      });
+    }
+
+    /**
+     * The lanes, replaced outright, for the same reason the exclusions are.
+     *
+     * The fixture states the whole set, so a lane taken out of this list has
+     * to actually come off the warehouse on the next seed rather than linger
+     * because nothing deleted it. It is the second place the seed overwrites
+     * a decision a developer may have made in the panel, and the same trade:
+     * a fixture list whose purpose is to demonstrate the feature has to be
+     * able to converge.
+     *
+     * Delete-then-insert also means the rows get new ids on every seed. That
+     * is harmless - a quote holds `zoneId` as SET NULL and keeps its own
+     * frozen copy of the fee and the dates - and the sweep clears the
+     * orphaned offers on the next maintenance beat.
+     */
+    await prisma.warehouseDeliveryZone.deleteMany({ where: { locationId: row.id } });
+
+    if (warehouse.zones.length > 0) {
+      await prisma.warehouseDeliveryZone.createMany({
+        data: warehouse.zones.map((zone) => ({
+          id: newId(),
+          locationId: row.id,
+          countryCode: zone.countryCode,
+          postalPrefixes: zone.postalPrefixes ?? '',
+          carrierName: zone.carrierName,
+          serviceLevel: zone.serviceLevel,
+          handlingDays: zone.handlingDays,
+          transitMinDays: zone.transitMinDays,
+          transitMaxDays: zone.transitMaxDays,
+          usesBusinessDays: zone.usesBusinessDays ?? true,
+          shippingFeeMinor: zone.feeMinor,
+          shippingFeeCurrency: zone.feeCurrency,
+          freeAboveMinor: zone.freeAboveMinor ?? null,
+          supportsColdChain: zone.supportsColdChain ?? false,
+          priority: zone.priority ?? 0,
+        })),
+      });
+    }
   }
 
   return SEED_WAREHOUSES.length;
+}
+
+/**
+ * How much of each SKU a warehouse holds, in the fixture.
+ *
+ * Deterministic from the ids rather than random, and that is the whole point:
+ * a developer who reports "Antwerp shows 240 of the 5L drum" is describing
+ * something the next person can reproduce, and a screenshot taken today still
+ * matches the database next week. `Math.random()` in a seed makes every bug
+ * report unrepeatable.
+ *
+ * The spread is deliberate rather than uniform:
+ *
+ *   - Most combinations land somewhere between a dozen and a few hundred, so
+ *     the valuation column and the unit totals read like a real building.
+ *   - Roughly one in nine lands on **zero**, which is the state the screens
+ *     most need to be able to show. It is what makes "Athens is out of it,
+ *     Antwerp has it" appear on the storefront's delivery options, and it is
+ *     the only way the third geofencing rule - only the warehouse that
+ *     actually holds the item may offer it - is visible at all without
+ *     somebody editing stock by hand first.
+ *   - Roughly one in eleven lands *just* at or below a typical reorder
+ *     threshold, so the low-stock badges and the low-stock filter have
+ *     something to find.
+ *
+ * The hash is FNV-1a over the two ids. Not for any cryptographic reason - it
+ * is here because ULIDs share a long time-ordered prefix, so anything that
+ * looked at the first characters would give every SKU in a warehouse nearly
+ * the same number.
+ */
+function fixtureQuantity(locationId: string, skuKey: string): number {
+  let hash = 0x811c9dc5;
+
+  for (const character of `${locationId}:${skuKey}`) {
+    hash ^= character.charCodeAt(0);
+    // FNV prime, in 32-bit arithmetic. `>>> 0` keeps it unsigned after the
+    // multiply, which in JavaScript would otherwise go through a float.
+    hash = (hash * 0x01000193) >>> 0;
+  }
+
+  const bucket = hash % 99;
+
+  // Out of stock here. See the note above on why this case has to exist.
+  if (bucket < 11) return 0;
+  // Low, but not empty - between 1 and 9, which is at or under the reorder
+  // threshold the catalogue fixtures use.
+  if (bucket < 20) return 1 + (hash % 9);
+
+  return 12 + (hash % 469);
+}
+
+/**
+ * Put every product in every warehouse.
+ *
+ * The fixture behind "click a warehouse and see its inventory". The screen
+ * itself is driven from the catalogue, so a product with no balance row still
+ * appears - but a list of five hundred zeroes demonstrates nothing, and until
+ * this ran `inventory_balances` was empty in every fresh clone.
+ *
+ * **Idempotent by leaving alone, not by overwriting.** A SKU that already has
+ * a balance row at a warehouse is skipped entirely: a developer who received
+ * 400 units while testing has data worth more than this fixture's opinion, and
+ * a seed that reset it would be a seed nobody dares re-run. Only the missing
+ * rows are created.
+ *
+ * **The ledger is written too.** Every balance this creates gets the RECEIPT
+ * movement that explains it, because a balance with no movement behind it is
+ * precisely the inconsistency the whole append-only design exists to prevent -
+ * and the Movements screen showing stock that arrived from nowhere would teach
+ * a developer that the ledger is optional. The movement carries a `dedupeKey`,
+ * so two seeds racing each other collide on the unique index rather than
+ * booking the stock twice.
+ *
+ * Written directly rather than through `receiveStock` deliberately. That
+ * function is one transaction with a `SELECT ... FOR UPDATE` per SKU, which is
+ * exactly right for a person receiving a delivery and about a thousand
+ * transactions here. This is a fixture writing rows nothing else is touching
+ * yet, in two `createMany` calls.
+ */
+async function seedWarehouseStock(): Promise<{
+  tracked: number;
+  skus: number;
+  created: number;
+  units: number;
+}> {
+  /**
+   * Turn stock tracking on, for the products that have never had it.
+   *
+   * This is the one thing in the seed that edits the catalogue, and it is here
+   * because without it the rest of this function has nothing to do. A product
+   * with `isStockTracked = false` holds no quantity anywhere by definition -
+   * `receiveStock` refuses it, `inventory_balances` has no row for it, and a
+   * warehouse's inventory screen can only ever show it as "not tracked". A
+   * catalogue of medical consumables imported with the flag off is a catalogue
+   * where every warehouse is empty and nothing in the panel explains why.
+   *
+   * Narrow on purpose:
+   *
+   *   - Only unarchived products. An archived one is out of the catalogue and
+   *     turning tracking on for it would put it back in every stock report.
+   *   - Only products that are **not already tracked**, so a product somebody
+   *     deliberately switched tracking off for stays off... which is a real
+   *     limitation: this cannot tell "never configured" from "switched off on
+   *     purpose", because nothing in the schema records the difference. In a
+   *     development fixture that is the right trade; it is also why this runs
+   *     only in the dev seed, which refuses `NODE_ENV=production` outright.
+   *   - `reorderThreshold` is only set where it is still zero, because zero
+   *     means "nobody set one" and a threshold somebody chose is a decision.
+   *
+   * A real deployment turns tracking on per product in the panel. This is the
+   * fixture equivalent, and it says how many it changed.
+   */
+  const tracked = await prisma.product.updateMany({
+    where: { archivedAt: null, isStockTracked: false },
+    // 10 units is a threshold that actually fires against the quantities
+    // `fixtureQuantity` produces - its "low" bucket lands between 1 and 9 - so
+    // the low-stock badge, the low-stock filter and the low-stock alert job
+    // all have something to act on in a fresh clone.
+    data: { isStockTracked: true, reorderThreshold: 10 },
+  });
+
+  await prisma.product.updateMany({
+    where: { archivedAt: null, isStockTracked: true, reorderThreshold: 0 },
+    data: { reorderThreshold: 10 },
+  });
+
+  const [warehouses, products] = await Promise.all([
+    prisma.inventoryLocation.findMany({
+      where: { isActive: true },
+      select: { id: true, code: true },
+      orderBy: { code: 'asc' },
+    }),
+    prisma.product.findMany({
+      where: { archivedAt: null, isStockTracked: true },
+      select: {
+        id: true,
+        variants: { where: { archivedAt: null }, select: { id: true } },
+      },
+      orderBy: { sku: 'asc' },
+    }),
+  ]);
+
+  // One entry per stock-keeping unit: a variant, or the product itself where
+  // it has none. `variantKey` is '' for the latter - the same convention the
+  // unique index uses, and never null, because MariaDB treats every NULL in a
+  // unique index as distinct.
+  interface SkuKey {
+    productId: string;
+    variantId: string | null;
+    variantKey: string;
+  }
+
+  const skus = products.flatMap((product): SkuKey[] =>
+    product.variants.length === 0
+      ? [{ productId: product.id, variantId: null, variantKey: '' }]
+      : product.variants.map((variant) => ({
+          productId: product.id,
+          variantId: variant.id,
+          variantKey: variant.id,
+        })),
+  );
+
+  const existing = await prisma.inventoryBalance.findMany({
+    where: { locationId: { in: warehouses.map((warehouse) => warehouse.id) } },
+    select: { locationId: true, productId: true, variantKey: true },
+  });
+
+  const held = new Set(
+    existing.map((row) => `${row.locationId}:${row.productId}:${row.variantKey}`),
+  );
+
+  const balances: {
+    id: string;
+    productId: string;
+    variantId: string | null;
+    variantKey: string;
+    locationId: string;
+    onHandQty: number;
+  }[] = [];
+
+  const movements: {
+    id: string;
+    productId: string;
+    variantId: string | null;
+    variantKey: string;
+    locationId: string;
+    type: 'RECEIPT';
+    quantityDelta: number;
+    resultingOnHand: number;
+    reason: string;
+    dedupeKey: string;
+  }[] = [];
+
+  let units = 0;
+
+  for (const warehouse of warehouses) {
+    for (const sku of skus) {
+      if (held.has(`${warehouse.id}:${sku.productId}:${sku.variantKey}`)) continue;
+
+      const quantity = fixtureQuantity(warehouse.id, `${sku.productId}:${sku.variantKey}`);
+
+      balances.push({
+        id: newId(),
+        productId: sku.productId,
+        variantId: sku.variantId,
+        variantKey: sku.variantKey,
+        locationId: warehouse.id,
+        onHandQty: quantity,
+      });
+
+      units += quantity;
+
+      // A zero-quantity row gets no movement, because nothing arrived. The
+      // row itself is the statement "this warehouse stocks this item", and
+      // `resultingOnHand` of zero with a delta of zero would be a ledger entry
+      // recording that nothing happened - which the column's own contract
+      // ("never zero") forbids.
+      if (quantity === 0) continue;
+
+      movements.push({
+        id: newId(),
+        productId: sku.productId,
+        variantId: sku.variantId,
+        variantKey: sku.variantKey,
+        locationId: warehouse.id,
+        type: 'RECEIPT',
+        quantityDelta: quantity,
+        resultingOnHand: quantity,
+        reason: `Opening stock installed by the development seed at ${warehouse.code}.`,
+        dedupeKey: `seed:stock:${warehouse.id}:${sku.productId}:${sku.variantKey}`,
+      });
+    }
+  }
+
+  // Chunked, because MariaDB's max_allowed_packet is the limit a single
+  // thousand-row INSERT runs into first and the failure it gives is not one
+  // anybody enjoys reading. 500 rows is comfortably inside the default 1 MB
+  // for rows this narrow.
+  const CHUNK = 500;
+
+  for (let index = 0; index < balances.length; index += CHUNK) {
+    await prisma.inventoryBalance.createMany({ data: balances.slice(index, index + CHUNK) });
+  }
+
+  for (let index = 0; index < movements.length; index += CHUNK) {
+    await prisma.inventoryMovement.createMany({ data: movements.slice(index, index + CHUNK) });
+  }
+
+  return { tracked: tracked.count, skus: skus.length, created: balances.length, units };
 }
 
 async function main(): Promise<void> {
@@ -606,6 +1158,20 @@ async function main(): Promise<void> {
   // only exist once that has run.
   const warehouses = await seedWarehouses();
   console.log(`  warehouses: ${String(warehouses)} seeded (plus the default)`);
+  // After the warehouses, and after whatever installed the catalogue: this
+  // needs both sides of every balance row it writes to exist.
+  const stock = await seedWarehouseStock();
+  console.log(
+    `  warehouse stock: ${String(stock.created)} balance rows created ` +
+      `across ${String(stock.skus)} SKUs, ${String(stock.units)} units ` +
+      `(rows that already existed were left alone)`,
+  );
+  if (stock.tracked > 0) {
+    console.log(
+      `    stock tracking switched on for ${String(stock.tracked)} product(s) that had it off - ` +
+        `a product that is not tracked holds no quantity in any warehouse`,
+    );
+  }
   await seedStaff();
   await seedCustomers();
 

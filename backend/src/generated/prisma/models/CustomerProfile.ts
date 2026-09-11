@@ -384,7 +384,9 @@ export type CustomerProfileWhereInput = {
   couponRedemptions?: Prisma.CouponRedemptionListRelationFilter
   limits?: Prisma.CustomerLimitListRelationFilter
   wishlistItems?: Prisma.WishlistItemListRelationFilter
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteListRelationFilter
   assistantConversations?: Prisma.AssistantConversationListRelationFilter
+  organizationMembership?: Prisma.XOR<Prisma.BuyerOrganizationMemberNullableScalarRelationFilter, Prisma.BuyerOrganizationMemberWhereInput> | null
 }
 
 export type CustomerProfileOrderByWithRelationInput = {
@@ -427,7 +429,9 @@ export type CustomerProfileOrderByWithRelationInput = {
   couponRedemptions?: Prisma.CouponRedemptionOrderByRelationAggregateInput
   limits?: Prisma.CustomerLimitOrderByRelationAggregateInput
   wishlistItems?: Prisma.WishlistItemOrderByRelationAggregateInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteOrderByRelationAggregateInput
   assistantConversations?: Prisma.AssistantConversationOrderByRelationAggregateInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberOrderByWithRelationInput
   _relevance?: Prisma.CustomerProfileOrderByRelevanceInput
 }
 
@@ -474,7 +478,9 @@ export type CustomerProfileWhereUniqueInput = Prisma.AtLeast<{
   couponRedemptions?: Prisma.CouponRedemptionListRelationFilter
   limits?: Prisma.CustomerLimitListRelationFilter
   wishlistItems?: Prisma.WishlistItemListRelationFilter
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteListRelationFilter
   assistantConversations?: Prisma.AssistantConversationListRelationFilter
+  organizationMembership?: Prisma.XOR<Prisma.BuyerOrganizationMemberNullableScalarRelationFilter, Prisma.BuyerOrganizationMemberWhereInput> | null
 }, "id" | "userId" | "customerCode">
 
 export type CustomerProfileOrderByWithAggregationInput = {
@@ -586,7 +592,9 @@ export type CustomerProfileCreateInput = {
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUncheckedCreateInput = {
@@ -628,7 +636,9 @@ export type CustomerProfileUncheckedCreateInput = {
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUpdateInput = {
@@ -670,7 +680,9 @@ export type CustomerProfileUpdateInput = {
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileUncheckedUpdateInput = {
@@ -712,7 +724,9 @@ export type CustomerProfileUncheckedUpdateInput = {
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateManyInput = {
@@ -1030,6 +1044,20 @@ export type CustomerProfileUpdateOneRequiredWithoutPaymentMethodsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerProfileUpdateToOneWithWhereWithoutPaymentMethodsInput, Prisma.CustomerProfileUpdateWithoutPaymentMethodsInput>, Prisma.CustomerProfileUncheckedUpdateWithoutPaymentMethodsInput>
 }
 
+export type CustomerProfileCreateNestedOneWithoutFulfilmentQuotesInput = {
+  create?: Prisma.XOR<Prisma.CustomerProfileCreateWithoutFulfilmentQuotesInput, Prisma.CustomerProfileUncheckedCreateWithoutFulfilmentQuotesInput>
+  connectOrCreate?: Prisma.CustomerProfileCreateOrConnectWithoutFulfilmentQuotesInput
+  connect?: Prisma.CustomerProfileWhereUniqueInput
+}
+
+export type CustomerProfileUpdateOneRequiredWithoutFulfilmentQuotesNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerProfileCreateWithoutFulfilmentQuotesInput, Prisma.CustomerProfileUncheckedCreateWithoutFulfilmentQuotesInput>
+  connectOrCreate?: Prisma.CustomerProfileCreateOrConnectWithoutFulfilmentQuotesInput
+  upsert?: Prisma.CustomerProfileUpsertWithoutFulfilmentQuotesInput
+  connect?: Prisma.CustomerProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerProfileUpdateToOneWithWhereWithoutFulfilmentQuotesInput, Prisma.CustomerProfileUpdateWithoutFulfilmentQuotesInput>, Prisma.CustomerProfileUncheckedUpdateWithoutFulfilmentQuotesInput>
+}
+
 export type CustomerProfileCreateNestedOneWithoutCouponRedemptionsInput = {
   create?: Prisma.XOR<Prisma.CustomerProfileCreateWithoutCouponRedemptionsInput, Prisma.CustomerProfileUncheckedCreateWithoutCouponRedemptionsInput>
   connectOrCreate?: Prisma.CustomerProfileCreateOrConnectWithoutCouponRedemptionsInput
@@ -1104,6 +1132,20 @@ export type CustomerProfileUpdateOneRequiredWithoutWishlistItemsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerProfileUpdateToOneWithWhereWithoutWishlistItemsInput, Prisma.CustomerProfileUpdateWithoutWishlistItemsInput>, Prisma.CustomerProfileUncheckedUpdateWithoutWishlistItemsInput>
 }
 
+export type CustomerProfileCreateNestedOneWithoutOrganizationMembershipInput = {
+  create?: Prisma.XOR<Prisma.CustomerProfileCreateWithoutOrganizationMembershipInput, Prisma.CustomerProfileUncheckedCreateWithoutOrganizationMembershipInput>
+  connectOrCreate?: Prisma.CustomerProfileCreateOrConnectWithoutOrganizationMembershipInput
+  connect?: Prisma.CustomerProfileWhereUniqueInput
+}
+
+export type CustomerProfileUpdateOneRequiredWithoutOrganizationMembershipNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerProfileCreateWithoutOrganizationMembershipInput, Prisma.CustomerProfileUncheckedCreateWithoutOrganizationMembershipInput>
+  connectOrCreate?: Prisma.CustomerProfileCreateOrConnectWithoutOrganizationMembershipInput
+  upsert?: Prisma.CustomerProfileUpsertWithoutOrganizationMembershipInput
+  connect?: Prisma.CustomerProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerProfileUpdateToOneWithWhereWithoutOrganizationMembershipInput, Prisma.CustomerProfileUpdateWithoutOrganizationMembershipInput>, Prisma.CustomerProfileUncheckedUpdateWithoutOrganizationMembershipInput>
+}
+
 export type CustomerProfileCreateWithoutUserInput = {
   id: string
   fullName: string
@@ -1142,7 +1184,9 @@ export type CustomerProfileCreateWithoutUserInput = {
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUncheckedCreateWithoutUserInput = {
@@ -1183,7 +1227,9 @@ export type CustomerProfileUncheckedCreateWithoutUserInput = {
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileCreateOrConnectWithoutUserInput = {
@@ -1240,7 +1286,9 @@ export type CustomerProfileUpdateWithoutUserInput = {
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileUncheckedUpdateWithoutUserInput = {
@@ -1281,7 +1329,9 @@ export type CustomerProfileUncheckedUpdateWithoutUserInput = {
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutAddressesInput = {
@@ -1322,7 +1372,9 @@ export type CustomerProfileCreateWithoutAddressesInput = {
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUncheckedCreateWithoutAddressesInput = {
@@ -1363,7 +1415,9 @@ export type CustomerProfileUncheckedCreateWithoutAddressesInput = {
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileCreateOrConnectWithoutAddressesInput = {
@@ -1420,7 +1474,9 @@ export type CustomerProfileUpdateWithoutAddressesInput = {
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileUncheckedUpdateWithoutAddressesInput = {
@@ -1461,7 +1517,9 @@ export type CustomerProfileUncheckedUpdateWithoutAddressesInput = {
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutCartsInput = {
@@ -1502,7 +1560,9 @@ export type CustomerProfileCreateWithoutCartsInput = {
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUncheckedCreateWithoutCartsInput = {
@@ -1543,7 +1603,9 @@ export type CustomerProfileUncheckedCreateWithoutCartsInput = {
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileCreateOrConnectWithoutCartsInput = {
@@ -1600,7 +1662,9 @@ export type CustomerProfileUpdateWithoutCartsInput = {
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileUncheckedUpdateWithoutCartsInput = {
@@ -1641,7 +1705,9 @@ export type CustomerProfileUncheckedUpdateWithoutCartsInput = {
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutOrdersInput = {
@@ -1682,7 +1748,9 @@ export type CustomerProfileCreateWithoutOrdersInput = {
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUncheckedCreateWithoutOrdersInput = {
@@ -1723,7 +1791,9 @@ export type CustomerProfileUncheckedCreateWithoutOrdersInput = {
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileCreateOrConnectWithoutOrdersInput = {
@@ -1780,7 +1850,9 @@ export type CustomerProfileUpdateWithoutOrdersInput = {
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileUncheckedUpdateWithoutOrdersInput = {
@@ -1821,7 +1893,9 @@ export type CustomerProfileUncheckedUpdateWithoutOrdersInput = {
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutSchedulesInput = {
@@ -1862,7 +1936,9 @@ export type CustomerProfileCreateWithoutSchedulesInput = {
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUncheckedCreateWithoutSchedulesInput = {
@@ -1903,7 +1979,9 @@ export type CustomerProfileUncheckedCreateWithoutSchedulesInput = {
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileCreateOrConnectWithoutSchedulesInput = {
@@ -1960,7 +2038,9 @@ export type CustomerProfileUpdateWithoutSchedulesInput = {
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileUncheckedUpdateWithoutSchedulesInput = {
@@ -2001,7 +2081,9 @@ export type CustomerProfileUncheckedUpdateWithoutSchedulesInput = {
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutPaymentMethodsInput = {
@@ -2042,7 +2124,9 @@ export type CustomerProfileCreateWithoutPaymentMethodsInput = {
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUncheckedCreateWithoutPaymentMethodsInput = {
@@ -2083,7 +2167,9 @@ export type CustomerProfileUncheckedCreateWithoutPaymentMethodsInput = {
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileCreateOrConnectWithoutPaymentMethodsInput = {
@@ -2140,7 +2226,9 @@ export type CustomerProfileUpdateWithoutPaymentMethodsInput = {
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileUncheckedUpdateWithoutPaymentMethodsInput = {
@@ -2181,7 +2269,197 @@ export type CustomerProfileUncheckedUpdateWithoutPaymentMethodsInput = {
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+}
+
+export type CustomerProfileCreateWithoutFulfilmentQuotesInput = {
+  id: string
+  fullName: string
+  firstName?: string | null
+  lastName?: string | null
+  organization?: string | null
+  department?: string | null
+  jobTitle?: string | null
+  phone?: string | null
+  gstin?: string | null
+  customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
+  requiresOrderApproval?: boolean
+  internalNotes?: string | null
+  preferredCountry?: string | null
+  preferredCurrency?: string | null
+  localeChosenAt?: Date | string | null
+  detectedCountry?: string | null
+  detectedAt?: Date | string | null
+  consentAcceptedAt?: Date | string | null
+  consentVersion?: string | null
+  invitedById?: string | null
+  invitedAt?: Date | string | null
+  activatedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutCustomerProfileInput
+  addresses?: Prisma.AddressCreateNestedManyWithoutCustomerProfileInput
+  carts?: Prisma.CartCreateNestedManyWithoutCustomerProfileInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCustomerProfileInput
+  schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutCustomerProfileInput
+  paymentMethods?: Prisma.CustomerPaymentMethodCreateNestedManyWithoutCustomerProfileInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingCreateNestedOneWithoutCustomerProfileInput
+  couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
+  assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
+}
+
+export type CustomerProfileUncheckedCreateWithoutFulfilmentQuotesInput = {
+  id: string
+  userId: string
+  fullName: string
+  firstName?: string | null
+  lastName?: string | null
+  organization?: string | null
+  department?: string | null
+  jobTitle?: string | null
+  phone?: string | null
+  gstin?: string | null
+  customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
+  requiresOrderApproval?: boolean
+  internalNotes?: string | null
+  preferredCountry?: string | null
+  preferredCurrency?: string | null
+  localeChosenAt?: Date | string | null
+  detectedCountry?: string | null
+  detectedAt?: Date | string | null
+  consentAcceptedAt?: Date | string | null
+  consentVersion?: string | null
+  invitedById?: string | null
+  invitedAt?: Date | string | null
+  activatedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  addresses?: Prisma.AddressUncheckedCreateNestedManyWithoutCustomerProfileInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutCustomerProfileInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerProfileInput
+  schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutCustomerProfileInput
+  paymentMethods?: Prisma.CustomerPaymentMethodUncheckedCreateNestedManyWithoutCustomerProfileInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedCreateNestedOneWithoutCustomerProfileInput
+  couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
+  assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
+}
+
+export type CustomerProfileCreateOrConnectWithoutFulfilmentQuotesInput = {
+  where: Prisma.CustomerProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerProfileCreateWithoutFulfilmentQuotesInput, Prisma.CustomerProfileUncheckedCreateWithoutFulfilmentQuotesInput>
+}
+
+export type CustomerProfileUpsertWithoutFulfilmentQuotesInput = {
+  update: Prisma.XOR<Prisma.CustomerProfileUpdateWithoutFulfilmentQuotesInput, Prisma.CustomerProfileUncheckedUpdateWithoutFulfilmentQuotesInput>
+  create: Prisma.XOR<Prisma.CustomerProfileCreateWithoutFulfilmentQuotesInput, Prisma.CustomerProfileUncheckedCreateWithoutFulfilmentQuotesInput>
+  where?: Prisma.CustomerProfileWhereInput
+}
+
+export type CustomerProfileUpdateToOneWithWhereWithoutFulfilmentQuotesInput = {
+  where?: Prisma.CustomerProfileWhereInput
+  data: Prisma.XOR<Prisma.CustomerProfileUpdateWithoutFulfilmentQuotesInput, Prisma.CustomerProfileUncheckedUpdateWithoutFulfilmentQuotesInput>
+}
+
+export type CustomerProfileUpdateWithoutFulfilmentQuotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localeChosenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  detectedCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutCustomerProfileNestedInput
+  addresses?: Prisma.AddressUpdateManyWithoutCustomerProfileNestedInput
+  carts?: Prisma.CartUpdateManyWithoutCustomerProfileNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCustomerProfileNestedInput
+  schedules?: Prisma.RecurringScheduleUpdateManyWithoutCustomerProfileNestedInput
+  paymentMethods?: Prisma.CustomerPaymentMethodUpdateManyWithoutCustomerProfileNestedInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingUpdateOneWithoutCustomerProfileNestedInput
+  couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
+  assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
+}
+
+export type CustomerProfileUncheckedUpdateWithoutFulfilmentQuotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localeChosenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  detectedCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  addresses?: Prisma.AddressUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  paymentMethods?: Prisma.CustomerPaymentMethodUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutCouponRedemptionsInput = {
@@ -2222,7 +2500,9 @@ export type CustomerProfileCreateWithoutCouponRedemptionsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingCreateNestedOneWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUncheckedCreateWithoutCouponRedemptionsInput = {
@@ -2263,7 +2543,9 @@ export type CustomerProfileUncheckedCreateWithoutCouponRedemptionsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedCreateNestedOneWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileCreateOrConnectWithoutCouponRedemptionsInput = {
@@ -2320,7 +2602,9 @@ export type CustomerProfileUpdateWithoutCouponRedemptionsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUpdateOneWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileUncheckedUpdateWithoutCouponRedemptionsInput = {
@@ -2361,7 +2645,9 @@ export type CustomerProfileUncheckedUpdateWithoutCouponRedemptionsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedUpdateOneWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutLimitsInput = {
@@ -2402,7 +2688,9 @@ export type CustomerProfileCreateWithoutLimitsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingCreateNestedOneWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUncheckedCreateWithoutLimitsInput = {
@@ -2443,7 +2731,9 @@ export type CustomerProfileUncheckedCreateWithoutLimitsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedCreateNestedOneWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileCreateOrConnectWithoutLimitsInput = {
@@ -2500,7 +2790,9 @@ export type CustomerProfileUpdateWithoutLimitsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUpdateOneWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileUncheckedUpdateWithoutLimitsInput = {
@@ -2541,7 +2833,9 @@ export type CustomerProfileUncheckedUpdateWithoutLimitsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedUpdateOneWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutAssistantConversationsInput = {
@@ -2583,6 +2877,8 @@ export type CustomerProfileCreateWithoutAssistantConversationsInput = {
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUncheckedCreateWithoutAssistantConversationsInput = {
@@ -2624,6 +2920,8 @@ export type CustomerProfileUncheckedCreateWithoutAssistantConversationsInput = {
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileCreateOrConnectWithoutAssistantConversationsInput = {
@@ -2681,6 +2979,8 @@ export type CustomerProfileUpdateWithoutAssistantConversationsInput = {
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileUncheckedUpdateWithoutAssistantConversationsInput = {
@@ -2722,6 +3022,8 @@ export type CustomerProfileUncheckedUpdateWithoutAssistantConversationsInput = {
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutAutoPaySettingInput = {
@@ -2762,7 +3064,9 @@ export type CustomerProfileCreateWithoutAutoPaySettingInput = {
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
   wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUncheckedCreateWithoutAutoPaySettingInput = {
@@ -2803,7 +3107,9 @@ export type CustomerProfileUncheckedCreateWithoutAutoPaySettingInput = {
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
   wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileCreateOrConnectWithoutAutoPaySettingInput = {
@@ -2860,7 +3166,9 @@ export type CustomerProfileUpdateWithoutAutoPaySettingInput = {
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
   wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileUncheckedUpdateWithoutAutoPaySettingInput = {
@@ -2901,7 +3209,9 @@ export type CustomerProfileUncheckedUpdateWithoutAutoPaySettingInput = {
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
   wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileCreateWithoutWishlistItemsInput = {
@@ -2942,7 +3252,9 @@ export type CustomerProfileCreateWithoutWishlistItemsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingCreateNestedOneWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileUncheckedCreateWithoutWishlistItemsInput = {
@@ -2983,7 +3295,9 @@ export type CustomerProfileUncheckedCreateWithoutWishlistItemsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedCreateNestedOneWithoutCustomerProfileInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
   limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutCustomerProfileInput
   assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedCreateNestedOneWithoutCustomerProfileInput
 }
 
 export type CustomerProfileCreateOrConnectWithoutWishlistItemsInput = {
@@ -3040,7 +3354,9 @@ export type CustomerProfileUpdateWithoutWishlistItemsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUpdateOneWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUpdateOneWithoutCustomerProfileNestedInput
 }
 
 export type CustomerProfileUncheckedUpdateWithoutWishlistItemsInput = {
@@ -3081,6 +3397,196 @@ export type CustomerProfileUncheckedUpdateWithoutWishlistItemsInput = {
   autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedUpdateOneWithoutCustomerProfileNestedInput
   couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
   limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  organizationMembership?: Prisma.BuyerOrganizationMemberUncheckedUpdateOneWithoutCustomerProfileNestedInput
+}
+
+export type CustomerProfileCreateWithoutOrganizationMembershipInput = {
+  id: string
+  fullName: string
+  firstName?: string | null
+  lastName?: string | null
+  organization?: string | null
+  department?: string | null
+  jobTitle?: string | null
+  phone?: string | null
+  gstin?: string | null
+  customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
+  requiresOrderApproval?: boolean
+  internalNotes?: string | null
+  preferredCountry?: string | null
+  preferredCurrency?: string | null
+  localeChosenAt?: Date | string | null
+  detectedCountry?: string | null
+  detectedAt?: Date | string | null
+  consentAcceptedAt?: Date | string | null
+  consentVersion?: string | null
+  invitedById?: string | null
+  invitedAt?: Date | string | null
+  activatedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutCustomerProfileInput
+  addresses?: Prisma.AddressCreateNestedManyWithoutCustomerProfileInput
+  carts?: Prisma.CartCreateNestedManyWithoutCustomerProfileInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCustomerProfileInput
+  schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutCustomerProfileInput
+  paymentMethods?: Prisma.CustomerPaymentMethodCreateNestedManyWithoutCustomerProfileInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingCreateNestedOneWithoutCustomerProfileInput
+  couponRedemptions?: Prisma.CouponRedemptionCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutCustomerProfileInput
+  assistantConversations?: Prisma.AssistantConversationCreateNestedManyWithoutCustomerProfileInput
+}
+
+export type CustomerProfileUncheckedCreateWithoutOrganizationMembershipInput = {
+  id: string
+  userId: string
+  fullName: string
+  firstName?: string | null
+  lastName?: string | null
+  organization?: string | null
+  department?: string | null
+  jobTitle?: string | null
+  phone?: string | null
+  gstin?: string | null
+  customerCode?: string | null
+  vatNumber?: string | null
+  vatNumberValid?: boolean | null
+  vatNumberCheckedAt?: Date | string | null
+  vatNumberReference?: string | null
+  requiresOrderApproval?: boolean
+  internalNotes?: string | null
+  preferredCountry?: string | null
+  preferredCurrency?: string | null
+  localeChosenAt?: Date | string | null
+  detectedCountry?: string | null
+  detectedAt?: Date | string | null
+  consentAcceptedAt?: Date | string | null
+  consentVersion?: string | null
+  invitedById?: string | null
+  invitedAt?: Date | string | null
+  activatedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  addresses?: Prisma.AddressUncheckedCreateNestedManyWithoutCustomerProfileInput
+  carts?: Prisma.CartUncheckedCreateNestedManyWithoutCustomerProfileInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerProfileInput
+  schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutCustomerProfileInput
+  paymentMethods?: Prisma.CustomerPaymentMethodUncheckedCreateNestedManyWithoutCustomerProfileInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedCreateNestedOneWithoutCustomerProfileInput
+  couponRedemptions?: Prisma.CouponRedemptionUncheckedCreateNestedManyWithoutCustomerProfileInput
+  limits?: Prisma.CustomerLimitUncheckedCreateNestedManyWithoutCustomerProfileInput
+  wishlistItems?: Prisma.WishlistItemUncheckedCreateNestedManyWithoutCustomerProfileInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutCustomerProfileInput
+  assistantConversations?: Prisma.AssistantConversationUncheckedCreateNestedManyWithoutCustomerProfileInput
+}
+
+export type CustomerProfileCreateOrConnectWithoutOrganizationMembershipInput = {
+  where: Prisma.CustomerProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerProfileCreateWithoutOrganizationMembershipInput, Prisma.CustomerProfileUncheckedCreateWithoutOrganizationMembershipInput>
+}
+
+export type CustomerProfileUpsertWithoutOrganizationMembershipInput = {
+  update: Prisma.XOR<Prisma.CustomerProfileUpdateWithoutOrganizationMembershipInput, Prisma.CustomerProfileUncheckedUpdateWithoutOrganizationMembershipInput>
+  create: Prisma.XOR<Prisma.CustomerProfileCreateWithoutOrganizationMembershipInput, Prisma.CustomerProfileUncheckedCreateWithoutOrganizationMembershipInput>
+  where?: Prisma.CustomerProfileWhereInput
+}
+
+export type CustomerProfileUpdateToOneWithWhereWithoutOrganizationMembershipInput = {
+  where?: Prisma.CustomerProfileWhereInput
+  data: Prisma.XOR<Prisma.CustomerProfileUpdateWithoutOrganizationMembershipInput, Prisma.CustomerProfileUncheckedUpdateWithoutOrganizationMembershipInput>
+}
+
+export type CustomerProfileUpdateWithoutOrganizationMembershipInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localeChosenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  detectedCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutCustomerProfileNestedInput
+  addresses?: Prisma.AddressUpdateManyWithoutCustomerProfileNestedInput
+  carts?: Prisma.CartUpdateManyWithoutCustomerProfileNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCustomerProfileNestedInput
+  schedules?: Prisma.RecurringScheduleUpdateManyWithoutCustomerProfileNestedInput
+  paymentMethods?: Prisma.CustomerPaymentMethodUpdateManyWithoutCustomerProfileNestedInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingUpdateOneWithoutCustomerProfileNestedInput
+  couponRedemptions?: Prisma.CouponRedemptionUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutCustomerProfileNestedInput
+  assistantConversations?: Prisma.AssistantConversationUpdateManyWithoutCustomerProfileNestedInput
+}
+
+export type CustomerProfileUncheckedUpdateWithoutOrganizationMembershipInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  organization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatNumberValid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  vatNumberCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vatNumberReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiresOrderApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  internalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localeChosenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  detectedCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invitedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  addresses?: Prisma.AddressUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  carts?: Prisma.CartUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  paymentMethods?: Prisma.CustomerPaymentMethodUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  autoPaySetting?: Prisma.CustomerAutoPaySettingUncheckedUpdateOneWithoutCustomerProfileNestedInput
+  couponRedemptions?: Prisma.CouponRedemptionUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  limits?: Prisma.CustomerLimitUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  wishlistItems?: Prisma.WishlistItemUncheckedUpdateManyWithoutCustomerProfileNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutCustomerProfileNestedInput
   assistantConversations?: Prisma.AssistantConversationUncheckedUpdateManyWithoutCustomerProfileNestedInput
 }
 
@@ -3098,6 +3604,7 @@ export type CustomerProfileCountOutputType = {
   couponRedemptions: number
   limits: number
   wishlistItems: number
+  fulfilmentQuotes: number
   assistantConversations: number
 }
 
@@ -3110,6 +3617,7 @@ export type CustomerProfileCountOutputTypeSelect<ExtArgs extends runtime.Types.E
   couponRedemptions?: boolean | CustomerProfileCountOutputTypeCountCouponRedemptionsArgs
   limits?: boolean | CustomerProfileCountOutputTypeCountLimitsArgs
   wishlistItems?: boolean | CustomerProfileCountOutputTypeCountWishlistItemsArgs
+  fulfilmentQuotes?: boolean | CustomerProfileCountOutputTypeCountFulfilmentQuotesArgs
   assistantConversations?: boolean | CustomerProfileCountOutputTypeCountAssistantConversationsArgs
 }
 
@@ -3182,6 +3690,13 @@ export type CustomerProfileCountOutputTypeCountWishlistItemsArgs<ExtArgs extends
 /**
  * CustomerProfileCountOutputType without action
  */
+export type CustomerProfileCountOutputTypeCountFulfilmentQuotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FulfilmentQuoteWhereInput
+}
+
+/**
+ * CustomerProfileCountOutputType without action
+ */
 export type CustomerProfileCountOutputTypeCountAssistantConversationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.AssistantConversationWhereInput
 }
@@ -3227,7 +3742,9 @@ export type CustomerProfileSelect<ExtArgs extends runtime.Types.Extensions.Inter
   couponRedemptions?: boolean | Prisma.CustomerProfile$couponRedemptionsArgs<ExtArgs>
   limits?: boolean | Prisma.CustomerProfile$limitsArgs<ExtArgs>
   wishlistItems?: boolean | Prisma.CustomerProfile$wishlistItemsArgs<ExtArgs>
+  fulfilmentQuotes?: boolean | Prisma.CustomerProfile$fulfilmentQuotesArgs<ExtArgs>
   assistantConversations?: boolean | Prisma.CustomerProfile$assistantConversationsArgs<ExtArgs>
+  organizationMembership?: boolean | Prisma.CustomerProfile$organizationMembershipArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerProfileCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customerProfile"]>
 
@@ -3277,7 +3794,9 @@ export type CustomerProfileInclude<ExtArgs extends runtime.Types.Extensions.Inte
   couponRedemptions?: boolean | Prisma.CustomerProfile$couponRedemptionsArgs<ExtArgs>
   limits?: boolean | Prisma.CustomerProfile$limitsArgs<ExtArgs>
   wishlistItems?: boolean | Prisma.CustomerProfile$wishlistItemsArgs<ExtArgs>
+  fulfilmentQuotes?: boolean | Prisma.CustomerProfile$fulfilmentQuotesArgs<ExtArgs>
   assistantConversations?: boolean | Prisma.CustomerProfile$assistantConversationsArgs<ExtArgs>
+  organizationMembership?: boolean | Prisma.CustomerProfile$organizationMembershipArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerProfileCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -3300,7 +3819,14 @@ export type $CustomerProfilePayload<ExtArgs extends runtime.Types.Extensions.Int
     couponRedemptions: Prisma.$CouponRedemptionPayload<ExtArgs>[]
     limits: Prisma.$CustomerLimitPayload<ExtArgs>[]
     wishlistItems: Prisma.$WishlistItemPayload<ExtArgs>[]
+    fulfilmentQuotes: Prisma.$FulfilmentQuotePayload<ExtArgs>[]
     assistantConversations: Prisma.$AssistantConversationPayload<ExtArgs>[]
+    /**
+     * Their place in a buyer organisation, which is what owns an ERP
+     * connection. At most one - see `BuyerOrganizationMember`, where the
+     * uniqueness is enforced and the reason for it is written down.
+     */
+    organizationMembership: Prisma.$BuyerOrganizationMemberPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3739,7 +4265,9 @@ export interface Prisma__CustomerProfileClient<T, Null = never, ExtArgs extends 
   couponRedemptions<T extends Prisma.CustomerProfile$couponRedemptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$couponRedemptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CouponRedemptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   limits<T extends Prisma.CustomerProfile$limitsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$limitsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerLimitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   wishlistItems<T extends Prisma.CustomerProfile$wishlistItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$wishlistItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WishlistItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  fulfilmentQuotes<T extends Prisma.CustomerProfile$fulfilmentQuotesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$fulfilmentQuotesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FulfilmentQuotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assistantConversations<T extends Prisma.CustomerProfile$assistantConversationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$assistantConversationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssistantConversationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  organizationMembership<T extends Prisma.CustomerProfile$organizationMembershipArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$organizationMembershipArgs<ExtArgs>>): Prisma.Prisma__BuyerOrganizationMemberClient<runtime.Types.Result.GetResult<Prisma.$BuyerOrganizationMemberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4357,6 +4885,30 @@ export type CustomerProfile$wishlistItemsArgs<ExtArgs extends runtime.Types.Exte
 }
 
 /**
+ * CustomerProfile.fulfilmentQuotes
+ */
+export type CustomerProfile$fulfilmentQuotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FulfilmentQuote
+   */
+  select?: Prisma.FulfilmentQuoteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FulfilmentQuote
+   */
+  omit?: Prisma.FulfilmentQuoteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FulfilmentQuoteInclude<ExtArgs> | null
+  where?: Prisma.FulfilmentQuoteWhereInput
+  orderBy?: Prisma.FulfilmentQuoteOrderByWithRelationInput | Prisma.FulfilmentQuoteOrderByWithRelationInput[]
+  cursor?: Prisma.FulfilmentQuoteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FulfilmentQuoteScalarFieldEnum | Prisma.FulfilmentQuoteScalarFieldEnum[]
+}
+
+/**
  * CustomerProfile.assistantConversations
  */
 export type CustomerProfile$assistantConversationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -4378,6 +4930,25 @@ export type CustomerProfile$assistantConversationsArgs<ExtArgs extends runtime.T
   take?: number
   skip?: number
   distinct?: Prisma.AssistantConversationScalarFieldEnum | Prisma.AssistantConversationScalarFieldEnum[]
+}
+
+/**
+ * CustomerProfile.organizationMembership
+ */
+export type CustomerProfile$organizationMembershipArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BuyerOrganizationMember
+   */
+  select?: Prisma.BuyerOrganizationMemberSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BuyerOrganizationMember
+   */
+  omit?: Prisma.BuyerOrganizationMemberOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BuyerOrganizationMemberInclude<ExtArgs> | null
+  where?: Prisma.BuyerOrganizationMemberWhereInput
 }
 
 /**

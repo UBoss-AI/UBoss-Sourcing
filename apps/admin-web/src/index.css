@@ -592,6 +592,244 @@
   .skeleton {
     @apply animate-pulse rounded bg-border;
   }
+
+  /*
+   * The warehouse shelf: a real three-dimensional space, in CSS.
+   *
+   * Written here rather than as Tailwind arbitrary values because this is a
+   * *system* of rules that have to agree with each other - a card that turns,
+   * four planes inside it at four depths, a shadow surface behind it, a hover
+   * state and a reduced-motion escape - and that reads as one thing here and
+   * as scattered guesswork spread across a component. It also cannot be
+   * inline: the reduced-motion reset needs a media query, and an inline
+   * transform would beat any class trying to undo it.
+   *
+   * TWO RULES THIS FILE LEARNED THE HARD WAY
+   *
+   * **The perspective is per card, never per grid.** It was on the grid, with
+   * the vanishing point at the top centre of the whole wall, because one
+   * shared vanishing point makes a row of cards read as one surface. It is
+   * also wrong for cards that contain text: a `translateZ` is projected
+   * *away from the vanishing point*, so a plane 26px forward in a card 400px
+   * from the origin is displaced six or seven pixels sideways and down from
+   * its own layout box - and the price line landed on top of the badges. With
+   * the perspective on each card, its origin is that card's own centre and a
+   * `translateZ` only scales, symmetrically, by about one per cent. Nothing
+   * moves off its box.
+   *
+   * **A transform above a button must never change between the press and the
+   * release.** That is the rule the whole arrangement satisfies, and finding
+   * it took an event log:
+   *
+   *     mousedown on BUTTON              @237,270
+   *     mouseup   on DIV.mt-auto pt-3    @237,270
+   *     click     on DIV.mt-auto pt-3    @237,270
+   *
+   * Identical coordinates, and the release landed on the *wrapper*. Under a
+   * 3D-transformed ancestor, a transform that moves mid-press takes the hit
+   * region with it, so the release lands on the nearest common ancestor -
+   * which has no handler - and the "Show all SKUs" disclosure silently does
+   * not open. A second press works, because by then the movement has
+   * finished; that is exactly the shape of bug reported as "sometimes it does
+   * nothing".
+   *
+   * Three things moved a button that way, and each has its own answer rather
+   * than being deleted:
+   *
+   *   1. **The design system's `Button`**, which carries
+   *      `active:translate-y-px` and transitions `transform`. Neutralised for
+   *      the shelf only, by the unlayered rule after this block - see the note
+   *      there for why it cannot live inside `@layer components`.
+   *   2. **The tilt that follows the pointer.** Frozen for as long as a
+   *      pointer is held down, in `useTilt`. The card holds still while it is
+   *      being pressed, which is what a physical object does anyway.
+   *   3. **A lift on hover.** Moved off the card and onto the shadow surface
+   *      behind it and the photograph, neither of which is an ancestor of
+   *      anything clickable. The card reads as rising; nothing a reader is
+   *      aiming at moves.
+   *
+   * One thing that cannot be made safe, recorded so nobody tries it again: a
+   * rotated plate *behind* upright content. Paint order in a `preserve-3d`
+   * context follows Z position rather than DOM order, so the half of the plate
+   * leaning towards the reader paints **in front of** the text it is meant to
+   * sit behind. Pushing it back far enough means clearing
+   * `half the card's height x sin(angle)`, and these cards range from 300 to
+   * 900 pixels tall as their disclosures open.
+   *
+   * WHY THE SHELF IS TILTED AT REST
+   *
+   * A card that is flat until somebody points at it is a flat card: the depth
+   * is something the reader has to discover, and most never move the mouse
+   * over a grid they are only scanning. So the wall recedes on its own - four
+   * degrees, enough to read as a physical surface and not enough to skew the
+   * type it carries. The pointer then adds to it, which is what makes a card
+   * feel *turned* rather than switched into a different state.
+   */
+  .shelf-grid {
+    perspective-origin: 50% 50%;
+  }
+
+  /*
+   * The card's own 3D space.
+   *
+   * `perspective` applies to an element's *children*, so this is the shell and
+   * `.shelf-tilt` inside it is what turns. Per card rather than per grid - see
+   * the first rule above.
+   */
+  .shelf-plate {
+    perspective: 1300px;
+
+    /*
+     * The three angles live here, on the same element `useTilt` writes to.
+     *
+     * That is not arbitrary. Custom properties inherit, so `.shelf-tilt`
+     * inside can read them - but if `.shelf-tilt` *declared* its own
+     * `--tilt-x: 0deg`, that declaration would shadow the value inherited
+     * from here and the inline style would have no effect at all. Declaring
+     * them on the element the hook sets them on means the inline value simply
+     * wins, the way an inline style should.
+     */
+    --shelf-rest: 4deg;
+    --tilt-x: 0deg;
+    --tilt-y: 0deg;
+  }
+
+  /*
+   * The card, turned.
+   *
+   * `--tilt-x` and `--tilt-y` are written by `useTilt` on the element above as
+   * the pointer moves, and frozen by it for as long as a pointer is held down.
+   * Both default to zero, so a card nobody has pointed at sits on the resting
+   * angle alone.
+   */
+  .shelf-tilt {
+    transform-style: preserve-3d;
+    transform: rotateX(calc(var(--shelf-rest) + var(--tilt-x))) rotateY(var(--tilt-y));
+    /*
+     * Transform only, and deliberately: it is composited, so a grid of
+     * twenty-five of these turns on the GPU without the page being laid out
+     * once. `will-change` is *not* set - it would promote every card in the
+     * list to its own layer for the whole time the dialog is open, which on a
+     * long page costs more memory than the animation saves.
+     */
+    transition: transform var(--dur-base) var(--ease-ui);
+  }
+
+  /*
+   * The shadow the card casts on the wall behind it.
+   *
+   * Its own surface pushed back on Z rather than a `box-shadow`, and the two
+   * are not the same picture: a box-shadow is painted in the element's own
+   * plane at a fixed offset, where this is a real surface further away, so it
+   * grows and softens as the card comes forward the way a shadow does.
+   *
+   * A direct child of `.shelf-plate` rather than of `.shelf-tilt`, so it does
+   * not rotate with the card. That is the safe half of a trade: it means the
+   * shadow never swings forward past the card's own plane, whatever the card's
+   * height, which is the failure recorded at the top of this block.
+   */
+  .shelf-shadow {
+    transform: translateZ(-30px) scale(0.94) translateY(8px);
+    background: rgb(var(--ink) / 0.22);
+    filter: blur(14px);
+    transition:
+      transform var(--dur-base) var(--ease-ui),
+      filter var(--dur-base) var(--ease-ui),
+      background-color var(--dur-base) var(--ease-ui);
+  }
+
+  .shelf-plate:hover .shelf-shadow,
+  .shelf-plate:focus-within .shelf-shadow {
+    transform: translateZ(-30px) scale(1) translateY(16px);
+    background: rgb(var(--ink) / 0.34);
+    filter: blur(22px);
+  }
+
+  /*
+   * The planes inside a card, named by what sits on them.
+   *
+   * Shallow on purpose. At 1300px of perspective a plane at 14px is scaled by
+   * about one per cent, which on a 330px card is under two pixels at the edges
+   * - inside the card's own padding, so nothing can reach its neighbour. The
+   * depths still read as an order: the photograph nearest, the quantity next,
+   * the title barely off the plate.
+   */
+  .shelf-media {
+    transform: translateZ(14px);
+    transition: transform var(--dur-base) var(--ease-ui);
+  }
+
+  .shelf-title {
+    transform: translateZ(4px);
+  }
+
+  .shelf-figure {
+    transform: translateZ(10px);
+  }
+
+  /*
+   * The photograph comes further out as the pointer arrives.
+   *
+   * Safe for the same reason the shadow is: a picture is an ancestor of
+   * nothing a reader can click.
+   */
+  .shelf-plate:hover .shelf-media {
+    transform: translateZ(26px);
+  }
+
+  /*
+   * A reader who asked for no motion gets a flat, ordinary card grid.
+   *
+   * Every plane is collapsed rather than only the transitions being removed:
+   * the resting tilt is not an animation, so switching off the transitions
+   * alone would leave a permanently skewed grid - which is precisely the
+   * thing somebody setting this preference is asking not to be given.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    .shelf-plate {
+      perspective: none;
+    }
+
+    .shelf-tilt,
+    .shelf-media,
+    .shelf-title,
+    .shelf-figure,
+    .shelf-plate:hover .shelf-media {
+      transform: none;
+      transition: none;
+    }
+
+    .shelf-shadow {
+      display: none;
+    }
+  }
+}
+
+/*
+ * The shelf's buttons do not move when they are pressed.
+ *
+ * **Outside every `@layer`, and that is the whole mechanism.** Tailwind's
+ * utilities live in `@layer utilities`, and in the CSS cascade an unlayered
+ * declaration beats *any* layered one regardless of specificity - so this is
+ * the only way a rule in this file can override `active:translate-y-px`
+ * without `!important`. A `@layer components` rule, however specific, loses.
+ *
+ * Why override it at all: that one-pixel press is right on every other screen
+ * in the panel, and wrong inside a card that is rotated in 3D. A transform
+ * that starts moving on `mousedown` is guaranteed to still be moving at
+ * `mouseup`, and under a 3D-transformed ancestor the hit region goes with it -
+ * so the release lands on a wrapper with no handler and the click is lost. The
+ * full account, with the event log, is at the top of the `.shelf-*` block
+ * above.
+ *
+ * Scoped to `.shelf-tilt`, so it reaches the cards and nothing else. Only the
+ * transform is touched: the press still changes colour, and the focus ring is
+ * untouched, so a keyboard user loses nothing.
+ */
+.shelf-tilt button:active,
+.shelf-tilt a:active,
+.shelf-tilt [role='button']:active {
+  transform: none;
 }
 
 @layer utilities {

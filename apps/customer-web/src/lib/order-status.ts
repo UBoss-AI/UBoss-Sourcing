@@ -119,3 +119,32 @@ export function scheduleStatusLabel(t: Translate, status: string): string {
   const key = labels[status];
   return key === undefined ? status : t(key);
 }
+
+/**
+ * One delivery cycle's status.
+ *
+ * A plan and one of its cycles are different things and read differently, so
+ * this is separate from `scheduleStatusTone` above. Green here does mean
+ * "finished, and it worked" — a completed occurrence produced an order and
+ * took the money — while a cycle the engine is still working through is
+ * `brand`, because it is in progress rather than in trouble.
+ *
+ * SKIPPED is neutral on purpose. It covers both a cycle the customer withdrew
+ * and one the engine held because a product was short, and neither is a
+ * failure: the plan carries on either way, and the sentence beside the chip is
+ * what distinguishes them.
+ */
+export function occurrenceStatusTone(status: string): BadgeTone {
+  if (status === 'COMPLETED' || status === 'PAID') return 'success';
+  if (status === 'FAILED') return 'danger';
+  if (status === 'ACTION_REQUIRED') return 'warning';
+  if (
+    status === 'AWAITING_VALIDATION' ||
+    status === 'PAYMENT_PENDING' ||
+    status === 'PROCESSING' ||
+    status === 'PAID_ERP_PENDING'
+  ) {
+    return 'brand';
+  }
+  return 'neutral';
+}

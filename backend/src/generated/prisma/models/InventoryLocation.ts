@@ -29,11 +29,19 @@ export type AggregateInventoryLocation = {
 export type InventoryLocationAvgAggregateOutputType = {
   latitude: runtime.Decimal | null
   longitude: runtime.Decimal | null
+  deliveryRadiusKm: number | null
+  deliveryLeadTimeMinDays: number | null
+  deliveryLeadTimeMaxDays: number | null
+  deliveryFeeMinor: number | null
 }
 
 export type InventoryLocationSumAggregateOutputType = {
   latitude: runtime.Decimal | null
   longitude: runtime.Decimal | null
+  deliveryRadiusKm: number | null
+  deliveryLeadTimeMinDays: number | null
+  deliveryLeadTimeMaxDays: number | null
+  deliveryFeeMinor: bigint | null
 }
 
 export type InventoryLocationMinAggregateOutputType = {
@@ -51,6 +59,11 @@ export type InventoryLocationMinAggregateOutputType = {
   erpSyncMessage: string | null
   latitude: runtime.Decimal | null
   longitude: runtime.Decimal | null
+  deliveryRadiusKm: number | null
+  deliveryLeadTimeMinDays: number | null
+  deliveryLeadTimeMaxDays: number | null
+  deliveryFeeMinor: bigint | null
+  deliveryFeeCurrency: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -70,6 +83,11 @@ export type InventoryLocationMaxAggregateOutputType = {
   erpSyncMessage: string | null
   latitude: runtime.Decimal | null
   longitude: runtime.Decimal | null
+  deliveryRadiusKm: number | null
+  deliveryLeadTimeMinDays: number | null
+  deliveryLeadTimeMaxDays: number | null
+  deliveryFeeMinor: bigint | null
+  deliveryFeeCurrency: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -90,6 +108,11 @@ export type InventoryLocationCountAggregateOutputType = {
   erpSyncMessage: number
   latitude: number
   longitude: number
+  deliveryRadiusKm: number
+  deliveryLeadTimeMinDays: number
+  deliveryLeadTimeMaxDays: number
+  deliveryFeeMinor: number
+  deliveryFeeCurrency: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -99,11 +122,19 @@ export type InventoryLocationCountAggregateOutputType = {
 export type InventoryLocationAvgAggregateInputType = {
   latitude?: true
   longitude?: true
+  deliveryRadiusKm?: true
+  deliveryLeadTimeMinDays?: true
+  deliveryLeadTimeMaxDays?: true
+  deliveryFeeMinor?: true
 }
 
 export type InventoryLocationSumAggregateInputType = {
   latitude?: true
   longitude?: true
+  deliveryRadiusKm?: true
+  deliveryLeadTimeMinDays?: true
+  deliveryLeadTimeMaxDays?: true
+  deliveryFeeMinor?: true
 }
 
 export type InventoryLocationMinAggregateInputType = {
@@ -121,6 +152,11 @@ export type InventoryLocationMinAggregateInputType = {
   erpSyncMessage?: true
   latitude?: true
   longitude?: true
+  deliveryRadiusKm?: true
+  deliveryLeadTimeMinDays?: true
+  deliveryLeadTimeMaxDays?: true
+  deliveryFeeMinor?: true
+  deliveryFeeCurrency?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -140,6 +176,11 @@ export type InventoryLocationMaxAggregateInputType = {
   erpSyncMessage?: true
   latitude?: true
   longitude?: true
+  deliveryRadiusKm?: true
+  deliveryLeadTimeMinDays?: true
+  deliveryLeadTimeMaxDays?: true
+  deliveryFeeMinor?: true
+  deliveryFeeCurrency?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -160,6 +201,11 @@ export type InventoryLocationCountAggregateInputType = {
   erpSyncMessage?: true
   latitude?: true
   longitude?: true
+  deliveryRadiusKm?: true
+  deliveryLeadTimeMinDays?: true
+  deliveryLeadTimeMaxDays?: true
+  deliveryFeeMinor?: true
+  deliveryFeeCurrency?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -267,6 +313,11 @@ export type InventoryLocationGroupByOutputType = {
   erpSyncMessage: string | null
   latitude: runtime.Decimal | null
   longitude: runtime.Decimal | null
+  deliveryRadiusKm: number | null
+  deliveryLeadTimeMinDays: number | null
+  deliveryLeadTimeMaxDays: number | null
+  deliveryFeeMinor: bigint | null
+  deliveryFeeCurrency: string | null
   createdAt: Date
   updatedAt: Date
   _count: InventoryLocationCountAggregateOutputType | null
@@ -310,6 +361,11 @@ export type InventoryLocationWhereInput = {
   erpSyncMessage?: Prisma.StringNullableFilter<"InventoryLocation"> | string | null
   latitude?: Prisma.DecimalNullableFilter<"InventoryLocation"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.DecimalNullableFilter<"InventoryLocation"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.IntNullableFilter<"InventoryLocation"> | number | null
+  deliveryLeadTimeMinDays?: Prisma.IntNullableFilter<"InventoryLocation"> | number | null
+  deliveryLeadTimeMaxDays?: Prisma.IntNullableFilter<"InventoryLocation"> | number | null
+  deliveryFeeMinor?: Prisma.BigIntNullableFilter<"InventoryLocation"> | bigint | number | null
+  deliveryFeeCurrency?: Prisma.StringNullableFilter<"InventoryLocation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"InventoryLocation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"InventoryLocation"> | Date | string
   country?: Prisma.XOR<Prisma.CountryNullableScalarRelationFilter, Prisma.CountryWhereInput> | null
@@ -317,6 +373,10 @@ export type InventoryLocationWhereInput = {
   movements?: Prisma.InventoryMovementListRelationFilter
   reservations?: Prisma.StockReservationListRelationFilter
   schedules?: Prisma.RecurringScheduleListRelationFilter
+  exclusions?: Prisma.WarehouseCountryExclusionListRelationFilter
+  deliveryZones?: Prisma.WarehouseDeliveryZoneListRelationFilter
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteListRelationFilter
+  fulfilledOrders?: Prisma.OrderListRelationFilter
 }
 
 export type InventoryLocationOrderByWithRelationInput = {
@@ -335,6 +395,11 @@ export type InventoryLocationOrderByWithRelationInput = {
   erpSyncMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  deliveryRadiusKm?: Prisma.SortOrderInput | Prisma.SortOrder
+  deliveryLeadTimeMinDays?: Prisma.SortOrderInput | Prisma.SortOrder
+  deliveryLeadTimeMaxDays?: Prisma.SortOrderInput | Prisma.SortOrder
+  deliveryFeeMinor?: Prisma.SortOrderInput | Prisma.SortOrder
+  deliveryFeeCurrency?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   country?: Prisma.CountryOrderByWithRelationInput
@@ -342,6 +407,10 @@ export type InventoryLocationOrderByWithRelationInput = {
   movements?: Prisma.InventoryMovementOrderByRelationAggregateInput
   reservations?: Prisma.StockReservationOrderByRelationAggregateInput
   schedules?: Prisma.RecurringScheduleOrderByRelationAggregateInput
+  exclusions?: Prisma.WarehouseCountryExclusionOrderByRelationAggregateInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneOrderByRelationAggregateInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteOrderByRelationAggregateInput
+  fulfilledOrders?: Prisma.OrderOrderByRelationAggregateInput
   _relevance?: Prisma.InventoryLocationOrderByRelevanceInput
 }
 
@@ -364,6 +433,11 @@ export type InventoryLocationWhereUniqueInput = Prisma.AtLeast<{
   erpSyncMessage?: Prisma.StringNullableFilter<"InventoryLocation"> | string | null
   latitude?: Prisma.DecimalNullableFilter<"InventoryLocation"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.DecimalNullableFilter<"InventoryLocation"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.IntNullableFilter<"InventoryLocation"> | number | null
+  deliveryLeadTimeMinDays?: Prisma.IntNullableFilter<"InventoryLocation"> | number | null
+  deliveryLeadTimeMaxDays?: Prisma.IntNullableFilter<"InventoryLocation"> | number | null
+  deliveryFeeMinor?: Prisma.BigIntNullableFilter<"InventoryLocation"> | bigint | number | null
+  deliveryFeeCurrency?: Prisma.StringNullableFilter<"InventoryLocation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"InventoryLocation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"InventoryLocation"> | Date | string
   country?: Prisma.XOR<Prisma.CountryNullableScalarRelationFilter, Prisma.CountryWhereInput> | null
@@ -371,6 +445,10 @@ export type InventoryLocationWhereUniqueInput = Prisma.AtLeast<{
   movements?: Prisma.InventoryMovementListRelationFilter
   reservations?: Prisma.StockReservationListRelationFilter
   schedules?: Prisma.RecurringScheduleListRelationFilter
+  exclusions?: Prisma.WarehouseCountryExclusionListRelationFilter
+  deliveryZones?: Prisma.WarehouseDeliveryZoneListRelationFilter
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteListRelationFilter
+  fulfilledOrders?: Prisma.OrderListRelationFilter
 }, "id" | "code">
 
 export type InventoryLocationOrderByWithAggregationInput = {
@@ -389,6 +467,11 @@ export type InventoryLocationOrderByWithAggregationInput = {
   erpSyncMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  deliveryRadiusKm?: Prisma.SortOrderInput | Prisma.SortOrder
+  deliveryLeadTimeMinDays?: Prisma.SortOrderInput | Prisma.SortOrder
+  deliveryLeadTimeMaxDays?: Prisma.SortOrderInput | Prisma.SortOrder
+  deliveryFeeMinor?: Prisma.SortOrderInput | Prisma.SortOrder
+  deliveryFeeCurrency?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.InventoryLocationCountOrderByAggregateInput
@@ -417,6 +500,11 @@ export type InventoryLocationScalarWhereWithAggregatesInput = {
   erpSyncMessage?: Prisma.StringNullableWithAggregatesFilter<"InventoryLocation"> | string | null
   latitude?: Prisma.DecimalNullableWithAggregatesFilter<"InventoryLocation"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.DecimalNullableWithAggregatesFilter<"InventoryLocation"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.IntNullableWithAggregatesFilter<"InventoryLocation"> | number | null
+  deliveryLeadTimeMinDays?: Prisma.IntNullableWithAggregatesFilter<"InventoryLocation"> | number | null
+  deliveryLeadTimeMaxDays?: Prisma.IntNullableWithAggregatesFilter<"InventoryLocation"> | number | null
+  deliveryFeeMinor?: Prisma.BigIntNullableWithAggregatesFilter<"InventoryLocation"> | bigint | number | null
+  deliveryFeeCurrency?: Prisma.StringNullableWithAggregatesFilter<"InventoryLocation"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"InventoryLocation"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"InventoryLocation"> | Date | string
 }
@@ -436,6 +524,11 @@ export type InventoryLocationCreateInput = {
   erpSyncMessage?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: number | null
+  deliveryLeadTimeMinDays?: number | null
+  deliveryLeadTimeMaxDays?: number | null
+  deliveryFeeMinor?: bigint | number | null
+  deliveryFeeCurrency?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   country?: Prisma.CountryCreateNestedOneWithoutWarehousesInput
@@ -443,6 +536,10 @@ export type InventoryLocationCreateInput = {
   movements?: Prisma.InventoryMovementCreateNestedManyWithoutLocationInput
   reservations?: Prisma.StockReservationCreateNestedManyWithoutLocationInput
   schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutInventoryLocationInput
+  exclusions?: Prisma.WarehouseCountryExclusionCreateNestedManyWithoutLocationInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneCreateNestedManyWithoutLocationInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutLocationInput
+  fulfilledOrders?: Prisma.OrderCreateNestedManyWithoutFulfilmentLocationInput
 }
 
 export type InventoryLocationUncheckedCreateInput = {
@@ -461,12 +558,21 @@ export type InventoryLocationUncheckedCreateInput = {
   erpSyncMessage?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: number | null
+  deliveryLeadTimeMinDays?: number | null
+  deliveryLeadTimeMaxDays?: number | null
+  deliveryFeeMinor?: bigint | number | null
+  deliveryFeeCurrency?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   balances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutLocationInput
   movements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutLocationInput
   reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutLocationInput
   schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutInventoryLocationInput
+  exclusions?: Prisma.WarehouseCountryExclusionUncheckedCreateNestedManyWithoutLocationInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUncheckedCreateNestedManyWithoutLocationInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutLocationInput
+  fulfilledOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutFulfilmentLocationInput
 }
 
 export type InventoryLocationUpdateInput = {
@@ -484,6 +590,11 @@ export type InventoryLocationUpdateInput = {
   erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMinDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMaxDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  deliveryFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   country?: Prisma.CountryUpdateOneWithoutWarehousesNestedInput
@@ -491,6 +602,10 @@ export type InventoryLocationUpdateInput = {
   movements?: Prisma.InventoryMovementUpdateManyWithoutLocationNestedInput
   reservations?: Prisma.StockReservationUpdateManyWithoutLocationNestedInput
   schedules?: Prisma.RecurringScheduleUpdateManyWithoutInventoryLocationNestedInput
+  exclusions?: Prisma.WarehouseCountryExclusionUpdateManyWithoutLocationNestedInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUpdateManyWithoutLocationNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutLocationNestedInput
+  fulfilledOrders?: Prisma.OrderUpdateManyWithoutFulfilmentLocationNestedInput
 }
 
 export type InventoryLocationUncheckedUpdateInput = {
@@ -509,12 +624,21 @@ export type InventoryLocationUncheckedUpdateInput = {
   erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMinDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMaxDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  deliveryFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   balances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutLocationNestedInput
   movements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutLocationNestedInput
   reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutLocationNestedInput
   schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutInventoryLocationNestedInput
+  exclusions?: Prisma.WarehouseCountryExclusionUncheckedUpdateManyWithoutLocationNestedInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUncheckedUpdateManyWithoutLocationNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutLocationNestedInput
+  fulfilledOrders?: Prisma.OrderUncheckedUpdateManyWithoutFulfilmentLocationNestedInput
 }
 
 export type InventoryLocationCreateManyInput = {
@@ -533,6 +657,11 @@ export type InventoryLocationCreateManyInput = {
   erpSyncMessage?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: number | null
+  deliveryLeadTimeMinDays?: number | null
+  deliveryLeadTimeMaxDays?: number | null
+  deliveryFeeMinor?: bigint | number | null
+  deliveryFeeCurrency?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -552,6 +681,11 @@ export type InventoryLocationUpdateManyMutationInput = {
   erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMinDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMaxDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  deliveryFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -572,6 +706,11 @@ export type InventoryLocationUncheckedUpdateManyInput = {
   erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMinDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMaxDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  deliveryFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -598,6 +737,11 @@ export type InventoryLocationCountOrderByAggregateInput = {
   erpSyncMessage?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
+  deliveryRadiusKm?: Prisma.SortOrder
+  deliveryLeadTimeMinDays?: Prisma.SortOrder
+  deliveryLeadTimeMaxDays?: Prisma.SortOrder
+  deliveryFeeMinor?: Prisma.SortOrder
+  deliveryFeeCurrency?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -605,6 +749,10 @@ export type InventoryLocationCountOrderByAggregateInput = {
 export type InventoryLocationAvgOrderByAggregateInput = {
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
+  deliveryRadiusKm?: Prisma.SortOrder
+  deliveryLeadTimeMinDays?: Prisma.SortOrder
+  deliveryLeadTimeMaxDays?: Prisma.SortOrder
+  deliveryFeeMinor?: Prisma.SortOrder
 }
 
 export type InventoryLocationMaxOrderByAggregateInput = {
@@ -622,6 +770,11 @@ export type InventoryLocationMaxOrderByAggregateInput = {
   erpSyncMessage?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
+  deliveryRadiusKm?: Prisma.SortOrder
+  deliveryLeadTimeMinDays?: Prisma.SortOrder
+  deliveryLeadTimeMaxDays?: Prisma.SortOrder
+  deliveryFeeMinor?: Prisma.SortOrder
+  deliveryFeeCurrency?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -641,6 +794,11 @@ export type InventoryLocationMinOrderByAggregateInput = {
   erpSyncMessage?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
+  deliveryRadiusKm?: Prisma.SortOrder
+  deliveryLeadTimeMinDays?: Prisma.SortOrder
+  deliveryLeadTimeMaxDays?: Prisma.SortOrder
+  deliveryFeeMinor?: Prisma.SortOrder
+  deliveryFeeCurrency?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -648,6 +806,10 @@ export type InventoryLocationMinOrderByAggregateInput = {
 export type InventoryLocationSumOrderByAggregateInput = {
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
+  deliveryRadiusKm?: Prisma.SortOrder
+  deliveryLeadTimeMinDays?: Prisma.SortOrder
+  deliveryLeadTimeMaxDays?: Prisma.SortOrder
+  deliveryFeeMinor?: Prisma.SortOrder
 }
 
 export type InventoryLocationScalarRelationFilter = {
@@ -676,6 +838,34 @@ export type EnumWarehouseOperationalStatusFieldUpdateOperationsInput = {
 
 export type EnumWarehouseErpSyncStatusFieldUpdateOperationsInput = {
   set?: $Enums.WarehouseErpSyncStatus
+}
+
+export type InventoryLocationCreateNestedOneWithoutExclusionsInput = {
+  create?: Prisma.XOR<Prisma.InventoryLocationCreateWithoutExclusionsInput, Prisma.InventoryLocationUncheckedCreateWithoutExclusionsInput>
+  connectOrCreate?: Prisma.InventoryLocationCreateOrConnectWithoutExclusionsInput
+  connect?: Prisma.InventoryLocationWhereUniqueInput
+}
+
+export type InventoryLocationUpdateOneRequiredWithoutExclusionsNestedInput = {
+  create?: Prisma.XOR<Prisma.InventoryLocationCreateWithoutExclusionsInput, Prisma.InventoryLocationUncheckedCreateWithoutExclusionsInput>
+  connectOrCreate?: Prisma.InventoryLocationCreateOrConnectWithoutExclusionsInput
+  upsert?: Prisma.InventoryLocationUpsertWithoutExclusionsInput
+  connect?: Prisma.InventoryLocationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.InventoryLocationUpdateToOneWithWhereWithoutExclusionsInput, Prisma.InventoryLocationUpdateWithoutExclusionsInput>, Prisma.InventoryLocationUncheckedUpdateWithoutExclusionsInput>
+}
+
+export type InventoryLocationCreateNestedOneWithoutDeliveryZonesInput = {
+  create?: Prisma.XOR<Prisma.InventoryLocationCreateWithoutDeliveryZonesInput, Prisma.InventoryLocationUncheckedCreateWithoutDeliveryZonesInput>
+  connectOrCreate?: Prisma.InventoryLocationCreateOrConnectWithoutDeliveryZonesInput
+  connect?: Prisma.InventoryLocationWhereUniqueInput
+}
+
+export type InventoryLocationUpdateOneRequiredWithoutDeliveryZonesNestedInput = {
+  create?: Prisma.XOR<Prisma.InventoryLocationCreateWithoutDeliveryZonesInput, Prisma.InventoryLocationUncheckedCreateWithoutDeliveryZonesInput>
+  connectOrCreate?: Prisma.InventoryLocationCreateOrConnectWithoutDeliveryZonesInput
+  upsert?: Prisma.InventoryLocationUpsertWithoutDeliveryZonesInput
+  connect?: Prisma.InventoryLocationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.InventoryLocationUpdateToOneWithWhereWithoutDeliveryZonesInput, Prisma.InventoryLocationUpdateWithoutDeliveryZonesInput>, Prisma.InventoryLocationUncheckedUpdateWithoutDeliveryZonesInput>
 }
 
 export type InventoryLocationCreateNestedOneWithoutBalancesInput = {
@@ -720,6 +910,22 @@ export type InventoryLocationUpdateOneRequiredWithoutReservationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.InventoryLocationUpdateToOneWithWhereWithoutReservationsInput, Prisma.InventoryLocationUpdateWithoutReservationsInput>, Prisma.InventoryLocationUncheckedUpdateWithoutReservationsInput>
 }
 
+export type InventoryLocationCreateNestedOneWithoutFulfilledOrdersInput = {
+  create?: Prisma.XOR<Prisma.InventoryLocationCreateWithoutFulfilledOrdersInput, Prisma.InventoryLocationUncheckedCreateWithoutFulfilledOrdersInput>
+  connectOrCreate?: Prisma.InventoryLocationCreateOrConnectWithoutFulfilledOrdersInput
+  connect?: Prisma.InventoryLocationWhereUniqueInput
+}
+
+export type InventoryLocationUpdateOneWithoutFulfilledOrdersNestedInput = {
+  create?: Prisma.XOR<Prisma.InventoryLocationCreateWithoutFulfilledOrdersInput, Prisma.InventoryLocationUncheckedCreateWithoutFulfilledOrdersInput>
+  connectOrCreate?: Prisma.InventoryLocationCreateOrConnectWithoutFulfilledOrdersInput
+  upsert?: Prisma.InventoryLocationUpsertWithoutFulfilledOrdersInput
+  disconnect?: Prisma.InventoryLocationWhereInput | boolean
+  delete?: Prisma.InventoryLocationWhereInput | boolean
+  connect?: Prisma.InventoryLocationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.InventoryLocationUpdateToOneWithWhereWithoutFulfilledOrdersInput, Prisma.InventoryLocationUpdateWithoutFulfilledOrdersInput>, Prisma.InventoryLocationUncheckedUpdateWithoutFulfilledOrdersInput>
+}
+
 export type InventoryLocationCreateNestedOneWithoutSchedulesInput = {
   create?: Prisma.XOR<Prisma.InventoryLocationCreateWithoutSchedulesInput, Prisma.InventoryLocationUncheckedCreateWithoutSchedulesInput>
   connectOrCreate?: Prisma.InventoryLocationCreateOrConnectWithoutSchedulesInput
@@ -734,6 +940,20 @@ export type InventoryLocationUpdateOneWithoutSchedulesNestedInput = {
   delete?: Prisma.InventoryLocationWhereInput | boolean
   connect?: Prisma.InventoryLocationWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.InventoryLocationUpdateToOneWithWhereWithoutSchedulesInput, Prisma.InventoryLocationUpdateWithoutSchedulesInput>, Prisma.InventoryLocationUncheckedUpdateWithoutSchedulesInput>
+}
+
+export type InventoryLocationCreateNestedOneWithoutFulfilmentQuotesInput = {
+  create?: Prisma.XOR<Prisma.InventoryLocationCreateWithoutFulfilmentQuotesInput, Prisma.InventoryLocationUncheckedCreateWithoutFulfilmentQuotesInput>
+  connectOrCreate?: Prisma.InventoryLocationCreateOrConnectWithoutFulfilmentQuotesInput
+  connect?: Prisma.InventoryLocationWhereUniqueInput
+}
+
+export type InventoryLocationUpdateOneRequiredWithoutFulfilmentQuotesNestedInput = {
+  create?: Prisma.XOR<Prisma.InventoryLocationCreateWithoutFulfilmentQuotesInput, Prisma.InventoryLocationUncheckedCreateWithoutFulfilmentQuotesInput>
+  connectOrCreate?: Prisma.InventoryLocationCreateOrConnectWithoutFulfilmentQuotesInput
+  upsert?: Prisma.InventoryLocationUpsertWithoutFulfilmentQuotesInput
+  connect?: Prisma.InventoryLocationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.InventoryLocationUpdateToOneWithWhereWithoutFulfilmentQuotesInput, Prisma.InventoryLocationUpdateWithoutFulfilmentQuotesInput>, Prisma.InventoryLocationUncheckedUpdateWithoutFulfilmentQuotesInput>
 }
 
 export type InventoryLocationCreateNestedManyWithoutCountryInput = {
@@ -778,6 +998,294 @@ export type InventoryLocationUncheckedUpdateManyWithoutCountryNestedInput = {
   deleteMany?: Prisma.InventoryLocationScalarWhereInput | Prisma.InventoryLocationScalarWhereInput[]
 }
 
+export type InventoryLocationCreateWithoutExclusionsInput = {
+  id: string
+  code: string
+  name: string
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: boolean
+  isActive?: boolean
+  timezone?: string | null
+  operationalStatus?: $Enums.WarehouseOperationalStatus
+  erpExternalId?: string | null
+  erpSyncStatus?: $Enums.WarehouseErpSyncStatus
+  erpLastSyncAt?: Date | string | null
+  erpSyncMessage?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: number | null
+  deliveryLeadTimeMinDays?: number | null
+  deliveryLeadTimeMaxDays?: number | null
+  deliveryFeeMinor?: bigint | number | null
+  deliveryFeeCurrency?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  country?: Prisma.CountryCreateNestedOneWithoutWarehousesInput
+  balances?: Prisma.InventoryBalanceCreateNestedManyWithoutLocationInput
+  movements?: Prisma.InventoryMovementCreateNestedManyWithoutLocationInput
+  reservations?: Prisma.StockReservationCreateNestedManyWithoutLocationInput
+  schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutInventoryLocationInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneCreateNestedManyWithoutLocationInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutLocationInput
+  fulfilledOrders?: Prisma.OrderCreateNestedManyWithoutFulfilmentLocationInput
+}
+
+export type InventoryLocationUncheckedCreateWithoutExclusionsInput = {
+  id: string
+  code: string
+  name: string
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: boolean
+  isActive?: boolean
+  countryCode?: string | null
+  timezone?: string | null
+  operationalStatus?: $Enums.WarehouseOperationalStatus
+  erpExternalId?: string | null
+  erpSyncStatus?: $Enums.WarehouseErpSyncStatus
+  erpLastSyncAt?: Date | string | null
+  erpSyncMessage?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: number | null
+  deliveryLeadTimeMinDays?: number | null
+  deliveryLeadTimeMaxDays?: number | null
+  deliveryFeeMinor?: bigint | number | null
+  deliveryFeeCurrency?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  balances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutLocationInput
+  movements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutLocationInput
+  reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutLocationInput
+  schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutInventoryLocationInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUncheckedCreateNestedManyWithoutLocationInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutLocationInput
+  fulfilledOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutFulfilmentLocationInput
+}
+
+export type InventoryLocationCreateOrConnectWithoutExclusionsInput = {
+  where: Prisma.InventoryLocationWhereUniqueInput
+  create: Prisma.XOR<Prisma.InventoryLocationCreateWithoutExclusionsInput, Prisma.InventoryLocationUncheckedCreateWithoutExclusionsInput>
+}
+
+export type InventoryLocationUpsertWithoutExclusionsInput = {
+  update: Prisma.XOR<Prisma.InventoryLocationUpdateWithoutExclusionsInput, Prisma.InventoryLocationUncheckedUpdateWithoutExclusionsInput>
+  create: Prisma.XOR<Prisma.InventoryLocationCreateWithoutExclusionsInput, Prisma.InventoryLocationUncheckedCreateWithoutExclusionsInput>
+  where?: Prisma.InventoryLocationWhereInput
+}
+
+export type InventoryLocationUpdateToOneWithWhereWithoutExclusionsInput = {
+  where?: Prisma.InventoryLocationWhereInput
+  data: Prisma.XOR<Prisma.InventoryLocationUpdateWithoutExclusionsInput, Prisma.InventoryLocationUncheckedUpdateWithoutExclusionsInput>
+}
+
+export type InventoryLocationUpdateWithoutExclusionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operationalStatus?: Prisma.EnumWarehouseOperationalStatusFieldUpdateOperationsInput | $Enums.WarehouseOperationalStatus
+  erpExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpSyncStatus?: Prisma.EnumWarehouseErpSyncStatusFieldUpdateOperationsInput | $Enums.WarehouseErpSyncStatus
+  erpLastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMinDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMaxDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  deliveryFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  country?: Prisma.CountryUpdateOneWithoutWarehousesNestedInput
+  balances?: Prisma.InventoryBalanceUpdateManyWithoutLocationNestedInput
+  movements?: Prisma.InventoryMovementUpdateManyWithoutLocationNestedInput
+  reservations?: Prisma.StockReservationUpdateManyWithoutLocationNestedInput
+  schedules?: Prisma.RecurringScheduleUpdateManyWithoutInventoryLocationNestedInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUpdateManyWithoutLocationNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutLocationNestedInput
+  fulfilledOrders?: Prisma.OrderUpdateManyWithoutFulfilmentLocationNestedInput
+}
+
+export type InventoryLocationUncheckedUpdateWithoutExclusionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operationalStatus?: Prisma.EnumWarehouseOperationalStatusFieldUpdateOperationsInput | $Enums.WarehouseOperationalStatus
+  erpExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpSyncStatus?: Prisma.EnumWarehouseErpSyncStatusFieldUpdateOperationsInput | $Enums.WarehouseErpSyncStatus
+  erpLastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMinDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMaxDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  deliveryFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  balances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutLocationNestedInput
+  movements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutLocationNestedInput
+  reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutLocationNestedInput
+  schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutInventoryLocationNestedInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUncheckedUpdateManyWithoutLocationNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutLocationNestedInput
+  fulfilledOrders?: Prisma.OrderUncheckedUpdateManyWithoutFulfilmentLocationNestedInput
+}
+
+export type InventoryLocationCreateWithoutDeliveryZonesInput = {
+  id: string
+  code: string
+  name: string
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: boolean
+  isActive?: boolean
+  timezone?: string | null
+  operationalStatus?: $Enums.WarehouseOperationalStatus
+  erpExternalId?: string | null
+  erpSyncStatus?: $Enums.WarehouseErpSyncStatus
+  erpLastSyncAt?: Date | string | null
+  erpSyncMessage?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: number | null
+  deliveryLeadTimeMinDays?: number | null
+  deliveryLeadTimeMaxDays?: number | null
+  deliveryFeeMinor?: bigint | number | null
+  deliveryFeeCurrency?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  country?: Prisma.CountryCreateNestedOneWithoutWarehousesInput
+  balances?: Prisma.InventoryBalanceCreateNestedManyWithoutLocationInput
+  movements?: Prisma.InventoryMovementCreateNestedManyWithoutLocationInput
+  reservations?: Prisma.StockReservationCreateNestedManyWithoutLocationInput
+  schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutInventoryLocationInput
+  exclusions?: Prisma.WarehouseCountryExclusionCreateNestedManyWithoutLocationInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutLocationInput
+  fulfilledOrders?: Prisma.OrderCreateNestedManyWithoutFulfilmentLocationInput
+}
+
+export type InventoryLocationUncheckedCreateWithoutDeliveryZonesInput = {
+  id: string
+  code: string
+  name: string
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: boolean
+  isActive?: boolean
+  countryCode?: string | null
+  timezone?: string | null
+  operationalStatus?: $Enums.WarehouseOperationalStatus
+  erpExternalId?: string | null
+  erpSyncStatus?: $Enums.WarehouseErpSyncStatus
+  erpLastSyncAt?: Date | string | null
+  erpSyncMessage?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: number | null
+  deliveryLeadTimeMinDays?: number | null
+  deliveryLeadTimeMaxDays?: number | null
+  deliveryFeeMinor?: bigint | number | null
+  deliveryFeeCurrency?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  balances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutLocationInput
+  movements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutLocationInput
+  reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutLocationInput
+  schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutInventoryLocationInput
+  exclusions?: Prisma.WarehouseCountryExclusionUncheckedCreateNestedManyWithoutLocationInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutLocationInput
+  fulfilledOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutFulfilmentLocationInput
+}
+
+export type InventoryLocationCreateOrConnectWithoutDeliveryZonesInput = {
+  where: Prisma.InventoryLocationWhereUniqueInput
+  create: Prisma.XOR<Prisma.InventoryLocationCreateWithoutDeliveryZonesInput, Prisma.InventoryLocationUncheckedCreateWithoutDeliveryZonesInput>
+}
+
+export type InventoryLocationUpsertWithoutDeliveryZonesInput = {
+  update: Prisma.XOR<Prisma.InventoryLocationUpdateWithoutDeliveryZonesInput, Prisma.InventoryLocationUncheckedUpdateWithoutDeliveryZonesInput>
+  create: Prisma.XOR<Prisma.InventoryLocationCreateWithoutDeliveryZonesInput, Prisma.InventoryLocationUncheckedCreateWithoutDeliveryZonesInput>
+  where?: Prisma.InventoryLocationWhereInput
+}
+
+export type InventoryLocationUpdateToOneWithWhereWithoutDeliveryZonesInput = {
+  where?: Prisma.InventoryLocationWhereInput
+  data: Prisma.XOR<Prisma.InventoryLocationUpdateWithoutDeliveryZonesInput, Prisma.InventoryLocationUncheckedUpdateWithoutDeliveryZonesInput>
+}
+
+export type InventoryLocationUpdateWithoutDeliveryZonesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operationalStatus?: Prisma.EnumWarehouseOperationalStatusFieldUpdateOperationsInput | $Enums.WarehouseOperationalStatus
+  erpExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpSyncStatus?: Prisma.EnumWarehouseErpSyncStatusFieldUpdateOperationsInput | $Enums.WarehouseErpSyncStatus
+  erpLastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMinDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMaxDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  deliveryFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  country?: Prisma.CountryUpdateOneWithoutWarehousesNestedInput
+  balances?: Prisma.InventoryBalanceUpdateManyWithoutLocationNestedInput
+  movements?: Prisma.InventoryMovementUpdateManyWithoutLocationNestedInput
+  reservations?: Prisma.StockReservationUpdateManyWithoutLocationNestedInput
+  schedules?: Prisma.RecurringScheduleUpdateManyWithoutInventoryLocationNestedInput
+  exclusions?: Prisma.WarehouseCountryExclusionUpdateManyWithoutLocationNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutLocationNestedInput
+  fulfilledOrders?: Prisma.OrderUpdateManyWithoutFulfilmentLocationNestedInput
+}
+
+export type InventoryLocationUncheckedUpdateWithoutDeliveryZonesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operationalStatus?: Prisma.EnumWarehouseOperationalStatusFieldUpdateOperationsInput | $Enums.WarehouseOperationalStatus
+  erpExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpSyncStatus?: Prisma.EnumWarehouseErpSyncStatusFieldUpdateOperationsInput | $Enums.WarehouseErpSyncStatus
+  erpLastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMinDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMaxDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  deliveryFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  balances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutLocationNestedInput
+  movements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutLocationNestedInput
+  reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutLocationNestedInput
+  schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutInventoryLocationNestedInput
+  exclusions?: Prisma.WarehouseCountryExclusionUncheckedUpdateManyWithoutLocationNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutLocationNestedInput
+  fulfilledOrders?: Prisma.OrderUncheckedUpdateManyWithoutFulfilmentLocationNestedInput
+}
+
 export type InventoryLocationCreateWithoutBalancesInput = {
   id: string
   code: string
@@ -793,12 +1301,21 @@ export type InventoryLocationCreateWithoutBalancesInput = {
   erpSyncMessage?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: number | null
+  deliveryLeadTimeMinDays?: number | null
+  deliveryLeadTimeMaxDays?: number | null
+  deliveryFeeMinor?: bigint | number | null
+  deliveryFeeCurrency?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   country?: Prisma.CountryCreateNestedOneWithoutWarehousesInput
   movements?: Prisma.InventoryMovementCreateNestedManyWithoutLocationInput
   reservations?: Prisma.StockReservationCreateNestedManyWithoutLocationInput
   schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutInventoryLocationInput
+  exclusions?: Prisma.WarehouseCountryExclusionCreateNestedManyWithoutLocationInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneCreateNestedManyWithoutLocationInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutLocationInput
+  fulfilledOrders?: Prisma.OrderCreateNestedManyWithoutFulfilmentLocationInput
 }
 
 export type InventoryLocationUncheckedCreateWithoutBalancesInput = {
@@ -817,11 +1334,20 @@ export type InventoryLocationUncheckedCreateWithoutBalancesInput = {
   erpSyncMessage?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: number | null
+  deliveryLeadTimeMinDays?: number | null
+  deliveryLeadTimeMaxDays?: number | null
+  deliveryFeeMinor?: bigint | number | null
+  deliveryFeeCurrency?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   movements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutLocationInput
   reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutLocationInput
   schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutInventoryLocationInput
+  exclusions?: Prisma.WarehouseCountryExclusionUncheckedCreateNestedManyWithoutLocationInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUncheckedCreateNestedManyWithoutLocationInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutLocationInput
+  fulfilledOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutFulfilmentLocationInput
 }
 
 export type InventoryLocationCreateOrConnectWithoutBalancesInput = {
@@ -855,12 +1381,21 @@ export type InventoryLocationUpdateWithoutBalancesInput = {
   erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMinDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMaxDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  deliveryFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   country?: Prisma.CountryUpdateOneWithoutWarehousesNestedInput
   movements?: Prisma.InventoryMovementUpdateManyWithoutLocationNestedInput
   reservations?: Prisma.StockReservationUpdateManyWithoutLocationNestedInput
   schedules?: Prisma.RecurringScheduleUpdateManyWithoutInventoryLocationNestedInput
+  exclusions?: Prisma.WarehouseCountryExclusionUpdateManyWithoutLocationNestedInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUpdateManyWithoutLocationNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutLocationNestedInput
+  fulfilledOrders?: Prisma.OrderUpdateManyWithoutFulfilmentLocationNestedInput
 }
 
 export type InventoryLocationUncheckedUpdateWithoutBalancesInput = {
@@ -879,11 +1414,20 @@ export type InventoryLocationUncheckedUpdateWithoutBalancesInput = {
   erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMinDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMaxDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  deliveryFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutLocationNestedInput
   reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutLocationNestedInput
   schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutInventoryLocationNestedInput
+  exclusions?: Prisma.WarehouseCountryExclusionUncheckedUpdateManyWithoutLocationNestedInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUncheckedUpdateManyWithoutLocationNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutLocationNestedInput
+  fulfilledOrders?: Prisma.OrderUncheckedUpdateManyWithoutFulfilmentLocationNestedInput
 }
 
 export type InventoryLocationCreateWithoutMovementsInput = {
@@ -901,12 +1445,21 @@ export type InventoryLocationCreateWithoutMovementsInput = {
   erpSyncMessage?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: number | null
+  deliveryLeadTimeMinDays?: number | null
+  deliveryLeadTimeMaxDays?: number | null
+  deliveryFeeMinor?: bigint | number | null
+  deliveryFeeCurrency?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   country?: Prisma.CountryCreateNestedOneWithoutWarehousesInput
   balances?: Prisma.InventoryBalanceCreateNestedManyWithoutLocationInput
   reservations?: Prisma.StockReservationCreateNestedManyWithoutLocationInput
   schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutInventoryLocationInput
+  exclusions?: Prisma.WarehouseCountryExclusionCreateNestedManyWithoutLocationInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneCreateNestedManyWithoutLocationInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutLocationInput
+  fulfilledOrders?: Prisma.OrderCreateNestedManyWithoutFulfilmentLocationInput
 }
 
 export type InventoryLocationUncheckedCreateWithoutMovementsInput = {
@@ -925,11 +1478,20 @@ export type InventoryLocationUncheckedCreateWithoutMovementsInput = {
   erpSyncMessage?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: number | null
+  deliveryLeadTimeMinDays?: number | null
+  deliveryLeadTimeMaxDays?: number | null
+  deliveryFeeMinor?: bigint | number | null
+  deliveryFeeCurrency?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   balances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutLocationInput
   reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutLocationInput
   schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutInventoryLocationInput
+  exclusions?: Prisma.WarehouseCountryExclusionUncheckedCreateNestedManyWithoutLocationInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUncheckedCreateNestedManyWithoutLocationInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutLocationInput
+  fulfilledOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutFulfilmentLocationInput
 }
 
 export type InventoryLocationCreateOrConnectWithoutMovementsInput = {
@@ -963,12 +1525,21 @@ export type InventoryLocationUpdateWithoutMovementsInput = {
   erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMinDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMaxDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  deliveryFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   country?: Prisma.CountryUpdateOneWithoutWarehousesNestedInput
   balances?: Prisma.InventoryBalanceUpdateManyWithoutLocationNestedInput
   reservations?: Prisma.StockReservationUpdateManyWithoutLocationNestedInput
   schedules?: Prisma.RecurringScheduleUpdateManyWithoutInventoryLocationNestedInput
+  exclusions?: Prisma.WarehouseCountryExclusionUpdateManyWithoutLocationNestedInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUpdateManyWithoutLocationNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutLocationNestedInput
+  fulfilledOrders?: Prisma.OrderUpdateManyWithoutFulfilmentLocationNestedInput
 }
 
 export type InventoryLocationUncheckedUpdateWithoutMovementsInput = {
@@ -987,11 +1558,20 @@ export type InventoryLocationUncheckedUpdateWithoutMovementsInput = {
   erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMinDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMaxDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  deliveryFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   balances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutLocationNestedInput
   reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutLocationNestedInput
   schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutInventoryLocationNestedInput
+  exclusions?: Prisma.WarehouseCountryExclusionUncheckedUpdateManyWithoutLocationNestedInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUncheckedUpdateManyWithoutLocationNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutLocationNestedInput
+  fulfilledOrders?: Prisma.OrderUncheckedUpdateManyWithoutFulfilmentLocationNestedInput
 }
 
 export type InventoryLocationCreateWithoutReservationsInput = {
@@ -1009,12 +1589,21 @@ export type InventoryLocationCreateWithoutReservationsInput = {
   erpSyncMessage?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: number | null
+  deliveryLeadTimeMinDays?: number | null
+  deliveryLeadTimeMaxDays?: number | null
+  deliveryFeeMinor?: bigint | number | null
+  deliveryFeeCurrency?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   country?: Prisma.CountryCreateNestedOneWithoutWarehousesInput
   balances?: Prisma.InventoryBalanceCreateNestedManyWithoutLocationInput
   movements?: Prisma.InventoryMovementCreateNestedManyWithoutLocationInput
   schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutInventoryLocationInput
+  exclusions?: Prisma.WarehouseCountryExclusionCreateNestedManyWithoutLocationInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneCreateNestedManyWithoutLocationInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutLocationInput
+  fulfilledOrders?: Prisma.OrderCreateNestedManyWithoutFulfilmentLocationInput
 }
 
 export type InventoryLocationUncheckedCreateWithoutReservationsInput = {
@@ -1033,11 +1622,20 @@ export type InventoryLocationUncheckedCreateWithoutReservationsInput = {
   erpSyncMessage?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: number | null
+  deliveryLeadTimeMinDays?: number | null
+  deliveryLeadTimeMaxDays?: number | null
+  deliveryFeeMinor?: bigint | number | null
+  deliveryFeeCurrency?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   balances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutLocationInput
   movements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutLocationInput
   schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutInventoryLocationInput
+  exclusions?: Prisma.WarehouseCountryExclusionUncheckedCreateNestedManyWithoutLocationInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUncheckedCreateNestedManyWithoutLocationInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutLocationInput
+  fulfilledOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutFulfilmentLocationInput
 }
 
 export type InventoryLocationCreateOrConnectWithoutReservationsInput = {
@@ -1071,12 +1669,21 @@ export type InventoryLocationUpdateWithoutReservationsInput = {
   erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMinDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMaxDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  deliveryFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   country?: Prisma.CountryUpdateOneWithoutWarehousesNestedInput
   balances?: Prisma.InventoryBalanceUpdateManyWithoutLocationNestedInput
   movements?: Prisma.InventoryMovementUpdateManyWithoutLocationNestedInput
   schedules?: Prisma.RecurringScheduleUpdateManyWithoutInventoryLocationNestedInput
+  exclusions?: Prisma.WarehouseCountryExclusionUpdateManyWithoutLocationNestedInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUpdateManyWithoutLocationNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutLocationNestedInput
+  fulfilledOrders?: Prisma.OrderUpdateManyWithoutFulfilmentLocationNestedInput
 }
 
 export type InventoryLocationUncheckedUpdateWithoutReservationsInput = {
@@ -1095,11 +1702,164 @@ export type InventoryLocationUncheckedUpdateWithoutReservationsInput = {
   erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMinDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMaxDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  deliveryFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   balances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutLocationNestedInput
   movements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutLocationNestedInput
   schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutInventoryLocationNestedInput
+  exclusions?: Prisma.WarehouseCountryExclusionUncheckedUpdateManyWithoutLocationNestedInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUncheckedUpdateManyWithoutLocationNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutLocationNestedInput
+  fulfilledOrders?: Prisma.OrderUncheckedUpdateManyWithoutFulfilmentLocationNestedInput
+}
+
+export type InventoryLocationCreateWithoutFulfilledOrdersInput = {
+  id: string
+  code: string
+  name: string
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: boolean
+  isActive?: boolean
+  timezone?: string | null
+  operationalStatus?: $Enums.WarehouseOperationalStatus
+  erpExternalId?: string | null
+  erpSyncStatus?: $Enums.WarehouseErpSyncStatus
+  erpLastSyncAt?: Date | string | null
+  erpSyncMessage?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: number | null
+  deliveryLeadTimeMinDays?: number | null
+  deliveryLeadTimeMaxDays?: number | null
+  deliveryFeeMinor?: bigint | number | null
+  deliveryFeeCurrency?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  country?: Prisma.CountryCreateNestedOneWithoutWarehousesInput
+  balances?: Prisma.InventoryBalanceCreateNestedManyWithoutLocationInput
+  movements?: Prisma.InventoryMovementCreateNestedManyWithoutLocationInput
+  reservations?: Prisma.StockReservationCreateNestedManyWithoutLocationInput
+  schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutInventoryLocationInput
+  exclusions?: Prisma.WarehouseCountryExclusionCreateNestedManyWithoutLocationInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneCreateNestedManyWithoutLocationInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutLocationInput
+}
+
+export type InventoryLocationUncheckedCreateWithoutFulfilledOrdersInput = {
+  id: string
+  code: string
+  name: string
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: boolean
+  isActive?: boolean
+  countryCode?: string | null
+  timezone?: string | null
+  operationalStatus?: $Enums.WarehouseOperationalStatus
+  erpExternalId?: string | null
+  erpSyncStatus?: $Enums.WarehouseErpSyncStatus
+  erpLastSyncAt?: Date | string | null
+  erpSyncMessage?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: number | null
+  deliveryLeadTimeMinDays?: number | null
+  deliveryLeadTimeMaxDays?: number | null
+  deliveryFeeMinor?: bigint | number | null
+  deliveryFeeCurrency?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  balances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutLocationInput
+  movements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutLocationInput
+  reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutLocationInput
+  schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutInventoryLocationInput
+  exclusions?: Prisma.WarehouseCountryExclusionUncheckedCreateNestedManyWithoutLocationInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUncheckedCreateNestedManyWithoutLocationInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutLocationInput
+}
+
+export type InventoryLocationCreateOrConnectWithoutFulfilledOrdersInput = {
+  where: Prisma.InventoryLocationWhereUniqueInput
+  create: Prisma.XOR<Prisma.InventoryLocationCreateWithoutFulfilledOrdersInput, Prisma.InventoryLocationUncheckedCreateWithoutFulfilledOrdersInput>
+}
+
+export type InventoryLocationUpsertWithoutFulfilledOrdersInput = {
+  update: Prisma.XOR<Prisma.InventoryLocationUpdateWithoutFulfilledOrdersInput, Prisma.InventoryLocationUncheckedUpdateWithoutFulfilledOrdersInput>
+  create: Prisma.XOR<Prisma.InventoryLocationCreateWithoutFulfilledOrdersInput, Prisma.InventoryLocationUncheckedCreateWithoutFulfilledOrdersInput>
+  where?: Prisma.InventoryLocationWhereInput
+}
+
+export type InventoryLocationUpdateToOneWithWhereWithoutFulfilledOrdersInput = {
+  where?: Prisma.InventoryLocationWhereInput
+  data: Prisma.XOR<Prisma.InventoryLocationUpdateWithoutFulfilledOrdersInput, Prisma.InventoryLocationUncheckedUpdateWithoutFulfilledOrdersInput>
+}
+
+export type InventoryLocationUpdateWithoutFulfilledOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operationalStatus?: Prisma.EnumWarehouseOperationalStatusFieldUpdateOperationsInput | $Enums.WarehouseOperationalStatus
+  erpExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpSyncStatus?: Prisma.EnumWarehouseErpSyncStatusFieldUpdateOperationsInput | $Enums.WarehouseErpSyncStatus
+  erpLastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMinDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMaxDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  deliveryFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  country?: Prisma.CountryUpdateOneWithoutWarehousesNestedInput
+  balances?: Prisma.InventoryBalanceUpdateManyWithoutLocationNestedInput
+  movements?: Prisma.InventoryMovementUpdateManyWithoutLocationNestedInput
+  reservations?: Prisma.StockReservationUpdateManyWithoutLocationNestedInput
+  schedules?: Prisma.RecurringScheduleUpdateManyWithoutInventoryLocationNestedInput
+  exclusions?: Prisma.WarehouseCountryExclusionUpdateManyWithoutLocationNestedInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUpdateManyWithoutLocationNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutLocationNestedInput
+}
+
+export type InventoryLocationUncheckedUpdateWithoutFulfilledOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operationalStatus?: Prisma.EnumWarehouseOperationalStatusFieldUpdateOperationsInput | $Enums.WarehouseOperationalStatus
+  erpExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpSyncStatus?: Prisma.EnumWarehouseErpSyncStatusFieldUpdateOperationsInput | $Enums.WarehouseErpSyncStatus
+  erpLastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMinDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMaxDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  deliveryFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  balances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutLocationNestedInput
+  movements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutLocationNestedInput
+  reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutLocationNestedInput
+  schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutInventoryLocationNestedInput
+  exclusions?: Prisma.WarehouseCountryExclusionUncheckedUpdateManyWithoutLocationNestedInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUncheckedUpdateManyWithoutLocationNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutLocationNestedInput
 }
 
 export type InventoryLocationCreateWithoutSchedulesInput = {
@@ -1117,12 +1877,21 @@ export type InventoryLocationCreateWithoutSchedulesInput = {
   erpSyncMessage?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: number | null
+  deliveryLeadTimeMinDays?: number | null
+  deliveryLeadTimeMaxDays?: number | null
+  deliveryFeeMinor?: bigint | number | null
+  deliveryFeeCurrency?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   country?: Prisma.CountryCreateNestedOneWithoutWarehousesInput
   balances?: Prisma.InventoryBalanceCreateNestedManyWithoutLocationInput
   movements?: Prisma.InventoryMovementCreateNestedManyWithoutLocationInput
   reservations?: Prisma.StockReservationCreateNestedManyWithoutLocationInput
+  exclusions?: Prisma.WarehouseCountryExclusionCreateNestedManyWithoutLocationInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneCreateNestedManyWithoutLocationInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutLocationInput
+  fulfilledOrders?: Prisma.OrderCreateNestedManyWithoutFulfilmentLocationInput
 }
 
 export type InventoryLocationUncheckedCreateWithoutSchedulesInput = {
@@ -1141,11 +1910,20 @@ export type InventoryLocationUncheckedCreateWithoutSchedulesInput = {
   erpSyncMessage?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: number | null
+  deliveryLeadTimeMinDays?: number | null
+  deliveryLeadTimeMaxDays?: number | null
+  deliveryFeeMinor?: bigint | number | null
+  deliveryFeeCurrency?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   balances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutLocationInput
   movements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutLocationInput
   reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutLocationInput
+  exclusions?: Prisma.WarehouseCountryExclusionUncheckedCreateNestedManyWithoutLocationInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUncheckedCreateNestedManyWithoutLocationInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutLocationInput
+  fulfilledOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutFulfilmentLocationInput
 }
 
 export type InventoryLocationCreateOrConnectWithoutSchedulesInput = {
@@ -1179,12 +1957,21 @@ export type InventoryLocationUpdateWithoutSchedulesInput = {
   erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMinDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMaxDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  deliveryFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   country?: Prisma.CountryUpdateOneWithoutWarehousesNestedInput
   balances?: Prisma.InventoryBalanceUpdateManyWithoutLocationNestedInput
   movements?: Prisma.InventoryMovementUpdateManyWithoutLocationNestedInput
   reservations?: Prisma.StockReservationUpdateManyWithoutLocationNestedInput
+  exclusions?: Prisma.WarehouseCountryExclusionUpdateManyWithoutLocationNestedInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUpdateManyWithoutLocationNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutLocationNestedInput
+  fulfilledOrders?: Prisma.OrderUpdateManyWithoutFulfilmentLocationNestedInput
 }
 
 export type InventoryLocationUncheckedUpdateWithoutSchedulesInput = {
@@ -1203,11 +1990,164 @@ export type InventoryLocationUncheckedUpdateWithoutSchedulesInput = {
   erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMinDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMaxDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  deliveryFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   balances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutLocationNestedInput
   movements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutLocationNestedInput
   reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutLocationNestedInput
+  exclusions?: Prisma.WarehouseCountryExclusionUncheckedUpdateManyWithoutLocationNestedInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUncheckedUpdateManyWithoutLocationNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutLocationNestedInput
+  fulfilledOrders?: Prisma.OrderUncheckedUpdateManyWithoutFulfilmentLocationNestedInput
+}
+
+export type InventoryLocationCreateWithoutFulfilmentQuotesInput = {
+  id: string
+  code: string
+  name: string
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: boolean
+  isActive?: boolean
+  timezone?: string | null
+  operationalStatus?: $Enums.WarehouseOperationalStatus
+  erpExternalId?: string | null
+  erpSyncStatus?: $Enums.WarehouseErpSyncStatus
+  erpLastSyncAt?: Date | string | null
+  erpSyncMessage?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: number | null
+  deliveryLeadTimeMinDays?: number | null
+  deliveryLeadTimeMaxDays?: number | null
+  deliveryFeeMinor?: bigint | number | null
+  deliveryFeeCurrency?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  country?: Prisma.CountryCreateNestedOneWithoutWarehousesInput
+  balances?: Prisma.InventoryBalanceCreateNestedManyWithoutLocationInput
+  movements?: Prisma.InventoryMovementCreateNestedManyWithoutLocationInput
+  reservations?: Prisma.StockReservationCreateNestedManyWithoutLocationInput
+  schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutInventoryLocationInput
+  exclusions?: Prisma.WarehouseCountryExclusionCreateNestedManyWithoutLocationInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneCreateNestedManyWithoutLocationInput
+  fulfilledOrders?: Prisma.OrderCreateNestedManyWithoutFulfilmentLocationInput
+}
+
+export type InventoryLocationUncheckedCreateWithoutFulfilmentQuotesInput = {
+  id: string
+  code: string
+  name: string
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: boolean
+  isActive?: boolean
+  countryCode?: string | null
+  timezone?: string | null
+  operationalStatus?: $Enums.WarehouseOperationalStatus
+  erpExternalId?: string | null
+  erpSyncStatus?: $Enums.WarehouseErpSyncStatus
+  erpLastSyncAt?: Date | string | null
+  erpSyncMessage?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: number | null
+  deliveryLeadTimeMinDays?: number | null
+  deliveryLeadTimeMaxDays?: number | null
+  deliveryFeeMinor?: bigint | number | null
+  deliveryFeeCurrency?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  balances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutLocationInput
+  movements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutLocationInput
+  reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutLocationInput
+  schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutInventoryLocationInput
+  exclusions?: Prisma.WarehouseCountryExclusionUncheckedCreateNestedManyWithoutLocationInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUncheckedCreateNestedManyWithoutLocationInput
+  fulfilledOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutFulfilmentLocationInput
+}
+
+export type InventoryLocationCreateOrConnectWithoutFulfilmentQuotesInput = {
+  where: Prisma.InventoryLocationWhereUniqueInput
+  create: Prisma.XOR<Prisma.InventoryLocationCreateWithoutFulfilmentQuotesInput, Prisma.InventoryLocationUncheckedCreateWithoutFulfilmentQuotesInput>
+}
+
+export type InventoryLocationUpsertWithoutFulfilmentQuotesInput = {
+  update: Prisma.XOR<Prisma.InventoryLocationUpdateWithoutFulfilmentQuotesInput, Prisma.InventoryLocationUncheckedUpdateWithoutFulfilmentQuotesInput>
+  create: Prisma.XOR<Prisma.InventoryLocationCreateWithoutFulfilmentQuotesInput, Prisma.InventoryLocationUncheckedCreateWithoutFulfilmentQuotesInput>
+  where?: Prisma.InventoryLocationWhereInput
+}
+
+export type InventoryLocationUpdateToOneWithWhereWithoutFulfilmentQuotesInput = {
+  where?: Prisma.InventoryLocationWhereInput
+  data: Prisma.XOR<Prisma.InventoryLocationUpdateWithoutFulfilmentQuotesInput, Prisma.InventoryLocationUncheckedUpdateWithoutFulfilmentQuotesInput>
+}
+
+export type InventoryLocationUpdateWithoutFulfilmentQuotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operationalStatus?: Prisma.EnumWarehouseOperationalStatusFieldUpdateOperationsInput | $Enums.WarehouseOperationalStatus
+  erpExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpSyncStatus?: Prisma.EnumWarehouseErpSyncStatusFieldUpdateOperationsInput | $Enums.WarehouseErpSyncStatus
+  erpLastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMinDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMaxDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  deliveryFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  country?: Prisma.CountryUpdateOneWithoutWarehousesNestedInput
+  balances?: Prisma.InventoryBalanceUpdateManyWithoutLocationNestedInput
+  movements?: Prisma.InventoryMovementUpdateManyWithoutLocationNestedInput
+  reservations?: Prisma.StockReservationUpdateManyWithoutLocationNestedInput
+  schedules?: Prisma.RecurringScheduleUpdateManyWithoutInventoryLocationNestedInput
+  exclusions?: Prisma.WarehouseCountryExclusionUpdateManyWithoutLocationNestedInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUpdateManyWithoutLocationNestedInput
+  fulfilledOrders?: Prisma.OrderUpdateManyWithoutFulfilmentLocationNestedInput
+}
+
+export type InventoryLocationUncheckedUpdateWithoutFulfilmentQuotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  addressJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operationalStatus?: Prisma.EnumWarehouseOperationalStatusFieldUpdateOperationsInput | $Enums.WarehouseOperationalStatus
+  erpExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpSyncStatus?: Prisma.EnumWarehouseErpSyncStatusFieldUpdateOperationsInput | $Enums.WarehouseErpSyncStatus
+  erpLastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMinDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMaxDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  deliveryFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  balances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutLocationNestedInput
+  movements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutLocationNestedInput
+  reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutLocationNestedInput
+  schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutInventoryLocationNestedInput
+  exclusions?: Prisma.WarehouseCountryExclusionUncheckedUpdateManyWithoutLocationNestedInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUncheckedUpdateManyWithoutLocationNestedInput
+  fulfilledOrders?: Prisma.OrderUncheckedUpdateManyWithoutFulfilmentLocationNestedInput
 }
 
 export type InventoryLocationCreateWithoutCountryInput = {
@@ -1225,12 +2165,21 @@ export type InventoryLocationCreateWithoutCountryInput = {
   erpSyncMessage?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: number | null
+  deliveryLeadTimeMinDays?: number | null
+  deliveryLeadTimeMaxDays?: number | null
+  deliveryFeeMinor?: bigint | number | null
+  deliveryFeeCurrency?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   balances?: Prisma.InventoryBalanceCreateNestedManyWithoutLocationInput
   movements?: Prisma.InventoryMovementCreateNestedManyWithoutLocationInput
   reservations?: Prisma.StockReservationCreateNestedManyWithoutLocationInput
   schedules?: Prisma.RecurringScheduleCreateNestedManyWithoutInventoryLocationInput
+  exclusions?: Prisma.WarehouseCountryExclusionCreateNestedManyWithoutLocationInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneCreateNestedManyWithoutLocationInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutLocationInput
+  fulfilledOrders?: Prisma.OrderCreateNestedManyWithoutFulfilmentLocationInput
 }
 
 export type InventoryLocationUncheckedCreateWithoutCountryInput = {
@@ -1248,12 +2197,21 @@ export type InventoryLocationUncheckedCreateWithoutCountryInput = {
   erpSyncMessage?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: number | null
+  deliveryLeadTimeMinDays?: number | null
+  deliveryLeadTimeMaxDays?: number | null
+  deliveryFeeMinor?: bigint | number | null
+  deliveryFeeCurrency?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   balances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutLocationInput
   movements?: Prisma.InventoryMovementUncheckedCreateNestedManyWithoutLocationInput
   reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutLocationInput
   schedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutInventoryLocationInput
+  exclusions?: Prisma.WarehouseCountryExclusionUncheckedCreateNestedManyWithoutLocationInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUncheckedCreateNestedManyWithoutLocationInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutLocationInput
+  fulfilledOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutFulfilmentLocationInput
 }
 
 export type InventoryLocationCreateOrConnectWithoutCountryInput = {
@@ -1301,6 +2259,11 @@ export type InventoryLocationScalarWhereInput = {
   erpSyncMessage?: Prisma.StringNullableFilter<"InventoryLocation"> | string | null
   latitude?: Prisma.DecimalNullableFilter<"InventoryLocation"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.DecimalNullableFilter<"InventoryLocation"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.IntNullableFilter<"InventoryLocation"> | number | null
+  deliveryLeadTimeMinDays?: Prisma.IntNullableFilter<"InventoryLocation"> | number | null
+  deliveryLeadTimeMaxDays?: Prisma.IntNullableFilter<"InventoryLocation"> | number | null
+  deliveryFeeMinor?: Prisma.BigIntNullableFilter<"InventoryLocation"> | bigint | number | null
+  deliveryFeeCurrency?: Prisma.StringNullableFilter<"InventoryLocation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"InventoryLocation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"InventoryLocation"> | Date | string
 }
@@ -1320,6 +2283,11 @@ export type InventoryLocationCreateManyCountryInput = {
   erpSyncMessage?: string | null
   latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: number | null
+  deliveryLeadTimeMinDays?: number | null
+  deliveryLeadTimeMaxDays?: number | null
+  deliveryFeeMinor?: bigint | number | null
+  deliveryFeeCurrency?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1339,12 +2307,21 @@ export type InventoryLocationUpdateWithoutCountryInput = {
   erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMinDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMaxDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  deliveryFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   balances?: Prisma.InventoryBalanceUpdateManyWithoutLocationNestedInput
   movements?: Prisma.InventoryMovementUpdateManyWithoutLocationNestedInput
   reservations?: Prisma.StockReservationUpdateManyWithoutLocationNestedInput
   schedules?: Prisma.RecurringScheduleUpdateManyWithoutInventoryLocationNestedInput
+  exclusions?: Prisma.WarehouseCountryExclusionUpdateManyWithoutLocationNestedInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUpdateManyWithoutLocationNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutLocationNestedInput
+  fulfilledOrders?: Prisma.OrderUpdateManyWithoutFulfilmentLocationNestedInput
 }
 
 export type InventoryLocationUncheckedUpdateWithoutCountryInput = {
@@ -1362,12 +2339,21 @@ export type InventoryLocationUncheckedUpdateWithoutCountryInput = {
   erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMinDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMaxDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  deliveryFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   balances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutLocationNestedInput
   movements?: Prisma.InventoryMovementUncheckedUpdateManyWithoutLocationNestedInput
   reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutLocationNestedInput
   schedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutInventoryLocationNestedInput
+  exclusions?: Prisma.WarehouseCountryExclusionUncheckedUpdateManyWithoutLocationNestedInput
+  deliveryZones?: Prisma.WarehouseDeliveryZoneUncheckedUpdateManyWithoutLocationNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutLocationNestedInput
+  fulfilledOrders?: Prisma.OrderUncheckedUpdateManyWithoutFulfilmentLocationNestedInput
 }
 
 export type InventoryLocationUncheckedUpdateManyWithoutCountryInput = {
@@ -1385,6 +2371,11 @@ export type InventoryLocationUncheckedUpdateManyWithoutCountryInput = {
   erpSyncMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  deliveryRadiusKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMinDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryLeadTimeMaxDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryFeeMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  deliveryFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1399,6 +2390,10 @@ export type InventoryLocationCountOutputType = {
   movements: number
   reservations: number
   schedules: number
+  exclusions: number
+  deliveryZones: number
+  fulfilmentQuotes: number
+  fulfilledOrders: number
 }
 
 export type InventoryLocationCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1406,6 +2401,10 @@ export type InventoryLocationCountOutputTypeSelect<ExtArgs extends runtime.Types
   movements?: boolean | InventoryLocationCountOutputTypeCountMovementsArgs
   reservations?: boolean | InventoryLocationCountOutputTypeCountReservationsArgs
   schedules?: boolean | InventoryLocationCountOutputTypeCountSchedulesArgs
+  exclusions?: boolean | InventoryLocationCountOutputTypeCountExclusionsArgs
+  deliveryZones?: boolean | InventoryLocationCountOutputTypeCountDeliveryZonesArgs
+  fulfilmentQuotes?: boolean | InventoryLocationCountOutputTypeCountFulfilmentQuotesArgs
+  fulfilledOrders?: boolean | InventoryLocationCountOutputTypeCountFulfilledOrdersArgs
 }
 
 /**
@@ -1446,6 +2445,34 @@ export type InventoryLocationCountOutputTypeCountSchedulesArgs<ExtArgs extends r
   where?: Prisma.RecurringScheduleWhereInput
 }
 
+/**
+ * InventoryLocationCountOutputType without action
+ */
+export type InventoryLocationCountOutputTypeCountExclusionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WarehouseCountryExclusionWhereInput
+}
+
+/**
+ * InventoryLocationCountOutputType without action
+ */
+export type InventoryLocationCountOutputTypeCountDeliveryZonesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WarehouseDeliveryZoneWhereInput
+}
+
+/**
+ * InventoryLocationCountOutputType without action
+ */
+export type InventoryLocationCountOutputTypeCountFulfilmentQuotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FulfilmentQuoteWhereInput
+}
+
+/**
+ * InventoryLocationCountOutputType without action
+ */
+export type InventoryLocationCountOutputTypeCountFulfilledOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OrderWhereInput
+}
+
 
 export type InventoryLocationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1463,6 +2490,11 @@ export type InventoryLocationSelect<ExtArgs extends runtime.Types.Extensions.Int
   erpSyncMessage?: boolean
   latitude?: boolean
   longitude?: boolean
+  deliveryRadiusKm?: boolean
+  deliveryLeadTimeMinDays?: boolean
+  deliveryLeadTimeMaxDays?: boolean
+  deliveryFeeMinor?: boolean
+  deliveryFeeCurrency?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   country?: boolean | Prisma.InventoryLocation$countryArgs<ExtArgs>
@@ -1470,6 +2502,10 @@ export type InventoryLocationSelect<ExtArgs extends runtime.Types.Extensions.Int
   movements?: boolean | Prisma.InventoryLocation$movementsArgs<ExtArgs>
   reservations?: boolean | Prisma.InventoryLocation$reservationsArgs<ExtArgs>
   schedules?: boolean | Prisma.InventoryLocation$schedulesArgs<ExtArgs>
+  exclusions?: boolean | Prisma.InventoryLocation$exclusionsArgs<ExtArgs>
+  deliveryZones?: boolean | Prisma.InventoryLocation$deliveryZonesArgs<ExtArgs>
+  fulfilmentQuotes?: boolean | Prisma.InventoryLocation$fulfilmentQuotesArgs<ExtArgs>
+  fulfilledOrders?: boolean | Prisma.InventoryLocation$fulfilledOrdersArgs<ExtArgs>
   _count?: boolean | Prisma.InventoryLocationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["inventoryLocation"]>
 
@@ -1491,17 +2527,26 @@ export type InventoryLocationSelectScalar = {
   erpSyncMessage?: boolean
   latitude?: boolean
   longitude?: boolean
+  deliveryRadiusKm?: boolean
+  deliveryLeadTimeMinDays?: boolean
+  deliveryLeadTimeMaxDays?: boolean
+  deliveryFeeMinor?: boolean
+  deliveryFeeCurrency?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type InventoryLocationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "addressJson" | "isDefault" | "isActive" | "countryCode" | "timezone" | "operationalStatus" | "erpExternalId" | "erpSyncStatus" | "erpLastSyncAt" | "erpSyncMessage" | "latitude" | "longitude" | "createdAt" | "updatedAt", ExtArgs["result"]["inventoryLocation"]>
+export type InventoryLocationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "addressJson" | "isDefault" | "isActive" | "countryCode" | "timezone" | "operationalStatus" | "erpExternalId" | "erpSyncStatus" | "erpLastSyncAt" | "erpSyncMessage" | "latitude" | "longitude" | "deliveryRadiusKm" | "deliveryLeadTimeMinDays" | "deliveryLeadTimeMaxDays" | "deliveryFeeMinor" | "deliveryFeeCurrency" | "createdAt" | "updatedAt", ExtArgs["result"]["inventoryLocation"]>
 export type InventoryLocationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   country?: boolean | Prisma.InventoryLocation$countryArgs<ExtArgs>
   balances?: boolean | Prisma.InventoryLocation$balancesArgs<ExtArgs>
   movements?: boolean | Prisma.InventoryLocation$movementsArgs<ExtArgs>
   reservations?: boolean | Prisma.InventoryLocation$reservationsArgs<ExtArgs>
   schedules?: boolean | Prisma.InventoryLocation$schedulesArgs<ExtArgs>
+  exclusions?: boolean | Prisma.InventoryLocation$exclusionsArgs<ExtArgs>
+  deliveryZones?: boolean | Prisma.InventoryLocation$deliveryZonesArgs<ExtArgs>
+  fulfilmentQuotes?: boolean | Prisma.InventoryLocation$fulfilmentQuotesArgs<ExtArgs>
+  fulfilledOrders?: boolean | Prisma.InventoryLocation$fulfilledOrdersArgs<ExtArgs>
   _count?: boolean | Prisma.InventoryLocationCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1513,6 +2558,10 @@ export type $InventoryLocationPayload<ExtArgs extends runtime.Types.Extensions.I
     movements: Prisma.$InventoryMovementPayload<ExtArgs>[]
     reservations: Prisma.$StockReservationPayload<ExtArgs>[]
     schedules: Prisma.$RecurringSchedulePayload<ExtArgs>[]
+    exclusions: Prisma.$WarehouseCountryExclusionPayload<ExtArgs>[]
+    deliveryZones: Prisma.$WarehouseDeliveryZonePayload<ExtArgs>[]
+    fulfilmentQuotes: Prisma.$FulfilmentQuotePayload<ExtArgs>[]
+    fulfilledOrders: Prisma.$OrderPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1585,6 +2634,61 @@ export type $InventoryLocationPayload<ExtArgs extends runtime.Types.Extensions.I
      */
     latitude: runtime.Decimal | null
     longitude: runtime.Decimal | null
+    /**
+     * How far this warehouse promises to deliver, in kilometres.
+     * 
+     * The geofence. Everything a warehouse is allowed to serve is derived from
+     * this and its coordinates: a geodesic circle of this radius is intersected
+     * with the world's country boundaries, and what comes back is the list of
+     * countries it can reach. See `delivery-coverage.service.ts`.
+     * 
+     * Per warehouse rather than per deployment, because the reach of a building
+     * is a fact about the building. A port warehouse with its own fleet covers
+     * 800 km; a city depot handing over to a courier covers 150. One number for
+     * the whole business would have to be the smallest of them, and every other
+     * warehouse would refuse deliveries it can make.
+     * 
+     * Null means "use `DELIVERY_COVERAGE_RADIUS_KM`", the deployment-wide
+     * default - not "no radius" and not zero. That is what lets an operator
+     * raise the promise for every warehouse at once by changing one setting,
+     * and still override it on the two that are different.
+     */
+    deliveryRadiusKm: number | null
+    /**
+     * How long a delivery from here takes, in days, as a range.
+     * 
+     * Stored because it is what the buyer chooses between. When two warehouses
+     * both cover the buyer's country, the storefront shows both and the only
+     * things that separate them are when the box arrives and what it costs -
+     * so a warehouse with no lead time recorded has nothing to offer that
+     * screen, and the option list says so rather than inventing "3-5 days".
+     * 
+     * A range and not a single figure, because a single figure is either a
+     * promise that gets broken or a padded one that loses the sale. Both null,
+     * or both set - the CHECK constraint holds that, and min may not exceed
+     * max.
+     */
+    deliveryLeadTimeMinDays: number | null
+    deliveryLeadTimeMaxDays: number | null
+    /**
+     * What this warehouse charges to deliver, in minor units of its own
+     * currency.
+     * 
+     * BigInt minor units, like every other amount in this system, and it
+     * crosses the API as a string. Per warehouse because that is the other half
+     * of the buyer's choice: Antwerp may be two days and 12 EUR where Gdańsk is
+     * five days and free, and which of those a buyer wants is not a decision
+     * this software gets to make for them.
+     * 
+     * The currency is stored beside it rather than derived from the warehouse's
+     * country, for the same reason `ProductPrice` carries one: a warehouse in
+     * Poland may quote a delivery in euro, and a fee whose currency is guessed
+     * from geography is a fee that is wrong by a factor of four. Null fee means
+     * this warehouse has not priced delivery; the CHECK constraint keeps the
+     * pair together, so there is never an amount with no currency on it.
+     */
+    deliveryFeeMinor: bigint | null
+    deliveryFeeCurrency: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["inventoryLocation"]>
@@ -1932,6 +3036,10 @@ export interface Prisma__InventoryLocationClient<T, Null = never, ExtArgs extend
   movements<T extends Prisma.InventoryLocation$movementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryLocation$movementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryMovementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reservations<T extends Prisma.InventoryLocation$reservationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryLocation$reservationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   schedules<T extends Prisma.InventoryLocation$schedulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryLocation$schedulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecurringSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  exclusions<T extends Prisma.InventoryLocation$exclusionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryLocation$exclusionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WarehouseCountryExclusionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  deliveryZones<T extends Prisma.InventoryLocation$deliveryZonesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryLocation$deliveryZonesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WarehouseDeliveryZonePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  fulfilmentQuotes<T extends Prisma.InventoryLocation$fulfilmentQuotesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryLocation$fulfilmentQuotesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FulfilmentQuotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  fulfilledOrders<T extends Prisma.InventoryLocation$fulfilledOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InventoryLocation$fulfilledOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1976,6 +3084,11 @@ export interface InventoryLocationFieldRefs {
   readonly erpSyncMessage: Prisma.FieldRef<"InventoryLocation", 'String'>
   readonly latitude: Prisma.FieldRef<"InventoryLocation", 'Decimal'>
   readonly longitude: Prisma.FieldRef<"InventoryLocation", 'Decimal'>
+  readonly deliveryRadiusKm: Prisma.FieldRef<"InventoryLocation", 'Int'>
+  readonly deliveryLeadTimeMinDays: Prisma.FieldRef<"InventoryLocation", 'Int'>
+  readonly deliveryLeadTimeMaxDays: Prisma.FieldRef<"InventoryLocation", 'Int'>
+  readonly deliveryFeeMinor: Prisma.FieldRef<"InventoryLocation", 'BigInt'>
+  readonly deliveryFeeCurrency: Prisma.FieldRef<"InventoryLocation", 'String'>
   readonly createdAt: Prisma.FieldRef<"InventoryLocation", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"InventoryLocation", 'DateTime'>
 }
@@ -2438,6 +3551,102 @@ export type InventoryLocation$schedulesArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   distinct?: Prisma.RecurringScheduleScalarFieldEnum | Prisma.RecurringScheduleScalarFieldEnum[]
+}
+
+/**
+ * InventoryLocation.exclusions
+ */
+export type InventoryLocation$exclusionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WarehouseCountryExclusion
+   */
+  select?: Prisma.WarehouseCountryExclusionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WarehouseCountryExclusion
+   */
+  omit?: Prisma.WarehouseCountryExclusionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WarehouseCountryExclusionInclude<ExtArgs> | null
+  where?: Prisma.WarehouseCountryExclusionWhereInput
+  orderBy?: Prisma.WarehouseCountryExclusionOrderByWithRelationInput | Prisma.WarehouseCountryExclusionOrderByWithRelationInput[]
+  cursor?: Prisma.WarehouseCountryExclusionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WarehouseCountryExclusionScalarFieldEnum | Prisma.WarehouseCountryExclusionScalarFieldEnum[]
+}
+
+/**
+ * InventoryLocation.deliveryZones
+ */
+export type InventoryLocation$deliveryZonesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WarehouseDeliveryZone
+   */
+  select?: Prisma.WarehouseDeliveryZoneSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WarehouseDeliveryZone
+   */
+  omit?: Prisma.WarehouseDeliveryZoneOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WarehouseDeliveryZoneInclude<ExtArgs> | null
+  where?: Prisma.WarehouseDeliveryZoneWhereInput
+  orderBy?: Prisma.WarehouseDeliveryZoneOrderByWithRelationInput | Prisma.WarehouseDeliveryZoneOrderByWithRelationInput[]
+  cursor?: Prisma.WarehouseDeliveryZoneWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WarehouseDeliveryZoneScalarFieldEnum | Prisma.WarehouseDeliveryZoneScalarFieldEnum[]
+}
+
+/**
+ * InventoryLocation.fulfilmentQuotes
+ */
+export type InventoryLocation$fulfilmentQuotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FulfilmentQuote
+   */
+  select?: Prisma.FulfilmentQuoteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FulfilmentQuote
+   */
+  omit?: Prisma.FulfilmentQuoteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FulfilmentQuoteInclude<ExtArgs> | null
+  where?: Prisma.FulfilmentQuoteWhereInput
+  orderBy?: Prisma.FulfilmentQuoteOrderByWithRelationInput | Prisma.FulfilmentQuoteOrderByWithRelationInput[]
+  cursor?: Prisma.FulfilmentQuoteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FulfilmentQuoteScalarFieldEnum | Prisma.FulfilmentQuoteScalarFieldEnum[]
+}
+
+/**
+ * InventoryLocation.fulfilledOrders
+ */
+export type InventoryLocation$fulfilledOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Order
+   */
+  select?: Prisma.OrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Order
+   */
+  omit?: Prisma.OrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrderInclude<ExtArgs> | null
+  where?: Prisma.OrderWhereInput
+  orderBy?: Prisma.OrderOrderByWithRelationInput | Prisma.OrderOrderByWithRelationInput[]
+  cursor?: Prisma.OrderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OrderScalarFieldEnum | Prisma.OrderScalarFieldEnum[]
 }
 
 /**

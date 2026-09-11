@@ -200,6 +200,16 @@ export const router = createBrowserRouter([
           Permission.INTEGRATION_READ,
         ]),
       },
+      {
+        // Support monitoring for CUSTOMERS' own ERP connections. A different
+        // feature from `settings/erp` above, which is this installation's own
+        // warehouse system - see that page's header for the distinction, and
+        // this one's for what support deliberately cannot see or do.
+        path: 'customer-erp',
+        ...lazyRoute(() => import('@/pages/CustomerErpPage').then((m) => m.CustomerErpPage), [
+          Permission.INTEGRATION_READ,
+        ]),
+      },
       { path: '*', element: <Navigate to="/" replace /> },
     ],
   },

@@ -179,6 +179,27 @@ export const router = createBrowserRouter([
         ),
       },
 
+      /*
+       * Schedule Cart — the cart's second tab.
+       *
+       * A sibling of `/cart` rather than a page inside the account frame, and
+       * that is the whole reason it is declared here: it is one of two ways to
+       * spend a basket, so it gets the same full-width frame the cart has and
+       * the same guard. Dropped into the account section it would open with a
+       * settings sidebar beside a list beside an editor, which is three
+       * columns of chrome around the one the buyer came for.
+       *
+       * `/account/schedules` is untouched and still the place a standing
+       * order is read — its history, its payment arrangement, pausing it.
+       * This is where one is changed.
+       */
+      {
+        path: 'accounts/schedule',
+        ...customerRoute(() =>
+          import('@/pages/schedule/ScheduleCartPage').then((m) => m.ScheduleCartPage),
+        ),
+      },
+
       // --- Where a contact-change link lands --------------------------------
       //
       // Public in the router and guarded by the page, which then requires a
@@ -201,11 +222,17 @@ export const router = createBrowserRouter([
       // navigation — the scroll position holds and the profile read is not
       // repeated.
       //
-      // There is no ERP *connection* screen here, only an explanation: a
-      // connection is a URL plus a credential this installation's server then
-      // calls, so it is configured by an administrator under Settings → ERP.
-      // Auto-pay is the opposite case and stays with the buyer, because nobody
-      // can consent on somebody else's behalf to money leaving their account.
+      // `integrations/erp` is where a buyer connects their OWN purchasing
+      // system — their SAP, their monday.com board, their in-house API — so
+      // that what they buy here appears there. It is theirs rather than the
+      // operator's, which is why it lives in the account area and not under
+      // Settings → ERP in the admin panel: that screen is the OPERATOR's
+      // warehouse system and has nothing to do with a customer's.
+      //
+      // Both are addresses this server then calls with a credential, and the
+      // reason it is safe to let a buyer supply one is `outbound-http.ts` —
+      // https only, DNS resolved here, private ranges refused, the socket
+      // pinned, every redirect re-checked — not that the risk went away.
       {
         path: 'account',
         lazy: async () => {
@@ -283,9 +310,42 @@ export const router = createBrowserRouter([
             path: 'billing',
             ...accountPage(() => import('@/pages/account/BillingPage').then((m) => m.BillingPage)),
           },
+          /*
+           * The old address. Kept as a redirect rather than removed: it is in
+           * bookmarks, in the sidebar of anybody's stale tab, and in at least
+           * one email telling a customer where to find this.
+           */
+          { path: 'erp', element: <Navigate to="/account/integrations/erp" replace /> },
+
           {
-            path: 'erp',
-            ...accountPage(() => import('@/pages/account/ErpPage').then((m) => m.ErpPage)),
+            path: 'integrations/erp',
+            ...accountPage(() =>
+              import('@/pages/account/erp/ErpHubPage').then((m) => m.ErpHubPage),
+            ),
+          },
+          {
+            path: 'integrations/erp/join',
+            ...accountPage(() =>
+              import('@/pages/account/erp/ErpJoinPage').then((m) => m.ErpJoinPage),
+            ),
+          },
+          {
+            path: 'integrations/erp/new',
+            ...accountPage(() =>
+              import('@/pages/account/erp/ErpWizardPage').then((m) => m.ErpWizardPage),
+            ),
+          },
+          {
+            path: 'integrations/erp/:id',
+            ...accountPage(() =>
+              import('@/pages/account/erp/ErpConnectionPage').then((m) => m.ErpConnectionPage),
+            ),
+          },
+          {
+            path: 'integrations/erp/:id/edit',
+            ...accountPage(() =>
+              import('@/pages/account/erp/ErpWizardPage').then((m) => m.ErpWizardPage),
+            ),
           },
           {
             path: 'coupons',

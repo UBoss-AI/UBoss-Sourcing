@@ -6,8 +6,10 @@
  * behalf to money leaving their account. That is not a preference about where a
  * screen lives, it is what makes an off-session charge lawful.
  *
- * The ERP itself is configured by an administrator under Settings -> ERP and
- * has no customer-facing route at all - see `erp.admin.ts`.
+ * Two different ERP surfaces exist and neither is this one. The OPERATOR's
+ * warehouse system is configured under Settings -> ERP (`erp.admin.ts`). A
+ * BUYER's own purchasing system is configured in their account
+ * (`customer-erp.customer.ts`). This file is about money, not about either.
  *
  * Every handler derives the customer from the session. There is no
  * `?customerId=` anywhere, and no handler reads an owner from the request.

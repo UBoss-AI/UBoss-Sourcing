@@ -20,8 +20,20 @@ export type AddressModel = runtime.Types.Result.DefaultSelection<Prisma.$Address
 
 export type AggregateAddress = {
   _count: AddressCountAggregateOutputType | null
+  _avg: AddressAvgAggregateOutputType | null
+  _sum: AddressSumAggregateOutputType | null
   _min: AddressMinAggregateOutputType | null
   _max: AddressMaxAggregateOutputType | null
+}
+
+export type AddressAvgAggregateOutputType = {
+  latitude: runtime.Decimal | null
+  longitude: runtime.Decimal | null
+}
+
+export type AddressSumAggregateOutputType = {
+  latitude: runtime.Decimal | null
+  longitude: runtime.Decimal | null
 }
 
 export type AddressMinAggregateOutputType = {
@@ -37,6 +49,9 @@ export type AddressMinAggregateOutputType = {
   state: string | null
   postalCode: string | null
   country: string | null
+  latitude: runtime.Decimal | null
+  longitude: runtime.Decimal | null
+  timezone: string | null
   isDefaultBilling: boolean | null
   isDefaultShipping: boolean | null
   createdAt: Date | null
@@ -57,6 +72,9 @@ export type AddressMaxAggregateOutputType = {
   state: string | null
   postalCode: string | null
   country: string | null
+  latitude: runtime.Decimal | null
+  longitude: runtime.Decimal | null
+  timezone: string | null
   isDefaultBilling: boolean | null
   isDefaultShipping: boolean | null
   createdAt: Date | null
@@ -77,6 +95,9 @@ export type AddressCountAggregateOutputType = {
   state: number
   postalCode: number
   country: number
+  latitude: number
+  longitude: number
+  timezone: number
   isDefaultBilling: number
   isDefaultShipping: number
   createdAt: number
@@ -85,6 +106,16 @@ export type AddressCountAggregateOutputType = {
   _all: number
 }
 
+
+export type AddressAvgAggregateInputType = {
+  latitude?: true
+  longitude?: true
+}
+
+export type AddressSumAggregateInputType = {
+  latitude?: true
+  longitude?: true
+}
 
 export type AddressMinAggregateInputType = {
   id?: true
@@ -99,6 +130,9 @@ export type AddressMinAggregateInputType = {
   state?: true
   postalCode?: true
   country?: true
+  latitude?: true
+  longitude?: true
+  timezone?: true
   isDefaultBilling?: true
   isDefaultShipping?: true
   createdAt?: true
@@ -119,6 +153,9 @@ export type AddressMaxAggregateInputType = {
   state?: true
   postalCode?: true
   country?: true
+  latitude?: true
+  longitude?: true
+  timezone?: true
   isDefaultBilling?: true
   isDefaultShipping?: true
   createdAt?: true
@@ -139,6 +176,9 @@ export type AddressCountAggregateInputType = {
   state?: true
   postalCode?: true
   country?: true
+  latitude?: true
+  longitude?: true
+  timezone?: true
   isDefaultBilling?: true
   isDefaultShipping?: true
   createdAt?: true
@@ -185,6 +225,18 @@ export type AddressAggregateArgs<ExtArgs extends runtime.Types.Extensions.Intern
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: AddressAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: AddressSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: AddressMinAggregateInputType
@@ -215,6 +267,8 @@ export type AddressGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   _count?: AddressCountAggregateInputType | true
+  _avg?: AddressAvgAggregateInputType
+  _sum?: AddressSumAggregateInputType
   _min?: AddressMinAggregateInputType
   _max?: AddressMaxAggregateInputType
 }
@@ -232,12 +286,17 @@ export type AddressGroupByOutputType = {
   state: string
   postalCode: string
   country: string
+  latitude: runtime.Decimal | null
+  longitude: runtime.Decimal | null
+  timezone: string | null
   isDefaultBilling: boolean
   isDefaultShipping: boolean
   createdAt: Date
   updatedAt: Date
   archivedAt: Date | null
   _count: AddressCountAggregateOutputType | null
+  _avg: AddressAvgAggregateOutputType | null
+  _sum: AddressSumAggregateOutputType | null
   _min: AddressMinAggregateOutputType | null
   _max: AddressMaxAggregateOutputType | null
 }
@@ -273,6 +332,9 @@ export type AddressWhereInput = {
   state?: Prisma.StringFilter<"Address"> | string
   postalCode?: Prisma.StringFilter<"Address"> | string
   country?: Prisma.StringFilter<"Address"> | string
+  latitude?: Prisma.DecimalNullableFilter<"Address"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.DecimalNullableFilter<"Address"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: Prisma.StringNullableFilter<"Address"> | string | null
   isDefaultBilling?: Prisma.BoolFilter<"Address"> | boolean
   isDefaultShipping?: Prisma.BoolFilter<"Address"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Address"> | Date | string
@@ -281,6 +343,7 @@ export type AddressWhereInput = {
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
   shippingSchedules?: Prisma.RecurringScheduleListRelationFilter
   billingSchedules?: Prisma.RecurringScheduleListRelationFilter
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteListRelationFilter
 }
 
 export type AddressOrderByWithRelationInput = {
@@ -296,6 +359,9 @@ export type AddressOrderByWithRelationInput = {
   state?: Prisma.SortOrder
   postalCode?: Prisma.SortOrder
   country?: Prisma.SortOrder
+  latitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  longitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  timezone?: Prisma.SortOrderInput | Prisma.SortOrder
   isDefaultBilling?: Prisma.SortOrder
   isDefaultShipping?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -304,6 +370,7 @@ export type AddressOrderByWithRelationInput = {
   customerProfile?: Prisma.CustomerProfileOrderByWithRelationInput
   shippingSchedules?: Prisma.RecurringScheduleOrderByRelationAggregateInput
   billingSchedules?: Prisma.RecurringScheduleOrderByRelationAggregateInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteOrderByRelationAggregateInput
   _relevance?: Prisma.AddressOrderByRelevanceInput
 }
 
@@ -323,6 +390,9 @@ export type AddressWhereUniqueInput = Prisma.AtLeast<{
   state?: Prisma.StringFilter<"Address"> | string
   postalCode?: Prisma.StringFilter<"Address"> | string
   country?: Prisma.StringFilter<"Address"> | string
+  latitude?: Prisma.DecimalNullableFilter<"Address"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.DecimalNullableFilter<"Address"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: Prisma.StringNullableFilter<"Address"> | string | null
   isDefaultBilling?: Prisma.BoolFilter<"Address"> | boolean
   isDefaultShipping?: Prisma.BoolFilter<"Address"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Address"> | Date | string
@@ -331,6 +401,7 @@ export type AddressWhereUniqueInput = Prisma.AtLeast<{
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
   shippingSchedules?: Prisma.RecurringScheduleListRelationFilter
   billingSchedules?: Prisma.RecurringScheduleListRelationFilter
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteListRelationFilter
 }, "id">
 
 export type AddressOrderByWithAggregationInput = {
@@ -346,14 +417,19 @@ export type AddressOrderByWithAggregationInput = {
   state?: Prisma.SortOrder
   postalCode?: Prisma.SortOrder
   country?: Prisma.SortOrder
+  latitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  longitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  timezone?: Prisma.SortOrderInput | Prisma.SortOrder
   isDefaultBilling?: Prisma.SortOrder
   isDefaultShipping?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.AddressCountOrderByAggregateInput
+  _avg?: Prisma.AddressAvgOrderByAggregateInput
   _max?: Prisma.AddressMaxOrderByAggregateInput
   _min?: Prisma.AddressMinOrderByAggregateInput
+  _sum?: Prisma.AddressSumOrderByAggregateInput
 }
 
 export type AddressScalarWhereWithAggregatesInput = {
@@ -372,6 +448,9 @@ export type AddressScalarWhereWithAggregatesInput = {
   state?: Prisma.StringWithAggregatesFilter<"Address"> | string
   postalCode?: Prisma.StringWithAggregatesFilter<"Address"> | string
   country?: Prisma.StringWithAggregatesFilter<"Address"> | string
+  latitude?: Prisma.DecimalNullableWithAggregatesFilter<"Address"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.DecimalNullableWithAggregatesFilter<"Address"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: Prisma.StringNullableWithAggregatesFilter<"Address"> | string | null
   isDefaultBilling?: Prisma.BoolWithAggregatesFilter<"Address"> | boolean
   isDefaultShipping?: Prisma.BoolWithAggregatesFilter<"Address"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Address"> | Date | string
@@ -391,6 +470,9 @@ export type AddressCreateInput = {
   state: string
   postalCode: string
   country: string
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: string | null
   isDefaultBilling?: boolean
   isDefaultShipping?: boolean
   createdAt?: Date | string
@@ -399,6 +481,7 @@ export type AddressCreateInput = {
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutAddressesInput
   shippingSchedules?: Prisma.RecurringScheduleCreateNestedManyWithoutShippingAddressInput
   billingSchedules?: Prisma.RecurringScheduleCreateNestedManyWithoutBillingAddressInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutAddressInput
 }
 
 export type AddressUncheckedCreateInput = {
@@ -414,6 +497,9 @@ export type AddressUncheckedCreateInput = {
   state: string
   postalCode: string
   country: string
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: string | null
   isDefaultBilling?: boolean
   isDefaultShipping?: boolean
   createdAt?: Date | string
@@ -421,6 +507,7 @@ export type AddressUncheckedCreateInput = {
   archivedAt?: Date | string | null
   shippingSchedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutShippingAddressInput
   billingSchedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutBillingAddressInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutAddressInput
 }
 
 export type AddressUpdateInput = {
@@ -435,6 +522,9 @@ export type AddressUpdateInput = {
   state?: Prisma.StringFieldUpdateOperationsInput | string
   postalCode?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDefaultBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefaultShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -443,6 +533,7 @@ export type AddressUpdateInput = {
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutAddressesNestedInput
   shippingSchedules?: Prisma.RecurringScheduleUpdateManyWithoutShippingAddressNestedInput
   billingSchedules?: Prisma.RecurringScheduleUpdateManyWithoutBillingAddressNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutAddressNestedInput
 }
 
 export type AddressUncheckedUpdateInput = {
@@ -458,6 +549,9 @@ export type AddressUncheckedUpdateInput = {
   state?: Prisma.StringFieldUpdateOperationsInput | string
   postalCode?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDefaultBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefaultShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -465,6 +559,7 @@ export type AddressUncheckedUpdateInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   shippingSchedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutShippingAddressNestedInput
   billingSchedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutBillingAddressNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutAddressNestedInput
 }
 
 export type AddressCreateManyInput = {
@@ -480,6 +575,9 @@ export type AddressCreateManyInput = {
   state: string
   postalCode: string
   country: string
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: string | null
   isDefaultBilling?: boolean
   isDefaultShipping?: boolean
   createdAt?: Date | string
@@ -499,6 +597,9 @@ export type AddressUpdateManyMutationInput = {
   state?: Prisma.StringFieldUpdateOperationsInput | string
   postalCode?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDefaultBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefaultShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -519,6 +620,9 @@ export type AddressUncheckedUpdateManyInput = {
   state?: Prisma.StringFieldUpdateOperationsInput | string
   postalCode?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDefaultBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefaultShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -555,11 +659,19 @@ export type AddressCountOrderByAggregateInput = {
   state?: Prisma.SortOrder
   postalCode?: Prisma.SortOrder
   country?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
   isDefaultBilling?: Prisma.SortOrder
   isDefaultShipping?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
+}
+
+export type AddressAvgOrderByAggregateInput = {
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
 }
 
 export type AddressMaxOrderByAggregateInput = {
@@ -575,6 +687,9 @@ export type AddressMaxOrderByAggregateInput = {
   state?: Prisma.SortOrder
   postalCode?: Prisma.SortOrder
   country?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
   isDefaultBilling?: Prisma.SortOrder
   isDefaultShipping?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -595,6 +710,9 @@ export type AddressMinOrderByAggregateInput = {
   state?: Prisma.SortOrder
   postalCode?: Prisma.SortOrder
   country?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
   isDefaultBilling?: Prisma.SortOrder
   isDefaultShipping?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -602,9 +720,19 @@ export type AddressMinOrderByAggregateInput = {
   archivedAt?: Prisma.SortOrder
 }
 
+export type AddressSumOrderByAggregateInput = {
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
+}
+
 export type AddressScalarRelationFilter = {
   is?: Prisma.AddressWhereInput
   isNot?: Prisma.AddressWhereInput
+}
+
+export type AddressNullableScalarRelationFilter = {
+  is?: Prisma.AddressWhereInput | null
+  isNot?: Prisma.AddressWhereInput | null
 }
 
 export type AddressCreateNestedManyWithoutCustomerProfileInput = {
@@ -681,6 +809,22 @@ export type AddressUpdateOneRequiredWithoutBillingSchedulesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AddressUpdateToOneWithWhereWithoutBillingSchedulesInput, Prisma.AddressUpdateWithoutBillingSchedulesInput>, Prisma.AddressUncheckedUpdateWithoutBillingSchedulesInput>
 }
 
+export type AddressCreateNestedOneWithoutFulfilmentQuotesInput = {
+  create?: Prisma.XOR<Prisma.AddressCreateWithoutFulfilmentQuotesInput, Prisma.AddressUncheckedCreateWithoutFulfilmentQuotesInput>
+  connectOrCreate?: Prisma.AddressCreateOrConnectWithoutFulfilmentQuotesInput
+  connect?: Prisma.AddressWhereUniqueInput
+}
+
+export type AddressUpdateOneWithoutFulfilmentQuotesNestedInput = {
+  create?: Prisma.XOR<Prisma.AddressCreateWithoutFulfilmentQuotesInput, Prisma.AddressUncheckedCreateWithoutFulfilmentQuotesInput>
+  connectOrCreate?: Prisma.AddressCreateOrConnectWithoutFulfilmentQuotesInput
+  upsert?: Prisma.AddressUpsertWithoutFulfilmentQuotesInput
+  disconnect?: Prisma.AddressWhereInput | boolean
+  delete?: Prisma.AddressWhereInput | boolean
+  connect?: Prisma.AddressWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AddressUpdateToOneWithWhereWithoutFulfilmentQuotesInput, Prisma.AddressUpdateWithoutFulfilmentQuotesInput>, Prisma.AddressUncheckedUpdateWithoutFulfilmentQuotesInput>
+}
+
 export type AddressCreateWithoutCustomerProfileInput = {
   id: string
   kind?: $Enums.AddressKind
@@ -693,6 +837,9 @@ export type AddressCreateWithoutCustomerProfileInput = {
   state: string
   postalCode: string
   country: string
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: string | null
   isDefaultBilling?: boolean
   isDefaultShipping?: boolean
   createdAt?: Date | string
@@ -700,6 +847,7 @@ export type AddressCreateWithoutCustomerProfileInput = {
   archivedAt?: Date | string | null
   shippingSchedules?: Prisma.RecurringScheduleCreateNestedManyWithoutShippingAddressInput
   billingSchedules?: Prisma.RecurringScheduleCreateNestedManyWithoutBillingAddressInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutAddressInput
 }
 
 export type AddressUncheckedCreateWithoutCustomerProfileInput = {
@@ -714,6 +862,9 @@ export type AddressUncheckedCreateWithoutCustomerProfileInput = {
   state: string
   postalCode: string
   country: string
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: string | null
   isDefaultBilling?: boolean
   isDefaultShipping?: boolean
   createdAt?: Date | string
@@ -721,6 +872,7 @@ export type AddressUncheckedCreateWithoutCustomerProfileInput = {
   archivedAt?: Date | string | null
   shippingSchedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutShippingAddressInput
   billingSchedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutBillingAddressInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutAddressInput
 }
 
 export type AddressCreateOrConnectWithoutCustomerProfileInput = {
@@ -765,6 +917,9 @@ export type AddressScalarWhereInput = {
   state?: Prisma.StringFilter<"Address"> | string
   postalCode?: Prisma.StringFilter<"Address"> | string
   country?: Prisma.StringFilter<"Address"> | string
+  latitude?: Prisma.DecimalNullableFilter<"Address"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.DecimalNullableFilter<"Address"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: Prisma.StringNullableFilter<"Address"> | string | null
   isDefaultBilling?: Prisma.BoolFilter<"Address"> | boolean
   isDefaultShipping?: Prisma.BoolFilter<"Address"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Address"> | Date | string
@@ -784,6 +939,9 @@ export type AddressCreateWithoutShippingSchedulesInput = {
   state: string
   postalCode: string
   country: string
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: string | null
   isDefaultBilling?: boolean
   isDefaultShipping?: boolean
   createdAt?: Date | string
@@ -791,6 +949,7 @@ export type AddressCreateWithoutShippingSchedulesInput = {
   archivedAt?: Date | string | null
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutAddressesInput
   billingSchedules?: Prisma.RecurringScheduleCreateNestedManyWithoutBillingAddressInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutAddressInput
 }
 
 export type AddressUncheckedCreateWithoutShippingSchedulesInput = {
@@ -806,12 +965,16 @@ export type AddressUncheckedCreateWithoutShippingSchedulesInput = {
   state: string
   postalCode: string
   country: string
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: string | null
   isDefaultBilling?: boolean
   isDefaultShipping?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
   billingSchedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutBillingAddressInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutAddressInput
 }
 
 export type AddressCreateOrConnectWithoutShippingSchedulesInput = {
@@ -831,6 +994,9 @@ export type AddressCreateWithoutBillingSchedulesInput = {
   state: string
   postalCode: string
   country: string
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: string | null
   isDefaultBilling?: boolean
   isDefaultShipping?: boolean
   createdAt?: Date | string
@@ -838,6 +1004,7 @@ export type AddressCreateWithoutBillingSchedulesInput = {
   archivedAt?: Date | string | null
   customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutAddressesInput
   shippingSchedules?: Prisma.RecurringScheduleCreateNestedManyWithoutShippingAddressInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutAddressInput
 }
 
 export type AddressUncheckedCreateWithoutBillingSchedulesInput = {
@@ -853,12 +1020,16 @@ export type AddressUncheckedCreateWithoutBillingSchedulesInput = {
   state: string
   postalCode: string
   country: string
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: string | null
   isDefaultBilling?: boolean
   isDefaultShipping?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
   shippingSchedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutShippingAddressInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutAddressInput
 }
 
 export type AddressCreateOrConnectWithoutBillingSchedulesInput = {
@@ -889,6 +1060,9 @@ export type AddressUpdateWithoutShippingSchedulesInput = {
   state?: Prisma.StringFieldUpdateOperationsInput | string
   postalCode?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDefaultBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefaultShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -896,6 +1070,7 @@ export type AddressUpdateWithoutShippingSchedulesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutAddressesNestedInput
   billingSchedules?: Prisma.RecurringScheduleUpdateManyWithoutBillingAddressNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutAddressNestedInput
 }
 
 export type AddressUncheckedUpdateWithoutShippingSchedulesInput = {
@@ -911,12 +1086,16 @@ export type AddressUncheckedUpdateWithoutShippingSchedulesInput = {
   state?: Prisma.StringFieldUpdateOperationsInput | string
   postalCode?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDefaultBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefaultShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   billingSchedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutBillingAddressNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutAddressNestedInput
 }
 
 export type AddressUpsertWithoutBillingSchedulesInput = {
@@ -942,6 +1121,9 @@ export type AddressUpdateWithoutBillingSchedulesInput = {
   state?: Prisma.StringFieldUpdateOperationsInput | string
   postalCode?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDefaultBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefaultShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -949,6 +1131,7 @@ export type AddressUpdateWithoutBillingSchedulesInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutAddressesNestedInput
   shippingSchedules?: Prisma.RecurringScheduleUpdateManyWithoutShippingAddressNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutAddressNestedInput
 }
 
 export type AddressUncheckedUpdateWithoutBillingSchedulesInput = {
@@ -964,12 +1147,132 @@ export type AddressUncheckedUpdateWithoutBillingSchedulesInput = {
   state?: Prisma.StringFieldUpdateOperationsInput | string
   postalCode?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDefaultBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefaultShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   shippingSchedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutShippingAddressNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutAddressNestedInput
+}
+
+export type AddressCreateWithoutFulfilmentQuotesInput = {
+  id: string
+  kind?: $Enums.AddressKind
+  label?: string | null
+  contactName: string
+  contactPhone: string
+  line1: string
+  line2?: string | null
+  city: string
+  state: string
+  postalCode: string
+  country: string
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: string | null
+  isDefaultBilling?: boolean
+  isDefaultShipping?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  customerProfile: Prisma.CustomerProfileCreateNestedOneWithoutAddressesInput
+  shippingSchedules?: Prisma.RecurringScheduleCreateNestedManyWithoutShippingAddressInput
+  billingSchedules?: Prisma.RecurringScheduleCreateNestedManyWithoutBillingAddressInput
+}
+
+export type AddressUncheckedCreateWithoutFulfilmentQuotesInput = {
+  id: string
+  customerProfileId: string
+  kind?: $Enums.AddressKind
+  label?: string | null
+  contactName: string
+  contactPhone: string
+  line1: string
+  line2?: string | null
+  city: string
+  state: string
+  postalCode: string
+  country: string
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: string | null
+  isDefaultBilling?: boolean
+  isDefaultShipping?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  shippingSchedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutShippingAddressInput
+  billingSchedules?: Prisma.RecurringScheduleUncheckedCreateNestedManyWithoutBillingAddressInput
+}
+
+export type AddressCreateOrConnectWithoutFulfilmentQuotesInput = {
+  where: Prisma.AddressWhereUniqueInput
+  create: Prisma.XOR<Prisma.AddressCreateWithoutFulfilmentQuotesInput, Prisma.AddressUncheckedCreateWithoutFulfilmentQuotesInput>
+}
+
+export type AddressUpsertWithoutFulfilmentQuotesInput = {
+  update: Prisma.XOR<Prisma.AddressUpdateWithoutFulfilmentQuotesInput, Prisma.AddressUncheckedUpdateWithoutFulfilmentQuotesInput>
+  create: Prisma.XOR<Prisma.AddressCreateWithoutFulfilmentQuotesInput, Prisma.AddressUncheckedCreateWithoutFulfilmentQuotesInput>
+  where?: Prisma.AddressWhereInput
+}
+
+export type AddressUpdateToOneWithWhereWithoutFulfilmentQuotesInput = {
+  where?: Prisma.AddressWhereInput
+  data: Prisma.XOR<Prisma.AddressUpdateWithoutFulfilmentQuotesInput, Prisma.AddressUncheckedUpdateWithoutFulfilmentQuotesInput>
+}
+
+export type AddressUpdateWithoutFulfilmentQuotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumAddressKindFieldUpdateOperationsInput | $Enums.AddressKind
+  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactName?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPhone?: Prisma.StringFieldUpdateOperationsInput | string
+  line1?: Prisma.StringFieldUpdateOperationsInput | string
+  line2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  state?: Prisma.StringFieldUpdateOperationsInput | string
+  postalCode?: Prisma.StringFieldUpdateOperationsInput | string
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDefaultBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDefaultShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  customerProfile?: Prisma.CustomerProfileUpdateOneRequiredWithoutAddressesNestedInput
+  shippingSchedules?: Prisma.RecurringScheduleUpdateManyWithoutShippingAddressNestedInput
+  billingSchedules?: Prisma.RecurringScheduleUpdateManyWithoutBillingAddressNestedInput
+}
+
+export type AddressUncheckedUpdateWithoutFulfilmentQuotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumAddressKindFieldUpdateOperationsInput | $Enums.AddressKind
+  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactName?: Prisma.StringFieldUpdateOperationsInput | string
+  contactPhone?: Prisma.StringFieldUpdateOperationsInput | string
+  line1?: Prisma.StringFieldUpdateOperationsInput | string
+  line2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  state?: Prisma.StringFieldUpdateOperationsInput | string
+  postalCode?: Prisma.StringFieldUpdateOperationsInput | string
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDefaultBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDefaultShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  shippingSchedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutShippingAddressNestedInput
+  billingSchedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutBillingAddressNestedInput
 }
 
 export type AddressCreateManyCustomerProfileInput = {
@@ -984,6 +1287,9 @@ export type AddressCreateManyCustomerProfileInput = {
   state: string
   postalCode: string
   country: string
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: string | null
   isDefaultBilling?: boolean
   isDefaultShipping?: boolean
   createdAt?: Date | string
@@ -1003,6 +1309,9 @@ export type AddressUpdateWithoutCustomerProfileInput = {
   state?: Prisma.StringFieldUpdateOperationsInput | string
   postalCode?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDefaultBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefaultShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1010,6 +1319,7 @@ export type AddressUpdateWithoutCustomerProfileInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   shippingSchedules?: Prisma.RecurringScheduleUpdateManyWithoutShippingAddressNestedInput
   billingSchedules?: Prisma.RecurringScheduleUpdateManyWithoutBillingAddressNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutAddressNestedInput
 }
 
 export type AddressUncheckedUpdateWithoutCustomerProfileInput = {
@@ -1024,6 +1334,9 @@ export type AddressUncheckedUpdateWithoutCustomerProfileInput = {
   state?: Prisma.StringFieldUpdateOperationsInput | string
   postalCode?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDefaultBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefaultShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1031,6 +1344,7 @@ export type AddressUncheckedUpdateWithoutCustomerProfileInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   shippingSchedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutShippingAddressNestedInput
   billingSchedules?: Prisma.RecurringScheduleUncheckedUpdateManyWithoutBillingAddressNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutAddressNestedInput
 }
 
 export type AddressUncheckedUpdateManyWithoutCustomerProfileInput = {
@@ -1045,6 +1359,9 @@ export type AddressUncheckedUpdateManyWithoutCustomerProfileInput = {
   state?: Prisma.StringFieldUpdateOperationsInput | string
   postalCode?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDefaultBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefaultShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1060,11 +1377,13 @@ export type AddressUncheckedUpdateManyWithoutCustomerProfileInput = {
 export type AddressCountOutputType = {
   shippingSchedules: number
   billingSchedules: number
+  fulfilmentQuotes: number
 }
 
 export type AddressCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   shippingSchedules?: boolean | AddressCountOutputTypeCountShippingSchedulesArgs
   billingSchedules?: boolean | AddressCountOutputTypeCountBillingSchedulesArgs
+  fulfilmentQuotes?: boolean | AddressCountOutputTypeCountFulfilmentQuotesArgs
 }
 
 /**
@@ -1091,6 +1410,13 @@ export type AddressCountOutputTypeCountBillingSchedulesArgs<ExtArgs extends runt
   where?: Prisma.RecurringScheduleWhereInput
 }
 
+/**
+ * AddressCountOutputType without action
+ */
+export type AddressCountOutputTypeCountFulfilmentQuotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FulfilmentQuoteWhereInput
+}
+
 
 export type AddressSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1105,6 +1431,9 @@ export type AddressSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   state?: boolean
   postalCode?: boolean
   country?: boolean
+  latitude?: boolean
+  longitude?: boolean
+  timezone?: boolean
   isDefaultBilling?: boolean
   isDefaultShipping?: boolean
   createdAt?: boolean
@@ -1113,6 +1442,7 @@ export type AddressSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   shippingSchedules?: boolean | Prisma.Address$shippingSchedulesArgs<ExtArgs>
   billingSchedules?: boolean | Prisma.Address$billingSchedulesArgs<ExtArgs>
+  fulfilmentQuotes?: boolean | Prisma.Address$fulfilmentQuotesArgs<ExtArgs>
   _count?: boolean | Prisma.AddressCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["address"]>
 
@@ -1131,6 +1461,9 @@ export type AddressSelectScalar = {
   state?: boolean
   postalCode?: boolean
   country?: boolean
+  latitude?: boolean
+  longitude?: boolean
+  timezone?: boolean
   isDefaultBilling?: boolean
   isDefaultShipping?: boolean
   createdAt?: boolean
@@ -1138,11 +1471,12 @@ export type AddressSelectScalar = {
   archivedAt?: boolean
 }
 
-export type AddressOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerProfileId" | "kind" | "label" | "contactName" | "contactPhone" | "line1" | "line2" | "city" | "state" | "postalCode" | "country" | "isDefaultBilling" | "isDefaultShipping" | "createdAt" | "updatedAt" | "archivedAt", ExtArgs["result"]["address"]>
+export type AddressOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerProfileId" | "kind" | "label" | "contactName" | "contactPhone" | "line1" | "line2" | "city" | "state" | "postalCode" | "country" | "latitude" | "longitude" | "timezone" | "isDefaultBilling" | "isDefaultShipping" | "createdAt" | "updatedAt" | "archivedAt", ExtArgs["result"]["address"]>
 export type AddressInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   shippingSchedules?: boolean | Prisma.Address$shippingSchedulesArgs<ExtArgs>
   billingSchedules?: boolean | Prisma.Address$billingSchedulesArgs<ExtArgs>
+  fulfilmentQuotes?: boolean | Prisma.Address$fulfilmentQuotesArgs<ExtArgs>
   _count?: boolean | Prisma.AddressCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1152,6 +1486,7 @@ export type $AddressPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     customerProfile: Prisma.$CustomerProfilePayload<ExtArgs>
     shippingSchedules: Prisma.$RecurringSchedulePayload<ExtArgs>[]
     billingSchedules: Prisma.$RecurringSchedulePayload<ExtArgs>[]
+    fulfilmentQuotes: Prisma.$FulfilmentQuotePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1166,6 +1501,41 @@ export type $AddressPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     state: string
     postalCode: string
     country: string
+    /**
+     * Where this address actually is, when anybody has been able to work it out.
+     * 
+     * Decimal(9,6) and nullable, exactly like `InventoryLocation.latitude` -
+     * same reasoning, same precision, and the same meaning for NULL: not a
+     * missing value but an ordinary state. Every address in a deployment that is
+     * already running predates this column, a geocoder can be unconfigured or
+     * simply having a bad afternoon, and an industrial estate that resolves to
+     * nothing is still somewhere a van can go.
+     * 
+     * What it buys is the difference between an estimate and a quote. With no
+     * coordinates a fulfilment option can only be measured warehouse-to-nearest-
+     * border-of-the-destination-country, which is honest but coarse, and the
+     * storefront labels the result "Estimated". With them the same option is
+     * measured to the delivery point itself. Neither figure decides eligibility -
+     * the delivery zones do - but a buyer comparing two warehouses is entitled to
+     * the better number wherever it exists.
+     */
+    latitude: runtime.Decimal | null
+    longitude: runtime.Decimal | null
+    /**
+     * The IANA zone this delivery point reads a clock in, e.g. "Europe/Brussels".
+     * 
+     * Stored for the same reason `RecurringSchedule.timezone` and
+     * `InventoryLocation.timezone` are: a calendar day is a wall-clock fact and
+     * the server's own zone is not it. "Today plus seven days" evaluated for a
+     * buyer in Auckland is a different pair of dates from the same phrase
+     * evaluated in Asia/Calcutta, and the delivery is theirs rather than the
+     * server's.
+     * 
+     * Nullable, and the caller falls back - the plan's own zone, then the store's.
+     * Never derived from the country, because a country is not a zone: Spain
+     * spans two of them and the United States spans six.
+     */
+    timezone: string | null
     isDefaultBilling: boolean
     isDefaultShipping: boolean
     createdAt: Date
@@ -1518,6 +1888,7 @@ export interface Prisma__AddressClient<T, Null = never, ExtArgs extends runtime.
   customerProfile<T extends Prisma.CustomerProfileDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfileDefaultArgs<ExtArgs>>): Prisma.Prisma__CustomerProfileClient<runtime.Types.Result.GetResult<Prisma.$CustomerProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   shippingSchedules<T extends Prisma.Address$shippingSchedulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Address$shippingSchedulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecurringSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   billingSchedules<T extends Prisma.Address$billingSchedulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Address$billingSchedulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecurringSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  fulfilmentQuotes<T extends Prisma.Address$fulfilmentQuotesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Address$fulfilmentQuotesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FulfilmentQuotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1559,6 +1930,9 @@ export interface AddressFieldRefs {
   readonly state: Prisma.FieldRef<"Address", 'String'>
   readonly postalCode: Prisma.FieldRef<"Address", 'String'>
   readonly country: Prisma.FieldRef<"Address", 'String'>
+  readonly latitude: Prisma.FieldRef<"Address", 'Decimal'>
+  readonly longitude: Prisma.FieldRef<"Address", 'Decimal'>
+  readonly timezone: Prisma.FieldRef<"Address", 'String'>
   readonly isDefaultBilling: Prisma.FieldRef<"Address", 'Boolean'>
   readonly isDefaultShipping: Prisma.FieldRef<"Address", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Address", 'DateTime'>
@@ -1957,6 +2331,30 @@ export type Address$billingSchedulesArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.RecurringScheduleScalarFieldEnum | Prisma.RecurringScheduleScalarFieldEnum[]
+}
+
+/**
+ * Address.fulfilmentQuotes
+ */
+export type Address$fulfilmentQuotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FulfilmentQuote
+   */
+  select?: Prisma.FulfilmentQuoteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FulfilmentQuote
+   */
+  omit?: Prisma.FulfilmentQuoteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FulfilmentQuoteInclude<ExtArgs> | null
+  where?: Prisma.FulfilmentQuoteWhereInput
+  orderBy?: Prisma.FulfilmentQuoteOrderByWithRelationInput | Prisma.FulfilmentQuoteOrderByWithRelationInput[]
+  cursor?: Prisma.FulfilmentQuoteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FulfilmentQuoteScalarFieldEnum | Prisma.FulfilmentQuoteScalarFieldEnum[]
 }
 
 /**

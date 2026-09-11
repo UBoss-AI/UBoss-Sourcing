@@ -60,6 +60,12 @@ export const SECTIONS = Object.freeze({
     // of ordering, which is plainly theirs, and short enough to disclose whole.
     'wishlist',
     'couponRedemptions',
+    // Delivery options this person was shown at checkout, with the price and
+    // the dates each one promised. Short-lived and mostly unaccepted, and
+    // disclosed anyway: it is a record of what a shop offered a named
+    // individual, and the one they took is the evidence behind a delivery
+    // date they may later be arguing about.
+    'fulfilmentQuotes',
     'chatEnquiries',
     'sessions',
     'dataRequests',
@@ -67,6 +73,10 @@ export const SECTIONS = Object.freeze({
     // gave it. Disclosed in full: it is the record a subject would want if they
     // ever disputed a charge.
     'autoPayAuthority',
+    // Where they work and what authority they hold there. The organisation's
+    // ERP connection is the COMPANY's and is not disclosed here - see the
+    // section itself for why the line falls where it does.
+    'organisationMembership',
   ]),
   withheld: Object.freeze([
     {
@@ -676,6 +686,102 @@ export async function buildCustomerBundle(subject: BundleSubject): Promise<Recor
         consentUserAgent: settings.consentUserAgent,
         enabledAt: iso(settings.enabledAt),
         pausedAt: iso(settings.pausedAt),
+      };
+    })(),
+
+    /**
+     * Which buyer organisation this person belongs to, and what they may do
+     * in it.
+     *
+     * Their MEMBERSHIP is theirs - it says where they work and what authority
+     * they hold there, which is plainly a fact about them. The organisation's
+     * ERP connection is not: it is the company's integration with its own
+     * purchasing system, configured by whoever holds the role rather than
+     * being a fact about any individual, and it would still exist unchanged if
+     * this person left tomorrow. So the role is disclosed and the credentials,
+     * mappings and purchase orders behind it are not.
+     *
+     * Null for the great majority of accounts, which belong to no
+     * organisation because nobody has opened the integrations area.
+     */
+    /**
+     * Delivery options offered to this person, newest first.
+     *
+     * Capped, because a customer who reloads a checkout page a dozen times
+     * generates a dozen sets of these and a subject access request is not
+     * improved by four hundred near-identical rows. The cap is stated in the
+     * data rather than applied silently - a bundle that quietly truncated
+     * would be an incomplete answer presented as a complete one - and the
+     * count says how many there were altogether.
+     *
+     * The basket digest is deliberately absent: it is an internal integrity
+     * check, it identifies nothing about the person, and a sixty-four
+     * character hash in a file a human is meant to read is noise.
+     */
+    fulfilmentQuotes: await (async () => {
+      const LIMIT = 100;
+
+      const [rows, total] = await Promise.all([
+        prisma.fulfilmentQuote.findMany({
+          where: { customerProfileId: profile.id },
+          orderBy: { createdAt: 'desc' },
+          take: LIMIT,
+          include: { location: { select: { code: true, name: true } } },
+        }),
+        prisma.fulfilmentQuote.count({ where: { customerProfileId: profile.id } }),
+      ]);
+
+      return {
+        total,
+        disclosed: rows.length,
+        ...(total > rows.length
+          ? {
+              note: `The ${String(LIMIT)} most recent are listed. Ask for the rest and they will be sent.`,
+            }
+          : {}),
+        quotes: rows.map((quote) => ({
+          offeredAt: iso(quote.createdAt),
+          warehouse: `${quote.location.code} - ${quote.location.name}`,
+          carrier: quote.carrierName,
+          serviceLevel: quote.serviceLevel,
+          destinationCountry: quote.destinationCountry,
+          destinationPostalCode: quote.destinationPostalCode,
+          // An estimate taken against a country rather than an address. Said
+          // out loud, because it is the difference between an offer and a
+          // conversation.
+          wasEstimate: quote.isEstimate,
+          currency: quote.currency,
+          subtotalMinor: money(quote.subtotalMinor),
+          discountMinor: money(quote.discountMinor),
+          taxMinor: money(quote.taxMinor),
+          shippingMinor: money(quote.shippingMinor),
+          grandTotalMinor: money(quote.grandTotalMinor),
+          // Calendar days, as they were shown. Not timestamps - "arrives on
+          // the 18th" is the 18th wherever it is read.
+          dispatchDate: quote.dispatchDate.toISOString().slice(0, 10),
+          deliveryFromDate: quote.deliveryFromDate.toISOString().slice(0, 10),
+          deliveryToDate: quote.deliveryToDate.toISOString().slice(0, 10),
+          expiredAt: iso(quote.expiresAt),
+        })),
+      };
+    })(),
+
+    organisationMembership: await (async () => {
+      const membership = await prisma.buyerOrganizationMember.findUnique({
+        where: { customerProfileId: profile?.id ?? '' },
+        include: { organization: { select: { name: true, createdAt: true } } },
+      });
+
+      if (membership === null) return null;
+
+      return {
+        organisationName: membership.organization.name,
+        role: membership.role,
+        joinedAt: iso(membership.joinedAt),
+        // Whether somebody invited them, not who: the inviter is a different
+        // person, and their identity is that person's data rather than this
+        // subject's.
+        joinedByInvitation: membership.invitedByProfileId !== null,
       };
     })(),
   });

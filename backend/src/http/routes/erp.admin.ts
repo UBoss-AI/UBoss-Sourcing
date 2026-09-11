@@ -1,12 +1,15 @@
 /**
  * Settings -> ERP. Administrator only.
  *
- * The whole ERP surface lives behind `integration.read` / `integration.write`,
- * which only the Business Owner role holds. There is no customer-facing
- * counterpart to any of it, and that is the security property rather than a
- * layout choice: a connection is a URL plus a credential that this server then
- * calls, so the set of people who can create one is the set of people already
- * trusted with the installation.
+ * This surface lives behind `integration.read` / `integration.write`, which
+ * only the Business Owner role holds, because the connection it configures is
+ * THIS INSTALLATION's own warehouse system and every order taken here goes to
+ * it. A customer has no business configuring that.
+ *
+ * There IS a customer-facing ERP surface, and it is a different feature:
+ * `customer-erp.customer.ts`, where a buyer connects their own SAP, monday.com
+ * or in-house system so that what they buy here appears there. Separate
+ * tables, separate credentials, separate jobs. Neither can reach the other.
  *
  * `outbound-http.ts` still resolves, checks and pins every address before a
  * request leaves. Being administrator-typed makes an address more likely to be

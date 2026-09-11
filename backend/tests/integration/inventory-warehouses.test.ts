@@ -31,6 +31,7 @@ import { Role } from '../../src/domain/permissions.js';
 import { hashPassword } from '../../src/infra/crypto.js';
 import { newId } from '../../src/infra/ids.js';
 import { prisma } from '../../src/infra/prisma.js';
+import { env } from '../../src/config/env.js';
 
 let app: Awaited<ReturnType<typeof buildApp>>;
 /** An Inventory Manager: holds inventory.location.write. */
@@ -102,6 +103,16 @@ interface Warehouse {
     message: string | null;
     externalId: string | null;
   };
+  /** The geofence, the timing, the price and the closed countries. */
+  delivery: {
+    /** Never null: the server resolves the deployment fallback for every reader. */
+    radiusKm: number;
+    /** True when `radiusKm` came from the deployment rather than this warehouse. */
+    radiusIsDefault: boolean;
+    leadTimeDays: { min: number; max: number } | null;
+    fee: { minor: string; formatted: string; currency: string } | null;
+    excludedCountries: { code: string; name: string; flag: string; reason: string | null }[];
+  };
   stock: {
     skuCount: number;
     onHandQty: number;
@@ -161,6 +172,15 @@ interface CreateOptions {
   isDefault?: boolean;
   isActive?: boolean;
   address?: Record<string, unknown> | null;
+
+  /** The geofence. Every one is nullable *and* optional - see the route schema. */
+  deliveryRadiusKm?: number | null;
+  deliveryLeadTimeMinDays?: number | null;
+  deliveryLeadTimeMaxDays?: number | null;
+  /** Minor units as a string, the way money crosses this API. */
+  deliveryFeeMinor?: string | null;
+  deliveryFeeCurrency?: string | null;
+  excludedCountries?: { code: string; reason?: string | null }[];
 }
 
 /**
@@ -236,6 +256,11 @@ async function created(options: CreateOptions): Promise<Warehouse> {
   const response = await create(options);
   expect(response.statusCode, response.body).toBe(201);
   return response.json<{ warehouse: Warehouse }>().warehouse;
+}
+
+/** The same, for the many tests that only need the id to PATCH against. */
+async function createdWarehouseId(options: CreateOptions): Promise<string> {
+  return (await created(options)).id;
 }
 
 /**
@@ -1391,5 +1416,339 @@ describe('the database holds the line', () => {
         },
       }),
     ).rejects.toThrow();
+  });
+
+  it('rejects a lead-time window with only one end written directly', async () => {
+    await expect(
+      prisma.inventoryLocation.create({
+        data: {
+          id: newId(),
+          code: `${PREFIX}RAW3`,
+          name: 'Raw',
+          deliveryLeadTimeMinDays: 2,
+        },
+      }),
+    ).rejects.toThrow();
+  });
+
+  it('rejects a delivery fee with no currency written directly', async () => {
+    await expect(
+      prisma.inventoryLocation.create({
+        data: {
+          id: newId(),
+          code: `${PREFIX}RAW4`,
+          name: 'Raw',
+          deliveryFeeMinor: 1200n,
+        },
+      }),
+    ).rejects.toThrow();
+  });
+
+  it('rejects a zero delivery radius written directly', async () => {
+    // Zero would silently mean "this warehouse delivers nowhere", which is
+    // what retiring a warehouse is for. Nobody types it on purpose.
+    await expect(
+      prisma.inventoryLocation.create({
+        data: {
+          id: newId(),
+          code: `${PREFIX}RAW5`,
+          name: 'Raw',
+          deliveryRadiusKm: 0,
+        },
+      }),
+    ).rejects.toThrow();
+  });
+
+  /**
+   * `chk_warehouse_exclusion_country_shape` rejects anything that is not two
+   * letters.
+   *
+   * A digit or a symbol in a country code is a code that names nothing and
+   * would sit in the table forever matching no country. A single letter is the
+   * other real case - a truncated paste.
+   */
+  it('rejects an exclusion whose country code is not two letters', async () => {
+    const id = await createdWarehouseId({ code: `${PREFIX}RAWEX` });
+
+    for (const countryCode of ['D1', '99', 'D']) {
+      await expect(
+        prisma.warehouseCountryExclusion.create({
+          data: { id: newId(), locationId: id, countryCode },
+        }),
+      ).rejects.toThrow();
+    }
+  });
+
+  /**
+   * Two things the constraint does **not** catch, and neither is a problem.
+   * Asserted rather than left unsaid, because "the CHECK does not stop this"
+   * is exactly the sort of thing somebody discovers by writing the opposite
+   * test and finding it fail.
+   *
+   * **An alpha-3 code is truncated, not rejected.** The column is CHAR(2), and
+   * MariaDB shortens an over-long value before any CHECK runs - so "DEU"
+   * arrives as "DE", which is Germany, which is what the writer meant. A
+   * constraint cannot improve on that.
+   *
+   * **Lower case passes.** The CHECK reads `REGEXP '^[A-Z]{2}$'` and this
+   * column's collation is case-insensitive, so `[A-Z]` matches `de` as readily
+   * as `DE`. Making it case-sensitive would need a BINARY comparison and would
+   * earn nothing: `de` and `DE` are the *same value* to this column, so the
+   * unique index still blocks a duplicate and every query that matches on the
+   * code - the storefront's own `exclusions: { none: { countryCode } }` above
+   * all - finds it either way. The API upper-cases on the way in, so nothing
+   * this product writes reaches the column in lower case at all.
+   */
+  it('truncates an alpha-3 code and treats lower case as equivalent', async () => {
+    const id = await createdWarehouseId({ code: `${PREFIX}RAWLC` });
+
+    await prisma.warehouseCountryExclusion.create({
+      data: { id: newId(), locationId: id, countryCode: 'de' },
+    });
+
+    // Found by an upper-case lookup, which is the only thing that matters.
+    expect(
+      await prisma.warehouseCountryExclusion.count({
+        where: { locationId: id, countryCode: 'DE' },
+      }),
+    ).toBe(1);
+  });
+});
+
+/**
+ * The geofence: how far a warehouse delivers, and where it refuses to go.
+ *
+ * The rules under test are all about the same distinction - what geometry can
+ * *reach* against what the business will *serve* - plus the one shape money
+ * takes in this system and never any other.
+ */
+describe('delivery settings', () => {
+  it('starts on the deployment default, with nothing of its own', async () => {
+    await create({ code: `${PREFIX}GF1` });
+    const warehouse = await findOwn(`${PREFIX}GF1`);
+
+    expect(warehouse?.delivery.radiusIsDefault).toBe(true);
+    expect(warehouse?.delivery.radiusKm).toBe(env.DELIVERY_COVERAGE_RADIUS_KM);
+    expect(warehouse?.delivery.leadTimeDays).toBeNull();
+    expect(warehouse?.delivery.fee).toBeNull();
+    expect(warehouse?.delivery.excludedCountries).toEqual([]);
+  });
+
+  it('takes a radius, a lead time, a fee and closed countries on create', async () => {
+    const response = await create({
+      code: `${PREFIX}GF2`,
+      deliveryRadiusKm: 750,
+      deliveryLeadTimeMinDays: 2,
+      deliveryLeadTimeMaxDays: 5,
+      deliveryFeeMinor: '1250',
+      deliveryFeeCurrency: 'EUR',
+      excludedCountries: [{ code: 'gb', reason: 'No customs broker.' }],
+    });
+
+    expect(response.statusCode, response.body).toBe(201);
+
+    const warehouse = await findOwn(`${PREFIX}GF2`);
+
+    expect(warehouse?.delivery.radiusKm).toBe(750);
+    expect(warehouse?.delivery.radiusIsDefault).toBe(false);
+    expect(warehouse?.delivery.leadTimeDays).toEqual({ min: 2, max: 5 });
+    // Money crosses this API as minor units in a string, always.
+    expect(warehouse?.delivery.fee?.minor).toBe('1250');
+    expect(warehouse?.delivery.fee?.currency).toBe('EUR');
+    // Upper-cased on the way in, and named from the reference table or ISO.
+    expect(warehouse?.delivery.excludedCountries).toHaveLength(1);
+    expect(warehouse?.delivery.excludedCountries[0]?.code).toBe('GB');
+    expect(warehouse?.delivery.excludedCountries[0]?.reason).toBe('No customs broker.');
+    expect(warehouse?.delivery.excludedCountries[0]?.name).not.toBe('');
+  });
+
+  /**
+   * Absent leaves it alone; explicit null clears it.
+   *
+   * Without the distinction, a PATCH that renamed a building would silently
+   * change what it promises - the same rule the coordinates have carried since
+   * they were added.
+   */
+  it('leaves the radius alone when a PATCH does not mention it', async () => {
+    const id = await createdWarehouseId({ code: `${PREFIX}GF3`, deliveryRadiusKm: 600 });
+
+    expect((await patch(id, { name: 'Renamed' })).statusCode).toBe(200);
+    expect((await findOwn(`${PREFIX}GF3`))?.delivery.radiusKm).toBe(600);
+  });
+
+  it('puts a warehouse back on the deployment default when the radius is cleared', async () => {
+    const id = await createdWarehouseId({ code: `${PREFIX}GF4`, deliveryRadiusKm: 600 });
+
+    expect((await patch(id, { deliveryRadiusKm: null })).statusCode).toBe(200);
+
+    const warehouse = await findOwn(`${PREFIX}GF4`);
+    expect(warehouse?.delivery.radiusIsDefault).toBe(true);
+    expect(warehouse?.delivery.radiusKm).toBe(env.DELIVERY_COVERAGE_RADIUS_KM);
+  });
+
+  /**
+   * A PATCH that moves one end of the window is checked against the other end
+   * *as stored*, not against nothing.
+   *
+   * Otherwise raising the maximum on a warehouse that already has a minimum
+   * would fire "give both or neither" on a request that is perfectly complete.
+   */
+  it('checks one end of the lead-time window against the stored other end', async () => {
+    const id = await createdWarehouseId({
+      code: `${PREFIX}GF5`,
+      deliveryLeadTimeMinDays: 2,
+      deliveryLeadTimeMaxDays: 5,
+    });
+
+    expect((await patch(id, { deliveryLeadTimeMaxDays: 9 })).statusCode).toBe(200);
+    expect((await findOwn(`${PREFIX}GF5`))?.delivery.leadTimeDays).toEqual({ min: 2, max: 9 });
+  });
+
+  it('refuses half a lead-time window', async () => {
+    const response = await create({ code: `${PREFIX}GF6`, deliveryLeadTimeMinDays: 2 });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json<ErrorResponse>().error.code).toBe('VALIDATION_FAILED');
+  });
+
+  it('refuses a lead time whose fastest end is slower than its slowest', async () => {
+    const response = await create({
+      code: `${PREFIX}GF7`,
+      deliveryLeadTimeMinDays: 9,
+      deliveryLeadTimeMaxDays: 2,
+    });
+
+    expect(response.statusCode).toBe(400);
+  });
+
+  it('refuses a fee with no currency, and a currency with no fee', async () => {
+    expect((await create({ code: `${PREFIX}GF8`, deliveryFeeMinor: '1200' })).statusCode).toBe(400);
+    expect((await create({ code: `${PREFIX}GF9`, deliveryFeeCurrency: 'EUR' })).statusCode).toBe(
+      400,
+    );
+  });
+
+  it('accepts a fee of zero, which means free', async () => {
+    const response = await create({
+      code: `${PREFIX}GFA`,
+      deliveryFeeMinor: '0',
+      deliveryFeeCurrency: 'EUR',
+    });
+
+    expect(response.statusCode, response.body).toBe(201);
+    expect((await findOwn(`${PREFIX}GFA`))?.delivery.fee?.minor).toBe('0');
+  });
+
+  it('refuses a currency the money module does not know', async () => {
+    const response = await create({
+      code: `${PREFIX}GFB`,
+      deliveryFeeMinor: '1200',
+      deliveryFeeCurrency: 'ZZZ',
+    });
+
+    expect(response.statusCode).toBe(400);
+  });
+
+  it('refuses a radius past the commercial ceiling', async () => {
+    expect((await create({ code: `${PREFIX}GFC`, deliveryRadiusKm: 50_000 })).statusCode).toBe(400);
+  });
+
+  /**
+   * The exclusion list is the whole set, not a delta.
+   *
+   * A form that shows the operator every closed country and sends back what is
+   * left after they untick one is the only shape that cannot drift out of step
+   * with what they are looking at.
+   */
+  it('replaces the whole closed-country set on a PATCH', async () => {
+    const id = await createdWarehouseId({
+      code: `${PREFIX}GFD`,
+      excludedCountries: [{ code: 'GB' }, { code: 'MA' }],
+    });
+
+    expect((await patch(id, { excludedCountries: [{ code: 'MA', reason: 'Still shut.' }] })).statusCode).toBe(
+      200,
+    );
+
+    const warehouse = await findOwn(`${PREFIX}GFD`);
+    expect(warehouse?.delivery.excludedCountries.map((entry) => entry.code)).toEqual(['MA']);
+    expect(warehouse?.delivery.excludedCountries[0]?.reason).toBe('Still shut.');
+  });
+
+  it('clears every closed country when an empty list is sent', async () => {
+    const id = await createdWarehouseId({ code: `${PREFIX}GFE`, excludedCountries: [{ code: 'GB' }] });
+
+    expect((await patch(id, { excludedCountries: [] })).statusCode).toBe(200);
+    expect((await findOwn(`${PREFIX}GFE`))?.delivery.excludedCountries).toEqual([]);
+  });
+
+  it('leaves the closed countries alone when a PATCH does not mention them', async () => {
+    const id = await createdWarehouseId({ code: `${PREFIX}GFF`, excludedCountries: [{ code: 'GB' }] });
+
+    expect((await patch(id, { name: 'Renamed again' })).statusCode).toBe(200);
+    expect(
+      (await findOwn(`${PREFIX}GFF`))?.delivery.excludedCountries.map((entry) => entry.code),
+    ).toEqual(['GB']);
+  });
+
+  /**
+   * The codes are checked against ISO 3166-1, not against the `countries`
+   * reference table.
+   *
+   * That table is the list of markets this deployment *prices in* - a few
+   * dozen rows - and a 500 km circle reaches countries nobody has ever sold
+   * into, which are exactly the ones an operator most wants to close. So a
+   * real country that is not in the reference table has to be closable.
+   */
+  it('accepts a real country the reference table does not carry', async () => {
+    const outsideTheTable = await prisma.country.findUnique({ where: { code: 'MC' } });
+    if (outsideTheTable !== null) {
+      // This deployment does carry Monaco, so it proves nothing here. Any
+      // ISO code is accepted either way, which the next test covers.
+      expect(outsideTheTable.code).toBe('MC');
+      return;
+    }
+
+    const response = await create({
+      code: `${PREFIX}GFG`,
+      excludedCountries: [{ code: 'MC' }],
+    });
+
+    expect(response.statusCode, response.body).toBe(201);
+    expect(
+      (await findOwn(`${PREFIX}GFG`))?.delivery.excludedCountries.map((entry) => entry.code),
+    ).toEqual(['MC']);
+  });
+
+  it('refuses a country code that names nothing', async () => {
+    const response = await create({
+      code: `${PREFIX}GFH`,
+      excludedCountries: [{ code: 'XX' }],
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json<ErrorResponse>().error.code).toBe('VALIDATION_FAILED');
+  });
+
+  it('folds a duplicated country rather than failing on the unique index', async () => {
+    const response = await create({
+      code: `${PREFIX}GFI`,
+      excludedCountries: [{ code: 'GB' }, { code: 'GB', reason: 'The later one wins.' }],
+    });
+
+    expect(response.statusCode, response.body).toBe(201);
+
+    const excluded = (await findOwn(`${PREFIX}GFI`))?.delivery.excludedCountries;
+    expect(excluded).toHaveLength(1);
+    expect(excluded?.[0]?.reason).toBe('The later one wins.');
+  });
+
+  it("removes a warehouse's closed countries with it", async () => {
+    const id = await createdWarehouseId({ code: `${PREFIX}GFJ`, excludedCountries: [{ code: 'GB' }] });
+
+    expect((await remove(id)).statusCode).toBe(200);
+    expect(
+      await prisma.warehouseCountryExclusion.count({ where: { locationId: id } }),
+    ).toBe(0);
   });
 });

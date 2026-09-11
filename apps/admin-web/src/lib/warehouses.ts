@@ -59,6 +59,56 @@ export interface WarehouseStock {
   activeReservations: number;
 }
 
+/** Money, as it crosses this API: minor units as a string, plus a rendering. */
+export interface Money {
+  minor: string;
+  formatted: string;
+  currency: string;
+}
+
+/** A country this warehouse has been told not to deliver to. */
+export interface ExcludedCountry {
+  /** ISO 3166-1 alpha-2, upper case. */
+  code: string;
+  name: string;
+  /**
+   * The emoji flag, part of the API's contract.
+   *
+   * The panel draws its own - Windows ships no font that composes regional
+   * indicator pairs, so this renders as two letters in boxes on the platform
+   * most operators are on. See the note at the top of `CountryFlag.tsx`.
+   */
+  flag: string;
+  /** Why it is closed, in the operator's words. Null when they gave none. */
+  reason: string | null;
+}
+
+/**
+ * The geofence, the promise, and the refusals.
+ *
+ * Two of these fields look like they could be derived and are not, and that is
+ * the point of the shape:
+ *
+ *   - **`radiusKm` is never null**, because the server resolves the fallback.
+ *     A frontend that had to remember to apply `DELIVERY_COVERAGE_RADIUS_KM`
+ *     itself is a frontend that will one day draw a 100 km ring over a 500 km
+ *     promise.
+ *   - **`radiusIsDefault` is carried separately**, because "this warehouse
+ *     promises 500 km" and "nobody has said, so the deployment's 500 applies"
+ *     are the same number and not the same statement. The panel says something
+ *     different about each, and an operator setting up their second warehouse
+ *     needs to know which one they are looking at.
+ */
+export interface WarehouseDelivery {
+  radiusKm: number;
+  radiusIsDefault: boolean;
+  /** Null where this warehouse has not published a delivery time. */
+  leadTimeDays: { min: number; max: number } | null;
+  /** Null where it has not priced delivery. */
+  fee: Money | null;
+  excludedCountries: ExcludedCountry[];
+}
+
 export interface Warehouse {
   id: string;
   code: string;
@@ -96,6 +146,8 @@ export interface Warehouse {
   isDefault: boolean;
   isActive: boolean;
   erp: ErpSync;
+  /** The geofence, the timing, the price and the closed countries. */
+  delivery: WarehouseDelivery;
   stock: WarehouseStock;
   createdAt: string;
   updatedAt: string;
@@ -194,6 +246,26 @@ export interface CountryOption {
 
 export interface CountriesResponse {
   countries: CountryOption[];
+}
+
+/**
+ * One country from the ISO 3166-1 list, for the exclusion picker.
+ *
+ * **Not the same list as `CountriesResponse` above**, and the difference is
+ * the whole reason there are two endpoints. That one is the countries this
+ * deployment *prices in* - a few dozen, each with a currency behind it - and
+ * it is the right list for "which country is this warehouse in". This is every
+ * country there is, because a 500 km circle reaches countries nobody has ever
+ * sold into and those are exactly the ones an operator most wants to close.
+ */
+export interface WorldCountry {
+  code: string;
+  name: string;
+  flag: string;
+}
+
+export interface WorldCountriesResponse {
+  countries: WorldCountry[];
 }
 
 export interface GeocodeResponse {

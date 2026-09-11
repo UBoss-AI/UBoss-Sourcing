@@ -15,11 +15,14 @@
  * that the page lied to them. So a node that cannot navigate returns a note
  * saying why, and where a way forward exists the note carries it.
  *
- * One of them returns a note *always*, and that is not a gap waiting to be
- * filled in: **ERP** is a URL plus a credential that this installation's
- * server then calls. Creating one belongs to whoever runs the installation,
- * which is why the screen for it is in the admin panel and why
- * `lib/autopay.ts` says the same thing about the surface that used to be here.
+ * **ERP used to return a note always, and no longer does.** The reason it did
+ * was real: a connection is a URL plus a credential this installation's server
+ * then calls, and for a long time the only screen for one was in the admin
+ * panel. It is now a buyer-facing feature — a customer connects their *own*
+ * SAP, monday.com or in-house system at `/account/integrations/erp` — and the
+ * risk that kept it out is handled where it has to be, in `outbound-http.ts`
+ * and the credential vault, rather than by declining to offer it. So the node
+ * navigates like every other one, behind the same sign-in branch.
  *
  * ---
  *
@@ -256,9 +259,10 @@ export function resolveNode(id: OrchestrationNodeId, access: OrchestrationAccess
       if (!isCustomer) return signIn('greeting.note.autopayGuest');
       return { kind: 'link', to: '/account/autopay' };
 
-    // Always a note. See the header.
     case 'erp':
-      return { kind: 'note', bodyKey: 'greeting.note.erp' };
+      if (isSessionLoading) return { kind: 'pending' };
+      if (!isCustomer) return signIn('greeting.note.erpGuest');
+      return { kind: 'link', to: '/account/integrations/erp' };
   }
 }
 

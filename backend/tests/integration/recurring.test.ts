@@ -9,6 +9,8 @@
  */
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { env } from '../../src/config/env.js';
+import { addCalendarDays } from '../../src/domain/delivery-dates.js';
+import { earliestFirstDelivery } from '../support/schedule-dates.js';
 import { newId } from '../../src/infra/ids.js';
 import { prisma } from '../../src/infra/prisma.js';
 import { receiveStock, getAvailability } from '../../src/modules/inventory/inventory.service.js';
@@ -222,10 +224,6 @@ afterAll(async () => {
   await prisma.$disconnect();
 });
 
-function yesterday(): string {
-  return new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
-}
-
 async function makeSchedule(overrides: Record<string, unknown> = {}) {
   return createSchedule(
     {
@@ -233,7 +231,18 @@ async function makeSchedule(overrides: Record<string, unknown> = {}) {
       name: 'Weekly bolts',
       frequency: 'EVERY_N_DAYS',
       intervalDays: 7,
-      startDate: yesterday(),
+      /*
+       * The first date the notice period allows, rather than an anchor in the
+       * past.
+       *
+       * These fixtures used to start yesterday and let the cadence roll
+       * forward, which no anchor can do any more: a weekly plan's next slot is
+       * never more than seven days out, so a past anchor always lands inside
+       * the notice window. Every test below that needs a schedule the worker
+       * will pick up calls `makeDue` afterwards, which is what actually put
+       * them in the due query before and still does.
+       */
+      startDate: await earliestFirstDelivery(),
       paymentMode: 'PAYMENT_LINK',
       payerEmail: 'finance@acme.test',
       shippingAddressId: addressId,
@@ -286,7 +295,6 @@ describe('creating a schedule', () => {
       frequency: 'EVERY_N_MONTHS',
       intervalMonths,
       intervalDays: null,
-      startDate: yesterday(),
     });
 
     const row = await prisma.recurringSchedule.findUniqueOrThrow({
@@ -743,11 +751,26 @@ describe('running an occurrence', () => {
   });
 
   it('stops after the end date', async () => {
-    const schedule = await makeSchedule({
-      endDate: new Date(Date.now() - 86_400_000).toISOString().slice(0, 10),
+    /*
+     * The window has closed behind the slot being run.
+     *
+     * It used to be expressed as an end date in the past, which is no longer
+     * expressible: a first delivery needs a week's notice, so the start date
+     * is a week out and an end date before it would be a window with no days
+     * in it - refused, correctly, by a different check. So the plan ends on
+     * the day of its first delivery, and the slot handed to the engine is two
+     * days after that. The thing under test is unchanged: the engine refuses
+     * a slot past the end date and writes no order.
+     */
+    const endDate = await earliestFirstDelivery();
+    const schedule = await makeSchedule({ endDate });
+
+    const slot = new Date(`${addCalendarDays(endDate, 2)}T06:00:00.000Z`);
+    await prisma.recurringSchedule.update({
+      where: { id: schedule.scheduleId },
+      data: { nextRunAt: slot },
     });
 
-    const slot = await makeDue(schedule.scheduleId);
     const outcome = await runOccurrence(schedule.scheduleId, slot);
 
     expect(outcome.result).toBe('SKIPPED');

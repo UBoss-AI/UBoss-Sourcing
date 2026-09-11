@@ -1513,6 +1513,346 @@ export type EnumAutoPayRetryPreferenceWithAggregatesFilter<$PrismaModel = never>
   _max?: Prisma.NestedEnumAutoPayRetryPreferenceFilter<$PrismaModel>
 }
 
+export type EnumBuyerOrgRoleFilter<$PrismaModel = never> = {
+  equals?: $Enums.BuyerOrgRole | Prisma.EnumBuyerOrgRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.BuyerOrgRole[]
+  notIn?: $Enums.BuyerOrgRole[]
+  not?: Prisma.NestedEnumBuyerOrgRoleFilter<$PrismaModel> | $Enums.BuyerOrgRole
+}
+
+export type EnumBuyerOrgRoleWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BuyerOrgRole | Prisma.EnumBuyerOrgRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.BuyerOrgRole[]
+  notIn?: $Enums.BuyerOrgRole[]
+  not?: Prisma.NestedEnumBuyerOrgRoleWithAggregatesFilter<$PrismaModel> | $Enums.BuyerOrgRole
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBuyerOrgRoleFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBuyerOrgRoleFilter<$PrismaModel>
+}
+
+export type EnumCustomerErpSystemFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpSystem | Prisma.EnumCustomerErpSystemFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpSystem[]
+  notIn?: $Enums.CustomerErpSystem[]
+  not?: Prisma.NestedEnumCustomerErpSystemFilter<$PrismaModel> | $Enums.CustomerErpSystem
+}
+
+export type EnumCustomerErpApiStyleFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpApiStyle | Prisma.EnumCustomerErpApiStyleFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpApiStyle[]
+  notIn?: $Enums.CustomerErpApiStyle[]
+  not?: Prisma.NestedEnumCustomerErpApiStyleFilter<$PrismaModel> | $Enums.CustomerErpApiStyle
+}
+
+export type EnumCustomerErpEnvironmentFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpEnvironment | Prisma.EnumCustomerErpEnvironmentFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpEnvironment[]
+  notIn?: $Enums.CustomerErpEnvironment[]
+  not?: Prisma.NestedEnumCustomerErpEnvironmentFilter<$PrismaModel> | $Enums.CustomerErpEnvironment
+}
+
+export type EnumCustomerErpConnectionStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpConnectionState | Prisma.EnumCustomerErpConnectionStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpConnectionState[]
+  notIn?: $Enums.CustomerErpConnectionState[]
+  not?: Prisma.NestedEnumCustomerErpConnectionStateFilter<$PrismaModel> | $Enums.CustomerErpConnectionState
+}
+
+export type EnumCustomerErpNetworkModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpNetworkMode | Prisma.EnumCustomerErpNetworkModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpNetworkMode[]
+  notIn?: $Enums.CustomerErpNetworkMode[]
+  not?: Prisma.NestedEnumCustomerErpNetworkModeFilter<$PrismaModel> | $Enums.CustomerErpNetworkMode
+}
+
+export type EnumCustomerErpAuthMethodFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpAuthMethod | Prisma.EnumCustomerErpAuthMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpAuthMethod[]
+  notIn?: $Enums.CustomerErpAuthMethod[]
+  not?: Prisma.NestedEnumCustomerErpAuthMethodFilter<$PrismaModel> | $Enums.CustomerErpAuthMethod
+}
+
+export type EnumCustomerErpApiKeyLocationNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpApiKeyLocation | Prisma.EnumCustomerErpApiKeyLocationFieldRefInput<$PrismaModel> | null
+  in?: $Enums.CustomerErpApiKeyLocation[] | null
+  notIn?: $Enums.CustomerErpApiKeyLocation[] | null
+  not?: Prisma.NestedEnumCustomerErpApiKeyLocationNullableFilter<$PrismaModel> | $Enums.CustomerErpApiKeyLocation | null
+}
+
+export type EnumCustomerErpSystemWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpSystem | Prisma.EnumCustomerErpSystemFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpSystem[]
+  notIn?: $Enums.CustomerErpSystem[]
+  not?: Prisma.NestedEnumCustomerErpSystemWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpSystem
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpSystemFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpSystemFilter<$PrismaModel>
+}
+
+export type EnumCustomerErpApiStyleWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpApiStyle | Prisma.EnumCustomerErpApiStyleFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpApiStyle[]
+  notIn?: $Enums.CustomerErpApiStyle[]
+  not?: Prisma.NestedEnumCustomerErpApiStyleWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpApiStyle
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpApiStyleFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpApiStyleFilter<$PrismaModel>
+}
+
+export type EnumCustomerErpEnvironmentWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpEnvironment | Prisma.EnumCustomerErpEnvironmentFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpEnvironment[]
+  notIn?: $Enums.CustomerErpEnvironment[]
+  not?: Prisma.NestedEnumCustomerErpEnvironmentWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpEnvironment
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpEnvironmentFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpEnvironmentFilter<$PrismaModel>
+}
+
+export type EnumCustomerErpConnectionStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpConnectionState | Prisma.EnumCustomerErpConnectionStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpConnectionState[]
+  notIn?: $Enums.CustomerErpConnectionState[]
+  not?: Prisma.NestedEnumCustomerErpConnectionStateWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpConnectionState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpConnectionStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpConnectionStateFilter<$PrismaModel>
+}
+
+export type EnumCustomerErpNetworkModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpNetworkMode | Prisma.EnumCustomerErpNetworkModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpNetworkMode[]
+  notIn?: $Enums.CustomerErpNetworkMode[]
+  not?: Prisma.NestedEnumCustomerErpNetworkModeWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpNetworkMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpNetworkModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpNetworkModeFilter<$PrismaModel>
+}
+
+export type EnumCustomerErpAuthMethodWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpAuthMethod | Prisma.EnumCustomerErpAuthMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpAuthMethod[]
+  notIn?: $Enums.CustomerErpAuthMethod[]
+  not?: Prisma.NestedEnumCustomerErpAuthMethodWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpAuthMethod
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpAuthMethodFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpAuthMethodFilter<$PrismaModel>
+}
+
+export type EnumCustomerErpApiKeyLocationNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpApiKeyLocation | Prisma.EnumCustomerErpApiKeyLocationFieldRefInput<$PrismaModel> | null
+  in?: $Enums.CustomerErpApiKeyLocation[] | null
+  notIn?: $Enums.CustomerErpApiKeyLocation[] | null
+  not?: Prisma.NestedEnumCustomerErpApiKeyLocationNullableWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpApiKeyLocation | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpApiKeyLocationNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpApiKeyLocationNullableFilter<$PrismaModel>
+}
+
+export type EnumCustomerErpCredentialKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpCredentialKind | Prisma.EnumCustomerErpCredentialKindFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpCredentialKind[]
+  notIn?: $Enums.CustomerErpCredentialKind[]
+  not?: Prisma.NestedEnumCustomerErpCredentialKindFilter<$PrismaModel> | $Enums.CustomerErpCredentialKind
+}
+
+export type EnumCustomerErpCredentialKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpCredentialKind | Prisma.EnumCustomerErpCredentialKindFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpCredentialKind[]
+  notIn?: $Enums.CustomerErpCredentialKind[]
+  not?: Prisma.NestedEnumCustomerErpCredentialKindWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpCredentialKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpCredentialKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpCredentialKindFilter<$PrismaModel>
+}
+
+export type EnumCustomerErpEndpointPurposeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpEndpointPurpose | Prisma.EnumCustomerErpEndpointPurposeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpEndpointPurpose[]
+  notIn?: $Enums.CustomerErpEndpointPurpose[]
+  not?: Prisma.NestedEnumCustomerErpEndpointPurposeFilter<$PrismaModel> | $Enums.CustomerErpEndpointPurpose
+}
+
+export type EnumCustomerErpPaginationFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpPagination | Prisma.EnumCustomerErpPaginationFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpPagination[]
+  notIn?: $Enums.CustomerErpPagination[]
+  not?: Prisma.NestedEnumCustomerErpPaginationFilter<$PrismaModel> | $Enums.CustomerErpPagination
+}
+
+export type EnumCustomerErpEndpointPurposeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpEndpointPurpose | Prisma.EnumCustomerErpEndpointPurposeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpEndpointPurpose[]
+  notIn?: $Enums.CustomerErpEndpointPurpose[]
+  not?: Prisma.NestedEnumCustomerErpEndpointPurposeWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpEndpointPurpose
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpEndpointPurposeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpEndpointPurposeFilter<$PrismaModel>
+}
+
+export type EnumCustomerErpPaginationWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpPagination | Prisma.EnumCustomerErpPaginationFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpPagination[]
+  notIn?: $Enums.CustomerErpPagination[]
+  not?: Prisma.NestedEnumCustomerErpPaginationWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpPagination
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpPaginationFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpPaginationFilter<$PrismaModel>
+}
+
+export type EnumCustomerErpMappingEntityFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpMappingEntity | Prisma.EnumCustomerErpMappingEntityFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpMappingEntity[]
+  notIn?: $Enums.CustomerErpMappingEntity[]
+  not?: Prisma.NestedEnumCustomerErpMappingEntityFilter<$PrismaModel> | $Enums.CustomerErpMappingEntity
+}
+
+export type EnumCustomerErpMappingEntityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpMappingEntity | Prisma.EnumCustomerErpMappingEntityFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpMappingEntity[]
+  notIn?: $Enums.CustomerErpMappingEntity[]
+  not?: Prisma.NestedEnumCustomerErpMappingEntityWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpMappingEntity
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpMappingEntityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpMappingEntityFilter<$PrismaModel>
+}
+
+export type EnumCustomerErpSourceOfTruthFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpSourceOfTruth | Prisma.EnumCustomerErpSourceOfTruthFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpSourceOfTruth[]
+  notIn?: $Enums.CustomerErpSourceOfTruth[]
+  not?: Prisma.NestedEnumCustomerErpSourceOfTruthFilter<$PrismaModel> | $Enums.CustomerErpSourceOfTruth
+}
+
+export type EnumCustomerErpSyncModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpSyncMode | Prisma.EnumCustomerErpSyncModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpSyncMode[]
+  notIn?: $Enums.CustomerErpSyncMode[]
+  not?: Prisma.NestedEnumCustomerErpSyncModeFilter<$PrismaModel> | $Enums.CustomerErpSyncMode
+}
+
+export type EnumCustomerErpConflictPolicyFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpConflictPolicy | Prisma.EnumCustomerErpConflictPolicyFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpConflictPolicy[]
+  notIn?: $Enums.CustomerErpConflictPolicy[]
+  not?: Prisma.NestedEnumCustomerErpConflictPolicyFilter<$PrismaModel> | $Enums.CustomerErpConflictPolicy
+}
+
+export type EnumCustomerErpWriteModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpWriteMode | Prisma.EnumCustomerErpWriteModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpWriteMode[]
+  notIn?: $Enums.CustomerErpWriteMode[]
+  not?: Prisma.NestedEnumCustomerErpWriteModeFilter<$PrismaModel> | $Enums.CustomerErpWriteMode
+}
+
+export type EnumCustomerErpSourceOfTruthWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpSourceOfTruth | Prisma.EnumCustomerErpSourceOfTruthFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpSourceOfTruth[]
+  notIn?: $Enums.CustomerErpSourceOfTruth[]
+  not?: Prisma.NestedEnumCustomerErpSourceOfTruthWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpSourceOfTruth
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpSourceOfTruthFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpSourceOfTruthFilter<$PrismaModel>
+}
+
+export type EnumCustomerErpSyncModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpSyncMode | Prisma.EnumCustomerErpSyncModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpSyncMode[]
+  notIn?: $Enums.CustomerErpSyncMode[]
+  not?: Prisma.NestedEnumCustomerErpSyncModeWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpSyncMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpSyncModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpSyncModeFilter<$PrismaModel>
+}
+
+export type EnumCustomerErpConflictPolicyWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpConflictPolicy | Prisma.EnumCustomerErpConflictPolicyFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpConflictPolicy[]
+  notIn?: $Enums.CustomerErpConflictPolicy[]
+  not?: Prisma.NestedEnumCustomerErpConflictPolicyWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpConflictPolicy
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpConflictPolicyFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpConflictPolicyFilter<$PrismaModel>
+}
+
+export type EnumCustomerErpWriteModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpWriteMode | Prisma.EnumCustomerErpWriteModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpWriteMode[]
+  notIn?: $Enums.CustomerErpWriteMode[]
+  not?: Prisma.NestedEnumCustomerErpWriteModeWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpWriteMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpWriteModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpWriteModeFilter<$PrismaModel>
+}
+
+export type EnumCustomerErpEventTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpEventType | Prisma.EnumCustomerErpEventTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpEventType[]
+  notIn?: $Enums.CustomerErpEventType[]
+  not?: Prisma.NestedEnumCustomerErpEventTypeFilter<$PrismaModel> | $Enums.CustomerErpEventType
+}
+
+export type EnumCustomerErpEventStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpEventState | Prisma.EnumCustomerErpEventStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpEventState[]
+  notIn?: $Enums.CustomerErpEventState[]
+  not?: Prisma.NestedEnumCustomerErpEventStateFilter<$PrismaModel> | $Enums.CustomerErpEventState
+}
+
+export type EnumCustomerErpEventTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpEventType | Prisma.EnumCustomerErpEventTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpEventType[]
+  notIn?: $Enums.CustomerErpEventType[]
+  not?: Prisma.NestedEnumCustomerErpEventTypeWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpEventType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpEventTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpEventTypeFilter<$PrismaModel>
+}
+
+export type EnumCustomerErpEventStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpEventState | Prisma.EnumCustomerErpEventStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpEventState[]
+  notIn?: $Enums.CustomerErpEventState[]
+  not?: Prisma.NestedEnumCustomerErpEventStateWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpEventState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpEventStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpEventStateFilter<$PrismaModel>
+}
+
+export type EnumCustomerErpApprovalKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpApprovalKind | Prisma.EnumCustomerErpApprovalKindFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpApprovalKind[]
+  notIn?: $Enums.CustomerErpApprovalKind[]
+  not?: Prisma.NestedEnumCustomerErpApprovalKindFilter<$PrismaModel> | $Enums.CustomerErpApprovalKind
+}
+
+export type EnumCustomerErpApprovalStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpApprovalState | Prisma.EnumCustomerErpApprovalStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpApprovalState[]
+  notIn?: $Enums.CustomerErpApprovalState[]
+  not?: Prisma.NestedEnumCustomerErpApprovalStateFilter<$PrismaModel> | $Enums.CustomerErpApprovalState
+}
+
+export type EnumCustomerErpApprovalKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpApprovalKind | Prisma.EnumCustomerErpApprovalKindFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpApprovalKind[]
+  notIn?: $Enums.CustomerErpApprovalKind[]
+  not?: Prisma.NestedEnumCustomerErpApprovalKindWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpApprovalKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpApprovalKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpApprovalKindFilter<$PrismaModel>
+}
+
+export type EnumCustomerErpApprovalStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpApprovalState | Prisma.EnumCustomerErpApprovalStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpApprovalState[]
+  notIn?: $Enums.CustomerErpApprovalState[]
+  not?: Prisma.NestedEnumCustomerErpApprovalStateWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpApprovalState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpApprovalStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpApprovalStateFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[]
@@ -2973,6 +3313,346 @@ export type NestedEnumAutoPayRetryPreferenceWithAggregatesFilter<$PrismaModel = 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumAutoPayRetryPreferenceFilter<$PrismaModel>
   _max?: Prisma.NestedEnumAutoPayRetryPreferenceFilter<$PrismaModel>
+}
+
+export type NestedEnumBuyerOrgRoleFilter<$PrismaModel = never> = {
+  equals?: $Enums.BuyerOrgRole | Prisma.EnumBuyerOrgRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.BuyerOrgRole[]
+  notIn?: $Enums.BuyerOrgRole[]
+  not?: Prisma.NestedEnumBuyerOrgRoleFilter<$PrismaModel> | $Enums.BuyerOrgRole
+}
+
+export type NestedEnumBuyerOrgRoleWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BuyerOrgRole | Prisma.EnumBuyerOrgRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.BuyerOrgRole[]
+  notIn?: $Enums.BuyerOrgRole[]
+  not?: Prisma.NestedEnumBuyerOrgRoleWithAggregatesFilter<$PrismaModel> | $Enums.BuyerOrgRole
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBuyerOrgRoleFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBuyerOrgRoleFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerErpSystemFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpSystem | Prisma.EnumCustomerErpSystemFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpSystem[]
+  notIn?: $Enums.CustomerErpSystem[]
+  not?: Prisma.NestedEnumCustomerErpSystemFilter<$PrismaModel> | $Enums.CustomerErpSystem
+}
+
+export type NestedEnumCustomerErpApiStyleFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpApiStyle | Prisma.EnumCustomerErpApiStyleFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpApiStyle[]
+  notIn?: $Enums.CustomerErpApiStyle[]
+  not?: Prisma.NestedEnumCustomerErpApiStyleFilter<$PrismaModel> | $Enums.CustomerErpApiStyle
+}
+
+export type NestedEnumCustomerErpEnvironmentFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpEnvironment | Prisma.EnumCustomerErpEnvironmentFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpEnvironment[]
+  notIn?: $Enums.CustomerErpEnvironment[]
+  not?: Prisma.NestedEnumCustomerErpEnvironmentFilter<$PrismaModel> | $Enums.CustomerErpEnvironment
+}
+
+export type NestedEnumCustomerErpConnectionStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpConnectionState | Prisma.EnumCustomerErpConnectionStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpConnectionState[]
+  notIn?: $Enums.CustomerErpConnectionState[]
+  not?: Prisma.NestedEnumCustomerErpConnectionStateFilter<$PrismaModel> | $Enums.CustomerErpConnectionState
+}
+
+export type NestedEnumCustomerErpNetworkModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpNetworkMode | Prisma.EnumCustomerErpNetworkModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpNetworkMode[]
+  notIn?: $Enums.CustomerErpNetworkMode[]
+  not?: Prisma.NestedEnumCustomerErpNetworkModeFilter<$PrismaModel> | $Enums.CustomerErpNetworkMode
+}
+
+export type NestedEnumCustomerErpAuthMethodFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpAuthMethod | Prisma.EnumCustomerErpAuthMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpAuthMethod[]
+  notIn?: $Enums.CustomerErpAuthMethod[]
+  not?: Prisma.NestedEnumCustomerErpAuthMethodFilter<$PrismaModel> | $Enums.CustomerErpAuthMethod
+}
+
+export type NestedEnumCustomerErpApiKeyLocationNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpApiKeyLocation | Prisma.EnumCustomerErpApiKeyLocationFieldRefInput<$PrismaModel> | null
+  in?: $Enums.CustomerErpApiKeyLocation[] | null
+  notIn?: $Enums.CustomerErpApiKeyLocation[] | null
+  not?: Prisma.NestedEnumCustomerErpApiKeyLocationNullableFilter<$PrismaModel> | $Enums.CustomerErpApiKeyLocation | null
+}
+
+export type NestedEnumCustomerErpSystemWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpSystem | Prisma.EnumCustomerErpSystemFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpSystem[]
+  notIn?: $Enums.CustomerErpSystem[]
+  not?: Prisma.NestedEnumCustomerErpSystemWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpSystem
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpSystemFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpSystemFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerErpApiStyleWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpApiStyle | Prisma.EnumCustomerErpApiStyleFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpApiStyle[]
+  notIn?: $Enums.CustomerErpApiStyle[]
+  not?: Prisma.NestedEnumCustomerErpApiStyleWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpApiStyle
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpApiStyleFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpApiStyleFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerErpEnvironmentWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpEnvironment | Prisma.EnumCustomerErpEnvironmentFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpEnvironment[]
+  notIn?: $Enums.CustomerErpEnvironment[]
+  not?: Prisma.NestedEnumCustomerErpEnvironmentWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpEnvironment
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpEnvironmentFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpEnvironmentFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerErpConnectionStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpConnectionState | Prisma.EnumCustomerErpConnectionStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpConnectionState[]
+  notIn?: $Enums.CustomerErpConnectionState[]
+  not?: Prisma.NestedEnumCustomerErpConnectionStateWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpConnectionState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpConnectionStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpConnectionStateFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerErpNetworkModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpNetworkMode | Prisma.EnumCustomerErpNetworkModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpNetworkMode[]
+  notIn?: $Enums.CustomerErpNetworkMode[]
+  not?: Prisma.NestedEnumCustomerErpNetworkModeWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpNetworkMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpNetworkModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpNetworkModeFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerErpAuthMethodWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpAuthMethod | Prisma.EnumCustomerErpAuthMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpAuthMethod[]
+  notIn?: $Enums.CustomerErpAuthMethod[]
+  not?: Prisma.NestedEnumCustomerErpAuthMethodWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpAuthMethod
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpAuthMethodFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpAuthMethodFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerErpApiKeyLocationNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpApiKeyLocation | Prisma.EnumCustomerErpApiKeyLocationFieldRefInput<$PrismaModel> | null
+  in?: $Enums.CustomerErpApiKeyLocation[] | null
+  notIn?: $Enums.CustomerErpApiKeyLocation[] | null
+  not?: Prisma.NestedEnumCustomerErpApiKeyLocationNullableWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpApiKeyLocation | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpApiKeyLocationNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpApiKeyLocationNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerErpCredentialKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpCredentialKind | Prisma.EnumCustomerErpCredentialKindFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpCredentialKind[]
+  notIn?: $Enums.CustomerErpCredentialKind[]
+  not?: Prisma.NestedEnumCustomerErpCredentialKindFilter<$PrismaModel> | $Enums.CustomerErpCredentialKind
+}
+
+export type NestedEnumCustomerErpCredentialKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpCredentialKind | Prisma.EnumCustomerErpCredentialKindFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpCredentialKind[]
+  notIn?: $Enums.CustomerErpCredentialKind[]
+  not?: Prisma.NestedEnumCustomerErpCredentialKindWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpCredentialKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpCredentialKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpCredentialKindFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerErpEndpointPurposeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpEndpointPurpose | Prisma.EnumCustomerErpEndpointPurposeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpEndpointPurpose[]
+  notIn?: $Enums.CustomerErpEndpointPurpose[]
+  not?: Prisma.NestedEnumCustomerErpEndpointPurposeFilter<$PrismaModel> | $Enums.CustomerErpEndpointPurpose
+}
+
+export type NestedEnumCustomerErpPaginationFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpPagination | Prisma.EnumCustomerErpPaginationFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpPagination[]
+  notIn?: $Enums.CustomerErpPagination[]
+  not?: Prisma.NestedEnumCustomerErpPaginationFilter<$PrismaModel> | $Enums.CustomerErpPagination
+}
+
+export type NestedEnumCustomerErpEndpointPurposeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpEndpointPurpose | Prisma.EnumCustomerErpEndpointPurposeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpEndpointPurpose[]
+  notIn?: $Enums.CustomerErpEndpointPurpose[]
+  not?: Prisma.NestedEnumCustomerErpEndpointPurposeWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpEndpointPurpose
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpEndpointPurposeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpEndpointPurposeFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerErpPaginationWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpPagination | Prisma.EnumCustomerErpPaginationFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpPagination[]
+  notIn?: $Enums.CustomerErpPagination[]
+  not?: Prisma.NestedEnumCustomerErpPaginationWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpPagination
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpPaginationFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpPaginationFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerErpMappingEntityFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpMappingEntity | Prisma.EnumCustomerErpMappingEntityFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpMappingEntity[]
+  notIn?: $Enums.CustomerErpMappingEntity[]
+  not?: Prisma.NestedEnumCustomerErpMappingEntityFilter<$PrismaModel> | $Enums.CustomerErpMappingEntity
+}
+
+export type NestedEnumCustomerErpMappingEntityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpMappingEntity | Prisma.EnumCustomerErpMappingEntityFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpMappingEntity[]
+  notIn?: $Enums.CustomerErpMappingEntity[]
+  not?: Prisma.NestedEnumCustomerErpMappingEntityWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpMappingEntity
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpMappingEntityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpMappingEntityFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerErpSourceOfTruthFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpSourceOfTruth | Prisma.EnumCustomerErpSourceOfTruthFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpSourceOfTruth[]
+  notIn?: $Enums.CustomerErpSourceOfTruth[]
+  not?: Prisma.NestedEnumCustomerErpSourceOfTruthFilter<$PrismaModel> | $Enums.CustomerErpSourceOfTruth
+}
+
+export type NestedEnumCustomerErpSyncModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpSyncMode | Prisma.EnumCustomerErpSyncModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpSyncMode[]
+  notIn?: $Enums.CustomerErpSyncMode[]
+  not?: Prisma.NestedEnumCustomerErpSyncModeFilter<$PrismaModel> | $Enums.CustomerErpSyncMode
+}
+
+export type NestedEnumCustomerErpConflictPolicyFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpConflictPolicy | Prisma.EnumCustomerErpConflictPolicyFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpConflictPolicy[]
+  notIn?: $Enums.CustomerErpConflictPolicy[]
+  not?: Prisma.NestedEnumCustomerErpConflictPolicyFilter<$PrismaModel> | $Enums.CustomerErpConflictPolicy
+}
+
+export type NestedEnumCustomerErpWriteModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpWriteMode | Prisma.EnumCustomerErpWriteModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpWriteMode[]
+  notIn?: $Enums.CustomerErpWriteMode[]
+  not?: Prisma.NestedEnumCustomerErpWriteModeFilter<$PrismaModel> | $Enums.CustomerErpWriteMode
+}
+
+export type NestedEnumCustomerErpSourceOfTruthWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpSourceOfTruth | Prisma.EnumCustomerErpSourceOfTruthFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpSourceOfTruth[]
+  notIn?: $Enums.CustomerErpSourceOfTruth[]
+  not?: Prisma.NestedEnumCustomerErpSourceOfTruthWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpSourceOfTruth
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpSourceOfTruthFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpSourceOfTruthFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerErpSyncModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpSyncMode | Prisma.EnumCustomerErpSyncModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpSyncMode[]
+  notIn?: $Enums.CustomerErpSyncMode[]
+  not?: Prisma.NestedEnumCustomerErpSyncModeWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpSyncMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpSyncModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpSyncModeFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerErpConflictPolicyWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpConflictPolicy | Prisma.EnumCustomerErpConflictPolicyFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpConflictPolicy[]
+  notIn?: $Enums.CustomerErpConflictPolicy[]
+  not?: Prisma.NestedEnumCustomerErpConflictPolicyWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpConflictPolicy
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpConflictPolicyFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpConflictPolicyFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerErpWriteModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpWriteMode | Prisma.EnumCustomerErpWriteModeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpWriteMode[]
+  notIn?: $Enums.CustomerErpWriteMode[]
+  not?: Prisma.NestedEnumCustomerErpWriteModeWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpWriteMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpWriteModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpWriteModeFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerErpEventTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpEventType | Prisma.EnumCustomerErpEventTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpEventType[]
+  notIn?: $Enums.CustomerErpEventType[]
+  not?: Prisma.NestedEnumCustomerErpEventTypeFilter<$PrismaModel> | $Enums.CustomerErpEventType
+}
+
+export type NestedEnumCustomerErpEventStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpEventState | Prisma.EnumCustomerErpEventStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpEventState[]
+  notIn?: $Enums.CustomerErpEventState[]
+  not?: Prisma.NestedEnumCustomerErpEventStateFilter<$PrismaModel> | $Enums.CustomerErpEventState
+}
+
+export type NestedEnumCustomerErpEventTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpEventType | Prisma.EnumCustomerErpEventTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpEventType[]
+  notIn?: $Enums.CustomerErpEventType[]
+  not?: Prisma.NestedEnumCustomerErpEventTypeWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpEventType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpEventTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpEventTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerErpEventStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpEventState | Prisma.EnumCustomerErpEventStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpEventState[]
+  notIn?: $Enums.CustomerErpEventState[]
+  not?: Prisma.NestedEnumCustomerErpEventStateWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpEventState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpEventStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpEventStateFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerErpApprovalKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpApprovalKind | Prisma.EnumCustomerErpApprovalKindFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpApprovalKind[]
+  notIn?: $Enums.CustomerErpApprovalKind[]
+  not?: Prisma.NestedEnumCustomerErpApprovalKindFilter<$PrismaModel> | $Enums.CustomerErpApprovalKind
+}
+
+export type NestedEnumCustomerErpApprovalStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpApprovalState | Prisma.EnumCustomerErpApprovalStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpApprovalState[]
+  notIn?: $Enums.CustomerErpApprovalState[]
+  not?: Prisma.NestedEnumCustomerErpApprovalStateFilter<$PrismaModel> | $Enums.CustomerErpApprovalState
+}
+
+export type NestedEnumCustomerErpApprovalKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpApprovalKind | Prisma.EnumCustomerErpApprovalKindFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpApprovalKind[]
+  notIn?: $Enums.CustomerErpApprovalKind[]
+  not?: Prisma.NestedEnumCustomerErpApprovalKindWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpApprovalKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpApprovalKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpApprovalKindFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerErpApprovalStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerErpApprovalState | Prisma.EnumCustomerErpApprovalStateFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerErpApprovalState[]
+  notIn?: $Enums.CustomerErpApprovalState[]
+  not?: Prisma.NestedEnumCustomerErpApprovalStateWithAggregatesFilter<$PrismaModel> | $Enums.CustomerErpApprovalState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerErpApprovalStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerErpApprovalStateFilter<$PrismaModel>
 }
 
 

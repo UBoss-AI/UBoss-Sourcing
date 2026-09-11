@@ -267,6 +267,38 @@ const OPERATIONS: Readonly<Record<string, OperationDoc>> = Object.freeze({
     },
   },
 
+  // --- Delivery (Public) ---
+
+  'POST /api/v1/delivery/options': {
+    summary: 'Which warehouses can deliver this basket to a country',
+    description:
+      'Reads the geofence from the other end: the destination is fixed and the answer is who ' +
+      'can serve it, when, and for how much. Public, because a buyer asks it before they have ' +
+      'an account.\n\n' +
+      'A warehouse is offered only when all four hold: it is active, it can ship today ' +
+      '(`OPERATIONAL` or `LIMITED` — never `MAINTENANCE` or `SUSPENDED`), its own delivery ' +
+      'radius reaches the destination country measured against real country boundaries, and ' +
+      'the operator has not closed that country on it. One that is in range but short of ' +
+      'stock comes back under `partial` rather than being dropped, so a buyer who can split ' +
+      'an order still sees it.\n\n' +
+      '`leadTimeDays` and `fee` are null where the warehouse has not published them, and ' +
+      'nothing is substituted — a delivery promise this software invented is a promise ' +
+      'nobody agreed to. `isFastest` and `isCheapest` flag the extremes among the options ' +
+      'that can fill the basket; `isCheapest` is false on all of them when two options quote ' +
+      'in different currencies, because comparing those would need an exchange rate.\n\n' +
+      '`items` may be omitted, which asks "who could ever deliver here". An empty `options` ' +
+      'is a 200 and a real answer, not an error. `closedByOperator` is a count and never a ' +
+      'list: a buyer has no business reading why a warehouse will not serve their country.\n\n' +
+      'A POST because the basket does not belong in a query string or an access log, and ' +
+      'there is no caching to lose — the answer depends on live stock.',
+    tags: ['Delivery (Public)'],
+    auth: 'none',
+    responses: {
+      '200': ok(undefined, 'Options, partials, and the destination as named by this deployment'),
+      '400': ok(ref('ErrorEnvelope'), 'VALIDATION_FAILED — `countryCode` is not an ISO code'),
+    },
+  },
+
   // --- Assistant (AI Mode) ---
   //
   // The customer's own conversation history. Every one of these is scoped to
@@ -490,6 +522,19 @@ const OPERATIONS: Readonly<Record<string, OperationDoc>> = Object.freeze({
     idempotent: true,
   },
 
+  // --- Catalog (public) ---
+  'GET /api/v1/catalog/product-cards': {
+    summary: 'Resolve product references into verified cards',
+    description:
+      'Takes `?refs=` - comma-separated slugs or product codes, at most twelve - and answers ' +
+      'with the same public product shape the listing uses, plus availability. What AI Mode ' +
+      'renders under an answer: the assistant returns references and nothing else, so no name, ' +
+      'price or image URL from generated text ever reaches a card. Unresolved references are ' +
+      'named rather than dropped.',
+    tags: ['Catalog (Public)'],
+    auth: 'none',
+  },
+
   // --- Recurring ---
   'POST /api/v1/recurring-schedules': {
     summary: 'Create a repeat-purchase schedule',
@@ -505,6 +550,37 @@ const OPERATIONS: Readonly<Record<string, OperationDoc>> = Object.freeze({
     tags: ['Recurring'],
     auth: 'customer',
   },
+  'PATCH /api/v1/recurring-schedules/:id': {
+    summary: 'Change future runs of a schedule',
+    description:
+      'Items, quantities, frequency, start date, time of day, timezone, address and payment ' +
+      'method. Absolute, not incremental - `items` replaces the basket - so a retried request ' +
+      'lands on the same state rather than adding the change twice. Refused inside the edit ' +
+      'cutoff and while a delivery is being processed; never touches an occurrence that has ' +
+      'already produced an order.',
+    tags: ['Recurring'],
+    auth: 'customer',
+  },
+  'GET /api/v1/recurring-schedules/:id/estimate': {
+    summary: 'What a schedule would cost if it ran now',
+    description:
+      'Priced by the same `quoteSchedule` the worker uses weeks later, so the figure on the ' +
+      'screen and the figure on the card statement have one implementation. Stock and price ' +
+      'problems come back in the body rather than as an error - they are what the customer ' +
+      'needs told. An estimate, never a locked price.',
+    tags: ['Recurring'],
+    auth: 'customer',
+  },
+  'POST /api/v1/recurring-schedules/:id/hide': {
+    summary: 'Take a finished schedule off my list',
+    description:
+      'A soft delete, not a delete: the row, its consent record, its occurrences and its orders ' +
+      'all stay, staff still read them, and the GDPR export still discloses them. Only a ' +
+      'CANCELLED or COMPLETED plan may be hidden - hiding a live one would mean money leaving ' +
+      'an account for an arrangement the customer cannot see. Idempotent.',
+    tags: ['Recurring'],
+    auth: 'customer',
+  },
   'POST /api/v1/recurring-schedules/:id/pause': {
     summary: 'Pause future runs',
     tags: ['Recurring'],
@@ -515,6 +591,94 @@ const OPERATIONS: Readonly<Record<string, OperationDoc>> = Object.freeze({
     description: 'Completed orders are untouched.',
     tags: ['Recurring'],
     auth: 'customer',
+  },
+
+  'GET /api/v1/recurring-schedules/delivery-window': {
+    summary: 'The earliest day a first delivery may be booked',
+    description:
+      'What the delivery-date picker greys out, and it is not something a browser can work ' +
+      'out. Two inputs it does not have: the floor is counted on the delivery address’s own ' +
+      'IANA zone where it has one, and a plan pinned to a warehouse cannot arrive sooner than ' +
+      'that warehouse’s lane allows.\n\n' +
+      'The answer is `max(today + SCHEDULE_MIN_NOTICE_DAYS, warehouse earliest)` as `earliest`, ' +
+      'with both halves beside it so a message can name whichever one bound. ' +
+      '`warehouseEarliest` is null on an `AUTO` plan, which has no warehouse yet — inventing ' +
+      'one from the slowest lane in the business would hold every AUTO plan to a decision ' +
+      'nobody has made.\n\n' +
+      'Counted in calendar days on a wall clock, never in `7 * 86_400_000` milliseconds, so it ' +
+      'does not shift a day twice a year in every zone that observes DST.\n\n' +
+      'A GET, because it writes nothing and the screen re-asks it every time the address or ' +
+      'the warehouse changes. It answers a date; it does not enforce one — `POST` and ' +
+      '`PATCH` refuse a date inside the window with `SCHEDULE_DATE_TOO_SOON` whatever the ' +
+      'browser did with this, which is what makes bypassing the picker pointless rather than ' +
+      'profitable. Never cached: the floor moves at midnight in the customer’s own zone.',
+    tags: ['Recurring'],
+    auth: 'customer',
+    responses: {
+      '200': ok(undefined, '`earliest`, `noticeFloor`, `warehouseEarliest`, `timezone`, `noticeDays`'),
+      '400': ok(ref('ErrorEnvelope'), 'VALIDATION_FAILED — no `shippingAddressId`'),
+    },
+  },
+
+  // --- Fulfilment ---
+
+  'POST /api/v1/fulfilment/warehouse-options': {
+    summary: 'Which warehouses can fulfil this basket, and on what terms',
+    description:
+      'The buying half of `POST /delivery/options`. That one answers a browsing question from a ' +
+      'country code and needs no account; this prices the signed-in customer’s own cart to ' +
+      'one of their own addresses, and every option carries a `quoteId` that checkout will ' +
+      'take.\n\n' +
+      '**Every answer writes rows.** A quote is a stored offer with an expiry ' +
+      '(`FULFILMENT_QUOTE_TTL_MINUTES`), which is what makes the total on the card the total on ' +
+      'the order: the alternative is repricing at payment from ids the browser hands back, and ' +
+      'two runs against a moving stock ledger produce two answers. That is why this is a POST ' +
+      'with effects and why it is rate-limited.\n\n' +
+      'A warehouse is offered only when all of these hold: active, able to ship today ' +
+      '(`OPERATIONAL` or `LIMITED`), holding an active delivery zone that covers the ' +
+      'destination country and postcode, not excluded from that country by the operator, ' +
+      'holding enough of **every** line, satisfying the goods’ own cold-chain and weight ' +
+      'restrictions, and quoting the cart’s currency. The map’s 100 km circle is a ' +
+      'drawing, not a rule — eligibility comes from the configured zones.\n\n' +
+      '**One warehouse per option, always.** A warehouse holding part of the basket is not an ' +
+      'offer and never appears in `options`; it comes back under `ineligible` with the lines it ' +
+      'is short of, because there is no approved split-fulfilment flow to send it to.\n\n' +
+      '`isEstimate` marks an answer priced from `countryCode` because no address was given. It ' +
+      'is a conversation, not an offer: `assertQuoteUsable` refuses such a quote at checkout ' +
+      'with `FULFILMENT_QUOTE_INVALID`.\n\n' +
+      '`isFastest`, `isCheapest` and `isRecommended` are decided here so no client has to ' +
+      'invent a second opinion about which option is best. An empty `options` is a 200 and a ' +
+      'real answer — with `ineligible` beside it saying why each warehouse the buyer might ' +
+      'have expected is missing — not an error. Never cached.',
+    tags: ['Fulfilment'],
+    auth: 'customer',
+    responses: {
+      '200': ok(undefined, 'Options, the ones refused and why, and what the destination itself refuses'),
+      '400': ok(ref('ErrorEnvelope'), 'CART_EMPTY, or neither an address nor a country'),
+      '404': ok(ref('ErrorEnvelope'), 'ADDRESS_NOT_FOUND — not this customer’s address'),
+      '409': ok(ref('ErrorEnvelope'), 'FULFILMENT_QUOTE_STALE — the basket sent is not the basket held'),
+    },
+  },
+  'POST /api/v1/fulfilment/warehouse-options/:quoteId/revalidate': {
+    summary: 'Is the option I chose still an offer?',
+    description:
+      'Asked by the checkout page immediately before Pay, so a page left open over lunch finds ' +
+      'out where the customer can do something about it rather than at the moment money would ' +
+      'move.\n\n' +
+      'Answers 200 with `ok: false` and a code rather than throwing. A screen that has to catch ' +
+      'an exception in order to render "this expired" is a screen that renders a stack trace ' +
+      'one day, and re-asking for options is a normal flow rather than a fault. The codes are ' +
+      'the ones checkout itself would raise: `FULFILMENT_QUOTE_EXPIRED`, `_QUOTE_INVALID`, ' +
+      '`_QUOTE_STALE`, `_WAREHOUSE_UNAVAILABLE`, `_STOCK_CHANGED`.\n\n' +
+      'It does not re-check the price. That is left to `submitCheckout`, which is where the ' +
+      'basket is repriced — and a total that moved is refused there with the old and the new ' +
+      'figure in the detail, never absorbed.',
+    tags: ['Fulfilment'],
+    auth: 'customer',
+    responses: {
+      '200': ok(undefined, '`ok`, and a code and message when it is false'),
+      '400': ok(ref('ErrorEnvelope'), 'VALIDATION_FAILED — no `deliveryAddressId`'),
+    },
   },
 
   // --- Customers ---
@@ -1047,6 +1211,341 @@ const OPERATIONS: Readonly<Record<string, OperationDoc>> = Object.freeze({
       required: ['note'],
       properties: { note: { type: 'string', minLength: 1, maxLength: 1024 } },
     }),
+  },
+
+  // --- A buyer's own ERP -------------------------------------------------
+  //
+  // Everything under /account/integrations/erp is scoped to the CALLER'S OWN
+  // buyer organisation, which the server derives from the session. There is no
+  // organisation id in any path or body on this surface, and a generated client
+  // should not expect to be able to supply one: an id belonging to another
+  // tenant is answered with 404, not 403, because confirming that a connection
+  // exists but belongs to somebody else still leaks its existence.
+  //
+  // No response on this surface ever carries a credential. What comes back is
+  // `credentials`, a list of hints - `X-API-Key: sk_live...9f2a` - which is
+  // enough to recognise which key is configured and never enough to use it.
+  'GET /api/v1/account/integrations/erp/options': {
+    summary: 'What can be connected, and how',
+    description:
+      'The catalogue of named ERPs (`presets`) ordered for the market named in `region`, ' +
+      'the four connectors underneath them with their authentication methods, default ' +
+      'endpoints and mappings, the mappable platform fields, and the OAuth redirect ' +
+      'address to register with your own ERP. A preset is a BRAND and a connector is a ' +
+      'PROTOCOL: several brands share one, so `preset.connector` is what a created ' +
+      'connection sends as `system`, and `preset.id` is what it sends as `vendorPreset`. ' +
+      'Also reports whether the store offers the feature at all, so a screen can say so ' +
+      'rather than guessing at a 403.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'GET /api/v1/account/integrations/erp/warehouses': {
+    summary: 'Warehouses available to map against your plants',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'GET /api/v1/account/integrations/erp/organization': {
+    summary: 'Your buyer organisation, its members and its open invitations',
+    description:
+      'Provisioned on first use, with the caller as its owner. `invites` is null rather ' +
+      'than empty for anybody who may not see them, so a screen does not render "none ' +
+      'pending" to somebody who simply cannot look.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'PATCH /api/v1/account/integrations/erp/organization': {
+    summary: 'Rename your organisation',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'POST /api/v1/account/integrations/erp/organization/invites': {
+    summary: 'Invite somebody into your organisation',
+    description:
+      'Sends a single-use link that expires. The token is stored only as a SHA-256, and is ' +
+      'refused unless redeemed by an account signed in as the address it was sent to. The ' +
+      'answer is the same whether or not that address already has an account here.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'DELETE /api/v1/account/integrations/erp/organization/invites/:inviteId': {
+    summary: 'Withdraw an invitation',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'POST /api/v1/account/integrations/erp/organization/join': {
+    summary: 'Accept an invitation',
+    description:
+      'Five ways this fails - no such token, expired, withdrawn, already used, addressed to ' +
+      'somebody else - and one answer for all five. Distinguishing them would turn this into ' +
+      'a way to test whether a given address has been invited to a given organisation.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'PATCH /api/v1/account/integrations/erp/organization/members/:memberId': {
+    summary: 'Change what a member may do',
+    description:
+      'Owner only. Demoting the last owner is refused: an organisation with no owner has ' +
+      'nobody who can grant anybody access to it.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'DELETE /api/v1/account/integrations/erp/organization/members/:memberId': {
+    summary: 'Remove somebody from your organisation',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'GET /api/v1/account/integrations/erp/connections': {
+    summary: 'Your connections and their health',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'POST /api/v1/account/integrations/erp/connections': {
+    summary: 'Create a connection',
+    description:
+      'Created as a DRAFT: no traffic, no jobs, not selectable by anything. Secrets go in ' +
+      '`secrets` and are never returned. The address is refused unless it is HTTPS and ' +
+      'resolves to a publicly routable host - see `outbound-http.ts`.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'GET /api/v1/account/integrations/erp/connections/:id': {
+    summary: 'One connection',
+    description:
+      'The shape depends on your role. A member receives health and history; an owner or ' +
+      'integration manager also receives configuration. A member is sent a NARROWER shape ' +
+      'rather than the full one with fields blanked.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'PATCH /api/v1/account/integrations/erp/connections/:id': {
+    summary: 'Change a connection',
+    description:
+      'Returns it to DRAFT and clears its passing test and checked mapping: whatever the ' +
+      'last test proved, it proved about settings that have just been replaced. A secret ' +
+      'field that is ABSENT keeps the stored secret; an empty string clears it.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'DELETE /api/v1/account/integrations/erp/connections/:id': {
+    summary: 'Remove a connection',
+    description:
+      'Soft delete. Credentials are destroyed; the row and its event history survive, so ' +
+      'what became of an order can still be answered.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'PUT /api/v1/account/integrations/erp/connections/:id/endpoints': {
+    summary: 'Set which address does what',
+    description:
+      'Each path must resolve to the same origin as the connection. An endpoint free to ' +
+      'name a different host is a server-side request forgery primitive with a form field ' +
+      'in front of it.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'PUT /api/v1/account/integrations/erp/connections/:id/mappings': {
+    summary: 'Set the field mapping',
+    description:
+      'Platform field names come from a published closed list. Transforms are named and ' +
+      'closed too: a mapping that could run an expression would be a code execution ' +
+      'primitive somebody types into a form.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'PUT /api/v1/account/integrations/erp/connections/:id/warehouses': {
+    summary: 'Map warehouses to plants',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'PUT /api/v1/account/integrations/erp/connections/:id/policy': {
+    summary: 'Set the sync rules',
+    description:
+      'Direction, source of truth, conflict policy, which events to send, and whether a ' +
+      'stock write needs a person. `approvalThresholdMinor` is minor units as a STRING. A ' +
+      'sandbox connection cannot be set to write stock automatically.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'POST /api/v1/account/integrations/erp/connections/:id/test': {
+    summary: 'Call your system and report what happened',
+    description:
+      'Always a READ - a test that created a purchase order to prove it could is a test ' +
+      'nobody dares press twice. Returns one real record so the field mapping can be ' +
+      'checked against your own data.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'POST /api/v1/account/integrations/erp/connections/:id/dry-run': {
+    summary: 'Rehearse a sync without writing anything',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'POST /api/v1/account/integrations/erp/connections/:id/activate': {
+    summary: 'Switch the connection on',
+    description:
+      'Refused unless a test has passed, the mapping has been checked against a real ' +
+      'response, and an endpoint exists for everything the rules say will be sent.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'POST /api/v1/account/integrations/erp/connections/:id/pause': {
+    summary: 'Pause the connection',
+    description:
+      'Automatic writes stop immediately. Queued events are HELD, not dropped, and are ' +
+      'sent when it resumes. Inbound deliveries are refused while it lasts.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'POST /api/v1/account/integrations/erp/connections/:id/resume': {
+    summary: 'Resume a paused connection',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'POST /api/v1/account/integrations/erp/connections/:id/reconnect': {
+    summary: 'Bring a failed or disconnected connection back',
+    description: 'Lands in DRAFT: coming back goes through the same door as arriving.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'POST /api/v1/account/integrations/erp/connections/:id/disconnect': {
+    summary: 'Disconnect and destroy the stored credentials',
+    description:
+      'Tokens are revoked where your system offers an endpoint, and every credential row is ' +
+      'deleted either way. The history stays.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'POST /api/v1/account/integrations/erp/connections/:id/sync': {
+    summary: 'Read your system now',
+    description: 'Accepted with 202. One pass at a time per connection.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'POST /api/v1/account/integrations/erp/connections/:id/oauth/start': {
+    summary: 'Begin an OAuth authorisation',
+    description:
+      'Returns the URL rather than redirecting: a 302 in an XHR response is followed by the ' +
+      'fetch, so the person would never see their own consent screen. Uses PKCE even ' +
+      'though this is a confidential client, because the code travels through their browser.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'POST /api/v1/account/integrations/erp/oauth/callback': {
+    summary: 'Finish an OAuth authorisation',
+    description:
+      'The state must be unused, unexpired, and belong to the member who started the flow - ' +
+      'without that last check a leaked authorisation URL would let somebody bind their own ' +
+      'ERP account to this buyer\'s connection.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'POST /api/v1/account/integrations/erp/openapi/import': {
+    summary: 'Suggest endpoints from an OpenAPI document',
+    description:
+      'Suggestions only. Nothing is saved: an importer that configured a connection from a ' +
+      'file would be trusting a document to decide which addresses this server calls.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'GET /api/v1/account/integrations/erp/events': {
+    summary: 'The activity log',
+    description:
+      'Keyset pagination on `createdAt` - pass `before` from `nextBefore`. Searchable by ' +
+      'correlation ID, ERP reference, order id and idempotency key, which are the four ' +
+      'things somebody actually has in front of them.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'POST /api/v1/account/integrations/erp/events/:eventId/retry': {
+    summary: 'Send a failed or skipped item again',
+    description:
+      'Reuses the SAME row and the SAME idempotency key, so retrying cannot produce a ' +
+      'second purchase order. An item that already succeeded cannot be retried at all.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'GET /api/v1/account/integrations/erp/jobs': {
+    summary: 'Sync history',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'GET /api/v1/account/integrations/erp/webhook-events': {
+    summary: 'Deliveries from your system, accepted and refused',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'GET /api/v1/account/integrations/erp/approvals': {
+    summary: 'Things waiting for somebody to decide',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'POST /api/v1/account/integrations/erp/approvals/:approvalId': {
+    summary: 'Approve or decline',
+    description:
+      'Approving re-queues the same event under the same idempotency key. Declining is ' +
+      'final for that event. Money is minor units as a STRING.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'GET /api/v1/account/integrations/erp/audit': {
+    summary: 'Your organisation’s own audit trail',
+    description:
+      'Who changed what, and when. Secret VALUES are never recorded; the key is, so "the ' +
+      'client secret was rotated" stays visible.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'GET /api/v1/account/integrations/erp/connections/:id/links': {
+    summary: 'Orders and invoices this connection has linked',
+    description:
+      '`onOrderQty` and `receivedQty` are separate on purpose: confirming an order moves ' +
+      'the first, and only a goods receipt moves the second.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+
+  // Inbound, from a buyer's ERP. Unauthenticated in the session sense because
+  // the caller is a machine with no session; authenticated in substance by an
+  // HMAC over the raw bytes, a signed timestamp inside a replay window, and an
+  // unguessable per-connection path.
+  'POST /api/v1/erp-inbound/:slug': {
+    summary: 'Receive a delivery from a buyer’s ERP',
+    description:
+      'Signature over the RAW bytes, verified in constant time. There is no unsigned mode. ' +
+      'Every failure answers the same way, with no indication of which check failed. A ' +
+      'redelivery is a 200, because an ERP that gets a 4xx for one retries harder.',
+    tags: ['Customer ERP'],
+    auth: 'token',
+  },
+
+  // Support monitoring. Read-only, and returns no credential, no hint, no
+  // endpoint path and no request or response body - see that route file.
+  'GET /api/v1/admin/customer-erp/connections': {
+    summary: 'Every customer’s ERP connection, with its health',
+    tags: ['Customer ERP (Support)'],
+    auth: 'admin',
+    permission: 'integration.read',
+  },
+  'GET /api/v1/admin/customer-erp/connections/:id/events': {
+    summary: 'One customer connection’s recent events',
+    description:
+      'Error codes, safe messages, statuses and timings. Deliberately NOT the request or ' +
+      'response bodies, which hold the customer’s own SKUs, quantities and prices.',
+    tags: ['Customer ERP (Support)'],
+    auth: 'admin',
+    permission: 'integration.read',
+  },
+  'GET /api/v1/admin/customer-erp/connections/:id/deliveries': {
+    summary: 'Inbound deliveries on one customer connection',
+    tags: ['Customer ERP (Support)'],
+    auth: 'admin',
+    permission: 'integration.read',
+  },
+  'GET /api/v1/admin/customer-erp/summary': {
+    summary: 'How many customer connections, in what state',
+    tags: ['Customer ERP (Support)'],
+    auth: 'admin',
+    permission: 'integration.read',
   },
 });
 
@@ -1828,6 +2327,7 @@ const TAG_BY_RESOURCE: Readonly<Record<string, string>> = Object.freeze({
   payments: 'Payments',
   'payment-links': 'Payments',
   'recurring-schedules': 'Recurring',
+  fulfilment: 'Fulfilment',
   schedules: 'Recurring',
   customers: 'Customers (Admin)',
   account: 'Account',
@@ -1962,6 +2462,8 @@ export function buildOpenApiDocument(routes: RouteRecord[]): Record<string, unkn
       { name: 'Auth (Admin)' },
       { name: 'Auth (Customer)' },
       { name: 'Catalog (Public)' },
+      { name: 'Delivery (Public)' },
+      { name: 'Fulfilment' },
       { name: 'Catalog (Admin)' },
       { name: 'Cart' },
       { name: 'Orders (Customer)' },

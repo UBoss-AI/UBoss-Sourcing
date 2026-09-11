@@ -1043,8 +1043,6 @@
   "aiMode.deleteBody": "Das Gespräch {{name}} wird aus Ihrem Verlauf entfernt und lässt sich nicht wieder öffnen.",
   "aiMode.deleteConfirm": "Gespräch löschen",
   "aiMode.signOut": "Abmelden",
-  "aiMode.welcomeHeading": "Was möchten Sie heute beschaffen?",
-  "aiMode.welcomeBody": "Fragen Sie nach Produkten, Beständen, früheren Bestellungen und wiederkehrenden Lieferungen. Die Antworten stammen aus dem, was {{store}} veröffentlicht, mit den angegebenen Artikelnummern und Preisen.",
   "aiMode.composerLabel": "Ihre Frage",
   "aiMode.composerPlaceholder": "Beschreiben Sie, was Sie brauchen",
   "aiMode.attachImage": "Foto anhängen",

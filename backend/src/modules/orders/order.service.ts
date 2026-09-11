@@ -37,6 +37,12 @@ import {
   resolveCart,
   type ResolvedCart,
 } from '../cart/cart.service.js';
+import {
+  assertQuoteUsable,
+  digestOfResolvedCart,
+  serialiseQuoteForAudit,
+  type UsableQuote,
+} from '../fulfilment/warehouse-options.service.js';
 import { recordRedemption } from '../coupons/coupon.service.js';
 import {
   commitReservations,
@@ -159,6 +165,22 @@ export interface CheckoutInput {
    * reload of the payment page offer the same card rather than starting over.
    */
   preferredPaymentMethodId?: string;
+  /**
+   * The delivery option the customer chose, by quote id.
+   *
+   * Optional, and that is deliberate rather than transitional. A deployment
+   * with no delivery zones configured, or a destination no warehouse has a
+   * lane to, offers no options at all - and checkout there works exactly as
+   * it did before this existed, priced by the configured shipping method.
+   * Requiring a quote would have turned a new capability into a new way for
+   * an existing installation to stop taking orders.
+   *
+   * When it IS given it wins: the lane prices the delivery, the shipping
+   * method is not applied, and the promise is frozen onto the order. See
+   * `assertQuoteUsable`, which re-checks the offer against the world before
+   * any of that happens.
+   */
+  fulfilmentQuoteId?: string;
   customerNote?: string | null;
   actor: OrderActor;
 }
@@ -208,12 +230,83 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
     }),
   ]);
 
-  // Reprice from the current catalog. The client's totals are never trusted;
-  // this is the same function that produced what they were shown.
-  const resolved: ResolvedCart = await resolveCart(input.customerProfileId, {
-    shippingMethodCode: input.shippingMethodCode ?? null,
-    destinationCountry: shippingSnapshot.country,
-  });
+  /*
+   * Reprice from the current catalogue. The client's totals are never
+   * trusted; this is the same function that produced what they were shown.
+   *
+   * With a warehouse option chosen it runs twice, and the two runs are doing
+   * different jobs. The first exists only to establish what the basket *is* -
+   * its cart id and its digest - because that is what `assertQuoteUsable`
+   * checks the offer against, and asking it against a basket already priced
+   * with the offer's own delivery fee would be circular. The second is the
+   * real one: the lane's fee goes in as `shippingOverride` so the free-above
+   * threshold, the grand total and `assertTotalsConsistent` all run over it,
+   * exactly as they do for a shipping method.
+   *
+   * Without one, it runs once, exactly as it always has.
+   */
+  let fulfilmentQuote: UsableQuote | null = null;
+  let resolved: ResolvedCart;
+
+  if (input.fulfilmentQuoteId === undefined) {
+    resolved = await resolveCart(input.customerProfileId, {
+      shippingMethodCode: input.shippingMethodCode ?? null,
+      destinationCountry: shippingSnapshot.country,
+    });
+  } else {
+    const preliminary = await resolveCart(input.customerProfileId, {
+      destinationCountry: shippingSnapshot.country,
+    });
+
+    fulfilmentQuote = await assertQuoteUsable({
+      quoteId: input.fulfilmentQuoteId,
+      customerProfileId: input.customerProfileId,
+      cartId: preliminary.cartId,
+      addressId: input.shippingAddressId,
+      basketHash: digestOfResolvedCart(preliminary),
+    });
+
+    resolved = await resolveCart(input.customerProfileId, {
+      destinationCountry: shippingSnapshot.country,
+      shippingOverride: {
+        priceMinor: fulfilmentQuote.shippingMinor,
+        freeAboveMinor: fulfilmentQuote.freeAboveMinor,
+      },
+    });
+
+    /*
+     * The one check `assertQuoteUsable` deliberately leaves to here.
+     *
+     * It re-checked the warehouse, the lane, the basket and the stock. What
+     * it cannot check is the price, because the price is what this repricing
+     * run has only just produced. A catalogue edit, a coupon that lapsed, a
+     * VAT rate that changed at midnight - any of them move the total between
+     * the review screen and Pay, and the customer agreed to a figure rather
+     * than to a method of arriving at one.
+     *
+     * So it is refused, with both numbers in the detail, and never absorbed.
+     * Charging a total nobody showed them is the single thing a checkout must
+     * not do, and it does not become acceptable because the difference is
+     * small.
+     */
+    if (resolved.pricing.totals.grandTotalMinor !== fulfilmentQuote.grandTotalMinor) {
+      throw conflict(
+        ErrorCode.FULFILMENT_QUOTE_STALE,
+        'The total for this order changed while you were checking out. Review it and choose again.',
+        [
+          {
+            field: 'fulfilmentQuoteId',
+            code: 'PRICE_CHANGED',
+            meta: {
+              quotedMinor: fulfilmentQuote.grandTotalMinor.toString(),
+              currentMinor: resolved.pricing.totals.grandTotalMinor.toString(),
+              currency: resolved.currency,
+            },
+          },
+        ],
+      );
+    }
+  }
 
   assertCheckoutReady(resolved);
 
@@ -231,8 +324,22 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
         ? buyer.fullName
         : `${buyer.fullName} (${buyer.organization})`;
 
+  /*
+   * The shipping method, and why it disappears once a warehouse option is
+   * chosen.
+   *
+   * The two are alternative answers to "who is delivering this and what does
+   * it cost", and only one of them priced the order. Recording a method that
+   * did not would leave the order naming a delivery arrangement its own
+   * shipping figure does not come from - which is the sort of quiet
+   * disagreement that surfaces months later in a dispute nobody can settle.
+   * The lane is recorded in the fulfilment columns instead, carrier and
+   * service level and all.
+   */
   const shippingMethod =
-    input.shippingMethodCode === null || input.shippingMethodCode === undefined
+    fulfilmentQuote !== null ||
+    input.shippingMethodCode === null ||
+    input.shippingMethodCode === undefined
       ? null
       : await prisma.shippingMethod.findFirst({
           where: { code: input.shippingMethodCode, isActive: true },
@@ -274,6 +381,17 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
         shippingAddressJson: shippingSnapshot as never,
         shippingMethodCode: shippingMethod?.code ?? null,
         shippingMethodName: shippingMethod?.name ?? null,
+        // The delivery promise, copied out of the quote rather than joined to
+        // it. A lane can be repriced or retired; what the customer was told
+        // on the day cannot change with it - the same rule the line snapshots
+        // above follow.
+        fulfilmentLocationId: fulfilmentQuote?.locationId ?? null,
+        fulfilmentQuoteId: fulfilmentQuote?.quoteId ?? null,
+        fulfilmentCarrier: fulfilmentQuote?.carrierName ?? null,
+        fulfilmentServiceLevel: fulfilmentQuote?.serviceLevel ?? null,
+        fulfilmentDispatchDate: fulfilmentQuote?.dispatchDate ?? null,
+        fulfilmentDeliveryFrom: fulfilmentQuote?.deliveryFromDate ?? null,
+        fulfilmentDeliveryTo: fulfilmentQuote?.deliveryToDate ?? null,
         paymentMode: input.paymentMode,
         // Only meaningful for a payment this shop will open itself. A payment
         // link is sent rather than opened, and the gateway behind it is the
@@ -451,6 +569,13 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
           grandTotalMinor: totals.grandTotalMinor,
           currency: resolved.currency,
           lineCount: resolved.pricing.lines.length,
+          // Which warehouse, on whose promise, at what price - in the audit
+          // trail as well as on the order. A dispute about a delivery date is
+          // answered from here without having to reason about what the
+          // catalogue looked like at the time.
+          ...(fulfilmentQuote === null
+            ? {}
+            : { fulfilment: serialiseQuoteForAudit(fulfilmentQuote) }),
         },
         ipAddress: input.actor.ipAddress ?? null,
         correlationId: input.actor.correlationId ?? null,
@@ -621,6 +746,52 @@ export async function transitionOrder(input: TransitionInput): Promise<{ status:
   });
 
   await dispatchPendingNotifications();
+
+  /**
+   * The buyer's own ERP, if they have connected one.
+   *
+   * Deliberately AFTER the transaction has committed and deliberately unable to
+   * affect it. An ERP somebody else runs must never be able to roll back an
+   * order this platform has already confirmed and taken money for - so this
+   * queues an outbox row and returns, and the call itself happens in a worker.
+   *
+   * This is the single hook for the whole feature and that is why it is here
+   * rather than at the four call sites that confirm an order. `transitionOrder`
+   * is the only thing in the system that writes `orders.status`, so an instant
+   * purchase, a payment link, a reconciliation sweep and a scheduled
+   * occurrence all arrive at exactly this line - which is what makes "every
+   * Schedule Cart occurrence uses the same pipeline" true by construction
+   * instead of by four separate pieces of care.
+   *
+   * A no-op where the feature is off, where the customer is in no
+   * organisation, or where that organisation has no active connection. Never
+   * throws: `queueForOrder` swallows its own failures for the reason above.
+   */
+  // A fresh id where the caller had none. Several callers here are the system
+  // itself - a reconciliation sweep, a failed scheduled charge - and they pass
+  // no correlation id; skipping the hand-off for those would quietly exclude
+  // every order confirmed by a webhook, which is most of them.
+  const correlationId = input.actor.correlationId ?? newId();
+
+  const dispatch = await import('../customer-erp/pipeline.service.js');
+
+  switch (input.to) {
+    case 'CONFIRMED':
+      await dispatch.dispatchOrderConfirmed(input.orderId, correlationId);
+      break;
+    case 'SHIPPED':
+      await dispatch.dispatchOrderShipped(input.orderId, correlationId);
+      break;
+    case 'DELIVERED':
+      await dispatch.dispatchOrderDelivered(input.orderId, correlationId);
+      break;
+    case 'CANCELLED':
+      await dispatch.dispatchOrderCancelled(input.orderId, correlationId);
+      break;
+    default:
+      break;
+  }
+
   return result;
 }
 

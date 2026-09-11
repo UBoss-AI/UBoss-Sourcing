@@ -1067,8 +1067,6 @@
   "aiMode.deleteBody": "Rozmowa {{name}} zostanie usunięta z Twojej historii i nie będzie można jej ponownie otworzyć.",
   "aiMode.deleteConfirm": "Usuń rozmowę",
   "aiMode.signOut": "Wyloguj się",
-  "aiMode.welcomeHeading": "Czego dziś potrzebujesz?",
-  "aiMode.welcomeBody": "Pytaj o produkty, stany magazynowe, wcześniejsze zamówienia i dostawy cykliczne. Odpowiedzi pochodzą z tego, co publikuje {{store}}, wraz z podanymi kodami i cenami.",
   "aiMode.composerLabel": "Twoje pytanie",
   "aiMode.composerPlaceholder": "Opisz, czego potrzebujesz",
   "aiMode.attachImage": "Dołącz zdjęcie",

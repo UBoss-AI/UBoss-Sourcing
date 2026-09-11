@@ -62,11 +62,23 @@ const DISPOSITION: Readonly<Record<string, string | null>> = Object.freeze({
   Session: 'sessions',
   DataRequest: 'dataRequests',
 
-  // The standing authority to be charged. The ERP tables are deliberately
-  // absent from this map: they carry no link to a person at all, because the
-  // ERP belongs to the business rather than to any customer, so the parser
-  // above never finds them.
+  // Delivery options this person was shown at checkout - the price and the
+  // dates each warehouse promised. Short-lived and mostly never accepted, and
+  // disclosed anyway: the one they took is the evidence behind a delivery
+  // date they may later be disputing.
+  FulfilmentQuote: 'fulfilmentQuotes',
+
+  // The standing authority to be charged. The OPERATOR's ERP tables are
+  // deliberately absent from this map: they carry no link to a person at all,
+  // because that ERP belongs to the business rather than to any customer, so
+  // the parser above never finds them.
   CustomerAutoPaySetting: 'autoPayAuthority',
+
+  // Where a customer works and what authority they hold there. The BUYER's own
+  // ERP tables are absent for the same reason the operator's are - they are
+  // keyed on `organizationId`, not on a person - but this one is not: a
+  // membership is a fact about an individual, so it is disclosed.
+  BuyerOrganizationMember: 'organisationMembership',
 
   // --- Withheld, with the reason on the manifest the subject receives ---
   AuditLog: 'auditTrail',

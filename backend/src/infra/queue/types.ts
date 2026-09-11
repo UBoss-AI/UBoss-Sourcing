@@ -68,6 +68,11 @@ export const JobType = {
   EXPORT_GENERATE: 'export.generate',
   INTEGRATION_SYNC: 'integration.sync',
   RESERVATION_SWEEP: 'reservation.sweep',
+  /// Clear out delivery offers nobody accepted. On the same maintenance beat
+  /// as the reservation sweep, and for a related reason: a quote holds a
+  /// stock figure and a price, and a lapsed one is dead weight that can never
+  /// be accepted. One attached to an order is kept for ever.
+  FULFILMENT_QUOTE_SWEEP: 'fulfilment_quote.sweep',
   LOW_STOCK_CHECK: 'low_stock.check',
   FX_RATE_REFRESH: 'fx_rate.refresh',
   /// Build an Art. 15/20 export bundle, or carry out an approved Art. 17
@@ -77,6 +82,21 @@ export const JobType = {
   /// Delete personal data that has outlived its retention window. Runs on the
   /// maintenance beat, like the reservation sweep.
   RETENTION_SWEEP: 'retention.sweep',
+  /// Send what is queued for BUYERS' own ERPs.
+  ///
+  /// The outbox sweep for `customer_erp_sync_events`. Kept apart from every
+  /// ERP_* job above, which serve the operator's own warehouse system: these
+  /// call systems that customers run, several of them rate-limited, and the
+  /// two must not share a retry budget or a failure. Each event carries its
+  /// own `nextRetryAt`, so a pass with nothing due is one indexed query.
+  CUSTOMER_ERP_DISPATCH: 'customer_erp.dispatch',
+  /// Ask a buyer's ERP for stock, where it has no webhooks - which is most of
+  /// them. Each connection holds its own interval and next-due time.
+  CUSTOMER_ERP_POLL: 'customer_erp.poll',
+  /// Housekeeping: release events whose worker died, expire approvals nobody
+  /// decided, and sweep abandoned OAuth flows. One job rather than three,
+  /// because all three are cheap indexed deletes on the same beat.
+  CUSTOMER_ERP_MAINTENANCE: 'customer_erp.maintenance',
 } as const;
 
 export type JobTypeValue = (typeof JobType)[keyof typeof JobType];

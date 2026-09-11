@@ -10,6 +10,17 @@
  * here would be an injection surface fed by model output, which is the whole
  * reason the narrow pattern exists.
  *
+ * **Product cards are the second exception, and it is not an exception to that
+ * rule — it is an application of it.** A reply about particular products
+ * carries their catalogue identifiers, and nothing else about them is taken
+ * from the text: the cards below are drawn from a catalogue read keyed on
+ * those identifiers, so no name, price, stock figure or image URL that arrived
+ * in generated text is ever rendered. See `lib/ai-products.ts` for the split
+ * and `AiProductCards` for what is done with it. The reference line itself is
+ * stripped from what is shown, including while it is still streaming in —
+ * watching `[[products: easy-jet-dispo` type itself out under an answer looks
+ * exactly like a broken renderer.
+ *
  * The two actions under an assistant reply are deliberately what they are:
  *
  *   - **Copy** puts the reply on the clipboard. A procurement office pastes
@@ -25,7 +36,9 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CopyIcon, CheckIcon, RefreshIcon } from '@/components/icons';
 import { cx } from '@/lib/cx';
+import { readAssistantReply } from '@/lib/ai-products';
 import { useI18n } from '@/i18n/i18n-context';
+import { AiProductCards } from './AiProductCards';
 
 export interface ChatMessage {
   role: 'user' | 'assistant';
@@ -142,11 +155,25 @@ export function AiMessage({
     );
   }
 
+  /*
+   * What to read, and what to look up.
+   *
+   * Split on every render, including mid-stream, which is what keeps the
+   * half-arrived reference line out of the bubble. It is two regular
+   * expressions over a few hundred characters.
+   */
+  const reply = readAssistantReply(message.content);
+
   return (
     <div className="flex justify-start">
-      <div className="max-w-[92%]">
-        <div className="rounded-2xl rounded-bl-md bg-surface-sunken px-4 py-3 text-sm leading-relaxed text-ink ring-1 ring-inset ring-border">
-          <MessageBody text={message.content} />
+      {/*
+       * Wider than the bubble alone used to be, because the cards live inside
+       * this column: three of them at 92% of a narrow transcript are three
+       * slivers. The bubble itself keeps its own measure below.
+       */}
+      <div className="w-full min-w-0">
+        <div className="max-w-[92%] rounded-2xl rounded-bl-md bg-surface-sunken px-4 py-3 text-sm leading-relaxed text-ink ring-1 ring-inset ring-border">
+          <MessageBody text={reply.text} />
 
           {isTruncated && (
             <p className="mt-2.5 border-t border-border pt-2.5 text-xs text-ink-muted">
@@ -155,11 +182,26 @@ export function AiMessage({
           )}
         </div>
 
+        {/*
+         * The products the answer is about.
+         *
+         * Only under a finished reply. Mounting this mid-stream would fire a
+         * catalogue read for whatever slugs had arrived so far and then
+         * another for each further one, and the row would rebuild itself under
+         * a reader three or four times. `onAskAgain` is the flag that says the
+         * stream has ended - see the note on the action row below, which uses
+         * it for the same reason.
+         */}
+        {onAskAgain !== undefined && <AiProductCards refs={reply.refs} />}
+
         {/* Only under a finished reply. Offering Copy on a bubble that is still
             filling in copies half an answer. */}
         {onAskAgain !== undefined && (
           <div className="mt-1 flex items-center gap-1">
-            <CopyButton text={message.content} />
+            {/* What is on screen, not what arrived: a procurement office
+                pasting this into a requisition should not find a reference
+                line in the middle of it. */}
+            <CopyButton text={reply.text} />
             <button
               type="button"
               onClick={onAskAgain}

@@ -15,7 +15,7 @@
  * Read `src/test/axe.ts` for what this deliberately cannot check.
  */
 import { describe, expect, it } from 'vitest';
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '@/test/harness';
 import { expectNoA11yViolations } from '@/test/axe';
@@ -32,8 +32,18 @@ import { Modal } from '@/components/Modal';
 import { Field, Input, Select, Textarea } from '@/components/ui';
 import { HeroSearch } from '@/components/hero-search/HeroSearch';
 import { AiMessage } from '@/pages/ai/AiMessage';
+import { CartModeTabs } from '@/components/CartModeTabs';
+import { CadenceFields } from '@/pages/schedule/CadenceFields';
+import { DatePicker } from '@/components/DatePicker';
+import { emptyCadenceDraft } from '@/lib/schedule-cadence';
 import { FALLBACK_CONFIG } from '@/app/storefront-context';
-import type { Money, Product, ProductDevice, ProductSafety } from '@/lib/types';
+import type {
+  Money,
+  Product,
+  ProductDevice,
+  ProductSafety,
+  StorefrontConfig,
+} from '@/lib/types';
 
 function money(minor: string, currency = 'INR'): Money {
   return { minor, currency, formatted: `₹${minor}` };
@@ -438,5 +448,134 @@ describe('search and AI Mode', () => {
 
     await expectNoA11yViolations(container);
     expect(screen.getByRole('link', { name: '/product/accu-flow' })).toBeInTheDocument();
+  });
+});
+
+/**
+ * The two ways to spend a basket.
+ *
+ * The tabs are links between two routes rather than a `role="tablist"`, so
+ * what has to hold is what holds for navigation: an accessible name on each,
+ * and `aria-current` on the one you are on. A control whose selected state
+ * lives only in a background colour is invisible to a screen reader and to
+ * anybody who cannot distinguish the two blues.
+ */
+describe('the cart mode tabs', () => {
+  const WITH_SCHEDULES: StorefrontConfig = {
+    ...FALLBACK_CONFIG,
+    features: { ...FALLBACK_CONFIG.features, recurringOrders: true },
+  };
+
+  it('has no violations, and carries its selected state in the markup', async () => {
+    const { container } = renderWithProviders(<CartModeTabs current="instant" />, {
+      config: WITH_SCHEDULES,
+    });
+
+    await expectNoA11yViolations(container);
+
+    for (const link of screen.getAllByRole('link')) {
+      expect(link).toHaveAccessibleName();
+    }
+
+    expect(screen.getByRole('link', { name: /instant buy/i })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+  });
+});
+
+/**
+ * The controls that decide when a standing order runs.
+ *
+ * Every one of them is a labelled form control, including the two that sit
+ * inside a radio row and so have no visible label of their own — an unlabelled
+ * date box in a sentence reads to a screen reader as an unlabelled date box.
+ */
+describe('the schedule cadence controls', () => {
+  /*
+   * A generous timeout, and the reason is the timezone picker.
+   *
+   * It offers the platform's whole IANA list - some six hundred options - and
+   * axe walks every node in the container twice here, once per state. That is
+   * a cost this test pays and a browser does not: the list renders once when
+   * the panel mounts and is then a plain select.
+   *
+   * Sixty seconds rather than thirty, because thirty was not generous: alone
+   * this finishes in about twenty-nine, and in a full run - where vitest is
+   * working several files at once on the same cores - it went over and failed
+   * a suite that was not broken. A budget set that close to the real cost is a
+   * test that reports the machine's load rather than the code's behaviour.
+   */
+  it('label every control, in both states', { timeout: 60_000 }, async () => {
+    for (const disabled of [false, true]) {
+      const { container, unmount } = renderWithProviders(
+        <CadenceFields
+          draft={emptyCadenceDraft('Asia/Kolkata')}
+          disabled={disabled}
+          onChange={() => undefined}
+        />,
+      );
+
+      await expectNoA11yViolations(container);
+
+      for (const box of screen.getAllByRole('combobox')) {
+        expect(box).toHaveAccessibleName();
+      }
+
+      unmount();
+    }
+  });
+});
+
+/**
+ * The calendar.
+ *
+ * A custom date field is one of the easiest controls to build inaccessibly:
+ * thirty-five buttons in a table, a popover with no name, and a selected state
+ * that lives only in a background colour. So what is checked here is the
+ * markup rather than the look — the grid's headers, the popover's name, and
+ * the fact that only one day is in the tab order.
+ */
+describe('the date picker', () => {
+  it('has no violations, open or closed', async () => {
+    const user = userEvent.setup();
+
+    const { container } = renderWithProviders(
+      <DatePicker
+        label="Delivery date"
+        value="2026-09-24"
+        min="2026-09-18"
+        onChange={() => undefined}
+      />,
+    );
+
+    await expectNoA11yViolations(container);
+
+    const trigger = screen.getByRole('button', { name: /Delivery date/i });
+    // The trigger says what it is AND what pressing it does. A button's
+    // accessible name comes from its content, so the field's visible label is
+    // not enough on its own.
+    expect(trigger).toHaveAccessibleName(/Delivery date: .*24 September 2026.*calendar/i);
+
+    await user.click(trigger);
+    await expectNoA11yViolations(container);
+
+    // The popover is named, so a screen reader can say which field it belongs
+    // to rather than announcing an unnamed dialog.
+    expect(screen.getByRole('dialog')).toHaveAccessibleName(/Delivery date/i);
+
+    // Every day carries its full date, because "24" on its own is not a date.
+    // Scoped to the grid: the trigger's own name contains the same date.
+    expect(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: /^Thursday, 24 September 2026$/i,
+      }),
+    ).toBeInTheDocument();
+
+    // And the weekday headers are real column headers with real day names —
+    // "M" is not a day of the week.
+    const headers = screen.getAllByRole('columnheader');
+    expect(headers).toHaveLength(7);
+    expect(headers.map((header) => header.textContent)).toContain('MMonday');
   });
 });

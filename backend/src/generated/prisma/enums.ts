@@ -616,3 +616,214 @@ export const AutoPayRetryPreference = {
 } as const
 
 export type AutoPayRetryPreference = (typeof AutoPayRetryPreference)[keyof typeof AutoPayRetryPreference]
+
+
+export const BuyerOrgRole = {
+  OWNER: 'OWNER',
+  INTEGRATION_MANAGER: 'INTEGRATION_MANAGER',
+  MEMBER: 'MEMBER'
+} as const
+
+export type BuyerOrgRole = (typeof BuyerOrgRole)[keyof typeof BuyerOrgRole]
+
+
+export const CustomerErpSystem = {
+  SAP: 'SAP',
+  MONDAY: 'MONDAY',
+  ODOO: 'ODOO',
+  CUSTOM: 'CUSTOM'
+} as const
+
+export type CustomerErpSystem = (typeof CustomerErpSystem)[keyof typeof CustomerErpSystem]
+
+
+export const CustomerErpApiStyle = {
+  REST_JSON: 'REST_JSON',
+  ODATA: 'ODATA',
+  GRAPHQL: 'GRAPHQL'
+} as const
+
+export type CustomerErpApiStyle = (typeof CustomerErpApiStyle)[keyof typeof CustomerErpApiStyle]
+
+
+export const CustomerErpEnvironment = {
+  SANDBOX: 'SANDBOX',
+  PRODUCTION: 'PRODUCTION'
+} as const
+
+export type CustomerErpEnvironment = (typeof CustomerErpEnvironment)[keyof typeof CustomerErpEnvironment]
+
+
+export const CustomerErpAuthMethod = {
+  OAUTH2_CLIENT_CREDENTIALS: 'OAUTH2_CLIENT_CREDENTIALS',
+  OAUTH2_AUTHORIZATION_CODE: 'OAUTH2_AUTHORIZATION_CODE',
+  API_KEY: 'API_KEY',
+  BEARER_TOKEN: 'BEARER_TOKEN',
+  BASIC: 'BASIC',
+  MONDAY_PERSONAL_TOKEN: 'MONDAY_PERSONAL_TOKEN'
+} as const
+
+export type CustomerErpAuthMethod = (typeof CustomerErpAuthMethod)[keyof typeof CustomerErpAuthMethod]
+
+
+export const CustomerErpApiKeyLocation = {
+  HEADER: 'HEADER',
+  QUERY: 'QUERY'
+} as const
+
+export type CustomerErpApiKeyLocation = (typeof CustomerErpApiKeyLocation)[keyof typeof CustomerErpApiKeyLocation]
+
+
+export const CustomerErpNetworkMode = {
+  PUBLIC_HTTPS: 'PUBLIC_HTTPS',
+  IP_ALLOWLIST: 'IP_ALLOWLIST',
+  VPN_GATEWAY: 'VPN_GATEWAY',
+  SAP_CLOUD_CONNECTOR: 'SAP_CLOUD_CONNECTOR'
+} as const
+
+export type CustomerErpNetworkMode = (typeof CustomerErpNetworkMode)[keyof typeof CustomerErpNetworkMode]
+
+
+export const CustomerErpConnectionState = {
+  DRAFT: 'DRAFT',
+  TESTING: 'TESTING',
+  ACTIVE: 'ACTIVE',
+  PAUSED: 'PAUSED',
+  ACTION_REQUIRED: 'ACTION_REQUIRED',
+  FAILED: 'FAILED',
+  DISCONNECTED: 'DISCONNECTED'
+} as const
+
+export type CustomerErpConnectionState = (typeof CustomerErpConnectionState)[keyof typeof CustomerErpConnectionState]
+
+
+export const CustomerErpEventState = {
+  QUEUED: 'QUEUED',
+  PROCESSING: 'PROCESSING',
+  SUCCEEDED: 'SUCCEEDED',
+  RETRYING: 'RETRYING',
+  FAILED: 'FAILED',
+  SKIPPED: 'SKIPPED'
+} as const
+
+export type CustomerErpEventState = (typeof CustomerErpEventState)[keyof typeof CustomerErpEventState]
+
+
+export const CustomerErpEventType = {
+  CONNECTION_TEST: 'CONNECTION_TEST',
+  DRY_RUN: 'DRY_RUN',
+  PURCHASE_ORDER_CREATE: 'PURCHASE_ORDER_CREATE',
+  PURCHASE_ORDER_UPDATE: 'PURCHASE_ORDER_UPDATE',
+  SHIPMENT_STATUS: 'SHIPMENT_STATUS',
+  GOODS_RECEIPT: 'GOODS_RECEIPT',
+  INVENTORY_UPDATE: 'INVENTORY_UPDATE',
+  INVOICE_SYNC: 'INVOICE_SYNC',
+  PAYMENT_REFERENCE: 'PAYMENT_REFERENCE',
+  INBOUND_POLL: 'INBOUND_POLL',
+  INBOUND_WEBHOOK: 'INBOUND_WEBHOOK'
+} as const
+
+export type CustomerErpEventType = (typeof CustomerErpEventType)[keyof typeof CustomerErpEventType]
+
+
+export const CustomerErpSyncMode = {
+  INBOUND: 'INBOUND',
+  OUTBOUND: 'OUTBOUND',
+  BIDIRECTIONAL: 'BIDIRECTIONAL'
+} as const
+
+export type CustomerErpSyncMode = (typeof CustomerErpSyncMode)[keyof typeof CustomerErpSyncMode]
+
+
+export const CustomerErpSourceOfTruth = {
+  ERP: 'ERP',
+  PLATFORM: 'PLATFORM'
+} as const
+
+export type CustomerErpSourceOfTruth = (typeof CustomerErpSourceOfTruth)[keyof typeof CustomerErpSourceOfTruth]
+
+
+export const CustomerErpConflictPolicy = {
+  ERP_WINS: 'ERP_WINS',
+  PLATFORM_WINS: 'PLATFORM_WINS',
+  NEWEST_WINS: 'NEWEST_WINS',
+  MANUAL: 'MANUAL'
+} as const
+
+export type CustomerErpConflictPolicy = (typeof CustomerErpConflictPolicy)[keyof typeof CustomerErpConflictPolicy]
+
+
+export const CustomerErpWriteMode = {
+  AUTOMATIC: 'AUTOMATIC',
+  APPROVAL_REQUIRED: 'APPROVAL_REQUIRED'
+} as const
+
+export type CustomerErpWriteMode = (typeof CustomerErpWriteMode)[keyof typeof CustomerErpWriteMode]
+
+
+export const CustomerErpEndpointPurpose = {
+  PRODUCTS: 'PRODUCTS',
+  WAREHOUSES: 'WAREHOUSES',
+  INVENTORY: 'INVENTORY',
+  PURCHASE_ORDER_CREATE: 'PURCHASE_ORDER_CREATE',
+  PURCHASE_ORDER_UPDATE: 'PURCHASE_ORDER_UPDATE',
+  GOODS_RECEIPT: 'GOODS_RECEIPT',
+  SHIPMENT_STATUS: 'SHIPMENT_STATUS',
+  INVOICE: 'INVOICE',
+  PAYMENT_REFERENCE: 'PAYMENT_REFERENCE',
+  WEBHOOK: 'WEBHOOK'
+} as const
+
+export type CustomerErpEndpointPurpose = (typeof CustomerErpEndpointPurpose)[keyof typeof CustomerErpEndpointPurpose]
+
+
+export const CustomerErpPagination = {
+  NONE: 'NONE',
+  PAGE_NUMBER: 'PAGE_NUMBER',
+  OFFSET_LIMIT: 'OFFSET_LIMIT',
+  CURSOR: 'CURSOR',
+  ODATA_NEXT_LINK: 'ODATA_NEXT_LINK'
+} as const
+
+export type CustomerErpPagination = (typeof CustomerErpPagination)[keyof typeof CustomerErpPagination]
+
+
+export const CustomerErpMappingEntity = {
+  PRODUCT: 'PRODUCT',
+  WAREHOUSE: 'WAREHOUSE',
+  ORDER: 'ORDER',
+  INVENTORY: 'INVENTORY',
+  INVOICE: 'INVOICE',
+  PAYMENT: 'PAYMENT',
+  STATUS: 'STATUS'
+} as const
+
+export type CustomerErpMappingEntity = (typeof CustomerErpMappingEntity)[keyof typeof CustomerErpMappingEntity]
+
+
+export const CustomerErpCredentialKind = {
+  PRIMARY: 'PRIMARY',
+  OAUTH_TOKENS: 'OAUTH_TOKENS',
+  WEBHOOK_SIGNING: 'WEBHOOK_SIGNING',
+  CLIENT_CERTIFICATE: 'CLIENT_CERTIFICATE'
+} as const
+
+export type CustomerErpCredentialKind = (typeof CustomerErpCredentialKind)[keyof typeof CustomerErpCredentialKind]
+
+
+export const CustomerErpApprovalKind = {
+  PURCHASE_ORDER: 'PURCHASE_ORDER',
+  INVENTORY_WRITE: 'INVENTORY_WRITE'
+} as const
+
+export type CustomerErpApprovalKind = (typeof CustomerErpApprovalKind)[keyof typeof CustomerErpApprovalKind]
+
+
+export const CustomerErpApprovalState = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  EXPIRED: 'EXPIRED'
+} as const
+
+export type CustomerErpApprovalState = (typeof CustomerErpApprovalState)[keyof typeof CustomerErpApprovalState]

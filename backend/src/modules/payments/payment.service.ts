@@ -1920,6 +1920,31 @@ async function applyEvent(
       });
     }
 
+    /**
+     * The payment REFERENCE, for the buyer's own ERP.
+     *
+     * Separate from the purchase order, which `transitionOrder` queued when the
+     * order became CONFIRMED. This is the money settling, and their accounts
+     * payable needs a reference to reconcile against.
+     *
+     * A reference and a status. Nothing about the instrument crosses this
+     * boundary - see `buildPaymentReference`, whose select list names six
+     * columns and none of them is one.
+     *
+     * Reached for a scheduled delivery as well as an instant purchase, because
+     * both arrive here through the same captured-payment branch.
+     */
+    await import('../customer-erp/pipeline.service.js')
+      .then((pipeline) =>
+        pipeline.dispatchPaymentSettled(order.id, correlationId ?? newId()),
+      )
+      .catch((error: unknown) => {
+        logger.error(
+          { err: error, orderId: order.id },
+          'could not queue a payment reference for a buyer ERP',
+        );
+      });
+
     return { accepted: true, duplicate: false };
   }
 

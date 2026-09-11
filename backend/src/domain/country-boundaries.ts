@@ -197,6 +197,64 @@ export function boundaries(): Loaded {
   return loaded;
 }
 
+/** One country in the ISO 3166-1 list, with no geometry attached. */
+export interface IsoCountry {
+  /** ISO 3166-1 alpha-2, upper case. */
+  code: string;
+  /** English name, from the ISO list. */
+  name: string;
+  /** The emoji flag. */
+  flag: string;
+}
+
+let isoList: IsoCountry[] | null = null;
+
+/**
+ * Every country there is, by ISO code and name, with no boundaries loaded.
+ *
+ * This exists because the geofencing screens ask a question the `countries`
+ * table cannot answer. That table is the list of markets the deployment
+ * *prices in* - a few dozen rows, each with a currency behind it - and it is
+ * the right list for a price, a VAT treatment and an interface language. It is
+ * the wrong list for "which countries may this warehouse be told not to
+ * deliver to", because a 500 km circle reaches countries a deployment has
+ * never sold into, and those are exactly the ones an operator most wants to
+ * close. A picker built from `countries` would offer forty rows and hide the
+ * other two hundred.
+ *
+ * Separate from `boundaries()` on purpose: this is 250 short rows built from
+ * `world-countries` alone, where `boundaries()` parses 739 KB of TopoJSON into
+ * about 14 MB of heap. The exclusion picker and the country-code validation
+ * need the names and nothing else, and they should not drag the geometry in
+ * behind them.
+ *
+ * Sorted by English name, because that is the order a picker reads in.
+ */
+export function isoCountries(): IsoCountry[] {
+  isoList ??= (require('world-countries') as Country[])
+    .map((entry) => ({
+      code: entry.cca2.toUpperCase(),
+      name: entry.name.common,
+      flag: entry.flag,
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name, 'en'));
+
+  return isoList;
+}
+
+/**
+ * Is this a real ISO 3166-1 alpha-2 code?
+ *
+ * The check `warehouse_country_exclusions` has instead of a foreign key. The
+ * column's CHECK constraint holds the shape - two upper-case letters - and
+ * this holds the meaning, so "XX" is refused with a message about the country
+ * rather than accepted as a row that will never match anything.
+ */
+export function isIsoCountryCode(code: string): boolean {
+  const upper = code.trim().toUpperCase();
+  return isoCountries().some((country) => country.code === upper);
+}
+
 /**
  * Do two boxes overlap at all?
  *

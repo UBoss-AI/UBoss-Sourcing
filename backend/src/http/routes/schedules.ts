@@ -14,11 +14,13 @@ import { Permission } from '../../domain/permissions.js';
 import { env } from '../../config/env.js';
 import { prisma } from '../../infra/prisma.js';
 import {
+  VISIBLE_TO_CUSTOMER,
   activateSchedule,
   cancelOccurrence,
   cancelSchedule,
   createSchedule,
   editableUntil,
+  hideSchedule,
   pauseSchedule,
   resumeSchedule,
   scheduleSummary,
@@ -26,6 +28,12 @@ import {
   skipOccurrence,
   updateSchedule,
 } from '../../modules/recurring/schedule.service.js';
+import {
+  MAX_LIST_ESTIMATES,
+  estimateSchedule,
+  estimateSchedules,
+} from '../../modules/recurring/schedule-estimate.service.js';
+import { deliveryNoticeFloor } from '../../modules/recurring/schedule-notice.js';
 import {
   convertCartAfterActivation,
   createCartSchedule,
@@ -177,6 +185,16 @@ const createSchema = z.object({
 
 const updateSchema = z.object({
   name: z.string().trim().min(1).max(128).optional(),
+  /**
+   * The wall clock the plan runs on.
+   *
+   * Editable, unlike at creation where it defaults to the store's own zone. A
+   * standing order handed from a buyer in Kolkata to a colleague in Rotterdam
+   * otherwise keeps firing at the wrong city's 06:00, and "cancel it and build
+   * another" is not an answer when the alternative is one field. The service
+   * re-dates every upcoming delivery when it changes.
+   */
+  timezone: z.string().trim().max(64).optional(),
   frequency: frequencyEnum.optional(),
   intervalDays: z.number().int().min(1).max(365).nullable().optional(),
   weekday: z.number().int().min(1).max(7).nullable().optional(),
@@ -353,6 +371,51 @@ function serialiseOccurrence(
 export function registerCustomerScheduleRoutes(app: FastifyInstance): Promise<void> {
   app.addHook('preHandler', requireCustomer);
 
+  /**
+   * The earliest date a first delivery may be asked for.
+   *
+   * The calendar on the builder and on the plan editor draws its floor from
+   * this. It could not be computed in the browser: half of the answer is the
+   * notice period, which is a deployment setting, and the other half is what
+   * the chosen warehouse can actually reach, which needs the lanes. A
+   * storefront that guessed either would grey out the wrong fortnight.
+   *
+   * A GET with the configuration in the query rather than a POST, because it
+   * writes nothing and the screen re-asks it every time the address or the
+   * warehouse changes - which is exactly the recalculation the rule requires.
+   *
+   * It answers a date; it does not enforce one. `createSchedule` and
+   * `updateSchedule` refuse a date inside the window whatever the browser
+   * did with this, which is what makes bypassing the picker pointless rather
+   * than profitable.
+   */
+  app.get('/delivery-window', async (request, reply) => {
+    const auth = currentUser(request);
+
+    const query = z
+      .object({
+        shippingAddressId: z.string().length(26),
+        timezone: z.string().trim().max(64).optional(),
+        fulfilmentRule: z.enum(['AUTO', 'FIXED_LOCATION']).optional(),
+        inventoryLocationId: z.string().length(26).nullable().optional(),
+      })
+      .parse(request.query);
+
+    const business = await prisma.businessProfile.findFirst({ select: { timezone: true } });
+
+    const floor = await deliveryNoticeFloor({
+      scheduleTimezone: query.timezone ?? business?.timezone ?? env.DEFAULT_TIMEZONE,
+      shippingAddressId: query.shippingAddressId,
+      customerProfileId: auth.customerProfileId ?? '',
+      fulfilmentRule: query.fulfilmentRule ?? 'AUTO',
+      inventoryLocationId: query.inventoryLocationId ?? null,
+    });
+
+    // No caching. The floor moves at midnight in the customer's own zone, and
+    // a held answer is a calendar offering a day that has just closed.
+    return reply.header('cache-control', 'no-store').status(200).send(floor);
+  });
+
   app.get('/', async (request, reply) => {
     const auth = currentUser(request);
     const query = z
@@ -360,12 +423,23 @@ export function registerCustomerScheduleRoutes(app: FastifyInstance): Promise<vo
         status: planStatusEnum.optional(),
         /** ONE_TIME for Buy Later, RECURRING for subscriptions. */
         kind: z.enum(['ONE_TIME', 'RECURRING']).optional(),
+        /**
+         * Price every plan in the answer.
+         *
+         * Opt-in, because it is the expensive half of this endpoint: each
+         * estimate is a small round of indexed reads through `quoteSchedule`,
+         * and the header's badge does not need any of them. The screen that
+         * shows a column of cards with amounts on them asks for it.
+         */
+        estimate: z.enum(['true', 'false']).optional(),
       })
       .parse(request.query);
 
     const schedules = await prisma.recurringSchedule.findMany({
       where: {
         customerProfileId: auth.customerProfileId ?? '',
+        // What the customer cleared off their own list. See `hideSchedule`.
+        ...VISIBLE_TO_CUSTOMER,
         ...(query.status !== undefined ? { status: query.status } : {}),
         ...(query.kind !== undefined ? { kind: query.kind } : {}),
       },
@@ -373,7 +447,37 @@ export function registerCustomerScheduleRoutes(app: FastifyInstance): Promise<vo
       include: { items: true, _count: { select: { occurrences: true } } },
     });
 
-    return reply.status(200).send({ schedules: schedules.map(serialiseSchedule) });
+    const estimates =
+      query.estimate === 'true'
+        ? await estimateSchedules(schedules, auth.customerProfileId ?? '')
+        : new Map<string, Awaited<ReturnType<typeof estimateSchedule>>>();
+
+    return reply.status(200).send({
+      schedules: schedules.map((schedule) => {
+        const estimate = estimates.get(schedule.id);
+
+        return {
+          ...serialiseSchedule(schedule),
+          /**
+           * What this delivery would cost if it went out now.
+           *
+           * Absent unless it was asked for, and null where it could not be
+           * priced - so a card can render a dash rather than a confident
+           * 0.00, which would read as "this delivery is free".
+           */
+          ...(query.estimate === 'true'
+            ? {
+                estimatedTotal: estimate?.estimatedTotal ?? null,
+                estimateOk: estimate?.ok ?? false,
+              }
+            : {}),
+        };
+      }),
+      /** How many were priced, so a long list can say why the rest are dashes. */
+      ...(query.estimate === 'true'
+        ? { estimatedCount: estimates.size, estimateLimit: MAX_LIST_ESTIMATES }
+        : {}),
+    });
   });
 
   app.get('/:id', async (request, reply) => {
@@ -381,11 +485,38 @@ export function registerCustomerScheduleRoutes(app: FastifyInstance): Promise<vo
     const { id } = idParam.parse(request.params);
 
     const schedule = await prisma.recurringSchedule.findFirst({
-      // The ownership check IS the where clause.
-      where: { id, customerProfileId: auth.customerProfileId ?? '' },
+      // The ownership check IS the where clause, and so is the visibility one:
+      // a plan the customer removed answers 404 here rather than opening from
+      // a stale link.
+      where: { id, customerProfileId: auth.customerProfileId ?? '', ...VISIBLE_TO_CUSTOMER },
       include: {
-        items: { include: { product: { select: { name: true, sku: true, slug: true } } } },
-        occurrences: { orderBy: { plannedRunAt: 'desc' }, take: 20 },
+        items: {
+          include: {
+            product: {
+              select: {
+                name: true,
+                sku: true,
+                slug: true,
+                // The purchasing rules, because the screen that edits a
+                // schedule's quantities cannot work without them. Left out,
+                // the stepper has to assume a minimum of one and a step of
+                // one - and a customer would save three of a product sold in
+                // tens, only to be told so by the next occurrence.
+                minOrderQty: true,
+                maxOrderQty: true,
+                qtyIncrement: true,
+              },
+            },
+          },
+        },
+        occurrences: {
+          orderBy: { plannedRunAt: 'desc' },
+          take: 20,
+          // The order each cycle produced, where it produced one. Without the
+          // join the history could show a delivery with no way to open the
+          // order it became, which is the first thing a buyer looks for.
+          include: { order: { select: { id: true, orderNumber: true, status: true } } },
+        },
         shippingAddress: true,
         billingAddress: true,
         _count: { select: { occurrences: true } },
@@ -407,20 +538,35 @@ export function registerCustomerScheduleRoutes(app: FastifyInstance): Promise<vo
           sku: item.product.sku,
           slug: item.product.slug,
           quantity: item.quantity,
+          /**
+           * Named `purchaseRules` to match the shape the catalogue sends, so
+           * the storefront's quantity control takes the same object from a
+           * schedule line as it does from a product page.
+           */
+          purchaseRules: {
+            minOrderQty: item.product.minOrderQty,
+            maxOrderQty: item.product.maxOrderQty,
+            qtyIncrement: item.product.qtyIncrement,
+          },
         })),
         shippingAddress: schedule.shippingAddress,
         billingAddress: schedule.billingAddress,
         occurrences: schedule.occurrences.map((occurrence) => ({
+          id: occurrence.id,
           plannedRunAt: occurrence.plannedRunAt.toISOString(),
           status: occurrence.status,
-          orderId: null,
+          orderId: occurrence.order?.id ?? null,
+          orderNumber: occurrence.order?.orderNumber ?? null,
           total:
             occurrence.actualTotalMinor === null
               ? null
               : serialiseMoney(occurrence.actualTotalMinor, currency),
           failureMessage: occurrence.failureMessage,
           skipReason: occurrence.skipReason,
+          skippedByUser: occurrence.skippedByUser,
           attemptCount: occurrence.attemptCount,
+          /** True only while the customer can still skip or re-date this one. */
+          canModify: occurrence.status === 'SCHEDULED',
         })),
       },
     });
@@ -477,6 +623,60 @@ export function registerCustomerScheduleRoutes(app: FastifyInstance): Promise<vo
     );
 
     return reply.status(200).send({ updated: true, nextRunAt: result.nextRunAt?.toISOString() ?? null });
+  });
+
+  /**
+   * What this schedule would cost if it ran now.
+   *
+   * A GET, and it writes nothing: the editing screen reads it after every
+   * change so the customer sees the effect of adding a line before they apply
+   * anything. Priced by `quoteSchedule`, the same function the worker uses
+   * weeks later - which is what makes the figure on the screen and the figure
+   * on the card statement one number rather than two.
+   *
+   * Problems come back rather than throwing. "This product is out of stock"
+   * is something the customer needs told on this screen, not a 409 that
+   * empties it.
+   */
+  app.get('/:id/estimate', async (request, reply) => {
+    const auth = currentUser(request);
+    const { id } = idParam.parse(request.params);
+
+    const estimate = await estimateSchedule(id, auth.customerProfileId ?? '');
+
+    return reply.status(200).send({ estimate });
+  });
+
+  /**
+   * Take a finished plan off my list.
+   *
+   * Separate from `DELETE /:id`, which cancels — two different acts that a
+   * customer means differently. Cancelling stops future deliveries; this puts
+   * a plan that has already stopped out of sight. Refused on anything that has
+   * not stopped, because hiding a live authority to charge would mean money
+   * leaving an account for an arrangement nobody can see.
+   *
+   * A POST rather than a DELETE: nothing is deleted. The row, its consent
+   * record, its occurrences and its orders all stay exactly where they are,
+   * and staff still read them.
+   */
+  app.post('/:id/hide', async (request, reply) => {
+    const auth = currentUser(request);
+    const { id } = idParam.parse(request.params);
+
+    await hideSchedule(
+      id,
+      {
+        userId: auth.id,
+        email: auth.email,
+        type: 'CUSTOMER',
+        ipAddress: request.ip,
+        correlationId: request.correlationId,
+      },
+      auth.customerProfileId ?? '',
+    );
+
+    return reply.status(200).send({ hidden: true });
   });
 
   app.post('/:id/pause', async (request, reply) => {
@@ -650,9 +850,9 @@ export function registerCustomerScheduleRoutes(app: FastifyInstance): Promise<vo
       })
       .parse(request.query);
 
-    // The ownership check IS the where clause.
+    // Ownership and visibility, both as where clauses.
     const schedule = await prisma.recurringSchedule.findFirst({
-      where: { id, customerProfileId: auth.customerProfileId ?? '' },
+      where: { id, customerProfileId: auth.customerProfileId ?? '', ...VISIBLE_TO_CUSTOMER },
       select: { id: true },
     });
 

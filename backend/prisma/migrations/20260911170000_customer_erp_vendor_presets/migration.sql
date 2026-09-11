@@ -1,0 +1,47 @@
+-- Named ERPs, and the one protocol that needed its own connector.
+--
+-- Two changes, both additive in effect.
+--
+-- `vendorPreset` REMEMBERS WHICH BRAND THE BUYER PICKED
+--
+-- `system` is the PROTOCOL - how the thing is spoken to. `vendorPreset` is the
+-- BRAND. They are not the same question, and several brands share one protocol:
+-- NetSuite, Dynamics 365 Business Central, Zoho, Acumatica, Epicor, QuickBooks,
+-- Sage X3, Infor and TCS iON are all REST or OData over OAuth 2.0, so all of
+-- them are `system = CUSTOM`.
+--
+-- Without this column a screen could only ever say "Custom" for nine different
+-- systems, and support looking at a failing connection could not tell a
+-- misconfigured Dynamics from a misconfigured QuickBooks. Nullable, because
+-- every connection created before this migration predates the catalogue and
+-- honestly has no answer - the services treat null as "whatever `system` says".
+--
+-- Free text rather than an ENUM, deliberately. The catalogue in
+-- `vendor-presets.ts` is data that grows with every customer who asks for their
+-- system by name, and widening a MariaDB ENUM means a MODIFY COLUMN over every
+-- row to record a value none of them holds. A preset id that is later retired
+-- reads back as the raw string, which is worse than a label and far better than
+-- a query that fails.
+--
+-- `ODOO` IS A CONNECTOR AND THE REST ARE PRESETS
+--
+-- The enum grows by exactly one member, and the reason is worth stating because
+-- the obvious move would have been one member per ERP. Odoo speaks JSON-RPC:
+-- one address for everything, the model and method inside the POST body,
+-- integer ids where every other system uses codes, and a fault that arrives
+-- with HTTP 200 and a Python traceback. None of that fits the REST connector,
+-- so it gets code.
+--
+-- Everything else in the catalogue does fit, so it gets data. That is what
+-- keeps "add support for <ERP>" a change to one array rather than a new file,
+-- and it is why this migration does not have to run again the next time
+-- somebody asks for their system by name.
+--
+-- MODIFY COLUMN on an ENUM rewrites the table on MariaDB 10.4, which is why
+-- this is worth knowing about before running it on a large installation. In
+-- practice `customer_erp_connections` holds one row per customer connection -
+-- tens, not millions - so it is momentary.
+
+-- AlterTable
+ALTER TABLE `customer_erp_connections` ADD COLUMN `vendorPreset` VARCHAR(48) NULL,
+    MODIFY `system` ENUM('SAP', 'MONDAY', 'ODOO', 'CUSTOM') NOT NULL;

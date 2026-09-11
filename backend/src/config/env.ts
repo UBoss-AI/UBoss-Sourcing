@@ -225,6 +225,44 @@ const envSchema = z
     /// a signal about the card, so a held occurrence must not spend the card's
     /// budget. Three is Stripe's own guidance for off-session retries.
     SCHEDULE_MAX_PAYMENT_ATTEMPTS: intFromString(1, 10).default(3),
+    /// How much notice the first delivery of a plan needs, in CALENDAR days.
+    ///
+    /// Seven, and seven is a business decision rather than a fact about
+    /// software - which is exactly why it is a setting. A standing order is
+    /// not a same-day courier: the basket is repriced and revalidated before
+    /// it runs, stock is reserved, and a card charge or a payment link has to
+    /// clear. On a catalogue of sterile consumables picked against a purchase
+    /// order, a week is the window the business actually works to, and
+    /// offering a buyer tomorrow would be offering something nobody can
+    /// supply.
+    ///
+    /// **Calendar days, counted on the customer's own clock**, never
+    /// `7 * 24 * 3600 * 1000` milliseconds. The two disagree twice a year in
+    /// every zone that observes DST, and they disagree permanently for any
+    /// buyer whose today is not the server's today. See
+    /// `domain/delivery-dates.ts`.
+    ///
+    /// Zero is allowed and means "no notice period", which is a legitimate
+    /// configuration for a deployment shipping from stock it holds in the same
+    /// building as the buyer. The storefront reads this from /config, so
+    /// nothing about the figure is hard-coded in a browser.
+    SCHEDULE_MIN_NOTICE_DAYS: intFromString(0, 365).default(7),
+
+    // --- Fulfilment quotes ---
+    //
+    // How long a warehouse option stays an offer, in minutes.
+    //
+    // Short on purpose. A quote holds a stock figure and a price, and stock is
+    // the fastest-moving input in this system - it changes every time anybody
+    // else checks out. Fifteen minutes is long enough to read a checkout page,
+    // add an address and choose a card, and short enough that "the option you
+    // picked has moved" is rare rather than routine.
+    //
+    // Expiry is never silent: checkout refuses a lapsed quote with
+    // FULFILMENT_QUOTE_EXPIRED and the storefront re-asks, because a quote
+    // quietly repriced at payment is a customer charged something nobody
+    // showed them.
+    FULFILMENT_QUOTE_TTL_MINUTES: intFromString(1, 1440).default(15),
 
     // --- ERP order hand-off ---
     //
@@ -327,6 +365,119 @@ const envSchema = z
     // every address it resolves to, pins the socket to one that passed, and
     // re-validates every redirect. See that file's header.
     ALLOW_PRIVATE_ERP_TARGETS: booleanFromString.default(false),
+
+    // --- A buyer's own ERP ---------------------------------------------------
+    //
+    // Everything above configures the SELLER's ERP: the operator connects one
+    // and every order goes to it. This block is the other direction - a buyer
+    // business connecting its own SAP, monday.com or in-house system so that
+    // what it buys here appears there.
+    //
+    // The master switch. Off means the account area's integration screens are
+    // hidden, every customer-facing route refuses with FEATURE_DISABLED, no
+    // dispatch or polling job is enqueued, and the inbound webhook endpoint
+    // 404s. Opt-in, because an installation that has not thought about its
+    // customers pointing this server at addresses of their own choosing should
+    // not discover the feature by finding it already on.
+    FEATURE_CUSTOMER_ERP: booleanFromString.default(false),
+
+    /// How many connections one buyer organisation may hold.
+    ///
+    /// A sandbox and a production one is the ordinary case, and a buyer
+    /// mid-migration legitimately wants both SAP and monday at once. Five is
+    /// room for that without letting one tenant create unbounded work for the
+    /// poller.
+    CUSTOMER_ERP_MAX_CONNECTIONS_PER_ORG: intFromString(1, 20).default(5),
+
+    /// Attempts at one event before it goes to the dead-letter state.
+    ///
+    /// Every attempt uses the SAME idempotency key, so this is a bound on
+    /// noise rather than a risk of duplication. Six because an ERP that has
+    /// refused six times over an expanding backoff is telling its owner
+    /// something, and hammering it further is not our decision to make on
+    /// their behalf.
+    CUSTOMER_ERP_MAX_ATTEMPTS: intFromString(1, 20).default(6),
+
+    /// The first retry delay, in seconds. Doubled each attempt, capped by
+    /// CUSTOMER_ERP_RETRY_MAX_SECONDS, and overridden entirely whenever the
+    /// ERP sent a `Retry-After` - an ERP that says "wait 300 seconds" and gets
+    /// another request in five has been told by our behaviour that its rate
+    /// limiting does not work.
+    CUSTOMER_ERP_RETRY_BASE_SECONDS: intFromString(1, 3600).default(30),
+    CUSTOMER_ERP_RETRY_MAX_SECONDS: intFromString(60, 86_400).default(3600),
+
+    /// Consecutive failures before a connection is taken out of service.
+    ///
+    /// It moves to FAILED and stops being called until a test passes. Without
+    /// it, a buyer whose ERP has been switched off for a fortnight gets a poll
+    /// against it every hour for a fortnight.
+    CUSTOMER_ERP_FAILURE_THRESHOLD: intFromString(1, 100).default(5),
+
+    /// Records one inbound pass will read from a buyer's ERP. A ceiling on
+    /// memory and on how long a worker slot is held, not a business rule.
+    CUSTOMER_ERP_MAX_SYNC_RECORDS: intFromString(100, 100_000).default(5000),
+
+    /// Bytes of a single ERP response held in memory. Smaller than the
+    /// outbound default because these are somebody else's systems answering
+    /// somebody else's queries, and a buyer whose ERP returns a 50MB catalogue
+    /// should get a clear refusal rather than a worker that swells.
+    CUSTOMER_ERP_MAX_RESPONSE_BYTES: intFromString(64_000, 8_388_608).default(2_097_152),
+
+    /// How long an OAuth authorisation-code flow may stay in flight, in
+    /// seconds. The window between "the buyer pressed Connect" and "their ERP
+    /// redirected them back" - long enough to sign in and read a consent
+    /// screen, short enough that an abandoned flow is not a standing invitation.
+    CUSTOMER_ERP_OAUTH_STATE_TTL_SECONDS: intFromString(120, 3600).default(900),
+
+    /// Where an ERP sends the buyer back to after authorising. Must be an
+    /// address this deployment serves; it is compared byte for byte at token
+    /// exchange, and it is what the buyer registers with their own ERP.
+    ///
+    /// Empty means "derive it from API_PUBLIC_URL", which is right for every
+    /// ordinary deployment. It exists for installations behind a gateway whose
+    /// public address is not the API's own.
+    CUSTOMER_ERP_OAUTH_REDIRECT_URI: z.string().default(''),
+
+    /// The operator's registered monday.com app.
+    ///
+    /// monday production connections use an OAuth app registered by whoever
+    /// runs this installation, not by each buyer - that is how monday's
+    /// marketplace works. The SECRET is the operator's and lives here; the
+    /// buyer never sees it and never types it. Empty means this deployment has
+    /// not registered an app, and the monday connector then offers only the
+    /// personal-token path, which is restricted to sandbox connections.
+    MONDAY_OAUTH_CLIENT_ID: z.string().default(''),
+    MONDAY_OAUTH_CLIENT_SECRET: z.string().default(''),
+    /// Least privilege, and shown to the buyer before they authorise. Widen
+    /// this and every buyer is asked for more than they were before, so it is
+    /// configuration rather than a constant.
+    MONDAY_OAUTH_SCOPES: z
+      .string()
+      .default('boards:read boards:write workspaces:read me:read'),
+
+    /// Host suffixes a buyer's ERP address is allowed to end in.
+    ///
+    /// Empty - the default - means any publicly routable host, which is what
+    /// the SSRF guard already enforces and is the right posture for a product
+    /// sold to businesses whose ERPs live at addresses nobody here can predict.
+    ///
+    /// An operator with a stricter policy sets this to a comma-separated list
+    /// (`sap.example.com,.monday.com`) and buyers are then held to it. A leading
+    /// dot means "this domain and its subdomains"; anything else is an exact
+    /// host. It is a second lock on top of the address checks, never a
+    /// replacement for them.
+    CUSTOMER_ERP_ALLOWED_HOST_SUFFIXES: z
+      .string()
+      .default('')
+      .transform((raw) =>
+        raw
+          .split(',')
+          .map((entry) => entry.trim().toLowerCase())
+          .filter((entry) => entry.length > 0),
+      ),
+
+    /// How long an organisation invitation stays valid, in hours.
+    CUSTOMER_ERP_INVITE_TTL_HOURS: intFromString(1, 720).default(168),
 
     // --- Auto-pay ---
     //
@@ -438,19 +589,27 @@ const envSchema = z
     // licence that asks for a line of its own.
     MAP_STYLE_ATTRIBUTION: z.string().default(''),
 
-    // How far the Warehouses screen says a warehouse delivers.
+    // How far a warehouse delivers, when the warehouse itself does not say.
     //
     // A setting rather than a constant because it is a commercial promise, not
-    // a technical limit: 100 km is what a van does in an afternoon in the
-    // Benelux and nothing like the right number for a distributor covering
-    // Rajasthan. The panel asks for this radius by default and the endpoint
-    // accepts any value up to its own ceiling, so an operator can also try a
-    // different one without changing this.
+    // a technical limit: 500 km is a day's run for a warehouse with its own
+    // fleet, and nothing like the right number for a city depot handing over
+    // to a bike courier.
+    //
+    // **This is the fallback, not the rule.** Since geofencing, a warehouse
+    // carries its own `deliveryRadiusKm`, and this is what applies to every
+    // warehouse that has not been given one. That is the useful way round: an
+    // operator moves the whole business's promise by editing one line here,
+    // and still overrides the two buildings that are different.
+    //
+    // The panel asks for this radius by default and the endpoint accepts any
+    // value up to its own ceiling, so an operator can also try a different one
+    // without changing this.
     //
     // Nothing about it is hard-coded in the frontend. The browser is told the
     // radius it should ask for by /config, the same way it is told everything
     // else it must not assume.
-    DELIVERY_COVERAGE_RADIUS_KM: intFromString(1, 1000).default(100),
+    DELIVERY_COVERAGE_RADIUS_KM: intFromString(1, 2000).default(500),
 
     // Google Maps, as an alternative to the raster tiles above.
     //
@@ -728,6 +887,47 @@ const envSchema = z
         path: ['ERP_ORDER_PATH'],
         message: 'required when ERP_ORDER_CONNECTION_NAME is set',
       });
+    }
+
+    // Half a registered OAuth app is worse than none. With an id and no
+    // secret, every buyer who presses "Connect monday.com" gets as far as
+    // their own consent screen and then fails at token exchange, which looks
+    // like a fault in their account rather than a gap in ours.
+    if (
+      (value.MONDAY_OAUTH_CLIENT_ID.length > 0) !==
+      (value.MONDAY_OAUTH_CLIENT_SECRET.length > 0)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['MONDAY_OAUTH_CLIENT_SECRET'],
+        message:
+          'MONDAY_OAUTH_CLIENT_ID and MONDAY_OAUTH_CLIENT_SECRET must be set together. ' +
+          'Set both to offer monday.com production connections, or neither to offer only ' +
+          'the sandbox personal-token path.',
+      });
+    }
+
+    // A redirect URI that is not a URL cannot be registered with anybody's ERP
+    // and cannot be compared at token exchange, which is where the failure
+    // would otherwise surface - long after the buyer has authorised.
+    if (value.CUSTOMER_ERP_OAUTH_REDIRECT_URI.length > 0) {
+      try {
+        const parsed = new URL(value.CUSTOMER_ERP_OAUTH_REDIRECT_URI);
+        if (parsed.protocol !== 'https:' && value.NODE_ENV === 'production') {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['CUSTOMER_ERP_OAUTH_REDIRECT_URI'],
+            message: 'must be an https address in production - an authorisation code ' +
+              'delivered over plain HTTP is readable by anybody on the path.',
+          });
+        }
+      } catch {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['CUSTOMER_ERP_OAUTH_REDIRECT_URI'],
+          message: 'must be a full URL, including https://',
+        });
+      }
     }
 
     // The one setting in this file that is a security control rather than a

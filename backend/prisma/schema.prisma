@@ -662,6 +662,19 @@ model Product {
   isRecurringEligible Boolean @default(false)
   hasVariants         Boolean @default(false)
 
+  /// Whether this has to travel refrigerated.
+  ///
+  /// A shipping restriction rather than a catalogue fact, and it is here
+  /// because it belongs to the product: a reagent needs the cold chain from
+  /// whichever building it leaves. What it is checked against is
+  /// `WarehouseDeliveryZone.supportsColdChain` - a lane that cannot hold
+  /// temperature cannot carry this, however near it is and however much of it
+  /// the warehouse holds.
+  ///
+  /// Default false, so every product in a running deployment keeps behaving
+  /// exactly as it did and no lane is narrowed by this column existing.
+  requiresColdChain Boolean @default(false)
+
   weightGrams     Int?
   metaTitle       String? @db.VarChar(255)
   metaDescription String? @db.VarChar(512)
@@ -735,6 +748,7 @@ model Product {
   prices             ProductPrice[]
   translations       ProductTranslation[]
   wishlistItems      WishlistItem[]
+  countryRestrictions ProductCountryRestriction[]
 
   @@index([categoryId, status, isPublished], map: "ix_product_category_visibility")
   @@index([status, isPublished, archivedAt], map: "ix_product_visibility")
@@ -932,6 +946,58 @@ model InventoryLocation {
   latitude  Decimal? @db.Decimal(9, 6)
   longitude Decimal? @db.Decimal(9, 6)
 
+  /// How far this warehouse promises to deliver, in kilometres.
+  ///
+  /// The geofence. Everything a warehouse is allowed to serve is derived from
+  /// this and its coordinates: a geodesic circle of this radius is intersected
+  /// with the world's country boundaries, and what comes back is the list of
+  /// countries it can reach. See `delivery-coverage.service.ts`.
+  ///
+  /// Per warehouse rather than per deployment, because the reach of a building
+  /// is a fact about the building. A port warehouse with its own fleet covers
+  /// 800 km; a city depot handing over to a courier covers 150. One number for
+  /// the whole business would have to be the smallest of them, and every other
+  /// warehouse would refuse deliveries it can make.
+  ///
+  /// Null means "use `DELIVERY_COVERAGE_RADIUS_KM`", the deployment-wide
+  /// default - not "no radius" and not zero. That is what lets an operator
+  /// raise the promise for every warehouse at once by changing one setting,
+  /// and still override it on the two that are different.
+  deliveryRadiusKm Int?
+
+  /// How long a delivery from here takes, in days, as a range.
+  ///
+  /// Stored because it is what the buyer chooses between. When two warehouses
+  /// both cover the buyer's country, the storefront shows both and the only
+  /// things that separate them are when the box arrives and what it costs -
+  /// so a warehouse with no lead time recorded has nothing to offer that
+  /// screen, and the option list says so rather than inventing "3-5 days".
+  ///
+  /// A range and not a single figure, because a single figure is either a
+  /// promise that gets broken or a padded one that loses the sale. Both null,
+  /// or both set - the CHECK constraint holds that, and min may not exceed
+  /// max.
+  deliveryLeadTimeMinDays Int?
+  deliveryLeadTimeMaxDays Int?
+
+  /// What this warehouse charges to deliver, in minor units of its own
+  /// currency.
+  ///
+  /// BigInt minor units, like every other amount in this system, and it
+  /// crosses the API as a string. Per warehouse because that is the other half
+  /// of the buyer's choice: Antwerp may be two days and 12 EUR where Gdańsk is
+  /// five days and free, and which of those a buyer wants is not a decision
+  /// this software gets to make for them.
+  ///
+  /// The currency is stored beside it rather than derived from the warehouse's
+  /// country, for the same reason `ProductPrice` carries one: a warehouse in
+  /// Poland may quote a delivery in euro, and a fee whose currency is guessed
+  /// from geography is a fee that is wrong by a factor of four. Null fee means
+  /// this warehouse has not priced delivery; the CHECK constraint keeps the
+  /// pair together, so there is never an amount with no currency on it.
+  deliveryFeeMinor    BigInt?
+  deliveryFeeCurrency String? @db.Char(3)
+
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
@@ -940,12 +1006,191 @@ model InventoryLocation {
   movements    InventoryMovement[]
   reservations StockReservation[]
   schedules    RecurringSchedule[]
+  exclusions   WarehouseCountryExclusion[]
+  deliveryZones WarehouseDeliveryZone[]
+  fulfilmentQuotes FulfilmentQuote[]
+  fulfilledOrders  Order[]             @relation("OrderFulfilmentLocation")
 
   /// The map's own query: every active warehouse, ordered so the default
   /// comes first. Also serves the country filter on its leading column.
   @@index([isActive, countryCode], map: "ix_inventory_location_active_country")
   @@index([operationalStatus], map: "ix_inventory_location_operational")
   @@map("inventory_locations")
+}
+
+/// A country this warehouse will not deliver to, whatever the radius says.
+///
+/// The geofence is geometry and geometry knows nothing about business. A
+/// 500 km circle around Antwerp reaches Luxembourg, and a deployment with no
+/// customs paperwork for Luxembourg cannot ship there however near it is. So
+/// the radius decides what is *reachable* and this table decides what is
+/// *offered*, and the two are kept apart on purpose: raising the radius later
+/// must not quietly re-open a country somebody deliberately closed.
+///
+/// **There is no foreign key to `countries`, and that is deliberate.** The
+/// `countries` table is the list of markets this deployment prices in - forty
+/// or so rows, each needing a currency. The radius is measured against the
+/// world, all two hundred and forty-odd shapes of it, from
+/// `domain/country-boundaries.ts`. An operator has to be able to close a
+/// country the radius reaches whether or not they sell there today, and an FK
+/// would make exactly the countries they most want to exclude the ones they
+/// cannot name. The code is validated against the ISO list instead, in
+/// `location.service.ts`.
+///
+/// One row per excluded country rather than a JSON array on the warehouse,
+/// because the storefront asks the question from the other end - "which
+/// warehouses may serve Belgium" - and that is an indexed lookup here and a
+/// full scan with JSON parsing there.
+model WarehouseCountryExclusion {
+  id         String @id @db.Char(26)
+  locationId String @db.Char(26)
+
+  /// ISO 3166-1 alpha-2, upper case. Not an FK - see the model comment.
+  ///
+  /// Upper-cased and checked against the ISO list by `location.service.ts`, so
+  /// nothing written through the API reaches this column in any other shape.
+  /// `chk_warehouse_exclusion_country_shape` is the backstop for a direct SQL
+  /// write, and it is worth knowing exactly how far it reaches: it rejects a
+  /// code containing a digit or a symbol, and a single letter. It does **not**
+  /// reject an alpha-3 - CHAR(2) truncates "DEU" to "DE" before any CHECK
+  /// runs, which is Germany either way - and it does not reject lower case,
+  /// because this column's collation is case-insensitive and `[A-Z]` therefore
+  /// matches `de`. Neither matters: `de` and `DE` are the same value to the
+  /// unique index and to every query that looks a code up here.
+  countryCode String @db.Char(2)
+
+  /// Why this country is closed, in the operator's own words.
+  ///
+  /// Optional, and worth having: "no CE paperwork" and "distributor holds
+  /// exclusivity" are different reasons with different expiry dates, and the
+  /// person who reads this row in a year is not the person who wrote it.
+  reason String? @db.VarChar(256)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  location InventoryLocation @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([locationId, countryCode], map: "uq_warehouse_exclusion_country")
+  /// "Who may serve this country?" - the storefront's own query.
+  @@index([countryCode], map: "ix_warehouse_exclusion_country")
+  @@map("warehouse_country_exclusions")
+}
+
+/// A lane: somewhere this warehouse delivers to, and on what terms.
+///
+/// **This table, and not the radius, decides what a buyer is offered.** The
+/// geofence on `inventory_locations` is geometry - a circle intersected with
+/// country polygons - and it answers "what could a van physically reach". That
+/// is a useful thing to draw on a map and a dangerous thing to sell against: a
+/// 500 km circle around Antwerp reaches Luxembourg whether or not anybody has
+/// appointed a carrier there, agreed a transit time, or priced the lane. So
+/// checkout asks this table instead, and a warehouse with no zone covering the
+/// destination is simply not offered - not because it is too far, but because
+/// nobody has said what it would cost or when it would arrive.
+///
+/// Four things are stored together because a buyer weighs them together:
+///
+///   - **Who carries it and at what service level.** Two lanes to the same
+///     postcode from the same building are an ordinary arrangement - a road
+///     service at four days and an express one at two - and they are two rows.
+///   - **How long it takes**, split into the time to get it out of the door
+///     (`handlingDays`) and the time on the road (`transitMinDays` ..
+///     `transitMaxDays`). Split because they fail differently: a bank holiday
+///     delays the dispatch, a ferry delays the transit, and a single "5 to 7
+///     days" figure cannot be corrected for either.
+///   - **What it costs**, in minor units with its own currency column, like
+///     every other amount in this schema.
+///   - **What it can carry.** `supportsColdChain` is checked against
+///     `products.requiresColdChain`; `maxWeightGrams` against the basket. A
+///     lane that cannot take the goods is not an option however near it is.
+///
+/// **Postal codes are prefixes, and the column is never NULL.** An empty
+/// string means the whole country, which is the common case and the one that
+/// has to be expressible. It is `''` rather than NULL because MariaDB treats
+/// every NULL in a UNIQUE index as distinct, so a nullable column here would
+/// let the same warehouse hold two "whole of Belgium" lanes and the operator
+/// would never find out which one priced their order.
+model WarehouseDeliveryZone {
+  id         String @id @db.Char(26)
+  locationId String @db.Char(26)
+
+  /// ISO 3166-1 alpha-2, upper case. Not an FK, for exactly the reason
+  /// `WarehouseCountryExclusion.countryCode` is not one: this is measured
+  /// against the world, and `countries` is the shorter list of markets the
+  /// deployment prices in.
+  countryCode String @db.Char(2)
+
+  /// Which postcodes inside that country, as a comma-separated prefix list.
+  ///
+  /// `''` means the whole country. `'1,2,30'` means every postcode starting
+  /// with 1, 2 or 30. Prefixes rather than ranges because postal codes are not
+  /// numbers - "80-601" and "SW1A 1AA" both sort and subtract meaninglessly -
+  /// and a prefix is the one operation that works on all of them. Compared
+  /// after stripping spaces and hyphens and upper-casing both sides, so a
+  /// buyer who types "sw1a 1aa" matches a lane written as "SW1".
+  postalPrefixes String @default("") @db.VarChar(512)
+
+  /// Who carries it, and how fast. Free text, because it is the operator's
+  /// own arrangement and no enum this repository invented would survive
+  /// contact with their contracts.
+  carrierName  String @db.VarChar(64)
+  serviceLevel String @db.VarChar(64)
+
+  /// Days between the order being placed and the box leaving the building.
+  handlingDays Int @default(1)
+
+  /// Days on the road, as a range. Both columns, always - a minimum with no
+  /// maximum is a promise with no end.
+  transitMinDays Int
+  transitMaxDays Int
+
+  /// Whether the two figures above are counted in working days.
+  ///
+  /// True skips Saturdays and Sundays when the dates are projected. A weekend
+  /// is not a universal fact, which is why this is a flag rather than an
+  /// assumption: a deployment shipping in the Gulf keeps it false and counts
+  /// calendar days rather than being handed the wrong weekend.
+  usesBusinessDays Boolean @default(true)
+
+  /// What this lane charges. BigInt minor units with its own currency, and the
+  /// currency has to match the one the basket is quoted in or the lane is not
+  /// offered - a fee converted at a rate this software chose would be an
+  /// exchange-rate opinion printed as a price.
+  shippingFeeMinor    BigInt @default(0)
+  shippingFeeCurrency String @db.Char(3)
+  /// Basket value at or above which the lane is free. Null = never free.
+  freeAboveMinor      BigInt?
+
+  /// What the lane can physically take.
+  supportsColdChain Boolean @default(false)
+  /// Null = no limit this operator has stated.
+  maxWeightGrams    Int?
+
+  /// Off without being deleted. An operator suspending a carrier for a month
+  /// should not have to retype the lane afterwards.
+  isActive Boolean @default(true)
+
+  /// Which lane wins when several match the same postcode. Lower first.
+  ///
+  /// Both are still offered to the buyer - two service levels to one address
+  /// is the whole point - and this only decides the order they are listed in
+  /// within one warehouse.
+  priority Int @default(0)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  location InventoryLocation @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  quotes   FulfilmentQuote[]
+
+  /// One lane per warehouse, country, postcode set and service level. The
+  /// service level is in the key because two of them to the same postcodes is
+  /// the arrangement this table exists to express.
+  @@unique([locationId, countryCode, postalPrefixes, serviceLevel], map: "uq_warehouse_zone_lane")
+  /// "Who may serve this country?" - the checkout's own query.
+  @@index([countryCode, isActive], map: "ix_warehouse_zone_country")
+  @@index([locationId, isActive], map: "ix_warehouse_zone_location")
+  @@map("warehouse_delivery_zones")
 }
 
 model InventoryBalance {
@@ -1183,8 +1428,14 @@ model CustomerProfile {
   couponRedemptions CouponRedemption[]
   limits            CustomerLimit[]
   wishlistItems     WishlistItem[]
+  fulfilmentQuotes  FulfilmentQuote[]
 
   assistantConversations AssistantConversation[]
+
+  /// Their place in a buyer organisation, which is what owns an ERP
+  /// connection. At most one - see `BuyerOrganizationMember`, where the
+  /// uniqueness is enforced and the reason for it is written down.
+  organizationMembership BuyerOrganizationMember?
 
   @@index([organization], map: "ix_customer_organization")
   @@index([createdAt], map: "ix_customer_created")
@@ -1212,6 +1463,39 @@ model Address {
   postalCode   String  @db.VarChar(16)
   country      String  @db.Char(2)
 
+  /// Where this address actually is, when anybody has been able to work it out.
+  ///
+  /// Decimal(9,6) and nullable, exactly like `InventoryLocation.latitude` -
+  /// same reasoning, same precision, and the same meaning for NULL: not a
+  /// missing value but an ordinary state. Every address in a deployment that is
+  /// already running predates this column, a geocoder can be unconfigured or
+  /// simply having a bad afternoon, and an industrial estate that resolves to
+  /// nothing is still somewhere a van can go.
+  ///
+  /// What it buys is the difference between an estimate and a quote. With no
+  /// coordinates a fulfilment option can only be measured warehouse-to-nearest-
+  /// border-of-the-destination-country, which is honest but coarse, and the
+  /// storefront labels the result "Estimated". With them the same option is
+  /// measured to the delivery point itself. Neither figure decides eligibility -
+  /// the delivery zones do - but a buyer comparing two warehouses is entitled to
+  /// the better number wherever it exists.
+  latitude  Decimal? @db.Decimal(9, 6)
+  longitude Decimal? @db.Decimal(9, 6)
+
+  /// The IANA zone this delivery point reads a clock in, e.g. "Europe/Brussels".
+  ///
+  /// Stored for the same reason `RecurringSchedule.timezone` and
+  /// `InventoryLocation.timezone` are: a calendar day is a wall-clock fact and
+  /// the server's own zone is not it. "Today plus seven days" evaluated for a
+  /// buyer in Auckland is a different pair of dates from the same phrase
+  /// evaluated in Asia/Calcutta, and the delivery is theirs rather than the
+  /// server's.
+  ///
+  /// Nullable, and the caller falls back - the plan's own zone, then the store's.
+  /// Never derived from the country, because a country is not a zone: Spain
+  /// spans two of them and the United States spans six.
+  timezone String? @db.VarChar(64)
+
   isDefaultBilling  Boolean @default(false)
   isDefaultShipping Boolean @default(false)
 
@@ -1225,6 +1509,7 @@ model Address {
 
   shippingSchedules RecurringSchedule[] @relation("ScheduleShippingAddress")
   billingSchedules  RecurringSchedule[] @relation("ScheduleBillingAddress")
+  fulfilmentQuotes  FulfilmentQuote[]
 
   @@index([customerProfileId, archivedAt], map: "ix_address_customer")
   @@map("addresses")
@@ -1262,9 +1547,10 @@ model Cart {
   customerProfile CustomerProfile? @relation(fields: [customerProfileId], references: [id], onDelete: Cascade)
   appliedCoupon   Coupon?          @relation(fields: [appliedCouponId], references: [id], onDelete: SetNull)
 
-  items        CartItem[]
-  reservations StockReservation[]
-  orders       Order[]
+  items            CartItem[]
+  reservations     StockReservation[]
+  orders           Order[]
+  fulfilmentQuotes FulfilmentQuote[]
 
   @@index([customerProfileId, status], map: "ix_cart_customer_status")
   @@index([status, expiresAt], map: "ix_cart_sweep")
@@ -1364,6 +1650,33 @@ model Order {
   shippingMethodName String?           @db.VarChar(128)
   paymentMode        PaymentIntentMode @default(ONLINE)
 
+  /// --- Which warehouse this ships from, and what was promised ---
+  ///
+  /// Null on every order placed before fulfilment options existed, and on any
+  /// order whose destination no warehouse published a lane for - the shipping
+  /// method configured for the deployment still applies to those, exactly as
+  /// it always did. This is additive: nothing here is required to place an
+  /// order.
+  ///
+  /// Restrict on the warehouse, like every other table that points at one:
+  /// deleting a building must not orphan the record of where an order was
+  /// picked. The quote is Restrict for a stronger reason - it is the evidence
+  /// of what the customer was shown before they agreed to pay, and the sweep
+  /// that clears lapsed quotes must not be able to take it.
+  fulfilmentLocationId String? @db.Char(26)
+  fulfilmentQuoteId    String? @db.Char(26)
+
+  /// The promise itself, copied out of the quote rather than joined to it.
+  ///
+  /// The same reasoning as `nameSnapshot` on an order line: a lane can be
+  /// repriced or retired, and what the customer was told on the day cannot be
+  /// allowed to change with it. `@db.Date` because a delivery date is a day.
+  fulfilmentCarrier      String?   @db.VarChar(64)
+  fulfilmentServiceLevel String?   @db.VarChar(64)
+  fulfilmentDispatchDate DateTime? @db.Date
+  fulfilmentDeliveryFrom DateTime? @db.Date
+  fulfilmentDeliveryTo   DateTime? @db.Date
+
   /// What the customer chose at checkout when there was more than one gateway
   /// to choose from.
   ///
@@ -1433,6 +1746,9 @@ model Order {
   customerProfile CustomerProfile @relation(fields: [customerProfileId], references: [id], onDelete: Restrict)
   cart            Cart?           @relation(fields: [cartId], references: [id], onDelete: SetNull)
 
+  fulfilmentLocation InventoryLocation? @relation("OrderFulfilmentLocation", fields: [fulfilmentLocationId], references: [id], onDelete: Restrict)
+  fulfilmentQuote    FulfilmentQuote?   @relation("OrderFulfilmentQuote", fields: [fulfilmentQuoteId], references: [id], onDelete: Restrict)
+
   items          OrderItem[]
   statusHistory  OrderStatusHistory[]
   approvals      OrderApproval[]
@@ -1453,6 +1769,10 @@ model Order {
   @@index([status, createdAt], map: "ix_order_status_time")
   @@index([source, createdAt], map: "ix_order_source_time")
   @@index([placedAt], map: "ix_order_placed")
+  /// "What is this warehouse due to pick?" - and the guard that makes
+  /// retiring a warehouse a question the panel can answer.
+  @@index([fulfilmentLocationId], map: "ix_order_fulfilment_location")
+  @@index([fulfilmentQuoteId], map: "ix_order_fulfilment_quote")
   @@map("orders")
 }
 
@@ -2077,6 +2397,27 @@ model RecurringSchedule {
   cancelledAt  DateTime? @db.DateTime(3)
   cancelReason String?   @db.VarChar(512)
 
+  /// When the customer removed this finished plan from their own list.
+  ///
+  /// A soft delete, on the same reasoning as `AssistantConversation.hiddenAt`
+  /// and with more at stake. This row is the record that a customer authorised
+  /// recurring charges: `consentAcceptedAt`, `consentVersion`, the cart they
+  /// agreed to, and every occurrence and order hanging off it. Somebody
+  /// tidying a list is not a reason to destroy the evidence behind a charge
+  /// that may be disputed months later - and `orders` is ON DELETE RESTRICT,
+  /// so a real delete could not happen anyway once the plan has run.
+  ///
+  /// What the flag does guarantee is what was asked for: the plan is gone from
+  /// every customer-facing read. Staff still see it, the GDPR export still
+  /// discloses it, and erasure under Art. 17 remains a different act with its
+  /// own route.
+  ///
+  /// Only ever set on a plan in a terminal status - CANCELLED or COMPLETED.
+  /// Hiding a live authority to charge would mean money leaving an account for
+  /// a plan the customer can no longer see, which is the one outcome this
+  /// column must never enable; `hideSchedule` refuses anything else.
+  hiddenAt DateTime? @db.DateTime(3)
+
   /// --- Worker lease (stands in for SKIP LOCKED on MariaDB 10.4) ---
   leaseOwner     String?   @db.VarChar(64)
   leaseExpiresAt DateTime? @db.DateTime(3)
@@ -2489,6 +2830,134 @@ model ErpOrderPush {
 // ===========================================================================
 // FULFILMENT AND AFTER-SALE
 // ===========================================================================
+
+
+// ===========================================================================
+// FULFILMENT QUOTES
+//
+// What one warehouse offered for one basket, to one address, at one moment.
+//
+// A quote is a **frozen offer**, and freezing it is the whole reason the table
+// exists. The alternative - recomputing at payment from ids the browser sends
+// back - means the number on the review screen and the number charged are
+// produced by two different runs against a catalogue and a stock ledger that
+// moved in between. Whichever way that drifts, the customer is charged
+// something nobody showed them.
+//
+// So every option the buyer is shown is written down: the price, the promised
+// dates, the carrier, the warehouse, and the basket it was priced for.
+// Choosing one hands back its id; checkout re-reads the row, re-checks that
+// the world still supports it, and copies the promise onto the order. A quote
+// that has expired or whose basket has changed is refused with a code the
+// storefront turns into "these options have moved, here they are again" -
+// never silently repriced.
+// ===========================================================================
+
+/// One warehouse's offer for one basket, frozen.
+///
+/// Rows are cheap and short-lived: one per eligible option per request, swept
+/// once they expire unless an order points at them. A quote attached to an
+/// order is kept for ever - it is the evidence of what the customer was shown
+/// before they agreed to pay.
+model FulfilmentQuote {
+  id String @id @db.Char(26)
+
+  customerProfileId String  @db.Char(26)
+  /// The cart it was priced from, where there was one. Null for a quote taken
+  /// against an explicit item list rather than the live cart.
+  cartId            String? @db.Char(26)
+  /// The delivery address it was priced to. Null where the buyer had only
+  /// said which country they are in - see `isEstimate`.
+  addressId         String? @db.Char(26)
+
+  locationId String  @db.Char(26)
+  /// The lane that produced the dates and the fee. SetNull rather than
+  /// Restrict: an operator retiring a carrier must not be blocked by quotes,
+  /// and the quote keeps its own frozen copy of every figure anyway.
+  zoneId     String? @db.Char(26)
+
+  /// Where it was going. The country is always known; the postcode only when
+  /// an address was given.
+  destinationCountry    String  @db.Char(2)
+  destinationPostalCode String? @db.VarChar(16)
+
+  /// True when this was priced from a country alone.
+  ///
+  /// The storefront labels such an option "Estimated" and asks for it again
+  /// once an address is chosen. It is a real answer - a buyer comparing
+  /// warehouses before they have typed an address deserves one - and it is
+  /// never the answer checkout accepts: `assertQuoteUsable` refuses an
+  /// estimate, because an estimate is a conversation and not an offer.
+  isEstimate Boolean @default(false)
+
+  /// The offer. BigInt minor units in one currency, like everywhere else.
+  /// grandTotal = subtotal - discount + tax + shipping.
+  currency        String @db.Char(3)
+  subtotalMinor   BigInt @default(0)
+  discountMinor   BigInt @default(0)
+  taxMinor        BigInt @default(0)
+  shippingMinor   BigInt @default(0)
+  grandTotalMinor BigInt @default(0)
+
+  /// The promise, as calendar dates in the warehouse's own zone.
+  ///
+  /// `@db.Date` and not an instant, deliberately: "arrives on the 18th" is a
+  /// day, and storing it as midnight-somewhere is how a delivery date shows as
+  /// the 17th to a third of the world. The same reasoning as
+  /// `RecurringSchedule.startDate`.
+  dispatchDate     DateTime @db.Date
+  deliveryFromDate DateTime @db.Date
+  deliveryToDate   DateTime @db.Date
+  transitMinDays   Int
+  transitMaxDays   Int
+  handlingDays     Int      @default(0)
+
+  /// Who was going to carry it, copied rather than joined. The lane can be
+  /// edited or retired; what the customer was told cannot.
+  carrierName  String @db.VarChar(64)
+  serviceLevel String @db.VarChar(64)
+
+  /// Kilometres from the warehouse to the destination - to the address itself
+  /// where coordinates were known, and to the country's nearest border
+  /// otherwise. Information for the buyer, never a rule: eligibility is the
+  /// zone's business. Null where neither could be measured.
+  distanceKm Decimal? @db.Decimal(9, 2)
+
+  /// The basket this was priced for, as a digest.
+  ///
+  /// A quote is only valid for the basket it was taken against, and comparing
+  /// digests is how checkout notices that somebody added a line in another tab
+  /// between the review screen and Pay. SHA-256 over the sorted
+  /// product/variant/quantity triples and the currency - see
+  /// `basketDigest` in `warehouse-options.service.ts`.
+  basketHash String @db.Char(64)
+  /// The lines themselves, for the audit trail and for a support conversation
+  /// months later about what exactly was offered.
+  itemsJson  Json
+
+  /// When it stops being an offer. Short - see FULFILMENT_QUOTE_TTL_MINUTES -
+  /// because it holds a stock figure, and a stock figure is the fastest-moving
+  /// input in this system.
+  expiresAt DateTime @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  customerProfile CustomerProfile        @relation(fields: [customerProfileId], references: [id], onDelete: Cascade)
+  cart            Cart?                  @relation(fields: [cartId], references: [id], onDelete: SetNull)
+  address         Address?               @relation(fields: [addressId], references: [id], onDelete: SetNull)
+  location        InventoryLocation      @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  zone            WarehouseDeliveryZone? @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+
+  orders Order[] @relation("OrderFulfilmentQuote")
+
+  @@index([customerProfileId, createdAt], map: "ix_fulfilment_quote_customer")
+  /// The sweep's own query: everything that has lapsed.
+  @@index([expiresAt], map: "ix_fulfilment_quote_expiry")
+  @@index([locationId], map: "ix_fulfilment_quote_location")
+  @@index([cartId], map: "ix_fulfilment_quote_cart")
+  @@index([addressId], map: "ix_fulfilment_quote_address")
+  @@index([zoneId], map: "ix_fulfilment_quote_zone")
+  @@map("fulfilment_quotes")
+}
 
 enum ShipmentStatus {
   CREATED
@@ -4114,6 +4583,47 @@ model ProductDeviceInfo {
   @@map("product_device_info")
 }
 
+/// A country this product may not be delivered to.
+///
+/// The regulatory half of "can this be shipped there", and separate from
+/// `WarehouseCountryExclusion` because it is a fact about the *goods* rather
+/// than about a building. A Class III device with no registration in Norway
+/// cannot go there from Antwerp, from Gdansk, or from anywhere else, and
+/// recording that on each warehouse in turn would mean forgetting it on the
+/// one opened next year.
+///
+/// Checked at checkout: a warehouse whose basket contains a product restricted
+/// in the destination is not offered, and the buyer is told which line is the
+/// problem rather than being shown an empty list.
+///
+/// No foreign key to `countries`, for the same reason the warehouse exclusion
+/// has none: the list of markets a deployment prices in is much shorter than
+/// the list of countries a regulator can close, and an FK would make exactly
+/// the countries most worth restricting the ones nobody can name.
+model ProductCountryRestriction {
+  id        String @id @db.Char(26)
+  productId String @db.Char(26)
+
+  /// ISO 3166-1 alpha-2, upper case. Validated against the ISO list in the
+  /// service; the CHECK constraint is the backstop for a direct SQL write.
+  countryCode String @db.Char(2)
+
+  /// Why, in the operator's own words - "no MDR registration", "import licence
+  /// required". Optional, and worth having: the person reading this row in a
+  /// year is not the person who wrote it, and the reasons expire at different
+  /// times.
+  reason String? @db.VarChar(256)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, countryCode], map: "uq_product_country_restriction")
+  /// "What may not go to Norway?" - the checkout's own query.
+  @@index([countryCode], map: "ix_product_restriction_country")
+  @@map("product_country_restrictions")
+}
+
 // ===========================================================================
 // ERP CONNECTIVITY
 //
@@ -4133,6 +4643,12 @@ model ProductDeviceInfo {
 // whether a particular customer set something up. Every order goes the same
 // way, so a failure is a failure of the installation rather than of one
 // buyer's configuration, and there is one place to look.
+//
+// A BUYER connecting their OWN ERP is a separate feature with separate tables,
+// and none of the above applies to it - see the BUYER ORGANISATIONS block at
+// the end of this file. The distinction is whose system is on the other end:
+// here it is the operator's warehouse, there it is a customer's purchasing
+// system.
 //
 // Secrets are AES-256-GCM ciphertext bound by AAD to the row that holds them,
 // and no read path in the application decrypts them into a response.
@@ -4784,4 +5300,1418 @@ model WishlistItem {
   @@index([customerProfileId, createdAt], map: "ix_wishlist_customer_time")
   @@index([productId], map: "ix_wishlist_product")
   @@map("wishlist_items")
+}
+
+// ===========================================================================
+// BUYER ORGANISATIONS AND THEIR OWN ERP
+//
+// Everything above this line about ERP connectivity is the SELLER's: the
+// business running this installation configures one ERP under Settings -> ERP
+// and every order it takes goes there. That stays exactly as it was.
+//
+// This block is the other direction, and it is a different feature with a
+// different owner. A buyer is itself a business - a hospital group, a
+// distributor - running SAP, or monday.com, or something written in-house.
+// What it wants is for the things it buys HERE to appear THERE: a purchase
+// order when an order is confirmed, a goods receipt when the crate is signed
+// for, an invoice when one is issued, a payment reference when it settles.
+//
+// Three facts shape every model below.
+//
+//   1. **The tenant owns the connection, not the person.** A buyer is an
+//      organisation with staff who come and go. A connection configured by
+//      somebody who has since left must keep working, and the person who
+//      replaces them must be able to fix it. So the owner column is
+//      `organizationId` and never `customerProfileId`, and every query in the
+//      services is scoped by it - see `assertOrganizationAccess`.
+//
+//   2. **A credential is never a column anybody reads back.** Secrets live in
+//      `customer_erp_credentials` as AES-256-GCM envelopes with AAD binding
+//      them to their row, are decrypted in exactly one module, and no read
+//      path in the application - customer, admin or support - returns one.
+//      What a screen shows is `hint`, which is `X-API-Key: sk_live...9f2a`.
+//
+//   3. **The buyer types the address.** That is the whole point of the
+//      feature and it is also, unavoidably, a server-side request forgery
+//      primitive with a form field in front of it. `assertSafeErpUrl` and
+//      `resolveSafeTarget` in `outbound-http.ts` are what make it safe to
+//      offer: https only, DNS resolved by us, private and link-local
+//      addresses refused, the socket pinned to the address that passed, and
+//      every redirect target re-checked. On top of that a deployment may
+//      restrict buyers to an operator-approved host policy - see
+//      `CUSTOMER_ERP_ALLOWED_HOST_SUFFIXES`.
+//
+// The ORDER of what happens to stock is the part most easily got wrong, so it
+// is stated here as well as in the service: an order confirmed on this
+// platform raises a PURCHASE ORDER in the buyer's ERP and moves the quantity
+// to ON ORDER. It does not touch on-hand stock. On-hand only moves when the
+// goods are receipted - by a delivery this platform records, or by a goods
+// receipt the buyer's own ERP tells us about - and even then only if the
+// buyer's policy says to write it automatically rather than ask.
+// ===========================================================================
+
+/// What somebody may do inside a buyer organisation.
+///
+/// Three levels rather than a permission matrix, because there are exactly
+/// three questions a buyer's IT department actually has: who owns this, who
+/// may change the credentials, and who may look. A fourth role would have to
+/// be explained to somebody, and nobody has asked for one.
+enum BuyerOrgRole {
+  /// Everything, including handing ownership on and archiving the
+  /// organisation. At least one OWNER exists at all times - `removeMember`
+  /// refuses to take the last one out.
+  OWNER
+  /// May configure connections, credentials, endpoints, mappings and policies,
+  /// and may run tests, dry runs and syncs. May not change who is in the
+  /// organisation. This is the role a buyer gives to the person who actually
+  /// knows their SAP landscape, who is very often not the person who signs the
+  /// purchase orders.
+  INTEGRATION_MANAGER
+  /// Read-only over connection health, sync history and the audit log. Sees no
+  /// credential, no hint, and none of the endpoints the connection calls - see
+  /// `toHealthView`, which is a different shape rather than the same shape
+  /// with fields blanked.
+  MEMBER
+}
+
+/// A buyer business, as a tenant.
+///
+/// Created lazily - the first time somebody in an account opens the
+/// integrations area, an organisation is provisioned for them and they become
+/// its OWNER. That is deliberately NOT a match on
+/// `customer_profiles.organization`, which is free text somebody typed:
+/// joining a tenant by typing its name is not an access-control decision, it
+/// is an invitation to read a competitor's purchase orders. Additional people
+/// join by invitation only, and an invitation is addressed to an email address
+/// and accepted by whoever controls it.
+model BuyerOrganization {
+  id String @id @db.Char(26)
+
+  /// What the buyer calls itself. Seeded from `customer_profiles.organization`
+  /// where there is one, and from the account holder's own name where there is
+  /// not, because "Organisation" as a heading over somebody's own screen is
+  /// worse than their own name.
+  name String @db.VarChar(255)
+
+  /// Lowercased, punctuation-stripped `name`. Not unique, and deliberately so:
+  /// two unrelated buyers may both be "City Medical Supplies", and refusing
+  /// the second one to protect a namespace nobody navigates by would be
+  /// absurd. It exists so support can find an organisation by name.
+  nameNormalized String @db.VarChar(255)
+
+  /// The profile that caused the organisation to exist. Kept for the trail;
+  /// ownership itself lives in `buyer_organization_members`, because the
+  /// founder can leave.
+  createdByProfileId String? @db.Char(26)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+  /// Soft delete. Connections, events and audit rows still read back.
+  archivedAt DateTime? @db.DateTime(3)
+
+  members     BuyerOrganizationMember[]
+  invites     BuyerOrganizationInvite[]
+  connections CustomerErpConnection[]
+  auditLogs   CustomerErpAuditLog[]
+
+  @@index([nameNormalized], map: "ix_buyer_org_name")
+  @@map("buyer_organizations")
+}
+
+/// One person's place in one buyer organisation.
+///
+/// `customerProfileId` is UNIQUE: a profile belongs to at most one
+/// organisation. That is a real restriction and it is the right one for now -
+/// an account that could act for two buyers would need every screen in the
+/// storefront to ask "as whom?", including the cart. When a buyer genuinely
+/// needs that, the answer is a second account.
+model BuyerOrganizationMember {
+  id             String @id @db.Char(26)
+  organizationId String @db.Char(26)
+
+  customerProfileId String @unique(map: "uq_buyer_org_member_profile") @db.Char(26)
+
+  role BuyerOrgRole @default(MEMBER)
+
+  /// The member who brought them in. Null for the founder.
+  invitedByProfileId String? @db.Char(26)
+
+  joinedAt  DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  organization    BuyerOrganization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customerProfile CustomerProfile   @relation(fields: [customerProfileId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, role], map: "ix_buyer_org_member_role")
+  @@map("buyer_organization_members")
+}
+
+/// An outstanding invitation to join a buyer organisation.
+///
+/// Addressed to an email address rather than to an account: the person a buyer
+/// wants to add very often has no account here yet. The token is stored as a
+/// SHA-256 hash for the same reason a password-reset token is - a leaked
+/// database must not hand somebody a working invitation.
+model BuyerOrganizationInvite {
+  id             String @id @db.Char(26)
+  organizationId String @db.Char(26)
+
+  /// Lowercased and trimmed. Compared against `users.emailNormalized` when the
+  /// invitation is accepted, so an invitation sent to one address cannot be
+  /// redeemed by somebody signed in as another.
+  emailNormalized String       @db.VarChar(320)
+  role            BuyerOrgRole @default(MEMBER)
+
+  tokenHash String   @unique(map: "uq_buyer_org_invite_token") @db.Char(64)
+  expiresAt DateTime @db.DateTime(3)
+
+  invitedByProfileId  String?   @db.Char(26)
+  acceptedAt          DateTime? @db.DateTime(3)
+  acceptedByProfileId String?   @db.Char(26)
+  revokedAt           DateTime? @db.DateTime(3)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  organization BuyerOrganization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, acceptedAt], map: "ix_buyer_org_invite_org")
+  @@index([emailNormalized], map: "ix_buyer_org_invite_email")
+  @@map("buyer_organization_invites")
+}
+
+// ---------------------------------------------------------------------------
+// The buyer's ERP: what kind, where, and how it is spoken to
+// ---------------------------------------------------------------------------
+
+/// Which system is on the other end.
+///
+/// Three, and only three, because each one is a different piece of code with
+/// different defaults, a different authentication story and a different idea of
+/// what a purchase order looks like. "Generic connector with a dropdown" is how
+/// an integration ends up half-working against everything.
+enum CustomerErpSystem {
+  /// SAP S/4HANA (cloud or on-premise) and older SAP ERP releases, spoken to
+  /// over OData or the REST APIs a communication arrangement exposes. Carries
+  /// company code, purchasing organisation and plant, which nothing else does.
+  SAP
+  /// monday.com. Not an ERP by pedigree, and genuinely used as one by a lot of
+  /// buyers: boards for purchase orders, groups for status, columns for
+  /// quantity and SKU. Spoken to over its GraphQL API.
+  MONDAY
+  /// Odoo. Its own member rather than a CUSTOM preset because JSON-RPC is a
+  /// genuinely different protocol: one address, the method and model inside
+  /// the body, integer ids instead of codes, and a fault that arrives with
+  /// HTTP 200. Everything else in the catalogue that speaks REST or OData
+  /// rides CUSTOM with a vendor preset - see `vendor-presets.ts`.
+  ODOO
+  /// Anything else with a documented HTTP API. REST/JSON by default, with
+  /// OData and GraphQL available where the buyer's system speaks them.
+  ///
+  /// Most named ERPs land here: NetSuite, Dynamics 365, Zoho, Acumatica,
+  /// Epicor, TCS iON and the rest are all REST or OData over OAuth 2.0, so
+  /// they are a preset on top of this rather than a connector of their own.
+  CUSTOM
+}
+
+/// The wire format of a custom connection.
+///
+/// Only meaningful for CUSTOM: SAP and monday are decided by their connectors.
+enum CustomerErpApiStyle {
+  REST_JSON
+  ODATA
+  GRAPHQL
+}
+
+/// Which of the buyer's landscapes this connection points at.
+///
+/// Not cosmetic. A SANDBOX connection is refused the automatic inventory write
+/// - it may raise purchase orders in a test system all day, but it must never
+/// be the thing that decides how much stock the buyer believes it has.
+enum CustomerErpEnvironment {
+  SANDBOX
+  PRODUCTION
+}
+
+/// How the buyer's ERP authenticates us.
+///
+/// Deliberately not "API key, and everything else is an API key with a funny
+/// name". A production SAP connection is a client-credentials grant against a
+/// communication arrangement; a production monday connection is an OAuth
+/// authorisation-code flow with named scopes; a personal token is a testing
+/// convenience and is refused on a PRODUCTION connection for that reason.
+enum CustomerErpAuthMethod {
+  /// OAuth 2.0 client credentials. Machine-to-machine, no user present. The
+  /// right answer for SAP, and for any custom ERP that offers it.
+  OAUTH2_CLIENT_CREDENTIALS
+  /// OAuth 2.0 authorisation code with PKCE. A person authorises us against
+  /// their own ERP account. What monday.com production connections use, and
+  /// available to custom connections whose ERP supports it.
+  OAUTH2_AUTHORIZATION_CODE
+  /// A key in a header or a query parameter the ERP names. `apiKeyLocation`
+  /// and `apiKeyName` say which and what.
+  API_KEY
+  /// `Authorization: Bearer <token>`.
+  BEARER_TOKEN
+  /// `Authorization: Basic base64(user:pass)`. Offered because some SAP
+  /// on-premise landscapes and some in-house APIs still require it, and
+  /// refusing would mean telling a customer their system cannot be connected.
+  /// Never a default, and never offered first in the UI.
+  BASIC
+  /// monday.com personal API token. Restricted to SANDBOX connections: it
+  /// carries one person's full account authority, cannot be scoped, and does
+  /// not die when they leave.
+  MONDAY_PERSONAL_TOKEN
+}
+
+/// Where an API key goes.
+enum CustomerErpApiKeyLocation {
+  HEADER
+  QUERY
+}
+
+/// How this platform reaches the buyer's ERP at all.
+///
+/// A description of the customer's network, recorded so that the instructions
+/// their IT team needs can be shown back to them, and so that support has an
+/// answer to "why can we not reach it". None of these change what the code
+/// does except SAP_CLOUD_CONNECTOR and VPN_GATEWAY, which both mean the
+/// address we are given is a gateway the customer runs, not the ERP itself.
+enum CustomerErpNetworkMode {
+  /// The ERP is on the public internet behind TLS. The ordinary case for SaaS.
+  PUBLIC_HTTPS
+  /// Public, but the customer's firewall admits only known source addresses.
+  /// The connection screen shows them which to allow.
+  IP_ALLOWLIST
+  /// The customer terminates a VPN or private link at a gateway host and gives
+  /// us that host's public name.
+  VPN_GATEWAY
+  /// SAP Cloud Connector or a comparable reverse proxy in front of an
+  /// on-premise SAP. The address is the connector's, the virtual host mapping
+  /// is the customer's business.
+  SAP_CLOUD_CONNECTOR
+}
+
+/// Where a connection stands. The names the specification asked for, and the
+/// transitions live in `customer-erp-state.ts`, which is the only thing allowed
+/// to move a row between them.
+enum CustomerErpConnectionState {
+  /// Being filled in. Nothing runs, nothing is called, no event is queued.
+  DRAFT
+  /// A test or a dry run is in flight. Transient, and held in the row so a
+  /// second test started from another tab does not run alongside the first.
+  TESTING
+  /// Live. Events dispatch, polling runs, webhooks are accepted.
+  ACTIVE
+  /// Stopped on purpose. Configuration intact; resuming needs no re-test.
+  /// **Automatic writes stop immediately** - queued events are held, not
+  /// dropped, and webhooks are refused, because accepting stock updates for a
+  /// connection somebody deliberately stopped is the opposite of pausing.
+  PAUSED
+  /// Something needs a person: an expired refresh token, a mapping the ERP has
+  /// started rejecting, an approval waiting. Distinct from FAILED because the
+  /// connection is not broken - it is waiting.
+  ACTION_REQUIRED
+  /// Repeated failures took it out of service. Nobody chose this; the row
+  /// carries the reason. Recovered by a passing test.
+  FAILED
+  /// Switched off and kept for its history. Credentials are destroyed on the
+  /// way in - see `disconnectConnection` - and the row remains so the events
+  /// that reference it still read back.
+  DISCONNECTED
+}
+
+/// Where one unit of work stands. Also the names the specification asked for.
+enum CustomerErpEventState {
+  QUEUED
+  PROCESSING
+  SUCCEEDED
+  /// Failed for a reason that may pass. `nextRetryAt` is set and the attempt
+  /// count has not run out.
+  RETRYING
+  /// Retries exhausted, or a failure no retry can fix. The dead-letter state.
+  /// A person retries it by hand once the cause is fixed, under the SAME
+  /// idempotency key.
+  FAILED
+  /// Deliberately not done: the connection is paused, the policy says outbound
+  /// only, the buyer's approval was refused, or the ERP already had it. Not a
+  /// failure, and counted apart from one.
+  SKIPPED
+}
+
+/// Every kind of thing that can be sent to, or read from, a buyer's ERP.
+enum CustomerErpEventType {
+  /// A test call. Never idempotency-keyed: a test may be run as often as
+  /// anybody likes and changes nothing on the other side.
+  CONNECTION_TEST
+  /// A rehearsal. Reads, maps, reports and writes nothing anywhere.
+  DRY_RUN
+  /// An order was confirmed here. Raises the purchase order there.
+  PURCHASE_ORDER_CREATE
+  /// The order changed - cancelled, amended - and the ERP is told.
+  PURCHASE_ORDER_UPDATE
+  /// The order shipped. Carries carrier and tracking.
+  SHIPMENT_STATUS
+  /// The goods arrived. The ONLY event that may move on-hand stock.
+  GOODS_RECEIPT
+  /// An availability figure, pushed to or pulled from the ERP.
+  INVENTORY_UPDATE
+  /// An invoice was issued here: number, amounts, tax, due date, document URL.
+  INVOICE_SYNC
+  /// A payment settled. Carries the provider's reference and status, and
+  /// nothing whatsoever about the instrument.
+  PAYMENT_REFERENCE
+  /// A scheduled read of the ERP, for a connection with no webhooks.
+  INBOUND_POLL
+  /// An inbound webhook, once it has been verified and accepted.
+  INBOUND_WEBHOOK
+}
+
+/// Which way data is allowed to move on a connection.
+enum CustomerErpSyncMode {
+  /// We read the ERP and never write to it.
+  INBOUND
+  /// We write to the ERP and never read from it.
+  OUTBOUND
+  /// Both. Requires a conflict policy, which is why it is not the default:
+  /// bidirectional sync without an answer to "who wins" is a data-loss bug
+  /// waiting for its first disagreement.
+  BIDIRECTIONAL
+}
+
+/// Whose figure is believed when the two systems disagree.
+enum CustomerErpSourceOfTruth {
+  ERP
+  PLATFORM
+}
+
+/// What to do about a disagreement.
+enum CustomerErpConflictPolicy {
+  ERP_WINS
+  PLATFORM_WINS
+  /// Whichever record was updated most recently. Honest only where both sides
+  /// carry a trustworthy timestamp, which is why it is not the default.
+  NEWEST_WINS
+  /// Neither. The divergence is recorded and a person is asked.
+  MANUAL
+}
+
+/// Whether a stock write happens on its own.
+enum CustomerErpWriteMode {
+  /// The write goes through as soon as its event is processed.
+  AUTOMATIC
+  /// An approval is raised and the event holds at SKIPPED until somebody in
+  /// the organisation decides. What a buyer mid-migration wants, and what the
+  /// approval threshold produces once an order is large enough.
+  APPROVAL_REQUIRED
+}
+
+/// What a connection's endpoint is for.
+enum CustomerErpEndpointPurpose {
+  PRODUCTS
+  WAREHOUSES
+  INVENTORY
+  PURCHASE_ORDER_CREATE
+  PURCHASE_ORDER_UPDATE
+  GOODS_RECEIPT
+  SHIPMENT_STATUS
+  INVOICE
+  PAYMENT_REFERENCE
+  /// Not something we call. The address the buyer's ERP calls US on is derived
+  /// from `webhookSlug`; this row records the ERP-side registration so the
+  /// screen can tell somebody what they configured.
+  WEBHOOK
+}
+
+/// How an endpoint pages.
+enum CustomerErpPagination {
+  NONE
+  /// `?page=1&pageSize=100`, names configurable.
+  PAGE_NUMBER
+  /// `?offset=0&limit=100`, names configurable.
+  OFFSET_LIMIT
+  /// A cursor the previous response handed back, found at `cursorPath`.
+  CURSOR
+  /// OData's `@odata.nextLink`, followed as an absolute URL - and re-checked
+  /// against the SSRF guard before it is, because it is a URL somebody else
+  /// chose.
+  ODATA_NEXT_LINK
+}
+
+/// Which side of the integration a mapped field belongs to.
+enum CustomerErpMappingEntity {
+  PRODUCT
+  WAREHOUSE
+  ORDER
+  INVENTORY
+  INVOICE
+  PAYMENT
+  /// Status vocabulary: what the ERP calls "released", "posted", "goods
+  /// issued", against what this platform calls it.
+  STATUS
+}
+
+/// What kind of secret a credential row holds.
+///
+/// One row per kind rather than one row with every column, because the kinds
+/// have different lifetimes: an access token is replaced every hour, a client
+/// secret every year or two, and a webhook secret when somebody rotates it.
+enum CustomerErpCredentialKind {
+  /// The long-lived thing the buyer typed: an API key, a bearer token, a
+  /// username and password, an OAuth client id and secret.
+  PRIMARY
+  /// The short-lived thing an OAuth flow produced: access token, refresh
+  /// token, expiry, granted scopes.
+  OAUTH_TOKENS
+  /// The HMAC key inbound webhooks are verified with.
+  WEBHOOK_SIGNING
+  /// A client certificate and private key for mutual TLS.
+  CLIENT_CERTIFICATE
+}
+
+/// What an approval is asking permission for.
+enum CustomerErpApprovalKind {
+  /// A purchase order whose value is over the organisation's threshold.
+  PURCHASE_ORDER
+  /// A stock write on a connection whose policy is APPROVAL_REQUIRED.
+  INVENTORY_WRITE
+}
+
+enum CustomerErpApprovalState {
+  PENDING
+  APPROVED
+  REJECTED
+  /// Nobody decided in time. The event stays SKIPPED and the connection says
+  /// so, rather than a purchase order appearing three weeks late.
+  EXPIRED
+}
+
+/// One buyer organisation's connection to one of its own systems.
+///
+/// An organisation may hold several - a sandbox and a production SAP, or SAP
+/// for purchase orders and monday for visibility. The count is capped by
+/// `CUSTOMER_ERP_MAX_CONNECTIONS_PER_ORG`.
+model CustomerErpConnection {
+  id             String @id @db.Char(26)
+  organizationId String @db.Char(26)
+
+  /// What the buyer calls this connection. Unique inside the organisation and
+  /// nowhere else - two buyers may both call theirs "Production SAP".
+  name String @db.VarChar(128)
+
+  system      CustomerErpSystem
+  apiStyle    CustomerErpApiStyle    @default(REST_JSON)
+  environment CustomerErpEnvironment @default(SANDBOX)
+
+  /// Which named ERP the buyer picked: `sap-s4hana`, `netsuite`, `tcs-ion`.
+  ///
+  /// The brand, where `system` is the protocol. Several brands share one
+  /// protocol - NetSuite, Zoho and TCS iON are all CUSTOM - so without this a
+  /// screen could only ever say "Custom", and support could not tell a
+  /// misconfigured Dynamics from a misconfigured QuickBooks.
+  ///
+  /// Free text rather than an enum, deliberately: the catalogue in
+  /// `vendor-presets.ts` is data that grows, and widening a MariaDB ENUM means
+  /// a MODIFY COLUMN over every row to record something none of them said.
+  /// An id that is no longer in the catalogue reads back as the raw string,
+  /// which is worse than a label and far better than a failed query.
+  vendorPreset String? @db.VarChar(48)
+
+  /// The release the buyer says they are on: "S/4HANA 2023", "ECC 6.0 EhP8".
+  /// Free text, shown back to support, and used by the SAP connector only to
+  /// decide default paths.
+  erpVersion String? @db.VarChar(64)
+
+  state           CustomerErpConnectionState @default(DRAFT)
+  /// Why it is where it is, in words safe to show on a screen. Never a
+  /// provider body, never a header, never a credential.
+  stateReason     String?                    @db.VarChar(512)
+  stateChangedAt  DateTime                   @default(now()) @db.DateTime(3)
+
+  // --- Where -------------------------------------------------------------
+  /// Scheme + host + optional port + optional base path. Re-validated on every
+  /// request, not only on save: DNS moves, and a hostname that resolved
+  /// publicly an hour ago can resolve to 169.254.169.254 now.
+  baseUrl String @db.VarChar(1024)
+
+  /// The API version segment or header value the ERP wants, where it wants
+  /// one. Kept apart from `baseUrl` so it can be changed without retyping the
+  /// address.
+  apiVersion String? @db.VarChar(32)
+
+  networkMode CustomerErpNetworkMode @default(PUBLIC_HTTPS)
+  /// Free text from the buyer's IT team: which virtual host the Cloud
+  /// Connector maps, which VPN the gateway terminates. Shown back to them and
+  /// to support. Never interpreted.
+  networkNotes String? @db.VarChar(1024)
+
+  /// The buyer's own identifier for itself inside its ERP - a tenant id, a
+  /// customer number, a monday account slug. Sent where the connector needs
+  /// it. Not a secret, and treated as one anyway in logs.
+  tenantIdentifier String? @db.VarChar(191)
+
+  /// Extra headers every request carries. Names and NON-SECRET values only; a
+  /// header carrying a secret goes in `customer_erp_credentials`, not in a
+  /// column the API returns. Shape: `{"X-Company-Code":"1000"}`.
+  customHeadersJson Json?
+
+  /// Per-request ceiling, bounded on write (1s - 60s).
+  timeoutMs Int @default(20000)
+
+  // --- SAP-specific organisational keys ----------------------------------
+  //
+  // Null on every other system. Present here rather than in a JSON blob
+  // because a purchase order that names the wrong plant is a real operational
+  // failure and these deserve to be typed, indexed and validated.
+  sapCompanyCode           String? @db.VarChar(8)
+  sapPurchasingOrg         String? @db.VarChar(8)
+  sapPurchasingGroup       String? @db.VarChar(8)
+  sapPlant                 String? @db.VarChar(8)
+  sapStorageLocation       String? @db.VarChar(8)
+  /// The communication arrangement or scenario id, where the buyer set one up.
+  sapCommunicationScenario String? @db.VarChar(64)
+
+  // --- monday.com-specific placement --------------------------------------
+  mondayWorkspaceId String? @db.VarChar(64)
+  mondayBoardId     String? @db.VarChar(64)
+  /// The group new purchase orders are created in.
+  mondayGroupId     String? @db.VarChar(64)
+
+  // --- Authentication ------------------------------------------------------
+  authMethod CustomerErpAuthMethod @default(OAUTH2_CLIENT_CREDENTIALS)
+
+  /// API_KEY only: where the key goes and what it is called.
+  apiKeyLocation CustomerErpApiKeyLocation?
+  apiKeyName     String?                    @db.VarChar(64)
+
+  /// OAuth only. The URLs are the buyer's; the CLIENT SECRET is the
+  /// operator's for monday (a registered app) and the buyer's for SAP and
+  /// custom. Both live in `customer_erp_credentials` - never here.
+  oauthAuthorizationUrl String? @db.VarChar(1024)
+  oauthTokenUrl         String? @db.VarChar(1024)
+  /// Space-separated, least-privilege, and shown to the buyer before they
+  /// authorise so they can see what they are granting.
+  oauthScope            String? @db.VarChar(512)
+  /// True when the client secret comes from this deployment's configuration
+  /// rather than from the buyer - which is how a registered monday app works.
+  oauthUsesPlatformApp  Boolean @default(false)
+
+  /// Whether requests present a client certificate. The certificate and its
+  /// key live in `customer_erp_credentials`.
+  mutualTlsEnabled Boolean @default(false)
+
+  // --- Inbound webhooks ----------------------------------------------------
+  //
+  // The buyer's ERP calls US. There is no unsigned mode: an unauthenticated
+  // endpoint that moves somebody's stock is not a feature.
+  webhookEnabled         Boolean @default(false)
+  /// Public, unguessable path segment: 32 bytes of CSPRNG, base64url. Not the
+  /// authentication - the signature is - but it keeps the endpoint from being
+  /// found by iterating ids.
+  webhookSlug            String  @unique(map: "uq_customer_erp_webhook_slug") @db.VarChar(64)
+  /// The header the ERP puts its signature in.
+  webhookSignatureHeader String  @default("X-UBOSS-Signature") @db.VarChar(64)
+  /// The header carrying the signed timestamp, for replay protection. Where an
+  /// ERP signs the timestamp into the signature header itself, this is null
+  /// and the connector parses it out.
+  webhookTimestampHeader String? @db.VarChar(64)
+  /// How far out of step with our clock an inbound webhook may be, in seconds.
+  /// Outside it the delivery is refused: a signature stays valid for ever, so
+  /// without this a captured request is a replay for ever too.
+  webhookToleranceSeconds Int    @default(300)
+
+  // --- Polling fallback ----------------------------------------------------
+  pollingEnabled         Boolean   @default(false)
+  /// Minutes rather than a cron expression: the question is "how fresh does
+  /// this need to be", and every cron field beyond that is a way to get it
+  /// wrong.
+  pollingIntervalMinutes Int       @default(60)
+  /// The IANA zone the buyer reads their own schedule in. Stored so a
+  /// "hourly during business hours" answer stays possible, and shown on the
+  /// dashboard so "next sync" is a time they recognise.
+  pollingTimezone        String    @default("UTC") @db.VarChar(64)
+  lastPolledAt           DateTime? @db.DateTime(3)
+  nextPollAt             DateTime? @db.DateTime(3)
+  /// Where the last incremental read got to. An opaque string - a timestamp, a
+  /// change token, an OData delta link - whose meaning belongs to the
+  /// connector. Null means "read everything next time".
+  pollCursor             String?   @db.VarChar(512)
+
+  // --- Test, verification and health ---------------------------------------
+  lastTestAt         DateTime? @db.DateTime(3)
+  lastTestOk         Boolean?
+  lastTestHttpStatus Int?
+  lastTestDurationMs Int?
+  lastTestMessage    String?   @db.VarChar(512)
+
+  /// Set when the mapping has been checked against a REAL response from this
+  /// connection. Activation requires it, and any change to endpoints, mappings
+  /// or authentication clears it: what the last check proved, it proved about
+  /// a configuration that has since been replaced.
+  mappingVerifiedAt DateTime? @db.DateTime(3)
+
+  consecutiveFailures Int       @default(0)
+  circuitOpenedAt     DateTime? @db.DateTime(3)
+
+  lastSuccessAt DateTime? @db.DateTime(3)
+  lastFailureAt DateTime? @db.DateTime(3)
+
+  createdByProfileId String?   @db.Char(26)
+  createdAt          DateTime  @default(now()) @db.DateTime(3)
+  updatedAt          DateTime  @updatedAt @db.DateTime(3)
+  /// Soft delete. A connection with events behind it is retired rather than
+  /// removed, so the ledger still explains what became of an order.
+  deletedAt          DateTime? @db.DateTime(3)
+
+  organization BuyerOrganization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  credentials    CustomerErpCredential[]
+  endpoints      CustomerErpEndpoint[]
+  fieldMappings  CustomerErpFieldMapping[]
+  warehouseMaps  CustomerErpWarehouseMap[]
+  policy         CustomerErpSyncPolicy?
+  events         CustomerErpSyncEvent[]
+  jobs           CustomerErpSyncJob[]
+  webhookEvents  CustomerErpWebhookEvent[]
+  orderLinks     CustomerErpOrderLink[]
+  invoiceLinks   CustomerErpInvoiceLink[]
+  inventoryLinks CustomerErpInventoryLink[]
+  approvals      CustomerErpApproval[]
+  oauthStates    CustomerErpOAuthState[]
+
+  @@unique([organizationId, name], map: "uq_customer_erp_connection_name")
+  @@index([organizationId, state], map: "ix_customer_erp_connection_org_state")
+  /// The polling sweep: active, polling on, due.
+  @@index([state, pollingEnabled, nextPollAt], map: "ix_customer_erp_connection_poll_due")
+  @@map("customer_erp_connections")
+}
+
+/// One encrypted secret belonging to one connection.
+///
+/// This table is the reason no other table has a secret column. Everything in
+/// it is AES-256-GCM ciphertext with AAD binding it to
+/// `customer_erp_credential:<connectionId>:<kind>`, so a row copied into
+/// another connection fails authentication instead of decrypting into a
+/// working credential. `payloadEnc` is a JSON object whose keys depend on
+/// `kind`, and it is decrypted in exactly one module - `credential.service.ts`
+/// - for the duration of one call.
+///
+/// **Nothing here is ever returned by any API.** `hint` is what a screen
+/// shows: enough to recognise which key is configured, never enough to use it.
+model CustomerErpCredential {
+  id           String                    @id @db.Char(26)
+  connectionId String                    @db.Char(26)
+  kind         CustomerErpCredentialKind
+
+  /// The envelope. `v1:<iv>:<tag>:<ciphertext>`, all base64url.
+  payloadEnc String @db.Text
+
+  /// `X-API-Key: sk_live...9f2a`, or `client 8f21...` - safe to return.
+  hint String? @db.VarChar(191)
+
+  /// When the secret this row holds stops working, where that is knowable: an
+  /// OAuth access token's expiry, a certificate's notAfter. Null for a secret
+  /// with no stated lifetime.
+  expiresAt DateTime? @db.DateTime(3)
+
+  /// What an OAuth grant actually came back with, which is not always what was
+  /// asked for. Recorded so a buyer can be told "your ERP granted read but not
+  /// write" rather than discovering it at the first purchase order.
+  grantedScope String? @db.VarChar(512)
+
+  rotatedAt DateTime? @db.DateTime(3)
+  createdAt DateTime  @default(now()) @db.DateTime(3)
+  updatedAt DateTime  @updatedAt @db.DateTime(3)
+
+  connection CustomerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@unique([connectionId, kind], map: "uq_customer_erp_credential")
+  @@index([kind, expiresAt], map: "ix_customer_erp_credential_expiry")
+  @@map("customer_erp_credentials")
+}
+
+/// One address on the buyer's ERP, and how to talk to it.
+///
+/// A table rather than a JSON column on the connection because these are
+/// edited one at a time, validated one at a time, and shown one per row on a
+/// screen - and because "which endpoints has this buyer configured" is a
+/// question support asks.
+model CustomerErpEndpoint {
+  id           String                     @id @db.Char(26)
+  connectionId String                     @db.Char(26)
+  purpose      CustomerErpEndpointPurpose
+
+  /// Relative to the connection's base URL, or an absolute URL on the SAME
+  /// origin. An endpoint free to leave the authorised host is an SSRF
+  /// primitive with a form field in front of it, so off-origin is refused at
+  /// save time and again before every call.
+  path String @db.VarChar(512)
+
+  method String @default("GET") @db.VarChar(8)
+
+  /// Set on an endpoint the buyer has configured but does not want used yet.
+  enabled Boolean @default(true)
+
+  pagination CustomerErpPagination @default(NONE)
+  /// Query parameter names for the paging style in use, and where the records
+  /// and the next cursor are found in the response. Shape depends on
+  /// `pagination`; validated against a closed set of keys on write.
+  paginationConfigJson Json?
+
+  /// A dotted path to the array of records inside the response body. Null
+  /// means the body IS the array, which is how about half of them answer.
+  recordsPath String? @db.VarChar(191)
+
+  /// A request body template for a POST/PUT endpoint, as JSON with
+  /// `{{placeholder}}` markers filled from the mapping. Null means the
+  /// connector builds the body itself, which is what SAP and monday do.
+  requestTemplateJson Json?
+
+  /// Query parameters sent on every call to this endpoint. Non-secret only.
+  queryParamsJson Json?
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  connection CustomerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@unique([connectionId, purpose], map: "uq_customer_erp_endpoint")
+  @@map("customer_erp_endpoints")
+}
+
+/// One platform field, and where it lives in the buyer's ERP.
+///
+/// `platformField` is from a closed list the service publishes - a buyer
+/// cannot invent one, because nothing would read it. `erpPath` is a dotted
+/// path into the ERP's own JSON for reads, and the field name to write for
+/// writes; for monday it is a column id.
+model CustomerErpFieldMapping {
+  id           String                   @id @db.Char(26)
+  connectionId String                   @db.Char(26)
+  entity       CustomerErpMappingEntity
+
+  /// e.g. `sku`, `quantity`, `unitOfMeasure`, `purchaseOrderNumber`.
+  platformField String @db.VarChar(64)
+  erpPath       String @db.VarChar(191)
+
+  /// A constant used when the ERP has no field for this and wants one anyway -
+  /// a fixed document type, a fixed currency. Mutually exclusive with
+  /// `erpPath` being meaningful, and the service refuses both empty.
+  constantValue String? @db.VarChar(191)
+
+  /// For STATUS mappings: what the ERP calls a state, against what this
+  /// platform calls it. `platformField` holds the platform status and this
+  /// holds the ERP's word for it.
+  erpValue String? @db.VarChar(128)
+
+  /// A named, closed-set transform applied on the way through: `TRIM`,
+  /// `UPPERCASE`, `MINOR_TO_DECIMAL`, `DECIMAL_TO_MINOR`, `ISO_DATE`. Not an
+  /// expression language - a mapping that can run arbitrary code is a remote
+  /// code execution primitive somebody types into a form.
+  transform String? @db.VarChar(32)
+
+  required Boolean @default(false)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  connection CustomerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@unique([connectionId, entity, platformField, erpValue], map: "uq_customer_erp_field_mapping")
+  @@index([connectionId, entity], map: "ix_customer_erp_field_mapping_entity")
+  @@map("customer_erp_field_mappings")
+}
+
+/// A warehouse here against a plant, storage location or board group there.
+///
+/// `inventoryLocationId` has no foreign key on purpose, and this is the same
+/// choice `integration_events.orderId` makes: a buyer's mapping row must not
+/// be able to stop an operator archiving a warehouse, and a mapping naming a
+/// location that no longer exists is a mapping error to report rather than a
+/// referential integrity failure to crash on.
+model CustomerErpWarehouseMap {
+  id           String @id @db.Char(26)
+  connectionId String @db.Char(26)
+
+  /// The platform warehouse, or NULL for the fallback used when an order ships
+  /// from somewhere unmapped. At most one fallback per connection, enforced in
+  /// the service - a MariaDB UNIQUE treats every NULL as distinct, so the
+  /// index below could not express it.
+  inventoryLocationId String? @db.Char(26)
+
+  /// The ERP's word for the same place.
+  erpPlant           String? @db.VarChar(32)
+  erpStorageLocation String? @db.VarChar(32)
+  /// monday: the board and group this warehouse's lines are created in, where
+  /// the buyer splits them by site.
+  erpBoardId         String? @db.VarChar(64)
+  erpGroupId         String? @db.VarChar(64)
+
+  isFallback Boolean @default(false)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  connection CustomerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@unique([connectionId, inventoryLocationId], map: "uq_customer_erp_warehouse_map")
+  @@map("customer_erp_warehouse_maps")
+}
+
+/// What this connection is allowed to do, and when.
+///
+/// One row per connection. Separate from the connection itself because these
+/// are the answers a buyer's finance function gives, the connection is the
+/// answer their IT function gives, and the two are edited by different people
+/// on different days.
+model CustomerErpSyncPolicy {
+  id           String @id @db.Char(26)
+  connectionId String @unique(map: "uq_customer_erp_policy_connection") @db.Char(26)
+
+  sourceOfTruth  CustomerErpSourceOfTruth  @default(PLATFORM)
+  mode           CustomerErpSyncMode       @default(OUTBOUND)
+  conflictPolicy CustomerErpConflictPolicy @default(MANUAL)
+
+  /// Whether an on-hand stock write happens by itself or waits for somebody.
+  inventoryWriteMode CustomerErpWriteMode @default(APPROVAL_REQUIRED)
+
+  /// Whether a delivery recorded on this platform is enough to receipt goods,
+  /// or whether the buyer's own ERP must say so.
+  ///
+  /// Default false, and that is the conservative direction: a buyer whose
+  /// warehouse scans everything in wants their own goods receipt to be the
+  /// trigger, and a platform "delivered" status that moved their stock before
+  /// the crate was opened would be worse than useless.
+  receiptOnPlatformDelivery Boolean @default(false)
+
+  /// Purchase orders at or above this are held for approval before they reach
+  /// the ERP. Minor units, in `approvalCurrency`. Null means no threshold.
+  approvalThresholdMinor BigInt?
+  approvalCurrency       String? @db.Char(3)
+
+  /// How long an approval request waits before it expires.
+  approvalExpiryHours Int @default(72)
+
+  /// Which events this connection actually sends. A buyer may want purchase
+  /// orders and nothing else, and switching an event off is not the same as
+  /// having no endpoint for it.
+  sendPurchaseOrders   Boolean @default(true)
+  sendShipmentStatus   Boolean @default(true)
+  sendGoodsReceipts    Boolean @default(true)
+  sendInvoices         Boolean @default(true)
+  sendPaymentReferences Boolean @default(true)
+  syncInventory        Boolean @default(false)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  connection CustomerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@map("customer_erp_sync_policies")
+}
+
+// ---------------------------------------------------------------------------
+// The ledger: what was sent, what came back, and what it became
+// ---------------------------------------------------------------------------
+
+/// One unit of work against a buyer's ERP. The outbox.
+///
+/// Everything that touches a buyer's ERP goes through a row here, including
+/// the things that turn out not to need a call at all. That is what makes
+/// "why did my purchase order not appear" answerable: there is always a row,
+/// and it always says what happened.
+///
+/// **`idempotencyKey` is the duplicate guard and it is unique across the whole
+/// table.** It is built from
+/// `organizationId:orderId:eventType:eventVersion` - a value derived entirely
+/// from the thing that happened, never from the clock and never from a random
+/// source - so a retry, a redelivered payment webhook and a second worker all
+/// derive the same key and only one of them creates the row. The others find
+/// it. That is the single most important property in this feature: an ERP that
+/// received a purchase order and then received it again has a duplicate
+/// liability on its books.
+model CustomerErpSyncEvent {
+  id             String @id @db.Char(26)
+  connectionId   String @db.Char(26)
+  /// Denormalised from the connection so every tenant-scoped query is one
+  /// index lookup rather than a join, and so a query that FORGETS to scope by
+  /// tenant is a query that fails review rather than one that quietly works.
+  organizationId String @db.Char(26)
+
+  eventType CustomerErpEventType
+  state     CustomerErpEventState @default(QUEUED)
+
+  /// `<organizationId>:<subject>:<eventType>:v<n>`. See the model comment.
+  idempotencyKey String @unique(map: "uq_customer_erp_event_idempotency") @db.VarChar(191)
+
+  /// Bumped when the platform-side facts behind an event change in a way the
+  /// ERP needs to hear about - an order amended after its purchase order was
+  /// raised. A new version is a new key, and therefore a new event, which is
+  /// exactly right: it is a different thing to tell them.
+  eventVersion Int @default(1)
+
+  // --- What it is about ---------------------------------------------------
+  //
+  // No foreign keys, deliberately. A ledger row must outlive the thing it
+  // describes, and an ON DELETE RESTRICT here would make a buyer's integration
+  // history a reason an operator cannot tidy up an order.
+  orderId      String? @db.Char(26)
+  occurrenceId String? @db.Char(26)
+  invoiceId    String? @db.Char(26)
+  productId    String? @db.Char(26)
+
+  /// Shared with every log line, audit row and child event this operation
+  /// produces, so one incident reads back as one story. This is the id the
+  /// dashboard's log search is keyed on.
+  correlationId String @db.Char(26)
+
+  /// The mapped request as it was actually sent, with every credential
+  /// redacted and the size capped. Kept because a disagreement about a
+  /// purchase order is settled by what was exchanged, and reconstructed
+  /// evidence is not evidence.
+  requestJson  Json?
+  /// The ERP's answer, same treatment.
+  responseJson Json?
+
+  /// What the ERP called the thing it created. The reason the next event about
+  /// the same order knows what to update.
+  erpReference String? @db.VarChar(191)
+
+  attemptCount  Int       @default(0)
+  lastAttemptAt DateTime? @db.DateTime(3)
+  nextRetryAt   DateTime? @db.DateTime(3)
+
+  httpStatus Int?
+  durationMs Int?
+
+  errorCode String? @db.VarChar(64)
+  /// Safe to read: no credential, no Authorization header, no verbatim
+  /// provider body. `safeErrorMessage` is the only thing that writes here.
+  errorMessage String? @db.VarChar(1024)
+
+  /// Why this was SKIPPED, when it was. A different question from why
+  /// something failed, and a buyer asks it just as often.
+  skipReason String? @db.VarChar(255)
+
+  /// The approval this event is waiting on, where it is waiting on one.
+  approvalId String? @db.Char(26)
+
+  /// The lease that stops two workers processing the same event. The same
+  /// device the job queue uses, and for the same MariaDB 10.4 reason: there is
+  /// no `SKIP LOCKED`, so claiming is a conditional UPDATE plus an
+  /// affected-rows check.
+  leaseOwner     String?   @db.VarChar(64)
+  leaseExpiresAt DateTime? @db.DateTime(3)
+
+  createdAt   DateTime  @default(now()) @db.DateTime(3)
+  updatedAt   DateTime  @updatedAt @db.DateTime(3)
+  completedAt DateTime? @db.DateTime(3)
+
+  connection CustomerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, createdAt], map: "ix_customer_erp_event_org_time")
+  @@index([connectionId, state, createdAt], map: "ix_customer_erp_event_conn_state")
+  @@index([orderId], map: "ix_customer_erp_event_order")
+  /// The dispatch sweep: due now, not yet claimed.
+  @@index([state, nextRetryAt], map: "ix_customer_erp_event_due")
+  @@map("customer_erp_sync_events")
+}
+
+/// One pass of scheduled or manual work, and what it did.
+///
+/// A job groups events: "sync now" produces one job and however many events it
+/// turns out to need. Kept apart from the events themselves so the dashboard
+/// can say "last sync: 14:05, 312 records, 2 failed" without counting rows.
+model CustomerErpSyncJob {
+  id             String @id @db.Char(26)
+  connectionId   String @db.Char(26)
+  organizationId String @db.Char(26)
+
+  /// MANUAL, SCHEDULED, WEBHOOK or RETRY. A closed set validated in the
+  /// service; a string here rather than a fifteenth enum, because nothing
+  /// branches on it - it is reported, not decided upon.
+  trigger String @db.VarChar(16)
+
+  /// RUNNING, SUCCEEDED, PARTIAL, FAILED or RATE_LIMITED. Same reasoning.
+  status String @default("RUNNING") @db.VarChar(16)
+
+  /// A dry run reads, maps and reports, and writes nothing on either side.
+  isDryRun Boolean @default(false)
+
+  correlationId String @db.Char(26)
+
+  startedAt  DateTime  @default(now()) @db.DateTime(3)
+  finishedAt DateTime? @db.DateTime(3)
+
+  processedCount Int @default(0)
+  succeededCount Int @default(0)
+  skippedCount   Int @default(0)
+  failedCount    Int @default(0)
+  conflictCount  Int @default(0)
+
+  /// Set when the ERP asked us to slow down. Rendered as "paused until", which
+  /// is the only part of a 429 anybody needs.
+  rateLimitedUntil DateTime? @db.DateTime(3)
+
+  /// Where this pass got to, written back to the connection only when the pass
+  /// finishes cleanly. A cursor advanced by a run that failed halfway is how
+  /// records get skipped for ever.
+  cursorAfter String? @db.VarChar(512)
+
+  errorCode    String? @db.VarChar(64)
+  errorMessage String? @db.VarChar(1024)
+
+  /// The member who pressed the button, for a manual run.
+  startedByProfileId String? @db.Char(26)
+
+  connection CustomerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@index([connectionId, startedAt], map: "ix_customer_erp_job_conn_time")
+  @@index([organizationId, startedAt], map: "ix_customer_erp_job_org_time")
+  @@map("customer_erp_sync_jobs")
+}
+
+/// An inbound webhook, once it has been through the door.
+///
+/// The row is written BEFORE the payload is acted on and the unique index is
+/// what makes a redelivery a no-op. An ERP that retries - and they all retry -
+/// must not apply the same goods receipt twice, and the honest place to stop
+/// that is at the door, keyed on whatever identifier the ERP sends. Where it
+/// sends none, the service uses `sha256:<hex>` of the raw body: two genuinely
+/// identical bodies inside the window are indistinguishable from a redelivery,
+/// and for a stock movement treating them as one is the safe direction to be
+/// wrong in.
+model CustomerErpWebhookEvent {
+  id             String @id @db.Char(26)
+  connectionId   String @db.Char(26)
+  organizationId String @db.Char(26)
+
+  /// The ERP's event id, or `sha256:<hex>` of the raw body.
+  externalEventId String @db.VarChar(191)
+
+  /// What the ERP said this was about, as it named it. Not interpreted before
+  /// the signature has verified.
+  externalEventType String? @db.VarChar(128)
+
+  /// Whether the signature, the timestamp and the replay window all passed.
+  /// A row exists either way: a rejected delivery is exactly the thing an
+  /// operator needs to see, and dropping it silently is how a buyer spends a
+  /// week wondering why nothing arrives.
+  verified Boolean @default(false)
+  /// Why it was refused, in words safe to show. Never says WHICH check failed
+  /// in a response - an endpoint that distinguishes "wrong signature" from "no
+  /// secret configured" is an oracle - but the row itself may record it,
+  /// because the row is only ever read by the buyer who owns it.
+  rejectionReason String? @db.VarChar(255)
+
+  /// The signed timestamp the ERP sent, where it sent one.
+  signedAt DateTime? @db.DateTime(3)
+
+  receivedAt  DateTime  @default(now()) @db.DateTime(3)
+  processedAt DateTime? @db.DateTime(3)
+
+  /// The event this delivery produced, once it produced one. Null for a
+  /// duplicate, a rejection, or a payload the connection had no rule for.
+  syncEventId String? @db.Char(26)
+
+  /// The body, redacted and capped. The evidence behind "we did receive it".
+  payloadJson Json?
+
+  correlationId String @db.Char(26)
+
+  connection CustomerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@unique([connectionId, externalEventId], map: "uq_customer_erp_webhook_event")
+  @@index([connectionId, receivedAt], map: "ix_customer_erp_webhook_conn_time")
+  @@map("customer_erp_webhook_events")
+}
+
+/// A platform order against whatever the buyer's ERP made of it.
+///
+/// One row per order per connection. This is the row that answers "did my
+/// purchase order get raised, and what is it called over there" - the single
+/// most-asked question this feature has to answer - and it is also what stops
+/// the second attempt raising a second purchase order.
+model CustomerErpOrderLink {
+  id             String @id @db.Char(26)
+  connectionId   String @db.Char(26)
+  organizationId String @db.Char(26)
+
+  orderId String @db.Char(26)
+  /// Set when a scheduled delivery caused this. Every occurrence of a schedule
+  /// goes through the same pipeline as an instant purchase and gets its own
+  /// link row, because each one is a separate delivery the buyer receipts
+  /// separately.
+  occurrenceId String? @db.Char(26)
+
+  /// What the ERP calls the purchase order it created.
+  erpPurchaseOrderId String? @db.VarChar(191)
+  /// The human-readable number, where the ERP has both.
+  erpPurchaseOrderNumber String? @db.VarChar(64)
+  /// The ERP's own status word for it, kept verbatim so support can quote it.
+  erpOrderStatus String? @db.VarChar(64)
+
+  /// The ERP's goods receipt, once there is one. Its presence is what makes an
+  /// on-hand stock write legitimate.
+  erpGoodsReceiptId String?   @db.VarChar(191)
+  goodsReceiptedAt  DateTime? @db.DateTime(3)
+
+  /// Where the quantities stand in the buyer's ERP, as we last knew. Not a
+  /// stock ledger - it is a record of what we told them and what they told us,
+  /// so a divergence is visible rather than silently reconciled.
+  onOrderQty  Int @default(0)
+  receivedQty Int @default(0)
+
+  /// The carrier and tracking last synced.
+  shipmentStatus  String? @db.VarChar(64)
+  trackingNumber  String? @db.VarChar(128)
+
+  pushedAt      DateTime? @db.DateTime(3)
+  lastSyncedAt  DateTime? @db.DateTime(3)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  connection CustomerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@unique([connectionId, orderId], map: "uq_customer_erp_order_link")
+  @@index([organizationId, createdAt], map: "ix_customer_erp_order_link_org")
+  @@index([erpPurchaseOrderId], map: "ix_customer_erp_order_link_erp_po")
+  @@map("customer_erp_order_links")
+}
+
+/// A platform invoice against the buyer's copy of it.
+///
+/// Amounts are BigInt minor units here as everywhere. An invoice total that
+/// crossed this boundary as a float would eventually disagree with the
+/// document by a unit, and a buyer whose accounts payable disagrees with the
+/// PDF by a unit will not pay either of them.
+model CustomerErpInvoiceLink {
+  id             String @id @db.Char(26)
+  connectionId   String @db.Char(26)
+  organizationId String @db.Char(26)
+
+  invoiceId String  @db.Char(26)
+  orderId   String? @db.Char(26)
+
+  erpInvoiceId     String? @db.VarChar(191)
+  erpInvoiceNumber String? @db.VarChar(64)
+
+  /// What we told them it was for. Frozen at sync time rather than read back
+  /// from the invoice, so a later credit note does not silently rewrite what
+  /// was sent.
+  currency        String  @db.Char(3)
+  grandTotalMinor BigInt
+  taxMinor        BigInt  @default(0)
+  dueAt           DateTime? @db.DateTime(3)
+  /// Where the buyer's own systems can fetch the document. A URL on THIS
+  /// platform - we do not send them somebody else's.
+  documentUrl     String? @db.VarChar(1024)
+
+  /// The provider's reference for the money, once it has moved. A reference
+  /// and a status: never a card number, never a bank account, never a token.
+  /// The buyer's ERP has no business holding an instrument and this platform
+  /// has no business handing one over.
+  paymentReference String? @db.VarChar(191)
+  paymentStatus    String? @db.VarChar(32)
+  paymentSyncedAt  DateTime? @db.DateTime(3)
+
+  syncedAt  DateTime? @db.DateTime(3)
+  createdAt DateTime  @default(now()) @db.DateTime(3)
+  updatedAt DateTime  @updatedAt @db.DateTime(3)
+
+  connection CustomerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@unique([connectionId, invoiceId], map: "uq_customer_erp_invoice_link")
+  @@index([organizationId, createdAt], map: "ix_customer_erp_invoice_link_org")
+  @@map("customer_erp_invoice_links")
+}
+
+/// A product here against a material number there, and the quantities each
+/// side believes.
+///
+/// The row that makes "on order" a real number rather than an inference.
+/// `variantKey` is the same device the cart, the schedule and the wishlist use
+/// and for the same MariaDB reason recorded in this file's header: a UNIQUE
+/// index treats every NULL as distinct, so a nullable variantId inside the
+/// composite unique would not stop a duplicate.
+model CustomerErpInventoryLink {
+  id             String @id @db.Char(26)
+  connectionId   String @db.Char(26)
+  organizationId String @db.Char(26)
+
+  productId  String @db.Char(26)
+  /// The variant ULID, or '' for the base product. Never null.
+  variantKey String @default("") @db.Char(26)
+
+  /// The ERP's identifier for the same thing: a material number, a SKU, a
+  /// monday item id.
+  erpMaterialNumber String? @db.VarChar(191)
+  /// The warehouse this row is about, where the buyer keeps stock per site.
+  erpPlant          String? @db.VarChar(32)
+
+  /// Quantities as the buyer's ERP last reported them, or as we last asked it
+  /// to record. NOT a stock ledger for this platform - `inventory_balances` is
+  /// that, and nothing here writes it.
+  onOrderQty  Int @default(0)
+  incomingQty Int @default(0)
+  onHandQty   Int @default(0)
+
+  /// The unit the ERP counts in, where it differs from ours. Recorded rather
+  /// than converted: a box of 10 quietly treated as 10 boxes is the classic
+  /// integration disaster, and the mapping's `unitOfMeasure` is where a
+  /// conversion is stated deliberately.
+  erpUnitOfMeasure String? @db.VarChar(16)
+
+  /// The last event whose figures were applied, so a webhook that arrives out
+  /// of order can be recognised as stale rather than applied over a newer one.
+  lastAppliedEventId String?   @db.Char(26)
+  lastSyncedAt       DateTime? @db.DateTime(3)
+
+  /// Set when the two sides disagreed and the policy said MANUAL. Cleared when
+  /// somebody resolves it.
+  divergenceNote String? @db.VarChar(255)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  connection CustomerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@unique([connectionId, productId, variantKey, erpPlant], map: "uq_customer_erp_inventory_link")
+  @@index([organizationId, updatedAt], map: "ix_customer_erp_inventory_link_org")
+  @@index([erpMaterialNumber], map: "ix_customer_erp_inventory_link_material")
+  @@map("customer_erp_inventory_links")
+}
+
+/// Somebody in the buyer's organisation being asked before a write happens.
+///
+/// Raised when a purchase order is over the organisation's threshold, or when
+/// the policy says stock writes need a person. The event that raised it holds
+/// at SKIPPED and names this row; approving it re-queues the SAME event under
+/// the SAME idempotency key, which is what stops an approval producing a
+/// second purchase order.
+model CustomerErpApproval {
+  id             String @id @db.Char(26)
+  connectionId   String @db.Char(26)
+  organizationId String @db.Char(26)
+
+  kind  CustomerErpApprovalKind
+  state CustomerErpApprovalState @default(PENDING)
+
+  /// The event waiting on this decision.
+  syncEventId String @db.Char(26)
+
+  orderId String? @db.Char(26)
+
+  /// What is being approved, in money, where money is what makes it need
+  /// approving. Minor units.
+  amountMinor BigInt?
+  currency    String? @db.Char(3)
+
+  /// A sentence the approver can act on: "Purchase order for order UB-2026-
+  /// 000123, EUR 14,200.00, above your EUR 10,000.00 threshold."
+  summary String @db.VarChar(512)
+
+  requestedAt DateTime @default(now()) @db.DateTime(3)
+  expiresAt   DateTime @db.DateTime(3)
+
+  decidedByProfileId String?   @db.Char(26)
+  decidedAt          DateTime? @db.DateTime(3)
+  decisionNote       String?   @db.VarChar(512)
+
+  connection CustomerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@unique([syncEventId], map: "uq_customer_erp_approval_event")
+  @@index([organizationId, state, requestedAt], map: "ix_customer_erp_approval_org_state")
+  /// The expiry sweep.
+  @@index([state, expiresAt], map: "ix_customer_erp_approval_expiry")
+  @@map("customer_erp_approvals")
+}
+
+/// An OAuth authorisation-code flow in flight.
+///
+/// Exists for the ninety seconds between "the buyer pressed Connect" and "the
+/// ERP redirected them back", and holds the two things that make the callback
+/// safe: the `state` that proves the callback belongs to this flow and this
+/// member, and the PKCE verifier that proves the code is being redeemed by
+/// whoever asked for it. The verifier is encrypted like any other secret,
+/// because for its short life it is one.
+///
+/// Rows are consumed on use and swept on expiry. A callback for a state that
+/// is not here - or is here and already used - is refused without saying
+/// which.
+model CustomerErpOAuthState {
+  id           String @id @db.Char(26)
+  connectionId String @db.Char(26)
+
+  /// The `state` parameter, unguessable, unique, and single-use.
+  stateToken String @unique(map: "uq_customer_erp_oauth_state") @db.VarChar(64)
+
+  /// PKCE `code_verifier`, encrypted with AAD binding it to this row.
+  codeVerifierEnc String @db.Text
+
+  /// The exact redirect URI sent to the authorisation server. Sent again at
+  /// token exchange, where the spec requires it to match.
+  redirectUri String @db.VarChar(1024)
+
+  /// Who started it. The callback is refused unless the session belongs to the
+  /// same member - otherwise a leaked authorisation URL lets somebody else
+  /// bind their ERP account to this buyer's connection.
+  startedByProfileId String @db.Char(26)
+
+  expiresAt  DateTime  @db.DateTime(3)
+  consumedAt DateTime? @db.DateTime(3)
+  createdAt  DateTime  @default(now()) @db.DateTime(3)
+
+  connection CustomerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@index([expiresAt], map: "ix_customer_erp_oauth_state_expiry")
+  @@map("customer_erp_oauth_states")
+}
+
+/// The buyer's own audit trail over their own integration.
+///
+/// Separate from `audit_logs`, which is the OPERATOR's and is readable only by
+/// staff holding `audit.read`. A buyer must be able to answer "who changed our
+/// SAP credentials last Tuesday" without asking their supplier, and must not
+/// be able to read anybody else's answer to the same question. Two tables is
+/// the honest way to have both.
+///
+/// Values are redacted on the way in by the same rules the operator trail
+/// uses: a secret's KEY is recorded so "the client secret was rotated" stays
+/// visible, and its VALUE never is.
+model CustomerErpAuditLog {
+  id             String @id @db.Char(26)
+  organizationId String @db.Char(26)
+
+  connectionId String? @db.Char(26)
+
+  /// `connection.created`, `credential.rotated`, `mapping.updated`,
+  /// `connection.activated`, `event.retried`. A closed set in the service.
+  action String @db.VarChar(64)
+
+  /// Which member did it. Null for something the system did on its own - a
+  /// token refresh, a circuit opening.
+  actorProfileId String? @db.Char(26)
+  /// Their email as it was, so the row still reads after they leave.
+  actorEmail     String? @db.VarChar(320)
+
+  resourceType String  @db.VarChar(48)
+  resourceId   String? @db.Char(26)
+
+  beforeJson Json?
+  afterJson  Json?
+
+  ipAddress String? @db.VarChar(45)
+  userAgent String? @db.VarChar(512)
+
+  correlationId String? @db.Char(26)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  organization BuyerOrganization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, createdAt], map: "ix_customer_erp_audit_org_time")
+  @@index([connectionId, createdAt], map: "ix_customer_erp_audit_conn_time")
+  @@index([action], map: "ix_customer_erp_audit_action")
+  @@map("customer_erp_audit_logs")
 }

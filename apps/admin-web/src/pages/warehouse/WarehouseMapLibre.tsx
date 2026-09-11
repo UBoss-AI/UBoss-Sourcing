@@ -509,6 +509,40 @@ export function WarehouseMapLibre({
           // bearing.
           dragRotate: false,
           pitchWithRotate: false,
+          /*
+           * A globe, not a flat rectangle - where there is a basemap to draw
+           * on one.
+           *
+           * This is the projection the screen's question deserves. "Which
+           * countries can this warehouse reach" is a question about a sphere,
+           * and Mercator answers it while lying about the answer: it inflates
+           * everything away from the equator, so a 500 km radius drawn near
+           * Gdansk covers visibly more of the picture than the same 500 km
+           * drawn near Athens. The list beside the map is measured
+           * geodesically and is right either way; the *picture* was the part
+           * that disagreed with it.
+           *
+           * It also solves the thing an operator notices first: on a flat
+           * world at the zoom that fits four European warehouses, most
+           * countries are off the edge. On a globe the whole world is there,
+           * and turning it is how you find the rest of it.
+           *
+           * **Mercator when there is no basemap**, and that is not caution: a
+           * globe is a sphere lit against a background, and with an empty
+           * style there is nothing to draw on it. What the reader would get is
+           * a dark ball with four markers on it and no way to tell which way
+           * up it is. Flat and blank at least keeps the markers in the
+           * relative positions the scale bar describes.
+           *
+           * MapLibre eases into Mercator on its own as the zoom passes about
+           * 12, so the coverage flight lands on a flat, pitched view with the
+           * extrusions standing up correctly. Nothing here has to manage that.
+           *
+           * Set through `setProjection` below rather than here: `MapOptions`
+           * carries no `projection` field in this version - the projection
+           * belongs to the *style*, and a style loaded from a URL is one this
+           * app never sees the object for.
+           */
           // A style with nothing in it has nothing to credit, and an empty
           // attribution box in the corner reads as a map that half-loaded.
           attributionControl:
@@ -527,6 +561,15 @@ export function WarehouseMapLibre({
         }
 
         map.addControl(new maplibre.NavigationControl({ showCompass: false }), 'top-left');
+
+        // Globe or flat, as a button. The globe is the default where there is
+        // a basemap - see the constructor - and this is how somebody who
+        // wants the familiar rectangle gets it back. Offered only where the
+        // globe is, because a toggle whose other state is a blank sphere is a
+        // toggle nobody should be given.
+        if (background.provider !== 'NONE') {
+          map.addControl(new maplibre.GlobeControl(), 'top-left');
+        }
 
         // A scale bar, and it earns its place most when there is no basemap:
         // without it a cluster of markers on a blank ground says nothing about
@@ -568,6 +611,21 @@ export function WarehouseMapLibre({
           if (isCancelled()) return;
 
           styleLoaded = true;
+
+          /*
+           * The globe, set here rather than at construction.
+           *
+           * `MapOptions` has no `projection` field in this version, and
+           * `setProjection` reaches into the style - so calling it on a map
+           * whose style has not arrived fires the `error` event, which the
+           * handler below reads, correctly, as "the map is broken". The whole
+           * map then rendered as the failure state.
+           *
+           * See the long note in the constructor for why this is a globe at
+           * all, and why only where there is a basemap to draw on one.
+           */
+          if (background.provider !== 'NONE') map.setProjection({ type: 'globe' });
+
           setStatus('ready');
         });
 

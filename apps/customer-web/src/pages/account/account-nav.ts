@@ -141,9 +141,19 @@ export const ACCOUNT_NAV: Readonly<Record<AccountNavId, AccountNavItem>> = {
     menuLabelKey: 'account.nav.billingInformation',
     icon: ReceiptIcon,
   },
+  /*
+   * Straight into the working screen, not the explanation that used to live at
+   * `/account/erp`.
+   *
+   * Both surfaces that render this list — the sidebar and the dropdown under
+   * the profile button — send somebody to the hub, where they can see the
+   * connections their organisation has and start a new one. `/account/erp`
+   * still resolves; it redirects here, so an old bookmark lands in the right
+   * place rather than on a dead route.
+   */
   erp: {
     id: 'erp',
-    to: '/account/erp',
+    to: '/account/integrations/erp',
     labelKey: 'account.nav.erpConnections',
     menuLabelKey: 'account.nav.erpIntegrations',
     icon: LinkIcon,

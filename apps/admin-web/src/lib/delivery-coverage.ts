@@ -50,7 +50,35 @@ export interface CoveredCountry {
   nearestPoint: { latitude: number; longitude: number };
   /** The part of this country inside the radius. Null where the overlap is a line. */
   area: Polygon | MultiPolygon | null;
+  /**
+   * True when the operator has closed this country for this warehouse.
+   *
+   * **Shown rather than hidden, and that is the point of the field.** The
+   * radius decides what geometry can reach; the exclusion list decides what
+   * the business will serve. A closed country dropped from this list would be
+   * indistinguishable from one 40 km too far away - and the first is a
+   * decision somebody made and may want to undo, where the second is a fact
+   * about the ground. So it stays on the map, drawn in the refusing colour,
+   * with the reason beside it.
+   *
+   * The storefront's own option list is what actually withholds it from a
+   * buyer. See `delivery-options.service.ts` on the server.
+   */
+  isExcluded: boolean;
+  /** Why it was closed, in the operator's words. Null when they gave none. */
+  exclusionReason: string | null;
 }
+
+/**
+ * Where the radius that was measured came from.
+ *
+ * `REQUEST` is the panel's own slider - somebody trying a radius before
+ * committing to it. `WAREHOUSE` is the warehouse's stored promise.
+ * `DEPLOYMENT_DEFAULT` is `DELIVERY_COVERAGE_RADIUS_KM`, for a warehouse
+ * nobody has given a radius of its own. The three are the same number and
+ * three different statements, which is why the panel says which it is.
+ */
+export type RadiusSource = 'REQUEST' | 'WAREHOUSE' | 'DEPLOYMENT_DEFAULT';
 
 export interface DeliveryCoverage {
   warehouse: {
@@ -61,10 +89,33 @@ export interface DeliveryCoverage {
     longitude: number;
   };
   radiusKm: number;
-  /** The country the warehouse stands in, by geometry. Null over water. */
-  home: { code: string | null; name: string; flag: string } | null;
+  /** Which of the three places `radiusKm` came from. */
+  radiusSource: RadiusSource;
+  /**
+   * The country the warehouse stands in, by geometry. Null over water.
+   *
+   * It carries the exclusion flags too, because a warehouse may legitimately
+   * be told not to deliver in its own country - a bonded site serving export
+   * markets only, or one whose domestic sales go through a distributor.
+   */
+  home: {
+    code: string | null;
+    name: string;
+    flag: string;
+    isExcluded: boolean;
+    exclusionReason: string | null;
+  } | null;
   /** Foreign countries within the radius, nearest border first. */
   countries: CoveredCountry[];
+  /**
+   * Countries the operator closed which this radius does *not* reach.
+   *
+   * The exclusions currently doing nothing. Listed rather than dropped: a
+   * radius grows, and somebody who closed Switzerland at 300 km has said
+   * something that must still hold at 800. It is also how an exclusion added
+   * to the wrong warehouse gets found.
+   */
+  dormantExclusions: { code: string; name: string; flag: string; reason: string | null }[];
   /** The measured circle. Drawn as sent - see the note above. */
   ring: Polygon;
   computedAt: string;
@@ -96,12 +147,30 @@ export const NOT_PLACED = 'LOCATION_NOT_PLACED';
  */
 export const COVERAGE_EXIT_MS = 200;
 
+/**
+ * Ask what this warehouse reaches.
+ *
+ * **`radiusKm` is deliberately optional, and the panel does not pass it.**
+ * Omitted, the server measures the radius the warehouse actually promises -
+ * its own `deliveryRadiusKm`, and the deployment's default where it has none -
+ * and says which of the two it used. Passing one asks a *hypothetical*: it is
+ * for a control that lets somebody try a radius before committing to it, and
+ * the answer comes back marked `REQUEST` so the panel can say so rather than
+ * presenting a figure nobody has agreed to as this warehouse's promise.
+ *
+ * This used to always pass the deployment-wide figure, which was wrong in a
+ * way that only showed up once warehouses could carry their own: the panel
+ * drew a 500 km ring over a warehouse promising 800 and labelled it as that
+ * warehouse's coverage.
+ */
 export function fetchDeliveryCoverage(
   warehouseId: string,
-  radiusKm: number,
+  radiusKm?: number,
 ): Promise<DeliveryCoverage> {
+  const query = radiusKm === undefined ? '' : `?radiusKm=${String(radiusKm)}`;
+
   return api.get<DeliveryCoverage>(
-    `/admin/inventory/warehouses/${warehouseId}/delivery-coverage?radiusKm=${String(radiusKm)}`,
+    `/admin/inventory/warehouses/${warehouseId}/delivery-coverage${query}`,
   );
 }
 
@@ -110,8 +179,13 @@ export function fetchDeliveryCoverage(
  *
  * Both of them want the same answer for the same warehouse at the same moment
  * - the map to draw the ring, the panel to list the flags - and one key is
- * what makes that one request. The radius is in the key because changing it
- * changes the answer.
+ * what makes that one request.
+ *
+ * The radius is in the key even when it is not sent, and that is what keeps
+ * the cache honest: the answer for a warehouse changes when *its* radius
+ * changes, so the number that went into producing it has to be part of the
+ * key. Editing a warehouse from 500 to 800 km would otherwise serve the old
+ * ring out of the cache.
  */
 export function coverageQueryKey(warehouseId: string, radiusKm: number): readonly unknown[] {
   return ['delivery-coverage', warehouseId, radiusKm];

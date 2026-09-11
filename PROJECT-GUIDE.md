@@ -22,10 +22,12 @@ have to read separately — this *is* the explanation.
 7. [The database](#7-the-database)
 8. [The API](#8-the-api)
 9. [Complete flows, end to end](#9-complete-flows-end-to-end)
+   - [9.3.2 Choosing a fulfilment warehouse](#932-choosing-a-fulfilment-warehouse)
    - [9.5 Scheduled orders — Buy Later and Subscribe & Reorder](#95-scheduled-orders--buy-later-and-subscribe--reorder)
    - [9.5.1 Autopay: charging a card nobody is looking at](#951-autopay-charging-a-card-nobody-is-looking-at)
    - [9.5.2 The ERP hand-off](#952-the-erp-hand-off)
    - [9.8 The ERP connection, and Autopay](#98-the-erp-connection-and-autopay)
+   - [9.8.1 The customer’s own ERP](#981-the-customers-own-erp)
    - [9.9 A customer changes the address they sign in with](#99-a-customer-changes-the-address-they-sign-in-with)
    - [9.10 A customer closes their own account](#910-a-customer-closes-their-own-account)
 10. [Money — the most important rule](#10-money--the-most-important-rule)
@@ -522,7 +524,8 @@ comes back in the exact same shape:
 | `/activate` | Set your password (from a staff invitation link) | No |
 | `/forgot-password` | Ask for a reset link | No |
 | `/reset-password` | Choose a new password | No |
-| `/cart` | The basket | **Yes** |
+| `/cart` | The basket — the **Instant Buy** tab | **Yes** |
+| `/accounts/schedule` | Schedule Cart: the standing orders, and where one is changed | **Yes** |
 | `/checkout` | Address, shipping, payment choice | **Yes** |
 | `/checkout/payment/:orderId` | The payment sheet | **Yes** |
 | `/order-confirmation/:orderId` | "Thank you" | **Yes** |
@@ -548,10 +551,23 @@ on the layout route rather than on each page:
 | `/account/payment-methods` | Saved cards | Payments |
 | `/account/autopay` | Autopay: consent, limits, which card | Payments |
 | `/account/billing` | VAT number, GSTIN, billing address | Payments |
-| `/account/erp` | What the ERP hand-off does and who sets it up (no form) | Integrations |
+| `/account/integrations/erp` | Connect your own ERP — twenty named systems or any documented API; health, logs, approvals, team | Integrations |
+| `/account/integrations/erp/new` | The six-step setup wizard | — |
+| `/account/integrations/erp/:id` | One connection: health, activity, approvals, deliveries | — |
+| `/account/erp` | Redirects to `/account/integrations/erp` — an old bookmark | — |
 | `/account/coupons` | Codes available, and codes used | My stuff |
 | `/account/wishlist` | Lines saved without buying them | My stuff |
 | `/account/notifications` | A record of what has been sent to this account | My stuff |
+
+**Schedule Cart is a sibling of the cart, not an account page.** `/cart` and
+`/accounts/schedule` are two ways to spend a basket, so they share the cart's
+full-width frame and are linked by a two-tab control at the top of both.
+Dropping the workspace into the account section would open it with a settings
+sidebar beside a list beside an editor — three columns of chrome around the one
+the buyer came for. `/account/schedules` stays exactly where it was and is
+still where a standing order is *read*: its delivery history, its payment
+arrangement, pausing it. The workspace is where one is *changed*, and the plan's
+own page links to it.
 
 `/account/schedules` is absent from the sidebar on a deployment with
 `recurringOrders` off — absent, not greyed out. The one list of destinations
@@ -972,11 +988,12 @@ are `<button>` depending on who is looking:
   session branch at all.
 - A capability this deployment has **switched off** (`recurringOrders`,
   `assistant`) explains that instead of linking to a page that would 404.
-- **ERP always explains**, for everybody. It has no customer screen and is not
-  supposed to grow one — a connection is a URL plus a credential belonging to
-  whoever runs the installation, which is exactly why the screen for it is
-  Settings → ERP in the admin panel. `/account/erp` says the same thing at
-  greater length.
+- **ERP used to explain itself to everybody and no longer does.** It had no
+  customer screen for a long time, because a connection is a URL plus a
+  credential this server then calls. It has one now — a buyer connects their
+  *own* NetSuite, SAP, Tally, TCS iON or in-house system at
+  `/account/integrations/erp` — so
+  the node links there behind the same sign-in branch as the rest. See 9.8.1.
 
 The decision table lives in
 `apps/customer-web/src/components/greeting/orchestration-nodes.ts`, on its own,
@@ -1340,12 +1357,93 @@ left, the conversation on the right.
 
 | Left rail | Main pane |
 |---|---|
-| New chat | Welcome heading and a short introduction |
+| New chat | The greeting: a name, and one question |
 | Conversation history, most recent first | Five suggested starters |
 | Rename a thread | The transcript, with the reply streaming in |
 | Delete a thread (asks first) | Composer: text, attach, voice, Send / Stop |
 | Collapse the rail | Copy and **Ask again** under a finished reply |
 | The account, and Sign out | The AI disclosure and the retention notice |
+
+### The greeting
+
+Two lines, and nothing else above the starters:
+
+> **Hello, Priya**
+> **What are you looking for today?**
+
+The name is the first word of the name on the account, read through the same
+`useAccountIdentity` hook the header button and the account sidebar use — so
+this page greets somebody by exactly the name they are greeted by everywhere
+else, and on a signed-in visit it usually costs no request at all. Where there
+is no name — a guest, an account with the field blank, a read still in flight —
+the name line is simply absent and the question stands on its own. It is
+**never** derived from the email address: a purchasing account is routinely
+`ops.procurement@`, and "Hello, Ops" is worse than no greeting.
+
+What this replaced was a heading and a four-line paragraph explaining what the
+assistant could be asked and where its answers came from. All of it true, none
+of it read: somebody who has opened a chat has already decided to type, and an
+onboarding paragraph between them and the composer is a thing to scroll past.
+The five starters below say what can be asked by being askable, which is a
+better answer than a sentence claiming it.
+
+### Product cards in an answer
+
+When a reply is about particular products — details, a recommendation, a
+comparison, a stand-in for something unavailable — the products appear as cards
+under the words, with the photograph, the name, the product code, the short
+description, the price, the availability, **View specifications** and **Add to
+cart**.
+
+**The one thing taken from generated text is an identifier.** The system prompt
+asks the model to end such an answer with a single reference line of its own:
+
+```
+[[products: nitrile-examination-gloves, sodium-chloride-flush]]
+```
+
+The storefront strips that line from what is read, takes the slugs, and asks
+`GET /api/v1/catalog/product-cards` for them. Everything on the card is what
+that endpoint answers, read from the database under the same visibility filter
+every storefront read uses. So:
+
+  - a product code the model invented produces **no card at all**, and the
+    reader is told how many references could not be resolved rather than
+    quietly shown fewer cards than the answer mentioned;
+  - an unpublished product cannot appear, even by guessing its slug;
+  - there is no path by which a URL that arrived in generated text reaches an
+    `img src`.
+
+On a catalogue of cannulae and feeding tubes that is not a stylistic
+preference. A hallucinated product code with a confident price beside it is
+somebody ordering the wrong device.
+
+Two details that follow from the same rule. The half-arrived reference line is
+hidden while it streams, because watching `[[products: nitrile-examin` type
+itself out under an answer looks exactly like a broken renderer. And **Copy**
+copies what is on screen rather than what arrived, so a procurement office
+pasting a reply into a requisition does not find machinery in the middle of it.
+
+The cards mount only under a *finished* reply. Mounting mid-stream would fire a
+catalogue read for whatever slugs had arrived so far and another for each
+further one, rebuilding the row under a reader three or four times.
+
+A reply that names no products renders no heading and makes no request. Most
+replies are of that kind.
+
+**Add to cart steps aside for the two cases a card cannot decide.** A product
+with options needs one chosen, and a guest has no cart to add to; both get a
+link to the product page, where the next step is offered in context, rather
+than a button that can only fail. Otherwise the card adds the smallest legal
+quantity — the minimum, clamped to the increment — because a card has nowhere
+to ask for a number.
+
+**The reference line is a fallback away from being needed.** Where the model
+writes none, the `/product/…` paths already in the prose are used instead;
+those are the same references in a plainer shape, and they are already links in
+the transcript. Where a reference line *is* present it wins outright, because
+it carries the model's own ordering — which is its recommendation — and mixing
+in wherever a link happened to fall in a sentence would silently re-order it.
 
 **The rail is a drawer below `lg` and a rail above it** — one component, two
 presentations, because two components is how the pair stops agreeing about what
@@ -1670,6 +1768,88 @@ same name and the same photograph, so the option name is the only thing on the
 row that says which is which — and a cart that cannot be read is a cart that
 gets ordered wrong.
 
+## The cart: Instant Buy and Schedule Cart
+
+The basket opens with two tabs above the heading, and they are the only two
+things you can do with it:
+
+| Tab | Where it goes | What it is |
+|---|---|---|
+| **Instant Buy** | `/cart` | The cart the storefront always had. The default, because it is what most people came for |
+| **Schedule Cart** | `/accounts/schedule` | The standing orders: several independent plans, each with its own products, dates and ending |
+
+Nothing about Instant Buy changed. Same lines, same server-owned totals, same
+checkout button; the tab names what was previously unnamed and names the
+alternative, which used to be a link two screens down the summary panel.
+
+**They are links, not a tab panel**, and the distinction is not pedantry: they
+lead to two different routes, so a `role="tablist"` would promise a screen
+reader that the content below swaps in place when in fact the page navigates. A
+navigation region with `aria-current="page"` says what is true and comes with
+working middle-click, open-in-new-tab and back button. The selected state is
+carried in the markup as well as in the fill, because a control whose state
+lives only in a background colour is invisible to a screen reader and to
+anybody who cannot tell the two blues apart.
+
+The row appears on the **empty** cart too. Somebody with nothing in their
+basket is exactly the person who has not yet found out that a standing order is
+on offer, and a control that appears only once there is something to buy is one
+they meet too late.
+
+It appears at all only where the second destination exists. A deployment with
+`recurringOrders` off has one way to spend a basket, and a tab leading to a
+screen that explains the feature is switched off teaches the customer that the
+navigation lies — the same rule `account-nav.ts` follows.
+
+## The cart: where this can ship from
+
+Under the order summary, the basket carries a **Where this can ship from**
+panel. It is the buyer's half of [geofencing](#geofencing-how-far-a-warehouse-reaches-and-where-it-refuses-to-go):
+the same geometry the admin panel's ring is drawn from, read from the other end
+— *my* country is fixed, and I want to know who can serve it, when, and for how
+much.
+
+A buyer's country is often inside more than one warehouse's reach, and those
+warehouses do not offer the same thing: one is two days away and charges for
+it, another is five days away and free. Each option says where it ships from,
+when it would arrive and what delivery costs, and the soonest and the cheapest
+carry a chip. Nothing is preferred on the buyer's behalf beyond ordering the
+list soonest-first — which of "two days for €12" and "five days for nothing" is
+better is their call, and software that chose would be software spending their
+money.
+
+**Four things the panel refuses to do.**
+
+  - **It never invents a promise.** A warehouse whose lead time or fee nobody
+    has published is shown with the terms it actually has, which is none, said
+    in words. "3-5 days, free" printed because a field was null is a promise
+    this software made up.
+  - **It does not hide the near miss.** A warehouse in range that holds only
+    part of the basket appears under its own heading, naming the lines it is
+    short of and by how much. Dropping it would leave a buyer wondering why the
+    depot in their own city is missing; offering it as available would break
+    the order at the picking face.
+  - **It says nothing about why a country is closed.** The server sends a count
+    and no reasons. The panel can therefore distinguish "none of our warehouses
+    is close enough" from "we do not deliver there" — two different sentences
+    with two different next steps — and nothing more. An operator's note about
+    customs paperwork is theirs, not the buyer's.
+  - **It never claims to have changed the total.** Choosing an option records a
+    preference and says so: delivery on the order is still charged at the rate
+    in the summary above, because a warehouse's own fee is not wired into cart
+    pricing or fulfilment. A screen that quoted one figure and charged another
+    is the single worst thing a checkout can do, so this one says which of the
+    two is being charged.
+
+**A warehouse is offered only when all four hold**: it is active, it can ship
+today (`OPERATIONAL` or `LIMITED` — never `MAINTENANCE` or `SUSPENDED`, and
+`LIMITED` says so on the card), its own radius reaches the destination country,
+and the operator has not closed that country on it.
+
+The endpoint is public and uncached — see [§8](#8-the-api). A buyer asks "can
+you get this to Belgium, and when" before they have an account, and
+availability is the input that moves fastest in the whole system.
+
 ## How a page is built
 
 Every page follows the same three-layer pattern:
@@ -1798,6 +1978,15 @@ location; this is the screen that creates and corrects them.
 | `isDefault`, `isActive` | Where unqualified receipts land; whether the record is retired |
 | `erpExternalId` | The warehouse's id in the ERP. Master data a person enters |
 | `erpSyncStatus`, `erpLastSyncAt`, `erpSyncMessage` | Written **only** by the connector, through `PUT .../erp-status` |
+| `deliveryRadiusKm` | How far this warehouse promises to deliver. Null means "use `DELIVERY_COVERAGE_RADIUS_KM`" — not zero, and not "no radius" |
+| `deliveryLeadTimeMinDays`, `deliveryLeadTimeMaxDays` | How long delivery from here takes, as a range. Both or neither |
+| `deliveryFeeMinor`, `deliveryFeeCurrency` | What delivery from here costs. `BigInt` minor units with its own currency, like every other amount |
+
+Plus one table of its own: **`warehouse_country_exclusions`** — one row per
+country this warehouse will not deliver to, with the operator's reason. See
+"Reachable and offered" below for why that is a separate decision from the
+radius, and the [database chapter](#7-the-database) for why it has no foreign
+key to `countries`.
 
 **Active and operational are different questions**, and conflating them is the
 mistake the second field exists to prevent. `isActive` asks whether the place
@@ -1893,11 +2082,118 @@ live in the URL, the way the Dashboard's reporting window does, so a colleague
 can be sent the address bar.
 
 
+## Clicking a warehouse: what is actually in it
+
+Every warehouse row and the detail panel carry an **Inventory** button, and it
+is the primary action on both — somebody who clicked a warehouse is far more
+often asking what is in it than correcting its postcode. It opens a
+full-width panel of everything that warehouse holds.
+
+**The list is the catalogue, not the balance rows**, and that is the whole
+reason this is not a filter on the Inventory screen. `/inventory?locationId=`
+pages over `inventory_balances`, so a product the warehouse has none of has no
+row and is simply absent — and absent is indistinguishable from "not in the
+catalogue". The product a warehouse manager opens this screen to find is
+usually the one that ran out. So every product in the catalogue appears for
+every warehouse, at zero where that is the answer, and a product added this
+morning is in every warehouse's list this afternoon with nothing to backfill.
+
+**No balance row and a zero balance are the same quantity and different
+provenance**, and the panel says which. No row means stock has never been
+booked here; a zero row means it has and has run out. "We have never stocked
+this in Antwerp" and "Antwerp is out of it" are two different conversations
+with a buyer.
+
+**Two views, and both are the real one.** The **shelf** is the default: the
+warehouse drawn as a wall of product plates in real CSS 3D — each card in its
+own perspective, turned on a resting angle and turning further towards the
+pointer, its photograph, name and quantity on their own planes off the plate,
+and a shadow cast on the wall behind it. A warehouse *is* a physical place, and
+a flat table of numbers is the one representation that never says so. The
+**table** is one row per stock-keeping unit, dense, and it is what somebody
+counting stock actually wants; a screen that only offered the shelf would be a
+screen people stopped using by Wednesday.
+
+**A transform above a button must not change between the press and the
+release**, and that is the rule the card is arranged around rather than a
+stylistic preference. When it does change, the hit region moves out from under
+a cursor that has not moved, the browser fires `click` on the nearest parent —
+which has no handler — and the *Show all SKUs* disclosure silently does not
+open, then works on the second press. Two things kept moving it, and each has
+its own answer rather than being deleted:
+
+  - **The turn that follows the pointer** is *frozen for as long as a pointer
+    is held down*. The card holds the pose it was in while it is being pressed,
+    which is what a physical object does anyway.
+  - **The design system's own `Button`** carries `active:translate-y-px` and
+    transitions `transform`, so pressing one starts a one-pixel move all by
+    itself. One rule in `apps/admin-web/src/index.css` neutralises that press
+    inside a shelf card and nowhere else. It sits **outside every `@layer`**,
+    and that is the mechanism: Tailwind's utilities live in `@layer utilities`,
+    and in the CSS cascade an unlayered declaration beats any layered one
+    whatever its specificity — so this is the only way to override it without
+    `!important`. Only the transform is touched; the press still changes
+    colour and the focus ring is untouched.
+
+Either fix alone leaves the click swallowed. The event log that finally named
+it, and a third arrangement that cannot be made safe at all — a rotated plate
+*behind* upright content, where paint order follows Z rather than DOM order, so
+the half leaning forward covers the text — are recorded at the top of the
+`.shelf-*` block.
+
+The 3D is decoration and is built so that it can be: every card is a real
+heading with real buttons, every number is in the text and not only in a bar's
+length, and `prefers-reduced-motion: reduce` collapses every plane so the grid
+is an ordinary one.
+
+**Grouped by product, paged by product.** A product with variants holds its
+stock per variant, so a flat list of SKUs would repeat one name twenty times
+down the screen; the group carries the roll-up somebody scanning reads, and the
+SKUs inside it are what they act on. Paging by product means a page boundary
+never falls inside one product's variants.
+
+**The footer describes the building, not the list.** SKUs, units on hand,
+available and low-on-stock are measured across the whole warehouse and do not
+move when somebody types in the search box — a total that did would be read as
+the warehouse's and be wrong. The count of what the filter matched is the
+pager's.
+
+**Nothing on this panel writes.** Receipts and adjustments belong on the
+Inventory screen, where the movement ledger they append to is on the same page,
+and each SKU here links across to it. A quantity somebody could type over on
+this screen is the audit trail that explains where stock went, quietly erased.
+
+Products that are not stock-tracked are listed and labelled rather than hidden:
+a made-to-order item genuinely has no quantity anywhere, and leaving it out of
+a screen headed "everything in this warehouse" would have somebody hunting for
+a product that is deliberately absent from the numbers.
+
+## Geofencing: how far a warehouse reaches, and where it refuses to go
+
 **"Delivers to": which countries a warehouse can actually reach.** Point at a
-marker and the map tilts in over a glowing 100 km ring, shades the part of each
-neighbouring country inside it, draws a curved route to the nearest point on
-each border, and opens a stack of glass flaps listing them — country, flag,
-and how far that border is. Move away and the camera returns to the overview.
+marker and the map tilts in over a glowing ring, stands the part of each
+country inside it up as a translucent 3D block, draws a curved route to the
+nearest point on each border, and opens a stack of glass flaps listing them —
+country, flag, and how far that border is. Move away and the camera returns to
+the overview.
+
+**The map is a globe.** At the overview zoom MapLibre draws the world as a
+sphere rather than a Mercator rectangle, which is the projection the screen's
+question deserves: "which countries does this warehouse reach" is a question
+about a sphere, and Mercator answers it while lying about the answer — it
+inflates everything away from the equator, so the same 500 km drawn near
+Gdańsk covers visibly more of the picture than it does near Athens. The list
+beside the map was always measured geodesically and was right either way; the
+*picture* was the half that disagreed with it. It also fixes the thing an
+operator notices first: on a flat world at the zoom that fits four European
+warehouses, most of the world is off the edge. A **globe/flat toggle** sits
+under the zoom buttons, and a deployment with no basemap configured stays flat
+— a sphere with nothing drawn on it is a dark ball nobody can orient.
+
+**The blocks encode proximity.** The nearest country stands highest, so the
+answer can be ranked by looking at it rather than by reading six distances.
+MapLibre eases from globe into Mercator as the camera flies in, so the coverage
+view lands flat and pitched with the extrusions standing up correctly.
 
 **The whole value of it is that the list is measured, not guessed**, and the
 two cheap ways to produce it are both wrong in ways nobody would notice on
@@ -1905,8 +2201,8 @@ screen:
 
   - **A neighbours table is too generous.** Belgium borders Germany, so a
     lookup puts Germany in the answer for a warehouse in Antwerp — which is
-    150 km from the German border and cannot be reached inside 100. Somebody
-    quotes a customer on that.
+    150 km from the German border and cannot be reached inside 100 km.
+    Somebody quotes a customer on that.
   - **A country centroid is too shy.** The centre of France is 450 km from a
     warehouse in Basel; the border is 2 km away. Reduce a country to a point
     and the feature refuses deliveries that are twenty minutes down the road.
@@ -1926,11 +2222,60 @@ The country the warehouse itself stands in is reported separately from the ones
 it reaches, which is what makes the empty list mean one thing and one thing
 only.
 
-**The radius is the operator's promise, not this repository's.** It arrives
-with the warehouses response from `DELIVERY_COVERAGE_RADIUS_KM`; 100 km is
-what a van does in an afternoon in the Benelux and nothing like the right
-number for a distributor covering Rajasthan. The endpoint accepts any radius up
-to 1,000 km, so an operator can try a different one without changing a setting.
+**The radius belongs to the warehouse.** Each one carries its own
+`deliveryRadiusKm`, because the reach of a building is a fact about the
+building: a port warehouse with its own fleet covers 800 km, a city depot
+handing over to a courier covers 150, and one number for the whole business
+would have to be the smallest of them. A warehouse with none set falls back to
+`DELIVERY_COVERAGE_RADIUS_KM` — which is what lets an operator move the whole
+business's promise by changing one line, and still override the two buildings
+that are different.
+
+**The same number is three different statements, and the panel says which.**
+"This warehouse promises 500 km", "nobody has said, so the deployment's 500
+applies", and "you are trying 800 out on a warehouse that promises 300" are the
+three, and `radiusSource` on the answer is what tells them apart. An operator
+setting up their second warehouse needs to know which one they are looking at.
+The endpoint accepts any radius up to 1,000 km for the trying-out case; a
+warehouse's own is capped at 2,000 km, which is the point past which a circle
+intersects most of a continent and stops meaning anything.
+
+**Reachable and offered are two different facts, stored separately.** The
+radius says what geometry can reach; the closed-country list says what the
+business will serve. A 500 km circle around Antwerp reaches the United Kingdom
+whether or not this deployment has a customs broker for it. Keeping the two
+apart is what stops a radius raised next year from quietly re-opening a country
+somebody deliberately shut — and it is why the warehouse form has both a
+radius field and a country picker rather than one control.
+
+**A closed country stays on the map.** It is shaded and edged in the refusing
+colour, struck through in the list, carries a **Closed** chip and the
+operator's reason, and its block stands lower than the served ones. Dropping it
+would make it indistinguishable from a country forty kilometres too far away —
+and the first is a decision somebody made and may want to undo, where the
+second is a fact about the ground. The one thing a closed country does *not*
+get is an arc: the arc carries a light that travels out along it, which reads
+as a van leaving, and animating a delivery to a country this warehouse will not
+deliver to would be the map lying about the thing it is for.
+
+**Exclusions outside the radius are kept and listed as dormant.** A radius
+grows; somebody who closed Switzerland at 300 km has said something that must
+still hold at 800, so the row is never tidied away for being inactive. Listing
+them is also how an exclusion added to the wrong warehouse gets found before
+the day it starts to bite.
+
+**A warehouse may be closed in its own country.** Rare and entirely
+legitimate — a bonded site serving export markets only, or one whose domestic
+sales go through a distributor — so the home country carries the same flag as
+every other rather than being assumed served.
+
+**The country picker is the ISO list, not the `countries` table.** That table
+is the list of markets this deployment *prices in* — a few dozen rows, each
+needing a currency behind it — and it is the right list for "which country is
+this warehouse in". A 500 km circle reaches countries nobody has ever sold
+into, and those are exactly the ones an operator most wants to close, so the
+exclusion picker offers all two hundred and fifty and the rows carry no foreign
+key. See `GET /inventory/world-countries` below.
 
 **The gesture depends on the input device, not the screen width.** With a real
 pointer, hovering shows the coverage and moving away puts it back. With no
@@ -1980,11 +2325,20 @@ one, because the reader cannot tell whether they misunderstood it or whether it
 broke. `supportsDeliveryCoverage` in `lib/warehouses.ts` is what the page asks.
 
 **Clicking a marker opens a side panel** with the whole record: the address,
-the coordinates, the local time at that warehouse, the stock roll-up, and where
-it stands with the ERP. A panel rather than a map popup, because a popup has to
-fit inside the map and would either cover the markers around it or truncate
-what it says. On a desktop it sits beside the map; below `lg` the page stacks
-and it lands underneath.
+the coordinates, the local time at that warehouse, the stock roll-up, the
+delivery promise with its closed countries, and where it stands with the ERP.
+A panel rather than a map popup, because a popup has to fit inside the map and
+would either cover the markers around it or truncate what it says. On a desktop
+it sits beside the map; below `lg` the page stacks and it lands underneath.
+
+**And it scrolls itself into view when it opens.** The panel lives beside the
+map; the *Details* button that opens it is in the table below the map, which on
+this screen is around nine hundred pixels further down the page. Pressing it
+therefore did the whole job and looked like it had done nothing — the row
+tinted, the record rendered, and every pixel of it was off the top of the
+screen. It aligns its own top to the viewport, and only when that top is not
+already somewhere a person could read it, so a tall monitor showing the map and
+the table at once is left alone.
 
 **Every state on the screen has a message.** Loading, no warehouses at all, no
 warehouse matching the filters (with a button to clear them), coordinates that
@@ -2004,13 +2358,15 @@ decides what is *shown*; the server decides what is allowed.
 | Method and path | Permission | What it does |
 |---|---|---|
 | `GET /inventory/warehouses` | `inventory.read` | Every warehouse with its stock roll-up, plus the `map` provider the panel should draw them on. Takes `q`, `countryCode`, `status` (repeatable) and `includeInactive` |
-| `POST /inventory/warehouses` | `inventory.location.write` | Opens one. Country required |
-| `PATCH /inventory/warehouses/:id` | `inventory.location.write` | Corrects, moves, retires or promotes one. Absent fields are left alone |
+| `POST /inventory/warehouses` | `inventory.location.write` | Opens one. Country required. Also takes the geofence: `deliveryRadiusKm`, the lead-time pair, `deliveryFeeMinor`/`deliveryFeeCurrency` and `excludedCountries` |
+| `PATCH /inventory/warehouses/:id` | `inventory.location.write` | Corrects, moves, retires or promotes one. Absent fields are left alone; explicit `null` clears one. `excludedCountries` replaces the whole set — `[]` clears it, absent leaves it |
+| `GET /inventory/warehouses/:id/inventory` | `inventory.read` | Everything this warehouse holds, product by product, driven from the catalogue so a product it has none of is still listed. Takes `q`, `categoryId`, `presence` (`ALL`/`IN_STOCK`/`OUT_OF_STOCK`/`LOW_STOCK`/`NEVER_STOCKED`), `page`, `limit`. Pages by product, never splitting one product's variants. Totals describe the warehouse, not the filtered list |
 | `DELETE /inventory/warehouses/:id` | `inventory.location.write` | Removes one that was never used. Refused for the default, and for any warehouse a balance, movement, reservation or scheduled order names. 404 for a warehouse already gone, which is also the answer to a second press |
 | `PUT /inventory/warehouses/:id/erp-status` | `inventory.location.write` | The connector reports where the warehouse stands with the ERP |
 | `POST /inventory/warehouses/geocode` | `inventory.location.write` | An address to coordinates. A POST so the address stays out of access logs |
-| `GET /inventory/warehouses/:id/delivery-coverage` | `inventory.read` | Which countries this warehouse reaches inside a radius, measured against real country boundaries. Takes `radiusKm` (default `DELIVERY_COVERAGE_RADIUS_KM`, ceiling 1,000). Returns the home country separately from the ones reached, each with its nearest-border distance and the point it was measured to, plus the ring itself as geometry. 422 `LOCATION_NOT_PLACED` for a warehouse with no usable coordinates |
-| `GET /inventory/warehouse-countries` | `inventory.read` | The countries a warehouse may be in, for the pickers |
+| `GET /inventory/warehouses/:id/delivery-coverage` | `inventory.read` | Which countries this warehouse reaches, measured against real country boundaries. `radiusKm` is **optional**: omitted, it measures what the warehouse actually promises and `radiusSource` says whether that came from the warehouse or the deployment default; passed, it answers a hypothetical and says so. Ceiling 1,000. Returns the home country separately from the ones reached, each with its nearest-border distance, the point it was measured to, whether the operator has closed it and why, plus the ring itself as geometry and any dormant exclusions. 422 `LOCATION_NOT_PLACED` for a warehouse with no usable coordinates |
+| `GET /inventory/warehouse-countries` | `inventory.read` | The countries a warehouse may be **in**, from the `countries` reference table, for the pickers |
+| `GET /inventory/world-countries` | `inventory.read` | Every country there is, from the ISO 3166-1 list, for the closed-country picker. A different list from the one above and deliberately so — see "The country picker is the ISO list" |
 | `GET /inventory/locations` | `inventory.read` | The *pickers'* list — active only, no stock roll-up. Deliberately not the same endpoint |
 
 The `DELETE` is narrow on purpose and cannot be widened by a parameter: the
@@ -2388,7 +2744,39 @@ tidy up a product.
 
 **How much of it there is**
 `inventory_locations`, `inventory_balances`, `inventory_movements`,
-`stock_reservations`
+`stock_reservations`, `warehouse_country_exclusions`,
+`warehouse_delivery_zones`
+
+**Where an order ships from**
+`warehouse_delivery_zones`, `product_country_restrictions`,
+`fulfilment_quotes`
+
+A **lane** is one row of `warehouse_delivery_zones`: one warehouse, one
+destination country, optionally narrowed to a list of postal prefixes, with the
+handling time, the transit range, the carrier, the fee and the currency it is
+priced in. It is the thing that decides whether a warehouse may serve an
+address — never the radius drawn on the map, which is a picture for the person
+configuring one.
+
+A **quote** is one row of `fulfilment_quotes`: an offer that was made, with the
+warehouse, the lane, the dates, the money and an expiry, tied to the cart and
+the address it was priced for. It exists so the number a customer read is the
+number they are charged — the alternative is recomputing at payment against a
+stock ledger that has moved since. Expired rows are swept by the worker; the
+one bound to an order is kept, because it is the evidence behind the delivery
+date on it. See 9.3.2.
+
+`warehouse_country_exclusions` is the one table in the schema with **no
+foreign key to `countries`, on purpose.** `countries` is the list of markets
+this deployment prices in — a few dozen rows, each needing a currency — and a
+500 km delivery radius reaches countries nobody has ever sold into, which are
+exactly the ones an operator most wants to close. An FK would make precisely
+those uncloseable. The code's shape is held by a CHECK constraint and its
+existence is checked against the ISO 3166-1 list in `location.service.ts`. It
+is also the only table pointing at `inventory_locations` with `onDelete:
+Cascade` rather than `Restrict`: the other four are *history* and deleting a
+warehouse would orphan the ledger, where an exclusion is a line of
+configuration that means nothing once its warehouse is gone.
 
 **Buying**
 `carts`, `cart_items`, `orders`, `order_items`, `order_status_history`,
@@ -2483,7 +2871,7 @@ Base path: `/api/v1`. About 22 route files.
 
 | Zone | Prefix | Who may call it |
 |---|---|---|
-| **Public** | `/api/v1/config`, `/api/v1/catalog` | Anyone, no login |
+| **Public** | `/api/v1/config`, `/api/v1/catalog`, `/api/v1/delivery` | Anyone, no login |
 | **Customer** | `/api/v1/auth`, `/account`, `/cart`, `/orders`, `/recurring-schedules`, `/assistant` | A signed-in customer |
 | **Webhooks** | `/api/v1/payments/webhooks/:provider`, `/api/v1/integrations/erp/webhooks/:slug` | A machine, proving itself with a signature over the raw bytes. See *The webhook exception* |
 | **Admin** | `/api/v1/admin/*` | A signed-in member of staff with the right permission |
@@ -2501,6 +2889,31 @@ The `kind` is fixed when the route is registered. So an admin's credentials
 presented to the customer endpoint fail **before the password is even
 compared** — and neither surface can be used to discover whether an account
 exists on the other.
+
+**One public endpoint is a POST, and it changes nothing.**
+`POST /api/v1/delivery/options` asks which warehouses can deliver a basket to a
+country. The basket is the input — up to a hundred product ids with quantities
+— which does not fit in a query string a proxy will keep, and which would sit
+in this server's access log and in every log in front of it if it did. There is
+no caching to lose either: the answer depends on live stock, and a cached "yes,
+two days" is the one answer that must never be stale, so it goes out
+`no-store`.
+
+It answers `200` with an empty `options` when nobody can deliver. That is a
+real answer the storefront has a screen for; an error there would make "we do
+not ship to Iceland yet" indistinguishable from a request the endpoint could
+not understand, and the buyer would be shown a fault instead of a fact.
+`closedByOperator` is a count and never a list — see the cart panel in
+[§4](#the-cart-where-this-can-ship-from).
+
+**Its signed-in counterpart is a POST that really does change something.**
+`POST /api/v1/fulfilment/warehouse-options` answers the same shape of question
+for a particular customer's basket going to a particular address of theirs, and
+every answer **writes rows**: each option carries a `quoteId` naming a stored
+offer with an expiry, which is what makes the total on the card the total on
+the order. So the two are not variants of one endpoint. One is a browsing
+answer nobody has to be signed in for; the other is an offer being made, and it
+is rate-limited because it is not a free read. See 9.3.2.
 
 **Customer endpoints never take an id for the thing they own.**
 `/api/v1/account/orders` derives the customer from the session cookie. There is
@@ -2696,6 +3109,39 @@ what has not come back is the form that sat in front of it.
 **Staff see hidden conversations too.** `hiddenAt` narrows the *customer's*
 reads and nothing else: the Chat enquiries screen lists a thread the customer
 has deleted, because the point of keeping it was that staff can still read it.
+
+## Verified product cards
+
+`GET /api/v1/catalog/product-cards?refs=…` — public, like everything else
+under `/catalog`, and the reason it exists is AI Mode.
+
+The assistant is grounded in a snapshot of this catalogue and ends an answer
+about specific products with a reference line of slugs. Those references are
+the **only** thing the storefront takes from generated text: it brings them
+here, and what is drawn on a card is what this route says. Never a name, a
+price, a stock figure or — above all — an image URL that arrived in a model's
+output.
+
+| Parameter | Meaning |
+|---|---|
+| `refs` | Comma-separated slugs or product codes, at most twelve. A variant's own code resolves to its product |
+| `currency`, `country`, `language` | The same market questions every other read in this zone asks |
+
+The answer is the same public product shape the listing uses, plus two things:
+
+  - `availability`: `isStockTracked`, `inStock`, `availableQty`. An
+    untracked product reports `null` for the quantity, which means "we do not
+    count these" and never "there are none" — the card renders no stock line
+    for those rather than an alarming zero.
+  - `matchedRef`, so the caller can keep the order the references were given
+    in. That order is the assistant's recommendation, most relevant first.
+
+**`unresolved` names what could not be found rather than dropping it.** A
+reference that resolves to nothing is a product that was withdrawn, or a code
+the model invented; either way the caller owes the reader an honest count
+instead of showing fewer cards than the answer mentioned. The endpoint applies
+`publicProductWhere()` like every other read here, so guessing a slug cannot
+confirm an unreleased product.
 
 ## Image search
 
@@ -3006,6 +3452,11 @@ This is the most important flow in the system.
         Finance approves it ───────────────────▶│
                                                 ▼
 ┌── 3. PAYMENT ────────────────────────────────────────────────┐
+│ Before paying, the customer also chose the WAREHOUSE this    │
+│ order ships from, and its quote was frozen onto the order    │
+│ (see 9.3.2). The delivery figure in the total is that lane's │
+│ fee, not a shipping method's.                                │
+│                                                              │
 │ At checkout the customer chose an INSTRUMENT — Pay with      │
 │ Credit Card, Pay with Debit Card, or Pay with UPI. They were │
 │ never shown a gateway; the server resolves one from that     │
@@ -3185,6 +3636,192 @@ and both parties' VAT numbers as they stood at checkout. Rates change and VAT
 numbers get cancelled — an invoice already issued must not start disagreeing
 with the order behind it.
 
+## 9.3.2 Choosing a fulfilment warehouse
+
+Checkout used to decide silently where an order would be sent from. The
+customer picked an address, pressed Place Order, and the server chose a
+warehouse and a delivery figure without either appearing on the screen. A
+buyer whose order could have come from Pune in two days for ₹125, or from
+Mumbai in five days for nothing, was never told the choice existed.
+
+Between the address and the payment there is now a section headed **Choose
+your fulfilment warehouse**, and each eligible warehouse is a card the customer
+can select: where it ships from, when it arrives, which carrier, whether the
+stock is there, and the whole price breakdown down to the total. Selecting one
+changes the summary beside it, and the id of the offer travels with the order.
+
+### The endpoint
+
+```
+POST /api/v1/fulfilment/warehouse-options
+  { deliveryAddressId?, countryCode?, items?, currency?, requestedDeliveryDate? }
+```
+
+Signed in, unlike `POST /delivery/options` on the cart page, and the difference
+is not an oversight. That one answers a **browsing** question — can you reach
+Belgium, roughly when — from a country code, before anybody has an account.
+This one answers a **buying** question about a particular person's basket going
+to a particular address of theirs, so it needs the session for both: the cart
+it prices is the one on the session, and the address is checked against the
+session's own profile rather than taken on trust from an id in a body.
+
+Each option comes back with a `quoteId` and an `expiresAt`, and those two
+fields are the point of the whole endpoint. **Every answer writes rows.** A
+quote is a stored offer, so the number on the card is the number that gets
+charged; the alternative is repricing at payment from ids the browser hands
+back, and two runs against a moving stock ledger produce two answers. That
+makes this a POST with effects, which is the honest shape for it, and it is
+rate-limited for the same reason. No cache header, ever: availability is the
+fastest-moving input in this system, and a proxy holding "Antwerp, Thursday, in
+stock" for sixty seconds is sixty seconds of promising a unit that has gone.
+
+### What makes a warehouse eligible
+
+All of these, and the destination is a full address rather than a country:
+
+| Test | Where it comes from |
+|---|---|
+| Active, and able to ship today (`OPERATIONAL` or `LIMITED`) | `InventoryLocation` |
+| An active delivery zone covering the destination country **and postcode** | `WarehouseDeliveryZone.postalPrefixes` |
+| The operator has not closed that country on this warehouse | `WarehouseCountryExclusion` |
+| Enough of **every** line, on hand minus what other live checkouts hold | `InventoryBalance` |
+| The goods' own restrictions — cold chain, weight | `WarehouseDeliveryZone`, `Product` |
+| The lane prices delivery in the basket's currency | `WarehouseDeliveryZone.shippingFeeCurrency` |
+| The destination itself accepts the goods | `ProductCountryRestriction` |
+
+**The 100 km circle on the warehouse map is a drawing, not a rule.** It shows
+an operator roughly what a radius covers while they are configuring one.
+Fulfilment eligibility is decided by the configured delivery zones, the postal
+prefixes on them, the carrier's own limits and the stock — never by that
+circle. Distance is reported on the card as information and decides nothing.
+
+### One warehouse per order
+
+A warehouse that holds four of the five things in a basket **is not an
+option**. There is no approved split-fulfilment flow in this project, so an
+offer that cannot cover every line would break at the picking face. Those
+warehouses still come back, under `ineligible`, with the lines they are short
+of named and their quantities given — a buyer who knows there is a depot in
+their own city and cannot see it on the list will assume the list is broken.
+
+That is what `ineligible` is for generally: a machine-readable `reason` and a
+sentence for each warehouse the buyer might have expected. `NO_DELIVERY_ZONE`,
+`COUNTRY_CLOSED`, `INSUFFICIENT_STOCK`, `PRODUCT_RESTRICTED`,
+`COLD_CHAIN_UNSUPPORTED`, `OVER_WEIGHT`, `CURRENCY_MISMATCH`, `NOT_PLACED`. A
+destination restriction wins over all of them, because a product that may not
+enter the country cannot be sent from anywhere and the rest is noise beside
+that.
+
+A store that has never drawn a delivery zone gets no options and every
+warehouse under `NO_DELIVERY_ZONE`. **The storefront reads that as "this shop
+does not fulfil from warehouses here"**, hides nothing, blocks nothing, and
+lets checkout run the way it did before this feature existed. Blocking on an
+empty option list would have taken every such deployment offline.
+
+### Estimated, and why it cannot be bought
+
+Given a `countryCode` and no address, the answer comes back with
+`isEstimate: true`. The storefront labels it and makes the cards
+unselectable; `assertQuoteUsable` refuses such a quote at checkout with
+`FULFILMENT_QUOTE_INVALID`. An estimate is a conversation, never an offer —
+"five days from Antwerp" worked out for Belgium is a different promise from
+"five days to this postcode in Ostend".
+
+### The badges
+
+`isFastest`, `isCheapest` and `isRecommended` are fields on the response and
+are decided on the server. Nothing in either frontend works out which option is
+best, and that is deliberate: two implementations of "which of these is the
+cheapest" is how a **Lowest price** badge ends up on the dearer card.
+Recommended is not a fourth opinion — it is a name for the default, so a card
+that is already selected says why. The rule is the cheapest of the options
+arriving no more than a day after the fastest, which is the trade most people
+make by hand.
+
+### From the card to the order
+
+```
+┌── The customer picks a card ─────────────────────────────────┐
+│ The summary switches to that option's totals. The lane's     │
+│ delivery fee is what the order will be priced through, so    │
+│ showing the cart's own shipping line beside a card quoting   │
+│ a different one would be a screen that quotes one number     │
+│ and charges another.                                         │
+└──────────────────────────────────────────────────────────────┘
+                            ▼
+┌── Place Order pressed ───────────────────────────────────────┐
+│ POST /fulfilment/warehouse-options/:quoteId/revalidate       │
+│   Answers 200 with `ok: false` and a code — never an         │
+│   exception. Re-asking for options is a normal flow, and a   │
+│   screen that has to catch an error to render "this expired" │
+│   is a screen that renders a stack trace one day.            │
+│                                                              │
+│   Not ok  ─▶ no order is created, the options are re-read,   │
+│              the selection is cleared, and the customer is   │
+│              asked again. Nothing is ever substituted.       │
+└──────────────────────────────────────────────────────────────┘
+                            ▼
+┌── POST /cart/checkout { …, fulfilmentQuoteId } ──────────────┐
+│ The server checks the quote again — owner, cart, address,    │
+│ basket digest, expiry, warehouse still shipping, stock still │
+│ there — then reprices the cart with the lane's fee as a      │
+│ shipping override, so the free-above threshold and           │
+│ `assertTotalsConsistent` run over it exactly as they do for  │
+│ a shipping method.                                           │
+│                                                              │
+│ If the repriced total is not the total that was quoted, the  │
+│ order is REFUSED with FULFILMENT_QUOTE_STALE and both        │
+│ figures in the detail. A catalogue edit, a coupon that       │
+│ lapsed or a VAT rate that changed at midnight all do this.   │
+│ The customer agreed to a figure, not to a method of          │
+│ arriving at one.                                             │
+└──────────────────────────────────────────────────────────────┘
+                            ▼
+┌── Frozen onto the order, and into the audit trail ───────────┐
+│ fulfilmentLocationId  fulfilmentQuoteId  fulfilmentCarrier   │
+│ fulfilmentServiceLevel  fulfilmentDispatchDate               │
+│ fulfilmentDeliveryFrom  fulfilmentDeliveryTo                 │
+│                                                              │
+│ A dispute about a delivery date is answered from here,       │
+│ without anybody having to reason about what the catalogue    │
+│ looked like at the time.                                     │
+└──────────────────────────────────────────────────────────────┘
+```
+
+The error codes are the published contract, and each is a different thing that
+happened: `FULFILMENT_QUOTE_EXPIRED` (the offer lapsed),
+`FULFILMENT_QUOTE_INVALID` (not this customer's, or an estimate),
+`FULFILMENT_QUOTE_STALE` (the basket or the price moved),
+`FULFILMENT_WAREHOUSE_UNAVAILABLE`, `FULFILMENT_STOCK_CHANGED`,
+`FULFILMENT_NO_ELIGIBLE_WAREHOUSE`. Collapsing them into one sentence would
+leave the customer unable to tell which of them they can do something about.
+
+### What the section does on screen
+
+`pages/checkout/FulfilmentWarehouseSection.tsx`. Radio buttons rather than the
+cart panel's `aria-pressed` toggles, because a control that submits with the
+form is a radio — the same card shape as the address list above it, since it is
+the same kind of decision.
+
+Every state it has to be able to be in: a skeleton in the shape of the cards
+while the ask is in flight; the answer; "no warehouse can send this order" with
+the per-warehouse reasons under a disclosure; a product the destination refuses
+outright; and a failure with a Retry. **A failure does not block checkout** —
+the order goes through the path it took before this feature existed, with no
+quote attached, and the server still refuses anything it cannot stock or ship.
+A transient outage of one endpoint must not take the shop's checkout down.
+
+Quotes expire, so the page sets a timer for the moment the chosen one lapses,
+re-asks, and says it has. If the price moved between two answers it says so
+rather than absorbing it. If the chosen warehouse is not on the new list the
+selection is **cleared** and the customer is asked again — moving somebody's
+order to a warehouse they did not pick is exactly the substitution this must
+never make.
+
+`FULFILMENT_QUOTE_TTL_MINUTES` is how long an offer stands (15 by default), and
+the browser is told it as `config.fulfilment.fulfilmentQuoteTtlSeconds` so a
+figure baked into a bundle is not a figure an operator cannot change.
+
 ## 9.4 The order's life
 
 Ten statuses. **Every** change goes through `assertTransition` in
@@ -3328,6 +3965,11 @@ reports it back wrongly. The day of the month is not stored for
 months" is a choice about spacing and the date was settled when the customer
 picked their first delivery.
 
+`recurring_schedules.hiddenAt` is the customer's own soft delete, added by
+`20260911090000_schedule_hidden_from_list` along with
+`chk_schedule_hidden_only_when_terminal` — a plan may only be hidden once it has
+stopped. See *Removing a finished schedule from the list* in §9.5.
+
 Adding another member to `ScheduleFrequency` needs a migration for
 `chk_schedule_frequency_field_present`. That CHECK names each frequency and the
 column it depends on, and a CHECK matching no branch **fails** — so a frequency
@@ -3352,7 +3994,8 @@ chances for the storefront to offer a schedule the API then refuses.
 
 ### Where a customer starts one
 
-Four doors, all leading to `/schedules/new`:
+Four doors lead to the builder at `/schedules/new`, which turns a basket into
+a plan:
 
 | From | What they see |
 |---|---|
@@ -3360,6 +4003,12 @@ Four doors, all leading to `/schedules/new`:
 | `/cart` | A **Need this again?** panel beside Checkout, when at least one line is eligible |
 | `/checkout` | **Repeat this order on a schedule**, directly under Place Order |
 | `/account/schedules` | The list of plans they already have, and its empty state |
+
+A fifth door leads somewhere else. The cart's **Schedule Cart** tab opens
+`/accounts/schedule`, which is the workspace rather than the builder: it lists
+the plans that already exist, opens one for editing beside the list, and can
+start a new one from nothing rather than from a basket. See *Schedule Cart*
+below.
 
 The cart and checkout doors are the ones that matter, because they are where
 the decision is actually being made — a customer who has just added a case of
@@ -3460,13 +4109,15 @@ one customer naming another's plan gets a 404 rather than a 403.
 
 | Method | Path | What it does |
 |---|---|---|
+| `GET` | `/recurring-schedules/delivery-window` | The earliest first delivery this address and warehouse will take. What the calendar greys out; writes nothing, re-asked whenever either changes |
 | `POST` | `/recurring-schedules/preview` | The review screen. Prices the cart under a proposed schedule. Writes nothing |
 | `POST` | `/recurring-schedules/from-cart` | Creates a DRAFT from the cart |
 | `POST` | `/recurring-schedules/:id/activate` | Confirms it. Records consent, empties the cart |
-| `GET` | `/recurring-schedules` | The customer's plans. Filter by `status` and `kind` |
+| `GET` | `/recurring-schedules` | The customer's plans. Filter by `status` and `kind`; `?estimate=true` prices each one |
 | `GET` | `/recurring-schedules/:id` | One plan, with its items and recent deliveries |
 | `POST` | `/recurring-schedules` | Creates a plan from a product list rather than a cart |
-| `PATCH` | `/recurring-schedules/:id` | Date, frequency, quantities, address, card, tolerance |
+| `PATCH` | `/recurring-schedules/:id` | Items, quantities, frequency, start date, time of day, **timezone**, address, card, tolerance. Absolute, not incremental |
+| `GET` | `/recurring-schedules/:id/estimate` | What this plan would cost if it ran now, priced by `quoteSchedule` |
 | `GET` | `/recurring-schedules/:id/occurrences` | The deliveries. `?upcomingOnly=true` for the future ones |
 | `POST` | `/recurring-schedules/:id/skip-next` | Skips the next delivery |
 | `POST` | `/recurring-schedules/occurrences/:id/skip` | Skips one named delivery |
@@ -3474,6 +4125,7 @@ one customer naming another's plan gets a 404 rather than a 403.
 | `POST` | `/recurring-schedules/:id/pause` | Pauses the plan |
 | `POST` | `/recurring-schedules/:id/resume` | Resumes it, recomputing the next date from now |
 | `DELETE` | `/recurring-schedules/:id` | Cancels future runs. Placed orders are untouched |
+| `POST` | `/recurring-schedules/:id/hide` | Takes a **finished** plan off the customer's list. A soft delete; refused on a live one |
 | `GET` | `/account/payment-methods` | Saved cards, display fields only |
 | `POST` | `/account/payment-methods/setup-intent` | Begins enrolment |
 | `POST` | `/account/payment-methods` | Finishes it. Re-reads Stripe; requires consent |
@@ -3553,6 +4205,212 @@ authorise.
 Repeated holds still advance the plan's failure streak, so a product that stays
 short for months stops the plan rather than nagging for ever.
 
+### Schedule Cart: where a plan is changed
+
+`/accounts/schedule`, reached from the cart's second tab. A list of the
+customer's plans on the left, the one being worked on beside it — because that
+is the shape of the job. A hospital store keeps several independent standing
+orders (gloves monthly, feeding sets quarterly, saline every fortnight) and the
+work is comparing them and then changing one. A page per plan makes the
+comparison a navigation exercise.
+
+Each card in the list carries the name, the plan id, the status, the next
+processing time **and its timezone**, how often, how many products, and the
+estimated amount.
+
+The editor beside it can:
+
+| | |
+|---|---|
+| Add a product | A search over the catalogue, filtered to what a schedule will accept and priced for the buyer's market |
+| Remove a product | |
+| Change a quantity | Through the same stepper the cart uses, so the product's minimum and increment are honoured |
+| Change how often, the **delivery date**, the **timezone** and the ending | The delivery date opens a calendar — see below |
+| Change the delivery address | |
+| **Apply changes** | One PATCH |
+| **Cancel this schedule** | A confirmation that takes a reason |
+| **Remove** | On the card, and only once the plan has stopped — see below |
+
+Creating is there too: **New schedule** builds one from nothing — products,
+cadence, address, payment mode, consent — rather than from a basket, so a buyer
+can keep as many independent arrangements as they need without going through
+the cart for each.
+
+Which plan is open lives in the URL (`?id=`), so a schedule is linkable and
+survives a refresh, and the editor is keyed on that id so switching plans
+remounts the form rather than leaving one plan's unsaved quantities on
+another's basket.
+
+#### Removing a finished schedule from the list
+
+A cancelled plan used to sit in this list forever, and there was nothing to do
+about it — "cancel it again" is not an answer to a plan that is already
+cancelled. Each card for a plan that has **stopped** now carries a quiet
+**Remove**, which asks first and then takes the card off the list.
+
+**It is a soft delete, and the dialog says both halves of that out loud**: the
+card goes, and the schedule, the consent behind it and any orders it placed are
+all kept. The row is the record that somebody authorised recurring charges —
+`consentAcceptedAt`, `consentVersion`, the cart snapshot they confirmed on the
+review screen — and a customer tidying a list is not a reason to destroy the
+evidence behind a charge that may be disputed months later. Staff still see the
+plan, the GDPR export still discloses it, and erasure under Art. 17 remains a
+different act with its own route that does delete rows.
+
+It could not be a hard delete in any case. `orders` is ON DELETE RESTRICT, so a
+plan that has ever run cannot be removed without taking real orders with it —
+which is precisely the protection that constraint exists to give.
+
+**Only a terminal plan may be hidden — CANCELLED or COMPLETED — and this is the
+rule the whole feature turns on.** Hiding an ACTIVE or PAUSED plan would mean
+money leaving an account for an arrangement the customer can no longer see;
+hiding a FAILED one would hide a plan they are still allowed to resume; hiding
+a DRAFT would strand a review they can still confirm. So:
+
+  - the control is not rendered on a plan that has not stopped;
+  - `hideSchedule` refuses it, with a sentence that names the way out
+    ("cancel this one first, and then remove it") rather than just saying no;
+  - and MariaDB refuses it a third time —
+    `chk_schedule_hidden_only_when_terminal`, in
+    `20260911090000_schedule_hidden_from_list`. That one is the lock that holds
+    if a future caller writes the column directly, and there is a test that
+    bypasses the service to prove it is really there.
+
+The flag narrows **every** customer-facing read, not just the list: the detail
+route, the occurrences route and the estimate all answer 404 for a hidden plan,
+so a stale link cannot reopen one. `VISIBLE_TO_CUSTOMER` in
+`schedule.service.ts` is that `where` fragment, exported as one constant
+because a plan reappearing on one screen out of four reads as the removal
+having silently failed. Admin reads deliberately do not use it.
+
+Hiding is **idempotent**: a retry, a double-tap or a second tab all mean the
+same thing, and the second call neither errors nor moves the timestamp. It is
+recorded in the audit log as `schedule.hidden` — not because hiding a row is
+dangerous, but because the plan stops appearing at that moment, and somebody
+asking later why a schedule they remember is missing deserves better than "it
+must have been you".
+
+#### The delivery date, and the week's notice
+
+The date field opens a calendar (`components/DatePicker.tsx`), and the reason
+is the constraint rather than the looks: **a first delivery needs seven days'
+notice**, so most of the calendar is unavailable. A native `<input type="date">`
+expresses that as a `min` attribute the browser enforces silently — the buyer
+types the 14th, the field refuses it, and nothing on screen says why. The
+calendar greys the days inside the notice period, marks the earliest one that
+is available, says the rule in words under the grid, and offers that earliest
+day as one press.
+
+Seven is the default, not the rule. The rule is `SCHEDULE_MIN_NOTICE_DAYS` on
+the deployment — a shop selling from stock in the buyer's own city sets it to
+zero — and the browser is told the figure as
+`config.fulfilment.scheduleMinNoticeDays`, for the same reason it is told the
+currency and the timezone: a number compiled into a bundle is a number the
+operator who bought this software cannot change. `DELIVERY_NOTICE_DAYS` in
+`lib/schedule-cadence.ts` is what the picker draws with until that config
+request answers, and if it fails.
+
+**The floor the API enforces is not always the notice period**, and the two
+things that raise it are both things a browser cannot know:
+
+```
+earliest = max( today + SCHEDULE_MIN_NOTICE_DAYS ,
+                the chosen warehouse's own soonest delivery )
+```
+
+- **Whose today?** It is counted on the delivery address's own IANA zone where
+  it has one, then the schedule's, then the store's. A buyer in Kolkata sending
+  to a site in Rotterdam is on two different days at once for four and a half
+  hours out of every twenty-four.
+- **A warehouse has a floor too.** A plan pinned to one warehouse cannot arrive
+  sooner than that warehouse's handling time and carrier lane allow. An `AUTO`
+  plan has no warehouse yet — the engine picks one at run time from whatever
+  holds the stock that week — so there is nothing to measure and the notice
+  period stands alone. Inventing a floor from "the slowest warehouse we have"
+  would hold every AUTO plan to a decision nobody has made.
+
+So the screen asks for it:
+
+```
+GET /api/v1/recurring-schedules/delivery-window
+      ?shippingAddressId=…&timezone=…&fulfilmentRule=…&inventoryLocationId=…
+  → { earliest, noticeFloor, warehouseEarliest, timezone, noticeDays }
+```
+
+A GET, because it writes nothing and the screen re-asks it **every time the
+address or the warehouse changes** — which is exactly the recalculation the
+rule requires. `lib/delivery-window.ts` is the hook; `CadenceFields` and the
+builder at `/schedules/new` both take the answer as their `min`, and both lift
+a date already in the form onto the new floor rather than leaving an invalid
+value in a form that looks valid. It only ever moves a date forwards: a date
+further out is the buyer's own choice.
+
+**The calendar draws the rule; it does not enforce it.** `createSchedule` and
+`updateSchedule` refuse a first delivery inside the window with
+`SCHEDULE_DATE_TOO_SOON` — a separate code from `SCHEDULE_DATE_IN_PAST`,
+because "that day has gone" and "we need a week" are different problems with
+different fixes, and the detail carries `earliest` as a `YYYY-MM-DD` so the
+storefront can move the picker to it rather than leaving somebody guessing how
+far forward to click. The rule applies to editing an eligible future schedule
+exactly as it does to creating one; an occurrence that is already processing or
+finished is never touched, and no migration moves an existing plan's dates.
+
+Notice is counted in **calendar days, never in milliseconds**.
+`Date.now() + 7 * 86_400_000` is the tempting version and it is wrong twice a
+year in every zone that observes DST: the seventh day forward is 167 or 169
+hours away, not 168. `domain/delivery-dates.ts` is the whole of that arithmetic
+on the server and `lib/calendar-date.ts` in the browser, both on `YYYY-MM-DD`
+strings, both tested against the boundaries.
+
+**There is no time-of-day control on this screen any more.** It offered five
+fixed times, every one of them the middle of somebody's night somewhere, and
+the hour a warehouse picks an order is not a decision a buyer has any basis
+for making — it is the operator's. The plan keeps the `runAtMinute` it has (the
+store's own default for a new one) and the API still receives it, so nothing
+about the recurrence changed. What was removed is a question nobody could
+answer. The builder at `/schedules/new` still asks it; that screen creates a
+plan as part of a longer flow and is left as it was. It does use the same
+calendar and the same floor, though — it used to offer today, which the server
+would then refuse.
+
+Everything the calendar handles is a `YYYY-MM-DD` string, never a `Date` — see
+the header of `lib/calendar-date.ts`. `new Date('2026-09-18')` is parsed as
+UTC midnight and prints as the 17th for every reader west of Greenwich, which
+is how a picker comes to show one day, send another, and be right about
+neither.
+
+It is a keyboard control as much as a pointer one: arrows by a day and a week,
+Home/End across the week, PageUp/PageDown by a month, Enter to choose, Escape
+to give up and hand focus back to the field. One day sits in the tab order at a
+time, so tabbing past the calendar is one press rather than thirty-five. Below
+`sm` it is a bottom sheet with its own Close button rather than a popover
+clipped by the bottom of a phone.
+
+**Three rules the screen keeps.**
+
+  - **The save is absolute, not incremental.** Apply Changes sends the whole
+    arrangement — every item with its quantity, the whole recurrence, the
+    address — so the same request applied twice lands on the same state. That
+    is what makes a retry, a double-click or a dropped response safe: there is
+    no "add one more of this" for a second attempt to apply again. The server
+    replaces the basket rather than merging into it.
+  - **The screen refuses what the server would refuse, and says why first.** A
+    plan inside its cutoff, one with a delivery being priced, and one that is
+    cancelled or finished are read-only here, with the reason named above the
+    form. Controls that look editable and then fail on save are worse than
+    controls that say they are locked.
+  - **The money comes from the server.** The estimate is `quoteSchedule`'s
+    answer — the same function that prices the occurrence the customer is
+    eventually charged for. Nothing on the screen multiplies a unit price by a
+    quantity, because a second implementation of "what does this basket cost"
+    is how somebody ends up disputing a total nobody can explain. It is
+    labelled an estimate, and it is one: every delivery is repriced when it
+    runs.
+
+Apply Changes stays disabled while nothing has changed, and not for tidiness: a
+PATCH that touches the recurrence re-materialises every upcoming delivery, so
+an accidental no-op save is a real write against a live standing order.
+
 ### The customer can change things
 
 Up to the **edit cutoff** — `SCHEDULE_EDIT_CUTOFF_MINUTES`, default 24 hours
@@ -3562,9 +4420,37 @@ for another. The refusal names the date they *can* change, because "too late"
 without one is not an answer. Administrators are not bound by it — somebody is
 usually on the phone.
 
-They can change the date, the frequency, quantities, the address, the card;
-skip the next delivery; pause and resume; or cancel. Cancelling stops future
-runs only — orders already placed keep their own lifecycle.
+They can change the date, the frequency, the timezone, quantities, which
+products are on the plan, the address and the card; skip the next delivery;
+pause and resume; or cancel. Cancelling stops future runs only — orders already
+placed keep their own lifecycle.
+
+**Changing the timezone re-dates every upcoming delivery**, for the same reason
+changing the frequency does: the dates on file were computed against a clock
+that no longer applies. It is editable because it has to be — a standing order
+set up by a buyer in Kolkata and handed to a colleague in Rotterdam otherwise
+fires at 06:00 in the wrong city, and "cancel it and build another" is not an
+answer when the alternative is one field.
+
+**A second guard sits beside the cutoff, and it is a fact rather than a
+clock.** An edit is refused while the engine is *holding the basket* — an
+occurrence at `AWAITING_VALIDATION`, where `quoteSchedule` is reading the
+items, or `PROCESSING`, where the money is moving. By then `nextRunAt` has
+usually moved on to the following cycle, so the cutoff window for *that* slot
+is wide open while the delivery in flight is being priced, and the cutoff check
+alone would let the edit through.
+
+The list is deliberately narrow, and the boundary is the moment the order is
+written. `PAYMENT_PENDING` and `ACTION_REQUIRED` are **not** on it: both sit
+after the order exists, with the items already snapshotted on it, and both can
+last days — a payment link out and unpaid, or a bank waiting for the
+cardholder. A plan that could not be edited while a link went unpaid would be a
+plan frozen by somebody else's inbox.
+
+Editing never reaches a delivery that already happened, and the mechanism is
+not care: `rematerialiseOccurrences` only removes future rows that are still
+`SCHEDULED` and have no order attached. A completed cycle keeps its date, its
+status and its order.
 
 ### Reminders
 
@@ -4186,6 +5072,457 @@ If step 3 succeeds and step 4 fails, the transaction holds at **Paid — ERP
 Pending** and retries under the same key. The customer is never charged twice,
 and the ERP cannot end up with two copies.
 
+## 9.8.1 The customer's *own* ERP
+
+Everything in 9.5.2 and 9.8 is about **our** ERP: the warehouse system the
+operator runs, configured once under Settings → ERP, where every order this
+installation takes is sent.
+
+This section is the other direction, and it is a different feature with a
+different owner. A buyer is itself a business — a hospital group, a distributor,
+a private practice — and it runs SAP, or monday.com, or something written
+in-house. What it wants is for the things it buys **here** to appear **there**,
+without anybody re-keying them.
+
+```
+An order is confirmed here
+        │
+        ▼
+A PURCHASE ORDER is raised in the buyer's own ERP.
+The quantity becomes ON ORDER. On-hand stock does not move.
+        │
+        ▼  it ships
+Carrier and tracking are synced. Still nothing on hand:
+a crate on a lorry is not stock.
+        │
+        ▼  it is delivered, or their ERP posts a goods receipt
+NOW on-hand may move — and only if their policy says to write
+it automatically rather than ask a person.
+        │
+        ▼  an invoice is issued
+Number, amounts, tax, due date and a document link.
+        │
+        ▼  it is paid
+The payment provider's REFERENCE and status. Nothing about the
+instrument: no card number, no last four, no token, no bank detail.
+```
+
+**Getting the first step wrong is the classic failure of this kind of
+integration**, and it is not a small one. A buyer whose ERP believes stock
+arrived the moment it was ordered will stop reordering, run out, and find out
+during a procedure. So on-hand moves in exactly one place in the code — a goods
+receipt — and the two quantities sit next to each other on the screen so the
+difference is visible.
+
+### Who owns the connection
+
+Not the person who set it up. A **buyer organisation**, which is a tenant of its
+own with its own members.
+
+That matters because a buyer is a business with staff who come and go. A
+connection tied to an individual account dies with that account: their successor
+cannot fix it, cannot see why it broke, and cannot rotate a credential that is
+still working perfectly well against a system they now own.
+
+An organisation is provisioned the first time somebody in an account opens
+Account → ERP integration, and they become its owner. It is deliberately **not**
+matched on `customer_profiles.organization`, which is free text somebody typed
+into a form: joining a tenant by typing its name is not an access-control
+decision, it is an invitation to read a competitor's purchase orders. Other
+people join by invitation — a link that works once, expires, is stored only as a
+SHA-256, and is checked against the signed-in account's own email address.
+
+Three roles, and they nest:
+
+| Role | Can |
+|---|---|
+| **Owner** | Everything, including who else has access. |
+| **Integration manager** | Configure credentials, endpoints, mappings and rules; test, dry run, sync, retry, decide approvals. Not membership. |
+| **Member** | See connection health, sync history and the audit log. No credentials, no hints, not even the endpoints the connection calls. |
+
+A member gets a **different shape** from the API, not the full one with fields
+blanked — so no later serialisation mistake can leak what they were not sent.
+
+### Brands and protocols are two different questions
+
+A buyer says "we run NetSuite". The code needs to know something else: how
+NetSuite is *spoken to*. Those are two layers, and keeping them apart is what
+lets the list of supported ERPs grow without the codebase growing with it.
+
+A **connector** is a protocol dialect, and it is **code**. There are four,
+because there are four genuinely different protocols here — not because there
+are four ERPs.
+
+A **vendor preset** is a brand, and it is **data**: a name, the connector that
+speaks to it, default endpoint paths, a default field mapping, the
+authentication methods that system accepts, and what to ask your own IT team
+for. It lives in `backend/src/modules/customer-erp/vendor-presets.ts`, and
+adding NetSuite or Acumatica or QuickBooks is a change to that one array with no
+new code at all — all three are REST and JSON over OAuth 2.0, which the custom
+connector already speaks fluently.
+
+Getting this the other way round — one connector per brand — is how an
+integration product ends up with twenty near-identical files that drift apart,
+and how adding the twenty-first takes a fortnight.
+
+The catalogue currently offers **twenty** systems:
+
+| Connector | Brands it serves |
+|---|---|
+| **SAP** | SAP S/4HANA, SAP ERP (ECC 6.0) |
+| **monday.com** | monday.com |
+| **Odoo** | Odoo (Online or self-hosted) |
+| **Custom (REST/OData/GraphQL)** | Oracle NetSuite, Oracle Fusion Cloud ERP, Dynamics 365 Business Central, Dynamics 365 Finance & Operations, SAP Business One, Zoho Inventory, Acumatica, QuickBooks Online, Sage X3, Epicor Kinetic, Infor ION, **TCS iON**, Tally Prime, Marg ERP, Busy Accounting, and *Any other system* |
+
+`presetsForRegion` orders the list for the market a deployment serves — an
+Indian buyer should not scroll past four American mid-market systems to reach
+Tally — and *Any other system* is always last, whatever the region. Every preset
+is offered whatever the region: the ordering is a courtesy, not a restriction,
+and the wizard's search box reaches all of them.
+
+**How sure the defaults are is a field, not a guess.** `defaultsAreExamples`
+separates two honestly different situations. False means the paths are that
+vendor's own published API — the same for every customer on it — and a buyer on
+a stock installation can often press **Test** straight away. True means the
+paths depend on how *that customer's* system was set up: a TCS iON integration
+service, an Infor ION flow, a Tally gateway somebody wrote. The preset then
+carries the shape and the vocabulary, the paths are a worked example to be
+replaced, and **the wizard says so on screen** rather than shipping a
+confident-looking default that wastes somebody's afternoon.
+
+Either way a wrong default cannot reach production: switching a connection on is
+refused until a test has passed *and* the mapping has been checked against a
+real response from that buyer's own system. The preset saves time; the guard
+decides correctness.
+
+**TCS iON** is in the list for the reason it was asked for, and it is configured
+per customer, so it carries no paths of its own — the generic REST shape stands
+in, flagged as an example, and the notes tell the buyer to ask their TCS iON
+implementation partner for their tenant's integration API documentation (or to
+paste its OpenAPI file on the Endpoints step). What it is emphatically not is a
+portal login: see *What it will not connect to* below.
+
+### The four connectors
+
+None of them is a generic one with a dropdown. They disagree about
+authentication, about pagination, about what an identifier is, and about whether
+a purchase order is a document or a row on a board.
+
+**SAP** — S/4HANA or older SAP ERP, over the OData or REST APIs a communication
+arrangement exposes. Carries company code, purchasing organisation, purchasing
+group, plant and storage location, because SAP will not accept a purchase order
+without the first two. Handles the two SAP-shaped problems nothing else has:
+OData V2 refuses a POST without a CSRF token fetched on a prior read, together
+with the session cookie that came with it; and an on-premise landscape is
+reached through a Cloud Connector the customer runs, not at SAP's own address.
+
+**monday.com** — a board for purchase orders, a group per status, columns for
+SKU and quantity. Everything is a POST of a GraphQL document to `/v2`, so a
+GraphQL error has to be treated as a failure even though it arrives with HTTP
+200. Mappings name **column ids**, not the titles the buyer sees: a title can be
+renamed by anybody with edit rights, and a mapping keyed on titles breaks
+silently the first time somebody tidies up a board.
+
+**Odoo** — JSON-RPC, which fits none of the others: one address for everything,
+the model and the method inside the POST body, integer database ids where every
+other system uses codes, and a fault that arrives with HTTP 200 carrying a
+Python traceback. SKUs are resolved to product ids in one batched lookup and any
+that are missing are named, and a purchase order is searched for by
+`partner_ref` before it is created — Odoo will happily hold two orders with the
+same reference otherwise.
+
+**Your own system** — anything with a documented HTTP API, and the connector
+behind most of the catalogue. REST and JSON by default, with OData and GraphQL
+where the system speaks them. An OpenAPI document can be pasted in and it will
+suggest which endpoint does what; the suggestions are confirmed on screen and
+nothing is saved from the file itself.
+
+Its request body is the buyer's structured data with the buyer's mapping laid
+**over** it, merged deeply rather than shallowly, and **under the name their own
+mapping uses**. Both halves of that sound like details and neither is.
+
+A mapping addressing `lines.0.sku` describes the *first* line. A shallow merge
+would let that one-element array replace all five lines of a real order — and
+writing the full set to a fixed `lines` when the mapping says `items.0.sku`
+would put it beside the mapped one rather than into it, so a system reading
+`items` receives one line out of five. Either way the ERP answers 201, nothing
+is logged, and the buyer finds out when the goods arrive. So the array is named
+from the mapping (`items.0.sku` → `items`), and the mapping's own field wins
+inside it.
+
+**What it will not connect to.** A portal with a login and no API. That would
+mean browser automation against a site whose terms almost certainly forbid it,
+with a session belonging to a person rather than to an integration, breaking the
+first time somebody moves a button. The wizard says so in those words rather
+than offering a username and password field that would imply otherwise.
+
+### The wizard, in six steps
+
+1. **Choose system** — the catalogue, with a search box: type "dyn", "tally" or
+   "iON" and pick the brand. Each card carries the protocol that speaks to it,
+   and a warning where that system is usually inside the buyer's own network or
+   where its paths are examples rather than its published API. Picking one
+   names the connection after it, narrows the authentication methods to the ones
+   that system accepts, and fills the address placeholder with a real example.
+   Also on this step: the ERP version, and whether this is a test system or a
+   live one.
+2. **Connection details** — the address, how it authenticates us, the API
+   version, and the credentials. Only the fields the chosen method actually uses
+   are shown.
+3. **Network** — public HTTPS, behind an IP allowlist, through a VPN gateway, or
+   through SAP Cloud Connector. This does not change what the code does; it
+   records what the buyer's IT team has to set up, and shows them the
+   instructions for it.
+4. **Endpoints** — which address does what, its method, how it pages, and where
+   the records are in the answer.
+5. **Field mapping** — our field names against theirs, with a **Test and
+   preview** button that reads one real record from their system and reports,
+   field by field, what was found and what was not.
+6. **Sync rules** — source of truth, direction, conflict policy, whether stock
+   writes need a person, an approval threshold, which events to send, and which
+   of our warehouses is which of their plants.
+
+   **Send-only and read-their-stock cannot both be true.** A connection whose
+   direction is outbound never reads the buyer's ERP, so switching stock syncing
+   on as well is refused, with the two ways to resolve it — rather than quietly
+   widened to two-way, which is a decision about whose numbers may change whose
+   and not one this code gets to make on somebody's behalf. Accepted silently,
+   it produced a sync that called the buyer's system every fifteen minutes,
+   discarded every record, and reported success.
+
+The connection is saved as a **draft** after step 2, because everything after
+that needs a connection that exists — the endpoint step validates paths against
+the saved address, the OAuth button needs somewhere to put the tokens, and the
+mapping check needs a real response from a real call. A draft is inert: no
+traffic, no jobs, nothing selectable by anything.
+
+**Switching it on is refused** unless a test has passed, the mapping has been
+checked against a real response, and an endpoint exists for everything the rules
+say will be sent. All three are cleared the moment the configuration changes —
+because whatever the last test proved, it proved about settings that have since
+been replaced.
+
+### Why it is safe to let a customer type an address
+
+It is, unavoidably, a server-side request forgery primitive with a form field in
+front of it. The defence is in `infra/outbound-http.ts` and it is about
+**addresses**, not about a blocklist of hostnames:
+
+1. Only `http` and `https` exist. Everything else is refused by scheme.
+2. HTTPS is required — credentials travel on every request.
+3. The hostname is resolved **here**, before connecting, and **every** address
+   it resolves to has to pass. A name answering with both a public address and
+   127.0.0.1 is a rebind attempt wearing a round-robin costume.
+4. Loopback, link-local (where cloud metadata lives), every private range,
+   CGNAT, multicast, broadcast and their IPv4-mapped IPv6 spellings are refused.
+5. The socket is **pinned** to an address that passed, so DNS cannot answer
+   differently the second time.
+6. Redirects are never followed automatically. A `Location` is a fresh URL that
+   has been through none of the above, so it goes back to the top of the loop.
+7. An endpoint path may be relative or absolute, and an absolute one is accepted
+   only on the **same origin** as the connection. The same rule applies to a
+   paging link the ERP hands back, with more force: that address was not typed
+   by anybody, it arrived in a response body.
+8. A **`#fragment` is refused everywhere**; a **query string is refused on the
+   base address only**. The base address is a setting, and `?page=1` stored in
+   it would be carried silently onto every call — but a request URL is where
+   every paging style this platform speaks puts its cursor, so `/inventory?page=2`
+   is the ordinary shape of an ordinary read. Applying the base-address rule to
+   request URLs made every paginated endpoint unreachable, which is worth
+   remembering before tightening it again.
+
+On top of all that, an operator may set `CUSTOMER_ERP_ALLOWED_HOST_SUFFIXES` and
+hold every customer to a list of permitted hosts. Empty is the default and the
+right one for most deployments: customers' ERPs live at addresses nobody here
+can predict.
+
+### Where the secrets are
+
+In `customer_erp_credentials`, and nowhere else. Every other table in this
+feature can be read in full and handed to somebody without leaking a credential,
+which is a property worth being able to state plainly.
+
+- AES-256-GCM, with AAD binding each envelope to
+  `customer_erp_credential:<connectionId>:<kind>`. A row copied into another
+  connection fails authentication rather than decrypting into a working key for
+  a system it was never issued for.
+- **Nothing returns a secret** — not to the buyer, not to support, not to an
+  admin. What a screen shows is a hint: `X-API-Key: sk_live...9f2a`. A client ID
+  is shown in full, because it is not a secret and is the one part of an OAuth
+  pair somebody can check against their own ERP's screen.
+- **A save that omits a secret keeps the stored one.** That is what makes a
+  masked edit form work: the buyer changes the timeout, the form sends no client
+  secret because it never had one to send, and the secret survives. An empty
+  string clears it, which is a deliberate act rather than the default.
+- **Disconnecting destroys them.** Tokens are revoked where the ERP offers an
+  endpoint, and every credential row is deleted either way. The audit trail
+  records that a credential existed and was revoked, which is the part with
+  evidential value; keeping the credential itself would mean a disconnected
+  connection is still a standing authority against somebody's SAP.
+- OAuth client secrets for **monday.com production** are the *operator's*, held
+  in deployment configuration, because that is how monday's marketplace works.
+  For SAP and custom connections they are the *buyer's* and are encrypted per
+  connection. `oauthUsesPlatformApp` on the row says which applies.
+
+### Reliability
+
+Everything that touches a buyer's ERP goes through a row in
+`customer_erp_sync_events` — the outbox — **including the things that turn out
+not to need a call at all**. That is what makes "why did my purchase order not
+appear" answerable: there is always a row, and it always says what happened.
+
+The idempotency key is the whole design:
+
+```
+organizationId : subject : eventType : v<n>
+```
+
+Derived entirely from the thing that happened. Never from the clock, never from
+a random source. A retry, a redelivered payment webhook, a second worker and a
+manual send-again all derive the same key; the unique index admits one of them
+and the rest find the row that is already there.
+
+An ERP that received a purchase order and then received it again has a duplicate
+liability on its books, and somebody in accounts payable finds out about it six
+weeks later when two invoices arrive for one delivery. Everything else — the
+leases, the backoff, the dead-letter state — is about noise. The key is about
+correctness.
+
+A genuinely new thing to say about the same order is a new `eventVersion`, and
+therefore a new key and a new row. Never the old row again: **SUCCEEDED is
+terminal and has no way out.**
+
+| Connection state | Means |
+|---|---|
+| `DRAFT` | Being filled in. Nothing runs. |
+| `TESTING` | A test is in flight. One at a time. |
+| `ACTIVE` | Live. Events dispatch, polling runs, webhooks are accepted. |
+| `PAUSED` | Stopped on purpose. Writes stop immediately; queued events are held, not dropped; webhooks are refused. |
+| `ACTION_REQUIRED` | Waiting for a person — an expired authorisation, an undecided approval. |
+| `FAILED` | Repeated failures took it out of service. Nobody chose this. |
+| `DISCONNECTED` | Switched off, credentials destroyed, history kept. |
+
+| Event state | Means |
+|---|---|
+| `QUEUED` | Waiting to be sent. |
+| `PROCESSING` | A worker holds the lease. |
+| `SUCCEEDED` | Done. Terminal. |
+| `RETRYING` | Failed for a reason that may pass; `nextRetryAt` is set. |
+| `FAILED` | Retries exhausted, or a failure no retry can fix. The dead letter. |
+| `SKIPPED` | Deliberately not done, with the reason recorded. |
+
+Failures are **classified** before they are retried, because the decisions are
+entirely different: `AUTH` means stop and tell the buyer to reauthorise;
+`RATE_LIMIT` means wait exactly as long as we were told; `TRANSPORT` and
+`SERVER` mean try again later; `REJECTED` means the ERP understood perfectly and
+said no, which no amount of retrying improves.
+
+Backoff is exponential with jitter, capped, and overridden entirely by the ERP's
+own `Retry-After`. An ERP that says "wait 300 seconds" and gets another request
+in five has been told, by our behaviour, that its rate limiting does not work.
+
+**A connection-level problem does not spend an event's retry budget.** Paused,
+waiting on somebody, out of service — the event is fine and the connection is
+not, so it is deferred and the attempt is given back. Burning six attempts over
+a fortnight's pause would put a perfectly good purchase order in the dead-letter
+list for a reason that was never its own.
+
+**A platform order never fails because an ERP did.** The hand-off is queued
+after the order's transaction commits and cannot roll it back. The order stands,
+the money is accounted for, the dashboard shows what is still pending, and the
+people who can act are told.
+
+### Inbound: what their ERP tells us
+
+A buyer's ERP calls us at `{API_PUBLIC_URL}/api/v1/erp-inbound/{slug}`. It is
+the only unauthenticated route in the feature, because the caller is a machine
+in somebody else's data centre that has no session and never will. Four checks,
+in this order, before the payload is parsed as anything:
+
+1. The slug names a connection that exists and is accepting deliveries.
+2. A signing secret is configured. **There is no unsigned mode** — an
+   unauthenticated endpoint that moves somebody's stock is not a feature.
+3. The HMAC-SHA256 signature over the **raw bytes** verifies, in constant time.
+   Raw bytes, because `JSON.parse` followed by `JSON.stringify` reorders keys
+   and the signature was computed over what was sent.
+4. The timestamp is inside the replay window. Without it a signature is valid
+   for ever, so a captured request is a replay for ever too.
+
+All four failures produce the same answer, with no indication of which check
+failed — an endpoint that distinguishes them tells somebody probing it which
+slugs are real. The row written to `customer_erp_webhook_events` *does* record
+which, because only the buyer who owns the connection can read it.
+
+The receipt is written **before** the payload is acted on, and the unique index
+on `(connectionId, externalEventId)` is what makes a redelivery a no-op. Every
+ERP retries, and a goods receipt applied twice is stock that does not exist.
+
+For the ERPs with no outbound webhooks — which is most of them — there is
+incremental polling with a cursor instead. The cursor is written back **only**
+when a pass finishes cleanly: one advanced by a run that failed halfway is how
+records get skipped for ever, and nobody notices until a stock figure has been
+wrong for a month.
+
+### Approvals
+
+Two reasons a write waits for a person: the purchase order is at or above the
+organisation's threshold, or the rules require approval for stock writes. Both
+are raised at dispatch time, before a single byte goes anywhere, and the event
+holds at `SKIPPED` naming the approval.
+
+**Approving re-queues the same event under the same idempotency key**, which is
+what stops an approval producing a second purchase order. Declining is final for
+that event. An approval nobody decides expires, and the write does not happen —
+a purchase order released three weeks late, against prices and stock that have
+moved, is worse than one that never went.
+
+### Instant Buy and Schedule Cart use the same path
+
+Both, and by construction rather than by care. `transitionOrder` is the only
+thing in the system that writes `orders.status`, so an instant purchase, a
+payment link, a reconciliation sweep and every occurrence of a Schedule Cart all
+arrive at the same line. Each occurrence gets its own link row and its own
+events, because each delivery is receipted separately, and the occurrence id
+rides along so an ERP that wants to group a subscription's deliveries can.
+
+### What support can see
+
+**Customer ERP** in the admin panel, behind `integration.read`. It lists every
+customer connection with its tenant, system, state, host, failure count and the
+safe error message — enough to say "your firewall is refusing us" or "your
+authorisation expired on Tuesday" on a phone call.
+
+It shows **no credentials and no hints** — absent, not masked. No endpoint
+paths, no base URL beyond the host, no field mappings, and no request or response
+bodies, because those hold the customer's own SKUs, quantities and prices.
+
+And it is **read-only**. Staff cannot test, activate, pause, disconnect or retry
+on a customer's behalf. Every one of those acts against a system this business
+does not own, with a credential its customer supplied for their own purposes,
+and "support pressed the button" is not a defensible answer to "who raised this
+purchase order in our SAP". What support offers instead is a phone call and a
+screen-share.
+
+### Where it lives
+
+| Thing | Where |
+|---|---|
+| Buyer screens | `apps/customer-web/src/pages/account/erp/` |
+| Buyer API client | `apps/customer-web/src/lib/customer-erp.ts` |
+| Support screen | `apps/admin-web/src/pages/CustomerErpPage.tsx` |
+| Tenant, roles, invitations | `backend/src/modules/customer-erp/organization.service.ts` |
+| The vault | `backend/src/modules/customer-erp/credential.service.ts` |
+| The outbox | `backend/src/modules/customer-erp/event.service.ts` |
+| What events mean | `backend/src/modules/customer-erp/pipeline.service.ts` |
+| Connectors | `backend/src/modules/customer-erp/connectors/` |
+| State machines | `backend/src/domain/customer-erp-state.ts` |
+| Address safety | `backend/src/infra/outbound-http.ts` |
+| Routes | `backend/src/http/routes/customer-erp.*.ts` |
+
+Switched off by default. `FEATURE_CUSTOMER_ERP=true` turns it on; see SETUP.md
+for the rest of the settings and for registering a monday.com app.
+
+
 ## 9.6 A new member of staff
 
 ```
@@ -4715,7 +6052,7 @@ hostname adds it to that check, in every mode, and nothing else with it. See
 |---|---|---|
 | `MAP_GOOGLE_API_KEY` | *(empty)* | A Google Maps browser key. Set it — with a map ID — and the Warehouses map is a Google map: vector rendering, and whatever style the operator built in the Cloud console |
 | `MAP_GOOGLE_MAP_ID` | *(empty)* | The Cloud console's map ID. **Required alongside the key**, and `env.ts` refuses to start without it: it is what carries the style, and what Advanced Markers need |
-| `DELIVERY_COVERAGE_RADIUS_KM` | `100` | How far the Warehouses screen says a warehouse delivers. A commercial promise rather than a technical limit, which is why it is a setting: 100 km is a Benelux afternoon and nothing like the right number for a distributor covering Rajasthan. The panel is told this by the warehouses response and never assumes it; the endpoint accepts any radius up to 1,000 km |
+| `DELIVERY_COVERAGE_RADIUS_KM` | `500` | How far a warehouse delivers **when the warehouse itself does not say**. A commercial promise rather than a technical limit, which is why it is a setting: 500 km is a day's run for a warehouse with its own fleet and nothing like the right number for a city depot handing over to a bike courier. Since geofencing, each warehouse carries its own `deliveryRadiusKm` and this is the fallback for the ones that have not been given one — which is the useful way round: move the whole business's promise by editing one line here, and override the two buildings that are different. The panel is told this by the warehouses response and never assumes it; the coverage endpoint accepts any radius up to 1,000 km for trying one out |
 | `MAP_STYLE_URL` | *(empty)* | A MapLibre **style JSON** URL — vector tiles. **The setting that puts every place name in one language**, because a vector tile carries `name:en` as data. Keyless public ones exist (OpenFreeMap's `https://tiles.openfreemap.org/styles/liberty` is planet-wide OpenStreetMap data); commercial providers put a key in the query string; a firewalled installation points this at its own |
 | `MAP_STYLE_ATTRIBUTION` | *(empty)* | Added to what the style's own sources already declare, which is why it is usually left empty. For a self-hosted style that declares none |
 | `MAP_TILE_URL` | *(empty)* | The XYZ **raster** tile template behind the Warehouses map. Empty means no tiles: markers are plotted on a plain ground and everything else on the screen works unchanged. Note that raster place names are baked into the image in the local language and cannot be translated |
@@ -4797,6 +6134,24 @@ sign-in location check) and shares its `GEOCODE_TIMEOUT_MS`. Both are
 best-effort: unreachable, slow or unconfigured, and the panel reports that it
 found nothing and lets somebody type the coordinates. Neither can block a save.
 
+## Fulfilment and delivery dates
+
+Two numbers that decide what a buyer is offered, and both are settings rather
+than constants for the same reason: the operator who bought this software is
+not the author, and a figure compiled into a JavaScript bundle is a figure they
+cannot change. Both are published to the browsers in `/config` under
+`fulfilment`, and each frontend keeps its own fallback only for the moment
+before that answer lands.
+
+| Variable | Default | Effect |
+|---|---|---|
+| `SCHEDULE_MIN_NOTICE_DAYS` | `7` | How many **calendar days** of notice a schedule's first delivery needs, counted on the customer's own clock. Zero is a real setting — a shop delivering from stock in the buyer's own city has no week to ask for. The picker greys out everything below it; `createSchedule` and `updateSchedule` refuse it with `SCHEDULE_DATE_TOO_SOON` whatever the browser did. Note this is only half the floor: a plan pinned to a warehouse is held to `max(this, that warehouse's soonest)` — see 9.5 |
+| `FULFILMENT_QUOTE_TTL_MINUTES` | `15` | How long a warehouse option stays an offer. Each option written by `POST /fulfilment/warehouse-options` carries an expiry, and after it the quote is refused rather than repriced — which is what makes the total on the card the total on the order. Too short and a customer reading the page loses their offer mid-decision; too long and the shop is holding a price against stock that has moved. The checkout page is told the figure so it can re-ask *before* the lapse rather than after |
+
+Neither has a feature flag, and neither needs one. A deployment that has drawn
+no delivery zones gets no warehouse options, the checkout section says nothing,
+and orders are fulfilled the way they were before any of this existed.
+
 ## Pluggable adapters
 
 Each of these is an interface with more than one implementation, chosen by a
@@ -4841,7 +6196,7 @@ UBoss-Software/
 │   │   │   ├── app.ts              ← Plugin order, CORS, raw body, error envelope
 │   │   │   ├── server.ts           Entry point
 │   │   │   ├── openapi.ts          Hand-written summaries over the live route table
-│   │   │   └── routes/             26 route files
+│   │   │   └── routes/             27 route files
 │   │   ├── modules/                ← The business logic
 │   │   │   └── customers/          Profiles, registration, limits,
 │   │   │                           contact-change, account-closure, wishlist
@@ -4855,7 +6210,10 @@ UBoss-Software/
 │   ├── app/ThemeProvider.tsx       Light, dark, or match the device
 │   ├── pages/                      One file per page
 │   │   ├── AiModePage.tsx          ← AI Mode, the assistant as a page
-│   │   ├── ai/                     Its sidebar, composer and message
+│   │   ├── ai/                     Its sidebar, composer, message and
+│   │   │                           the verified product cards
+│   │   ├── schedule/               ← Schedule Cart: the list, the editor,
+│   │   │                           the cadence fields, the product picker
 │   │   ├── ConfirmContactPage.tsx  Where a contact-change link lands
 │   │   └── account/                ← The account area: its frame, its
 │   │                               sidebar table, and every panel
@@ -4871,6 +6229,16 @@ UBoss-Software/
 │   ├── lib/pointer-zoom.ts         Where the pointer is, for the image magnifier
 │   ├── lib/camera.ts               The device camera, as one still photograph
 │   ├── components/ProductRow.tsx   A product as a listing row, with its specs
+│   ├── lib/ai-products.ts          ← What a reply is allowed to become
+│   ├── lib/schedule-cadence.ts     ← "How often", both directions
+│   ├── lib/calendar-date.ts        ← A calendar day, without the timezone trap
+│   ├── lib/timezones.ts            The clocks a schedule can run on
+│   ├── components/DatePicker.tsx   The calendar, and the notice period it draws
+│   ├── lib/delivery-window.ts      ← The floor the API enforces, asked for
+│   ├── lib/fulfilment.ts           ← Warehouse options, and the quote checkout takes
+│   ├── pages/checkout/FulfilmentWarehouseSection.tsx  ← "Choose your fulfilment warehouse"
+│   ├── components/DeliveryOptionsPanel.tsx  The cart's browsing answer, not this one
+│   ├── components/CartModeTabs.tsx Instant Buy / Schedule Cart
 │   ├── lib/api.ts                  ← The single HTTP helper
 │   ├── lib/voice-search.ts         Dictation, on the browser's own engine
 │   ├── lib/image-search.ts         Upload rules, and the search call
@@ -4923,8 +6291,27 @@ UBoss-Software/
 | Get the map's country names in English | `MAP_STYLE_URL` — a vector style. Raster tiles have the local name painted into the picture |
 | Change how long a marker must be hovered, or how long "Delivers to" lingers after the pointer leaves | `HOVER_INTENT_MS` and `HOVER_LEAVE_MS` in `pages/warehouse/WarehouseMapLibre.tsx` |
 | Change how the "Delivers to" panel leaves | `COVERAGE_EXIT_MS` in `lib/delivery-coverage.ts` **and** the matching `duration-200` on the panel's root — see `lib/use-lingering.ts` for what keeps it mounted while it goes |
+| Change how far one warehouse delivers | its **Delivery radius** on the warehouse form. Leave it empty and `DELIVERY_COVERAGE_RADIUS_KM` applies |
+| Stop delivering to a country from one warehouse | **Countries this warehouse will not deliver to** on the warehouse form. The radius still reaches it; the storefront no longer offers it |
+| Change how tall the coverage blocks stand | `EXTRUDE_MAX_M` and `EXTRUDE_MIN_M` in `pages/warehouse/coverage-visual.ts` |
+| Turn the globe off, or change when it flattens | `map.setProjection` in `pages/warehouse/WarehouseMapLibre.tsx`; the globe/flat toggle is MapLibre's own `GlobeControl` |
+| See or change what one warehouse holds | the **Inventory** button on the warehouse; `modules/inventory/warehouse-inventory.service.ts` reads it, and the Inventory screen is where it is written |
+| Change the shelf's tilt, depth, shadow or reduced-motion behaviour | the `.shelf-*` rules in `apps/admin-web/src/index.css`, and `TILT_DEGREES` in `pages/warehouse/WarehouseInventoryDialog.tsx`. Read the note at the top of that CSS block before adding a transform to a card - it explains which ones swallow a click, and why one rule there lives outside every `@layer` |
+| Change what a buyer is offered when two warehouses can serve them | `modules/inventory/delivery-options.service.ts`; the panel is `components/DeliveryOptionsPanel.tsx` in the storefront |
 | Change what happens in the background | `src/worker/handlers.ts` |
-| Change what a scheduled order costs | `modules/recurring/schedule-quote.service.ts` — the review screen and the worker both use it |
+| Change what a scheduled order costs | `modules/recurring/schedule-quote.service.ts` — the review screen, the estimate and the worker all use it |
+| Change what a schedule's estimate returns | `modules/recurring/schedule-estimate.service.ts` — it calls `quoteSchedule` and nothing else |
+| Change what the schedule editor can edit | `pages/schedule/ScheduleEditor.tsx`, and the `updateSchema` in `http/routes/schedules.ts` |
+| Add or reword an interval a customer can pick | `lib/schedule-cadence.ts` — one mapping, read by the builder and the editor |
+| Let a customer clear a finished plan off their list | `hideSchedule` in `modules/recurring/schedule.service.ts`, and `VISIBLE_TO_CUSTOMER` for the reads it has to narrow |
+| Change which statuses may be hidden | `isTerminalPlanStatus` in `domain/schedule-state.ts` — and the CHECK constraint has to move with it |
+| Change how much notice a first delivery needs | `SCHEDULE_MIN_NOTICE_DAYS` in the backend's environment — published to both browsers through `/config`, so the calendar redraws around it with no rebuild. `DELIVERY_NOTICE_DAYS` in `lib/schedule-cadence.ts` is only the fallback until that answer lands |
+| Change which warehouse an order may ship from | The delivery zones on the warehouse (`WarehouseDeliveryZone`), not the map's circle — `modules/fulfilment/warehouse-options.service.ts` is what reads them |
+| Change how long a warehouse quote stands | `FULFILMENT_QUOTE_TTL_MINUTES` in the backend's environment; the checkout page reads it back from `/config` and re-asks before it lapses |
+| Change how a date is picked anywhere | `components/DatePicker.tsx`; the day arithmetic is `lib/calendar-date.ts` and never a `Date` |
+| Change when an edit is refused because a delivery is in flight | `IN_FLIGHT_OCCURRENCE_STATUSES` in `modules/recurring/schedule.service.ts` — read the note first |
+| Change what a product card under an AI answer shows | `GET /catalog/product-cards` for the data, `pages/ai/AiProductCards.tsx` for the card |
+| Change what the assistant is allowed to have rendered | `lib/ai-products.ts` — the reply is split into words and identifiers there, and nothing else crosses |
 | Add a plan or occurrence status rule | `domain/schedule-state.ts` |
 | Change when a customer can still edit a delivery | `SCHEDULE_EDIT_CUTOFF_MINUTES` |
 | Change how far a price may drift before asking | `SCHEDULE_PRICE_TOLERANCE_*` |

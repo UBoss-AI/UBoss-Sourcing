@@ -23,6 +23,7 @@ import {
   markNotificationSent,
 } from '../modules/notifications/notification.service.js';
 import { sweepExpiredReservations } from '../modules/inventory/inventory.service.js';
+import { sweepExpiredFulfilmentQuotes } from '../modules/fulfilment/warehouse-options.service.js';
 import { expirePaymentLinks } from '../modules/payments/payment-link.service.js';
 import { runSync } from '../modules/integrations/connector.service.js';
 import { generateExport, markExportFailed } from '../modules/reports/export.service.js';
@@ -156,6 +157,23 @@ const sweepReservations: JobHandler = async () => {
   const result = await sweepExpiredReservations();
   if (result.released > 0) {
     logger.info({ released: result.released }, 'released expired stock reservations');
+  }
+};
+
+/**
+ * Clear out delivery offers nobody took.
+ *
+ * The counterpart of the reservation sweep above. A quote that has lapsed and
+ * that no order points at is an offer that can never be accepted, and a
+ * checkout page reloaded a dozen times leaves a dozen of them. One attached to
+ * an order is never touched: it is the evidence of what the customer was shown
+ * before they agreed to pay, and the foreign key is RESTRICT so this cannot
+ * take it even by accident.
+ */
+const sweepFulfilmentQuotes: JobHandler = async () => {
+  const result = await sweepExpiredFulfilmentQuotes();
+  if (result.removed > 0) {
+    logger.info({ removed: result.removed }, 'cleared expired fulfilment quotes');
   }
 };
 
@@ -463,6 +481,83 @@ const retentionSweep: JobHandler = async () => {
 };
 
 /**
+ * Send what is queued for BUYERS' own ERPs.
+ *
+ * The outbox sweep. Every row it touches carries its own idempotency key, so
+ * this can never produce a second purchase order however many times it runs -
+ * which is what makes it safe to run on the ordinary beat rather than on
+ * something carefully spaced.
+ *
+ * Sequential inside `dispatchDueEvents`, deliberately: these are calls to
+ * systems other people run, several of them rate-limited, and forty
+ * simultaneous requests to one buyer's SAP is how an integration gets blocked
+ * at their firewall.
+ *
+ * A no-op while FEATURE_CUSTOMER_ERP is off.
+ */
+const customerErpDispatch: JobHandler = async () => {
+  const { dispatchDueEvents } = await import(
+    '../modules/customer-erp/pipeline.service.js'
+  );
+
+  const result = await dispatchDueEvents();
+
+  if (result.processed > 0) {
+    logger.info(result, 'sent queued events to buyers’ own ERPs');
+  }
+};
+
+/**
+ * Ask buyers' ERPs for stock, where they have no webhooks.
+ *
+ * Each connection holds its own interval and next-due time, and the sweep
+ * claims `nextPollAt` before doing the work - so two workers running this
+ * together do not poll the same buyer's system twice.
+ */
+const customerErpPoll: JobHandler = async () => {
+  const { pollDueConnections: pollBuyerConnections } = await import(
+    '../modules/customer-erp/polling.service.js'
+  );
+
+  const result = await pollBuyerConnections();
+
+  if (result.polled > 0) {
+    logger.info(result, 'polled buyers’ own ERPs for stock');
+  }
+};
+
+/**
+ * Housekeeping for the buyer-ERP feature.
+ *
+ * Three cheap indexed operations on one beat:
+ *
+ *   - Release events whose worker died mid-flight. The lease expired, so the
+ *     attempt is given back rather than counted - nothing was tried.
+ *   - Expire approvals nobody decided. The write does not happen, which is the
+ *     conservative outcome: a purchase order released three weeks late,
+ *     against prices and stock that have moved, is worse than one that never
+ *     went.
+ *   - Sweep abandoned OAuth flows, which hold an encrypted PKCE verifier and
+ *     have no use once their window has closed.
+ */
+const customerErpMaintenance: JobHandler = async () => {
+  const [{ releaseExpiredLeases }, { expireStaleApprovals }, { purgeExpiredOAuthStates }] =
+    await Promise.all([
+      import('../modules/customer-erp/event.service.js'),
+      import('../modules/customer-erp/approval.service.js'),
+      import('../modules/customer-erp/oauth.service.js'),
+    ]);
+
+  const released = await releaseExpiredLeases();
+  const expired = await expireStaleApprovals();
+  const purged = await purgeExpiredOAuthStates();
+
+  if (released > 0 || expired > 0 || purged > 0) {
+    logger.info({ released, expired, purged }, 'buyer ERP housekeeping');
+  }
+};
+
+/**
  * Run a scheduled connector sync.
  *
  * Always a real import, never a dry run: a scheduled sync exists to apply
@@ -524,6 +619,7 @@ const fxRateRefresh: JobHandler = async () => {
 export const HANDLERS: Readonly<Record<string, JobHandler>> = Object.freeze({
   [JobType.NOTIFICATION_SEND]: sendNotification,
   [JobType.RESERVATION_SWEEP]: sweepReservations,
+  [JobType.FULFILMENT_QUOTE_SWEEP]: sweepFulfilmentQuotes,
   [JobType.LOW_STOCK_CHECK]: lowStockCheck,
   [JobType.SCHEDULE_RUN]: runDueSchedules,
   [JobType.SCHEDULE_REMINDER]: scheduleReminders,
@@ -540,6 +636,9 @@ export const HANDLERS: Readonly<Record<string, JobHandler>> = Object.freeze({
   [JobType.FX_RATE_REFRESH]: fxRateRefresh,
   [JobType.DATA_REQUEST_FULFIL]: fulfilDataRequest,
   [JobType.RETENTION_SWEEP]: retentionSweep,
+  [JobType.CUSTOMER_ERP_DISPATCH]: customerErpDispatch,
+  [JobType.CUSTOMER_ERP_POLL]: customerErpPoll,
+  [JobType.CUSTOMER_ERP_MAINTENANCE]: customerErpMaintenance,
 });
 
 export function handlerFor(jobType: string): JobHandler | undefined {

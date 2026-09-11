@@ -53,6 +53,9 @@ import { registerCustomerPaymentMethodRoutes } from './routes/payment-methods.cu
 import { registerCustomerAutoPayRoutes } from './routes/autopay.customer.js';
 import { registerAdminErpRoutes } from './routes/erp.admin.js';
 import { registerErpWebhookRoutes } from './routes/erp-webhooks.js';
+import { registerCustomerErpRoutes } from './routes/customer-erp.customer.js';
+import { registerCustomerErpWebhookRoutes } from './routes/customer-erp-webhooks.js';
+import { registerAdminCustomerErpRoutes } from './routes/customer-erp.admin.js';
 import { registerAdminPaymentRoutes, registerPaymentRoutes } from './routes/payments.js';
 import { registerAdminNotificationRoutes } from './routes/notifications.admin.js';
 import { registerAdminReportRoutes, registerExportDownloadRoute } from './routes/reports.admin.js';
@@ -62,6 +65,8 @@ import { registerAssistantRoutes } from './routes/assistant.public.js';
 import { registerAdminAssistantRoutes } from './routes/assistant.admin.js';
 import { registerAdminCouponRoutes } from './routes/coupons.admin.js';
 import { registerPublicCatalogRoutes } from './routes/catalog.public.js';
+import { registerPublicDeliveryRoutes } from './routes/delivery.public.js';
+import { registerCustomerFulfilmentRoutes } from './routes/fulfilment.customer.js';
 import { registerHealthRoutes } from './routes/health.js';
 
 export const CORRELATION_HEADER = 'x-correlation-id';
@@ -84,6 +89,10 @@ const RAW_BODY_ROUTES = [
   // for every honest sender - key order and whitespace change on a JSON round
   // trip - and the usual "fix" for that is to stop verifying.
   `${API_PREFIX}/integrations/erp/webhooks/`,
+  // And a BUYER's own ERP, for exactly the same reason. Its own prefix because
+  // it is a separate feature with a separate owner and a separate secret - see
+  // `customer-erp-webhooks.ts`.
+  `${API_PREFIX}/erp-inbound/`,
 ];
 
 function shouldCaptureRawBody(url: string): boolean {
@@ -363,6 +372,10 @@ export async function buildApp() {
   // before anybody signs in.
   await app.register(registerPublicConfigRoutes, { prefix: API_PREFIX });
   await app.register(registerPublicCatalogRoutes, { prefix: `${API_PREFIX}/catalog` });
+  // Where we deliver. Public for the same reason the catalogue is: a buyer
+  // asks "can you get this to Belgium, and when" before they have an account,
+  // and an answer that waits for a sign-in is an answer given too late.
+  await app.register(registerPublicDeliveryRoutes, { prefix: `${API_PREFIX}/delivery` });
 
   // NOT public, despite sitting outside the customer block below. The chat
   // widget used to be open to anyone, with a contact form standing in for a
@@ -386,6 +399,17 @@ export async function buildApp() {
   // so there is no id-taking endpoint to forget an ownership check on.
   await app.register(registerCustomerAccountRoutes, { prefix: `${API_PREFIX}/account` });
   await app.register(registerCartRoutes, { prefix: `${API_PREFIX}/cart` });
+
+  // Which warehouse will send this order, when it arrives, and what it costs.
+  //
+  // Signed in, unlike /delivery/options above, and the difference is the
+  // question rather than the caution: that one answers "do you reach Belgium"
+  // from a country code before anybody has an account, and this one prices a
+  // particular person's basket to a particular address of theirs and writes
+  // down the offer. Both belong where they are.
+  await app.register(registerCustomerFulfilmentRoutes, {
+    prefix: `${API_PREFIX}/fulfilment`,
+  });
   await app.register(registerCustomerOrderRoutes, { prefix: `${API_PREFIX}/orders` });
   await app.register(registerAdminOrderRoutes, { prefix: `${API_PREFIX}/admin` });
 
@@ -423,6 +447,26 @@ export async function buildApp() {
   await app.register(registerErpWebhookRoutes, {
     prefix: `${API_PREFIX}/integrations`,
   });
+
+  // A BUYER's own ERP. The other direction entirely from the block above: this
+  // is a customer business connecting its own SAP, monday.com or in-house
+  // system so that what it buys here appears there. Owned by a buyer
+  // organisation rather than by this installation - see
+  // `modules/customer-erp/organization.service.ts` for the tenant boundary.
+  await app.register(registerCustomerErpRoutes, {
+    prefix: `${API_PREFIX}/account/integrations/erp`,
+  });
+
+  // Where a BUYER's ERP pushes to us. Same reasoning as the operator webhook
+  // above and a separate route for a separate owner: same shape, different
+  // table, different secret. Mounted outside /account so nothing here can end
+  // up behind the session guard by accident.
+  await app.register(registerCustomerErpWebhookRoutes, { prefix: API_PREFIX });
+
+  // Support monitoring for those connections. Read-only, and deliberately
+  // returns no credential, no hint, no endpoint path and no request body - see
+  // that file's header.
+  await app.register(registerAdminCustomerErpRoutes, { prefix: `${API_PREFIX}/admin` });
 
   await app.register(registerCustomerScheduleRoutes, {
     prefix: `${API_PREFIX}/recurring-schedules`,

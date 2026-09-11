@@ -27,6 +27,7 @@
  */
 import type { Prisma } from '../../generated/prisma/client.js';
 import { env } from '../../config/env.js';
+import { todayIn } from '../../domain/delivery-dates.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import {
   describeRule,
@@ -41,6 +42,7 @@ import {
   assertOccurrenceTransition,
   assertPlanTransition,
   isCustomerEditable,
+  isTerminalPlanStatus,
   type PlanStatusName,
   type ScheduleActorKind,
 } from '../../domain/schedule-state.js';
@@ -51,6 +53,7 @@ import { publicProductWhere } from '../catalog/catalog.visibility.js';
 import { isScheduleEligible } from '../catalog/recurring-eligibility.js';
 import { assertChargeable } from '../payments/payment-method.service.js';
 import { materialiseOccurrences, rematerialiseOccurrences } from './occurrence.service.js';
+import { assertDeliveryNotice } from './schedule-notice.js';
 
 export interface ScheduleActor {
   userId: string;
@@ -409,6 +412,33 @@ export async function createSchedule(
     );
   }
 
+  /*
+   * The notice period, measured against the FIRST DELIVERY.
+   *
+   * Not against `startDate`, and the difference only shows on a recurring
+   * plan: the start date is the anchor a cadence counts from, so "monthly on
+   * the 9th" anchored last March is an ordinary plan whose next box is weeks
+   * away rather than one eleven months overdue. What a buyer chooses, and
+   * what this rule governs, is when the first box arrives - which is
+   * `firstRun`, read as a calendar day on the plan's own clock.
+   *
+   * After the "in the past" check rather than before it, because the two
+   * answer different questions and the past one is the more basic: a date
+   * that has gone is not a notice-period problem, and telling somebody "we
+   * need a week" about last Tuesday would send them looking in the wrong
+   * direction.
+   *
+   * See `schedule-notice.ts` for the floor itself and for why the
+   * warehouse's own soonest delivery is the other half of it.
+   */
+  await assertDeliveryNotice(todayIn(timezone, firstRun), {
+    scheduleTimezone: timezone,
+    shippingAddressId: input.shippingAddressId,
+    customerProfileId: input.customerProfileId,
+    fulfilmentRule: input.fulfilmentRule ?? 'AUTO',
+    inventoryLocationId: input.inventoryLocationId ?? null,
+  });
+
   const scheduleId = newId();
   const now = new Date();
   const status: PlanStatusName = asDraft ? 'DRAFT' : 'ACTIVE';
@@ -721,6 +751,70 @@ function assertOutsideCutoff(schedule: {
       ],
     );
   }
+}
+
+/**
+ * The statuses in which the engine is holding this plan's basket.
+ *
+ * Narrow on purpose, and the boundary is exactly the moment the order is
+ * written. Up to then the engine has read the schedule's items and is about to
+ * charge for them, so a change would mean the customer is charged for one
+ * basket and sent another. After the order exists, the items are snapshotted
+ * on it and editing the plan cannot touch what was quoted.
+ *
+ * So this list is NOT "everything short of an outcome":
+ *
+ *   - `AWAITING_VALIDATION` is the window. The worker has claimed the slot and
+ *     `quoteSchedule` is reading the items.
+ *   - `PROCESSING` is the money moving. The order exists by then, so an edit is
+ *     already harmless - but it lasts seconds, and refusing for seconds costs
+ *     nothing next to being wrong about it.
+ *   - `PAYMENT_PENDING` and `ACTION_REQUIRED` are deliberately absent. Both sit
+ *     *after* the order is created: a payment link is out and unpaid, or Stripe
+ *     wants the cardholder. Either can last days, and a plan that could not be
+ *     edited while a link went unpaid would be a plan frozen by somebody else's
+ *     inbox.
+ */
+const IN_FLIGHT_OCCURRENCE_STATUSES = ['AWAITING_VALIDATION', 'PROCESSING'] as const;
+
+/**
+ * Refuse an edit while a delivery is mid-flight.
+ *
+ * The cutoff above is a clock; this is the fact. An occurrence the engine has
+ * claimed is being priced right now, and `nextRunAt` has usually already moved
+ * on to the following cycle - so the cutoff window for that next slot is wide
+ * open while the basket for this one is being read.
+ *
+ * Editing there is the failure this whole module exists to prevent: the
+ * customer changes a basket, the worker charges the basket it quoted a moment
+ * earlier, and the two disagree on a card statement.
+ *
+ * The refusal deliberately does not say the plan is broken. Nothing is: the
+ * change is a few minutes early, and the sentence says so and says what to do.
+ */
+async function assertNothingInFlight(scheduleId: string): Promise<void> {
+  const inFlight = await prisma.scheduleOccurrence.findFirst({
+    where: { scheduleId, status: { in: [...IN_FLIGHT_OCCURRENCE_STATUSES] } },
+    select: { id: true, plannedRunAt: true, status: true },
+  });
+
+  if (inFlight === null) return;
+
+  throw conflict(
+    ErrorCode.SCHEDULE_EDIT_CUTOFF_PASSED,
+    'A delivery from this schedule is being processed right now, so it cannot be changed. ' +
+      'Try again once that delivery has finished - your changes will apply to the ones after it.',
+    [
+      {
+        code: 'OCCURRENCE_IN_FLIGHT',
+        meta: {
+          occurrenceId: inFlight.id,
+          plannedRunAt: inFlight.plannedRunAt.toISOString(),
+          status: inFlight.status,
+        },
+      },
+    ],
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -1065,6 +1159,89 @@ export async function cancelSchedule(
   });
 }
 
+/**
+ * Clear a finished plan off the customer's own list.
+ *
+ * A soft delete, and the column's comment in the schema has the reasoning: the
+ * row is the record that somebody authorised recurring charges, and a customer
+ * tidying a list is not a reason to destroy the evidence behind a charge that
+ * may be disputed months later. It could not be a hard delete in any case -
+ * `orders` is ON DELETE RESTRICT, so a plan that has ever run cannot be removed
+ * without taking real orders with it.
+ *
+ * **Only a terminal plan may be hidden.** Hiding an ACTIVE or PAUSED plan would
+ * mean money leaving an account for an arrangement the customer can no longer
+ * see; hiding a FAILED one would hide a plan they are still allowed to resume;
+ * hiding a DRAFT would strand a review they can still confirm. This is the one
+ * rule in the function, it is refused with a sentence that says what to do
+ * instead, and the database enforces it a second time -
+ * `chk_schedule_hidden_only_when_terminal`.
+ *
+ * Idempotent. A plan that is already hidden is not an error: a retried request,
+ * a double-tap or a second tab all mean the same thing, and the customer's
+ * intent has already been carried out.
+ */
+export async function hideSchedule(
+  scheduleId: string,
+  actor: ScheduleActor,
+  customerProfileId: string | null,
+): Promise<{ hidden: true }> {
+  const schedule = await prisma.recurringSchedule.findFirst({
+    // The ownership check IS the where clause.
+    where: { id: scheduleId, ...(customerProfileId !== null ? { customerProfileId } : {}) },
+    select: { id: true, status: true, hiddenAt: true },
+  });
+
+  if (schedule === null) throw notFound('Schedule');
+
+  // Already done. Nothing to write and nothing to complain about.
+  if (schedule.hiddenAt !== null) return { hidden: true };
+
+  if (!isTerminalPlanStatus(schedule.status)) {
+    throw conflict(
+      ErrorCode.SCHEDULE_NOT_ACTIVE,
+      'Only a cancelled or finished schedule can be removed from your list. ' +
+        'Cancel this one first, and then remove it.',
+      [{ code: 'NOT_TERMINAL', meta: { status: schedule.status } }],
+    );
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.recurringSchedule.update({
+      where: { id: scheduleId },
+      data: { hiddenAt: new Date() },
+    });
+
+    await recordAudit(
+      {
+        action: AuditAction.SCHEDULE_HIDDEN,
+        resourceType: 'recurring_schedule',
+        resourceId: scheduleId,
+        actorType: actor.type,
+        actorUserId: actor.userId,
+        actorEmail: actor.email,
+        before: { hiddenAt: null, status: schedule.status },
+        after: { hiddenAt: new Date().toISOString(), status: schedule.status },
+        ipAddress: actor.ipAddress ?? null,
+        correlationId: actor.correlationId ?? null,
+      },
+      tx,
+    );
+  });
+
+  return { hidden: true };
+}
+
+/**
+ * The `where` fragment every customer-facing schedule read carries.
+ *
+ * One exported constant rather than a repeated literal, because the cost of
+ * forgetting it is not a cosmetic bug: a plan the customer removed reappearing
+ * on one screen out of four reads as the removal having silently failed. Admin
+ * reads deliberately do NOT use it - staff see everything.
+ */
+export const VISIBLE_TO_CUSTOMER = { hiddenAt: null } as const;
+
 // ---------------------------------------------------------------------------
 // Engine-driven plan transitions
 // ---------------------------------------------------------------------------
@@ -1205,6 +1382,17 @@ export interface UpdateScheduleInput {
   weekday?: number | null;
   monthDay?: number | null;
   runAtMinute?: number;
+  /**
+   * The wall clock the plan runs on.
+   *
+   * Changeable because it has to be: a schedule set up by a buyer in Kolkata
+   * and then handed to a colleague in Rotterdam runs at 06:00 in the wrong
+   * city, and the fix cannot be "cancel it and build another" when the
+   * alternative is one field. Changing it re-dates every upcoming delivery,
+   * for the same reason changing the frequency does - the dates on file were
+   * computed against a clock that no longer applies.
+   */
+  timezone?: string;
   /** Re-date a one-shot plan, or move a recurring plan's anchor. */
   startDate?: string;
   endDate?: string | null;
@@ -1258,10 +1446,19 @@ export async function updateSchedule(
   // phone call about a delivery going out tomorrow.
   if (actor.type === 'CUSTOMER' && schedule.status === 'ACTIVE') {
     assertOutsideCutoff(schedule);
+    await assertNothingInFlight(scheduleId);
   }
 
   const frequency = input.frequency ?? schedule.frequency;
   const isOneTime = !isRepeating(frequency);
+
+  const timezone = input.timezone ?? schedule.timezone;
+
+  if (input.timezone !== undefined && !isValidTimeZone(timezone)) {
+    throw badRequest(ErrorCode.RECURRENCE_RULE_INVALID, `Unknown timezone: ${timezone}`, [
+      { field: 'timezone', code: 'INVALID' },
+    ]);
+  }
 
   const rule = ruleFrom({
     frequency,
@@ -1269,7 +1466,7 @@ export async function updateSchedule(
     intervalMonths: input.intervalMonths ?? schedule.intervalMonths,
     weekday: input.weekday ?? schedule.weekday,
     monthDay: input.monthDay ?? schedule.monthDay,
-    timezone: schedule.timezone,
+    timezone,
     runAtMinute: input.runAtMinute ?? schedule.runAtMinute,
   });
 
@@ -1294,6 +1491,7 @@ export async function updateSchedule(
   if (input.weekday !== undefined) data.weekday = input.weekday;
   if (input.monthDay !== undefined) data.monthDay = input.monthDay;
   if (input.runAtMinute !== undefined) data.runAtMinute = input.runAtMinute;
+  if (input.timezone !== undefined) data.timezone = timezone;
   if (input.maxOccurrences !== undefined) data.maxOccurrences = input.maxOccurrences;
   if (input.payerEmail !== undefined) data.payerEmail = input.payerEmail;
   if (input.shippingMethodCode !== undefined) data.shippingMethodCode = input.shippingMethodCode;
@@ -1418,6 +1616,62 @@ export async function updateSchedule(
     await assertItemsSchedulable(input.items);
   }
 
+  /*
+   * The notice period, on an edit.
+   *
+   * Narrower than at creation, deliberately, and the narrowness is the point.
+   * Two cases bring it in:
+   *
+   *   - **The customer re-dated the first delivery.** They are asking for a
+   *     new date, so the rule that governs asking applies.
+   *   - **They changed where it ships from or to, on a plan that has not run
+   *     yet.** The floor is partly the warehouse's, so moving the warehouse
+   *     can move the floor out from under a date that was fine yesterday.
+   *
+   * It deliberately does NOT run on a plan that has already delivered. A
+   * standing order running since March has a start date months in the past -
+   * that is what a start date IS on a recurring plan, the anchor the cadence
+   * counts from - and holding a warehouse change hostage to a notice period
+   * measured against it would make an ordinary edit impossible. Nothing here
+   * re-dates or cancels an existing plan; it governs what may be asked for.
+   */
+  const firstDeliveryMoved = input.startDate !== undefined;
+  const destinationMoved =
+    schedule.occurrenceCount === 0 &&
+    (input.shippingAddressId !== undefined ||
+      input.fulfilmentRule !== undefined ||
+      input.inventoryLocationId !== undefined);
+
+  if (firstDeliveryMoved || destinationMoved) {
+    // The first delivery this change would produce, read as a calendar day on
+    // the plan's own clock - the same subject `createSchedule` checks, and
+    // for the same reason: the start date of a recurring plan is an anchor
+    // rather than a delivery.
+    //
+    // A rule that produces no dates at all is left to the check below, which
+    // says so properly; there is nothing for a notice period to measure.
+    const nextDelivery = isOneTime
+      ? oneTimeInstant(
+          input.startDate ?? schedule.startDate.toISOString().slice(0, 10),
+          input.runAtMinute ?? schedule.runAtMinute,
+          timezone,
+        )
+      : nextRunAt({ rule, startDate, lastRunAt: schedule.lastRunAt });
+
+    if (nextDelivery !== null) {
+      await assertDeliveryNotice(todayIn(timezone, nextDelivery), {
+        scheduleTimezone: timezone,
+        shippingAddressId: input.shippingAddressId ?? schedule.shippingAddressId,
+        customerProfileId: schedule.customerProfileId,
+        fulfilmentRule: input.fulfilmentRule ?? schedule.fulfilmentRule,
+        inventoryLocationId:
+          input.inventoryLocationId === undefined
+            ? schedule.inventoryLocationId
+            : input.inventoryLocationId,
+      });
+    }
+  }
+
   // --- The next run -----------------------------------------------------
   const ruleChanged =
     input.frequency !== undefined ||
@@ -1426,6 +1680,10 @@ export async function updateSchedule(
     input.weekday !== undefined ||
     input.monthDay !== undefined ||
     input.runAtMinute !== undefined ||
+    // A zone change moves every future instant even though no field of the
+    // rule itself changed. Leaving it out of this list is how a plan handed
+    // from Kolkata to Rotterdam keeps firing at the old city's 06:00.
+    input.timezone !== undefined ||
     input.startDate !== undefined ||
     input.endDate !== undefined;
 
@@ -1436,7 +1694,7 @@ export async function updateSchedule(
       ? oneTimeInstant(
           (input.startDate ?? schedule.startDate.toISOString().slice(0, 10)),
           input.runAtMinute ?? schedule.runAtMinute,
-          schedule.timezone,
+          timezone,
         )
       : nextRunAt({ rule, startDate, lastRunAt: schedule.lastRunAt });
 

@@ -5,6 +5,7 @@
  * means something about production. Where the shape drifts, the end-to-end
  * scripts catch it — these keep the component behaviour honest in between.
  */
+import type { WarehouseOption, WarehouseOptionsResponse } from '@/lib/fulfilment';
 import type { Cart, CartLine, Money, Product } from '@/lib/types';
 
 export function money(minor: string, currency = 'INR'): Money {
@@ -99,6 +100,93 @@ export function makeCart(overrides: Partial<Cart> = {}): Cart {
     requiresApproval: false,
     approvalReason: null,
     itemCount: lines.reduce((total, line) => total + line.quantity, 0),
+    ...overrides,
+  };
+}
+
+/**
+ * One warehouse's offer, as `POST /fulfilment/warehouse-options` returns it.
+ *
+ * The badges and the totals are fields rather than anything derived, which is
+ * the same rule the storefront follows: the server decides which option is
+ * fastest, cheapest and recommended, so a fixture that computed them would be
+ * testing an implementation the application does not have.
+ */
+export function makeWarehouseOption(overrides: Partial<WarehouseOption> = {}): WarehouseOption {
+  return {
+    quoteId: 'quote-pune-000000000000000',
+    // Far enough out that a test never races the expiry timer.
+    expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+    warehouse: {
+      id: 'wh-pune',
+      code: 'PNQ',
+      name: 'Pune Fulfilment Centre',
+      countryCode: 'IN',
+      countryName: 'India',
+      city: 'Pune',
+      operationalStatus: 'OPERATIONAL',
+    },
+    distanceKm: 12,
+    lines: [
+      {
+        productId: 'product-1',
+        variantId: null,
+        productName: 'Hex Bolt M12 x 60mm',
+        sku: 'HEX-M12-60',
+        quantity: 10,
+        availableQty: 500,
+        isStockTracked: true,
+        isFulfillable: true,
+      },
+    ],
+    carrier: { name: 'Delhivery', serviceLevel: 'Express' },
+    handlingDays: 1,
+    usesBusinessDays: true,
+    transitDays: { min: 2, max: 4 },
+    dispatchDate: '2026-09-14',
+    deliveryFromDate: '2026-09-16',
+    deliveryToDate: '2026-09-18',
+    meetsRequestedDate: null,
+    currency: 'INR',
+    totals: {
+      subtotal: money('45500'),
+      discount: money('0'),
+      tax: money('8190'),
+      shipping: money('12500'),
+      grandTotal: money('66190'),
+    },
+    isFastest: true,
+    isCheapest: false,
+    isRecommended: true,
+    ...overrides,
+  };
+}
+
+/**
+ * A whole answer.
+ *
+ * Defaults to the empty one — no options, nothing refused, nothing restricted
+ * — because that is what a deployment quoting no delivery zones returns, and
+ * it is the shape every test that is not about this feature wants.
+ */
+export function makeWarehouseOptions(
+  overrides: Partial<WarehouseOptionsResponse> = {},
+): WarehouseOptionsResponse {
+  return {
+    destination: {
+      countryCode: 'IN',
+      countryName: 'India',
+      postalCode: '411019',
+      addressId: 'addr-1',
+    },
+    isEstimate: false,
+    currency: 'INR',
+    options: [],
+    ineligible: [],
+    restrictedLines: [],
+    earliestDeliveryDate: null,
+    quoteTtlSeconds: 900,
+    computedAt: '2026-09-11T09:00:00.000Z',
     ...overrides,
   };
 }

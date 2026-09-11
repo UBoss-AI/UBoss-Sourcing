@@ -121,7 +121,9 @@ worth knowing about now, because they change what you see later:
 | `MAP_GOOGLE_API_KEY`, `MAP_GOOGLE_MAP_ID` | *(empty)* | Set both and the admin panel's Warehouses map is a Google map, vector-rendered with your own style. Needs a Google Cloud project with billing attached, and a browser key restricted to this panel's origin. See below. |
 | `MAP_STYLE_URL` | *(empty)* | A MapLibre style URL — vector tiles, and **the setting that puts every place name on the map in one language**. A keyless public one exists. See below. |
 | `MAP_TILE_URL` | *(empty)* | Raster tiles instead, from any XYZ service. Their place names arrive painted into the picture in the local language and cannot be changed. With every map setting empty the Warehouses map plots its markers on a plain ground, with no map behind them. That is a working state, and it is the private one — nothing is requested from anybody until you set one of these. See below. |
-| `DELIVERY_COVERAGE_RADIUS_KM` | `100` | How far the Warehouses map says a warehouse delivers. Drives the coverage ring and the "Delivers to" list of countries beside it. A commercial promise, so it is yours to set — and the country boundaries it is measured against ship with the software, so it needs no network. |
+| `DELIVERY_COVERAGE_RADIUS_KM` | `500` | How far a warehouse delivers **when the warehouse itself does not say**. Every warehouse carries its own radius on the warehouse form; this is the fallback for the ones that have not been given one, so changing it moves the whole business's promise at once. Drives the coverage ring, the "Delivers to" list beside it, and which warehouses the storefront offers a buyer. A commercial promise, so it is yours to set — and the country boundaries it is measured against ship with the software, so it needs no network. |
+| `SCHEDULE_MIN_NOTICE_DAYS` | `7` | How many calendar days of notice a scheduled order's **first delivery** needs, counted on the customer's own clock. The storefront's calendar greys out everything below it and the API refuses anything inside it, so this is what a buyer can actually pick. Zero is a real setting if you deliver from stock in the buyer's own city. |
+| `FULFILMENT_QUOTE_TTL_MINUTES` | `15` | How long a warehouse option at checkout stays an offer. Each option is a stored quote with an expiry, which is what makes the total on the card the total the customer is charged; the checkout page re-asks before it lapses. Shorter, and somebody reading the page loses their offer mid-decision; longer, and you are holding a price against stock that has moved. |
 | `FEATURE_SUBSCRIPTION_AUTOPAY` | `false` | With this off, customers can still schedule an order for a future date and still subscribe — each delivery is paid through a link emailed to them. Turn it on to let them save a card that is charged automatically, which needs Stripe connected. Storefront screens for saving a card are refused entirely while it is off. |
 | `ERP_ORDER_CONNECTION_NAME` | *(empty)* | With this empty, no order is pushed to an ERP. That is a working state: orders are created, paid and fulfilled exactly as they are with one. Set it to the **name** of an integration connection you have created and activated in the admin panel. |
 | `FEATURE_ERP_INTEGRATION` | `false` | With this off, **Settings → ERP** says so and does nothing else: the routes refuse, no polling job runs and the inbound webhook endpoint answers 404. Turn it on to connect an ERP from a screen rather than from environment variables — see below. |
@@ -173,6 +175,107 @@ is no deployment where it is the intended behaviour.
 ERP, built from `API_PUBLIC_URL`. If that is wrong, the address shown is wrong —
 so set it before anyone configures a connection. Over a tunnel (Part 3), it has
 to be the tunnel's URL, or the ERP will be told to call `localhost`.
+
+### Letting customers connect *their own* ERP
+
+A third thing, and the one most easily confused with the two above. Both of
+those are about **your** warehouse system. This one is about your **customers'**:
+a hospital group's SAP, a distributor's NetSuite, a clinic chain's Tally, a
+practice's in-house API. They connect it themselves, from **Account → ERP
+integration**, and what they get is their own purchase orders, goods receipts,
+invoices and payment references appearing in their own system without anybody
+re-keying them.
+
+The wizard offers a catalogue of twenty named systems — SAP S/4HANA and ECC,
+monday.com, Odoo, NetSuite, Oracle Fusion, Dynamics 365 (Business Central and
+F&O), SAP Business One, Zoho Inventory, Acumatica, QuickBooks Online, Sage X3,
+Epicor Kinetic, Infor ION, TCS iON, Tally Prime, Marg, Busy, and *any other
+system* — searchable by name. Nothing here needs configuring by the operator:
+the catalogue is data in the backend, and four connectors underneath it cover
+every entry. **The one exception is monday.com**, which needs an app registered
+by you before a customer can use it in production; see below.
+
+It is off by default:
+
+```
+FEATURE_CUSTOMER_ERP=true
+```
+
+With it off, the account screens are hidden, every customer-facing route refuses
+with `FEATURE_DISABLED`, no dispatch or polling job is enqueued, and the inbound
+webhook endpoint answers 404.
+
+**The tenant is the customer's business, not the customer.** A connection
+belongs to a *buyer organisation*, which is provisioned the first time somebody
+opens the integrations area and which other people join by invitation. That is
+why a connection configured by somebody who then leaves keeps working, and why
+their successor can fix it. Three roles: an **owner** manages access, an
+**integration manager** configures and runs the connection, and a **member** can
+see how it is doing. Nobody, at any role, can read back a credential.
+
+**Support can watch and cannot touch.** **Customer ERP** in the admin panel
+lists every customer connection with its state, its host, its failure count and
+the safe error message — enough to say "your firewall is refusing us" on a
+phone call. It shows no credentials, no hints, no endpoint paths, no field
+mappings and no request or response bodies, and it has no write actions at all.
+Acting against a system this business does not own, with a credential its
+customer supplied for their own purposes, is not something support should be
+able to do on somebody's behalf.
+
+| Setting | Default | What it does |
+|---|---|---|
+| `FEATURE_CUSTOMER_ERP` | `false` | The master switch described above. |
+| `CUSTOMER_ERP_MAX_CONNECTIONS_PER_ORG` | `5` | Connections one customer may hold. Room for a sandbox, a production system and a migration. |
+| `CUSTOMER_ERP_MAX_ATTEMPTS` | `6` | Attempts at one event before it needs a person. Every attempt reuses the same idempotency key, so this bounds noise rather than risking a duplicate. |
+| `CUSTOMER_ERP_RETRY_BASE_SECONDS` | `30` | First retry delay. Doubled each attempt, and overridden entirely by the customer's own `Retry-After`. |
+| `CUSTOMER_ERP_RETRY_MAX_SECONDS` | `3600` | The cap on that backoff. |
+| `CUSTOMER_ERP_FAILURE_THRESHOLD` | `5` | Consecutive failures before a connection is taken out of service until a test passes. |
+| `CUSTOMER_ERP_MAX_SYNC_RECORDS` | `5000` | Records read from a customer's ERP in one pass. The rest are taken next pass, from the stored cursor. |
+| `CUSTOMER_ERP_MAX_RESPONSE_BYTES` | `2097152` | Bytes of one response held in memory. |
+| `CUSTOMER_ERP_OAUTH_STATE_TTL_SECONDS` | `900` | How long an authorisation may stay in flight. |
+| `CUSTOMER_ERP_OAUTH_REDIRECT_URI` | *(empty)* | Where a customer's ERP sends them back to. Empty derives it from `API_PUBLIC_URL`, which is right for an ordinary deployment. Set it where a gateway's public address is not the API's own. |
+| `CUSTOMER_ERP_ALLOWED_HOST_SUFFIXES` | *(empty)* | Host suffixes a customer's address may end in. Empty means any publicly routable host — see below. |
+| `CUSTOMER_ERP_INVITE_TTL_HOURS` | `168` | How long an invitation to join an organisation stays valid. |
+| `MONDAY_OAUTH_CLIENT_ID` | *(empty)* | Your registered monday.com app — see below. |
+| `MONDAY_OAUTH_CLIENT_SECRET` | *(empty)* | Its secret. Must be set together with the id, or the process refuses to start. |
+| `MONDAY_OAUTH_SCOPES` | `boards:read boards:write workspaces:read me:read` | What customers are asked to grant. |
+
+**Registering a monday.com app is optional and changes what customers can do.**
+monday's production OAuth uses an app registered by *you*, not by each customer;
+every buyer authorises the same app. Without one, the monday connector offers
+only the personal-token path, which is restricted to **sandbox** connections —
+so a customer can try monday out and cannot run their business on it. Register
+an app at monday.com's developer centre, set the redirect URI to whatever
+`CUSTOMER_ERP_OAUTH_REDIRECT_URI` resolves to, and put the id and secret here.
+The secret is yours: no customer ever sees or types it.
+
+**SAP and custom connections need nothing from you.** Their OAuth client id and
+secret belong to the customer, are entered by them, and are encrypted per
+connection.
+
+**The host allowlist is a second lock, not the first one.** Every address a
+customer types is already refused unless it is HTTPS, resolves to a publicly
+routable address, and stays there — the hostname is resolved here, the socket is
+pinned to an address that passed, and every redirect target is re-checked. That
+is what makes it safe to let a customer supply an address at all. If your
+deployment additionally wants to restrict *which* hosts, set:
+
+```
+CUSTOMER_ERP_ALLOWED_HOST_SUFFIXES=.monday.com,.ondemand.com,erp.acme.example
+```
+
+A leading dot means the domain and its subdomains; anything else is an exact
+host. Leave it empty unless you have a reason — customers' ERPs live at
+addresses you cannot predict, and the address checks apply either way.
+
+**`ALLOW_PRIVATE_ERP_TARGETS` applies here too**, with the same production
+refusal. It is how you point a customer connection at a mock ERP on `localhost`
+during development.
+
+**The inbound address** a customer registers with their ERP is
+`{API_PUBLIC_URL}/api/v1/erp-inbound/{slug}` and is shown on their connection
+screen once they switch webhooks on. Same caveat as above: over a tunnel it has
+to be the tunnel's URL.
 
 **The warehouse map has five settings and no required one.** Leaving all of
 them empty is a deliberate default rather than something to tidy up: every
@@ -297,6 +400,31 @@ coordinates, time zones and varied operating and ERP-sync states, so the
 Warehouses map has something on it — alongside the plain default one. They are
 fixtures, not defaults: a real deployment creates its own on the Warehouses
 screen, and this repository never asserts where anybody's buildings are.
+
+They now carry a geofence too: a delivery radius, a lead-time window, a
+delivery fee and a handful of closed countries with real reasons, so the
+coverage panel and the storefront's delivery options have something to show. One
+of the four deliberately carries **no** radius of its own, because "this
+warehouse runs on the deployment default" is a state the screens say something
+different about and a fixture list has to produce it.
+
+**`db:seed` stocks every product at every warehouse**, and does two things to
+get there worth knowing about:
+
+- It creates a balance row for every stock-keeping unit at every active
+  warehouse, with a deterministic quantity — about one in nine lands on zero,
+  so "Athens is out of it, Antwerp has it" appears on the storefront's delivery
+  options without anybody editing stock by hand. Rows that already exist are
+  **left alone**: stock you received while testing is worth more than this
+  fixture's opinion. Each row it does create gets the matching `RECEIPT`
+  movement, so the ledger explains the balance.
+- It switches **stock tracking on** for any unarchived product that has it off,
+  and gives it a reorder threshold of 10. A product with `isStockTracked =
+  false` holds no quantity anywhere by definition, so a catalogue imported with
+  the flag off is a catalogue where every warehouse is empty and nothing on
+  screen explains why. This is the one place the seed edits the catalogue; it
+  says how many products it changed, and it only ever runs in development —
+  the seed refuses `NODE_ENV=production` outright.
 
 **`db:seed` is how new permissions reach an existing database.** Roles and
 permission keys live in `src/domain/permissions.ts` and are installed by the

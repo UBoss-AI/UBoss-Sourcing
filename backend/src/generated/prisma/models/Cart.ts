@@ -219,6 +219,7 @@ export type CartWhereInput = {
   items?: Prisma.CartItemListRelationFilter
   reservations?: Prisma.StockReservationListRelationFilter
   orders?: Prisma.OrderListRelationFilter
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteListRelationFilter
 }
 
 export type CartOrderByWithRelationInput = {
@@ -236,6 +237,7 @@ export type CartOrderByWithRelationInput = {
   items?: Prisma.CartItemOrderByRelationAggregateInput
   reservations?: Prisma.StockReservationOrderByRelationAggregateInput
   orders?: Prisma.OrderOrderByRelationAggregateInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteOrderByRelationAggregateInput
   _relevance?: Prisma.CartOrderByRelevanceInput
 }
 
@@ -257,6 +259,7 @@ export type CartWhereUniqueInput = Prisma.AtLeast<{
   items?: Prisma.CartItemListRelationFilter
   reservations?: Prisma.StockReservationListRelationFilter
   orders?: Prisma.OrderListRelationFilter
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteListRelationFilter
 }, "id" | "guestToken">
 
 export type CartOrderByWithAggregationInput = {
@@ -302,6 +305,7 @@ export type CartCreateInput = {
   items?: Prisma.CartItemCreateNestedManyWithoutCartInput
   reservations?: Prisma.StockReservationCreateNestedManyWithoutCartInput
   orders?: Prisma.OrderCreateNestedManyWithoutCartInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutCartInput
 }
 
 export type CartUncheckedCreateInput = {
@@ -317,6 +321,7 @@ export type CartUncheckedCreateInput = {
   items?: Prisma.CartItemUncheckedCreateNestedManyWithoutCartInput
   reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutCartInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCartInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutCartInput
 }
 
 export type CartUpdateInput = {
@@ -332,6 +337,7 @@ export type CartUpdateInput = {
   items?: Prisma.CartItemUpdateManyWithoutCartNestedInput
   reservations?: Prisma.StockReservationUpdateManyWithoutCartNestedInput
   orders?: Prisma.OrderUpdateManyWithoutCartNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutCartNestedInput
 }
 
 export type CartUncheckedUpdateInput = {
@@ -347,6 +353,7 @@ export type CartUncheckedUpdateInput = {
   items?: Prisma.CartItemUncheckedUpdateManyWithoutCartNestedInput
   reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutCartNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCartNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutCartNestedInput
 }
 
 export type CartCreateManyInput = {
@@ -537,6 +544,22 @@ export type CartUpdateOneWithoutOrdersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CartUpdateToOneWithWhereWithoutOrdersInput, Prisma.CartUpdateWithoutOrdersInput>, Prisma.CartUncheckedUpdateWithoutOrdersInput>
 }
 
+export type CartCreateNestedOneWithoutFulfilmentQuotesInput = {
+  create?: Prisma.XOR<Prisma.CartCreateWithoutFulfilmentQuotesInput, Prisma.CartUncheckedCreateWithoutFulfilmentQuotesInput>
+  connectOrCreate?: Prisma.CartCreateOrConnectWithoutFulfilmentQuotesInput
+  connect?: Prisma.CartWhereUniqueInput
+}
+
+export type CartUpdateOneWithoutFulfilmentQuotesNestedInput = {
+  create?: Prisma.XOR<Prisma.CartCreateWithoutFulfilmentQuotesInput, Prisma.CartUncheckedCreateWithoutFulfilmentQuotesInput>
+  connectOrCreate?: Prisma.CartCreateOrConnectWithoutFulfilmentQuotesInput
+  upsert?: Prisma.CartUpsertWithoutFulfilmentQuotesInput
+  disconnect?: Prisma.CartWhereInput | boolean
+  delete?: Prisma.CartWhereInput | boolean
+  connect?: Prisma.CartWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CartUpdateToOneWithWhereWithoutFulfilmentQuotesInput, Prisma.CartUpdateWithoutFulfilmentQuotesInput>, Prisma.CartUncheckedUpdateWithoutFulfilmentQuotesInput>
+}
+
 export type CartCreateNestedManyWithoutAppliedCouponInput = {
   create?: Prisma.XOR<Prisma.CartCreateWithoutAppliedCouponInput, Prisma.CartUncheckedCreateWithoutAppliedCouponInput> | Prisma.CartCreateWithoutAppliedCouponInput[] | Prisma.CartUncheckedCreateWithoutAppliedCouponInput[]
   connectOrCreate?: Prisma.CartCreateOrConnectWithoutAppliedCouponInput | Prisma.CartCreateOrConnectWithoutAppliedCouponInput[]
@@ -591,6 +614,7 @@ export type CartCreateWithoutReservationsInput = {
   appliedCoupon?: Prisma.CouponCreateNestedOneWithoutCartsInput
   items?: Prisma.CartItemCreateNestedManyWithoutCartInput
   orders?: Prisma.OrderCreateNestedManyWithoutCartInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutCartInput
 }
 
 export type CartUncheckedCreateWithoutReservationsInput = {
@@ -605,6 +629,7 @@ export type CartUncheckedCreateWithoutReservationsInput = {
   expiresAt?: Date | string | null
   items?: Prisma.CartItemUncheckedCreateNestedManyWithoutCartInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCartInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutCartInput
 }
 
 export type CartCreateOrConnectWithoutReservationsInput = {
@@ -635,6 +660,7 @@ export type CartUpdateWithoutReservationsInput = {
   appliedCoupon?: Prisma.CouponUpdateOneWithoutCartsNestedInput
   items?: Prisma.CartItemUpdateManyWithoutCartNestedInput
   orders?: Prisma.OrderUpdateManyWithoutCartNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutCartNestedInput
 }
 
 export type CartUncheckedUpdateWithoutReservationsInput = {
@@ -649,6 +675,7 @@ export type CartUncheckedUpdateWithoutReservationsInput = {
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   items?: Prisma.CartItemUncheckedUpdateManyWithoutCartNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCartNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutCartNestedInput
 }
 
 export type CartCreateWithoutCustomerProfileInput = {
@@ -663,6 +690,7 @@ export type CartCreateWithoutCustomerProfileInput = {
   items?: Prisma.CartItemCreateNestedManyWithoutCartInput
   reservations?: Prisma.StockReservationCreateNestedManyWithoutCartInput
   orders?: Prisma.OrderCreateNestedManyWithoutCartInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutCartInput
 }
 
 export type CartUncheckedCreateWithoutCustomerProfileInput = {
@@ -677,6 +705,7 @@ export type CartUncheckedCreateWithoutCustomerProfileInput = {
   items?: Prisma.CartItemUncheckedCreateNestedManyWithoutCartInput
   reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutCartInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCartInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutCartInput
 }
 
 export type CartCreateOrConnectWithoutCustomerProfileInput = {
@@ -732,6 +761,7 @@ export type CartCreateWithoutItemsInput = {
   appliedCoupon?: Prisma.CouponCreateNestedOneWithoutCartsInput
   reservations?: Prisma.StockReservationCreateNestedManyWithoutCartInput
   orders?: Prisma.OrderCreateNestedManyWithoutCartInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutCartInput
 }
 
 export type CartUncheckedCreateWithoutItemsInput = {
@@ -746,6 +776,7 @@ export type CartUncheckedCreateWithoutItemsInput = {
   expiresAt?: Date | string | null
   reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutCartInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCartInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutCartInput
 }
 
 export type CartCreateOrConnectWithoutItemsInput = {
@@ -776,6 +807,7 @@ export type CartUpdateWithoutItemsInput = {
   appliedCoupon?: Prisma.CouponUpdateOneWithoutCartsNestedInput
   reservations?: Prisma.StockReservationUpdateManyWithoutCartNestedInput
   orders?: Prisma.OrderUpdateManyWithoutCartNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutCartNestedInput
 }
 
 export type CartUncheckedUpdateWithoutItemsInput = {
@@ -790,6 +822,7 @@ export type CartUncheckedUpdateWithoutItemsInput = {
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutCartNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCartNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutCartNestedInput
 }
 
 export type CartCreateWithoutOrdersInput = {
@@ -804,6 +837,7 @@ export type CartCreateWithoutOrdersInput = {
   appliedCoupon?: Prisma.CouponCreateNestedOneWithoutCartsInput
   items?: Prisma.CartItemCreateNestedManyWithoutCartInput
   reservations?: Prisma.StockReservationCreateNestedManyWithoutCartInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutCartInput
 }
 
 export type CartUncheckedCreateWithoutOrdersInput = {
@@ -818,6 +852,7 @@ export type CartUncheckedCreateWithoutOrdersInput = {
   expiresAt?: Date | string | null
   items?: Prisma.CartItemUncheckedCreateNestedManyWithoutCartInput
   reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutCartInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutCartInput
 }
 
 export type CartCreateOrConnectWithoutOrdersInput = {
@@ -848,6 +883,7 @@ export type CartUpdateWithoutOrdersInput = {
   appliedCoupon?: Prisma.CouponUpdateOneWithoutCartsNestedInput
   items?: Prisma.CartItemUpdateManyWithoutCartNestedInput
   reservations?: Prisma.StockReservationUpdateManyWithoutCartNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutCartNestedInput
 }
 
 export type CartUncheckedUpdateWithoutOrdersInput = {
@@ -862,6 +898,83 @@ export type CartUncheckedUpdateWithoutOrdersInput = {
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   items?: Prisma.CartItemUncheckedUpdateManyWithoutCartNestedInput
   reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutCartNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutCartNestedInput
+}
+
+export type CartCreateWithoutFulfilmentQuotesInput = {
+  id: string
+  guestToken?: string | null
+  status?: $Enums.CartStatus
+  currency: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  expiresAt?: Date | string | null
+  customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutCartsInput
+  appliedCoupon?: Prisma.CouponCreateNestedOneWithoutCartsInput
+  items?: Prisma.CartItemCreateNestedManyWithoutCartInput
+  reservations?: Prisma.StockReservationCreateNestedManyWithoutCartInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCartInput
+}
+
+export type CartUncheckedCreateWithoutFulfilmentQuotesInput = {
+  id: string
+  customerProfileId?: string | null
+  guestToken?: string | null
+  status?: $Enums.CartStatus
+  currency: string
+  appliedCouponId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  expiresAt?: Date | string | null
+  items?: Prisma.CartItemUncheckedCreateNestedManyWithoutCartInput
+  reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutCartInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCartInput
+}
+
+export type CartCreateOrConnectWithoutFulfilmentQuotesInput = {
+  where: Prisma.CartWhereUniqueInput
+  create: Prisma.XOR<Prisma.CartCreateWithoutFulfilmentQuotesInput, Prisma.CartUncheckedCreateWithoutFulfilmentQuotesInput>
+}
+
+export type CartUpsertWithoutFulfilmentQuotesInput = {
+  update: Prisma.XOR<Prisma.CartUpdateWithoutFulfilmentQuotesInput, Prisma.CartUncheckedUpdateWithoutFulfilmentQuotesInput>
+  create: Prisma.XOR<Prisma.CartCreateWithoutFulfilmentQuotesInput, Prisma.CartUncheckedCreateWithoutFulfilmentQuotesInput>
+  where?: Prisma.CartWhereInput
+}
+
+export type CartUpdateToOneWithWhereWithoutFulfilmentQuotesInput = {
+  where?: Prisma.CartWhereInput
+  data: Prisma.XOR<Prisma.CartUpdateWithoutFulfilmentQuotesInput, Prisma.CartUncheckedUpdateWithoutFulfilmentQuotesInput>
+}
+
+export type CartUpdateWithoutFulfilmentQuotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  guestToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCartStatusFieldUpdateOperationsInput | $Enums.CartStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  customerProfile?: Prisma.CustomerProfileUpdateOneWithoutCartsNestedInput
+  appliedCoupon?: Prisma.CouponUpdateOneWithoutCartsNestedInput
+  items?: Prisma.CartItemUpdateManyWithoutCartNestedInput
+  reservations?: Prisma.StockReservationUpdateManyWithoutCartNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCartNestedInput
+}
+
+export type CartUncheckedUpdateWithoutFulfilmentQuotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  customerProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  guestToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCartStatusFieldUpdateOperationsInput | $Enums.CartStatus
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  appliedCouponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  items?: Prisma.CartItemUncheckedUpdateManyWithoutCartNestedInput
+  reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutCartNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCartNestedInput
 }
 
 export type CartCreateWithoutAppliedCouponInput = {
@@ -876,6 +989,7 @@ export type CartCreateWithoutAppliedCouponInput = {
   items?: Prisma.CartItemCreateNestedManyWithoutCartInput
   reservations?: Prisma.StockReservationCreateNestedManyWithoutCartInput
   orders?: Prisma.OrderCreateNestedManyWithoutCartInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteCreateNestedManyWithoutCartInput
 }
 
 export type CartUncheckedCreateWithoutAppliedCouponInput = {
@@ -890,6 +1004,7 @@ export type CartUncheckedCreateWithoutAppliedCouponInput = {
   items?: Prisma.CartItemUncheckedCreateNestedManyWithoutCartInput
   reservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutCartInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCartInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedCreateNestedManyWithoutCartInput
 }
 
 export type CartCreateOrConnectWithoutAppliedCouponInput = {
@@ -941,6 +1056,7 @@ export type CartUpdateWithoutCustomerProfileInput = {
   items?: Prisma.CartItemUpdateManyWithoutCartNestedInput
   reservations?: Prisma.StockReservationUpdateManyWithoutCartNestedInput
   orders?: Prisma.OrderUpdateManyWithoutCartNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutCartNestedInput
 }
 
 export type CartUncheckedUpdateWithoutCustomerProfileInput = {
@@ -955,6 +1071,7 @@ export type CartUncheckedUpdateWithoutCustomerProfileInput = {
   items?: Prisma.CartItemUncheckedUpdateManyWithoutCartNestedInput
   reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutCartNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCartNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutCartNestedInput
 }
 
 export type CartUncheckedUpdateManyWithoutCustomerProfileInput = {
@@ -991,6 +1108,7 @@ export type CartUpdateWithoutAppliedCouponInput = {
   items?: Prisma.CartItemUpdateManyWithoutCartNestedInput
   reservations?: Prisma.StockReservationUpdateManyWithoutCartNestedInput
   orders?: Prisma.OrderUpdateManyWithoutCartNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUpdateManyWithoutCartNestedInput
 }
 
 export type CartUncheckedUpdateWithoutAppliedCouponInput = {
@@ -1005,6 +1123,7 @@ export type CartUncheckedUpdateWithoutAppliedCouponInput = {
   items?: Prisma.CartItemUncheckedUpdateManyWithoutCartNestedInput
   reservations?: Prisma.StockReservationUncheckedUpdateManyWithoutCartNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCartNestedInput
+  fulfilmentQuotes?: Prisma.FulfilmentQuoteUncheckedUpdateManyWithoutCartNestedInput
 }
 
 export type CartUncheckedUpdateManyWithoutAppliedCouponInput = {
@@ -1027,12 +1146,14 @@ export type CartCountOutputType = {
   items: number
   reservations: number
   orders: number
+  fulfilmentQuotes: number
 }
 
 export type CartCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   items?: boolean | CartCountOutputTypeCountItemsArgs
   reservations?: boolean | CartCountOutputTypeCountReservationsArgs
   orders?: boolean | CartCountOutputTypeCountOrdersArgs
+  fulfilmentQuotes?: boolean | CartCountOutputTypeCountFulfilmentQuotesArgs
 }
 
 /**
@@ -1066,6 +1187,13 @@ export type CartCountOutputTypeCountOrdersArgs<ExtArgs extends runtime.Types.Ext
   where?: Prisma.OrderWhereInput
 }
 
+/**
+ * CartCountOutputType without action
+ */
+export type CartCountOutputTypeCountFulfilmentQuotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FulfilmentQuoteWhereInput
+}
+
 
 export type CartSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1082,6 +1210,7 @@ export type CartSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   items?: boolean | Prisma.Cart$itemsArgs<ExtArgs>
   reservations?: boolean | Prisma.Cart$reservationsArgs<ExtArgs>
   orders?: boolean | Prisma.Cart$ordersArgs<ExtArgs>
+  fulfilmentQuotes?: boolean | Prisma.Cart$fulfilmentQuotesArgs<ExtArgs>
   _count?: boolean | Prisma.CartCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["cart"]>
 
@@ -1106,6 +1235,7 @@ export type CartInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   items?: boolean | Prisma.Cart$itemsArgs<ExtArgs>
   reservations?: boolean | Prisma.Cart$reservationsArgs<ExtArgs>
   orders?: boolean | Prisma.Cart$ordersArgs<ExtArgs>
+  fulfilmentQuotes?: boolean | Prisma.Cart$fulfilmentQuotesArgs<ExtArgs>
   _count?: boolean | Prisma.CartCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1117,6 +1247,7 @@ export type $CartPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     items: Prisma.$CartItemPayload<ExtArgs>[]
     reservations: Prisma.$StockReservationPayload<ExtArgs>[]
     orders: Prisma.$OrderPayload<ExtArgs>[]
+    fulfilmentQuotes: Prisma.$FulfilmentQuotePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1482,6 +1613,7 @@ export interface Prisma__CartClient<T, Null = never, ExtArgs extends runtime.Typ
   items<T extends Prisma.Cart$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Cart$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CartItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reservations<T extends Prisma.Cart$reservationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Cart$reservationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   orders<T extends Prisma.Cart$ordersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Cart$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  fulfilmentQuotes<T extends Prisma.Cart$fulfilmentQuotesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Cart$fulfilmentQuotesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FulfilmentQuotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1975,6 +2107,30 @@ export type Cart$ordersArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   distinct?: Prisma.OrderScalarFieldEnum | Prisma.OrderScalarFieldEnum[]
+}
+
+/**
+ * Cart.fulfilmentQuotes
+ */
+export type Cart$fulfilmentQuotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FulfilmentQuote
+   */
+  select?: Prisma.FulfilmentQuoteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FulfilmentQuote
+   */
+  omit?: Prisma.FulfilmentQuoteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FulfilmentQuoteInclude<ExtArgs> | null
+  where?: Prisma.FulfilmentQuoteWhereInput
+  orderBy?: Prisma.FulfilmentQuoteOrderByWithRelationInput | Prisma.FulfilmentQuoteOrderByWithRelationInput[]
+  cursor?: Prisma.FulfilmentQuoteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FulfilmentQuoteScalarFieldEnum | Prisma.FulfilmentQuoteScalarFieldEnum[]
 }
 
 /**

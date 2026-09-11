@@ -19,8 +19,48 @@ import type { Cart } from '@/lib/types';
 
 const fetchMock = vi.fn();
 
+/**
+ * The delivery-options answer, for the panel under the order summary.
+ *
+ * Empty on purpose: the panel renders "we do not deliver there yet" and gets
+ * out of the way, which is exactly what these tests want from it. Its own
+ * answers are covered by `delivery-options.test.ts` in the backend.
+ */
+const NO_DELIVERY_OPTIONS = {
+  destination: { countryCode: 'IN', countryName: 'India' },
+  options: [],
+  partial: [],
+  closedByOperator: 0,
+  computedAt: '2026-09-10T00:00:00.000Z',
+};
+
 beforeEach(() => {
-  vi.stubGlobal('fetch', fetchMock);
+  /*
+   * The delivery-options request is answered before `fetchMock` ever sees it.
+   *
+   * `POST /delivery/options` is a *read* wearing a POST - the basket does not
+   * fit in a query string - and every mock in this file routes on the method.
+   * Two things went wrong without this, and both are the kind that make a
+   * dozen unrelated tests fail at once:
+   *
+   *   - The panel was handed `{ cart }`, and reading `destination` off that
+   *     throws during render, which takes the whole page down. Six tests
+   *     failed looking for the Autopay panel that never got to mount.
+   *   - Every test that reads its own mutation spy's *first* call found this
+   *     request instead of the one it clicked a button for.
+   *
+   * Intercepting here rather than in each of the six `mockImplementation`
+   * blocks below is what keeps them about the cart. A test that genuinely
+   * wants to drive the panel can still override `fetch` itself.
+   */
+  vi.stubGlobal('fetch', (url: string, init?: RequestInit) => {
+    if ((init?.method ?? 'GET') !== 'GET' && url.includes('/delivery/options')) {
+      return Promise.resolve(jsonResponse(NO_DELIVERY_OPTIONS));
+    }
+
+    return fetchMock(url, init) as Promise<Response>;
+  });
+
   fetchMock.mockReset();
 });
 

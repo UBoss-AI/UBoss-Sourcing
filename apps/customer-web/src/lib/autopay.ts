@@ -1,12 +1,13 @@
 /**
  * The Account -> Automatic payment API, as this app calls it.
  *
- * All that is left of a larger surface. An earlier draft let each customer
- * connect their own ERP from here; that moved to Settings -> ERP in the admin
- * panel, because a connection is a URL plus a credential the server then calls
- * and creating one belongs to whoever already runs the installation. Auto-pay
- * stayed, and had to: nobody can consent on somebody else's behalf to money
- * leaving their account.
+ * Auto-pay only. A customer connecting their OWN ERP lives in
+ * `lib/customer-erp.ts` and Account -> ERP integration; the two were once the
+ * same surface and are now separate features with separate tenants, separate
+ * credentials and separate screens.
+ *
+ * Auto-pay belongs to the customer and has to: nobody can consent on somebody
+ * else's behalf to money leaving their account.
  *
  * Amounts cross this boundary as STRINGS of minor units, and are converted by
  * string arithmetic at both ends. `12.34 * 100` is 1233.9999999999998, and a

@@ -35,6 +35,7 @@ import { serialiseMoney } from '../../domain/money.js';
 import { prisma } from '../../infra/prisma.js';
 import { NO_VARIANT_KEY } from '../../infra/ids.js';
 import { assertWithinSizeLimit, sniffImageType } from '../../infra/storage/index.js';
+import { getAvailabilityMap } from '../../modules/inventory/inventory.service.js';
 import { requireCustomer } from '../plugins/auth.js';
 import {
   AssistantBusyError,
@@ -152,6 +153,24 @@ const listQuerySchema = filterQuerySchema.extend({
   page: z.coerce.number().int().min(1).max(1000).default(1),
   limit: z.coerce.number().int().min(1).max(60).default(24),
   sort: z.enum(['newest', 'price_asc', 'price_desc', 'name_asc', 'name_desc']).default('newest'),
+});
+
+/**
+ * How many product cards one answer may show.
+ *
+ * Six is the ceiling the assistant is told to keep to and twelve is what this
+ * route will resolve, so a reply that overshoots renders a long-but-bounded
+ * row rather than being cut off in a way that reads as a broken answer.
+ */
+const MAX_PRODUCT_CARDS = 12;
+
+/** References, plus the same market questions every other read here asks. */
+const cardQuerySchema = z.object({
+  /** Comma-separated slugs or product codes. */
+  refs: z.string().trim().max(2_000).default(''),
+  currency: z.string().trim().length(3).optional(),
+  country: z.string().trim().max(8).optional(),
+  language: z.string().trim().max(10).optional(),
 });
 
 const detailQuerySchema = z.object({
@@ -810,6 +829,143 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
        */
       taxNote: shelf.setup.context.reason,
       soldInCurrencies: soldIn,
+    });
+  });
+
+  // --- Verified product cards ----------------------------------------------
+
+  /**
+   * Resolve a handful of product references into verified catalogue rows.
+   *
+   * This exists because of what AI Mode renders. The assistant is grounded in
+   * a snapshot of this catalogue and it ends an answer about specific products
+   * with a reference line of slugs. Those references are the ONLY thing the
+   * storefront takes from the model: it never renders a name, a price, a stock
+   * figure or - above all - an image URL that arrived in generated text. It
+   * brings the references here, and what is drawn on the card is what this
+   * route says, read from the database under the same `publicProductWhere()`
+   * every other storefront read uses.
+   *
+   * So a model that invents a product code produces no card at all rather than
+   * a plausible-looking one. On a catalogue of cannulae and feeding tubes that
+   * distinction is the whole feature: an invented SKU is somebody ordering the
+   * wrong device.
+   *
+   * References may be slugs, product codes, or a variant's product code -
+   * those are the three identifiers the snapshot puts in front of the model,
+   * and it quotes whichever the customer used. Anything unresolved is named in
+   * `unresolved` rather than silently dropped, so the caller can say "one of
+   * these is no longer listed" instead of quietly showing fewer cards than the
+   * answer mentioned.
+   *
+   * Public, like the rest of this file, and capped at twelve references: it is
+   * one indexed read, but it is also a route anybody can call.
+   */
+  app.get('/product-cards', async (request, reply) => {
+    const query = cardQuerySchema.parse(request.query);
+    const currency = await currencyForRequest(query.currency);
+    const language = languageForRequest(query.language);
+    const shelf = await loadShelfContext(query.country);
+
+    // De-duplicated but order-preserving: the assistant lists its references
+    // most relevant first, and that order is the recommendation.
+    const refs = [
+      ...new Set(
+        query.refs
+          .split(',')
+          .map((ref) => ref.trim())
+          .filter((ref) => ref.length > 0 && ref.length <= 255),
+      ),
+    ].slice(0, MAX_PRODUCT_CARDS);
+
+    if (refs.length === 0) {
+      return reply
+        .status(200)
+        .send({ products: [], unresolved: [], currency, country: shelf.country });
+    }
+
+    const products = await prisma.product.findMany({
+      where: {
+        ...publicProductWhere(),
+        OR: [
+          { slug: { in: refs } },
+          { sku: { in: refs } },
+          // A model asked for "the 22G one" answers with the variant's own
+          // product code, which is what the snapshot showed it.
+          { variants: { some: { sku: { in: refs }, isActive: true, archivedAt: null } } },
+        ],
+      },
+      select: publicProductSelect(language),
+      take: MAX_PRODUCT_CARDS,
+    });
+
+    const prices = await loadPricesForCurrency(
+      products.flatMap((product) => [
+        { productId: product.id, variantId: null },
+        ...product.variants.map((variant) => ({ productId: product.id, variantId: variant.id })),
+      ]),
+      currency,
+    );
+
+    /*
+     * How many of each there are to sell.
+     *
+     * The card says whether it can be had now, and it has to be able to say
+     * the right thing: a card promising availability the cart then refuses has
+     * cost the buyer a click and some trust. An untracked product reports
+     * `null`, which means "we do not count these" and not "there are none" -
+     * the card renders no stock line for those rather than an alarming zero.
+     */
+    const availability = await getAvailabilityMap(
+      products
+        .filter((product) => product.isStockTracked)
+        .map((product) => ({ productId: product.id, variantId: null })),
+    );
+
+    const lowered = refs.map((ref) => ref.toLowerCase());
+
+    /** Which reference found this product, so the caller can keep its order. */
+    const refFor = (product: (typeof products)[number]): string | null => {
+      const candidates = [
+        product.slug.toLowerCase(),
+        product.sku.toLowerCase(),
+        ...product.variants.map((variant) => variant.sku.toLowerCase()),
+      ];
+
+      let best: number | null = null;
+      for (const candidate of candidates) {
+        const at = lowered.indexOf(candidate);
+        if (at !== -1 && (best === null || at < best)) best = at;
+      }
+
+      return best === null ? null : (refs[best] ?? null);
+    };
+
+    const rank = (ref: string | null): number => (ref === null ? refs.length : refs.indexOf(ref));
+
+    const cards = products
+      .map((product) => {
+        const base = prices.get(priceKey(product.id, null)) ?? null;
+        const available = availability.get(`${product.id}:${NO_VARIANT_KEY}`) ?? 0;
+
+        return {
+          matchedRef: refFor(product),
+          ...serialiseProduct(product, currency, base, prices, shelf),
+          availability: product.isStockTracked
+            ? { isStockTracked: true, inStock: available > 0, availableQty: available }
+            : { isStockTracked: false, inStock: true, availableQty: null },
+        };
+      })
+      .sort((a, b) => rank(a.matchedRef) - rank(b.matchedRef));
+
+    const matched = new Set(cards.map((card) => card.matchedRef));
+
+    return reply.status(200).send({
+      products: cards,
+      /** Named, not dropped: the caller owes the reader an honest count. */
+      unresolved: refs.filter((ref) => !matched.has(ref)),
+      currency,
+      country: shelf.country,
     });
   });
 

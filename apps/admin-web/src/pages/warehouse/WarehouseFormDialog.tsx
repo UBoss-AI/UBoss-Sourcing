@@ -19,8 +19,16 @@
  * explains - stock still held, the default cannot go - and those belong on a
  * confirmation the reader has to answer, not on a checkbox that submits with
  * everything else. See `WarehousesPage`.
+ *
+ * **The geofence is in here, and the two halves of it are kept apart.** The
+ * radius says how far this warehouse *can* reach, measured against real
+ * country boundaries. The closed-country list says where it *will not* go,
+ * whatever the radius reaches. They are separate fields because they are
+ * separate decisions: raising a radius next year must not quietly re-open a
+ * country somebody deliberately shut, and the form says so rather than leaving
+ * it to be discovered.
  */
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Modal } from '@/components/Modal';
 import {
@@ -31,9 +39,12 @@ import {
   FieldGroup,
   Input,
   Select,
+  Spinner,
 } from '@/components/ui';
+import { CountryFlag } from '@/components/CountryFlag';
 import { ApiError, api } from '@/lib/api';
 import { nullIfBlank } from '@/lib/forms';
+import { majorToMinor } from '@/lib/format';
 import { translateKey, useI18n } from '@/i18n/i18n-context';
 import { OPERATIONAL_STATUSES, operationalLabelKey } from '@/lib/warehouses';
 import type {
@@ -41,7 +52,22 @@ import type {
   GeocodeResponse,
   OperationalStatus,
   Warehouse,
+  WorldCountriesResponse,
 } from '@/lib/warehouses';
+
+/** One country closed on this warehouse, as the form holds it. */
+interface ExclusionDraft {
+  code: string;
+  reason: string;
+}
+
+interface CurrencyRow {
+  code: string;
+  name: string;
+  symbol: string;
+  exponent: number;
+  isBase: boolean;
+}
 
 interface Draft {
   code: string;
@@ -58,6 +84,23 @@ interface Draft {
   operationalStatus: OperationalStatus;
   erpExternalId: string;
   isDefault: boolean;
+
+  /**
+   * The geofence, as text.
+   *
+   * Every one of these is a string in the draft even though four of them are
+   * numbers on the wire, and that is the same rule the coordinates above
+   * follow: an empty box and a zero are different instructions, and a
+   * `number | null` field cannot hold "somebody is halfway through typing".
+   * They are parsed once, on submit.
+   */
+  deliveryRadiusKm: string;
+  leadTimeMinDays: string;
+  leadTimeMaxDays: string;
+  /** Major units, as typed - "12.50". Shifted to minor on submit. */
+  deliveryFeeMajor: string;
+  deliveryFeeCurrency: string;
+  excludedCountries: ExclusionDraft[];
 }
 
 function emptyDraft(): Draft {
@@ -77,6 +120,15 @@ function emptyDraft(): Draft {
     operationalStatus: 'OPERATIONAL',
     erpExternalId: '',
     isDefault: false,
+    // Empty, so a new warehouse starts on the deployment's default radius
+    // rather than on a number this form invented. The hint beside the field
+    // says what that default is.
+    deliveryRadiusKm: '',
+    leadTimeMinDays: '',
+    leadTimeMaxDays: '',
+    deliveryFeeMajor: '',
+    deliveryFeeCurrency: '',
+    excludedCountries: [],
   };
 }
 
@@ -100,6 +152,7 @@ function timezoneOptions(): string[] {
 
 function draftFrom(warehouse: Warehouse): Draft {
   const address = warehouse.address ?? {};
+  const delivery = warehouse.delivery;
 
   return {
     code: warehouse.code,
@@ -118,6 +171,36 @@ function draftFrom(warehouse: Warehouse): Draft {
     operationalStatus: warehouse.operationalStatus,
     erpExternalId: warehouse.erp.externalId ?? '',
     isDefault: warehouse.isDefault,
+
+    /*
+     * Empty when the warehouse has no radius of its own.
+     *
+     * `delivery.radiusKm` is never null - the server resolves the fallback
+     * for every reader - so the *number* here would put the deployment's
+     * default into the box, and saving would turn a warehouse that follows
+     * the default into one that has been pinned to today's value of it.
+     * `radiusIsDefault` is the flag that tells the two apart, which is
+     * exactly what it exists for.
+     */
+    deliveryRadiusKm: delivery.radiusIsDefault ? '' : String(delivery.radiusKm),
+    leadTimeMinDays: delivery.leadTimeDays === null ? '' : String(delivery.leadTimeDays.min),
+    leadTimeMaxDays: delivery.leadTimeDays === null ? '' : String(delivery.leadTimeDays.max),
+    /*
+     * The server's own rendering, not a conversion done here.
+     *
+     * `formatted` is the major-unit string the server produced from the minor
+     * units *knowing the currency's exponent* - "12.50" for 1250 EUR, "1250"
+     * for 1250 JPY - so reading the fee back into the box needs no exponent in
+     * this file at all, and cannot get it wrong for the two zero-decimal
+     * currencies this deployment carries. Writing it back does need the
+     * exponent, which is why `submit` waits for the currency list.
+     */
+    deliveryFeeMajor: delivery.fee?.formatted ?? '',
+    deliveryFeeCurrency: delivery.fee?.currency ?? '',
+    excludedCountries: delivery.excludedCountries.map((country) => ({
+      code: country.code,
+      reason: country.reason ?? '',
+    })),
   };
 }
 
@@ -133,15 +216,41 @@ function parseCoordinate(value: string): number | null {
   return Number(trimmed);
 }
 
+/**
+ * A typed whole number, or null for "left empty".
+ *
+ * Deliberately returns `NaN` for a typo rather than null, the same way
+ * `parseCoordinate` does: null is an instruction to the server ("clear this"),
+ * and letting "12a" arrive as null would silently wipe a warehouse's radius
+ * instead of telling the person what they typed. `localProblem` is what turns
+ * the `NaN` into a message.
+ */
+function parseWholeNumber(value: string): number | null {
+  const trimmed = value.trim();
+  if (trimmed.length === 0) return null;
+  return /^\d+$/.test(trimmed) ? Number(trimmed) : Number.NaN;
+}
+
 interface WarehouseFormDialogProps {
   /** The warehouse being corrected, or null when one is being created. */
   editing: Warehouse | null;
+  /**
+   * `DELIVERY_COVERAGE_RADIUS_KM`, for the hint under the radius field.
+   *
+   * Passed in rather than defaulted here, and that is the same rule the rest
+   * of this screen follows: how far the business delivers belongs to whoever
+   * runs the installation, and a number this bundle invented would tell an
+   * operator their empty radius box means 500 km when it means whatever they
+   * configured. The page already has it from the warehouses response.
+   */
+  defaultRadiusKm: number;
   onClose: () => void;
   onSaved: (warehouse: Warehouse, wasCreated: boolean) => void;
 }
 
 export function WarehouseFormDialog({
   editing,
+  defaultRadiusKm,
   onClose,
   onSaved,
 }: WarehouseFormDialogProps): React.JSX.Element {
@@ -152,6 +261,8 @@ export function WarehouseFormDialog({
   );
   const [formError, setFormError] = useState<string | null>(null);
   const [lookupNote, setLookupNote] = useState<string | null>(null);
+  /** What is typed into the closed-country search. Not part of the draft. */
+  const [exclusionSearch, setExclusionSearch] = useState('');
 
   const set = <K extends keyof Draft>(key: K, value: Draft[K]): void => {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -173,7 +284,130 @@ export function WarehouseFormDialog({
     staleTime: 10 * 60 * 1000,
   });
 
+  /**
+   * Every country there is, for the closed-country picker.
+   *
+   * A different list from `countries` above, and that is the point of having
+   * two endpoints. That one is the countries this deployment *prices in* - the
+   * right list for "where is this building". This is the ISO 3166-1 list,
+   * because a 500 km circle reaches countries nobody has ever sold into and
+   * those are exactly the ones an operator most wants to close.
+   *
+   * A day's cache: it is a list of countries, not of anything this deployment
+   * owns, and the server sends the same header.
+   */
+  const worldCountries = useQuery({
+    queryKey: ['world-countries'],
+    queryFn: () => api.get<WorldCountriesResponse>('/admin/inventory/world-countries'),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+
+  /**
+   * The currencies, for the delivery fee.
+   *
+   * From the public config, which is the same list the storefront prices in -
+   * so a fee cannot be quoted in a currency the shop cannot render. The
+   * *exponent* is the field that matters here: it is what turns "12.50" into
+   * 1250, and it is 0 rather than 2 for yen and won.
+   */
+  const config = useQuery({
+    queryKey: ['storefront-config'],
+    queryFn: () =>
+      api.get<{ localisation: { currencies: CurrencyRow[]; baseCurrency: string } }>('/config'),
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const currencies = useMemo(() => config.data?.localisation.currencies ?? [], [config.data]);
+
+  /**
+   * How many decimal places this currency has.
+   *
+   * Null rather than a fallback of 2, deliberately. A wrong exponent
+   * mis-scales money by a factor of a hundred, and "we have not been told yet"
+   * has to be distinguishable from "two" - so the submit path refuses to shift
+   * an amount it cannot shift correctly rather than guessing at it. See
+   * `localProblem`.
+   */
+  const exponentFor = (code: string): number | null =>
+    currencies.find((entry) => entry.code === code)?.exponent ?? null;
+
   const zones = timezoneOptions();
+
+  /** The codes already closed, for the picker to grey out. */
+  const closedCodes = new Set(draft.excludedCountries.map((entry) => entry.code));
+
+  const closeCountry = (code: string): void => {
+    setDraft((current) =>
+      current.excludedCountries.some((entry) => entry.code === code)
+        ? current
+        : {
+            ...current,
+            excludedCountries: [...current.excludedCountries, { code, reason: '' }],
+          },
+    );
+    // The search box is cleared so the next country can be found by typing
+    // rather than by deleting somebody else's name first.
+    setExclusionSearch('');
+  };
+
+  const reopenCountry = (code: string): void => {
+    setDraft((current) => ({
+      ...current,
+      excludedCountries: current.excludedCountries.filter((entry) => entry.code !== code),
+    }));
+  };
+
+  const setExclusionReason = (code: string, reason: string): void => {
+    setDraft((current) => ({
+      ...current,
+      excludedCountries: current.excludedCountries.map((entry) =>
+        entry.code === code ? { ...entry, reason } : entry,
+      ),
+    }));
+  };
+
+  /**
+   * The picker's suggestions.
+   *
+   * Only offered once something has been typed, and capped at eight. A list of
+   * 250 countries under a text box is a scroll container that hides the rest
+   * of the form; eight is enough that the country somebody means is in it
+   * after two or three letters.
+   */
+  const exclusionMatches = ((): { code: string; name: string }[] => {
+    const term = exclusionSearch.trim().toLowerCase();
+    if (term.length === 0) return [];
+
+    return (worldCountries.data?.countries ?? [])
+      .filter(
+        (country) =>
+          !closedCodes.has(country.code) &&
+          (country.name.toLowerCase().includes(term) || country.code.toLowerCase() === term),
+      )
+      .slice(0, 8);
+  })();
+
+  /** A closed country's name, for the chip. Its code until the list arrives. */
+  const nameOf = (code: string): string =>
+    worldCountries.data?.countries.find((country) => country.code === code)?.name ?? code;
+
+  /**
+   * The typed fee in minor units, or null when it cannot be shifted exactly.
+   *
+   * Null covers three different situations that all mean the same thing to the
+   * caller - do not send this: the box is empty, what is in it is not an
+   * amount, or the currency's exponent is not known yet. `localProblem` tells
+   * the first apart from the other two, because an empty box is not an error.
+   */
+  const feeMinor = (): string | null => {
+    const typed = draft.deliveryFeeMajor.trim();
+    if (typed === '') return null;
+
+    const exponent = exponentFor(draft.deliveryFeeCurrency.trim());
+    if (exponent === null) return null;
+
+    return majorToMinor(typed, exponent);
+  };
 
   const addressQuery = (): string =>
     [draft.line1, draft.line2, draft.city, draft.region, draft.postalCode, draft.countryCode]
@@ -240,6 +474,30 @@ export function WarehouseFormDialog({
         operationalStatus: draft.operationalStatus,
         erpExternalId: nullIfBlank(draft.erpExternalId),
         isDefault: draft.isDefault,
+
+        /*
+         * The geofence. Every field is `null` when its box is empty, never
+         * omitted, and the difference matters on a PATCH: the server treats
+         * absent as "leave it alone" and null as "clear it". A form that
+         * omitted an emptied box could never take a radius back off a
+         * warehouse.
+         */
+        deliveryRadiusKm: parseWholeNumber(draft.deliveryRadiusKm),
+        deliveryLeadTimeMinDays: parseWholeNumber(draft.leadTimeMinDays),
+        deliveryLeadTimeMaxDays: parseWholeNumber(draft.leadTimeMaxDays),
+        // `localProblem` has already refused a fee that cannot be shifted
+        // exactly, so `feeMinor()` cannot be null by the time this runs.
+        deliveryFeeMinor: feeMinor(),
+        deliveryFeeCurrency: draft.deliveryFeeMajor.trim() === ''
+          ? null
+          : nullIfBlank(draft.deliveryFeeCurrency),
+        // The whole list, so removing one closes the difference on the server
+        // in the same write. A blank reason is sent as null rather than as an
+        // empty string.
+        excludedCountries: draft.excludedCountries.map((entry) => ({
+          code: entry.code,
+          reason: nullIfBlank(entry.reason),
+        })),
       };
 
       return editing === null
@@ -283,6 +541,52 @@ export function WarehouseFormDialog({
 
     if (longitude !== null && (!Number.isFinite(longitude) || longitude < -180 || longitude > 180)) {
       return t('warehouses.form.longitudeRange');
+    }
+
+    // --- The geofence -----------------------------------------------------
+
+    const radius = parseWholeNumber(draft.deliveryRadiusKm);
+    if (radius !== null && (!Number.isFinite(radius) || radius < 1 || radius > 2000)) {
+      return t('warehouses.form.deliveryRadiusRange');
+    }
+
+    const leadMin = parseWholeNumber(draft.leadTimeMinDays);
+    const leadMax = parseWholeNumber(draft.leadTimeMaxDays);
+
+    // Both or neither: half a range is a promise with no end.
+    if ((leadMin === null) !== (leadMax === null)) {
+      return t('warehouses.form.leadTimePaired');
+    }
+
+    for (const value of [leadMin, leadMax]) {
+      if (value !== null && (!Number.isFinite(value) || value < 0 || value > 365)) {
+        return t('warehouses.form.leadTimeRange');
+      }
+    }
+
+    if (leadMin !== null && leadMax !== null && leadMin > leadMax) {
+      return t('warehouses.form.leadTimeOrder');
+    }
+
+    if (draft.deliveryFeeMajor.trim() !== '') {
+      if (draft.deliveryFeeCurrency.trim() === '') {
+        return t('warehouses.form.deliveryFeeCurrencyRequired');
+      }
+
+      /*
+       * A fee that cannot be shifted *exactly* is refused here.
+       *
+       * Two ways that happens, and neither may be guessed at. The typed
+       * amount may not be a valid one - "12.5.0", "-3", "1,250" - and it may
+       * carry more decimals than the currency has, which is the case a
+       * rounding would silently swallow: 12.505 EUR is not an amount, and
+       * accepting it as 1250 or 1251 is inventing a fee nobody typed.
+       *
+       * A null exponent means the currency list has not arrived yet. The
+       * amount is not shifted on a guess of two - it would be wrong by a
+       * factor of a hundred for yen - so the button waits instead.
+       */
+      if (feeMinor() === null) return t('warehouses.form.deliveryFeeInvalid');
     }
 
     return null;
@@ -572,6 +876,227 @@ export function WarehouseFormDialog({
               )}
             </div>
           </div>
+        </FieldGroup>
+
+        {/* The geofence. Read as one thing by an operator - "500 km, two to
+            four days, twelve euro" - so the three sit together, with the
+            closed-country list under them because it is the exception to what
+            they promise. */}
+        <FieldGroup
+          legend={t('warehouses.form.deliveryLegend')}
+          hint={t('warehouses.form.deliveryHint')}
+        >
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <Field
+              label={t('warehouses.form.deliveryRadiusKm')}
+              hint={t('warehouses.form.deliveryRadiusHint', { km: defaultRadiusKm })}
+            >
+              {({ inputId, describedBy }) => (
+                <Input
+                  id={inputId}
+                  aria-describedby={describedBy}
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={2000}
+                  // Not `placeholder={defaultRadiusKm}`: a greyed-out 500 in an
+                  // empty box reads as a value that is already set, which is
+                  // the one thing this field must not say. The hint carries
+                  // the default in words instead.
+                  placeholder=""
+                  value={draft.deliveryRadiusKm}
+                  onChange={(event) => {
+                    set('deliveryRadiusKm', event.target.value);
+                  }}
+                />
+              )}
+            </Field>
+
+            <Field label={t('warehouses.form.leadTimeMin')}>
+              {({ inputId }) => (
+                <Input
+                  id={inputId}
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  max={365}
+                  value={draft.leadTimeMinDays}
+                  onChange={(event) => {
+                    set('leadTimeMinDays', event.target.value);
+                  }}
+                />
+              )}
+            </Field>
+
+            <Field
+              label={t('warehouses.form.leadTimeMax')}
+              hint={t('warehouses.form.leadTimeHint')}
+            >
+              {({ inputId, describedBy }) => (
+                <Input
+                  id={inputId}
+                  aria-describedby={describedBy}
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  max={365}
+                  value={draft.leadTimeMaxDays}
+                  onChange={(event) => {
+                    set('leadTimeMaxDays', event.target.value);
+                  }}
+                />
+              )}
+            </Field>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="sm:col-span-2">
+              <Field
+                label={t('warehouses.form.deliveryFee')}
+                hint={t('warehouses.form.deliveryFeeHint')}
+              >
+                {({ inputId, describedBy }) => (
+                  <Input
+                    id={inputId}
+                    aria-describedby={describedBy}
+                    // Text, not `type="number"`: money is typed with a decimal
+                    // point and a number input's own rounding and locale
+                    // handling are exactly what a money field must not have.
+                    // `majorToMinor` is the only thing that parses it.
+                    inputMode="decimal"
+                    placeholder="12.50"
+                    value={draft.deliveryFeeMajor}
+                    onChange={(event) => {
+                      set('deliveryFeeMajor', event.target.value);
+                    }}
+                  />
+                )}
+              </Field>
+            </div>
+
+            <Field label={t('warehouses.form.deliveryFeeCurrency')}>
+              {({ inputId }) => (
+                <Select
+                  id={inputId}
+                  value={draft.deliveryFeeCurrency}
+                  onChange={(event) => {
+                    set('deliveryFeeCurrency', event.target.value);
+                  }}
+                >
+                  <option value="">{t('warehouses.form.currencyChoose')}</option>
+                  {currencies.map((currency) => (
+                    <option key={currency.code} value={currency.code}>
+                      {currency.code}
+                    </option>
+                  ))}
+                </Select>
+              )}
+            </Field>
+          </div>
+        </FieldGroup>
+
+        <FieldGroup
+          legend={t('warehouses.form.excludedLegend')}
+          hint={t('warehouses.form.excludedHint')}
+        >
+          <Field
+            label={t('warehouses.form.excludedSearch')}
+            // Spread rather than `hint={cond ? x : undefined}`: `hint` is
+            // `?: string` and this project runs
+            // `exactOptionalPropertyTypes`, under which a key present with the
+            // value `undefined` is not the same as an absent key.
+            {...(exclusionSearch.trim().length > 0 && exclusionMatches.length === 0
+              ? { hint: t('warehouses.form.excludedNoMatch') }
+              : {})}
+          >
+            {({ inputId, describedBy }) => (
+              <Input
+                id={inputId}
+                aria-describedby={describedBy}
+                type="search"
+                placeholder={t('warehouses.form.excludedSearchPlaceholder')}
+                value={exclusionSearch}
+                onChange={(event) => {
+                  setExclusionSearch(event.target.value);
+                }}
+              />
+            )}
+          </Field>
+
+          {worldCountries.isPending && (
+            <p className="mt-2 flex items-center gap-2 text-xs text-ink-muted">
+              <Spinner className="h-3 w-3" />
+              {t('warehouses.form.excludedLoading')}
+            </p>
+          )}
+
+          {/* Suggestions only once something has been typed. See
+              `exclusionMatches` for why this is not a 250-row list. */}
+          {exclusionMatches.length > 0 && (
+            <ul className="mt-2 flex flex-wrap gap-1.5">
+              {exclusionMatches.map((country) => (
+                <li key={country.code}>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => {
+                      closeCountry(country.code);
+                    }}
+                  >
+                    <CountryFlag code={country.code} className="mr-1.5 h-3 w-4" />
+                    {country.name}
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {draft.excludedCountries.length === 0 ? (
+            <p className="mt-3 text-xs text-ink-subtle">{t('warehouses.form.excludedNone')}</p>
+          ) : (
+            <ul className="mt-3 space-y-2">
+              {draft.excludedCountries.map((entry) => (
+                <li
+                  key={entry.code}
+                  className="rounded-md border border-danger/25 bg-danger-soft px-3 py-2"
+                >
+                  <div className="flex items-center gap-2">
+                    <CountryFlag code={entry.code} className="h-3 w-4 shrink-0" />
+                    <span className="min-w-0 flex-1 truncate text-sm font-medium text-ink">
+                      {nameOf(entry.code)}
+                    </span>
+                    <span className="font-mono text-xxs text-ink-subtle">{entry.code}</span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      // The country's name is in the label, not just "Remove":
+                      // a row of eight identical buttons is unusable with a
+                      // screen reader.
+                      aria-label={t('warehouses.form.excludedRemove', {
+                        name: nameOf(entry.code),
+                      })}
+                      onClick={() => {
+                        reopenCountry(entry.code);
+                      }}
+                    >
+                      ×
+                    </Button>
+                  </div>
+
+                  <Input
+                    className="mt-1.5"
+                    maxLength={256}
+                    aria-label={t('warehouses.form.excludedReason')}
+                    placeholder={t('warehouses.form.excludedReasonPlaceholder')}
+                    value={entry.reason}
+                    onChange={(event) => {
+                      setExclusionReason(entry.code, event.target.value);
+                    }}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
         </FieldGroup>
 
         <FieldGroup legend={t('warehouses.form.erpLegend')} hint={t('warehouses.form.erpHint')}>

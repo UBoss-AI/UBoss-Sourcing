@@ -49,7 +49,7 @@ import { isIP } from 'node:net';
 import { lookup as dnsLookup } from 'node:dns/promises';
 import type { LookupAddress } from 'node:dns';
 import { env } from '../config/env.js';
-import { ErrorCode, badRequest } from '../domain/errors.js';
+import { ErrorCode, badRequest, type ErrorCodeValue } from '../domain/errors.js';
 
 /** How many bytes of a response we are willing to hold in memory. */
 export const MAX_OUTBOUND_RESPONSE_BYTES = 2 * 1024 * 1024;
@@ -155,10 +155,74 @@ export interface SafeUrlOptions {
   /** Field name for the validation error, so a form can highlight the input. */
   field?: string;
   /**
+   * Whether this URL is a REQUEST url rather than a base address.
+   *
+   * A base URL with a query string is almost always a mistake - it is a
+   * setting, and `?page=1` stored in it would be silently carried onto every
+   * call - so the default is false and the rule below refuses it.
+   *
+   * A request URL is the opposite: paging puts its cursor in a query parameter
+   * on every style this platform speaks, so `/inventory?page=2` is the normal
+   * shape of a perfectly ordinary read. `safeFetch` sets this, because by the
+   * time a URL reaches it, it has already been built from a base and a path.
+   *
+   * A `#fragment` stays refused either way. It is never sent on the wire, so
+   * one in a URL this code is about to call means something built it wrong.
+   */
+  allowQuery?: boolean;
+  /**
    * Permit loopback and private targets. Set only from
    * `env.ALLOW_PRIVATE_ERP_TARGETS`, which cannot be true in production.
    */
   allowPrivate?: boolean;
+  /**
+   * An operator's allowlist of host suffixes, on top of everything else.
+   *
+   * Empty or absent means "any publicly routable host", which is what the
+   * address checks already enforce and is the right posture for a product sold
+   * to businesses whose ERPs live at addresses nobody here can predict. An
+   * operator with a stricter policy supplies a list and every buyer is held to
+   * it. A leading dot means "this domain and its subdomains"; anything else is
+   * an exact host.
+   *
+   * A second lock on top of the address rules, never a replacement for them: a
+   * hostname on the list still has to resolve to a public address, and still
+   * has that address pinned.
+   */
+  allowedHostSuffixes?: readonly string[];
+  /**
+   * Which published error code a refusal carries.
+   *
+   * The seller's ERP screens and the buyer's account screens map codes to
+   * messages separately, so a refusal from one must not arrive wearing the
+   * other's code. Defaults to the seller's, which is what every existing
+   * caller expects.
+   */
+  errorCode?: ErrorCodeValue;
+}
+
+/**
+ * Does this host satisfy an operator's allowlist?
+ *
+ * Exported because the endpoint check needs the same answer without repeating
+ * the suffix semantics, and two implementations of "is this host allowed" is
+ * one implementation too many.
+ */
+export function hostMatchesPolicy(
+  hostname: string,
+  allowedHostSuffixes: readonly string[],
+): boolean {
+  if (allowedHostSuffixes.length === 0) return true;
+
+  const host = hostname.toLowerCase();
+
+  return allowedHostSuffixes.some((entry) =>
+    entry.startsWith('.')
+      ? // `.example.com` admits `erp.example.com` and `example.com` itself,
+        // because an operator who lists a domain means the domain.
+        host === entry.slice(1) || host.endsWith(entry)
+      : host === entry,
+  );
 }
 
 export interface ResolvedTarget {
@@ -168,8 +232,13 @@ export interface ResolvedTarget {
   family: 4 | 6;
 }
 
-function reject(message: string, code: string, field: string): never {
-  throw badRequest(ErrorCode.ERP_URL_NOT_ALLOWED, message, [{ field, code }]);
+function reject(
+  message: string,
+  code: string,
+  field: string,
+  errorCode: ErrorCodeValue = ErrorCode.ERP_URL_NOT_ALLOWED,
+): never {
+  throw badRequest(errorCode, message, [{ field, code }]);
 }
 
 /**
@@ -185,21 +254,29 @@ export function assertSafeErpUrl(rawUrl: string, options: SafeUrlOptions = {}): 
   const field = options.field ?? 'baseUrl';
   const allowPrivate = options.allowPrivate ?? env.ALLOW_PRIVATE_ERP_TARGETS;
 
+  // Carries the caller's error code into every refusal below, so the seller's
+  // screens and the buyer's screens each get the code their catalogue maps.
+  const refuse: (message: string, code: string, refusalField: string) => never = (
+    message,
+    code,
+    refusalField,
+  ) => reject(message, code, refusalField, options.errorCode);
+
   let parsed: URL;
   try {
     parsed = new URL(rawUrl);
   } catch {
-    reject('Enter a full URL, including https://.', 'INVALID_URL', field);
+    refuse('Enter a full URL, including https://.', 'INVALID_URL', field);
   }
 
   if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
-    reject('Only http and https addresses can be used.', 'SCHEME_NOT_ALLOWED', field);
+    refuse('Only http and https addresses can be used.', 'SCHEME_NOT_ALLOWED', field);
   }
 
   // Credentials travel on every request this URL is used for. Plain HTTP puts
   // them on the wire in front of anybody on the path.
   if (parsed.protocol !== 'https:' && !allowPrivate) {
-    reject(
+    refuse(
       'The address must use HTTPS. Your credentials are sent with every request.',
       'HTTPS_REQUIRED',
       field,
@@ -210,7 +287,7 @@ export function assertSafeErpUrl(rawUrl: string, options: SafeUrlOptions = {}): 
   // meant to hold an address, where masking does not reach it and every log
   // line that prints the URL prints the password too.
   if (parsed.username !== '' || parsed.password !== '') {
-    reject(
+    refuse(
       'Put the username and password in the authentication section, not in the URL.',
       'CREDENTIALS_IN_URL',
       field,
@@ -218,25 +295,53 @@ export function assertSafeErpUrl(rawUrl: string, options: SafeUrlOptions = {}): 
   }
 
   if (parsed.hostname === '') {
-    reject('The address is missing a host name.', 'HOST_MISSING', field);
+    refuse('The address is missing a host name.', 'HOST_MISSING', field);
   }
 
   // A literal IP that is already private fails here without a DNS round trip.
   // A hostname is left to `resolveSafeTarget`.
   if (isIP(parsed.hostname) !== 0 && !allowPrivate && !isPubliclyRoutable(parsed.hostname)) {
-    reject(
+    refuse(
       'That address is on a private or reserved network and cannot be reached from here.',
       'PRIVATE_ADDRESS',
       field,
     );
   }
 
-  // A query string or fragment on a BASE url is almost always a mistake, and
-  // keeping them out means path joining has one obvious meaning.
-  if (parsed.search !== '' || parsed.hash !== '') {
-    reject(
+  // A query string on a BASE url is almost always a mistake, and keeping it out
+  // means path joining has one obvious meaning. On a REQUEST url it is how
+  // every paging style this platform speaks carries its cursor, so the rule is
+  // asked of base addresses only - see `allowQuery`.
+  if (parsed.search !== '' && options.allowQuery !== true) {
+    refuse(
       'The base address should not include a query string or a #fragment.',
       'BASE_URL_HAS_QUERY',
+      field,
+    );
+  }
+
+  // A fragment is refused either way: it is never sent on the wire, so one here
+  // means whatever built this URL built it wrong.
+  if (parsed.hash !== '') {
+    refuse(
+      'That address should not include a #fragment.',
+      'BASE_URL_HAS_QUERY',
+      field,
+    );
+  }
+
+  // The operator's allowlist, where there is one. Checked here so a typo is a
+  // form error rather than a job that fails an hour later, and checked again in
+  // `resolveSafeTarget` because passing this once says nothing about the
+  // redirect targets that follow.
+  if (
+    options.allowedHostSuffixes !== undefined &&
+    !hostMatchesPolicy(parsed.hostname, options.allowedHostSuffixes)
+  ) {
+    refuse(
+      'That address is outside the list of systems this store is allowed to call. ' +
+        'Ask your supplier which addresses are permitted.',
+      'HOST_NOT_ALLOWED',
       field,
     );
   }
@@ -259,9 +364,31 @@ export async function resolveSafeTarget(
   const field = options.field ?? 'baseUrl';
   const allowPrivate = options.allowPrivate ?? env.ALLOW_PRIVATE_ERP_TARGETS;
 
+  const refuse: (message: string, code: string, refusalField: string) => never = (
+    message,
+    code,
+    refusalField,
+  ) => reject(message, code, refusalField, options.errorCode);
+
+  // Re-checked here as well as at save time, because this function is what runs
+  // immediately before every request and a redirect target arrives here having
+  // been through nothing else. An operator's allowlist that only applied to the
+  // address somebody typed would be no allowlist at all.
+  if (
+    options.allowedHostSuffixes !== undefined &&
+    !hostMatchesPolicy(url.hostname, options.allowedHostSuffixes)
+  ) {
+    refuse(
+      'That address is outside the list of systems this store is allowed to call. ' +
+        'Ask your supplier which addresses are permitted.',
+      'HOST_NOT_ALLOWED',
+      field,
+    );
+  }
+
   if (isIP(url.hostname) !== 0) {
     if (!allowPrivate && !isPubliclyRoutable(url.hostname)) {
-      reject(
+      refuse(
         'That address is on a private or reserved network and cannot be reached from here.',
         'PRIVATE_ADDRESS',
         field,
@@ -274,7 +401,7 @@ export async function resolveSafeTarget(
   try {
     addresses = await dnsLookup(url.hostname, { all: true, verbatim: true });
   } catch {
-    reject(
+    refuse(
       'That host name could not be looked up. Check the spelling and that it is reachable.',
       'DNS_LOOKUP_FAILED',
       field,
@@ -282,14 +409,14 @@ export async function resolveSafeTarget(
   }
 
   if (addresses.length === 0) {
-    reject('That host name resolved to no addresses.', 'DNS_NO_RESULT', field);
+    refuse('That host name resolved to no addresses.', 'DNS_NO_RESULT', field);
   }
 
   if (!allowPrivate) {
     // Every answer, not the first. See the note above.
     const offending = addresses.find((entry) => !isPubliclyRoutable(entry.address));
     if (offending !== undefined) {
-      reject(
+      refuse(
         'That host name resolves to a private or reserved network address and cannot be ' +
           'reached from here.',
         'PRIVATE_ADDRESS',
@@ -300,7 +427,7 @@ export async function resolveSafeTarget(
 
   const chosen = addresses[0];
   if (chosen === undefined) {
-    reject('That host name resolved to no addresses.', 'DNS_NO_RESULT', field);
+    refuse('That host name resolved to no addresses.', 'DNS_NO_RESULT', field);
   }
 
   return { url, address: chosen.address, family: chosen.family === 6 ? 6 : 4 };
@@ -309,6 +436,20 @@ export async function resolveSafeTarget(
 // ---------------------------------------------------------------------------
 // The request itself
 // ---------------------------------------------------------------------------
+
+/**
+ * A client certificate to present during the TLS handshake.
+ *
+ * Some ERPs - SAP landscapes behind a corporate gateway most of all -
+ * authenticate the CALLER with a certificate rather than, or as well as, a
+ * token. The PEM bytes come out of the credential vault and live in memory for
+ * the duration of one request; nothing here writes them anywhere.
+ */
+export interface ClientCertificate {
+  certificatePem: string;
+  privateKeyPem: string;
+  passphrase?: string;
+}
 
 export interface SafeFetchOptions {
   method: string;
@@ -319,12 +460,32 @@ export interface SafeFetchOptions {
   /** Field name used if the URL turns out to be unacceptable. */
   field?: string;
   maxResponseBytes?: number;
+  /** An operator allowlist, applied to the target and to every redirect. */
+  allowedHostSuffixes?: readonly string[];
+  /** Which published error code a refusal carries. */
+  errorCode?: ErrorCodeValue;
+  /**
+   * Mutual TLS. Ignored for a plain-HTTP target, which cannot have a handshake
+   * to present it in - and which `assertSafeErpUrl` has already refused unless
+   * the deployment is a developer's own machine.
+   */
+  clientCertificate?: ClientCertificate;
 }
 
 export interface SafeFetchResult {
   status: number;
   /** Lower-cased header names. */
   headers: Record<string, string>;
+  /**
+   * `Set-Cookie`, unjoined.
+   *
+   * Its own field because it is the one header that legitimately appears more
+   * than once and whose values contain commas, so the joined form in `headers`
+   * cannot be split back apart. Needed by exactly one caller - SAP's OData
+   * services hand out a session cookie alongside the CSRF token and refuse the
+   * write that follows without both - and empty for everybody else.
+   */
+  setCookie: string[];
   /** Truncated at `maxResponseBytes`; `truncated` says whether that happened. */
   bodyText: string;
   truncated: boolean;
@@ -393,11 +554,31 @@ function requestOnce(
         },
         // SNI and certificate verification still key off the real hostname.
         ...(isHttps ? { servername: target.url.hostname } : {}),
+        // Mutual TLS, where the connection carries a certificate. `rejectUnauthorized`
+        // is deliberately left at its default of true: presenting our own
+        // certificate is no reason to stop checking theirs, and an option that
+        // turned that off would be the single most dangerous line in this file.
+        ...(isHttps && options.clientCertificate !== undefined
+          ? {
+              cert: options.clientCertificate.certificatePem,
+              key: options.clientCertificate.privateKeyPem,
+              ...(options.clientCertificate.passphrase === undefined
+                ? {}
+                : { passphrase: options.clientCertificate.passphrase }),
+            }
+          : {}),
       },
       (response) => {
         const headers: Record<string, string> = {};
+        const setCookie: string[] = [];
+
         for (const [key, value] of Object.entries(response.headers)) {
           if (value === undefined) continue;
+
+          if (key.toLowerCase() === 'set-cookie') {
+            setCookie.push(...(Array.isArray(value) ? value : [value]));
+          }
+
           headers[key.toLowerCase()] = Array.isArray(value) ? value.join(', ') : value;
         }
 
@@ -427,6 +608,7 @@ function requestOnce(
             resolve({
               status: response.statusCode ?? 0,
               headers,
+              setCookie,
               bodyText: Buffer.concat(chunks).toString('utf8'),
               truncated,
               finalUrl: target.url.toString(),
@@ -515,9 +697,25 @@ export async function safeFetch(
   let bodyForHop = options.body;
   let methodForHop = options.method;
 
+  // Everything the two validators need, assembled once so the redirect loop
+  // cannot accidentally apply a weaker policy on a later hop than the first.
+  const urlOptions: SafeUrlOptions = {
+    field,
+    allowPrivate,
+    // What arrives here is a REQUEST url - a base address with a path and,
+    // wherever the endpoint pages, a cursor in a query parameter. The
+    // no-query-string rule belongs to the address a customer TYPES, and is
+    // applied there, at save time.
+    allowQuery: true,
+    ...(options.allowedHostSuffixes === undefined
+      ? {}
+      : { allowedHostSuffixes: options.allowedHostSuffixes }),
+    ...(options.errorCode === undefined ? {} : { errorCode: options.errorCode }),
+  };
+
   for (let hop = 0; ; hop += 1) {
-    const parsed = assertSafeErpUrl(currentUrl, { field, allowPrivate });
-    const target = await resolveSafeTarget(parsed, { field, allowPrivate });
+    const parsed = assertSafeErpUrl(currentUrl, urlOptions);
+    const target = await resolveSafeTarget(parsed, urlOptions);
 
     const hopOptions: SafeFetchOptions = {
       ...options,

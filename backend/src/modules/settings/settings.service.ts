@@ -833,6 +833,32 @@ export async function getStorefrontConfig(): Promise<Record<string, unknown>> {
     },
 
     /**
+     * The rules the storefront has to draw a calendar and a warehouse list
+     * from, rather than hard-code.
+     *
+     * `scheduleMinNoticeDays` is what greys out the first fortnight of the
+     * delivery-date picker, and it is a deployment setting - a shop selling
+     * from stock in the buyer's own city sets it to zero. The browser is told
+     * the number for the same reason it is told the currency and the
+     * timezone: a figure baked into a bundle is a figure an operator cannot
+     * change.
+     *
+     * The picker still only *draws* the rule. The server refuses a date
+     * inside the window whatever the browser did with this, and the exact
+     * floor for a given address and warehouse comes from
+     * `GET /recurring-schedules/delivery-window`, which knows about lanes
+     * this endpoint has no business publishing to anonymous visitors.
+     *
+     * `fulfilmentQuoteTtlSeconds` lets the checkout page show how long the
+     * warehouse options it is displaying remain offers, and re-ask before
+     * they lapse rather than after.
+     */
+    fulfilment: {
+      scheduleMinNoticeDays: env.SCHEDULE_MIN_NOTICE_DAYS,
+      fulfilmentQuoteTtlSeconds: env.FULFILMENT_QUOTE_TTL_MINUTES * 60,
+    },
+
+    /**
      * What the chat widget has to say about itself before anyone types.
      *
      * AI Act Art. 50(1) obliges the deployer to inform a person that they are

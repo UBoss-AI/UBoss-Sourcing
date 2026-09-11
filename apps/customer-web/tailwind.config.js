@@ -150,6 +150,12 @@ export default {
       // shadow over a slate-tinted page ground reads as dirt.
       boxShadow: {
         card: '0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.05)',
+        // The bottom of the ladder: a track something else sits *in*, rather
+        // than a surface that sits on the page. The segmented control at the
+        // top of the cart uses it — the selected pill carries the card shadow
+        // and the trough it rides in carries this one, which is what makes the
+        // selection read as raised rather than merely tinted.
+        sunken: 'inset 0 1px 2px 0 rgb(15 23 42 / 0.05)',
         'card-hover':
           '0 2px 4px -1px rgb(15 23 42 / 0.06), 0 8px 20px -6px rgb(15 23 42 / 0.10)',
         lift: '0 4px 12px -2px rgb(15 23 42 / 0.10), 0 2px 6px -2px rgb(15 23 42 / 0.06)',

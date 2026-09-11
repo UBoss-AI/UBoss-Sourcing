@@ -22,6 +22,7 @@
  * point of a webhook test is that verification runs.
  */
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { earliestFirstDelivery } from '../support/schedule-dates.js';
 import { createHmac } from 'node:crypto';
 import { env } from '../../src/config/env.js';
 import { occurrenceIdempotencyKey } from '../../src/domain/schedule-state.js';
@@ -420,6 +421,9 @@ beforeEach(async () => {
     },
   });
 
+  // Once the store exists, because the notice period is counted on its clock.
+  earliestDelivery = await earliestFirstDelivery();
+
   const adminId = newId();
   await prisma.user.create({
     data: {
@@ -552,13 +556,16 @@ afterAll(async () => {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function tomorrow(): string {
-  return new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
-}
-
-function inDays(days: number): string {
-  return new Date(Date.now() + days * 86_400_000).toISOString().slice(0, 10);
-}
+/**
+ * The first date a plan's first delivery may be asked for.
+ *
+ * Resolved once per test in `beforeEach`, after the business profile exists,
+ * because the notice period is counted on the STORE's clock and the store is
+ * created there. Held in a variable rather than called from each config
+ * builder so the builders stay synchronous and the forty-odd call sites below
+ * do not each need an `await`.
+ */
+let earliestDelivery = '';
 
 async function fillCart(quantity = 10, profileId = customerProfileId): Promise<void> {
   await addItem(profileId, { productId, quantity });
@@ -577,7 +584,12 @@ function subscriptionConfig(overrides: Record<string, unknown> = {}) {
   return {
     frequency: 'WEEKLY' as const,
     weekday: 3,
-    startDate: inDays(7),
+    // The first date the notice period allows, which is also comfortably
+    // outside the 24-hour edit cutoff the comment above is about. It was
+    // `inDays(7)`, which is the same distance but measured on the UTC clock
+    // rather than the store's - a difference that only shows for a few hours
+    // a night, which is the worst kind of flaky.
+    startDate: earliestDelivery,
     runAtMinute: 360,
     shippingAddressId: addressId,
     paymentMode: 'AUTO_PAY' as const,
@@ -590,7 +602,10 @@ function subscriptionConfig(overrides: Record<string, unknown> = {}) {
 function buyLaterConfig(overrides: Record<string, unknown> = {}) {
   return {
     frequency: 'ONE_TIME' as const,
-    startDate: tomorrow(),
+    // Not tomorrow any more: a first delivery needs a week's notice, and Buy
+    // Later is the case where the rule bites hardest - the date the customer
+    // picks IS the delivery.
+    startDate: earliestDelivery,
     runAtMinute: 600,
     shippingAddressId: addressId,
     paymentMode: 'AUTO_PAY' as const,

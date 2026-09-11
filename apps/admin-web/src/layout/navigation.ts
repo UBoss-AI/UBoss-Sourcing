@@ -194,6 +194,18 @@ export const NAVIGATION: NavGroup[] = [
         matchPrefix: true,
       },
       {
+        // Customers' own ERP connections, for support. Its own entry rather
+        // than a tab inside Integrations because the two answer different
+        // questions - "is our gateway configured" against "is that customer's
+        // SAP reachable" - and somebody looking for the second would not think
+        // to open the first.
+        labelKey: 'nav.customerErp',
+        to: '/customer-erp',
+        icon: IntegrationsIcon,
+        permissions: [Permission.INTEGRATION_READ],
+        matchPrefix: true,
+      },
+      {
         labelKey: 'nav.staff',
         to: '/staff',
         icon: StaffIcon,

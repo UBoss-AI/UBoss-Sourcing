@@ -59,6 +59,22 @@ const addressSchema = z.object({
   state: z.string().trim().min(1).max(128),
   postalCode: z.string().trim().min(1).max(16),
   country: z.string().trim().length(2),
+  /**
+   * The clock this delivery point reads, as an IANA zone.
+   *
+   * Sent by the browser, which already knows it -
+   * `Intl.DateTimeFormat().resolvedOptions().timeZone` - and cannot be
+   * derived on the server: a country is not a zone, and the IP the request
+   * arrived on belongs to whoever is typing rather than to the address they
+   * are typing.
+   *
+   * What it decides is the customer's "today", which is what the
+   * seven-day delivery notice is counted from. Optional, and a missing or
+   * unrecognised value simply falls back - the plan's own zone, then the
+   * store's - rather than being refused: an address is worth having even
+   * from a browser that sent nothing.
+   */
+  timezone: z.string().trim().max(64).nullable().optional(),
   isDefaultBilling: z.boolean().optional(),
   isDefaultShipping: z.boolean().optional(),
 });
