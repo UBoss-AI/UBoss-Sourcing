@@ -42,7 +42,6 @@ import { useToast } from '@/components/toast-context';
 import { Badge, Button, ButtonLink } from '@/components/ui';
 import { AlertIcon, BoxIcon, CartIcon } from '@/components/icons';
 import { api } from '@/lib/api';
-import { cx } from '@/lib/cx';
 import { errorMessage } from '@/lib/errors';
 import { formatMoney, formatNumber } from '@/lib/format';
 import { clampToRules } from '@/lib/quantity-rules';
@@ -84,10 +83,16 @@ interface CardsResponse {
 /**
  * The frame a photograph sits in, and what goes there when there is none.
  *
+ * It sits down the right-hand edge of the card rather than across its top: a
+ * reply names products in a line of prose, and a stack of tall photographs
+ * under one answer pushes the rest of the transcript off the screen. A fixed
+ * square beside the words keeps each product to one glanceable row — the name
+ * and what it is on the left, the thing itself on the right.
+ *
  * `onError` matters more here than anywhere else in the storefront: a card is
  * drawn under a chat answer, often minutes after the reply arrived, and a
  * media file that has since been moved would otherwise leave a broken-image
- * glyph as the largest thing on the card. Falling back to the plated icon says
+ * glyph where the product should be. Falling back to the plated icon says
  * "there is no photograph", which is a true statement and not an alarming one.
  */
 function CardImage({ product }: { product: AiProductCard }): React.JSX.Element {
@@ -98,16 +103,16 @@ function CardImage({ product }: { product: AiProductCard }): React.JSX.Element {
   const showFallback = image === null || failed;
 
   return (
-    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-t-lg border-b border-border-subtle bg-surface-sunken">
+    <div className="relative aspect-square w-24 shrink-0 self-start overflow-hidden rounded-md border border-border-subtle bg-surface-sunken sm:w-32">
       {showFallback ? (
         <span
           aria-hidden="true"
           className="flex h-full w-full flex-col items-center justify-center gap-1.5 text-ink-subtle"
         >
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-surface ring-1 ring-inset ring-border">
-            <BoxIcon className="h-5 w-5" />
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-surface ring-1 ring-inset ring-border">
+            <BoxIcon className="h-4 w-4" />
           </span>
-          <span className="text-xxs font-medium uppercase tracking-wider">
+          <span className="hidden text-xxs font-medium uppercase tracking-wider sm:block">
             {t('productCard.noImageYet')}
           </span>
         </span>
@@ -117,14 +122,14 @@ function CardImage({ product }: { product: AiProductCard }): React.JSX.Element {
           // The name is the link directly below. Repeating it here makes a
           // screen reader read the product twice for one card.
           alt={image.altText ?? ''}
-          width={400}
-          height={300}
+          width={256}
+          height={256}
           loading="lazy"
           decoding="async"
           onError={() => {
             setFailed(true);
           }}
-          className="h-full w-full object-contain p-4 transition-transform duration-200 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+          className="h-full w-full object-contain p-2 transition-transform duration-200 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100 sm:p-3"
         />
       )}
     </div>
@@ -202,13 +207,14 @@ function ProductTile({ product }: { product: AiProductCard }): React.JSX.Element
           the product name. See `components/ProductCard.tsx`, which explains
           the pattern at length; this is the same one at card scale. */}
       <article
-        className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface
-                   shadow-card transition-[box-shadow,border-color] hover:border-border-hover hover:shadow-card-hover
+        className="group relative flex h-full items-start gap-3.5 overflow-hidden rounded-lg border border-border bg-surface
+                   p-3.5 shadow-card transition-[box-shadow,border-color] hover:border-border-hover hover:shadow-card-hover
                    focus-within:border-brand/40 focus-within:shadow-card-hover motion-reduce:transition-none"
       >
-        <CardImage product={product} />
-
-        <div className="flex min-w-0 flex-1 flex-col gap-1.5 p-3.5">
+        {/* Words first in the source, photograph second — the card reads left
+            to right on screen and top to bottom to a screen reader, and both
+            orders put the product's name before its picture. */}
+        <div className="flex min-w-0 flex-1 flex-col gap-1.5 self-stretch">
           <h4 className="text-sm font-semibold leading-snug text-ink">
             <Link
               to={`/product/${product.slug}`}
@@ -276,8 +282,11 @@ function ProductTile({ product }: { product: AiProductCard }): React.JSX.Element
             </p>
           )}
 
-          {/* Above the stretched link, or none of it would be clickable. */}
-          <div className="relative z-[1] mt-2 flex flex-col gap-1.5 border-t border-border-subtle pt-2.5">
+          {/* Above the stretched link, or none of it would be clickable.
+              Side by side rather than stacked: the card is a wide row now, and
+              two full-width buttons down a column that also holds the name and
+              the description would be the tallest thing in the transcript. */}
+          <div className="relative z-[1] mt-2 flex flex-wrap gap-1.5 border-t border-border-subtle pt-2.5">
             <ButtonLink
               // The specifications heading, which is the anchor the product
               // page actually carries. A product with no attributes has no
@@ -285,7 +294,6 @@ function ProductTile({ product }: { product: AiProductCard }): React.JSX.Element
               // which is the honest destination rather than a dead fragment.
               to={`/product/${product.slug}#specifications-heading`}
               size="sm"
-              fullWidth
               aria-label={t('aiProducts.viewSpecificationsOf', { product: product.name })}
             >
               {t('aiProducts.viewSpecifications')}
@@ -295,21 +303,20 @@ function ProductTile({ product }: { product: AiProductCard }): React.JSX.Element
               // A guest has no cart to add to. The product page is where
               // signing in is offered in context, rather than a button here
               // that can only bounce them.
-              <ButtonLink to={`/product/${product.slug}`} variant="primary" size="sm" fullWidth>
+              <ButtonLink to={`/product/${product.slug}`} variant="primary" size="sm">
                 {t('product.signInToOrder')}
               </ButtonLink>
             ) : needsOptions ? (
               // A product with options cannot be added from a card without
               // choosing one on the customer's behalf. It says which step is
               // next instead of guessing.
-              <ButtonLink to={`/product/${product.slug}`} variant="primary" size="sm" fullWidth>
+              <ButtonLink to={`/product/${product.slug}`} variant="primary" size="sm">
                 {t('product.chooseAnOption')}
               </ButtonLink>
             ) : (
               <Button
                 variant="action"
                 size="sm"
-                fullWidth
                 disabled={soldOut || unpriced}
                 isLoading={add.isPending}
                 onClick={() => {
@@ -323,24 +330,29 @@ function ProductTile({ product }: { product: AiProductCard }): React.JSX.Element
             )}
           </div>
         </div>
+
+        <CardImage product={product} />
       </article>
     </li>
   );
 }
 
-/** The card grid's own silhouette, so nothing reflows when data arrives. */
+/** The card list's own silhouette, so nothing reflows when data arrives. */
 function CardsSkeleton({ count }: { count: number }): React.JSX.Element {
   return (
-    <div aria-hidden="true" className={cx('grid gap-3', 'sm:grid-cols-2 lg:grid-cols-3')}>
+    <div aria-hidden="true" className="grid gap-3">
       {Array.from({ length: Math.min(count, 3) }, (_unused, index) => (
-        <div key={index} className="overflow-hidden rounded-lg border border-border bg-surface">
-          <div className="skeleton aspect-[4/3] w-full rounded-none" />
-          <div className="space-y-2 border-t border-border-subtle p-3.5">
+        <div
+          key={index}
+          className="flex items-start gap-3.5 overflow-hidden rounded-lg border border-border bg-surface p-3.5"
+        >
+          <div className="flex-1 space-y-2">
             <div className="skeleton h-4 w-4/5" />
             <div className="skeleton h-3 w-1/3" />
             <div className="skeleton h-3 w-full" />
-            <div className="skeleton h-7 w-full" />
+            <div className="skeleton h-7 w-2/3" />
           </div>
+          <div className="skeleton aspect-square w-24 shrink-0 sm:w-32" />
         </div>
       ))}
     </div>
@@ -420,7 +432,11 @@ export function AiProductCards({ refs }: { refs: readonly string[] }): React.JSX
 
       {query.isSuccess && query.data.products.length > 0 && (
         <>
-          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {/* One per row, whatever the width.
+              A card is a wide row now — name, description and actions beside
+              the photograph — so two of them side by side would be two narrow
+              columns of clipped text rather than two readable cards. */}
+          <ul className="grid gap-3">
             {query.data.products.map((product) => (
               <ProductTile key={product.id} product={product} />
             ))}

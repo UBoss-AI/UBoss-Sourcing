@@ -73,15 +73,6 @@ export const WEEKDAYS = [
   { value: 7, labelKey: 'scheduleBuilder.sunday' },
 ] as const satisfies readonly { value: number; labelKey: TranslationKey }[];
 
-/** Times of day offered, as minutes past midnight in the schedule's zone. */
-export const RUN_TIMES = [
-  { value: 360, label: '06:00' },
-  { value: 480, label: '08:00' },
-  { value: 600, label: '10:00' },
-  { value: 840, label: '14:00' },
-  { value: 1080, label: '18:00' },
-] as const;
-
 /** The day of the month a `YYYY-MM-DD` start date falls on. */
 export function dayOfMonthIn(startDate: string): number {
   const day = Number(startDate.slice(8, 10));

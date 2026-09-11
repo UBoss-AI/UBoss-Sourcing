@@ -1391,9 +1391,28 @@ better answer than a sentence claiming it.
 
 When a reply is about particular products — details, a recommendation, a
 comparison, a stand-in for something unavailable — the products appear as cards
-under the words, with the photograph, the name, the product code, the short
-description, the price, the availability, **View specifications** and **Add to
-cart**.
+under the words, with the name, the product code, the short description, the
+price, the availability, **View specifications** and **Add to cart**.
+
+**The words are the lead and the cards are the answer.** The system prompt asks
+for one or two sentences — about thirty words, fifty at the outside — and
+forbids walking through the products one at a time in prose. A name, a product
+code, a price, a pack size or a stock figure that a card already shows is not
+repeated above it, and a product on the reference line gets no `/product/…`
+path in the text either: the card *is* its link, and a path beside it is the
+same thing said twice. What the sentence is for is the part a card cannot
+carry — what was found, or what separates one from the next. Where somebody
+asks for one specific figure they are told it plainly; the rule is against
+reciting a card, not against answering.
+
+**A card is one wide row, not a tile.** The words are on the left and the
+photograph is a fixed square down the right-hand edge, and the cards stack one
+per row at every width. A reply names products in a line of prose, and a grid
+of tall tiles with the photograph across the top pushed the rest of the
+transcript off the screen — three products meant three pictures before three
+names. Beside the words the picture is a glance rather than the loudest thing
+in the answer. The source order is words first, so a screen reader reaches the
+product's name before its picture, which is the same order the eye takes.
 
 **The one thing taken from generated text is an identifier.** The system prompt
 asks the model to end such an answer with a single reference line of its own:
@@ -4362,16 +4381,20 @@ hours away, not 168. `domain/delivery-dates.ts` is the whole of that arithmetic
 on the server and `lib/calendar-date.ts` in the browser, both on `YYYY-MM-DD`
 strings, both tested against the boundaries.
 
-**There is no time-of-day control on this screen any more.** It offered five
+**There is no time-of-day control on any of these screens.** It offered five
 fixed times, every one of them the middle of somebody's night somewhere, and
 the hour a warehouse picks an order is not a decision a buyer has any basis
 for making — it is the operator's. The plan keeps the `runAtMinute` it has (the
 store's own default for a new one) and the API still receives it, so nothing
 about the recurrence changed. What was removed is a question nobody could
-answer. The builder at `/schedules/new` still asks it; that screen creates a
-plan as part of a longer flow and is left as it was. It does use the same
-calendar and the same floor, though — it used to offer today, which the server
-would then refuse.
+answer.
+
+The workspace at `/accounts/schedule` lost the control first; the builder at
+`/schedules/new` has now lost it too, and with it the **At 06:00** row in its
+summary panel — a figure nobody had chosen. The schedule's timezone still
+shows there, on the *Starting* row it was always counted against. The builder
+sends `DEFAULT_RUN_AT_MINUTE`, which is `360`, the value that screen always
+opened on. Both screens use the same calendar and the same notice floor.
 
 Everything the calendar handles is a `YYYY-MM-DD` string, never a `Date` — see
 the header of `lib/calendar-date.ts`. `new Date('2026-09-18')` is parsed as

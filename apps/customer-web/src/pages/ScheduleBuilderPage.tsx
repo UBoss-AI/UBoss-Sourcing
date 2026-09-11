@@ -55,7 +55,6 @@ import { clampToRules } from '@/lib/quantity-rules';
 import {
   CUSTOM_CADENCES,
   PRESET_CADENCES,
-  RUN_TIMES,
   WEEKDAYS,
   earliestDeliveryDate,
   noticeDaysFrom,
@@ -68,6 +67,18 @@ import { translateKey, useI18n } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
 
 type PaymentMode = 'AUTO_PAY' | 'PAYMENT_LINK';
+
+/**
+ * The hour a schedule's occurrence is raised, in the schedule's own zone.
+ *
+ * Not asked, and deliberately so — the same call `CadenceFields` made for the
+ * workspace. The control offered five fixed times, every one of them the
+ * middle of somebody's night somewhere, and the hour a warehouse picks an
+ * order is the operator's decision rather than a buyer's. The API still
+ * requires the field, so it is sent with the value the form always opened on;
+ * nothing about the recurrence changed, only a question nobody could answer.
+ */
+const DEFAULT_RUN_AT_MINUTE = 360;
 
 interface ScheduleItemDraft {
   productId: string;
@@ -170,7 +181,6 @@ export function ScheduleBuilderPage(): React.JSX.Element {
   const [intervalDays, setIntervalDays] = useState(7);
   const [weekday, setWeekday] = useState(1);
   const [monthDay, setMonthDay] = useState(1);
-  const [runAtMinute, setRunAtMinute] = useState(360);
   /*
    * Opens on the earliest date the store can actually take, not on today.
    *
@@ -317,7 +327,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
         // eventually goes missing.
         ...recurrenceFor(cadence, startDate, { intervalDays, weekday, monthDay }),
         timezone: business.timezone,
-        runAtMinute,
+        runAtMinute: DEFAULT_RUN_AT_MINUTE,
         startDate,
         ...(endMode === 'date' && endDate !== '' ? { endDate } : {}),
         ...(endMode === 'count' ? { maxOccurrences } : {}),
@@ -442,8 +452,6 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                 weekdayKey === undefined ? t('scheduleBuilder.week') : translateKey(t, weekdayKey),
             })
           : t('scheduleBuilder.onDayOfEachMonth', { day: formatNumber(monthDay) });
-
-  const timeLabel = RUN_TIMES.find((time) => time.value === runAtMinute)?.label ?? '06:00';
 
   return (
     <>
@@ -627,29 +635,15 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                 </Field>
               )}
 
+              {/*
+               * The first delivery date, and no time of day beside it.
+               *
+               * The time control that used to share this row is gone, for the
+               * reason `DEFAULT_RUN_AT_MINUTE` gives. The grid stays so the
+               * calendar keeps the half-width it has always had rather than
+               * stretching across the form the day its neighbour left.
+               */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Field
-                  label={t('scheduleBuilder.timeOfDay')}
-                  hint={t('scheduleBuilder.yourLocalTime', { timezone: business.timezone })}
-                >
-                  {({ inputId, describedBy }) => (
-                    <Select
-                      id={inputId}
-                      value={runAtMinute}
-                      aria-describedby={describedBy}
-                      onChange={(event) => {
-                        setRunAtMinute(Number(event.target.value));
-                      }}
-                    >
-                      {RUN_TIMES.map((time) => (
-                        <option key={time.value} value={time.value}>
-                          {time.label}
-                        </option>
-                      ))}
-                    </Select>
-                  )}
-                </Field>
-
                 <Field
                   label={t('scheduleBuilder.firstDeliveryOn')}
                   hint={t('scheduleBuilder.firstDeliveryNotice', {
@@ -739,19 +733,27 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                       }}
                     />
                     {t('scheduleBuilder.stopAfter')}
-                    <Input
-                      type="number"
-                      min={1}
-                      max={10000}
-                      className="w-24 tabular"
-                      value={maxOccurrences}
-                      aria-label={t('scheduleBuilder.numberOfDeliveries')}
-                      disabled={endMode !== 'count'}
-                      onChange={(event) => {
-                        const parsed = Number(event.target.value);
-                        if (Number.isFinite(parsed)) setMaxOccurrences(parsed);
-                      }}
-                    />
+                    {/* The width goes on a wrapper, like the date picker above
+                        and for the same reason: `Input` carries `w-full` in its
+                        base classes, and `w-full` sorts after a numeric width in
+                        Tailwind's own stylesheet — so `w-24` here lost, the box
+                        took the whole row, and "deliveries" landed on a line of
+                        its own below it. */}
+                    <span className="w-24 shrink-0">
+                      <Input
+                        type="number"
+                        min={1}
+                        max={10000}
+                        className="tabular"
+                        value={maxOccurrences}
+                        aria-label={t('scheduleBuilder.numberOfDeliveries')}
+                        disabled={endMode !== 'count'}
+                        onChange={(event) => {
+                          const parsed = Number(event.target.value);
+                          if (Number.isFinite(parsed)) setMaxOccurrences(parsed);
+                        }}
+                      />
+                    </span>
                     deliveries
                   </label>
                 </div>
@@ -968,16 +970,15 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                 <dt className="text-ink-muted">{t('scheduleBuilder.repeats')}</dt>
                 <dd className="text-right text-ink">{cadenceSummary}</dd>
               </div>
-              <div className="flex justify-between gap-3">
-                <dt className="text-ink-muted">At</dt>
-                <dd className="text-right text-ink">
-                  {timeLabel}
-                  <span className="block text-xxs text-ink-subtle">{business.timezone}</span>
-                </dd>
-              </div>
+              {/* The zone rides on the start date now that the hour is not
+                  asked: it is still what "starting" is counted on, and it was
+                  only ever shown here because the time row carried it. */}
               <div className="flex justify-between gap-3">
                 <dt className="text-ink-muted">{t('scheduleBuilder.starting')}</dt>
-                <dd className="text-right text-ink">{startDate}</dd>
+                <dd className="text-right text-ink">
+                  {startDate}
+                  <span className="block text-xxs text-ink-subtle">{business.timezone}</span>
+                </dd>
               </div>
               <div className="flex justify-between gap-3">
                 <dt className="text-ink-muted">{t('scheduleBuilder.ends')}</dt>
