@@ -115,6 +115,18 @@ export async function buildApp() {
     // walk straight through the per-IP rate limits.
     trustProxy: isProduction,
     bodyLimit: 1_048_576,
+    // Fastify's default is 100 characters per route parameter, and a slug is a
+    // route parameter. Product and category slugs are VARCHAR(255) and come
+    // from the product name, so an imported medical line - "in-line arterial
+    // blood sampling kit ... with 27G x 1.5 safety needle, blister pack" -
+    // slugs past 100 easily. Over the default the router never reaches the
+    // handler: it answers 414, and the shop shows "the server returned an
+    // unexpected 414 response" on a product that is perfectly fine. 255 is the
+    // column width, which is also what the slug routes validate against.
+    //
+    // Under `routerOptions` rather than at the top level: the top-level spelling
+    // still works in Fastify 5 but warns, and goes away in 6.
+    routerOptions: { maxParamLength: 255 },
     genReqId: (request) => {
       const supplied = request.headers[CORRELATION_HEADER];
       return typeof supplied === 'string' && supplied.length > 0 && supplied.length <= 64
