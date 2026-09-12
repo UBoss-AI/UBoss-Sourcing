@@ -71,6 +71,14 @@ export interface CreateProductInput {
   metaDescription?: string | null;
   /** Identity of the source-sheet family this came from. See the schema. */
   importFingerprint?: string | null;
+  /**
+   * Whether this price is still a placeholder.
+   *
+   * Rarely set by a caller - `catalog:prices` sets it, and any price edit
+   * clears it automatically. It is here so an administrator can mark one back
+   * as unconfirmed without inventing a route for it.
+   */
+  hasProvisionalPrice?: boolean;
   attributes?: { name: string; value: string; isFilterable?: boolean }[];
   /**
    * Rich description. Sanitised against an allowlist before storage - see
@@ -300,6 +308,12 @@ export async function updateProduct(
       data.unavailabilityReason = input.unavailabilityReason;
     }
     if (input.importFingerprint !== undefined) data.importFingerprint = input.importFingerprint;
+    // After the price block above, so an explicit value wins over the
+    // automatic clear - marking a price unconfirmed while correcting it is a
+    // coherent thing to want.
+    if (input.hasProvisionalPrice !== undefined) {
+      data.hasProvisionalPrice = input.hasProvisionalPrice;
+    }
 
     if (input.sku !== undefined) {
       const sku = input.sku.trim().toUpperCase();
@@ -342,6 +356,16 @@ export async function updateProduct(
       newPrice = parseMinor(input.basePriceMinor, 'basePriceMinor');
       priceChanged = newPrice !== existing.basePriceMinor;
       data.basePriceMinor = newPrice;
+
+      // Somebody has just stated a price, so it is no longer a placeholder.
+      //
+      // Cleared here rather than left to whoever edits the product to
+      // remember: a flag that has to be unticked separately is a flag that
+      // stays ticked, and the list of provisional prices would slowly fill
+      // with figures that are actually real - which makes it useless for the
+      // one question it exists to answer. Setting the same figure again still
+      // clears it: re-typing a placeholder to confirm it IS confirming it.
+      data.hasProvisionalPrice = false;
     }
 
     if (input.compareAtPriceMinor !== undefined) {

@@ -8195,6 +8195,7 @@ export const ProductScalarFieldEnum = {
   taxClassId: 'taxClassId',
   basePriceMinor: 'basePriceMinor',
   currency: 'currency',
+  hasProvisionalPrice: 'hasProvisionalPrice',
   isPriceOnRequest: 'isPriceOnRequest',
   compareAtPriceMinor: 'compareAtPriceMinor',
   isStockTracked: 'isStockTracked',

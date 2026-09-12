@@ -2118,5 +2118,6 @@
   "productDetail.orderable": "Available to order",
   "productDetail.orderableHint": "Turn this off to keep the listing and its specifications readable while refusing every purchase. Unpublishing hides the product completely; this does not.",
   "productDetail.unavailabilityReason": "Why it cannot be ordered",
-  "productDetail.unavailabilityReasonHint": "Shown to the customer beside the notice. Leave it blank for the notice on its own."
+  "productDetail.unavailabilityReasonHint": "Shown to the customer beside the notice. Leave it blank for the notice on its own.",
+  "productDetail.provisionalPrice": "This price is a placeholder, set when the catalogue was imported without prices. A customer can order at it. Save a real price above to confirm it — doing so clears this notice."
 }

@@ -115,6 +115,13 @@ interface ProductDetail {
    * an unfinished draft, which is what a zero price usually means.
    */
   isPriceOnRequest: boolean;
+  /**
+   * The price is a placeholder nobody has confirmed.
+   *
+   * Set by the `catalog:prices` command when a catalogue is imported without
+   * prices; cleared automatically the moment a price is saved from this screen.
+   */
+  hasProvisionalPrice: boolean;
   /** Listed and readable, but not for sale. Not the same axis as published. */
   isOrderable: boolean;
   unavailabilityReason: string | null;
@@ -1296,6 +1303,26 @@ export function ProductDetailPage(): React.JSX.Element {
               specification. */}
           <Card title={t('productDetail.availability')}>
             <div className="space-y-4 px-5 py-4">
+              {/* Loud, and at the top of the panel that governs selling.
+
+                  A placeholder price is indistinguishable from a real one in
+                  the database and on the storefront - it is a BIGINT like any
+                  other, and a customer can order at it. The only thing
+                  standing between a made-up figure and a real invoice is
+                  somebody noticing, so this says it plainly rather than as a
+                  quiet chip somewhere.
+
+                  Saving any price from this screen clears it, so the notice
+                  cannot outlive the thing it is warning about. */}
+              {product?.hasProvisionalPrice === true && (
+                <p
+                  role="status"
+                  className="rounded-md border border-warning/30 bg-warning-soft px-3 py-2.5 text-sm text-warning"
+                >
+                  {t('productDetail.provisionalPrice')}
+                </p>
+              )}
+
               <CheckboxField
                 label={t('productDetail.priceOnRequest')}
                 description={t('productDetail.priceOnRequestHint')}

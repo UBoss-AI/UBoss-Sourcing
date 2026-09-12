@@ -649,6 +649,23 @@ model Product {
   basePriceMinor      BigInt
   currency            String  @db.Char(3)
 
+  /// This price is a placeholder somebody still has to replace.
+  ///
+  /// Set by `catalog:prices`, which gives an imported product something to sell
+  /// at before the real figure is known - a catalogue that cannot be added to a
+  /// basket cannot be demonstrated, reviewed or tested end to end.
+  ///
+  /// It exists because the alternative is unanswerable. Without it, "which of
+  /// these 223 prices did we make up?" has no answer once the run has finished,
+  /// and a placeholder that cannot be found again is a placeholder that ships.
+  /// Cleared automatically the moment an administrator sets a price by hand -
+  /// see `updateProduct` - so it only ever marks figures nobody has confirmed.
+  ///
+  /// Deliberately NOT part of the public product select. It changes nothing a
+  /// customer sees: the price displays and behaves exactly like any other. It
+  /// is a note to the operator about their own catalogue.
+  hasProvisionalPrice Boolean @default(false)
+
   /// The price is deliberately not published; the buyer is asked to request one.
   ///
   /// A B2B catalogue routinely lists items whose price is negotiated per

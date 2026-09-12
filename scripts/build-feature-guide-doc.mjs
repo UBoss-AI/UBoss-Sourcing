@@ -382,7 +382,17 @@ bullets([
 ]);
 p('Products whose internal status on the sheet is “Hold” or “Working on it” are created unavailable to order. Licence status, production capacity, launch date and internal status are stored for staff only and never appear on a customer page.');
 note('Where duplicates go', 'Supplier sheets often reuse a product code or a barcode across genuinely different items. Those are imported as separate products and listed in the report for somebody to check, never merged together.', C.purple);
-h2('8.4 Product photographs');
+h2('8.4 Placeholder prices');
+p('A catalogue loaded from a supplier sheet usually arrives with no prices. Until the real figures are agreed, the system can put a placeholder on every unpriced product so the shop can be opened, shown to people and tested all the way through checkout.');
+bullets([
+  'A product with a placeholder behaves like any other: it can be added to a basket, bought, and put on a repeating plan.',
+  'Where the supplier sheet listed its own figure, that is used. Everything else gets one flat, obviously temporary amount.',
+  'Every placeholder is marked as one, and the product page in the Admin Panel says so plainly.',
+  'Typing a real price clears the mark by itself — there is nothing separate to remember to untick.',
+  'One command lists everything still on a placeholder, grouped by department, so the list can be worked through and only ever gets shorter.',
+]);
+note('Why the mark matters', 'A placeholder and a real price look identical once saved, and a customer can order at either. The mark is what makes “which of these did we make up?” a question with an answer months later.', C.purple);
+h2('8.5 Product photographs');
 p('A supplier sheet carries no photographs. The system can take your own product photography — a folder of image files — resize it for the web and put each picture on the products it actually shows.');
 table(['What it does', 'Why it works this way'], [
   ['Uses only your own photographs.', 'A stock picture of another company’s product presented as yours is a false record, and on a medical device that is worse than no picture at all.'],
@@ -392,14 +402,14 @@ table(['What it does', 'Why it works this way'], [
   ['Reports what is still unphotographed, by department.', 'That list is the useful part: it tells you exactly what to photograph next.'],
 ]);
 p('Products with no photograph keep the neutral placeholder the catalogue already shows, and they still list, search and sell normally.');
-h2('8.5 Product safety and legal product information');
+h2('8.6 Product safety and legal product information');
 bullets([
   'Maintain product safety information for medical-device and regulatory needs.',
   'Record manufacturer/economic operator information for EU product-safety requirements.',
   'Maintain product specifications and product documents where provided.',
   'Keep product media and product safety details available to appropriate customer-facing views.',
 ]);
-h2('8.6 Coupons and manufacturers');
+h2('8.7 Coupons and manufacturers');
 bullets([
   'Create and manage coupons, code rules, validity periods and usage context.',
   'Maintain manufacturer/economic operator data used by catalogue and product compliance information.',

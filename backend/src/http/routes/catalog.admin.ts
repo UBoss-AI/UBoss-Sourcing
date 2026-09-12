@@ -155,6 +155,14 @@ const productBodySchema = z.object({
   isPriceOnRequest: z.boolean().optional(),
   /** Listed and readable, but every purchase path refused. */
   isOrderable: z.boolean().optional(),
+  /**
+   * Whether this price is still a placeholder.
+   *
+   * Sending a price clears this by itself - see `updateProduct` - so it is
+   * here only for marking one back as unconfirmed, which is a coherent thing
+   * to want while correcting a figure.
+   */
+  hasProvisionalPrice: z.boolean().optional(),
   /** Shown to the customer beside the notice. Null shows the notice alone. */
   unavailabilityReason: z.string().trim().max(255).nullable().optional(),
 

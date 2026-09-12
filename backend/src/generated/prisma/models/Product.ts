@@ -62,6 +62,7 @@ export type ProductMinAggregateOutputType = {
   taxClassId: string | null
   basePriceMinor: bigint | null
   currency: string | null
+  hasProvisionalPrice: boolean | null
   isPriceOnRequest: boolean | null
   compareAtPriceMinor: bigint | null
   isStockTracked: boolean | null
@@ -107,6 +108,7 @@ export type ProductMaxAggregateOutputType = {
   taxClassId: string | null
   basePriceMinor: bigint | null
   currency: string | null
+  hasProvisionalPrice: boolean | null
   isPriceOnRequest: boolean | null
   compareAtPriceMinor: bigint | null
   isStockTracked: boolean | null
@@ -152,6 +154,7 @@ export type ProductCountAggregateOutputType = {
   taxClassId: number
   basePriceMinor: number
   currency: number
+  hasProvisionalPrice: number
   isPriceOnRequest: number
   compareAtPriceMinor: number
   isStockTracked: number
@@ -219,6 +222,7 @@ export type ProductMinAggregateInputType = {
   taxClassId?: true
   basePriceMinor?: true
   currency?: true
+  hasProvisionalPrice?: true
   isPriceOnRequest?: true
   compareAtPriceMinor?: true
   isStockTracked?: true
@@ -264,6 +268,7 @@ export type ProductMaxAggregateInputType = {
   taxClassId?: true
   basePriceMinor?: true
   currency?: true
+  hasProvisionalPrice?: true
   isPriceOnRequest?: true
   compareAtPriceMinor?: true
   isStockTracked?: true
@@ -309,6 +314,7 @@ export type ProductCountAggregateInputType = {
   taxClassId?: true
   basePriceMinor?: true
   currency?: true
+  hasProvisionalPrice?: true
   isPriceOnRequest?: true
   compareAtPriceMinor?: true
   isStockTracked?: true
@@ -441,6 +447,7 @@ export type ProductGroupByOutputType = {
   taxClassId: string
   basePriceMinor: bigint
   currency: string
+  hasProvisionalPrice: boolean
   isPriceOnRequest: boolean
   compareAtPriceMinor: bigint | null
   isStockTracked: boolean
@@ -509,6 +516,7 @@ export type ProductWhereInput = {
   taxClassId?: Prisma.StringFilter<"Product"> | string
   basePriceMinor?: Prisma.BigIntFilter<"Product"> | bigint | number
   currency?: Prisma.StringFilter<"Product"> | string
+  hasProvisionalPrice?: Prisma.BoolFilter<"Product"> | boolean
   isPriceOnRequest?: Prisma.BoolFilter<"Product"> | boolean
   compareAtPriceMinor?: Prisma.BigIntNullableFilter<"Product"> | bigint | number | null
   isStockTracked?: Prisma.BoolFilter<"Product"> | boolean
@@ -575,6 +583,7 @@ export type ProductOrderByWithRelationInput = {
   taxClassId?: Prisma.SortOrder
   basePriceMinor?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  hasProvisionalPrice?: Prisma.SortOrder
   isPriceOnRequest?: Prisma.SortOrder
   compareAtPriceMinor?: Prisma.SortOrderInput | Prisma.SortOrder
   isStockTracked?: Prisma.SortOrder
@@ -646,6 +655,7 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   taxClassId?: Prisma.StringFilter<"Product"> | string
   basePriceMinor?: Prisma.BigIntFilter<"Product"> | bigint | number
   currency?: Prisma.StringFilter<"Product"> | string
+  hasProvisionalPrice?: Prisma.BoolFilter<"Product"> | boolean
   isPriceOnRequest?: Prisma.BoolFilter<"Product"> | boolean
   compareAtPriceMinor?: Prisma.BigIntNullableFilter<"Product"> | bigint | number | null
   isStockTracked?: Prisma.BoolFilter<"Product"> | boolean
@@ -711,6 +721,7 @@ export type ProductOrderByWithAggregationInput = {
   taxClassId?: Prisma.SortOrder
   basePriceMinor?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  hasProvisionalPrice?: Prisma.SortOrder
   isPriceOnRequest?: Prisma.SortOrder
   compareAtPriceMinor?: Prisma.SortOrderInput | Prisma.SortOrder
   isStockTracked?: Prisma.SortOrder
@@ -764,6 +775,7 @@ export type ProductScalarWhereWithAggregatesInput = {
   taxClassId?: Prisma.StringWithAggregatesFilter<"Product"> | string
   basePriceMinor?: Prisma.BigIntWithAggregatesFilter<"Product"> | bigint | number
   currency?: Prisma.StringWithAggregatesFilter<"Product"> | string
+  hasProvisionalPrice?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
   isPriceOnRequest?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
   compareAtPriceMinor?: Prisma.BigIntNullableWithAggregatesFilter<"Product"> | bigint | number | null
   isStockTracked?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
@@ -807,6 +819,7 @@ export type ProductCreateInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -871,6 +884,7 @@ export type ProductUncheckedCreateInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -931,6 +945,7 @@ export type ProductUpdateInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -995,6 +1010,7 @@ export type ProductUncheckedUpdateInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1057,6 +1073,7 @@ export type ProductCreateManyInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -1100,6 +1117,7 @@ export type ProductUpdateManyMutationInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1143,6 +1161,7 @@ export type ProductUncheckedUpdateManyInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1204,6 +1223,7 @@ export type ProductCountOrderByAggregateInput = {
   taxClassId?: Prisma.SortOrder
   basePriceMinor?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  hasProvisionalPrice?: Prisma.SortOrder
   isPriceOnRequest?: Prisma.SortOrder
   compareAtPriceMinor?: Prisma.SortOrder
   isStockTracked?: Prisma.SortOrder
@@ -1259,6 +1279,7 @@ export type ProductMaxOrderByAggregateInput = {
   taxClassId?: Prisma.SortOrder
   basePriceMinor?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  hasProvisionalPrice?: Prisma.SortOrder
   isPriceOnRequest?: Prisma.SortOrder
   compareAtPriceMinor?: Prisma.SortOrder
   isStockTracked?: Prisma.SortOrder
@@ -1304,6 +1325,7 @@ export type ProductMinOrderByAggregateInput = {
   taxClassId?: Prisma.SortOrder
   basePriceMinor?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  hasProvisionalPrice?: Prisma.SortOrder
   isPriceOnRequest?: Prisma.SortOrder
   compareAtPriceMinor?: Prisma.SortOrder
   isStockTracked?: Prisma.SortOrder
@@ -1779,6 +1801,7 @@ export type ProductCreateWithoutTaxClassInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -1841,6 +1864,7 @@ export type ProductUncheckedCreateWithoutTaxClassInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -1932,6 +1956,7 @@ export type ProductScalarWhereInput = {
   taxClassId?: Prisma.StringFilter<"Product"> | string
   basePriceMinor?: Prisma.BigIntFilter<"Product"> | bigint | number
   currency?: Prisma.StringFilter<"Product"> | string
+  hasProvisionalPrice?: Prisma.BoolFilter<"Product"> | boolean
   isPriceOnRequest?: Prisma.BoolFilter<"Product"> | boolean
   compareAtPriceMinor?: Prisma.BigIntNullableFilter<"Product"> | bigint | number | null
   isStockTracked?: Prisma.BoolFilter<"Product"> | boolean
@@ -1975,6 +2000,7 @@ export type ProductCreateWithoutCategoryInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -2037,6 +2063,7 @@ export type ProductUncheckedCreateWithoutCategoryInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -2123,6 +2150,7 @@ export type ProductCreateWithoutVariantsInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -2186,6 +2214,7 @@ export type ProductUncheckedCreateWithoutVariantsInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -2261,6 +2290,7 @@ export type ProductUpdateWithoutVariantsInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2324,6 +2354,7 @@ export type ProductUncheckedUpdateWithoutVariantsInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2383,6 +2414,7 @@ export type ProductCreateWithoutMediaInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -2446,6 +2478,7 @@ export type ProductUncheckedCreateWithoutMediaInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -2521,6 +2554,7 @@ export type ProductUpdateWithoutMediaInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2584,6 +2618,7 @@ export type ProductUncheckedUpdateWithoutMediaInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2643,6 +2678,7 @@ export type ProductCreateWithoutAttributesInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -2706,6 +2742,7 @@ export type ProductUncheckedCreateWithoutAttributesInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -2781,6 +2818,7 @@ export type ProductUpdateWithoutAttributesInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2844,6 +2882,7 @@ export type ProductUncheckedUpdateWithoutAttributesInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2903,6 +2942,7 @@ export type ProductCreateWithoutPackagingsInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -2966,6 +3006,7 @@ export type ProductUncheckedCreateWithoutPackagingsInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -3041,6 +3082,7 @@ export type ProductUpdateWithoutPackagingsInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3104,6 +3146,7 @@ export type ProductUncheckedUpdateWithoutPackagingsInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3163,6 +3206,7 @@ export type ProductCreateWithoutImportRecordsInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -3226,6 +3270,7 @@ export type ProductUncheckedCreateWithoutImportRecordsInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -3301,6 +3346,7 @@ export type ProductUpdateWithoutImportRecordsInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3364,6 +3410,7 @@ export type ProductUncheckedUpdateWithoutImportRecordsInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3423,6 +3470,7 @@ export type ProductCreateWithoutInventoryBalancesInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -3486,6 +3534,7 @@ export type ProductUncheckedCreateWithoutInventoryBalancesInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -3561,6 +3610,7 @@ export type ProductUpdateWithoutInventoryBalancesInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3624,6 +3674,7 @@ export type ProductUncheckedUpdateWithoutInventoryBalancesInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3683,6 +3734,7 @@ export type ProductCreateWithoutInventoryMovementsInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -3746,6 +3798,7 @@ export type ProductUncheckedCreateWithoutInventoryMovementsInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -3821,6 +3874,7 @@ export type ProductUpdateWithoutInventoryMovementsInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3884,6 +3938,7 @@ export type ProductUncheckedUpdateWithoutInventoryMovementsInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3943,6 +3998,7 @@ export type ProductCreateWithoutStockReservationsInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -4006,6 +4062,7 @@ export type ProductUncheckedCreateWithoutStockReservationsInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -4081,6 +4138,7 @@ export type ProductUpdateWithoutStockReservationsInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4144,6 +4202,7 @@ export type ProductUncheckedUpdateWithoutStockReservationsInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4203,6 +4262,7 @@ export type ProductCreateWithoutCartItemsInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -4266,6 +4326,7 @@ export type ProductUncheckedCreateWithoutCartItemsInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -4341,6 +4402,7 @@ export type ProductUpdateWithoutCartItemsInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4404,6 +4466,7 @@ export type ProductUncheckedUpdateWithoutCartItemsInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4463,6 +4526,7 @@ export type ProductCreateWithoutOrderItemsInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -4526,6 +4590,7 @@ export type ProductUncheckedCreateWithoutOrderItemsInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -4601,6 +4666,7 @@ export type ProductUpdateWithoutOrderItemsInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4664,6 +4730,7 @@ export type ProductUncheckedUpdateWithoutOrderItemsInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4723,6 +4790,7 @@ export type ProductCreateWithoutScheduleItemsInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -4786,6 +4854,7 @@ export type ProductUncheckedCreateWithoutScheduleItemsInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -4850,6 +4919,7 @@ export type ProductCreateWithoutSubstituteForItemsInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -4913,6 +4983,7 @@ export type ProductUncheckedCreateWithoutSubstituteForItemsInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -4988,6 +5059,7 @@ export type ProductUpdateWithoutScheduleItemsInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5051,6 +5123,7 @@ export type ProductUncheckedUpdateWithoutScheduleItemsInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5121,6 +5194,7 @@ export type ProductUpdateWithoutSubstituteForItemsInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5184,6 +5258,7 @@ export type ProductUncheckedUpdateWithoutSubstituteForItemsInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5243,6 +5318,7 @@ export type ProductCreateWithoutPricesInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -5306,6 +5382,7 @@ export type ProductUncheckedCreateWithoutPricesInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -5381,6 +5458,7 @@ export type ProductUpdateWithoutPricesInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5444,6 +5522,7 @@ export type ProductUncheckedUpdateWithoutPricesInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5503,6 +5582,7 @@ export type ProductCreateWithoutTranslationsInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -5566,6 +5646,7 @@ export type ProductUncheckedCreateWithoutTranslationsInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -5641,6 +5722,7 @@ export type ProductUpdateWithoutTranslationsInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5704,6 +5786,7 @@ export type ProductUncheckedUpdateWithoutTranslationsInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5763,6 +5846,7 @@ export type ProductCreateWithoutManufacturerInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -5826,6 +5910,7 @@ export type ProductUncheckedCreateWithoutManufacturerInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -5895,6 +5980,7 @@ export type ProductCreateWithoutEuResponsibleInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -5958,6 +6044,7 @@ export type ProductUncheckedCreateWithoutEuResponsibleInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -6059,6 +6146,7 @@ export type ProductCreateWithoutDeviceInfoInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -6122,6 +6210,7 @@ export type ProductUncheckedCreateWithoutDeviceInfoInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -6197,6 +6286,7 @@ export type ProductUpdateWithoutDeviceInfoInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6260,6 +6350,7 @@ export type ProductUncheckedUpdateWithoutDeviceInfoInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6319,6 +6410,7 @@ export type ProductCreateWithoutCountryRestrictionsInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -6382,6 +6474,7 @@ export type ProductUncheckedCreateWithoutCountryRestrictionsInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -6457,6 +6550,7 @@ export type ProductUpdateWithoutCountryRestrictionsInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6520,6 +6614,7 @@ export type ProductUncheckedUpdateWithoutCountryRestrictionsInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6579,6 +6674,7 @@ export type ProductCreateWithoutWishlistItemsInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -6642,6 +6738,7 @@ export type ProductUncheckedCreateWithoutWishlistItemsInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -6717,6 +6814,7 @@ export type ProductUpdateWithoutWishlistItemsInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6780,6 +6878,7 @@ export type ProductUncheckedUpdateWithoutWishlistItemsInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6840,6 +6939,7 @@ export type ProductCreateManyTaxClassInput = {
   publishFrom?: Date | string | null
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -6883,6 +6983,7 @@ export type ProductUpdateWithoutTaxClassInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6945,6 +7046,7 @@ export type ProductUncheckedUpdateWithoutTaxClassInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7006,6 +7108,7 @@ export type ProductUncheckedUpdateManyWithoutTaxClassInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7050,6 +7153,7 @@ export type ProductCreateManyCategoryInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -7093,6 +7197,7 @@ export type ProductUpdateWithoutCategoryInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7155,6 +7260,7 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7216,6 +7322,7 @@ export type ProductUncheckedUpdateManyWithoutCategoryInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7261,6 +7368,7 @@ export type ProductCreateManyManufacturerInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -7305,6 +7413,7 @@ export type ProductCreateManyEuResponsibleInput = {
   taxClassId: string
   basePriceMinor: bigint | number
   currency: string
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: bigint | number | null
   isStockTracked?: boolean
@@ -7347,6 +7456,7 @@ export type ProductUpdateWithoutManufacturerInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7410,6 +7520,7 @@ export type ProductUncheckedUpdateWithoutManufacturerInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7471,6 +7582,7 @@ export type ProductUncheckedUpdateManyWithoutManufacturerInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7513,6 +7625,7 @@ export type ProductUpdateWithoutEuResponsibleInput = {
   publishFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7576,6 +7689,7 @@ export type ProductUncheckedUpdateWithoutEuResponsibleInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7637,6 +7751,7 @@ export type ProductUncheckedUpdateManyWithoutEuResponsibleInput = {
   taxClassId?: Prisma.StringFieldUpdateOperationsInput | string
   basePriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasProvisionalPrice?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPriceOnRequest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   compareAtPriceMinor?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   isStockTracked?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7847,6 +7962,7 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   taxClassId?: boolean
   basePriceMinor?: boolean
   currency?: boolean
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: boolean
   isStockTracked?: boolean
@@ -7916,6 +8032,7 @@ export type ProductSelectScalar = {
   taxClassId?: boolean
   basePriceMinor?: boolean
   currency?: boolean
+  hasProvisionalPrice?: boolean
   isPriceOnRequest?: boolean
   compareAtPriceMinor?: boolean
   isStockTracked?: boolean
@@ -7945,7 +8062,7 @@ export type ProductSelectScalar = {
   updatedById?: boolean
 }
 
-export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "categoryId" | "name" | "slug" | "sku" | "shortDescription" | "description" | "descriptionHtml" | "status" | "isPublished" | "publishedAt" | "publishFrom" | "taxClassId" | "basePriceMinor" | "currency" | "isPriceOnRequest" | "compareAtPriceMinor" | "isStockTracked" | "reorderThreshold" | "isOrderable" | "unavailabilityReason" | "minOrderQty" | "maxOrderQty" | "qtyIncrement" | "isRecurringEligible" | "hasVariants" | "requiresColdChain" | "weightGrams" | "metaTitle" | "metaDescription" | "importFingerprint" | "manufacturerId" | "euResponsibleId" | "gtin" | "modelIdentifier" | "safetyWarnings" | "safetyInstructions" | "createdAt" | "updatedAt" | "archivedAt" | "createdById" | "updatedById", ExtArgs["result"]["product"]>
+export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "categoryId" | "name" | "slug" | "sku" | "shortDescription" | "description" | "descriptionHtml" | "status" | "isPublished" | "publishedAt" | "publishFrom" | "taxClassId" | "basePriceMinor" | "currency" | "hasProvisionalPrice" | "isPriceOnRequest" | "compareAtPriceMinor" | "isStockTracked" | "reorderThreshold" | "isOrderable" | "unavailabilityReason" | "minOrderQty" | "maxOrderQty" | "qtyIncrement" | "isRecurringEligible" | "hasVariants" | "requiresColdChain" | "weightGrams" | "metaTitle" | "metaDescription" | "importFingerprint" | "manufacturerId" | "euResponsibleId" | "gtin" | "modelIdentifier" | "safetyWarnings" | "safetyInstructions" | "createdAt" | "updatedAt" | "archivedAt" | "createdById" | "updatedById", ExtArgs["result"]["product"]>
 export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
   taxClass?: boolean | Prisma.TaxClassDefaultArgs<ExtArgs>
@@ -8027,6 +8144,24 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     taxClassId: string
     basePriceMinor: bigint
     currency: string
+    /**
+     * This price is a placeholder somebody still has to replace.
+     * 
+     * Set by `catalog:prices`, which gives an imported product something to sell
+     * at before the real figure is known - a catalogue that cannot be added to a
+     * basket cannot be demonstrated, reviewed or tested end to end.
+     * 
+     * It exists because the alternative is unanswerable. Without it, "which of
+     * these 223 prices did we make up?" has no answer once the run has finished,
+     * and a placeholder that cannot be found again is a placeholder that ships.
+     * Cleared automatically the moment an administrator sets a price by hand -
+     * see `updateProduct` - so it only ever marks figures nobody has confirmed.
+     * 
+     * Deliberately NOT part of the public product select. It changes nothing a
+     * customer sees: the price displays and behaves exactly like any other. It
+     * is a note to the operator about their own catalogue.
+     */
+    hasProvisionalPrice: boolean
     /**
      * The price is deliberately not published; the buyer is asked to request one.
      * 
@@ -8546,6 +8681,7 @@ export interface ProductFieldRefs {
   readonly taxClassId: Prisma.FieldRef<"Product", 'String'>
   readonly basePriceMinor: Prisma.FieldRef<"Product", 'BigInt'>
   readonly currency: Prisma.FieldRef<"Product", 'String'>
+  readonly hasProvisionalPrice: Prisma.FieldRef<"Product", 'Boolean'>
   readonly isPriceOnRequest: Prisma.FieldRef<"Product", 'Boolean'>
   readonly compareAtPriceMinor: Prisma.FieldRef<"Product", 'BigInt'>
   readonly isStockTracked: Prisma.FieldRef<"Product", 'Boolean'>

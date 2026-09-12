@@ -6107,6 +6107,9 @@ somebody bookmarked to read the specification; this does not.
 
 Both default to the behaviour that was already there — price-on-request off,
 orderable on — so a deployment that never sets either behaves exactly as it did.
+A catalogue does not have to stay priced on request either: `catalog:prices`
+takes it out of that state with a placeholder that is marked as one — see
+*Placeholder prices* below.
 Both are enforced in one place, `assertPurchasable` in
 `backend/src/modules/catalog/purchasability.ts`, which the basket, Instant Buy
 and scheduled plans all call. Two copies of that rule is how one of them
@@ -6121,6 +6124,80 @@ once and never touched again, so a price typed afterwards survives every
 re-import. That zero is excluded from the price-range facet and from the price
 and on-offer filters, because it is a placeholder rather than an answer to a
 question about price.
+
+---
+
+## Placeholder prices, and finding them again
+
+A catalogue imported from a supplier sheet has no prices. Priced on request, it
+is readable and correct and **cannot be demonstrated**: no basket, no checkout,
+no schedule, no totals. So there is a command that gives every unpriced product
+something to sell at while the real figures are gathered.
+
+```bash
+cd backend
+npm run catalog:prices                        # dry run, the default
+npm run catalog:prices -- --apply
+npm run catalog:prices -- --apply --fallback 250
+npm run catalog:prices -- --list              # what is still a placeholder
+```
+
+It sets the price, clears `isPriceOnRequest`, and the product becomes an
+ordinary one: **Add to cart**, **Instant Buy** and **Schedule your Cart** all
+work exactly as they do for anything else in the catalogue.
+
+### Where the number comes from
+
+Column M of the supplier sheet, where the sheet filled one in — 147 of the
+workbook's 736 rows do. That is the operator's own figure rather than one
+invented here. Everything else gets `--fallback`, one flat amount, deliberately
+obvious rather than plausible.
+
+**The importer still does not read column M**, and the note in
+`sheet-mapping.ts` saying so is still true. An MRP is a consumer retail price
+from another market under another regulation, and importing it *as* the selling
+price — silently, as part of loading a catalogue — would put a figure in front
+of a buyer that nobody in the business agreed to charge. Reading it here is a
+different act: a person runs this command on purpose, knowing the result is a
+placeholder, and every row it touches is flagged as one. The figure comes out of
+`product_import_records.rawJson`, which is exactly the audit trail that table
+exists for.
+
+### Why there is a column for it
+
+`products.hasProvisionalPrice`. It exists because of what happens afterwards: a
+placeholder and a real price are the same `BIGINT`, so without a marker
+"which of these two hundred prices did we make up?" has no answer once the run
+has finished. A placeholder that cannot be found again is a placeholder that
+ships — and this one would ship attached to medical consumables.
+
+Three things keep it honest:
+
+- **Any price edit clears it.** `updateProduct` sets it false whenever
+  `basePriceMinor` is set, so a flag that had to be unticked separately can
+  never drift out of step with reality. Re-typing the same figure still clears
+  it: confirming a placeholder *is* confirming it.
+- **The admin panel says so, loudly.** A warning sits at the top of the
+  Availability card — a quiet chip would be read as decoration, and the only
+  thing between a made-up figure and a real invoice is somebody noticing.
+- **It is not in the public product select.** A customer sees the price behave
+  exactly like any other. This is a note to the operator about their own
+  catalogue, not a disclaimer on a shop.
+
+`--list` prints every one, grouped by department, and the list only ever
+shrinks.
+
+### Two money details
+
+The conversion from a typed decimal to minor units is `domain/money.ts`'s
+`parseMajorToMinor`, not a local copy. It is currency-aware — a yen amount has
+no minor units at all, and a second implementation would price every JPY item a
+hundred times too high — and `Number('2.5') * 100` is 250.00000000000003, which
+is the whole reason this project has a money rule.
+
+A product listed in a currency the command has no figure for is **left alone**
+rather than priced in the wrong one. Quoting a JPY item at an INR number is
+precisely the mistake `product_prices` exists to prevent.
 
 ---
 

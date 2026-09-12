@@ -30,7 +30,8 @@
     "test:watch": "vitest",
     "verify": "npm run typecheck && npm run lint && npm run test",
     "catalog:import": "tsx src/modules/catalog/sheet-import/import-product-sheet.cli.ts",
-    "catalog:images": "tsx src/modules/catalog/product-images/attach-product-images.cli.ts"
+    "catalog:images": "tsx src/modules/catalog/product-images/attach-product-images.cli.ts",
+    "catalog:prices": "tsx src/modules/catalog/provisional-price/set-provisional-prices.cli.ts"
   },
   "prisma": {
     "seed": "tsx src/seed/index.ts"
