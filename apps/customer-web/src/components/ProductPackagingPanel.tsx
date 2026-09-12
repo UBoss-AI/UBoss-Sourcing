@@ -31,6 +31,7 @@ import {
   availableUnits,
   piecesPerUnit,
   pluralisePack,
+  unitLabel,
   type OrderingUnit,
 } from '@/lib/packaging';
 import type { ProductPackaging } from '@/lib/types';
@@ -38,14 +39,6 @@ import { useI18n } from '@/i18n/i18n-context';
 
 /** The multipliers the ready-reckoner offers. Enough to see the shape of it. */
 const LADDER = [1, 2, 5, 10];
-
-function unitLabel(unit: OrderingUnit, packaging: ProductPackaging | null, t: Translate): string {
-  if (unit === 'PIECE') return t('packaging.pieces');
-  if (unit === 'INNER_PACK') return packaging?.innerPackType ?? t('packaging.innerPack');
-  return packaging?.outerPackType ?? t('packaging.outerCarton');
-}
-
-type Translate = ReturnType<typeof useI18n>['t'];
 
 /**
  * The unit a customer is counting in.

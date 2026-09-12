@@ -6220,6 +6220,21 @@ Carton of 2,000** — and under them a live line saying what the choice comes to
 *That comes to 4,000 pieces.* Only units the catalogue can actually convert are
 offered, and a row whose figures contradicted each other offers pieces only.
 
+**The price follows the unit.** Switch the control to *Carton of 2,000* and
+the headline figure becomes what a carton costs, with the per-piece price kept
+on the line underneath — *per carton of 2,000 · ₹100.00 per piece* — and every
+option in the list repriced the same way. A buyer who is thinking in cartons
+should not have to do the multiplication on a calculator beside the screen.
+
+This is not a second pricing engine and must not become one. It multiplies one
+catalogue price by one catalogue pack size, both of which came off the server,
+and it still prints no total: no tax, no discount, no sum across the options
+chosen. The strike-through is scaled by the same factor, because a tenth off a
+piece is a tenth off a carton and scaling only one side would invent a saving
+nobody offered. The arithmetic is `multiplyMinor` in
+`apps/customer-web/src/lib/format.ts` — BigInt minor units multiplied by a
+whole count of physical things, exact, and never a float.
+
 Two rules hold this together.
 
 **Quantity is always pieces.** `cart_items.quantity`, `order_items.quantity` and

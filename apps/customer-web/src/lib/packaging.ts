@@ -10,6 +10,7 @@
  * catalogue is silent, and the caller renders nothing rather than a zero — a
  * "0 per carton" is a claim the catalogue never made.
  */
+import type { Translate } from '@/i18n/i18n-context';
 import type { ProductPackaging } from './types';
 import { formatNumber } from './format';
 
@@ -88,6 +89,24 @@ export function packSummary(
 export function pluralisePack(word: string, count: number): string {
   if (count === 1) return word;
   return /(?:s|x|z|ch|sh)$/i.test(word) ? `${word}es` : `${word}s`;
+}
+
+/**
+ * What to call one of an ordering unit.
+ *
+ * The supplier's own word wherever the sheet gave one - "Box", "Pouch", "Pkt" -
+ * so the screen matches the paperwork a warehouse is reading from. The
+ * translated fallback is for a product whose packing was recorded without
+ * naming the pack.
+ */
+export function unitLabel(
+  unit: OrderingUnit,
+  packaging: ProductPackaging | null | undefined,
+  t: Translate,
+): string {
+  if (unit === 'PIECE') return t('packaging.pieces');
+  if (unit === 'INNER_PACK') return packaging?.innerPackType ?? t('packaging.innerPack');
+  return packaging?.outerPackType ?? t('packaging.outerCarton');
 }
 
 /** Whether there is enough here to be worth a Packaging section at all. */

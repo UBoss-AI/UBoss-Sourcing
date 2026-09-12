@@ -43,12 +43,11 @@ import { clampToRules, describeRules } from '@/lib/quantity-rules';
 import { Badge, Button, ButtonLink, ErrorState, LoadingState } from '@/components/ui';
 import { BoxIcon, CurrencyIcon, TruckIcon } from '@/components/icons';
 import { ApiError, api } from '@/lib/api';
-import { formatMoney, formatNumber } from '@/lib/format';
+import { formatMoneyMinor, formatNumber, multiplyMinor } from '@/lib/format';
 import { SafeHtml } from '@/lib/safe-html';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { NotFoundPage } from './NotFoundPage';
 import type {
-  Money,
   Product,
   ProductDetailResponse,
   ProductPackaging,
@@ -63,7 +62,7 @@ import {
   OrderingUnitTabs,
   PackagingSection,
 } from '@/components/ProductPackagingPanel';
-import { piecesPerUnit, type OrderingUnit } from '@/lib/packaging';
+import { piecesPerUnit, unitLabel, type OrderingUnit } from '@/lib/packaging';
 import { useI18n } from '@/i18n/i18n-context';
 import type { Translate } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
@@ -256,6 +255,8 @@ function VariantPicker({
   chosen,
   rules,
   hidePrices,
+  priceOf,
+  currency,
   onToggle,
   onQuantityChange,
 }: {
@@ -264,6 +265,15 @@ function VariantPicker({
   chosen: ReadonlyMap<string, number>;
   rules: PurchaseRules;
   hidePrices: boolean;
+  /**
+   * This option's price in the unit being counted, as minor units.
+   *
+   * A function rather than a figure, because the answer depends on the option
+   * AND on the control above the list - and two sizes of one product are not
+   * always boxed the same, so the factor is per row.
+   */
+  priceOf: (variant: ProductVariant) => string;
+  currency: string;
   onToggle: (variant: ProductVariant) => void;
   onQuantityChange: (variant: ProductVariant, quantity: number) => void;
 }): React.JSX.Element {
@@ -345,7 +355,7 @@ function VariantPicker({
 
                   {variant.price !== null && !hidePrices && (
                     <span className="ml-auto shrink-0 pl-2 text-sm tabular text-ink-muted">
-                      {formatMoney(variant.price)}
+                      {formatMoneyMinor(priceOf(variant), currency)}
                     </span>
                   )}
                 </button>
@@ -784,26 +794,76 @@ export function ProductPage(): React.JSX.Element {
    * would eventually disagree with the cart, which is the only place that
    * total is actually worked out.
    */
-  const chosenPrices: Money[] = chosenVariants.map((variant) => variant.price ?? product.price);
-  const openingPrice = chosenPrices[0] ?? product.price;
-  const lowestPrice = chosenPrices.reduce(
+  /**
+   * The price, in the unit the customer has chosen to count in.
+   *
+   * The catalogue prices a piece. A buyer who has switched the control to
+   * "Carton of 2,000" is thinking in cartons, and a page that answers them with
+   * the price of one syringe is making them do the multiplication - which they
+   * will do on a calculator beside the screen, and sometimes get wrong.
+   *
+   * Two things keep this from becoming a second pricing engine, which is the
+   * thing this page must never grow. It multiplies ONE catalogue price by ONE
+   * catalogue pack size, both of which came off the server; and it still prints
+   * no total - no tax, no discount, no sum across the options chosen. Restating
+   * a unit price in a bigger unit is not a total, and the per-piece figure stays
+   * on screen beside it so neither number can be mistaken for the other.
+   *
+   * The factor is per variant, because two sizes of one product are not always
+   * boxed the same.
+   */
+  const piecesPerChosenUnit = (variantId: string | null): number =>
+    piecesPerUnit(orderingUnit, packagingFor(product, variantId)) ?? 1;
+
+  interface UnitPrice {
+    /** Minor units for one of the chosen ordering unit. */
+    minor: string;
+    /** What one piece costs, kept for the line printed underneath. */
+    pieceMinor: string;
+    /** How many pieces that unit holds, for the same line. */
+    pieces: number;
+  }
+
+  const unitPriceOf = (variant: ProductVariant | null): UnitPrice => {
+    const price = variant?.price ?? product.price;
+    const pieces = piecesPerChosenUnit(variant?.id ?? null);
+    return { minor: multiplyMinor(price.minor, pieces), pieceMinor: price.minor, pieces };
+  };
+
+  // The currency the server quoted these figures in, which is what they must
+  // be formatted as. Not `currency` from useLocale() - that is what was ASKED
+  // for, and the two differ for a product not sold in the shopper's market.
+  const priceCurrency = product.price.currency;
+  const chosenUnitPrices: UnitPrice[] = chosenVariants.map((variant) => unitPriceOf(variant));
+  const openingUnitPrice = chosenUnitPrices[0] ?? unitPriceOf(null);
+
+  const lowestUnitPrice = chosenUnitPrices.reduce(
     (lowest, price) => (BigInt(price.minor) < BigInt(lowest.minor) ? price : lowest),
-    openingPrice,
+    openingUnitPrice,
   );
-  const highestPrice = chosenPrices.reduce(
+  const highestUnitPrice = chosenUnitPrices.reduce(
     (highest, price) => (BigInt(price.minor) > BigInt(highest.minor) ? price : highest),
-    openingPrice,
+    openingUnitPrice,
   );
 
-  const displayPrice = chosenPrices.length === 0 ? product.price : lowestPrice;
-  const isPriceRange = BigInt(highestPrice.minor) > BigInt(lowestPrice.minor);
+  const displayUnitPrice = chosenUnitPrices.length === 0 ? unitPriceOf(null) : lowestUnitPrice;
+  const isPriceRange = BigInt(highestUnitPrice.minor) > BigInt(lowestUnitPrice.minor);
   const onlyChosen = chosenVariants.length === 1 ? chosenVariants[0] : undefined;
 
-  // Against the lowest of the chosen options, which is the figure printed
-  // beside it. A strike-through over the top of a band is not a comparison.
+  /*
+   * The strike-through, scaled by the same factor as the price beside it.
+   *
+   * Multiplying both sides by the same whole number leaves the comparison
+   * exactly as the catalogue stated it - a tenth off a piece is a tenth off a
+   * carton. Scaling only one of them would invent a saving.
+   */
+  const compareAtUnitMinor =
+    product.compareAtPrice === null
+      ? null
+      : multiplyMinor(product.compareAtPrice.minor, displayUnitPrice.pieces);
+
   const hasDiscount =
-    product.compareAtPrice !== null &&
-    BigInt(product.compareAtPrice.minor) > BigInt(displayPrice.minor);
+    compareAtUnitMinor !== null && BigInt(compareAtUnitMinor) > BigInt(displayUnitPrice.minor);
 
   // The schedule path is offered only where it can actually be walked: the
   // store has the feature on, and this product is eligible for it.
@@ -928,19 +988,36 @@ export function ProductPage(): React.JSX.Element {
               <span className="text-3xl font-semibold tabular tracking-tight text-ink">
                 {isPriceRange
                   ? t('product.priceFromTo', {
-                      from: formatMoney(lowestPrice),
-                      to: formatMoney(highestPrice),
+                      from: formatMoneyMinor(lowestUnitPrice.minor, priceCurrency),
+                      to: formatMoneyMinor(highestUnitPrice.minor, priceCurrency),
                     })
-                  : formatMoney(displayPrice)}
+                  : formatMoneyMinor(displayUnitPrice.minor, priceCurrency)}
               </span>
-              {hasDiscount && product.compareAtPrice !== null && (
+              {/* No null check: `hasDiscount` is a const boolean that already
+                  tests it, and TypeScript narrows through it. */}
+              {hasDiscount && (
                 <span className="text-base tabular text-ink-subtle">
                   <span className="sr-only">{t('product.was')}</span>
-                  <s>{formatMoney(product.compareAtPrice)}</s>
+                  <s>{formatMoneyMinor(compareAtUnitMinor, priceCurrency)}</s>
                 </span>
               )}
               {hasDiscount && <Badge tone="action">{t('product.reducedPrice')}</Badge>}
             </p>
+
+            {/* What that figure is the price OF, and what one piece costs.
+
+                Only when the two differ. Counting in pieces, this would say
+                "per piece" under a per-piece price and then repeat it - which
+                is noise on the one line of the page nobody may misread. */}
+            {orderingUnit !== 'PIECE' && (
+              <p className="mt-1 text-sm font-medium text-brand">
+                {t('product.pricePerUnit', {
+                  unit: unitLabel(orderingUnit, shownPackaging, t).toLowerCase(),
+                  pieces: formatNumber(displayUnitPrice.pieces),
+                  each: formatMoneyMinor(displayUnitPrice.pieceMinor, priceCurrency),
+                })}
+              </p>
+            )}
 
             <p className="mt-1.5 text-sm text-ink-muted">
               {taxLine(t, product.tax, countryNames)}
@@ -999,6 +1076,11 @@ export function ProductPage(): React.JSX.Element {
                   chosen={chosen}
                   rules={rules}
                   hidePrices={isPriceOnRequest}
+                  // Each row priced in the unit the control above is set to, or
+                  // the list would read in pieces under a heading that says
+                  // cartons.
+                  priceOf={(variant) => unitPriceOf(variant).minor}
+                  currency={priceCurrency}
                   onToggle={toggleVariant}
                   onQuantityChange={setVariantQuantity}
                 />

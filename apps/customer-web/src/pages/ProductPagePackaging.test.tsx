@@ -24,7 +24,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Route, Routes } from 'react-router-dom';
 import { ProductPage } from './ProductPage';
 import { jsonResponse, makeSession, renderWithProviders } from '@/test/harness';
-import { makeProduct } from '@/test/fixtures';
+import { makeProduct, money } from '@/test/fixtures';
 import type { Product, ProductPackaging } from '@/lib/types';
 
 const fetchMock = vi.fn();
@@ -202,6 +202,78 @@ describe('packaging on the product page', () => {
     expect(within(section).getByText('168 × 124 × 155')).toBeInTheDocument();
     // And says so, rather than quietly appending "mm".
     expect(within(section).getByText(/no unit is given, none was stated/i)).toBeInTheDocument();
+  });
+});
+
+describe('the price follows the unit being counted', () => {
+  /** ₹12.50 a piece, 100 to a box, 20 boxes to a carton. */
+  function pricedProduct(): Product {
+    return makeProduct({
+      purchaseRules: simpleRules,
+      packaging: packing(),
+      price: money('1250'),
+      variants: [],
+      hasVariants: false,
+    });
+  }
+
+  it('prices a piece when pieces are what is being counted', async () => {
+    renderProduct(pricedProduct());
+    expect(await screen.findByText('₹12.50')).toBeInTheDocument();
+  });
+
+  it('prices a box when the buyer switches to boxes', async () => {
+    const user = userEvent.setup();
+    renderProduct(pricedProduct());
+
+    await user.click(await screen.findByRole('radio', { name: /box/i }));
+
+    // 12.50 x 100. The buyer is thinking in boxes, so the headline figure is
+    // what a box costs - and the per-piece price stays on screen beside it so
+    // neither number can be mistaken for the other.
+    expect(await screen.findByText('₹1250.00')).toBeInTheDocument();
+    expect(screen.getByText(/per box of 100 · ₹12\.50 per piece/i)).toBeInTheDocument();
+  });
+
+  it('prices a carton when the buyer switches to cartons', async () => {
+    const user = userEvent.setup();
+    renderProduct(pricedProduct());
+
+    await user.click(await screen.findByRole('radio', { name: /carton/i }));
+
+    // 12.50 x 2,000. Done on BigInt minor units, never on a float.
+    expect(await screen.findByText('₹25000.00')).toBeInTheDocument();
+    expect(screen.getByText(/per carton of 2,000/i)).toBeInTheDocument();
+  });
+
+  it('says nothing extra while counting in pieces', async () => {
+    renderProduct(pricedProduct());
+
+    await screen.findByText('₹12.50');
+    // "per piece of 1 · ₹12.50 per piece" would be noise on the one line of
+    // the page nobody may misread.
+    expect(screen.queryByText(/per piece$/i)).not.toBeInTheDocument();
+  });
+
+  it('scales the strike-through by the same factor as the price', async () => {
+    const user = userEvent.setup();
+    renderProduct(
+      makeProduct({
+        purchaseRules: simpleRules,
+        packaging: packing(),
+        price: money('1250'),
+        compareAtPrice: money('1500'),
+        variants: [],
+        hasVariants: false,
+      }),
+    );
+
+    await user.click(await screen.findByRole('radio', { name: /box/i }));
+
+    // Both sides multiplied by 100: a fifth off a piece is a fifth off a box.
+    // Scaling only one of them would invent a saving that was never offered.
+    expect(await screen.findByText('₹1250.00')).toBeInTheDocument();
+    expect(screen.getByText('₹1500.00')).toBeInTheDocument();
   });
 });
 

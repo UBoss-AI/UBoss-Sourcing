@@ -73,6 +73,26 @@ export function formatMoneyMinor(
 }
 
 /**
+ * A minor-unit amount multiplied by a whole number.
+ *
+ * The one arithmetic this app does on money, and it exists for one job:
+ * restating a per-piece price as the price of a box or a carton. The factor is
+ * a count of physical things, so the result is exact — no rate, no rounding,
+ * no decision about which way to round.
+ *
+ * `BigInt`, not `Number`. A price of ₹2,754.00 is 275400 minor units and a
+ * carton of 2,000 takes it past 550 million, which `Number` still holds
+ * exactly — but the same multiplication in a currency with more minor units, or
+ * on a larger carton, does not, and a price that is silently wrong in the last
+ * digits is the exact failure the minor-unit string representation exists to
+ * prevent.
+ */
+export function multiplyMinor(minor: string, factor: number): string {
+  if (!Number.isInteger(factor) || factor < 0) return minor;
+  return (BigInt(minor) * BigInt(factor)).toString();
+}
+
+/**
  * Minor units to a major-unit string, by digit shifting.
  *
  * Used for form fields, which must round-trip exactly: a price typed as 45.50

@@ -183,12 +183,14 @@ table(['What the customer sees', 'What the customer can do'], [
   ['The conversion written out in one line: “100 pieces × 20 boxes = 2,000 pieces”.', 'See the whole relationship at a glance.'],
   ['A ready-reckoner for 1, 2, 5 and 10 of the chosen unit.', 'Answer “if I order five cartons, how many is that?” without a calculator.'],
   ['A choice of ordering unit above the quantity box: Pieces, Box, or Carton.', 'Type “2” and mean two cartons, with the piece total shown underneath as they type.'],
+  ['The price restated in the unit being counted, with the price of one piece kept beside it.', 'Read what a box or a carton costs straight off the page, instead of multiplying it out themselves.'],
   ['A Dimensions section with the primary pack, inner box and outer carton sizes.', 'Check what will arrive against the space they have.'],
 ]);
 bullets([
   'The basket keeps the unit the buyer chose. A line added as two cartons is counted in cartons in the basket, on the order and on a repeating plan, with the piece total shown beside it.',
   'Only units the business has actually recorded a figure for are offered. A product whose carton quantity is not on file can only be ordered by the piece.',
   'A pack size is not a minimum order. Any minimum is a separate rule the business sets, and the page says so.',
+  'The price shown for a box or a carton is the price of one piece multiplied by how many it holds. It is not a total: tax, discounts and the quantity ordered are still worked out at the basket and the checkout.',
 ]);
 note('Sizes as recorded', 'Pack dimensions are shown exactly as the business recorded them. Where the source did not state whether a measurement is in millimetres or inches, the page says so rather than assuming one.', C.purple);
 h2('3.4 AI Mode');

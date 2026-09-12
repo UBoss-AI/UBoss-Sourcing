@@ -2039,5 +2039,6 @@
   "cart.packLabel": "{{pack}}",
   "errors.pricedOnRequest": "This one is priced per account, so it cannot go straight into a basket. Ask us for a quotation and we will price it for you.",
   "errors.notOrderable": "This product cannot be ordered at the moment.",
-  "errors.packSizeUnknown": "We have not recorded how many pieces are in a pack of this product yet, so it can only be ordered by the piece for now."
+  "errors.packSizeUnknown": "We have not recorded how many pieces are in a pack of this product yet, so it can only be ordered by the piece for now.",
+  "product.pricePerUnit": "per {{unit}} of {{pieces}} · {{each}} per piece"
 }
