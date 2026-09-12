@@ -79,6 +79,11 @@ import {
 } from '../../modules/catalog/translation.service.js';
 import { isSupportedLanguage } from '../../modules/identity/language.service.js';
 import { resolveCurrencyFor } from '../../modules/settings/currency.service.js';
+import {
+  serialisePackaging,
+  variantPackagingFor,
+  type SerialisedPackaging,
+} from '../../modules/catalog/packaging.service.js';
 
 /**
  * The filters, shared by the listing and by the facet endpoint.
@@ -90,6 +95,8 @@ import { resolveCurrencyFor } from '../../modules/settings/currency.service.js';
 const filterQuerySchema = z.object({
   category: z.string().trim().max(255).optional(),
   q: z.string().trim().max(120).optional(),
+  /** A model or size - "14G", "3 ml" - matched against the variants. */
+  model: z.string().trim().max(120).optional(),
   minPrice: z.coerce.number().int().min(0).optional(),
   maxPrice: z.coerce.number().int().min(0).optional(),
   recurringOnly: z.enum(['true', 'false']).optional(),
@@ -284,6 +291,7 @@ function serialiseProduct(
   price: PricePair | null,
   variantPrices: Map<string, PricePair>,
   shelf: ShelfContext,
+  variantPackaging?: Map<string, SerialisedPackaging>,
 ): Record<string, unknown> {
   const primaryImage = product.media[0]?.media ?? null;
 
@@ -334,6 +342,35 @@ function serialiseProduct(
     availableInCurrency: price !== null,
     price: quote === null ? null : serialiseMoney(quote.unitPriceMinor, currency),
     compareAtPrice: compareAt === null ? null : serialiseMoney(compareAt, currency),
+
+    /**
+     * Whether this can be bought, and what to say instead when it cannot.
+     *
+     * Sent on every read, list and detail alike, because the grid has to decide
+     * between a price and "Request a quote" before anybody clicks anything. A
+     * storefront without this would render a price of zero beside a working Add
+     * to basket button, which is the worst of every available outcome.
+     *
+     * `canAddToCart` is the single answer the two flags reduce to, computed
+     * here so the storefront, the assistant and any future client cannot each
+     * reach a different conclusion from the same two booleans. The server
+     * enforces it again on every basket write regardless - see cart.service.
+     */
+    purchasability: {
+      isPriceOnRequest: product.isPriceOnRequest,
+      isOrderable: product.isOrderable,
+      unavailabilityReason: product.unavailabilityReason,
+      canAddToCart: product.isOrderable && !product.isPriceOnRequest && price !== null,
+    },
+
+    /**
+     * How it is packed, and what a carton holds.
+     *
+     * Null for a product nobody has recorded packing for, and the storefront
+     * renders nothing rather than an empty "Packaging" heading - which would
+     * read as "this is sold loose", a claim the catalogue has not made.
+     */
+    packaging: serialisePackaging(product.packagings[0]),
 
     tax: {
       code: product.taxClass.code,
@@ -454,6 +491,14 @@ function serialiseProduct(
         options: variant.optionsJson,
         availableInCurrency: variantPrice !== null,
         price: variantQuote === null ? null : serialiseMoney(variantQuote.unitPriceMinor, currency),
+        // GPSR Art. 19(c) per sellable SKU. A barcode belongs to the thing in
+        // the box, and two sizes are two boxes with two barcodes.
+        gtin: variant.gtin,
+        modelIdentifier: variant.modelIdentifier,
+        // Present on the detail read, absent on a listing - see the select.
+        // Falls back to the product-level row so a size whose packing was never
+        // recorded separately still shows the product's.
+        packaging: variantPackaging?.get(variant.id) ?? null,
       };
     }),
 
@@ -514,7 +559,53 @@ async function resolveFilters(
         { name: { contains: query.q } },
         { shortDescription: { contains: query.q } },
         { sku: { contains: query.q } },
+        // A buyer working from a supplier's paperwork types the code or the
+        // barcode off it, not the marketing name - and on a catalogue whose
+        // sizes are separate variants, both of those live on the variant
+        // rather than on the product. Without the variant half, searching for
+        // the exact code printed on the box returns nothing.
+        { gtin: { contains: query.q } },
+        { modelIdentifier: { contains: query.q } },
+        {
+          variants: {
+            some: {
+              isActive: true,
+              archivedAt: null,
+              OR: [
+                { sku: { contains: query.q } },
+                { gtin: { contains: query.q } },
+                { modelIdentifier: { contains: query.q } },
+                { name: { contains: query.q } },
+              ],
+            },
+          },
+        },
         ...(translatedIds.length > 0 ? [{ id: { in: translatedIds } }] : []),
+      ],
+    });
+  }
+
+  // Size, as its own filter rather than as free text.
+  //
+  // Brand, sterility, sterilisation method and packing type are already
+  // filterable through `attr=Name:Value` - the catalogue import writes them as
+  // filterable specifications, so they appear in the facet panel without a
+  // line of code here. Size cannot ride on that: a product attribute is unique
+  // per name per product, and a listing with seven gauges has seven sizes.
+  // They live on the variants, so they are filtered there.
+  if (query.model !== undefined && query.model.length > 0) {
+    conditions.push({
+      OR: [
+        { modelIdentifier: { contains: query.model } },
+        {
+          variants: {
+            some: {
+              isActive: true,
+              archivedAt: null,
+              modelIdentifier: { contains: query.model },
+            },
+          },
+        },
       ],
     });
   }
@@ -570,12 +661,33 @@ function priceWhereFor(
   // same response then displays at 104.
   const toColumn = (amount: number): bigint => toListed(BigInt(amount), shelf.scale);
 
+  /**
+   * A product quoted per account has no figure to compare against.
+   *
+   * It still has a price ROW - the catalogue keeps one per SKU per currency so
+   * this listing, which is rooted at that table, can reach it at all - and the
+   * figure in it is zero. That zero is never shown and never charged: the
+   * storefront renders "Request a quote" instead, and `assertPurchasable`
+   * refuses the basket. But it is still a zero, so it must not answer a
+   * question about price.
+   *
+   * Under a maximum of 1,000 it would sort in as the cheapest thing in the
+   * catalogue; under "on offer" it would qualify against any compare-at at
+   * all. Both are excluded wherever the shopper has asked a question the
+   * product cannot answer - and only there, so an unfiltered grid still shows
+   * everything the catalogue sells.
+   */
+  const excludeUnpriced =
+    bounded || query.onSaleOnly === 'true' ? { isPriceOnRequest: false } : {};
+
+  const narrowed: Prisma.ProductWhereInput = { ...productWhere, ...excludeUnpriced };
+
   return {
     currencyCode: currency,
     variantKey: NO_VARIANT_KEY,
     // Omitted when empty: the facet endpoint asks for the currency test alone,
     // and `product: {}` would join the table back for nothing.
-    ...(Object.keys(productWhere).length > 0 ? { product: productWhere } : {}),
+    ...(Object.keys(narrowed).length > 0 ? { product: narrowed } : {}),
     ...(bounded
       ? {
           basePriceMinor: {
@@ -743,7 +855,13 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
 
     const [range, facets] = await Promise.all([
       prisma.productPrice.aggregate({
-        where: priceWhereFor(query, currency, productWhere, shelf, { applyBounds: false }),
+        where: {
+          ...priceWhereFor(query, currency, productWhere, shelf, { applyBounds: false }),
+          // The range says what the catalogue costs, so the zero standing in
+          // for "ask us" has no business in it - it would pull the minimum to
+          // nothing and make the slider useless for every other product.
+          product: { ...productWhere, isPriceOnRequest: false },
+        },
         _min: { basePriceMinor: true },
         _max: { basePriceMinor: true },
       }),
@@ -800,6 +918,12 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
 
     const base = prices.get(priceKey(product.id, null)) ?? null;
 
+    // Per-size packing, which the listing deliberately does not carry. The
+    // detail page is where somebody chooses a size and then works out how many
+    // cartons that is, and the sizes do not always agree - one gauge boxed 100
+    // to a carton and the next 50 is normal rather than exceptional.
+    const variantPackaging = await variantPackagingFor(product.id);
+
     // Not sold in this currency is a real state, not an error. Telling the
     // shopper which currencies it IS sold in lets them switch, where a 404
     // would just look broken.
@@ -815,7 +939,7 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
         : [];
 
     return reply.status(200).send({
-      product: serialiseProduct(product, currency, base, prices, shelf),
+      product: serialiseProduct(product, currency, base, prices, shelf, variantPackaging),
       currency,
       country: shelf.country,
       /**

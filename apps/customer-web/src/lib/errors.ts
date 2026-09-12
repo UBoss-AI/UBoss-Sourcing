@@ -48,6 +48,20 @@ export function errorMessage(t: Translate, error: unknown, fallback?: string): s
       return t('payment.thatCardCannotBeUsed');
     }
 
+    /*
+     * Three refusals a customer meets while pressing Add to basket, for the
+     * same reason as the two above: they arrive mid-task, on a page the
+     * customer is already partway through, and an English sentence at that
+     * moment reads as the site breaking rather than as an answer.
+     *
+     * They are three codes and not one because the customer has three
+     * different things to do about them - ask for a quote, come back later, or
+     * order by the piece instead.
+     */
+    if (error.code === 'PRODUCT_PRICE_ON_REQUEST') return t('errors.pricedOnRequest');
+    if (error.code === 'PRODUCT_NOT_ORDERABLE') return t('errors.notOrderable');
+    if (error.code === 'PACK_SIZE_UNKNOWN') return t('errors.packSizeUnknown');
+
     if (error.message.length > 0) return error.message;
   }
 

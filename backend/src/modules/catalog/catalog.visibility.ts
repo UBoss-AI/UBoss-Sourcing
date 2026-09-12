@@ -11,6 +11,7 @@
  * nothing fails loudly.
  */
 import type { Prisma } from '../../generated/prisma/client.js';
+import { PUBLIC_PACKAGING_SELECT } from './packaging.service.js';
 
 /**
  * The only `where` fragment permitted on a public product read.
@@ -55,6 +56,18 @@ const PUBLIC_PRODUCT_SELECT_BASE = {
   basePriceMinor: true,
   compareAtPriceMinor: true,
   currency: true,
+
+  /**
+   * Public because they change what the page offers to do.
+   *
+   * `isPriceOnRequest` replaces the price with an invitation to ask for one,
+   * and `isOrderable` replaces the buy controls with a notice. A storefront
+   * that could not see them would render a price of zero beside a working Add
+   * to basket button, which is the worst of every available outcome.
+   */
+  isPriceOnRequest: true,
+  isOrderable: true,
+  unavailabilityReason: true,
   minOrderQty: true,
   maxOrderQty: true,
   qtyIncrement: true,
@@ -177,6 +190,35 @@ const PUBLIC_PRODUCT_SELECT_BASE = {
     select: { name: true, value: true, sortOrder: true },
     orderBy: { sortOrder: 'asc' },
   },
+
+  /**
+   * How it is packed, and what a carton holds.
+   *
+   * Public, and load-bearing rather than decorative: it is what a buyer orders
+   * by. The internal columns of the same import - licence status, production
+   * capacity, the operator's workflow state - live on another table entirely
+   * and cannot arrive here by accident.
+   *
+   * The sticker artwork dimension is excluded by name. It is a print
+   * specification for the operator's label supplier, not a fact about the
+   * product, and putting a label's size in a list of box sizes would have a
+   * buyer measuring a shelf against it.
+   */
+  /**
+   * The product-level row only - `variantKey` is the empty string.
+   *
+   * A grid of two dozen products does not need thirty packing rows each, and
+   * selecting them all here would drag several thousand rows across the wire to
+   * render one line of summary text per card. The import writes this row
+   * alongside the per-variant ones for exactly this read; the detail page asks
+   * for the rest separately. See `packaging.service.ts`.
+   */
+  packagings: {
+    where: { variantKey: '' },
+    select: PUBLIC_PACKAGING_SELECT,
+    take: 1,
+  },
+
   variants: {
     // A deactivated variant must not be selectable on the storefront.
     where: { isActive: true, archivedAt: null },
@@ -187,6 +229,8 @@ const PUBLIC_PRODUCT_SELECT_BASE = {
       optionsJson: true,
       priceMinor: true,
       sortOrder: true,
+      gtin: true,
+      modelIdentifier: true,
     },
     orderBy: { sortOrder: 'asc' },
   },
@@ -206,6 +250,7 @@ export interface PublishValidationInput {
   shortDescription: string | null;
   description: string | null;
   basePriceMinor: bigint;
+  isPriceOnRequest: boolean;
   minOrderQty: number;
   maxOrderQty: number | null;
   qtyIncrement: number;
@@ -252,15 +297,27 @@ export function validateForPublish(input: PublishValidationInput): PublishBlocke
 
   // A zero price is almost always an unfinished draft rather than a giveaway.
   // Publishing one would let customers order stock for nothing.
-  if (input.basePriceMinor <= 0n) {
+  //
+  // Unless the operator has said the price is deliberately not published, which
+  // is a real and common thing to say about a B2B range quoted per account. The
+  // check is not skipped so much as satisfied a different way: a product priced
+  // on request cannot be added to a basket at all, so there is no path by which
+  // its zero reaches a total.
+  if (input.basePriceMinor <= 0n && !input.isPriceOnRequest) {
     blockers.push({
       field: 'basePriceMinor',
       code: 'PRICE_REQUIRED',
-      message: 'Set a price greater than zero before publishing.',
+      message: 'Set a price greater than zero, or mark this product as priced on request.',
     });
   }
 
-  if (input.mediaCount === 0) {
+  // A product with a real price still needs a picture. One priced on request
+  // does not: the neutral placeholder the grid already draws is an honest
+  // answer to "we have not photographed this yet", and requiring a photograph
+  // before a specification sheet can be published would keep a catalogue of
+  // several hundred genuine products entirely invisible while somebody
+  // arranges a photoshoot. The listing is a specification either way.
+  if (input.mediaCount === 0 && !input.isPriceOnRequest) {
     blockers.push({
       field: 'media',
       code: 'IMAGE_REQUIRED',

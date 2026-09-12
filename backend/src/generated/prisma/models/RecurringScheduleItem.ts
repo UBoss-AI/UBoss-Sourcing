@@ -28,10 +28,14 @@ export type AggregateRecurringScheduleItem = {
 
 export type RecurringScheduleItemAvgAggregateOutputType = {
   quantity: number | null
+  unitQuantity: number | null
+  piecesPerUnitSnapshot: number | null
 }
 
 export type RecurringScheduleItemSumAggregateOutputType = {
   quantity: number | null
+  unitQuantity: number | null
+  piecesPerUnitSnapshot: number | null
 }
 
 export type RecurringScheduleItemMinAggregateOutputType = {
@@ -41,6 +45,9 @@ export type RecurringScheduleItemMinAggregateOutputType = {
   variantId: string | null
   variantKey: string | null
   quantity: number | null
+  orderingUnit: $Enums.OrderingUnit | null
+  unitQuantity: number | null
+  piecesPerUnitSnapshot: number | null
   substituteProductId: string | null
   substituteVariantId: string | null
   substituteVariantKey: string | null
@@ -55,6 +62,9 @@ export type RecurringScheduleItemMaxAggregateOutputType = {
   variantId: string | null
   variantKey: string | null
   quantity: number | null
+  orderingUnit: $Enums.OrderingUnit | null
+  unitQuantity: number | null
+  piecesPerUnitSnapshot: number | null
   substituteProductId: string | null
   substituteVariantId: string | null
   substituteVariantKey: string | null
@@ -69,6 +79,9 @@ export type RecurringScheduleItemCountAggregateOutputType = {
   variantId: number
   variantKey: number
   quantity: number
+  orderingUnit: number
+  unitQuantity: number
+  piecesPerUnitSnapshot: number
   substituteProductId: number
   substituteVariantId: number
   substituteVariantKey: number
@@ -80,10 +93,14 @@ export type RecurringScheduleItemCountAggregateOutputType = {
 
 export type RecurringScheduleItemAvgAggregateInputType = {
   quantity?: true
+  unitQuantity?: true
+  piecesPerUnitSnapshot?: true
 }
 
 export type RecurringScheduleItemSumAggregateInputType = {
   quantity?: true
+  unitQuantity?: true
+  piecesPerUnitSnapshot?: true
 }
 
 export type RecurringScheduleItemMinAggregateInputType = {
@@ -93,6 +110,9 @@ export type RecurringScheduleItemMinAggregateInputType = {
   variantId?: true
   variantKey?: true
   quantity?: true
+  orderingUnit?: true
+  unitQuantity?: true
+  piecesPerUnitSnapshot?: true
   substituteProductId?: true
   substituteVariantId?: true
   substituteVariantKey?: true
@@ -107,6 +127,9 @@ export type RecurringScheduleItemMaxAggregateInputType = {
   variantId?: true
   variantKey?: true
   quantity?: true
+  orderingUnit?: true
+  unitQuantity?: true
+  piecesPerUnitSnapshot?: true
   substituteProductId?: true
   substituteVariantId?: true
   substituteVariantKey?: true
@@ -121,6 +144,9 @@ export type RecurringScheduleItemCountAggregateInputType = {
   variantId?: true
   variantKey?: true
   quantity?: true
+  orderingUnit?: true
+  unitQuantity?: true
+  piecesPerUnitSnapshot?: true
   substituteProductId?: true
   substituteVariantId?: true
   substituteVariantKey?: true
@@ -222,6 +248,9 @@ export type RecurringScheduleItemGroupByOutputType = {
   variantId: string | null
   variantKey: string
   quantity: number
+  orderingUnit: $Enums.OrderingUnit
+  unitQuantity: number
+  piecesPerUnitSnapshot: number
   substituteProductId: string | null
   substituteVariantId: string | null
   substituteVariantKey: string
@@ -259,6 +288,9 @@ export type RecurringScheduleItemWhereInput = {
   variantId?: Prisma.StringNullableFilter<"RecurringScheduleItem"> | string | null
   variantKey?: Prisma.StringFilter<"RecurringScheduleItem"> | string
   quantity?: Prisma.IntFilter<"RecurringScheduleItem"> | number
+  orderingUnit?: Prisma.EnumOrderingUnitFilter<"RecurringScheduleItem"> | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFilter<"RecurringScheduleItem"> | number
+  piecesPerUnitSnapshot?: Prisma.IntFilter<"RecurringScheduleItem"> | number
   substituteProductId?: Prisma.StringNullableFilter<"RecurringScheduleItem"> | string | null
   substituteVariantId?: Prisma.StringNullableFilter<"RecurringScheduleItem"> | string | null
   substituteVariantKey?: Prisma.StringFilter<"RecurringScheduleItem"> | string
@@ -278,6 +310,9 @@ export type RecurringScheduleItemOrderByWithRelationInput = {
   variantId?: Prisma.SortOrderInput | Prisma.SortOrder
   variantKey?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  orderingUnit?: Prisma.SortOrder
+  unitQuantity?: Prisma.SortOrder
+  piecesPerUnitSnapshot?: Prisma.SortOrder
   substituteProductId?: Prisma.SortOrderInput | Prisma.SortOrder
   substituteVariantId?: Prisma.SortOrderInput | Prisma.SortOrder
   substituteVariantKey?: Prisma.SortOrder
@@ -302,6 +337,9 @@ export type RecurringScheduleItemWhereUniqueInput = Prisma.AtLeast<{
   variantId?: Prisma.StringNullableFilter<"RecurringScheduleItem"> | string | null
   variantKey?: Prisma.StringFilter<"RecurringScheduleItem"> | string
   quantity?: Prisma.IntFilter<"RecurringScheduleItem"> | number
+  orderingUnit?: Prisma.EnumOrderingUnitFilter<"RecurringScheduleItem"> | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFilter<"RecurringScheduleItem"> | number
+  piecesPerUnitSnapshot?: Prisma.IntFilter<"RecurringScheduleItem"> | number
   substituteProductId?: Prisma.StringNullableFilter<"RecurringScheduleItem"> | string | null
   substituteVariantId?: Prisma.StringNullableFilter<"RecurringScheduleItem"> | string | null
   substituteVariantKey?: Prisma.StringFilter<"RecurringScheduleItem"> | string
@@ -321,6 +359,9 @@ export type RecurringScheduleItemOrderByWithAggregationInput = {
   variantId?: Prisma.SortOrderInput | Prisma.SortOrder
   variantKey?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  orderingUnit?: Prisma.SortOrder
+  unitQuantity?: Prisma.SortOrder
+  piecesPerUnitSnapshot?: Prisma.SortOrder
   substituteProductId?: Prisma.SortOrderInput | Prisma.SortOrder
   substituteVariantId?: Prisma.SortOrderInput | Prisma.SortOrder
   substituteVariantKey?: Prisma.SortOrder
@@ -343,6 +384,9 @@ export type RecurringScheduleItemScalarWhereWithAggregatesInput = {
   variantId?: Prisma.StringNullableWithAggregatesFilter<"RecurringScheduleItem"> | string | null
   variantKey?: Prisma.StringWithAggregatesFilter<"RecurringScheduleItem"> | string
   quantity?: Prisma.IntWithAggregatesFilter<"RecurringScheduleItem"> | number
+  orderingUnit?: Prisma.EnumOrderingUnitWithAggregatesFilter<"RecurringScheduleItem"> | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntWithAggregatesFilter<"RecurringScheduleItem"> | number
+  piecesPerUnitSnapshot?: Prisma.IntWithAggregatesFilter<"RecurringScheduleItem"> | number
   substituteProductId?: Prisma.StringNullableWithAggregatesFilter<"RecurringScheduleItem"> | string | null
   substituteVariantId?: Prisma.StringNullableWithAggregatesFilter<"RecurringScheduleItem"> | string | null
   substituteVariantKey?: Prisma.StringWithAggregatesFilter<"RecurringScheduleItem"> | string
@@ -354,6 +398,9 @@ export type RecurringScheduleItemCreateInput = {
   id: string
   variantKey?: string
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   substituteVariantKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -371,6 +418,9 @@ export type RecurringScheduleItemUncheckedCreateInput = {
   variantId?: string | null
   variantKey?: string
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   substituteProductId?: string | null
   substituteVariantId?: string | null
   substituteVariantKey?: string
@@ -382,6 +432,9 @@ export type RecurringScheduleItemUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -399,6 +452,9 @@ export type RecurringScheduleItemUncheckedUpdateInput = {
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   substituteProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   substituteVariantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -413,6 +469,9 @@ export type RecurringScheduleItemCreateManyInput = {
   variantId?: string | null
   variantKey?: string
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   substituteProductId?: string | null
   substituteVariantId?: string | null
   substituteVariantKey?: string
@@ -424,6 +483,9 @@ export type RecurringScheduleItemUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -436,6 +498,9 @@ export type RecurringScheduleItemUncheckedUpdateManyInput = {
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   substituteProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   substituteVariantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -472,6 +537,9 @@ export type RecurringScheduleItemCountOrderByAggregateInput = {
   variantId?: Prisma.SortOrder
   variantKey?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  orderingUnit?: Prisma.SortOrder
+  unitQuantity?: Prisma.SortOrder
+  piecesPerUnitSnapshot?: Prisma.SortOrder
   substituteProductId?: Prisma.SortOrder
   substituteVariantId?: Prisma.SortOrder
   substituteVariantKey?: Prisma.SortOrder
@@ -481,6 +549,8 @@ export type RecurringScheduleItemCountOrderByAggregateInput = {
 
 export type RecurringScheduleItemAvgOrderByAggregateInput = {
   quantity?: Prisma.SortOrder
+  unitQuantity?: Prisma.SortOrder
+  piecesPerUnitSnapshot?: Prisma.SortOrder
 }
 
 export type RecurringScheduleItemMaxOrderByAggregateInput = {
@@ -490,6 +560,9 @@ export type RecurringScheduleItemMaxOrderByAggregateInput = {
   variantId?: Prisma.SortOrder
   variantKey?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  orderingUnit?: Prisma.SortOrder
+  unitQuantity?: Prisma.SortOrder
+  piecesPerUnitSnapshot?: Prisma.SortOrder
   substituteProductId?: Prisma.SortOrder
   substituteVariantId?: Prisma.SortOrder
   substituteVariantKey?: Prisma.SortOrder
@@ -504,6 +577,9 @@ export type RecurringScheduleItemMinOrderByAggregateInput = {
   variantId?: Prisma.SortOrder
   variantKey?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  orderingUnit?: Prisma.SortOrder
+  unitQuantity?: Prisma.SortOrder
+  piecesPerUnitSnapshot?: Prisma.SortOrder
   substituteProductId?: Prisma.SortOrder
   substituteVariantId?: Prisma.SortOrder
   substituteVariantKey?: Prisma.SortOrder
@@ -513,6 +589,8 @@ export type RecurringScheduleItemMinOrderByAggregateInput = {
 
 export type RecurringScheduleItemSumOrderByAggregateInput = {
   quantity?: Prisma.SortOrder
+  unitQuantity?: Prisma.SortOrder
+  piecesPerUnitSnapshot?: Prisma.SortOrder
 }
 
 export type RecurringScheduleItemCreateNestedManyWithoutProductInput = {
@@ -729,6 +807,9 @@ export type RecurringScheduleItemCreateWithoutProductInput = {
   id: string
   variantKey?: string
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   substituteVariantKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -744,6 +825,9 @@ export type RecurringScheduleItemUncheckedCreateWithoutProductInput = {
   variantId?: string | null
   variantKey?: string
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   substituteProductId?: string | null
   substituteVariantId?: string | null
   substituteVariantKey?: string
@@ -765,6 +849,9 @@ export type RecurringScheduleItemCreateWithoutSubstituteProductInput = {
   id: string
   variantKey?: string
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   substituteVariantKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -781,6 +868,9 @@ export type RecurringScheduleItemUncheckedCreateWithoutSubstituteProductInput = 
   variantId?: string | null
   variantKey?: string
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   substituteVariantId?: string | null
   substituteVariantKey?: string
   createdAt?: Date | string
@@ -823,6 +913,9 @@ export type RecurringScheduleItemScalarWhereInput = {
   variantId?: Prisma.StringNullableFilter<"RecurringScheduleItem"> | string | null
   variantKey?: Prisma.StringFilter<"RecurringScheduleItem"> | string
   quantity?: Prisma.IntFilter<"RecurringScheduleItem"> | number
+  orderingUnit?: Prisma.EnumOrderingUnitFilter<"RecurringScheduleItem"> | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFilter<"RecurringScheduleItem"> | number
+  piecesPerUnitSnapshot?: Prisma.IntFilter<"RecurringScheduleItem"> | number
   substituteProductId?: Prisma.StringNullableFilter<"RecurringScheduleItem"> | string | null
   substituteVariantId?: Prisma.StringNullableFilter<"RecurringScheduleItem"> | string | null
   substituteVariantKey?: Prisma.StringFilter<"RecurringScheduleItem"> | string
@@ -850,6 +943,9 @@ export type RecurringScheduleItemCreateWithoutVariantInput = {
   id: string
   variantKey?: string
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   substituteVariantKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -865,6 +961,9 @@ export type RecurringScheduleItemUncheckedCreateWithoutVariantInput = {
   productId: string
   variantKey?: string
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   substituteProductId?: string | null
   substituteVariantId?: string | null
   substituteVariantKey?: string
@@ -886,6 +985,9 @@ export type RecurringScheduleItemCreateWithoutSubstituteVariantInput = {
   id: string
   variantKey?: string
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   substituteVariantKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -902,6 +1004,9 @@ export type RecurringScheduleItemUncheckedCreateWithoutSubstituteVariantInput = 
   variantId?: string | null
   variantKey?: string
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   substituteProductId?: string | null
   substituteVariantKey?: string
   createdAt?: Date | string
@@ -954,6 +1059,9 @@ export type RecurringScheduleItemCreateWithoutScheduleInput = {
   id: string
   variantKey?: string
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   substituteVariantKey?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -969,6 +1077,9 @@ export type RecurringScheduleItemUncheckedCreateWithoutScheduleInput = {
   variantId?: string | null
   variantKey?: string
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   substituteProductId?: string | null
   substituteVariantId?: string | null
   substituteVariantKey?: string
@@ -1008,6 +1119,9 @@ export type RecurringScheduleItemCreateManyProductInput = {
   variantId?: string | null
   variantKey?: string
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   substituteProductId?: string | null
   substituteVariantId?: string | null
   substituteVariantKey?: string
@@ -1022,6 +1136,9 @@ export type RecurringScheduleItemCreateManySubstituteProductInput = {
   variantId?: string | null
   variantKey?: string
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   substituteVariantId?: string | null
   substituteVariantKey?: string
   createdAt?: Date | string
@@ -1032,6 +1149,9 @@ export type RecurringScheduleItemUpdateWithoutProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1047,6 +1167,9 @@ export type RecurringScheduleItemUncheckedUpdateWithoutProductInput = {
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   substituteProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   substituteVariantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1060,6 +1183,9 @@ export type RecurringScheduleItemUncheckedUpdateManyWithoutProductInput = {
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   substituteProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   substituteVariantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1071,6 +1197,9 @@ export type RecurringScheduleItemUpdateWithoutSubstituteProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1087,6 +1216,9 @@ export type RecurringScheduleItemUncheckedUpdateWithoutSubstituteProductInput = 
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   substituteVariantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1100,6 +1232,9 @@ export type RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteProductInpu
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   substituteVariantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1112,6 +1247,9 @@ export type RecurringScheduleItemCreateManyVariantInput = {
   productId: string
   variantKey?: string
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   substituteProductId?: string | null
   substituteVariantId?: string | null
   substituteVariantKey?: string
@@ -1126,6 +1264,9 @@ export type RecurringScheduleItemCreateManySubstituteVariantInput = {
   variantId?: string | null
   variantKey?: string
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   substituteProductId?: string | null
   substituteVariantKey?: string
   createdAt?: Date | string
@@ -1136,6 +1277,9 @@ export type RecurringScheduleItemUpdateWithoutVariantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1151,6 +1295,9 @@ export type RecurringScheduleItemUncheckedUpdateWithoutVariantInput = {
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   substituteProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   substituteVariantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1164,6 +1311,9 @@ export type RecurringScheduleItemUncheckedUpdateManyWithoutVariantInput = {
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   substituteProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   substituteVariantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1175,6 +1325,9 @@ export type RecurringScheduleItemUpdateWithoutSubstituteVariantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1191,6 +1344,9 @@ export type RecurringScheduleItemUncheckedUpdateWithoutSubstituteVariantInput = 
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   substituteProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1204,6 +1360,9 @@ export type RecurringScheduleItemUncheckedUpdateManyWithoutSubstituteVariantInpu
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   substituteProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1216,6 +1375,9 @@ export type RecurringScheduleItemCreateManyScheduleInput = {
   variantId?: string | null
   variantKey?: string
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   substituteProductId?: string | null
   substituteVariantId?: string | null
   substituteVariantKey?: string
@@ -1227,6 +1389,9 @@ export type RecurringScheduleItemUpdateWithoutScheduleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1242,6 +1407,9 @@ export type RecurringScheduleItemUncheckedUpdateWithoutScheduleInput = {
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   substituteProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   substituteVariantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1255,6 +1423,9 @@ export type RecurringScheduleItemUncheckedUpdateManyWithoutScheduleInput = {
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantKey?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   substituteProductId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   substituteVariantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   substituteVariantKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1271,6 +1442,9 @@ export type RecurringScheduleItemSelect<ExtArgs extends runtime.Types.Extensions
   variantId?: boolean
   variantKey?: boolean
   quantity?: boolean
+  orderingUnit?: boolean
+  unitQuantity?: boolean
+  piecesPerUnitSnapshot?: boolean
   substituteProductId?: boolean
   substituteVariantId?: boolean
   substituteVariantKey?: boolean
@@ -1292,6 +1466,9 @@ export type RecurringScheduleItemSelectScalar = {
   variantId?: boolean
   variantKey?: boolean
   quantity?: boolean
+  orderingUnit?: boolean
+  unitQuantity?: boolean
+  piecesPerUnitSnapshot?: boolean
   substituteProductId?: boolean
   substituteVariantId?: boolean
   substituteVariantKey?: boolean
@@ -1299,7 +1476,7 @@ export type RecurringScheduleItemSelectScalar = {
   updatedAt?: boolean
 }
 
-export type RecurringScheduleItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scheduleId" | "productId" | "variantId" | "variantKey" | "quantity" | "substituteProductId" | "substituteVariantId" | "substituteVariantKey" | "createdAt" | "updatedAt", ExtArgs["result"]["recurringScheduleItem"]>
+export type RecurringScheduleItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scheduleId" | "productId" | "variantId" | "variantKey" | "quantity" | "orderingUnit" | "unitQuantity" | "piecesPerUnitSnapshot" | "substituteProductId" | "substituteVariantId" | "substituteVariantKey" | "createdAt" | "updatedAt", ExtArgs["result"]["recurringScheduleItem"]>
 export type RecurringScheduleItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   schedule?: boolean | Prisma.RecurringScheduleDefaultArgs<ExtArgs>
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
@@ -1323,7 +1500,22 @@ export type $RecurringScheduleItemPayload<ExtArgs extends runtime.Types.Extensio
     productId: string
     variantId: string | null
     variantKey: string
+    /**
+     * Pieces. `quoteSchedule` prices this column and only this column.
+     */
     quantity: number
+    /**
+     * The unit the plan was agreed in, and the conversion at that moment.
+     * 
+     * It matters more here than in a basket: this line is charged again months
+     * from now by a worker with nobody watching, and a customer who agreed to
+     * "3 cartons a month" must keep being sent three cartons even if the carton
+     * is re-specified in between. Re-deriving the pieces at charge time would
+     * change the order without anybody agreeing to it.
+     */
+    orderingUnit: $Enums.OrderingUnit
+    unitQuantity: number
+    piecesPerUnitSnapshot: number
     /**
      * The one product the customer agreed may stand in for this line.
      * 
@@ -1718,6 +1910,9 @@ export interface RecurringScheduleItemFieldRefs {
   readonly variantId: Prisma.FieldRef<"RecurringScheduleItem", 'String'>
   readonly variantKey: Prisma.FieldRef<"RecurringScheduleItem", 'String'>
   readonly quantity: Prisma.FieldRef<"RecurringScheduleItem", 'Int'>
+  readonly orderingUnit: Prisma.FieldRef<"RecurringScheduleItem", 'OrderingUnit'>
+  readonly unitQuantity: Prisma.FieldRef<"RecurringScheduleItem", 'Int'>
+  readonly piecesPerUnitSnapshot: Prisma.FieldRef<"RecurringScheduleItem", 'Int'>
   readonly substituteProductId: Prisma.FieldRef<"RecurringScheduleItem", 'String'>
   readonly substituteVariantId: Prisma.FieldRef<"RecurringScheduleItem", 'String'>
   readonly substituteVariantKey: Prisma.FieldRef<"RecurringScheduleItem", 'String'>

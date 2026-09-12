@@ -83,7 +83,23 @@ const DEFAULT_RUN_AT_MINUTE = 360;
 interface ScheduleItemDraft {
   productId: string;
   variantId: string | null;
+  /** Pieces. The figure the plan is priced and charged on. */
   quantity: number;
+  /**
+   * The unit the customer was counting in when they chose this, carried from
+   * the basket line it came from.
+   *
+   * A plan built out of a basket of cartons has to stay a plan of cartons: it
+   * is charged again months from now by a worker with nobody watching, and a
+   * customer who agreed to three cartons a month must keep being sent three
+   * cartons even if the carton is re-specified in between. The conversion
+   * travels with it for exactly that reason.
+   */
+  ordering: {
+    unit: 'PIECE' | 'INNER_PACK' | 'OUTER_CARTON';
+    unitQuantity: number;
+    piecesPerUnit: number;
+  } | null;
   name: string;
   sku: string;
   unitPrice: { minor: string; formatted: string; currency: string } | null;
@@ -264,6 +280,14 @@ export function ScheduleBuilderPage(): React.JSX.Element {
             productId: line.productId,
             variantId: line.variantId,
             quantity: line.quantity,
+            ordering:
+              line.ordering === null || line.ordering === undefined
+                ? null
+                : {
+                    unit: line.ordering.unit,
+                    unitQuantity: line.ordering.unitQuantity,
+                    piecesPerUnit: line.ordering.piecesPerUnit,
+                  },
             name: line.name,
             sku: line.sku,
             unitPrice: line.unitPrice,
@@ -302,6 +326,9 @@ export function ScheduleBuilderPage(): React.JSX.Element {
         productId: found.id,
         variantId,
         quantity,
+        // Arrived from a product page link, which carries a piece count in the
+        // URL and nothing about packs. Pieces is the honest reading of that.
+        ordering: null,
         name: found.name,
         sku: variant?.sku ?? found.sku,
         unitPrice: variant?.price ?? found.price,
@@ -340,6 +367,15 @@ export function ScheduleBuilderPage(): React.JSX.Element {
           productId: item.productId,
           variantId: item.variantId,
           quantity: item.quantity,
+          // Shown back on every plan screen; never priced from. The server
+          // prices `quantity` and only `quantity` - see QuoteItemInput.
+          ...(item.ordering === null
+            ? {}
+            : {
+                orderingUnit: item.ordering.unit,
+                unitQuantity: item.ordering.unitQuantity,
+                piecesPerUnitSnapshot: item.ordering.piecesPerUnit,
+              }),
         })),
         consentAccepted,
       }),

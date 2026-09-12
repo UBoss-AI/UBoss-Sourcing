@@ -421,7 +421,7 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
     // The immutable snapshots. Everything a future invoice or dispute needs,
     // frozen at this instant.
     await tx.orderItem.createMany({
-      data: resolved.pricing.lines.map((line: PricedLine) => ({
+      data: resolved.pricing.lines.map((line: PricedLine, index: number) => ({
         id: newId(),
         orderId,
         productId: line.productId,
@@ -440,6 +440,16 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
         discountMinor: line.discountMinor,
         lineTotalMinor: line.lineTotalMinor,
         isRecurringEligibleSnapshot: line.isRecurringEligibleSnapshot,
+
+        // What the buyer ordered in, carried across from the basket line it
+        // came from. `pricing.lines` and `lines` are positionally aligned -
+        // both are built from `lineMeta` in one pass - so the index is the
+        // join. An invoice that says 4,000 pieces where the buyer ordered 2
+        // cartons is a dispute waiting to be had, and the packing it was
+        // worked out from may not survive to the day somebody asks.
+        orderingUnit: resolved.lines[index]?.ordering.unit ?? 'PIECE',
+        unitQuantity: resolved.lines[index]?.ordering.unitQuantity ?? line.quantity,
+        piecesPerUnitSnapshot: resolved.lines[index]?.ordering.piecesPerUnit ?? 1,
       })),
     });
 

@@ -29,6 +29,8 @@ export type AggregateOrderItem = {
 export type OrderItemAvgAggregateOutputType = {
   unitPriceMinor: number | null
   quantity: number | null
+  unitQuantity: number | null
+  piecesPerUnitSnapshot: number | null
   lineSubtotalMinor: number | null
   taxRatePercent: runtime.Decimal | null
   taxAmountMinor: number | null
@@ -39,6 +41,8 @@ export type OrderItemAvgAggregateOutputType = {
 export type OrderItemSumAggregateOutputType = {
   unitPriceMinor: bigint | null
   quantity: number | null
+  unitQuantity: number | null
+  piecesPerUnitSnapshot: number | null
   lineSubtotalMinor: bigint | null
   taxRatePercent: runtime.Decimal | null
   taxAmountMinor: bigint | null
@@ -58,6 +62,9 @@ export type OrderItemMinAggregateOutputType = {
   imageUrlSnapshot: string | null
   unitPriceMinor: bigint | null
   quantity: number | null
+  orderingUnit: $Enums.OrderingUnit | null
+  unitQuantity: number | null
+  piecesPerUnitSnapshot: number | null
   lineSubtotalMinor: bigint | null
   taxRatePercent: runtime.Decimal | null
   taxInclusive: boolean | null
@@ -80,6 +87,9 @@ export type OrderItemMaxAggregateOutputType = {
   imageUrlSnapshot: string | null
   unitPriceMinor: bigint | null
   quantity: number | null
+  orderingUnit: $Enums.OrderingUnit | null
+  unitQuantity: number | null
+  piecesPerUnitSnapshot: number | null
   lineSubtotalMinor: bigint | null
   taxRatePercent: runtime.Decimal | null
   taxInclusive: boolean | null
@@ -102,6 +112,9 @@ export type OrderItemCountAggregateOutputType = {
   imageUrlSnapshot: number
   unitPriceMinor: number
   quantity: number
+  orderingUnit: number
+  unitQuantity: number
+  piecesPerUnitSnapshot: number
   lineSubtotalMinor: number
   taxRatePercent: number
   taxInclusive: number
@@ -117,6 +130,8 @@ export type OrderItemCountAggregateOutputType = {
 export type OrderItemAvgAggregateInputType = {
   unitPriceMinor?: true
   quantity?: true
+  unitQuantity?: true
+  piecesPerUnitSnapshot?: true
   lineSubtotalMinor?: true
   taxRatePercent?: true
   taxAmountMinor?: true
@@ -127,6 +142,8 @@ export type OrderItemAvgAggregateInputType = {
 export type OrderItemSumAggregateInputType = {
   unitPriceMinor?: true
   quantity?: true
+  unitQuantity?: true
+  piecesPerUnitSnapshot?: true
   lineSubtotalMinor?: true
   taxRatePercent?: true
   taxAmountMinor?: true
@@ -146,6 +163,9 @@ export type OrderItemMinAggregateInputType = {
   imageUrlSnapshot?: true
   unitPriceMinor?: true
   quantity?: true
+  orderingUnit?: true
+  unitQuantity?: true
+  piecesPerUnitSnapshot?: true
   lineSubtotalMinor?: true
   taxRatePercent?: true
   taxInclusive?: true
@@ -168,6 +188,9 @@ export type OrderItemMaxAggregateInputType = {
   imageUrlSnapshot?: true
   unitPriceMinor?: true
   quantity?: true
+  orderingUnit?: true
+  unitQuantity?: true
+  piecesPerUnitSnapshot?: true
   lineSubtotalMinor?: true
   taxRatePercent?: true
   taxInclusive?: true
@@ -190,6 +213,9 @@ export type OrderItemCountAggregateInputType = {
   imageUrlSnapshot?: true
   unitPriceMinor?: true
   quantity?: true
+  orderingUnit?: true
+  unitQuantity?: true
+  piecesPerUnitSnapshot?: true
   lineSubtotalMinor?: true
   taxRatePercent?: true
   taxInclusive?: true
@@ -299,6 +325,9 @@ export type OrderItemGroupByOutputType = {
   imageUrlSnapshot: string | null
   unitPriceMinor: bigint
   quantity: number
+  orderingUnit: $Enums.OrderingUnit
+  unitQuantity: number
+  piecesPerUnitSnapshot: number
   lineSubtotalMinor: bigint
   taxRatePercent: runtime.Decimal
   taxInclusive: boolean
@@ -344,6 +373,9 @@ export type OrderItemWhereInput = {
   imageUrlSnapshot?: Prisma.StringNullableFilter<"OrderItem"> | string | null
   unitPriceMinor?: Prisma.BigIntFilter<"OrderItem"> | bigint | number
   quantity?: Prisma.IntFilter<"OrderItem"> | number
+  orderingUnit?: Prisma.EnumOrderingUnitFilter<"OrderItem"> | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFilter<"OrderItem"> | number
+  piecesPerUnitSnapshot?: Prisma.IntFilter<"OrderItem"> | number
   lineSubtotalMinor?: Prisma.BigIntFilter<"OrderItem"> | bigint | number
   taxRatePercent?: Prisma.DecimalFilter<"OrderItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFilter<"OrderItem"> | boolean
@@ -369,6 +401,9 @@ export type OrderItemOrderByWithRelationInput = {
   imageUrlSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   unitPriceMinor?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  orderingUnit?: Prisma.SortOrder
+  unitQuantity?: Prisma.SortOrder
+  piecesPerUnitSnapshot?: Prisma.SortOrder
   lineSubtotalMinor?: Prisma.SortOrder
   taxRatePercent?: Prisma.SortOrder
   taxInclusive?: Prisma.SortOrder
@@ -398,6 +433,9 @@ export type OrderItemWhereUniqueInput = Prisma.AtLeast<{
   imageUrlSnapshot?: Prisma.StringNullableFilter<"OrderItem"> | string | null
   unitPriceMinor?: Prisma.BigIntFilter<"OrderItem"> | bigint | number
   quantity?: Prisma.IntFilter<"OrderItem"> | number
+  orderingUnit?: Prisma.EnumOrderingUnitFilter<"OrderItem"> | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFilter<"OrderItem"> | number
+  piecesPerUnitSnapshot?: Prisma.IntFilter<"OrderItem"> | number
   lineSubtotalMinor?: Prisma.BigIntFilter<"OrderItem"> | bigint | number
   taxRatePercent?: Prisma.DecimalFilter<"OrderItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFilter<"OrderItem"> | boolean
@@ -423,6 +461,9 @@ export type OrderItemOrderByWithAggregationInput = {
   imageUrlSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   unitPriceMinor?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  orderingUnit?: Prisma.SortOrder
+  unitQuantity?: Prisma.SortOrder
+  piecesPerUnitSnapshot?: Prisma.SortOrder
   lineSubtotalMinor?: Prisma.SortOrder
   taxRatePercent?: Prisma.SortOrder
   taxInclusive?: Prisma.SortOrder
@@ -453,6 +494,9 @@ export type OrderItemScalarWhereWithAggregatesInput = {
   imageUrlSnapshot?: Prisma.StringNullableWithAggregatesFilter<"OrderItem"> | string | null
   unitPriceMinor?: Prisma.BigIntWithAggregatesFilter<"OrderItem"> | bigint | number
   quantity?: Prisma.IntWithAggregatesFilter<"OrderItem"> | number
+  orderingUnit?: Prisma.EnumOrderingUnitWithAggregatesFilter<"OrderItem"> | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntWithAggregatesFilter<"OrderItem"> | number
+  piecesPerUnitSnapshot?: Prisma.IntWithAggregatesFilter<"OrderItem"> | number
   lineSubtotalMinor?: Prisma.BigIntWithAggregatesFilter<"OrderItem"> | bigint | number
   taxRatePercent?: Prisma.DecimalWithAggregatesFilter<"OrderItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolWithAggregatesFilter<"OrderItem"> | boolean
@@ -472,6 +516,9 @@ export type OrderItemCreateInput = {
   imageUrlSnapshot?: string | null
   unitPriceMinor: bigint | number
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -497,6 +544,9 @@ export type OrderItemUncheckedCreateInput = {
   imageUrlSnapshot?: string | null
   unitPriceMinor: bigint | number
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -516,6 +566,9 @@ export type OrderItemUpdateInput = {
   imageUrlSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unitPriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -541,6 +594,9 @@ export type OrderItemUncheckedUpdateInput = {
   imageUrlSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unitPriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -563,6 +619,9 @@ export type OrderItemCreateManyInput = {
   imageUrlSnapshot?: string | null
   unitPriceMinor: bigint | number
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -582,6 +641,9 @@ export type OrderItemUpdateManyMutationInput = {
   imageUrlSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unitPriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -604,6 +666,9 @@ export type OrderItemUncheckedUpdateManyInput = {
   imageUrlSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unitPriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -642,6 +707,9 @@ export type OrderItemCountOrderByAggregateInput = {
   imageUrlSnapshot?: Prisma.SortOrder
   unitPriceMinor?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  orderingUnit?: Prisma.SortOrder
+  unitQuantity?: Prisma.SortOrder
+  piecesPerUnitSnapshot?: Prisma.SortOrder
   lineSubtotalMinor?: Prisma.SortOrder
   taxRatePercent?: Prisma.SortOrder
   taxInclusive?: Prisma.SortOrder
@@ -655,6 +723,8 @@ export type OrderItemCountOrderByAggregateInput = {
 export type OrderItemAvgOrderByAggregateInput = {
   unitPriceMinor?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  unitQuantity?: Prisma.SortOrder
+  piecesPerUnitSnapshot?: Prisma.SortOrder
   lineSubtotalMinor?: Prisma.SortOrder
   taxRatePercent?: Prisma.SortOrder
   taxAmountMinor?: Prisma.SortOrder
@@ -674,6 +744,9 @@ export type OrderItemMaxOrderByAggregateInput = {
   imageUrlSnapshot?: Prisma.SortOrder
   unitPriceMinor?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  orderingUnit?: Prisma.SortOrder
+  unitQuantity?: Prisma.SortOrder
+  piecesPerUnitSnapshot?: Prisma.SortOrder
   lineSubtotalMinor?: Prisma.SortOrder
   taxRatePercent?: Prisma.SortOrder
   taxInclusive?: Prisma.SortOrder
@@ -696,6 +769,9 @@ export type OrderItemMinOrderByAggregateInput = {
   imageUrlSnapshot?: Prisma.SortOrder
   unitPriceMinor?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  orderingUnit?: Prisma.SortOrder
+  unitQuantity?: Prisma.SortOrder
+  piecesPerUnitSnapshot?: Prisma.SortOrder
   lineSubtotalMinor?: Prisma.SortOrder
   taxRatePercent?: Prisma.SortOrder
   taxInclusive?: Prisma.SortOrder
@@ -709,6 +785,8 @@ export type OrderItemMinOrderByAggregateInput = {
 export type OrderItemSumOrderByAggregateInput = {
   unitPriceMinor?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  unitQuantity?: Prisma.SortOrder
+  piecesPerUnitSnapshot?: Prisma.SortOrder
   lineSubtotalMinor?: Prisma.SortOrder
   taxRatePercent?: Prisma.SortOrder
   taxAmountMinor?: Prisma.SortOrder
@@ -851,6 +929,9 @@ export type OrderItemCreateWithoutProductInput = {
   imageUrlSnapshot?: string | null
   unitPriceMinor: bigint | number
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -874,6 +955,9 @@ export type OrderItemUncheckedCreateWithoutProductInput = {
   imageUrlSnapshot?: string | null
   unitPriceMinor: bigint | number
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -925,6 +1009,9 @@ export type OrderItemScalarWhereInput = {
   imageUrlSnapshot?: Prisma.StringNullableFilter<"OrderItem"> | string | null
   unitPriceMinor?: Prisma.BigIntFilter<"OrderItem"> | bigint | number
   quantity?: Prisma.IntFilter<"OrderItem"> | number
+  orderingUnit?: Prisma.EnumOrderingUnitFilter<"OrderItem"> | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFilter<"OrderItem"> | number
+  piecesPerUnitSnapshot?: Prisma.IntFilter<"OrderItem"> | number
   lineSubtotalMinor?: Prisma.BigIntFilter<"OrderItem"> | bigint | number
   taxRatePercent?: Prisma.DecimalFilter<"OrderItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFilter<"OrderItem"> | boolean
@@ -944,6 +1031,9 @@ export type OrderItemCreateWithoutVariantInput = {
   imageUrlSnapshot?: string | null
   unitPriceMinor: bigint | number
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -967,6 +1057,9 @@ export type OrderItemUncheckedCreateWithoutVariantInput = {
   imageUrlSnapshot?: string | null
   unitPriceMinor: bigint | number
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -1012,6 +1105,9 @@ export type OrderItemCreateWithoutOrderInput = {
   imageUrlSnapshot?: string | null
   unitPriceMinor: bigint | number
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -1035,6 +1131,9 @@ export type OrderItemUncheckedCreateWithoutOrderInput = {
   imageUrlSnapshot?: string | null
   unitPriceMinor: bigint | number
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -1082,6 +1181,9 @@ export type OrderItemCreateManyProductInput = {
   imageUrlSnapshot?: string | null
   unitPriceMinor: bigint | number
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -1101,6 +1203,9 @@ export type OrderItemUpdateWithoutProductInput = {
   imageUrlSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unitPriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1124,6 +1229,9 @@ export type OrderItemUncheckedUpdateWithoutProductInput = {
   imageUrlSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unitPriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1145,6 +1253,9 @@ export type OrderItemUncheckedUpdateManyWithoutProductInput = {
   imageUrlSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unitPriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1166,6 +1277,9 @@ export type OrderItemCreateManyVariantInput = {
   imageUrlSnapshot?: string | null
   unitPriceMinor: bigint | number
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -1185,6 +1299,9 @@ export type OrderItemUpdateWithoutVariantInput = {
   imageUrlSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unitPriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1208,6 +1325,9 @@ export type OrderItemUncheckedUpdateWithoutVariantInput = {
   imageUrlSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unitPriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1229,6 +1349,9 @@ export type OrderItemUncheckedUpdateManyWithoutVariantInput = {
   imageUrlSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unitPriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1250,6 +1373,9 @@ export type OrderItemCreateManyOrderInput = {
   imageUrlSnapshot?: string | null
   unitPriceMinor: bigint | number
   quantity: number
+  orderingUnit?: $Enums.OrderingUnit
+  unitQuantity?: number
+  piecesPerUnitSnapshot?: number
   lineSubtotalMinor: bigint | number
   taxRatePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: boolean
@@ -1269,6 +1395,9 @@ export type OrderItemUpdateWithoutOrderInput = {
   imageUrlSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unitPriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1292,6 +1421,9 @@ export type OrderItemUncheckedUpdateWithoutOrderInput = {
   imageUrlSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unitPriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1313,6 +1445,9 @@ export type OrderItemUncheckedUpdateManyWithoutOrderInput = {
   imageUrlSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unitPriceMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  orderingUnit?: Prisma.EnumOrderingUnitFieldUpdateOperationsInput | $Enums.OrderingUnit
+  unitQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  piecesPerUnitSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   lineSubtotalMinor?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   taxRatePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   taxInclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1337,6 +1472,9 @@ export type OrderItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   imageUrlSnapshot?: boolean
   unitPriceMinor?: boolean
   quantity?: boolean
+  orderingUnit?: boolean
+  unitQuantity?: boolean
+  piecesPerUnitSnapshot?: boolean
   lineSubtotalMinor?: boolean
   taxRatePercent?: boolean
   taxInclusive?: boolean
@@ -1364,6 +1502,9 @@ export type OrderItemSelectScalar = {
   imageUrlSnapshot?: boolean
   unitPriceMinor?: boolean
   quantity?: boolean
+  orderingUnit?: boolean
+  unitQuantity?: boolean
+  piecesPerUnitSnapshot?: boolean
   lineSubtotalMinor?: boolean
   taxRatePercent?: boolean
   taxInclusive?: boolean
@@ -1374,7 +1515,7 @@ export type OrderItemSelectScalar = {
   createdAt?: boolean
 }
 
-export type OrderItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "productId" | "variantId" | "nameSnapshot" | "skuSnapshot" | "variantNameSnapshot" | "taxClassCodeSnapshot" | "imageUrlSnapshot" | "unitPriceMinor" | "quantity" | "lineSubtotalMinor" | "taxRatePercent" | "taxInclusive" | "taxAmountMinor" | "discountMinor" | "lineTotalMinor" | "isRecurringEligibleSnapshot" | "createdAt", ExtArgs["result"]["orderItem"]>
+export type OrderItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "productId" | "variantId" | "nameSnapshot" | "skuSnapshot" | "variantNameSnapshot" | "taxClassCodeSnapshot" | "imageUrlSnapshot" | "unitPriceMinor" | "quantity" | "orderingUnit" | "unitQuantity" | "piecesPerUnitSnapshot" | "lineSubtotalMinor" | "taxRatePercent" | "taxInclusive" | "taxAmountMinor" | "discountMinor" | "lineTotalMinor" | "isRecurringEligibleSnapshot" | "createdAt", ExtArgs["result"]["orderItem"]>
 export type OrderItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
@@ -1402,7 +1543,19 @@ export type $OrderItemPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     taxClassCodeSnapshot: string
     imageUrlSnapshot: string | null
     unitPriceMinor: bigint
+    /**
+     * Pieces, like everywhere else. The unit price is per piece.
+     */
     quantity: number
+    /**
+     * What the buyer ordered in, frozen with the rest of the line. An invoice
+     * that says 4,000 pieces where the buyer ordered 2 cartons is a dispute
+     * waiting to be had, and the packing it was worked out from may not survive
+     * to the day somebody asks.
+     */
+    orderingUnit: $Enums.OrderingUnit
+    unitQuantity: number
+    piecesPerUnitSnapshot: number
     lineSubtotalMinor: bigint
     taxRatePercent: runtime.Decimal
     taxInclusive: boolean
@@ -1794,6 +1947,9 @@ export interface OrderItemFieldRefs {
   readonly imageUrlSnapshot: Prisma.FieldRef<"OrderItem", 'String'>
   readonly unitPriceMinor: Prisma.FieldRef<"OrderItem", 'BigInt'>
   readonly quantity: Prisma.FieldRef<"OrderItem", 'Int'>
+  readonly orderingUnit: Prisma.FieldRef<"OrderItem", 'OrderingUnit'>
+  readonly unitQuantity: Prisma.FieldRef<"OrderItem", 'Int'>
+  readonly piecesPerUnitSnapshot: Prisma.FieldRef<"OrderItem", 'Int'>
   readonly lineSubtotalMinor: Prisma.FieldRef<"OrderItem", 'BigInt'>
   readonly taxRatePercent: Prisma.FieldRef<"OrderItem", 'Decimal'>
   readonly taxInclusive: Prisma.FieldRef<"OrderItem", 'Boolean'>

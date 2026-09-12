@@ -48,6 +48,7 @@ export default tseslint.config(
       'src/seed/**/*.ts',
       'scripts/**/*.ts',
       'src/http/openapi-export.ts',
+      '**/*.cli.ts',
       '**/*.test.ts',
     ],
     rules: { 'no-console': 'off', '@typescript-eslint/no-unsafe-assignment': 'off' },

@@ -50,7 +50,18 @@ const idParam = z.object({ id: z.string().length(26) });
 const itemSchema = z.object({
   productId: z.string().length(26),
   variantId: z.string().length(26).nullable().optional(),
+  /** Pieces. The figure `quoteSchedule` prices, and the only one it prices. */
   quantity: z.number().int().min(1).max(1_000_000),
+  /**
+   * The unit the customer agreed the plan in, for showing back.
+   *
+   * Accepted but never priced from - see `QuoteItemInput`. A client that sent
+   * a flattering conversion here would change what the plan screen says and
+   * nothing about what is charged.
+   */
+  orderingUnit: z.enum(['PIECE', 'INNER_PACK', 'OUTER_CARTON']).optional(),
+  unitQuantity: z.number().int().min(1).max(1_000_000).optional(),
+  piecesPerUnitSnapshot: z.number().int().min(1).max(1_000_000).optional(),
   /**
    * The one product the customer authorises as a stand-in for this line.
    *

@@ -30,6 +30,8 @@ import {
   updateCategory,
 } from '../../modules/catalog/category.service.js';
 import { bulkPriceFromCurrency } from '../../modules/catalog/bulk-price.service.js';
+import { dimensionLabel } from '../../modules/catalog/sheet-import/dimension-parser.js';
+import { packingFormula } from '../../modules/catalog/sheet-import/packing-parser.js';
 import {
   currenciesForProduct,
   loadPricesForCurrency,
@@ -142,6 +144,19 @@ const productBodySchema = z.object({
   qtyIncrement: z.number().int().min(1).max(1_000_000).optional(),
   isRecurringEligible: z.boolean().optional(),
   weightGrams: z.number().int().min(0).max(10_000_000).nullable().optional(),
+
+  /**
+   * The price is deliberately not published; the buyer is invited to ask.
+   *
+   * Not the same as an unfinished draft, which is what a zero price usually
+   * means. Setting this lets the product be published without one, and stops
+   * it reaching any basket - there is no figure to charge.
+   */
+  isPriceOnRequest: z.boolean().optional(),
+  /** Listed and readable, but every purchase path refused. */
+  isOrderable: z.boolean().optional(),
+  /** Shown to the customer beside the notice. Null shows the notice alone. */
+  unavailabilityReason: z.string().trim().max(255).nullable().optional(),
 
   // --- Product safety (GPSR Art. 19) ---
   //
@@ -638,6 +653,28 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
           },
           attributes: { orderBy: { sortOrder: 'asc' } },
           variants: { orderBy: { sortOrder: 'asc' } },
+
+          /**
+           * Packing, per SKU, with the sticker artwork included.
+           *
+           * The public read filters that dimension out - it is a print
+           * specification for the label supplier, not a fact about the product
+           * - and this one does not, because the person who needs it is exactly
+           * the person on this screen.
+           */
+          packagings: {
+            orderBy: { variantKey: 'asc' },
+            include: { dimensions: { orderBy: { kind: 'asc' } } },
+          },
+
+          /**
+           * Where the row came from, and the operator's own columns.
+           *
+           * Licence status, production capacity and a workflow state like
+           * "Working on it" live on their own table precisely so they cannot
+           * reach a customer by accident. This is the screen they exist for.
+           */
+          importRecords: { orderBy: { sourceRow: 'asc' } },
         },
       });
 
@@ -668,6 +705,26 @@ export function registerAdminCatalogRoutes(app: FastifyInstance): Promise<void> 
           variants: product.variants.map((variant) => ({
             ...variant,
             priceMinor: variant.priceMinor?.toString() ?? null,
+          })),
+          packaging: product.packagings.map((row) => ({
+            ...row,
+            // The sentence every screen shows, built once on the server so the
+            // storefront and this panel cannot word the same fact differently.
+            formula: packingFormula(row),
+            dimensions: row.dimensions.map((dimension) => ({
+              ...dimension,
+              label: dimensionLabel(dimension),
+            })),
+          })),
+          importRecords: product.importRecords.map((row) => ({
+            ...row,
+            importedAt: row.importedAt.toISOString(),
+            // A date, not an instant: a launch is a day in a calendar, and
+            // giving it a time would move it across a midnight for half the
+            // world's administrators.
+            launchDate: row.launchDate?.toISOString().slice(0, 10) ?? null,
+            createdAt: row.createdAt.toISOString(),
+            updatedAt: row.updatedAt.toISOString(),
           })),
         },
       });

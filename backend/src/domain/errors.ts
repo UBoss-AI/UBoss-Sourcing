@@ -77,6 +77,30 @@ export const ErrorCode = {
   PRODUCT_NOT_PUBLISHED: 'PRODUCT_NOT_PUBLISHED',
   PRODUCT_INCOMPLETE_FOR_PUBLISH: 'PRODUCT_INCOMPLETE_FOR_PUBLISH',
   VARIANT_MISMATCH: 'VARIANT_MISMATCH',
+
+  /**
+   * Listed, readable, and not for sale - two different reasons, two codes.
+   *
+   * They are separate because the customer has to do two different things. A
+   * price on request is an invitation: get in touch and we will quote you. An
+   * unavailable product is a wait: it exists, it is not being sold this week,
+   * come back. One code covering both would force every client to guess which
+   * sentence to show, and the guess would be wrong half the time.
+   *
+   * Both are also a 409 rather than a 404: the product is genuinely there, and
+   * pretending it is not would send somebody looking for a broken link.
+   */
+  PRODUCT_PRICE_ON_REQUEST: 'PRODUCT_PRICE_ON_REQUEST',
+  PRODUCT_NOT_ORDERABLE: 'PRODUCT_NOT_ORDERABLE',
+
+  /**
+   * A pack was asked for where the catalogue does not know what a pack holds.
+   *
+   * Refused rather than quietly treated as one piece. A buyer who asked for two
+   * cartons and received two syringes has been failed far worse than one who
+   * was told the carton quantity is not on file.
+   */
+  PACK_SIZE_UNKNOWN: 'PACK_SIZE_UNKNOWN',
   MEDIA_TYPE_NOT_ALLOWED: 'MEDIA_TYPE_NOT_ALLOWED',
   MEDIA_TOO_LARGE: 'MEDIA_TOO_LARGE',
 

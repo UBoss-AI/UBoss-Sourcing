@@ -72,6 +72,9 @@ export const ModelName = {
   ProductVariant: 'ProductVariant',
   ProductMedia: 'ProductMedia',
   ProductAttribute: 'ProductAttribute',
+  ProductPackaging: 'ProductPackaging',
+  ProductPackDimension: 'ProductPackDimension',
+  ProductImportRecord: 'ProductImportRecord',
   InventoryLocation: 'InventoryLocation',
   WarehouseCountryExclusion: 'WarehouseCountryExclusion',
   WarehouseDeliveryZone: 'WarehouseDeliveryZone',
@@ -480,9 +483,12 @@ export const ProductScalarFieldEnum = {
   taxClassId: 'taxClassId',
   basePriceMinor: 'basePriceMinor',
   currency: 'currency',
+  isPriceOnRequest: 'isPriceOnRequest',
   compareAtPriceMinor: 'compareAtPriceMinor',
   isStockTracked: 'isStockTracked',
   reorderThreshold: 'reorderThreshold',
+  isOrderable: 'isOrderable',
+  unavailabilityReason: 'unavailabilityReason',
   minOrderQty: 'minOrderQty',
   maxOrderQty: 'maxOrderQty',
   qtyIncrement: 'qtyIncrement',
@@ -492,6 +498,7 @@ export const ProductScalarFieldEnum = {
   weightGrams: 'weightGrams',
   metaTitle: 'metaTitle',
   metaDescription: 'metaDescription',
+  importFingerprint: 'importFingerprint',
   manufacturerId: 'manufacturerId',
   euResponsibleId: 'euResponsibleId',
   gtin: 'gtin',
@@ -513,13 +520,16 @@ export const ProductVariantScalarFieldEnum = {
   productId: 'productId',
   sku: 'sku',
   name: 'name',
+  gtin: 'gtin',
+  modelIdentifier: 'modelIdentifier',
   optionsJson: 'optionsJson',
   priceMinor: 'priceMinor',
   isActive: 'isActive',
   sortOrder: 'sortOrder',
   archivedAt: 'archivedAt',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  importFingerprint: 'importFingerprint'
 } as const
 
 export type ProductVariantScalarFieldEnum = (typeof ProductVariantScalarFieldEnum)[keyof typeof ProductVariantScalarFieldEnum]
@@ -547,6 +557,72 @@ export const ProductAttributeScalarFieldEnum = {
 } as const
 
 export type ProductAttributeScalarFieldEnum = (typeof ProductAttributeScalarFieldEnum)[keyof typeof ProductAttributeScalarFieldEnum]
+
+
+export const ProductPackagingScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  variantId: 'variantId',
+  variantKey: 'variantKey',
+  packingType: 'packingType',
+  packingRawText: 'packingRawText',
+  piecesPerInnerPack: 'piecesPerInnerPack',
+  innerPacksPerOuterCarton: 'innerPacksPerOuterCarton',
+  piecesPerOuterCarton: 'piecesPerOuterCarton',
+  innerPackType: 'innerPackType',
+  outerPackType: 'outerPackType',
+  parseStatus: 'parseStatus',
+  validationMessage: 'validationMessage',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductPackagingScalarFieldEnum = (typeof ProductPackagingScalarFieldEnum)[keyof typeof ProductPackagingScalarFieldEnum]
+
+
+export const ProductPackDimensionScalarFieldEnum = {
+  id: 'id',
+  packagingId: 'packagingId',
+  kind: 'kind',
+  rawText: 'rawText',
+  displayValue: 'displayValue',
+  unit: 'unit',
+  parseStatus: 'parseStatus'
+} as const
+
+export type ProductPackDimensionScalarFieldEnum = (typeof ProductPackDimensionScalarFieldEnum)[keyof typeof ProductPackDimensionScalarFieldEnum]
+
+
+export const ProductImportRecordScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  variantId: 'variantId',
+  variantKey: 'variantKey',
+  fingerprint: 'fingerprint',
+  sourceFileName: 'sourceFileName',
+  sourceSheet: 'sourceSheet',
+  sourceRow: 'sourceRow',
+  importedAt: 'importedAt',
+  rawJson: 'rawJson',
+  productCode: 'productCode',
+  gtinRaw: 'gtinRaw',
+  gtinNormalised: 'gtinNormalised',
+  genericName: 'genericName',
+  modelSize: 'modelSize',
+  sterilisation: 'sterilisation',
+  brand: 'brand',
+  packingType: 'packingType',
+  shelfLife: 'shelfLife',
+  productionCapacityPerMonth: 'productionCapacityPerMonth',
+  launchDate: 'launchDate',
+  manufacturingLicenceStatus: 'manufacturingLicenceStatus',
+  testLicenceStatus: 'testLicenceStatus',
+  internalStatus: 'internalStatus',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductImportRecordScalarFieldEnum = (typeof ProductImportRecordScalarFieldEnum)[keyof typeof ProductImportRecordScalarFieldEnum]
 
 
 export const InventoryLocationScalarFieldEnum = {
@@ -752,6 +828,9 @@ export const CartItemScalarFieldEnum = {
   variantId: 'variantId',
   variantKey: 'variantKey',
   quantity: 'quantity',
+  orderingUnit: 'orderingUnit',
+  unitQuantity: 'unitQuantity',
+  piecesPerUnitSnapshot: 'piecesPerUnitSnapshot',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -820,6 +899,9 @@ export const OrderItemScalarFieldEnum = {
   imageUrlSnapshot: 'imageUrlSnapshot',
   unitPriceMinor: 'unitPriceMinor',
   quantity: 'quantity',
+  orderingUnit: 'orderingUnit',
+  unitQuantity: 'unitQuantity',
+  piecesPerUnitSnapshot: 'piecesPerUnitSnapshot',
   lineSubtotalMinor: 'lineSubtotalMinor',
   taxRatePercent: 'taxRatePercent',
   taxInclusive: 'taxInclusive',
@@ -1058,6 +1140,9 @@ export const RecurringScheduleItemScalarFieldEnum = {
   variantId: 'variantId',
   variantKey: 'variantKey',
   quantity: 'quantity',
+  orderingUnit: 'orderingUnit',
+  unitQuantity: 'unitQuantity',
+  piecesPerUnitSnapshot: 'piecesPerUnitSnapshot',
   substituteProductId: 'substituteProductId',
   substituteVariantId: 'substituteVariantId',
   substituteVariantKey: 'substituteVariantKey',
@@ -2652,8 +2737,10 @@ export const ProductOrderByRelevanceFieldEnum = {
   descriptionHtml: 'descriptionHtml',
   taxClassId: 'taxClassId',
   currency: 'currency',
+  unavailabilityReason: 'unavailabilityReason',
   metaTitle: 'metaTitle',
   metaDescription: 'metaDescription',
+  importFingerprint: 'importFingerprint',
   manufacturerId: 'manufacturerId',
   euResponsibleId: 'euResponsibleId',
   gtin: 'gtin',
@@ -2671,7 +2758,10 @@ export const ProductVariantOrderByRelevanceFieldEnum = {
   id: 'id',
   productId: 'productId',
   sku: 'sku',
-  name: 'name'
+  name: 'name',
+  gtin: 'gtin',
+  modelIdentifier: 'modelIdentifier',
+  importFingerprint: 'importFingerprint'
 } as const
 
 export type ProductVariantOrderByRelevanceFieldEnum = (typeof ProductVariantOrderByRelevanceFieldEnum)[keyof typeof ProductVariantOrderByRelevanceFieldEnum]
@@ -2694,6 +2784,58 @@ export const ProductAttributeOrderByRelevanceFieldEnum = {
 } as const
 
 export type ProductAttributeOrderByRelevanceFieldEnum = (typeof ProductAttributeOrderByRelevanceFieldEnum)[keyof typeof ProductAttributeOrderByRelevanceFieldEnum]
+
+
+export const ProductPackagingOrderByRelevanceFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  variantId: 'variantId',
+  variantKey: 'variantKey',
+  packingType: 'packingType',
+  packingRawText: 'packingRawText',
+  innerPackType: 'innerPackType',
+  outerPackType: 'outerPackType',
+  validationMessage: 'validationMessage'
+} as const
+
+export type ProductPackagingOrderByRelevanceFieldEnum = (typeof ProductPackagingOrderByRelevanceFieldEnum)[keyof typeof ProductPackagingOrderByRelevanceFieldEnum]
+
+
+export const ProductPackDimensionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  packagingId: 'packagingId',
+  rawText: 'rawText',
+  displayValue: 'displayValue',
+  unit: 'unit'
+} as const
+
+export type ProductPackDimensionOrderByRelevanceFieldEnum = (typeof ProductPackDimensionOrderByRelevanceFieldEnum)[keyof typeof ProductPackDimensionOrderByRelevanceFieldEnum]
+
+
+export const ProductImportRecordOrderByRelevanceFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  variantId: 'variantId',
+  variantKey: 'variantKey',
+  fingerprint: 'fingerprint',
+  sourceFileName: 'sourceFileName',
+  sourceSheet: 'sourceSheet',
+  productCode: 'productCode',
+  gtinRaw: 'gtinRaw',
+  gtinNormalised: 'gtinNormalised',
+  genericName: 'genericName',
+  modelSize: 'modelSize',
+  sterilisation: 'sterilisation',
+  brand: 'brand',
+  packingType: 'packingType',
+  shelfLife: 'shelfLife',
+  productionCapacityPerMonth: 'productionCapacityPerMonth',
+  manufacturingLicenceStatus: 'manufacturingLicenceStatus',
+  testLicenceStatus: 'testLicenceStatus',
+  internalStatus: 'internalStatus'
+} as const
+
+export type ProductImportRecordOrderByRelevanceFieldEnum = (typeof ProductImportRecordOrderByRelevanceFieldEnum)[keyof typeof ProductImportRecordOrderByRelevanceFieldEnum]
 
 
 export const InventoryLocationOrderByRelevanceFieldEnum = {

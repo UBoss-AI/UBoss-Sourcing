@@ -198,6 +198,75 @@ export interface ProductVariant {
   price: Money | null;
   isActive?: boolean;
   availableQty?: number | null;
+  /** GPSR Art. 19(c), per sellable SKU. Two sizes are two barcodes. */
+  gtin?: string | null;
+  modelIdentifier?: string | null;
+  /**
+   * This size's own packing. Present on the detail read, absent on a listing —
+   * a grid of two dozen products does not need thirty packing rows each.
+   */
+  packaging?: ProductPackaging | null;
+}
+
+/** One box, as the catalogue knows it. */
+export interface PackDimension {
+  kind: 'PRIMARY_PACK' | 'INNER_BOX' | 'OUTER_CARTON';
+  label: string;
+  /** "460 × 350 × 210 mm", or the raw text where nothing could be read. */
+  value: string;
+  /**
+   * False when the source never stated millimetres or inches.
+   *
+   * Shown as a caveat rather than hidden: a buyer sizing a shelf needs to know
+   * that the number has no unit on it, and quietly assuming one would be a
+   * twenty-five-fold error on a measurement given in inches.
+   */
+  hasUnit: boolean;
+}
+
+/**
+ * How many are in a box, and how many boxes in a carton.
+ *
+ * Every figure is nullable because a supplier sheet often gives a carton total
+ * and nothing else. Nothing here is ever derived in the browser — the server
+ * does the arithmetic, and a missing figure stays missing.
+ */
+export interface ProductPackaging {
+  packingType: string | null;
+  /** What the supplier actually wrote, kept so a dispute has an answer. */
+  sourceText: string | null;
+  piecesPerInnerPack: number | null;
+  innerPacksPerOuterCarton: number | null;
+  piecesPerOuterCarton: number | null;
+  /** The source's own word — "Box", "Pouch", "Packet". */
+  innerPackType: string | null;
+  outerPackType: string | null;
+  /** "100 pieces × 20 boxes = 2,000 pieces", or null when unknown. */
+  formula: string | null;
+  /**
+   * False when the source's own multiplication contradicted itself.
+   *
+   * The pack calculator offers only pieces in that case. Converting from a
+   * figure nobody has confirmed is how a buyer orders twice what they meant to.
+   */
+  isReliable: boolean;
+  parseStatus: 'PARSED' | 'PARTIAL' | 'NEEDS_REVIEW' | 'UNPARSED';
+  dimensions: PackDimension[];
+}
+
+/**
+ * Whether this can be bought, and what to say instead when it cannot.
+ *
+ * Two separate reasons, because the customer has to do two different things. A
+ * price on request is an invitation to get in touch; an unavailable product is
+ * a wait. `canAddToCart` is the server's own single answer, so the storefront
+ * never reaches its own conclusion from the two flags.
+ */
+export interface ProductPurchasability {
+  isPriceOnRequest: boolean;
+  isOrderable: boolean;
+  unavailabilityReason: string | null;
+  canAddToCart: boolean;
 }
 
 export interface TaxInfo {
@@ -259,6 +328,13 @@ export interface Product {
     inStock: boolean;
     availableQty: number | null;
   } | null;
+  /**
+   * Absent on a response from an older server, and treated as "buyable" when
+   * it is — which is what every product was before this existed.
+   */
+  purchasability?: ProductPurchasability | null;
+  /** The product-level packing row. Null where none was recorded. */
+  packaging?: ProductPackaging | null;
 }
 
 /** One company named on a listing under Union product law. */
@@ -430,6 +506,23 @@ export interface CartLine {
   isRecurringEligible: boolean;
   /** The cart's copy carries no recurring flag — that sits on the line. */
   purchaseRules: Omit<PurchaseRules, 'isRecurringEligible'>;
+  /**
+   * What the customer chose to count in, and the conversion they were shown.
+   *
+   * Read off the line's own snapshot rather than today's catalogue: a basket
+   * agreed at 100 to a box keeps reading "2 boxes (200 pieces)" even after the
+   * box has been re-specified at 50, because that is what they put in it.
+   *
+   * Optional, because a server that predates pack ordering sends no such thing
+   * and every line it does send is counted in pieces.
+   */
+  ordering?: {
+    unit: 'PIECE' | 'INNER_PACK' | 'OUTER_CARTON';
+    unitQuantity: number;
+    piecesPerUnit: number;
+    /** The supplier's own word — "Box", "Pouch". Null when counting pieces. */
+    packLabel: string | null;
+  } | null;
   /** Per-line problems: out of stock, below minimum, no longer published. */
   issues: CartIssue[];
 }

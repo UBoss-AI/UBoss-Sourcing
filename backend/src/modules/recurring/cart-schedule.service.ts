@@ -488,10 +488,23 @@ function itemsFromCart(
     .map((line) => {
       const substitute = config.substitutes?.[line.itemId];
 
+      // The customer may have retyped the quantity on the review screen, and
+      // that number is in pieces like every other quantity. The pack count
+      // follows it through the line's own snapshot, so a plan built from a
+      // basket of cartons stays a plan of cartons.
+      const quantity = config.quantities?.[line.itemId] ?? line.quantity;
+      const piecesPerUnit = Math.max(line.ordering.piecesPerUnit, 1);
+
       return {
         productId: line.productId,
         variantId: line.variantId,
-        quantity: config.quantities?.[line.itemId] ?? line.quantity,
+        quantity,
+        orderingUnit: line.ordering.unit,
+        unitQuantity:
+          line.ordering.unit === 'PIECE'
+            ? quantity
+            : Math.max(1, Math.round(quantity / piecesPerUnit)),
+        piecesPerUnitSnapshot: line.ordering.piecesPerUnit,
         substituteProductId: substitute?.productId ?? null,
         substituteVariantId: substitute?.variantId ?? null,
       };
@@ -647,6 +660,16 @@ function snapshotOf(preview: CartSchedulePreview): Prisma.InputJsonValue {
       quantity: line.quantity,
       unitPriceMinor: line.unitPrice.minor,
       lineTotalMinor: line.lineTotal.minor,
+    })),
+    // What the customer was counting in when they agreed. Part of the evidence
+    // for the same reason the prices are: "three cartons a month" is what they
+    // consented to, and the piece count is how it was worked out.
+    orderingUnits: preview.quote.lines.map((line) => ({
+      productId: line.productId,
+      variantId: line.variantId,
+      unit: line.ordering?.unit ?? 'PIECE',
+      unitQuantity: line.ordering?.unitQuantity ?? line.quantity,
+      piecesPerUnit: line.ordering?.piecesPerUnit ?? 1,
     })),
     totals: {
       subtotalMinor: preview.quote.totals.subtotal.minor,

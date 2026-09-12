@@ -100,6 +100,14 @@ export interface QuoteLine {
   taxRatePercent: string;
   taxInclusive: boolean;
   availableQty: number | null;
+  /**
+   * How the customer counts this line, off the plan's own snapshot.
+   *
+   * A substituted line keeps the ordering of the line it stands in for: what
+   * was agreed was a number of pieces, and the stand-in delivers that number
+   * however its own boxes happen to be sized.
+   */
+  ordering: { unit: 'PIECE' | 'INNER_PACK' | 'OUTER_CARTON'; unitQuantity: number; piecesPerUnit: number };
   /** Set when this line is being filled by the customer's saved substitute. */
   substitutedFor: { productId: string; name: string } | null;
 }
@@ -132,7 +140,20 @@ export interface ScheduleQuote {
 export interface QuoteItemInput {
   productId: string;
   variantId?: string | null;
+  /** Pieces. The only figure this module prices. */
   quantity: number;
+  /**
+   * The unit the plan was agreed in, carried through so the quote can show it
+   * back.
+   *
+   * Priced on `quantity` regardless - these three change nothing about the
+   * arithmetic. They exist so a plan the customer set up as "3 cartons a month"
+   * reads as three cartons on every screen and in the consent snapshot, rather
+   * than as the six thousand pieces it works out to.
+   */
+  orderingUnit?: 'PIECE' | 'INNER_PACK' | 'OUTER_CARTON' | null;
+  unitQuantity?: number | null;
+  piecesPerUnitSnapshot?: number | null;
   /** The customer's saved stand-in for this line, when they named one. */
   substituteProductId?: string | null;
   substituteVariantId?: string | null;
@@ -417,6 +438,19 @@ export async function quoteSchedule(input: QuoteScheduleInput): Promise<Schedule
     }
   }
 
+  // Keyed on the SKU the customer put on the plan, so a substituted line finds
+  // the ordering of the line it replaced rather than falling back to pieces.
+  const orderingByKey = new Map(
+    input.items.map((item) => [
+      `${item.productId}:${item.variantId ?? ''}`,
+      {
+        unit: item.orderingUnit ?? ('PIECE' as const),
+        unitQuantity: item.unitQuantity ?? item.quantity,
+        piecesPerUnit: item.piecesPerUnitSnapshot ?? 1,
+      },
+    ]),
+  );
+
   const lines: QuoteLine[] = pricing.lines.map((priced, index) => ({
     productId: priced.productId,
     variantId: priced.variantId,
@@ -433,6 +467,15 @@ export async function quoteSchedule(input: QuoteScheduleInput): Promise<Schedule
     taxRatePercent: priced.taxRatePercent,
     taxInclusive: priced.taxInclusive,
     availableQty: lineMeta[index]?.availableQty ?? null,
+    ordering:
+      orderingByKey.get(
+        `${lineMeta[index]?.substitutedFor?.productId ?? priced.productId}:${priced.variantId ?? ''}`,
+      ) ??
+      orderingByKey.get(`${priced.productId}:${priced.variantId ?? ''}`) ?? {
+        unit: 'PIECE' as const,
+        unitQuantity: priced.quantity,
+        piecesPerUnit: 1,
+      },
     substitutedFor: lineMeta[index]?.substitutedFor ?? null,
   }));
 

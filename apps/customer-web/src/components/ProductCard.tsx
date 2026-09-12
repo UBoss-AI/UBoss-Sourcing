@@ -41,6 +41,7 @@
 import { Link } from 'react-router-dom';
 import { Badge } from './ui';
 import { formatMoney, formatNumber } from '@/lib/format';
+import { packSummary } from '@/lib/packaging';
 import type { Product } from '@/lib/types';
 import { useTilt } from '@/lib/pointer-tilt';
 import { useI18n } from '@/i18n/i18n-context';
@@ -82,6 +83,17 @@ function ImageFallback(): React.JSX.Element {
   );
 }
 
+/**
+ * One specification off the product, by name.
+ *
+ * The catalogue import writes Brand, Sterility, Packing type and the rest as
+ * ordinary product specifications, so the card reads them the same way the
+ * filter panel does rather than through a second, parallel field.
+ */
+function specification(product: Product, name: string): string | null {
+  return product.attributes.find((attribute) => attribute.name === name)?.value ?? null;
+}
+
 export function ProductCard({ product }: { product: Product }): React.JSX.Element {
   const { t } = useI18n();
 
@@ -89,6 +101,21 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
   const hasDiscount =
     product.compareAtPrice !== null &&
     BigInt(product.compareAtPrice.minor) > BigInt(product.price.minor);
+
+  // Absent on a response from a server that predates this, and "buyable" is
+  // what every product was then.
+  const purchasability = product.purchasability ?? null;
+  const isPriceOnRequest = purchasability?.isPriceOnRequest ?? false;
+  const isUnavailable = purchasability !== null && !purchasability.isOrderable;
+
+  const brand = specification(product, 'Brand');
+  const sterility = specification(product, 'Sterility');
+  const model = product.variants.length === 1 ? (product.variants[0]?.name ?? null) : null;
+
+  const packing = packSummary(product.packaging, {
+    perPack: (count, pack) => t('productCard.perPack', { n: count, pack }),
+    perCarton: (count) => t('productCard.perCarton', { n: count }),
+  });
 
   /*
    * The bottom strip only earns its hairline when it has something in it.
@@ -206,43 +233,114 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
           </p>
         </div>
 
+        {/* What a buyer scanning a shelf of near-identical medical consumables
+            actually tells them apart by. Three short facts on one line rather
+            than three rows: the description underneath carries the same words
+            in prose, and a card that repeats itself twice is a card nobody
+            finishes reading.
+
+            Each is dropped entirely when the catalogue does not have it — an
+            em dash where a brand should be is worse than a shorter card. */}
+        {(brand !== null || model !== null || sterility !== null) && (
+          <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xxs text-ink-muted">
+            {brand !== null && <span className="font-medium text-ink">{brand}</span>}
+            {model !== null && (
+              <>
+                {brand !== null && <span aria-hidden="true">·</span>}
+                <span>{model}</span>
+              </>
+            )}
+            {sterility !== null && (
+              <>
+                {(brand !== null || model !== null) && <span aria-hidden="true">·</span>}
+                <span>{sterility}</span>
+              </>
+            )}
+          </p>
+        )}
+
         {product.shortDescription !== null && (
           <p className="line-clamp-2 text-xs leading-relaxed text-ink-muted">
             {product.shortDescription}
           </p>
         )}
 
+        {/* How it is boxed, in one line. The full breakdown and the quantity
+            calculator are on the product page; a card only has to answer "is
+            this sold in the size I buy in". */}
+        {packing !== null && (
+          <p className="truncate text-xxs tabular text-ink-subtle">{packing}</p>
+        )}
+
         <div className="mt-auto pt-1">
-          <p className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-            <span className="text-base font-semibold tabular text-ink">
-              {formatMoney(product.price)}
-            </span>
-            {hasDiscount && product.compareAtPrice !== null && (
-              <span className="text-xs tabular text-ink-subtle">
-                {/* The strikethrough is the only thing that says "was" to a
-                    sighted reader; a screen reader gets the word itself. */}
-                <span className="sr-only">{t('productCard.was')}</span>
-                <s>{formatMoney(product.compareAtPrice)}</s>
-              </span>
-            )}
-          </p>
+          {/* A price, or the reason there is not one.
 
-          <p className="mt-1 text-xxs text-ink-subtle">
-            {product.tax.inclusive
-              ? t('productCard.taxIncluded')
-              : t('productCard.plusTaxRate', {
-                  rate: product.tax.ratePercent,
-                  code: product.tax.code,
-                })}
-          </p>
+              Never both, and never a figure of zero. A product whose price is
+              negotiated per account genuinely has no number to show, and
+              printing one would be quoting something nobody agreed to charge.
+              The line keeps the same weight and position either way, so a grid
+              of mixed products still scans down one column. */}
+          {isPriceOnRequest ? (
+            <p className="text-sm font-semibold text-brand">{t('productCard.requestAQuote')}</p>
+          ) : (
+            <>
+              <p className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                <span className="text-base font-semibold tabular text-ink">
+                  {formatMoney(product.price)}
+                </span>
+                {hasDiscount && product.compareAtPrice !== null && (
+                  <span className="text-xs tabular text-ink-subtle">
+                    {/* The strikethrough is the only thing that says "was" to a
+                        sighted reader; a screen reader gets the word itself. */}
+                    <span className="sr-only">{t('productCard.was')}</span>
+                    <s>{formatMoney(product.compareAtPrice)}</s>
+                  </span>
+                )}
+              </p>
 
-          {hasRuleChips && (
+              <p className="mt-1 text-xxs text-ink-subtle">
+                {product.tax.inclusive
+                  ? t('productCard.taxIncluded')
+                  : t('productCard.plusTaxRate', {
+                      rate: product.tax.ratePercent,
+                      code: product.tax.code,
+                    })}
+              </p>
+            </>
+          )}
+
+          {(hasRuleChips || isUnavailable) && (
             <div className="mt-2.5 flex flex-wrap gap-1 border-t border-border-subtle pt-2.5">
-              {hasDiscount && <Badge tone="action">{t('productCard.reducedPrice')}</Badge>}
+              {/* First in the row, because it overrides everything else on the
+                  card: a minimum order quantity is irrelevant on something
+                  that cannot be ordered at all. */}
+              {isUnavailable && <Badge tone="warning">{t('productCard.currentlyUnavailable')}</Badge>}
+              {hasDiscount && !isPriceOnRequest && (
+                <Badge tone="action">{t('productCard.reducedPrice')}</Badge>
+              )}
               {rules.minOrderQty > 1 && <Badge>Min {formatNumber(rules.minOrderQty)}</Badge>}
               {rules.qtyIncrement > 1 && <Badge>In {formatNumber(rules.qtyIncrement)}s</Badge>}
             </div>
           )}
+
+          {/* The affordance, not a second link.
+
+              The whole card already follows the anchor on the name — see the
+              header. A real button here would be a second tab stop and a
+              second accessible name for one destination, which is exactly the
+              blob that design avoids. This is inert text that inherits the
+              card's hover state, so the card looks like what it is: one
+              clickable thing. */}
+          <p
+            aria-hidden="true"
+            className="mt-2.5 flex items-center gap-1 text-xxs font-medium text-ink-subtle
+                       transition-colors group-hover:text-brand"
+          >
+            {t('productCard.viewDetails')}
+            <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </p>
         </div>
       </div>
     </article>

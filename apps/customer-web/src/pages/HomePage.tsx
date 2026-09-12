@@ -48,18 +48,8 @@ import { HeroSearch } from '@/components/hero-search/HeroSearch';
 import { InlineProducts } from '@/components/home/InlineProducts';
 import { SourcingHub } from '@/components/greeting/SourcingHub';
 import { useAccountIdentity } from '@/pages/account/useAccountIdentity';
-import {
-  BoxIcon,
-  ChevronRightIcon,
-  ClockIcon,
-  CurrencyIcon,
-  CylinderIcon,
-  FlowIcon,
-  GridIcon,
-  HexIcon,
-  LayersIcon,
-  RepeatIcon,
-} from '@/components/icons';
+import { ChevronRightIcon, ClockIcon, CurrencyIcon, RepeatIcon } from '@/components/icons';
+import { categoryMark } from '@/lib/category-mark';
 import { api } from '@/lib/api';
 import { useLocale } from '@/app/locale-context';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
@@ -253,25 +243,15 @@ function Greeting(): React.JSX.Element {
 // ---------------------------------------------------------------------------
 
 /*
- * Categories have no image in the API, so every card needs a placeholder — and
- * a grid of twelve identical placeholders is worse than the plain text cards
- * this replaced, because it looks like twelve failed image loads.
+ * Categories have no image in the API, so every card needs a mark — and a grid
+ * of twelve identical placeholders is worse than the plain text cards this
+ * replaced, because it looks like twelve failed image loads.
  *
- * The mark is therefore chosen from the category's own name. Same category,
- * same mark on every visit and for every visitor; different categories, mostly
- * different marks. All six are abstract stock geometry, so a mark cannot be
- * wrong about what a category contains — see components/icons.tsx.
+ * A department this catalogue recognises by name gets a drawn picture of the
+ * thing in it; anything else falls back to the abstract stock geometry every
+ * category used to get. Both halves and the reasoning are in
+ * `lib/category-mark.ts`.
  */
-const CATEGORY_MARKS = [BoxIcon, HexIcon, LayersIcon, GridIcon, CylinderIcon, FlowIcon];
-
-function categoryMark(seed: string): (props: { className?: string }) => React.JSX.Element {
-  let hash = 0;
-  for (let index = 0; index < seed.length; index += 1) {
-    hash = (hash * 31 + seed.charCodeAt(index)) % 100_003;
-  }
-
-  return CATEGORY_MARKS[hash % CATEGORY_MARKS.length] ?? BoxIcon;
-}
 
 function CategoryStrip(): React.JSX.Element | null {
   const { t, language } = useI18n();
@@ -306,7 +286,7 @@ function CategoryStrip(): React.JSX.Element | null {
           in four lines. */}
       <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
         {categories.map((category) => {
-          const Mark = categoryMark(category.slug);
+          const Mark = categoryMark(category.name, category.slug);
 
           return (
             <li key={category.id}>

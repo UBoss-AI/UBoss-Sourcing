@@ -631,6 +631,11 @@ async function executeOccurrence(
       productId: item.productId,
       variantId: item.variantId,
       quantity: item.quantity,
+      // Carried through so the quote can name the unit the customer agreed in.
+      // It changes no arithmetic: pricing reads  and only that.
+      orderingUnit: item.orderingUnit,
+      unitQuantity: item.unitQuantity,
+      piecesPerUnitSnapshot: item.piecesPerUnitSnapshot,
       substituteProductId: item.substituteProductId,
       substituteVariantId: item.substituteVariantId,
     })),
@@ -1873,6 +1878,11 @@ export async function sendUpcomingReminders(
         productId: item.productId,
         variantId: item.variantId,
         quantity: item.quantity,
+        // Carried through so the quote can name the unit the customer agreed
+        // in. It changes no arithmetic: pricing reads `quantity` and only that.
+        orderingUnit: item.orderingUnit,
+        unitQuantity: item.unitQuantity,
+        piecesPerUnitSnapshot: item.piecesPerUnitSnapshot,
         substituteProductId: item.substituteProductId,
         substituteVariantId: item.substituteVariantId,
       })),

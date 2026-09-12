@@ -648,11 +648,44 @@ model Product {
   taxClassId          String  @db.Char(26)
   basePriceMinor      BigInt
   currency            String  @db.Char(3)
+
+  /// The price is deliberately not published; the buyer is asked to request one.
+  ///
+  /// A B2B catalogue routinely lists items whose price is negotiated per
+  /// account or per volume, and a supplier sheet that carries no price at all
+  /// is the normal case rather than an unfinished draft. Without this, the
+  /// only ways to list such an item are to invent a number or to leave it out
+  /// of the catalogue, and both are worse than saying "ask us".
+  ///
+  /// It relaxes exactly one publication rule - the price-above-zero check -
+  /// and tightens one behaviour: nothing priced on request can be added to a
+  /// cart, bought instantly or put on a schedule, because there is no figure
+  /// to charge. Default false, so a deployment that never sets it behaves
+  /// exactly as it did before this column existed.
+  isPriceOnRequest    Boolean @default(false)
   /// Optional strike-through / list price for display. Must be >= basePriceMinor.
   compareAtPriceMinor BigInt?
 
   isStockTracked   Boolean @default(true)
   reorderThreshold Int     @default(0)
+
+  /// Listed, but not for sale right now.
+  ///
+  /// Not the same axis as `status`/`isPublished`, and confusing the two is the
+  /// mistake this column exists to prevent. Unpublishing hides a product
+  /// completely - its URL 404s and a customer who bookmarked it is simply
+  /// lost. This keeps the listing and its specifications readable while
+  /// refusing every purchase path, which is what "we make this, you cannot
+  /// order it this week" actually means.
+  ///
+  /// Stock is a different answer again: out of stock is a fact about a
+  /// warehouse, this is a decision about the product.
+  isOrderable      Boolean @default(true)
+
+  /// Why it cannot be ordered, in the operator's own words, shown to the
+  /// customer beside the "Currently unavailable" notice. Null shows the
+  /// notice on its own rather than an empty sentence.
+  unavailabilityReason String? @db.VarChar(255)
 
   /// Purchasing rules enforced server-side on every cart mutation and at checkout.
   minOrderQty  Int  @default(1)
@@ -678,6 +711,15 @@ model Product {
   weightGrams     Int?
   metaTitle       String? @db.VarChar(255)
   metaDescription String? @db.VarChar(512)
+
+  /// Identity of the source-sheet product family this row came from.
+  ///
+  /// A SHA-256 of the normalised grouping fields, so re-importing the same
+  /// workbook updates this product rather than creating a second one. Null for
+  /// everything created by hand - and NULL being distinct under MySQL is
+  /// precisely what lets every hand-made product leave it empty while the
+  /// unique index still holds for imported ones.
+  importFingerprint String? @unique(map: "uq_product_import_fingerprint") @db.Char(64)
 
   /// --- Product safety (GPSR Art. 19) ---
   ///
@@ -749,6 +791,8 @@ model Product {
   translations       ProductTranslation[]
   wishlistItems      WishlistItem[]
   countryRestrictions ProductCountryRestriction[]
+  packagings         ProductPackaging[]
+  importRecords      ProductImportRecord[]
 
   @@index([categoryId, status, isPublished], map: "ix_product_category_visibility")
   @@index([status, isPublished, archivedAt], map: "ix_product_visibility")
@@ -771,6 +815,15 @@ model ProductVariant {
 
   sku  String @unique(map: "uq_variant_sku") @db.VarChar(64)
   name String @db.VarChar(255)
+
+  /// The same two identifiers `Product` carries, per sellable SKU.
+  ///
+  /// A barcode belongs to the thing in the box, and two sizes of one product
+  /// are two different things in two different boxes with two different
+  /// barcodes. Reading them off the parent would hand a scanner the wrong
+  /// number for every variant but one.
+  gtin            String? @db.VarChar(14)
+  modelIdentifier String? @db.VarChar(64)
 
   /// Selected option values, e.g. { "Size": "1L", "Pack": "12" }.
   optionsJson Json
@@ -795,6 +848,11 @@ model ProductVariant {
   scheduleItems      RecurringScheduleItem[]
   substituteForItems RecurringScheduleItem[] @relation("ScheduleItemSubstituteVariant")
   prices             ProductPrice[]
+  packagings         ProductPackaging[]
+  importRecords      ProductImportRecord[]
+
+  /// See `Product.importFingerprint`. This one is per source row.
+  importFingerprint String? @unique(map: "uq_variant_import_fingerprint") @db.Char(64)
 
   @@index([productId, isActive, sortOrder], map: "ix_variant_product")
   @@map("product_variants")
@@ -833,6 +891,225 @@ model ProductAttribute {
   @@unique([productId, name], map: "uq_product_attribute_name")
   @@index([name, value], map: "ix_product_attribute_lookup")
   @@map("product_attributes")
+}
+
+
+// ---------------------------------------------------------------------------
+// PACKAGING
+//
+// How many of a thing are in a box, and how many boxes travel in a carton. A
+// wholesale catalogue lives or dies on this: a hospital ordering "10" means
+// ten cartons, and a system that reads it as ten pieces ships a two-hundredth
+// of the order. The figures arrive on a supplier sheet as free text -
+// "100Pcs x 20Box=2000Pcs", "inner -40 pcs/outer -160 pcs", "400Pcs" - so the
+// raw text is kept beside whatever could be read out of it, and a row whose
+// own arithmetic disagrees is flagged rather than quietly corrected.
+// ---------------------------------------------------------------------------
+
+/// How much of a packing description could be read, and whether it adds up.
+enum PackingParseStatus {
+  /// Every figure was read, and inner x packs = outer exactly.
+  PARSED
+  /// Some figures were read; the text genuinely does not contain the rest. A
+  /// bare total with no breakdown is PARTIAL, not a failure.
+  PARTIAL
+  /// Read, but the multiplication in the source contradicts itself. Held for a
+  /// person: correcting it silently is how a customer ends up disputing a
+  /// quantity nobody can explain.
+  NEEDS_REVIEW
+  /// Nothing structured could be read. The raw text is all there is.
+  UNPARSED
+}
+
+/// Which box a dimension describes.
+enum PackDimensionKind {
+  /// The pouch, blister or wrap around the item itself.
+  PRIMARY_PACK
+  /// The inner box those are packed into.
+  INNER_BOX
+  /// The shipping carton the inner boxes travel in.
+  OUTER_CARTON
+  /// The printed label artwork. Internal - a print specification rather than a
+  /// product fact, and it is on this table only so the source column has
+  /// somewhere honest to land. Never selected on a public read.
+  STICKER_ARTWORK
+}
+
+/// How much of a dimension string could be read.
+enum DimensionParseStatus {
+  /// Numbers and a unit, both stated in the source.
+  PARSED
+  /// Numbers read, but the source never said millimetres or inches. Shown as
+  /// written rather than given a unit nobody wrote down.
+  UNIT_UNKNOWN
+  /// Not confidently readable. The raw text is shown instead.
+  UNPARSED
+}
+
+model ProductPackaging {
+  id        String  @id @db.Char(26)
+  productId String  @db.Char(26)
+  variantId String? @db.Char(26)
+
+  /// The variant ULID, or the empty string for the base product. Never null -
+  /// see ProductPrice.variantKey for why a nullable column cannot carry this.
+  variantKey String @default("") @db.VarChar(26)
+
+  /// How it is packed - "Blister Pack", "Ribbon", "Peel Open Pouch".
+  packingType String? @db.VarChar(128)
+
+  /// The packing description exactly as the source wrote it. Always kept,
+  /// whatever the parser made of it, because it is the only thing that can
+  /// settle an argument about what the supplier actually said.
+  packingRawText String? @db.VarChar(255)
+
+  piecesPerInnerPack       Int?
+  innerPacksPerOuterCarton Int?
+  piecesPerOuterCarton     Int?
+
+  /// What the source called them - "Box", "Pouch", "Pkt", "Carton". Displayed
+  /// rather than a generic word, so the screen matches the paperwork.
+  innerPackType String? @db.VarChar(64)
+  outerPackType String? @db.VarChar(64)
+
+  parseStatus PackingParseStatus @default(UNPARSED)
+
+  /// Why it is PARTIAL or NEEDS_REVIEW, in a sentence an administrator can act
+  /// on. Null when there is nothing to say.
+  validationMessage String? @db.VarChar(512)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  product    Product                @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant    ProductVariant?        @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  dimensions ProductPackDimension[]
+
+  /// One packing description per sellable SKU.
+  @@unique([productId, variantKey], map: "uq_product_packaging_sku")
+  @@index([variantId], map: "ix_product_packaging_variant")
+  @@map("product_packaging")
+}
+
+model ProductPackDimension {
+  id          String @id @db.Char(26)
+  packagingId String @db.Char(26)
+
+  kind PackDimensionKind
+
+  /// As written in the source: "460*350*210 mm", "27 x 134", "15*12 inch pouch".
+  rawText String @db.VarChar(255)
+
+  /// The numbers, normalised to one separator: "460 x 350 x 210". Null when
+  /// nothing could be read. Never invented - a two-number source stays two
+  /// numbers rather than gaining a height.
+  displayValue String? @db.VarChar(128)
+
+  /// "mm", "inch" - only when the source actually said so. A unit nobody wrote
+  /// down is not a unit, and guessing millimetres onto an inch measurement is
+  /// a twenty-five-fold error.
+  unit String? @db.VarChar(16)
+
+  parseStatus DimensionParseStatus @default(UNPARSED)
+
+  packaging ProductPackaging @relation(fields: [packagingId], references: [id], onDelete: Cascade)
+
+  @@unique([packagingId, kind], map: "uq_pack_dimension_kind")
+  @@map("product_pack_dimensions")
+}
+
+// ---------------------------------------------------------------------------
+// CATALOGUE IMPORT PROVENANCE
+//
+// Where a catalogue row came from, and the operator-internal columns that came
+// with it. Deliberately a separate table from `products`: licence status,
+// production capacity and a workflow state like "Working on it" are the
+// operator's business and not the buyer's, and keeping them off the product
+// makes that boundary structural instead of a filter somebody has to remember
+// on every public read.
+// ---------------------------------------------------------------------------
+
+model ProductImportRecord {
+  id         String  @id @db.Char(26)
+  productId  String  @db.Char(26)
+  variantId  String? @db.Char(26)
+  variantKey String  @default("") @db.VarChar(26)
+
+  /// SHA-256 of the normalised identity fields. Matches
+  /// `ProductVariant.importFingerprint`; kept here too so provenance can be
+  /// read without joining back through the SKU.
+  fingerprint String @db.Char(64)
+
+  sourceFileName String   @db.VarChar(255)
+  sourceSheet    String   @db.VarChar(128)
+  sourceRow      Int
+  importedAt     DateTime @db.DateTime(3)
+
+  /// Every column of the source row, exactly as read, keyed by column letter.
+  /// The audit trail: it is what makes "the sheet said something else" a
+  /// question with an answer.
+  rawJson Json
+
+  /// --- The identity fields, normalised, as the importer read them ---
+  productCode String? @db.VarChar(128)
+
+  /// The barcode as written, including any GS1 application identifier and its
+  /// spacing: "(01) 0 8904379800013". A string, always - held as a number it
+  /// loses its leading zero and its formatting in one step.
+  gtinRaw String? @db.VarChar(64)
+
+  /// Digits only, left-padded to 14 where the source gave a readable barcode.
+  gtinNormalised String? @db.VarChar(14)
+
+  genericName   String? @db.VarChar(255)
+  modelSize     String? @db.VarChar(128)
+  sterilisation String? @db.VarChar(128)
+  brand         String? @db.VarChar(128)
+  packingType   String? @db.VarChar(128)
+  shelfLife     String? @db.VarChar(64)
+
+  /// --- Operator-internal. Never returned on a public read. ---
+  productionCapacityPerMonth String?   @db.VarChar(64)
+  launchDate                 DateTime? @db.Date
+  manufacturingLicenceStatus String?   @db.VarChar(64)
+  testLicenceStatus          String?   @db.VarChar(64)
+
+  /// The source workflow state - "Done", "Hold", "Working on it" - recorded as
+  /// written. What it does to the listing is decided once, by the importer,
+  /// and expressed in `Product.isOrderable`; nothing reads this string later to
+  /// make a decision, so a new word appearing in the column cannot quietly
+  /// change who is allowed to buy what.
+  internalStatus String? @db.VarChar(64)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  product Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  /// One provenance row per sellable SKU.
+  @@unique([productId, variantKey], map: "uq_import_record_sku")
+  @@index([fingerprint], map: "ix_import_record_fingerprint")
+  @@index([sourceFileName, sourceRow], map: "ix_import_record_source")
+  @@map("product_import_records")
+}
+
+// ---------------------------------------------------------------------------
+// ORDERING UNITS
+// ---------------------------------------------------------------------------
+
+/// The unit a buyer chose to order in.
+///
+/// Quantity is stored in pieces everywhere it is priced, reserved or shipped -
+/// one unit of account, so no price, stock check or tax line has to know that
+/// packs exist. This records what the buyer actually chose, so the cart, the
+/// order and the schedule can each show "2 cartons" back to them rather than
+/// "4,000", and so the conversion they were shown is the conversion they are
+/// held to even if the packing is corrected afterwards.
+enum OrderingUnit {
+  PIECE
+  INNER_PACK
+  OUTER_CARTON
 }
 
 // ===========================================================================
@@ -1564,7 +1841,24 @@ model CartItem {
   variantId  String? @db.Char(26)
   variantKey String  @default("") @db.VarChar(26)
 
+  /// Always pieces. Every price, stock check, reservation and tax line reads
+  /// this and nothing else, so adding pack ordering changed none of them.
   quantity Int
+
+  /// What the buyer chose to count in, and the conversion they were shown.
+  ///
+  /// Three columns rather than a lookup, because the packing on the product can
+  /// be corrected next week and "2 cartons" has to keep meaning the 4,000
+  /// pieces it meant when they put it in the basket. Recomputing it later from
+  /// the current packing is how a basket silently changes size.
+  ///
+  /// The defaults describe every row that existed before pack ordering did:
+  /// counted in pieces, one piece to a piece.
+  orderingUnit          OrderingUnit @default(PIECE)
+  /// How many of `orderingUnit` they asked for. quantity = this x the snapshot.
+  unitQuantity          Int          @default(1)
+  /// Pieces in one `orderingUnit` at the moment it was chosen.
+  piecesPerUnitSnapshot Int          @default(1)
 
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
@@ -1790,7 +2084,17 @@ model OrderItem {
   imageUrlSnapshot     String? @db.VarChar(1024)
 
   unitPriceMinor    BigInt
+  /// Pieces, like everywhere else. The unit price is per piece.
   quantity          Int
+
+  /// What the buyer ordered in, frozen with the rest of the line. An invoice
+  /// that says 4,000 pieces where the buyer ordered 2 cartons is a dispute
+  /// waiting to be had, and the packing it was worked out from may not survive
+  /// to the day somebody asks.
+  orderingUnit          OrderingUnit @default(PIECE)
+  unitQuantity          Int          @default(1)
+  piecesPerUnitSnapshot Int          @default(1)
+
   lineSubtotalMinor BigInt
   taxRatePercent    Decimal @db.Decimal(9, 6)
   taxInclusive      Boolean @default(false)
@@ -2453,7 +2757,19 @@ model RecurringScheduleItem {
   variantId  String? @db.Char(26)
   variantKey String  @default("") @db.VarChar(26)
 
+  /// Pieces. `quoteSchedule` prices this column and only this column.
   quantity Int
+
+  /// The unit the plan was agreed in, and the conversion at that moment.
+  ///
+  /// It matters more here than in a basket: this line is charged again months
+  /// from now by a worker with nobody watching, and a customer who agreed to
+  /// "3 cartons a month" must keep being sent three cartons even if the carton
+  /// is re-specified in between. Re-deriving the pieces at charge time would
+  /// change the order without anybody agreeing to it.
+  orderingUnit          OrderingUnit @default(PIECE)
+  unitQuantity          Int          @default(1)
+  piecesPerUnitSnapshot Int          @default(1)
 
   /// The one product the customer agreed may stand in for this line.
   ///

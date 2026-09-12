@@ -176,6 +176,20 @@ function ProductTile({ product }: { product: AiProductCard }): React.JSX.Element
   const soldOut = product.availability.isStockTracked && !product.availability.inStock;
   const unpriced = product.price === null;
 
+  /*
+   * Two more ways a card cannot end in a basket.
+   *
+   * "Not priced here" above means the shopper's market has no price list for
+   * it. These mean the catalogue has no price for anybody - it is quoted per
+   * account - or the operator has taken it off sale. Three different states
+   * with three different sentences, because the shopper has three different
+   * things to do about them, and the assistant is exactly where a wrong one
+   * would be believed.
+   */
+  const purchasability = product.purchasability ?? null;
+  const isPriceOnRequest = purchasability?.isPriceOnRequest ?? false;
+  const isUnavailable = purchasability !== null && !purchasability.isOrderable;
+
   const add = useMutation({
     mutationFn: () =>
       api.post('/cart/items', {
@@ -240,7 +254,11 @@ function ProductTile({ product }: { product: AiProductCard }): React.JSX.Element
 
           <div className="mt-auto space-y-1 pt-1.5">
             <p className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-              {product.price === null ? (
+              {isPriceOnRequest ? (
+                <span className="text-sm font-semibold text-brand">
+                  {t('productCard.requestAQuote')}
+                </span>
+              ) : product.price === null ? (
                 // Not sold in the shopper's market is a real state, and the
                 // honest answer is to say so rather than quote another
                 // market's figure — which would price a JPY 5,000 item at
@@ -265,8 +283,11 @@ function ProductTile({ product }: { product: AiProductCard }): React.JSX.Element
 
             <StockLine product={product} />
 
-            {(rules.minOrderQty > 1 || rules.qtyIncrement > 1) && (
+            {(rules.minOrderQty > 1 || rules.qtyIncrement > 1 || isUnavailable) && (
               <p className="flex flex-wrap gap-1 pt-0.5">
+                {isUnavailable && (
+                  <Badge tone="warning">{t('productCard.currentlyUnavailable')}</Badge>
+                )}
                 {rules.minOrderQty > 1 && <Badge>Min {formatNumber(rules.minOrderQty)}</Badge>}
                 {rules.qtyIncrement > 1 && <Badge>In {formatNumber(rules.qtyIncrement)}s</Badge>}
               </p>
@@ -317,7 +338,12 @@ function ProductTile({ product }: { product: AiProductCard }): React.JSX.Element
               <Button
                 variant="action"
                 size="sm"
-                disabled={soldOut || unpriced}
+                // A card whose product is quoted per account or taken off sale
+                // has no basket path at all. The server would refuse the add
+                // anyway - see `assertPurchasable` - and finding that out by
+                // pressing a button that looked ready is the worse way to
+                // learn it.
+                disabled={soldOut || unpriced || isPriceOnRequest || isUnavailable}
                 isLoading={add.isPending}
                 onClick={() => {
                   add.mutate();

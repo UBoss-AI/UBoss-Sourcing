@@ -33,6 +33,12 @@ import { VariantsPanel } from '@/pages/product/VariantsPanel';
 import { CurrencyPricesPanel } from '@/pages/product/CurrencyPricesPanel';
 import { TranslationsPanel } from '@/pages/product/TranslationsPanel';
 import { ProductSafetyPanel } from '@/pages/product/ProductSafetyPanel';
+import {
+  ProductPackagingPanel,
+  ProductSourcePanel,
+  type AdminImportRecord,
+  type AdminPackaging,
+} from '@/pages/product/ProductSourcePanel';
 import { DevicePanel } from '@/pages/product/DevicePanel';
 import {
   Badge,
@@ -101,6 +107,20 @@ interface ProductDetail {
   hasVariants: boolean;
   weightGrams: number | null;
 
+  /**
+   * The price is deliberately not published; the buyer is invited to ask.
+   *
+   * Relaxes one publication rule - the price-above-zero check - and refuses
+   * every basket path, because there is no figure to charge. Not the same as
+   * an unfinished draft, which is what a zero price usually means.
+   */
+  isPriceOnRequest: boolean;
+  /** Listed and readable, but not for sale. Not the same axis as published. */
+  isOrderable: boolean;
+  unavailabilityReason: string | null;
+  /** Set by the catalogue import; null for anything made by hand. */
+  importFingerprint: string | null;
+
   /** GPSR Art. 19. Null throughout on a catalogue that does not sell into the EU. */
   manufacturerId: string | null;
   euResponsibleId: string | null;
@@ -117,7 +137,11 @@ interface ProductDetail {
   media: MediaItem[];
   /** Ordered by sortOrder server-side; the panel keeps that order. */
   attributes: { id: string; name: string; value: string; isFilterable: boolean }[];
-  variants: unknown[];
+  variants: { id: string; name: string }[];
+  /** Per-SKU packing, including the sticker artwork a customer never sees. */
+  packaging?: AdminPackaging[];
+  /** Where each row came from, and the operator's own columns. */
+  importRecords?: AdminImportRecord[];
 }
 
 /**
@@ -151,6 +175,9 @@ function buildProductSchema(t: Translate) {
     maxOrderQty: z.string().trim(),
     qtyIncrement: z.coerce.number().int().min(1, t('productDetail.atLeastOne')).max(1_000_000),
     isRecurringEligible: z.boolean(),
+    isPriceOnRequest: z.boolean(),
+    isOrderable: z.boolean(),
+    unavailabilityReason: z.string().trim().max(255),
     weightGrams: z.string().trim(),
   })
   .superRefine((values, ctx) => {
@@ -222,6 +249,9 @@ const FORM_FIELDS = [
   'maxOrderQty',
   'qtyIncrement',
   'isRecurringEligible',
+  'isPriceOnRequest',
+  'isOrderable',
+  'unavailabilityReason',
   'weightGrams',
 ] as const;
 
@@ -651,6 +681,18 @@ export function ProductDetailPage(): React.JSX.Element {
 
   const product = productQuery.data?.product;
 
+  /**
+   * Each size by its variant id, for the packing and source panels.
+   *
+   * Both of those are keyed by `variantKey` - the variant ULID, or the empty
+   * string for the product itself - and a ULID is not a heading anybody can
+   * read. This turns it back into the size the administrator chose.
+   */
+  const variantNames = useMemo(
+    () => new Map((product?.variants ?? []).map((variant) => [variant.id, variant.name])),
+    [product],
+  );
+
   const defaultTaxCode = useMemo(
     () => taxClasses.data?.taxClasses.find((taxClass) => taxClass.isDefault)?.code ?? '',
     [taxClasses.data],
@@ -661,6 +703,7 @@ export function ProductDetailPage(): React.JSX.Element {
     handleSubmit,
     reset,
     setError,
+    watch,
     formState: { errors, isDirty },
   } = useForm<ProductFormInput, unknown, ProductForm>({
     resolver: zodResolver(buildProductSchema(t)),
@@ -680,6 +723,9 @@ export function ProductDetailPage(): React.JSX.Element {
       maxOrderQty: '',
       qtyIncrement: 1,
       isRecurringEligible: false,
+      isPriceOnRequest: false,
+      isOrderable: true,
+      unavailabilityReason: '',
       weightGrams: '',
     },
   });
@@ -711,6 +757,9 @@ export function ProductDetailPage(): React.JSX.Element {
       maxOrderQty: product.maxOrderQty === null ? '' : String(product.maxOrderQty),
       qtyIncrement: product.qtyIncrement,
       isRecurringEligible: product.isRecurringEligible,
+      isPriceOnRequest: product.isPriceOnRequest,
+      isOrderable: product.isOrderable,
+      unavailabilityReason: product.unavailabilityReason ?? '',
       weightGrams: product.weightGrams === null ? '' : String(product.weightGrams),
     });
   }, [product, isNew, defaultTaxCode, reset]);
@@ -745,6 +794,12 @@ export function ProductDetailPage(): React.JSX.Element {
         maxOrderQty: values.maxOrderQty === '' ? null : Number(values.maxOrderQty),
         qtyIncrement: values.qtyIncrement,
         isRecurringEligible: values.isRecurringEligible,
+        isPriceOnRequest: values.isPriceOnRequest,
+        isOrderable: values.isOrderable,
+        // Only meaningful while the product is off sale. Kept rather than
+        // cleared when it goes back on, so switching it off again next month
+        // does not mean retyping the same sentence.
+        unavailabilityReason: nullIfBlank(values.unavailabilityReason),
         weightGrams: values.weightGrams === '' ? null : Number(values.weightGrams),
       };
 
@@ -1229,6 +1284,54 @@ export function ProductDetailPage(): React.JSX.Element {
             </div>
           </Card>
 
+          {/* Two switches that are not publication, and the reason they are
+              not.
+
+              Publishing decides whether a customer can SEE this. These decide
+              whether they can BUY it, which is a different question with
+              different answers: a range quoted per account is entirely visible
+              and has no price, and a product held for a month is entirely
+              visible and simply not for sale. Unpublishing either of them
+              would 404 a URL somebody has bookmarked to read the
+              specification. */}
+          <Card title={t('productDetail.availability')}>
+            <div className="space-y-4 px-5 py-4">
+              <CheckboxField
+                label={t('productDetail.priceOnRequest')}
+                description={t('productDetail.priceOnRequestHint')}
+                disabled={!canWrite}
+                {...register('isPriceOnRequest')}
+              />
+              <CheckboxField
+                label={t('productDetail.orderable')}
+                description={t('productDetail.orderableHint')}
+                disabled={!canWrite}
+                {...register('isOrderable')}
+              />
+
+              {/* Shown only while the product is off sale: a box asking why
+                  something cannot be ordered, beside a product that can be, is
+                  a question with no answer. */}
+              {!watch('isOrderable') && (
+                <Field
+                  label={t('productDetail.unavailabilityReason')}
+                  hint={t('productDetail.unavailabilityReasonHint')}
+                  error={errors.unavailabilityReason?.message}
+                >
+                  {({ inputId, describedBy }) => (
+                    <Input
+                      id={inputId}
+                      aria-describedby={describedBy}
+                      invalid={errors.unavailabilityReason !== undefined}
+                      disabled={!canWrite}
+                      {...register('unavailabilityReason')}
+                    />
+                  )}
+                </Field>
+              )}
+            </div>
+          </Card>
+
           {isNew ? (
             <StagedMediaPanel
               images={stagedImages}
@@ -1271,6 +1374,25 @@ export function ProductDetailPage(): React.JSX.Element {
                 safetyWarnings: product.safetyWarnings,
                 safetyInstructions: product.safetyInstructions,
               }}
+            />
+          )}
+
+          {/* How it is boxed, and where the row came from.
+
+              Below the safety panel because both are reference rather than
+              editing, and above the translations because neither of them is
+              translated - a carton quantity is a number in every language. */}
+          {!isNew && product !== undefined && (
+            <ProductPackagingPanel
+              packaging={product.packaging ?? []}
+              variantNames={variantNames}
+            />
+          )}
+
+          {!isNew && product !== undefined && (
+            <ProductSourcePanel
+              records={product.importRecords ?? []}
+              variantNames={variantNames}
             />
           )}
 

@@ -161,6 +161,21 @@ export type ProductMedia = Prisma.ProductMediaModel
  */
 export type ProductAttribute = Prisma.ProductAttributeModel
 /**
+ * Model ProductPackaging
+ * 
+ */
+export type ProductPackaging = Prisma.ProductPackagingModel
+/**
+ * Model ProductPackDimension
+ * 
+ */
+export type ProductPackDimension = Prisma.ProductPackDimensionModel
+/**
+ * Model ProductImportRecord
+ * 
+ */
+export type ProductImportRecord = Prisma.ProductImportRecordModel
+/**
  * Model InventoryLocation
  * 
  */

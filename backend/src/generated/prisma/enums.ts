@@ -55,6 +55,44 @@ export const CatalogStatus = {
 export type CatalogStatus = (typeof CatalogStatus)[keyof typeof CatalogStatus]
 
 
+export const PackingParseStatus = {
+  PARSED: 'PARSED',
+  PARTIAL: 'PARTIAL',
+  NEEDS_REVIEW: 'NEEDS_REVIEW',
+  UNPARSED: 'UNPARSED'
+} as const
+
+export type PackingParseStatus = (typeof PackingParseStatus)[keyof typeof PackingParseStatus]
+
+
+export const PackDimensionKind = {
+  PRIMARY_PACK: 'PRIMARY_PACK',
+  INNER_BOX: 'INNER_BOX',
+  OUTER_CARTON: 'OUTER_CARTON',
+  STICKER_ARTWORK: 'STICKER_ARTWORK'
+} as const
+
+export type PackDimensionKind = (typeof PackDimensionKind)[keyof typeof PackDimensionKind]
+
+
+export const DimensionParseStatus = {
+  PARSED: 'PARSED',
+  UNIT_UNKNOWN: 'UNIT_UNKNOWN',
+  UNPARSED: 'UNPARSED'
+} as const
+
+export type DimensionParseStatus = (typeof DimensionParseStatus)[keyof typeof DimensionParseStatus]
+
+
+export const OrderingUnit = {
+  PIECE: 'PIECE',
+  INNER_PACK: 'INNER_PACK',
+  OUTER_CARTON: 'OUTER_CARTON'
+} as const
+
+export type OrderingUnit = (typeof OrderingUnit)[keyof typeof OrderingUnit]
+
+
 export const WarehouseOperationalStatus = {
   OPERATIONAL: 'OPERATIONAL',
   LIMITED: 'LIMITED',

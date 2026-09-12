@@ -71,7 +71,20 @@ function actorKind(actor: ScheduleActor): ScheduleActorKind {
 export interface ScheduleItemInput {
   productId: string;
   variantId?: string | null;
+  /** Pieces. What `quoteSchedule` prices, and the only figure that is. */
   quantity: number;
+  /**
+   * The unit the customer agreed the plan in, and the conversion at that
+   * moment.
+   *
+   * Absent means pieces, which is what every caller written before pack
+   * ordering sent. Snapshotted rather than looked up at charge time: somebody
+   * who agreed to three cartons a month must keep receiving three cartons even
+   * if the carton is re-specified in between.
+   */
+  orderingUnit?: 'PIECE' | 'INNER_PACK' | 'OUTER_CARTON' | null;
+  unitQuantity?: number | null;
+  piecesPerUnitSnapshot?: number | null;
   /** The one product the customer authorises as a stand-in for this line. */
   substituteProductId?: string | null;
   substituteVariantId?: string | null;
@@ -501,6 +514,13 @@ export async function createSchedule(
             variantId: item.variantId ?? null,
             variantKey: variantKeyOf(item.variantId ?? null),
             quantity: item.quantity,
+            // What the customer agreed to receive, in the unit they agreed it
+            // in. The pieces are what `quoteSchedule` prices; these are what
+            // the plan screen shows back, and they must not drift apart when
+            // the packing is corrected months from now.
+            orderingUnit: item.orderingUnit ?? 'PIECE',
+            unitQuantity: item.unitQuantity ?? item.quantity,
+            piecesPerUnitSnapshot: item.piecesPerUnitSnapshot ?? 1,
             substituteProductId: item.substituteProductId ?? null,
             substituteVariantId: item.substituteVariantId ?? null,
             substituteVariantKey: variantKeyOf(item.substituteVariantId ?? null),
@@ -580,6 +600,13 @@ async function assertItemsSchedulable(items: ScheduleItemInput[]): Promise<void>
       maxOrderQty: true,
       qtyIncrement: true,
       hasVariants: true,
+      // Visible is not sellable. A plan is a standing instruction to charge a
+      // card, so a product with no agreed price must never reach one - and the
+      // check matters more here than in a basket, because the charge happens
+      // weeks later inside a worker with nobody watching.
+      isPriceOnRequest: true,
+      isOrderable: true,
+      unavailabilityReason: true,
     },
   });
 
@@ -607,6 +634,24 @@ async function assertItemsSchedulable(items: ScheduleItemInput[]): Promise<void>
         field: `items.${String(index)}.productId`,
         code: ErrorCode.SCHEDULE_PRODUCT_NOT_ELIGIBLE,
         message: `${product.name} cannot be set up as a scheduled purchase.`,
+      });
+    }
+
+    // Collected rather than thrown, like every other problem here: a forty-line
+    // basket should not be fixed one round trip at a time.
+    if (!product.isOrderable) {
+      problems.push({
+        field: `items.${String(index)}.productId`,
+        code: ErrorCode.PRODUCT_NOT_ORDERABLE,
+        message:
+          product.unavailabilityReason ??
+          `${product.name} is not available to order at the moment.`,
+      });
+    } else if (product.isPriceOnRequest) {
+      problems.push({
+        field: `items.${String(index)}.productId`,
+        code: ErrorCode.PRODUCT_PRICE_ON_REQUEST,
+        message: `${product.name} is priced on request, so it cannot be put on a repeating plan until it has an agreed price.`,
       });
     }
 
@@ -1730,6 +1775,9 @@ export async function updateSchedule(
           variantId: item.variantId ?? null,
           variantKey: variantKeyOf(item.variantId ?? null),
           quantity: item.quantity,
+          orderingUnit: item.orderingUnit ?? 'PIECE',
+          unitQuantity: item.unitQuantity ?? item.quantity,
+          piecesPerUnitSnapshot: item.piecesPerUnitSnapshot ?? 1,
           substituteProductId: item.substituteProductId ?? null,
           substituteVariantId: item.substituteVariantId ?? null,
           substituteVariantKey: variantKeyOf(item.substituteVariantId ?? null),

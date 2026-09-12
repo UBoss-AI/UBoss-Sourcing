@@ -418,6 +418,9 @@ export const ModelName = {
   ProductVariant: 'ProductVariant',
   ProductMedia: 'ProductMedia',
   ProductAttribute: 'ProductAttribute',
+  ProductPackaging: 'ProductPackaging',
+  ProductPackDimension: 'ProductPackDimension',
+  ProductImportRecord: 'ProductImportRecord',
   InventoryLocation: 'InventoryLocation',
   WarehouseCountryExclusion: 'WarehouseCountryExclusion',
   WarehouseDeliveryZone: 'WarehouseDeliveryZone',
@@ -520,7 +523,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productMedia" | "productAttribute" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productMedia" | "productAttribute" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1907,6 +1910,204 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProductAttributeCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProductAttributeCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProductPackaging: {
+      payload: Prisma.$ProductPackagingPayload<ExtArgs>
+      fields: Prisma.ProductPackagingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductPackagingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPackagingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductPackagingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPackagingPayload>
+        }
+        findFirst: {
+          args: Prisma.ProductPackagingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPackagingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductPackagingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPackagingPayload>
+        }
+        findMany: {
+          args: Prisma.ProductPackagingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPackagingPayload>[]
+        }
+        create: {
+          args: Prisma.ProductPackagingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPackagingPayload>
+        }
+        createMany: {
+          args: Prisma.ProductPackagingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ProductPackagingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPackagingPayload>
+        }
+        update: {
+          args: Prisma.ProductPackagingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPackagingPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductPackagingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductPackagingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ProductPackagingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPackagingPayload>
+        }
+        aggregate: {
+          args: Prisma.ProductPackagingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductPackaging>
+        }
+        groupBy: {
+          args: Prisma.ProductPackagingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductPackagingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductPackagingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductPackagingCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProductPackDimension: {
+      payload: Prisma.$ProductPackDimensionPayload<ExtArgs>
+      fields: Prisma.ProductPackDimensionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductPackDimensionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPackDimensionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductPackDimensionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPackDimensionPayload>
+        }
+        findFirst: {
+          args: Prisma.ProductPackDimensionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPackDimensionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductPackDimensionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPackDimensionPayload>
+        }
+        findMany: {
+          args: Prisma.ProductPackDimensionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPackDimensionPayload>[]
+        }
+        create: {
+          args: Prisma.ProductPackDimensionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPackDimensionPayload>
+        }
+        createMany: {
+          args: Prisma.ProductPackDimensionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ProductPackDimensionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPackDimensionPayload>
+        }
+        update: {
+          args: Prisma.ProductPackDimensionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPackDimensionPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductPackDimensionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductPackDimensionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ProductPackDimensionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPackDimensionPayload>
+        }
+        aggregate: {
+          args: Prisma.ProductPackDimensionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductPackDimension>
+        }
+        groupBy: {
+          args: Prisma.ProductPackDimensionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductPackDimensionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductPackDimensionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductPackDimensionCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProductImportRecord: {
+      payload: Prisma.$ProductImportRecordPayload<ExtArgs>
+      fields: Prisma.ProductImportRecordFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductImportRecordFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductImportRecordPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductImportRecordFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductImportRecordPayload>
+        }
+        findFirst: {
+          args: Prisma.ProductImportRecordFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductImportRecordPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductImportRecordFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductImportRecordPayload>
+        }
+        findMany: {
+          args: Prisma.ProductImportRecordFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductImportRecordPayload>[]
+        }
+        create: {
+          args: Prisma.ProductImportRecordCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductImportRecordPayload>
+        }
+        createMany: {
+          args: Prisma.ProductImportRecordCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ProductImportRecordDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductImportRecordPayload>
+        }
+        update: {
+          args: Prisma.ProductImportRecordUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductImportRecordPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductImportRecordDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductImportRecordUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ProductImportRecordUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductImportRecordPayload>
+        }
+        aggregate: {
+          args: Prisma.ProductImportRecordAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductImportRecord>
+        }
+        groupBy: {
+          args: Prisma.ProductImportRecordGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductImportRecordGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductImportRecordCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductImportRecordCountAggregateOutputType> | number
         }
       }
     }
@@ -7994,9 +8195,12 @@ export const ProductScalarFieldEnum = {
   taxClassId: 'taxClassId',
   basePriceMinor: 'basePriceMinor',
   currency: 'currency',
+  isPriceOnRequest: 'isPriceOnRequest',
   compareAtPriceMinor: 'compareAtPriceMinor',
   isStockTracked: 'isStockTracked',
   reorderThreshold: 'reorderThreshold',
+  isOrderable: 'isOrderable',
+  unavailabilityReason: 'unavailabilityReason',
   minOrderQty: 'minOrderQty',
   maxOrderQty: 'maxOrderQty',
   qtyIncrement: 'qtyIncrement',
@@ -8006,6 +8210,7 @@ export const ProductScalarFieldEnum = {
   weightGrams: 'weightGrams',
   metaTitle: 'metaTitle',
   metaDescription: 'metaDescription',
+  importFingerprint: 'importFingerprint',
   manufacturerId: 'manufacturerId',
   euResponsibleId: 'euResponsibleId',
   gtin: 'gtin',
@@ -8027,13 +8232,16 @@ export const ProductVariantScalarFieldEnum = {
   productId: 'productId',
   sku: 'sku',
   name: 'name',
+  gtin: 'gtin',
+  modelIdentifier: 'modelIdentifier',
   optionsJson: 'optionsJson',
   priceMinor: 'priceMinor',
   isActive: 'isActive',
   sortOrder: 'sortOrder',
   archivedAt: 'archivedAt',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  importFingerprint: 'importFingerprint'
 } as const
 
 export type ProductVariantScalarFieldEnum = (typeof ProductVariantScalarFieldEnum)[keyof typeof ProductVariantScalarFieldEnum]
@@ -8061,6 +8269,72 @@ export const ProductAttributeScalarFieldEnum = {
 } as const
 
 export type ProductAttributeScalarFieldEnum = (typeof ProductAttributeScalarFieldEnum)[keyof typeof ProductAttributeScalarFieldEnum]
+
+
+export const ProductPackagingScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  variantId: 'variantId',
+  variantKey: 'variantKey',
+  packingType: 'packingType',
+  packingRawText: 'packingRawText',
+  piecesPerInnerPack: 'piecesPerInnerPack',
+  innerPacksPerOuterCarton: 'innerPacksPerOuterCarton',
+  piecesPerOuterCarton: 'piecesPerOuterCarton',
+  innerPackType: 'innerPackType',
+  outerPackType: 'outerPackType',
+  parseStatus: 'parseStatus',
+  validationMessage: 'validationMessage',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductPackagingScalarFieldEnum = (typeof ProductPackagingScalarFieldEnum)[keyof typeof ProductPackagingScalarFieldEnum]
+
+
+export const ProductPackDimensionScalarFieldEnum = {
+  id: 'id',
+  packagingId: 'packagingId',
+  kind: 'kind',
+  rawText: 'rawText',
+  displayValue: 'displayValue',
+  unit: 'unit',
+  parseStatus: 'parseStatus'
+} as const
+
+export type ProductPackDimensionScalarFieldEnum = (typeof ProductPackDimensionScalarFieldEnum)[keyof typeof ProductPackDimensionScalarFieldEnum]
+
+
+export const ProductImportRecordScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  variantId: 'variantId',
+  variantKey: 'variantKey',
+  fingerprint: 'fingerprint',
+  sourceFileName: 'sourceFileName',
+  sourceSheet: 'sourceSheet',
+  sourceRow: 'sourceRow',
+  importedAt: 'importedAt',
+  rawJson: 'rawJson',
+  productCode: 'productCode',
+  gtinRaw: 'gtinRaw',
+  gtinNormalised: 'gtinNormalised',
+  genericName: 'genericName',
+  modelSize: 'modelSize',
+  sterilisation: 'sterilisation',
+  brand: 'brand',
+  packingType: 'packingType',
+  shelfLife: 'shelfLife',
+  productionCapacityPerMonth: 'productionCapacityPerMonth',
+  launchDate: 'launchDate',
+  manufacturingLicenceStatus: 'manufacturingLicenceStatus',
+  testLicenceStatus: 'testLicenceStatus',
+  internalStatus: 'internalStatus',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductImportRecordScalarFieldEnum = (typeof ProductImportRecordScalarFieldEnum)[keyof typeof ProductImportRecordScalarFieldEnum]
 
 
 export const InventoryLocationScalarFieldEnum = {
@@ -8266,6 +8540,9 @@ export const CartItemScalarFieldEnum = {
   variantId: 'variantId',
   variantKey: 'variantKey',
   quantity: 'quantity',
+  orderingUnit: 'orderingUnit',
+  unitQuantity: 'unitQuantity',
+  piecesPerUnitSnapshot: 'piecesPerUnitSnapshot',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -8334,6 +8611,9 @@ export const OrderItemScalarFieldEnum = {
   imageUrlSnapshot: 'imageUrlSnapshot',
   unitPriceMinor: 'unitPriceMinor',
   quantity: 'quantity',
+  orderingUnit: 'orderingUnit',
+  unitQuantity: 'unitQuantity',
+  piecesPerUnitSnapshot: 'piecesPerUnitSnapshot',
   lineSubtotalMinor: 'lineSubtotalMinor',
   taxRatePercent: 'taxRatePercent',
   taxInclusive: 'taxInclusive',
@@ -8572,6 +8852,9 @@ export const RecurringScheduleItemScalarFieldEnum = {
   variantId: 'variantId',
   variantKey: 'variantKey',
   quantity: 'quantity',
+  orderingUnit: 'orderingUnit',
+  unitQuantity: 'unitQuantity',
+  piecesPerUnitSnapshot: 'piecesPerUnitSnapshot',
   substituteProductId: 'substituteProductId',
   substituteVariantId: 'substituteVariantId',
   substituteVariantKey: 'substituteVariantKey',
@@ -10166,8 +10449,10 @@ export const ProductOrderByRelevanceFieldEnum = {
   descriptionHtml: 'descriptionHtml',
   taxClassId: 'taxClassId',
   currency: 'currency',
+  unavailabilityReason: 'unavailabilityReason',
   metaTitle: 'metaTitle',
   metaDescription: 'metaDescription',
+  importFingerprint: 'importFingerprint',
   manufacturerId: 'manufacturerId',
   euResponsibleId: 'euResponsibleId',
   gtin: 'gtin',
@@ -10185,7 +10470,10 @@ export const ProductVariantOrderByRelevanceFieldEnum = {
   id: 'id',
   productId: 'productId',
   sku: 'sku',
-  name: 'name'
+  name: 'name',
+  gtin: 'gtin',
+  modelIdentifier: 'modelIdentifier',
+  importFingerprint: 'importFingerprint'
 } as const
 
 export type ProductVariantOrderByRelevanceFieldEnum = (typeof ProductVariantOrderByRelevanceFieldEnum)[keyof typeof ProductVariantOrderByRelevanceFieldEnum]
@@ -10208,6 +10496,58 @@ export const ProductAttributeOrderByRelevanceFieldEnum = {
 } as const
 
 export type ProductAttributeOrderByRelevanceFieldEnum = (typeof ProductAttributeOrderByRelevanceFieldEnum)[keyof typeof ProductAttributeOrderByRelevanceFieldEnum]
+
+
+export const ProductPackagingOrderByRelevanceFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  variantId: 'variantId',
+  variantKey: 'variantKey',
+  packingType: 'packingType',
+  packingRawText: 'packingRawText',
+  innerPackType: 'innerPackType',
+  outerPackType: 'outerPackType',
+  validationMessage: 'validationMessage'
+} as const
+
+export type ProductPackagingOrderByRelevanceFieldEnum = (typeof ProductPackagingOrderByRelevanceFieldEnum)[keyof typeof ProductPackagingOrderByRelevanceFieldEnum]
+
+
+export const ProductPackDimensionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  packagingId: 'packagingId',
+  rawText: 'rawText',
+  displayValue: 'displayValue',
+  unit: 'unit'
+} as const
+
+export type ProductPackDimensionOrderByRelevanceFieldEnum = (typeof ProductPackDimensionOrderByRelevanceFieldEnum)[keyof typeof ProductPackDimensionOrderByRelevanceFieldEnum]
+
+
+export const ProductImportRecordOrderByRelevanceFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  variantId: 'variantId',
+  variantKey: 'variantKey',
+  fingerprint: 'fingerprint',
+  sourceFileName: 'sourceFileName',
+  sourceSheet: 'sourceSheet',
+  productCode: 'productCode',
+  gtinRaw: 'gtinRaw',
+  gtinNormalised: 'gtinNormalised',
+  genericName: 'genericName',
+  modelSize: 'modelSize',
+  sterilisation: 'sterilisation',
+  brand: 'brand',
+  packingType: 'packingType',
+  shelfLife: 'shelfLife',
+  productionCapacityPerMonth: 'productionCapacityPerMonth',
+  manufacturingLicenceStatus: 'manufacturingLicenceStatus',
+  testLicenceStatus: 'testLicenceStatus',
+  internalStatus: 'internalStatus'
+} as const
+
+export type ProductImportRecordOrderByRelevanceFieldEnum = (typeof ProductImportRecordOrderByRelevanceFieldEnum)[keyof typeof ProductImportRecordOrderByRelevanceFieldEnum]
 
 
 export const InventoryLocationOrderByRelevanceFieldEnum = {
@@ -11508,6 +11848,27 @@ export type EnumCatalogStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
 
 
 /**
+ * Reference to a field of type 'PackingParseStatus'
+ */
+export type EnumPackingParseStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PackingParseStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'PackDimensionKind'
+ */
+export type EnumPackDimensionKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PackDimensionKind'>
+    
+
+
+/**
+ * Reference to a field of type 'DimensionParseStatus'
+ */
+export type EnumDimensionParseStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DimensionParseStatus'>
+    
+
+
+/**
  * Reference to a field of type 'WarehouseOperationalStatus'
  */
 export type EnumWarehouseOperationalStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WarehouseOperationalStatus'>
@@ -11553,6 +11914,13 @@ export type EnumAddressKindFieldRefInput<$PrismaModel> = FieldRefInputType<$Pris
  * Reference to a field of type 'CartStatus'
  */
 export type EnumCartStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CartStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'OrderingUnit'
+ */
+export type EnumOrderingUnitFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OrderingUnit'>
     
 
 
@@ -12210,6 +12578,9 @@ export type GlobalOmitConfig = {
   productVariant?: Prisma.ProductVariantOmit
   productMedia?: Prisma.ProductMediaOmit
   productAttribute?: Prisma.ProductAttributeOmit
+  productPackaging?: Prisma.ProductPackagingOmit
+  productPackDimension?: Prisma.ProductPackDimensionOmit
+  productImportRecord?: Prisma.ProductImportRecordOmit
   inventoryLocation?: Prisma.InventoryLocationOmit
   warehouseCountryExclusion?: Prisma.WarehouseCountryExclusionOmit
   warehouseDeliveryZone?: Prisma.WarehouseDeliveryZoneOmit

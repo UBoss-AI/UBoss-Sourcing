@@ -165,6 +165,7 @@ table(['Customer action', 'What the system provides'], [
   ['Use voice search', 'Use supported browser voice input for a search query.'],
   ['Use image search', 'Upload a product image to match relevant products when the feature is available to the signed-in customer.'],
 ], [3500, 6800]);
+p('Each department on the home page carries a picture of what is in it — a cannula beside IV Cannula, a glove beside Surgical Gloves — so a buyer can find the department they came for by shape before they finish reading the labels. A department the system does not recognise by name gets a plain shape instead of a wrong picture.');
 h2('3.2 Product detail page');
 bullets([
   'See product images, product name, SKU/reference, specifications and descriptions.',
@@ -174,7 +175,23 @@ bullets([
   'View tax and market price context before adding to the basket.',
   'Add the item to the basket or save it for later where the relevant feature is available.',
 ]);
-h2('3.3 AI Mode');
+h2('3.3 Packaging, and ordering by the box or the carton');
+p('Many products in this trade are sold by the box and the carton rather than one at a time. Where the business has recorded how a product is packed, the product page shows it and lets the buyer order in whichever unit suits them.');
+table(['What the customer sees', 'What the customer can do'], [
+  ['A short pack summary on every listing, such as “100 per box · 2,000 per carton”.', 'Decide from the list whether an item is sold in the size they buy in, before opening it.'],
+  ['A Packaging and ordering section, with pieces per box, boxes per carton and pieces per carton set out separately.', 'Check the exact breakdown instead of working it out from a line of supplier text.'],
+  ['The conversion written out in one line: “100 pieces × 20 boxes = 2,000 pieces”.', 'See the whole relationship at a glance.'],
+  ['A ready-reckoner for 1, 2, 5 and 10 of the chosen unit.', 'Answer “if I order five cartons, how many is that?” without a calculator.'],
+  ['A choice of ordering unit above the quantity box: Pieces, Box, or Carton.', 'Type “2” and mean two cartons, with the piece total shown underneath as they type.'],
+  ['A Dimensions section with the primary pack, inner box and outer carton sizes.', 'Check what will arrive against the space they have.'],
+]);
+bullets([
+  'The basket keeps the unit the buyer chose. A line added as two cartons is counted in cartons in the basket, on the order and on a repeating plan, with the piece total shown beside it.',
+  'Only units the business has actually recorded a figure for are offered. A product whose carton quantity is not on file can only be ordered by the piece.',
+  'A pack size is not a minimum order. Any minimum is a separate rule the business sets, and the page says so.',
+]);
+note('Sizes as recorded', 'Pack dimensions are shown exactly as the business recorded them. Where the source did not state whether a measurement is in millimetres or inches, the page says so rather than assuming one.', C.purple);
+h2('3.4 AI Mode');
 p('AI Mode is a full page, not a small floating chat window. A visitor can ask product questions before opening an account when guest access is allowed. A signed-in customer can keep a conversation history.');
 bullets([
   'Ask natural-language questions such as “show sterile syringes” or “which item matches this need?”.',
@@ -196,6 +213,7 @@ bullets([
   'Review product subtotal, tax, delivery context and estimated total.',
   'Move eligible items toward repeat purchase planning when recurring orders are enabled.',
   'Use the two purchase workspaces: Instant Buy cart and Schedule Cart.',
+  'Change a line by the box or the carton where it was added that way, with the piece total updating beside it.',
 ]);
 h2('4.2 Customer warehouse choice — exact behaviour');
 p('Yes. Once a customer has basket items, the basket can show a “Where this can ship from” panel. It helps the buyer decide which eligible warehouse they prefer for the order.');
@@ -275,6 +293,7 @@ table(['Feature', 'Customer benefit'], [
 ], [3000, 6500]);
 h2('6.4 Customer’s own ERP connection');
 p('A customer can connect its own purchasing or business system to UBOSS through Account → Integrations → ERP. This is separate from the supplier/admin ERP connection.');
+p('The setup runs as six short steps. Each one opens at the top of the page when the previous is finished, so a long step never leaves the next question somewhere above the screen.');
 bullets([
   'Use a guided setup flow for supported named systems or a documented API.',
   'Configure connection details, mapping, health checks, activity logs and approvals.',
@@ -329,15 +348,58 @@ table(['Admin feature', 'What staff can do'], [
   ['Quantity rules', 'Set minimum order quantity and other order quantity constraints.'],
   ['Currency pricing', 'Set a real price per currency/market, or use a controlled bulk price process.'],
   ['Bulk import', 'Upload catalogue data from a spreadsheet into the product area.'],
+  ['Availability', 'Mark a product as priced on request, or take it off sale while leaving the listing readable.'],
+  ['Packaging', 'Review how each size is boxed, the figures read from the supplier sheet, and the text they were read from.'],
+  ['Source record', 'See which file and row a product came from, with the licence, capacity and internal status columns that came with it.'],
 ], [3000, 7000]);
-h2('8.2 Product safety and legal product information');
+h2('8.2 Price on request, and taking something off sale');
+p('Two switches decide whether a customer may buy a product. They are separate from publishing, which decides whether a customer may see it at all.');
+table(['Setting', 'What the customer sees', 'When to use it'], [
+  ['Price on request', 'The listing shows “Request a quote” where the price would be. Nothing can be added to a basket.', 'A range the business quotes per account, or per volume, rather than at a list price.'],
+  ['Available to order (off)', 'The listing, the specifications and the packaging stay readable. A notice says it cannot be ordered, in the words the business chose.', 'A product that is made but held this month. Unpublishing would make the page disappear entirely.'],
+], [2200, 4400, 3400]);
+bullets([
+  'A product priced on request can be published without a price, and without a photograph. Everything else still has to be complete.',
+  'Both settings are enforced by the system on every basket change and again at checkout, so they cannot be worked around from a browser.',
+  'A product with a real price still needs a photograph before it can be published.',
+]);
+h2('8.3 Loading a supplier product sheet');
+p('A supplier catalogue usually arrives as a spreadsheet with several product categories stacked in one worksheet. The system can read that shape directly, rather than requiring somebody to flatten it by hand first.');
+table(['What it does', 'Why it works this way'], [
+  ['Reads each category band, the repeated headers under it, and the product rows between them.', 'A supplier sheet is not one clean table, and treating it as one loses the category of every row.'],
+  ['Shows a full preview before anything is written.', 'The preview and the real run use the same checks, so what it promises is what happens.'],
+  ['Never reads or changes a price, and never changes a photograph.', 'The price column on a supplier sheet is usually a retail figure from another market, not what this business charges.'],
+  ['Never deletes. A product missing from the file is left alone.', 'Tidying a catalogue is a decision somebody takes, not a side effect of a shorter file.'],
+  ['Never publishes on its own. Everything arrives as a draft.', 'Publishing is a separate, recorded decision, with its own checks.'],
+  ['Can be run again on the same file without creating duplicates.', 'Supplier sheets get corrected and re-sent, and the second run should update the first, not double it.'],
+]);
+p('The system reads how each product is packed out of the supplier’s own wording, and reports what it could and could not understand.');
+bullets([
+  'Where the figures are complete and multiply out correctly, the product can be ordered by the box and by the carton.',
+  'Where the sheet gives only a carton total, that total is recorded and nothing is guessed about what is inside it.',
+  'Where the sheet’s own figures contradict each other, the product is flagged for review and can only be ordered by the piece until somebody confirms it.',
+  'The supplier’s original wording is always kept beside whatever was understood from it.',
+]);
+p('Products whose internal status on the sheet is “Hold” or “Working on it” are created unavailable to order. Licence status, production capacity, launch date and internal status are stored for staff only and never appear on a customer page.');
+note('Where duplicates go', 'Supplier sheets often reuse a product code or a barcode across genuinely different items. Those are imported as separate products and listed in the report for somebody to check, never merged together.', C.purple);
+h2('8.4 Product photographs');
+p('A supplier sheet carries no photographs. The system can take your own product photography — a folder of image files — resize it for the web and put each picture on the products it actually shows.');
+table(['What it does', 'Why it works this way'], [
+  ['Uses only your own photographs.', 'A stock picture of another company’s product presented as yours is a false record, and on a medical device that is worse than no picture at all.'],
+  ['Shows a full preview before anything is attached.', 'You can see which departments would be covered and which would be left, before any of it happens.'],
+  ['Never replaces a picture somebody has uploaded.', 'Your own upload always wins. Running it again does not stack a second picture on top of the first.'],
+  ['Leaves a product with no matching photograph alone.', 'A nearly-right picture is the kind of wrong nobody reports. An insulin syringe and a plain syringe look alike and are not the same product.'],
+  ['Reports what is still unphotographed, by department.', 'That list is the useful part: it tells you exactly what to photograph next.'],
+]);
+p('Products with no photograph keep the neutral placeholder the catalogue already shows, and they still list, search and sell normally.');
+h2('8.5 Product safety and legal product information');
 bullets([
   'Maintain product safety information for medical-device and regulatory needs.',
   'Record manufacturer/economic operator information for EU product-safety requirements.',
   'Maintain product specifications and product documents where provided.',
   'Keep product media and product safety details available to appropriate customer-facing views.',
 ]);
-h2('8.3 Coupons and manufacturers');
+h2('8.6 Coupons and manufacturers');
 bullets([
   'Create and manage coupons, code rules, validity periods and usage context.',
   'Maintain manufacturer/economic operator data used by catalogue and product compliance information.',

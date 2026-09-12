@@ -31,7 +31,7 @@
  * secret survives; typing into it replaces it. That is the only shape that lets
  * somebody change a timeout without retyping their SAP client secret.
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useStorefront } from '@/app/storefront-context';
@@ -393,6 +393,45 @@ export function ErpWizardPage(): React.JSX.Element {
     onError: (error: unknown) => { toast.error(errorMessage(t, error)); },
   });
 
+  /**
+   * Every step starts at the top, the way arriving at a new page would.
+   *
+   * The wizard is one route with six panels inside it, so nothing the router
+   * does applies here: `StoreLayout` resets the scroll on a path change and
+   * the path never changes. Pressing Continue at the bottom of a long step
+   * therefore swapped the panel out from under the viewport and left the
+   * reader looking at the footer of a form they had just finished, with the
+   * new step's first question somewhere above them.
+   *
+   * Scrolling is only half of it. The button that was focused has just been
+   * unmounted, so focus falls back to `<body>` and a screen reader is told
+   * nothing at all about the step it is now on. Focus moves to the step rail,
+   * whose `aria-current` marks where they are - so the announcement is
+   * "Setup steps, 3. Network, current step", which is exactly the sentence a
+   * page load would have produced.
+   *
+   * `preventScroll` because the focus call would otherwise scroll the rail
+   * into view itself, and two scrolls in one frame is a visible jolt.
+   * 'instant' rather than 'smooth' to match what StoreLayout does on a real
+   * page change: a step here IS a page, and one of the two animating is worse
+   * than neither.
+   */
+  const stepRailRef = useRef<HTMLOListElement>(null);
+  const hasRenderedAStep = useRef(false);
+
+  useEffect(() => {
+    // Not on arrival. Reaching the wizard is a route change, and StoreLayout
+    // has already put the page at the top and moved focus into <main>; doing
+    // it again here would steal focus from the main region for no reason.
+    if (!hasRenderedAStep.current) {
+      hasRenderedAStep.current = true;
+      return;
+    }
+
+    stepRailRef.current?.focus({ preventScroll: true });
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [step]);
+
   if (options.isPending || (isEditing && existing.isPending)) {
     return <LoadingState label={t('erp.wizard.loading')} />;
   }
@@ -424,7 +463,15 @@ export function ErpWizardPage(): React.JSX.Element {
        * steps after the current one are not reachable until the draft exists,
        * and a control that refuses to do anything reads as a fault.
        */}
-      <ol className="mb-6 flex flex-wrap gap-x-1 gap-y-2" aria-label={t('erp.wizard.steps')}>
+      <ol
+        ref={stepRailRef}
+        // Focusable by script but not in the tab order: it is a destination
+        // for focus after a step change, not a stop on the way through the
+        // form. See the effect above.
+        tabIndex={-1}
+        className="mb-6 flex flex-wrap gap-x-1 gap-y-2 outline-none"
+        aria-label={t('erp.wizard.steps')}
+      >
         {STEPS.map((entry, index) => {
           const done = index < stepIndex;
           const current = index === stepIndex;

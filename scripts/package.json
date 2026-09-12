@@ -10,9 +10,13 @@
     "dev:tunnel": "powershell -ExecutionPolicy Bypass -File ./dev-stack.ps1 -Tunnel",
     "dev:status": "powershell -ExecutionPolicy Bypass -File ./dev-stack.ps1 -Status",
     "dev:restart": "powershell -ExecutionPolicy Bypass -File ./dev-stack.ps1 -Restart",
-    "dev:stop": "powershell -ExecutionPolicy Bypass -File ./dev-stack.ps1 -Stop"
+    "dev:stop": "powershell -ExecutionPolicy Bypass -File ./dev-stack.ps1 -Stop",
+    "images": "node prepare-product-images.mjs"
   },
   "devDependencies": {
     "deepl-node": "^1.19.0"
+  },
+  "dependencies": {
+    "sharp": "^0.35.4"
   }
 }

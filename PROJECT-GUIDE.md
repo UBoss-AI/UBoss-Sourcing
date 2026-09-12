@@ -30,6 +30,7 @@ have to read separately — this *is* the explanation.
    - [9.8.1 The customer’s own ERP](#981-the-customers-own-erp)
    - [9.9 A customer changes the address they sign in with](#99-a-customer-changes-the-address-they-sign-in-with)
    - [9.10 A customer closes their own account](#910-a-customer-closes-their-own-account)
+   - [9.11 Loading a supplier product sheet](#911-loading-a-supplier-product-sheet)
 10. [Money — the most important rule](#10-money--the-most-important-rule)
 11. [The background worker](#11-the-background-worker)
 12. [Security](#12-security)
@@ -2762,6 +2763,32 @@ tidy up a product.
 `product_attributes`, `product_prices`, `media_assets`, `tax_classes`,
 `product_translations`, `category_translations`
 
+**How it is boxed**
+`product_packaging`, `product_pack_dimensions`
+
+One packing row per sellable SKU — pieces per inner pack, inner packs per
+carton, pieces per carton, the source's own words for both packs, and the raw
+text every figure was read out of. The raw text is not redundant with the
+numbers beside it: it is the only thing that can settle an argument about what
+the supplier actually said, and `parseStatus` records how much of it was
+understood. `NEEDS_REVIEW` means the source's own multiplication contradicts
+itself, and such a row is displayed but never converted from.
+
+`product_pack_dimensions` holds the box sizes, one per kind, as written.
+`unit` is nullable and stays NULL unless the source actually named one. The
+`STICKER_ARTWORK` kind is filtered out of every public read by name — it is a
+print specification for the label supplier, not a fact about the product.
+
+**Where a catalogue row came from**
+`product_import_records`
+
+Provenance and the operator-internal columns of a supplier sheet: licence
+status, production capacity, launch date, the workflow state, the source file
+and row, and the raw row as JSON. A separate table from `products` on purpose —
+the public product select is an allowlist so they would have been safe either
+way, but a separate table makes the boundary structural instead of a rule
+somebody has to remember on every future read. See 9.11.
+
 **How much of it there is**
 `inventory_locations`, `inventory_balances`, `inventory_movements`,
 `stock_reservations`, `warehouse_country_exclusions`,
@@ -5312,6 +5339,25 @@ with a session belonging to a person rather than to an integration, breaking the
 first time somebody moves a button. The wizard says so in those words rather
 than offering a username and password field that would imply otherwise.
 
+### Every step starts at the top
+
+The wizard is one route with six panels inside it, so nothing the router does
+applies: `StoreLayout` resets the scroll on a path change, and the path never
+changes. Pressing Continue at the bottom of a long step therefore swapped the
+panel out from under the viewport and left the reader looking at the footer of
+a form they had just finished, with the new step's first question somewhere
+above them — and every step began with a scroll back up.
+
+Changing the step now puts the page at the top and moves focus to the step
+rail. Both halves matter. The button that was focused has just been unmounted,
+so focus would otherwise fall back to `<body>` and a screen reader would be
+told nothing about the step it is now on; the rail carries `aria-current`, so
+landing there announces "Setup steps, 3. Network, current step" — which is what
+a real page load would have said.
+
+It is skipped on arrival, because arriving IS a route change and the layout has
+already done both.
+
 ### The wizard, in six steps
 
 1. **Choose system** — the catalogue, with a search box: type "dyn", "tally" or
@@ -5811,6 +5857,395 @@ somebody weeks after they closed their account.
 `POST /account/data-requests` with `ERASURE` — because Art. 17(3) has
 exemptions a person has to weigh, and an invoice a tax authority requires be
 kept for years is one of them.
+
+---
+
+## 9.11 Loading a supplier product sheet
+
+Most of this industry hands over a catalogue as a spreadsheet, and the one this
+was built against is typical: 810 rows, 22 product categories stacked one under
+another in a single worksheet, the same twenty-column header repeated under
+every category band, and 736 product rows between them.
+
+Three things in that file make it impossible to load with the CSV importer that
+already exists:
+
+1. **It has no prices.** Not "prices nobody has typed yet" — a B2B range is
+   quoted per account, and the sheet is right not to carry one. It does have an
+   MRP column, which is a consumer-facing figure from a different market under
+   a different regulation, and is emphatically not this deployment's selling
+   price.
+2. **It sells in packs.** `100Pcs x 20Box=2000Pcs` is the whole commercial
+   relationship: a hospital orders two cartons, not four thousand syringes.
+3. **It carries the operator's own workflow** — licence status, production
+   capacity, "Working on it" — mixed into the same rows as the product facts a
+   buyer is allowed to see.
+
+### The command
+
+```bash
+cd backend
+npm run catalog:import -- "C:\path\to\sheet.xlsx"            # dry run
+npm run catalog:import -- "C:\path\to\sheet.xlsx" --apply    # writes
+npm run catalog:import -- "C:\path\to\sheet.xlsx" --apply --publish
+```
+
+A dry run is the default, deliberately: the destructive spelling is the one you
+have to type, not the one you get by forgetting a flag. `--sheet "<name>"`
+picks a worksheet, `--actor <email>` names the administrator the audit log will
+record, and `--out <path>` writes the whole report as JSON.
+
+`--publish` runs each imported product through the ordinary `publishProduct` —
+the same completeness check, the same GPSR/MDR assessment and the same audit
+entry as publishing one by hand. Nothing is bypassed; a product that fails the
+check stays a draft and the report says why. It saves four hundred clicks, it
+is not a way around the gate.
+
+### Five rules the importer keeps
+
+**It never touches a price or an image.** Not on create, not on update. Column
+M is mapped so the contract is complete and readable, and then never read. A
+product it creates gets a zero base price and the `isPriceOnRequest` flag; a
+product it finds again keeps whatever an administrator has set since.
+
+**It never publishes by itself.** Everything lands as a DRAFT, exactly like the
+CSV importer. `--publish` is a separate, explicit act by the operator running
+it.
+
+**It never deletes.** A product absent from the file is left alone. A catalogue
+cull is a decision, not a side effect of somebody sending a shorter sheet.
+
+**Identity is a composite fingerprint, never one column.** The source workbook
+contains 18 product codes used more than once, 50 barcodes used more than once,
+six rows whose product code is literally `N/A` and seven whose code is
+`Generic`. Keying on either column alone merges a 14G cannula into an 18G, and
+that merge is silent, permanent and very hard to notice. The fingerprint is a
+SHA-256 of the normalised category, product code, barcode, generic name, model,
+brand and packing type; it lands on `products.importFingerprint` (the family)
+and `product_variants.importFingerprint` (the row). Both are UNIQUE and
+NULLABLE, and both halves matter — MariaDB treats every NULL in a UNIQUE index
+as distinct, so every hand-made product leaves it empty while the index still
+guarantees a re-import updates the row it made last time.
+
+**A dry run and a real run share one code path.** `plan()` does all the reading,
+matching and deciding; the write step only applies what the plan says. A preview
+that disagrees with the outcome is worse than no preview.
+
+### How the sheet is read
+
+The layout is not a table, it is 22 tables stacked in one sheet, so every row is
+classified before any of it is mapped:
+
+```
+row 1   6. Product Code Sheet - Monday (QF-73-01-01A Rev.00)   ← document title
+row 2   Oral Dosing Syringe                                     ← CATEGORY
+row 3   Name | Subitems | UDI (GTIN NO.) | …                    ← header
+row 4   FG/1BZ1B1-G | 8904379806824 | 1 ML ORAL DISPENSING …    ← product
+…
+row 16  (a lone date)                                           ← revision stamp
+row 17  Enfit syringe                                           ← CATEGORY
+```
+
+A lone value in column A is a **category** when a header row follows it and the
+**document title** when another category does. A lone date is a revision stamp.
+A row with fewer than three filled columns is not a product. Anything that is
+none of those is recorded as skipped **with the reason** and appears in the
+report — never silently dropped, and never turned into a product on the grounds
+that it had some text in it.
+
+### Products and variants
+
+Rows group into a **product family** by category, generic name, brand,
+sterilisation and packing type. The **model or size** is deliberately not in
+that key — varying it is exactly what makes a row a variant. So seven gauges of
+one branded cannula become one listing with seven sizes rather than seven
+near-identical listings side by side in a grid. The workbook's 734 usable rows
+become **340 products and 734 variants**.
+
+Packing type *is* in the key, because the same syringe is listed as a blister
+pack and as a ribbon pack with different barcodes and different carton sizes.
+Those are two things to order, not one thing described twice.
+
+### Column N: reading "how many are in a box"
+
+The column is free text and nobody standardised it. One workbook contains all
+of these, meaning the same thing four ways:
+
+```
+100Pcs x 20Box=2000PCS          100pcs×10box=1,000 pcs/Outer
+100pcs-inner/outer-100*20=2000  inner -40 pcs/outer -160 pcs
+50 pcs one pouch/400 pcs        400Pcs
+```
+
+Two rules govern the parser in
+`backend/src/modules/catalog/sheet-import/packing-parser.ts`:
+
+**Never invent a number.** `400Pcs` says a carton holds four hundred. It does
+not say how they are boxed inside, and a plausible-looking inner count made up
+here would be picked by a warehouse and shipped. A missing figure stays missing
+and the status says `PARTIAL`.
+
+**Never silently correct one.** Where the source states all three numbers and
+they do not multiply out, the row is `NEEDS_REVIEW` with every figure kept as
+written. Quietly replacing the stated total with the product of the other two is
+how a customer ends up disputing a quantity nobody can explain — and the sheet
+is as likely to be right about the total as about the factors.
+
+Deriving is not inventing, and the difference is **exact division**. Given 50 to
+a pouch and 400 to a carton, "8 pouches" is arithmetic with one answer, and it
+is recorded with a message saying where it came from. Given 50 and 410, nothing
+is derived.
+
+The raw text is kept beside whatever was read out of it, always. It is the only
+thing that can settle an argument about what the supplier actually said.
+
+### Dimensions, and the unit nobody wrote down
+
+Columns J, K and L are box sizes and column I is the sticker artwork. The hard
+part is not the separators (`460*350*210 mm`, `168 X 124 X 155`, `27 x 134`), it
+is the unit: some rows state one, most do not, and one is in inches. A unit is
+recorded **only when the source names it**. A dimension without one is shown as
+written, with the fact that it has no unit visible rather than hidden —
+assuming millimetres onto a measurement given in inches is a twenty-five-fold
+error in a figure somebody sizes a pallet against.
+
+Column I never reaches a customer. It is a print specification for the
+operator's label supplier, and a buyer reading it in a list of box sizes would
+measure a shelf against a label. The public select filters it out by name; the
+admin panel shows it, labelled internal.
+
+### What the report says
+
+Every section is present even when its count is zero, so a reader can tell
+"nothing was wrong" from "that check did not run":
+
+```
+Categories detected      22      Products created  340
+Candidate product rows   736     Variants created  734
+Rows skipped             0       Images changed    0
+Exact duplicates skipped 2       Prices overwritten 0
+
+Packing read in full        686     Rows with no barcode      50
+Packing partly read         38      Reused codes and barcodes 71
+Packing needing review      0       Dimensions with no unit   2099
+```
+
+Reused identifiers are listed row by row and imported **separately**, never
+merged. Ambiguity is a thing for a person to look at, not a thing for an
+importer to resolve.
+
+### Where the internal columns go
+
+Production capacity, launch date, manufacturing licence, test licence and the
+workflow status live on `product_import_records`, a table of their own, together
+with the source file name, the worksheet, the row number, the import timestamp
+and the raw row as JSON. A separate table rather than columns on `products`
+makes the boundary structural instead of a rule somebody has to remember on
+every future read — and there will be future reads.
+
+The one decision the importer takes from that data is taken once, at import
+time: a product whose status is **Hold** or **Working on it** is created with
+`isOrderable = false`. Nothing reads the status string afterwards, so a new word
+appearing in the column next year cannot quietly change who is allowed to buy
+what.
+
+---
+
+## Price on request, and listed-but-not-for-sale
+
+Publication answers "may a customer **see** this". Two new columns on `products`
+answer "may they **buy** it", which is a different question with different
+answers.
+
+`isPriceOnRequest` says the price is negotiated per account. The storefront
+shows **Request a quote** where the figure would be, the buy button is replaced
+rather than greyed out, and the publication check accepts a zero price and the
+neutral placeholder image. Nothing priced on request can reach a basket — there
+is no figure to charge.
+
+`isOrderable` says the product is listed and readable but not for sale this
+week. The listing and its specifications stay exactly as they are and every
+purchase path is refused, with the operator's own sentence in
+`unavailabilityReason` shown beside the notice. Unpublishing would 404 a URL
+somebody bookmarked to read the specification; this does not.
+
+Both default to the behaviour that was already there — price-on-request off,
+orderable on — so a deployment that never sets either behaves exactly as it did.
+Both are enforced in one place, `assertPurchasable` in
+`backend/src/modules/catalog/purchasability.ts`, which the basket, Instant Buy
+and scheduled plans all call. Two copies of that rule is how one of them
+eventually forgets a case, and the case it forgets is a customer charged for
+something nobody priced.
+
+One consequence worth knowing: the storefront listing is **rooted at
+`product_prices`** so that the grid can sort and filter on the figure a shopper
+is actually shown. A product with no row in their currency cannot appear at all.
+So the importer writes one empty row, valued at zero, per new product — created
+once and never touched again, so a price typed afterwards survives every
+re-import. That zero is excluded from the price-range facet and from the price
+and on-offer filters, because it is a placeholder rather than an answer to a
+question about price.
+
+---
+
+## Packaging, and ordering by the box
+
+A wholesale buyer's first question about a consumable is not what it costs, it
+is how it is boxed — that is the unit they order in, the unit their store room
+counts in, and the unit their own purchase order is written in.
+
+**The listing** carries one line: `100 per box · 2,000 per carton`.
+
+**The product page** gets two new sections. *Packaging and ordering* breaks the
+figures out, states the conversion as one sentence — `100 pieces × 20 boxes =
+2,000 pieces` — and offers a ready-reckoner for 1, 2, 5 and 10 of whichever unit
+the buyer is counting in. *Dimensions* shows the three box sizes as the supplier
+recorded them.
+
+Above the quantity boxes sits a three-way control — **Pieces / Box of 20 /
+Carton of 2,000** — and under them a live line saying what the choice comes to:
+*That comes to 4,000 pieces.* Only units the catalogue can actually convert are
+offered, and a row whose figures contradicted each other offers pieces only.
+
+Two rules hold this together.
+
+**Quantity is always pieces.** `cart_items.quantity`, `order_items.quantity` and
+`recurring_schedule_items.quantity` mean exactly what they meant before, and
+every price, tax, reservation and stock path reads them unchanged. Three new
+columns beside each — `orderingUnit`, `unitQuantity`, `piecesPerUnitSnapshot` —
+record what the buyer chose. Had the quantity column itself learned about packs,
+every one of those paths would have had to learn too, and one of them would have
+been missed.
+
+**The conversion is done on the server, from the catalogue's own packing row,
+and snapshotted.** A client that could post its own "pieces per carton" could
+post 1 and buy a carton at the price of a syringe. And packing gets corrected:
+"2 cartons" has to keep meaning the 4,000 pieces it meant on the day it was
+agreed. That matters most on a schedule, where the charge happens months later
+inside a worker with nobody watching.
+
+**Packing is not a minimum.** A carton of 2,000 does not mean 2,000 is the least
+somebody may buy; the minimum order quantity is a separate rule the operator
+sets deliberately. The page says so, because a B2B buyer who has met both will
+assume otherwise.
+
+---
+
+## Product photographs, and the ones that do not exist
+
+The supplier sheet carries no images — see 9.11 — but `Images/` does: thirty of
+SPM's own product shots at 4167 x 4167, most of them captioned with the product
+name. Those are the catalogue's photographs. Two commands put them on products.
+
+```bash
+cd scripts  && npm run images            # resize into backend/assets/product-images
+cd backend  && npm run catalog:images    # dry run: what would be attached
+cd backend  && npm run catalog:images -- --apply
+```
+
+The first is mechanical: thirteen of the thirty shots — one per distinct
+product, the rest being second angles of the same thing — resized to 1200px on
+the long edge and named after what they show. Thirty-nine megabytes becomes half
+a megabyte, because a product shot on white compresses to almost nothing.
+
+The second decides which product gets which photograph, and that decision lives
+in `backend/src/modules/catalog/product-images/image-rules.ts` as a table a
+person can read and a test does check. Three rules govern it.
+
+**Only the operator's own photographs.** Nothing is fetched from the internet.
+A stock photograph of somebody else's surgical glove attached to this
+catalogue's glove is a fabricated product record, and on a medical device that
+is worse than the neutral placeholder the grid already draws.
+
+**No picture beats a near one.** An insulin syringe is not a hypodermic
+syringe — same shape, same colour, different graduations, and the graduations
+are the entire product. The Insulin Syringe department therefore gets the
+photograph only for the plain hypodermic and auto-disable products inside it,
+and the insulin syringes get none.
+
+**It only ever adds.** A product that already has a photograph is left alone,
+always: an administrator's upload outranks a table in this repository, and a
+second run must not stack one on the other.
+
+One upload per photograph, not per product — two hundred cannulae share a single
+`media_assets` row, matched on the checksum the storage driver computes. On the
+catalogue this was written against: **240 products photographed from 13
+uploads.**
+
+### What is still unphotographed
+
+The run reports it by department, which is the useful half of the output:
+
+```
+Departments with no photograph in Images/
+    28  Insulin Syringe          10  Ryles Tube
+    15  Adult diaper              9  Suction Catheter
+    12  Oral Dosing Syringe       7  Enfit syringe
+    12  Surgical Gloves           5  Infant Feeding Tube
+     3  Oral Syiringe             1  Disinfectant Cap
+```
+
+Those keep the placeholder. Photograph them, drop the file in `Images/`, add a
+line to `prepare-product-images.mjs` and a rule to `image-rules.ts`, and re-run.
+Nothing invents a picture for them in the meantime.
+
+---
+
+## Category marks
+
+`components/icons.tsx` carries six abstract stock shapes for category cards, and
+the reasoning beside them is sound in general: a storefront does not know what a
+category contains, and a wrench beside "Cleaning chemicals" is worse than no
+picture at all.
+
+That reasoning stops applying when the catalogue is one trade and the
+departments are named "IV Cannula" and "Ryles Tube". A cannula drawn beside "IV
+Cannula" cannot be wrong about what is in it, and a hospital buyer scanning
+twenty-two departments finds the one they came for by shape well before they
+finish reading the labels.
+
+So `lib/category-mark.ts` matches a department NAME against a list of names this
+catalogue recognises and returns a drawn medical icon from
+`components/category-icons.tsx` — nineteen of them, one per thing the catalogue
+actually sells. Anything unrecognised falls back to the abstract geometry, which
+is still the right answer for a department nobody has described.
+
+Three details are load-bearing:
+
+- **Order.** First match wins, so narrow names are tested before the ones that
+  contain them: "Closed IV Cannula" before "IV Cannula", "ABG Kit" before "ABG
+  Syringe", "Sterile Water With 10% Glycerine" before "Sterile Water". Reversed,
+  three departments would get a plausible wrong picture, which is the kind of
+  wrong nobody reports.
+- **Whole words.** A rule matching "cannula" anywhere would claim "Cannula
+  Dressings", which is a dressing.
+- **The name, not the slug.** The same department is slugged differently in two
+  deployments and named the same way in both.
+
+They are drawn rather than downloaded, for the same reasons every other icon
+here is: one stroke weight, `currentColor` so they follow the theme in light and
+dark, no request, no licence — and each one can be drawn for the actual product,
+which is why the ENFit syringe has a different tip from the oral one.
+
+---
+
+## Searching a catalogue sold by the code
+
+A buyer working from a supplier's paperwork types the product code or the
+barcode off it, not the marketing name — and on a catalogue whose sizes are
+separate variants, both of those live on the variant rather than on the product.
+So `?q=` now also matches the product's GTIN and model identifier, and every
+active variant's SKU, GTIN, model identifier and name. Without the variant half,
+searching for the exact code printed on the box returned nothing.
+
+`?model=` filters on a size — `14G`, `3 ml` — across the product and its
+variants. It needs its own parameter because a product attribute is unique per
+name per product, and a listing with seven gauges has seven sizes.
+
+Brand, sterility, sterilisation method, packing type and shelf life need no code
+at all: the importer writes them as **filterable specifications**, so they
+appear in the existing `attr=Name:Value` facet panel on both the storefront and
+the admin list automatically.
 
 ---
 
@@ -6382,7 +6817,8 @@ UBoss-Software/
 │   │   │   ├── errors.ts           ← The 152 error codes
 │   │   │   ├── permissions.ts      ← Roles and ~50 permissions
 │   │   │   ├── order-state-machine.ts  ← Legal order transitions
-│   │   │   └── schedule-state.ts   ← Legal plan and occurrence transitions
+│   │   │   ├── schedule-state.ts   ← Legal plan and occurrence transitions
+│   │   │   └── ordering-unit.ts    ← Packs to pieces, done on the server
 │   │   ├── infra/                  Database, crypto, ids, queue, email, storage
 │   │   ├── http/
 │   │   │   ├── app.ts              ← Plugin order, CORS, raw body, error envelope
@@ -6390,6 +6826,17 @@ UBoss-Software/
 │   │   │   ├── openapi.ts          Hand-written summaries over the live route table
 │   │   │   └── routes/             27 route files
 │   │   ├── modules/                ← The business logic
+│   │   │   ├── catalog/
+│   │   │   │   ├── purchasability.ts   ← The one "may this be bought" rule
+│   │   │   │   ├── packaging.service.ts  Packing, on its way to a screen
+│   │   │   │   └── sheet-import/       ← Loading a supplier product sheet
+│   │   │   │       ├── xlsx-reader.ts        A small, read-only .xlsx reader
+│   │   │   │       ├── packing-parser.ts     ← "100Pcs x 20Box=2000Pcs"
+│   │   │   │       ├── dimension-parser.ts   Box sizes, and the missing unit
+│   │   │   │       ├── sheet-values.ts       ← Normalising, and the identity fingerprint
+│   │   │   │       ├── sheet-mapping.ts      Category bands, repeated headers
+│   │   │   │       ├── sheet-import.service.ts  Plan, then write
+│   │   │   │       └── import-product-sheet.cli.ts  npm run catalog:import
 │   │   │   └── customers/          Profiles, registration, limits,
 │   │   │                           contact-change, account-closure, wishlist
 │   │   ├── worker/                 The background worker

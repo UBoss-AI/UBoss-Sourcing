@@ -113,14 +113,40 @@ function IssueNotice({
   );
 }
 
+/**
+ * The pack this line is counted in, or null where it is counted in pieces.
+ *
+ * Null is the answer for every line added before pack ordering existed and for
+ * every line a customer chose to count in pieces, and it is what keeps the
+ * ordinary quantity stepper exactly as it was.
+ */
+function packsOf(
+  line: CartLine,
+  t: ReturnType<typeof useI18n>['t'],
+): { unitQuantity: number; label: string } | null {
+  const ordering = line.ordering ?? null;
+  if (ordering === null || ordering.unit === 'PIECE') return null;
+
+  return {
+    unitQuantity: ordering.unitQuantity,
+    // The supplier's own word where there is one, so the basket says the same
+    // thing the product page and the delivery note say.
+    label:
+      ordering.packLabel ??
+      (ordering.unit === 'INNER_PACK' ? t('packaging.innerPack') : t('packaging.outerCarton')),
+  };
+}
+
 function LineRow({
   line,
   onQuantityChange,
+  onPackQuantityChange,
   onRemove,
   isBusy,
 }: {
   line: CartLine;
   onQuantityChange: (quantity: number) => void;
+  onPackQuantityChange: (unitQuantity: number) => void;
   onRemove: () => void;
   isBusy: boolean;
 }): React.JSX.Element {
@@ -128,6 +154,7 @@ function LineRow({
 
   const rules = toPurchaseRules(line);
   const available = typeof line.availableQty === 'number' ? line.availableQty : null;
+  const packs = packsOf(line, t);
 
   /**
    * The one-click correction for an issue, when there is an obvious one.
@@ -249,16 +276,53 @@ function LineRow({
          * is still read — that panel counts it.
          */}
         <div className="mt-3 flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
-          <QuantityInput
-            value={line.quantity}
-            onChange={onQuantityChange}
-            rules={rules}
-            label={t('cart.quantity')}
-            disabled={isBusy}
-            // Two lines of one product mean two steppers a screen reader would
-            // otherwise hear as "Increase quantity by 5" twice over.
-            itemName={line.variantName ?? line.name}
-          />
+          {/* Counted the way the customer chose to count it.
+
+              A line added as "2 cartons" is stepped in cartons, not in the
+              four thousand pieces it works out to — stepping that by one would
+              be a control nobody could use. The piece figure is printed
+              underneath, because it is what the price, the stock check and the
+              delivery note are all in, and hiding it is how "2" comes to mean
+              two different things to the buyer and the warehouse.
+
+              The conversion comes off the line's own snapshot, so it is the one
+              the basket was agreed at even if the packing has been corrected
+              since. The server re-derives the pieces from the same snapshot. */}
+          {packs === null ? (
+            <QuantityInput
+              value={line.quantity}
+              onChange={onQuantityChange}
+              rules={rules}
+              label={t('cart.quantity')}
+              disabled={isBusy}
+              // Two lines of one product mean two steppers a screen reader would
+              // otherwise hear as "Increase quantity by 5" twice over.
+              itemName={line.variantName ?? line.name}
+            />
+          ) : (
+            <div>
+              <QuantityInput
+                value={packs.unitQuantity}
+                onChange={onPackQuantityChange}
+                // A pack count has no minimum or increment of its own: those
+                // rules are written in pieces and the server applies them to
+                // the piece total. Passing them here would step the carton
+                // count by the product's piece increment.
+                rules={{
+                  minOrderQty: 1,
+                  maxOrderQty: null,
+                  qtyIncrement: 1,
+                  isRecurringEligible: line.isRecurringEligible,
+                }}
+                label={packs.label}
+                disabled={isBusy}
+                itemName={line.variantName ?? line.name}
+              />
+              <p className="mt-1 text-xxs tabular text-ink-subtle">
+                {t('cart.piecesTotal', { n: formatNumber(line.quantity) })}
+              </p>
+            </div>
+          )}
 
           {/*
            * Remove is deliberately visible rather than revealed on hover —
@@ -522,6 +586,30 @@ export function CartPage(): React.JSX.Element {
     },
   });
 
+  /**
+   * The same line, counted in packs.
+   *
+   * Its own endpoint rather than a flag on the one above: that route states
+   * pieces and derives packs, this one states packs and derives pieces, and an
+   * endpoint that accepted both would have to decide which to believe when a
+   * client sent a pair that does not multiply out.
+   */
+  const updatePackQuantity = useMutation({
+    mutationFn: ({ itemId, unitQuantity }: { itemId: string; unitQuantity: number }) =>
+      api.patch<{ cart: Cart }>(`/cart/items/${itemId}/packs`, { unitQuantity }),
+    onMutate: ({ itemId }) => {
+      setBusyItemId(itemId);
+    },
+    onSuccess: applyCart,
+    onError: (error) => {
+      setActionError(errorMessage(t, error, t('cart.changeNotSaved')));
+      void queryClient.invalidateQueries({ queryKey: ['cart'] });
+    },
+    onSettled: () => {
+      setBusyItemId(null);
+    },
+  });
+
   const removeItem = useMutation({
     mutationFn: (itemId: string) => api.delete<{ cart: Cart }>(`/cart/items/${itemId}`),
     onMutate: (itemId) => {
@@ -677,6 +765,9 @@ export function CartPage(): React.JSX.Element {
                 isBusy={busyItemId === line.itemId}
                 onQuantityChange={(quantity) => {
                   updateQuantity.mutate({ itemId: line.itemId, quantity });
+                }}
+                onPackQuantityChange={(unitQuantity) => {
+                  updatePackQuantity.mutate({ itemId: line.itemId, unitQuantity });
                 }}
                 onRemove={() => {
                   removeItem.mutate(line.itemId);

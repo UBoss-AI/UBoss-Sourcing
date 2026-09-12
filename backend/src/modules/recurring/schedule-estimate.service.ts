@@ -75,6 +75,9 @@ const ESTIMATE_SELECT = {
       productId: true,
       variantId: true,
       quantity: true,
+      orderingUnit: true,
+      unitQuantity: true,
+      piecesPerUnitSnapshot: true,
       substituteProductId: true,
       substituteVariantId: true,
     },
@@ -92,6 +95,9 @@ type EstimatePlan = {
     productId: string;
     variantId: string | null;
     quantity: number;
+    orderingUnit: 'PIECE' | 'INNER_PACK' | 'OUTER_CARTON';
+    unitQuantity: number;
+    piecesPerUnitSnapshot: number;
     substituteProductId: string | null;
     substituteVariantId: string | null;
   }[];
@@ -111,6 +117,11 @@ async function quotePlan(plan: EstimatePlan): Promise<ScheduleEstimate> {
       productId: item.productId,
       variantId: item.variantId,
       quantity: item.quantity,
+      // Carried through so the quote can name the unit the customer agreed in.
+      // It changes no arithmetic: pricing reads `quantity` and only that.
+      orderingUnit: item.orderingUnit,
+      unitQuantity: item.unitQuantity,
+      piecesPerUnitSnapshot: item.piecesPerUnitSnapshot,
       substituteProductId: item.substituteProductId,
       substituteVariantId: item.substituteVariantId,
     })),

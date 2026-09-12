@@ -38,6 +38,19 @@ export interface CreateProductInput {
   basePriceMinor: string;
   compareAtPriceMinor?: string | null;
   currency?: string;
+  /**
+   * The price is deliberately not published; the buyer is invited to ask.
+   *
+   * Not "we have not decided yet" - that is a draft. This says the figure is
+   * negotiated, which a B2B range routinely is, and it is the difference
+   * between a catalogue that can list several hundred real products and one
+   * that cannot list any of them until somebody invents a number for each.
+   */
+  isPriceOnRequest?: boolean;
+  /** Listed and readable, but every purchase path refused. */
+  isOrderable?: boolean;
+  /** Shown beside the unavailable notice. Null shows the notice alone. */
+  unavailabilityReason?: string | null;
   isStockTracked?: boolean;
   reorderThreshold?: number;
   minOrderQty?: number;
@@ -56,6 +69,8 @@ export interface CreateProductInput {
 
   metaTitle?: string | null;
   metaDescription?: string | null;
+  /** Identity of the source-sheet family this came from. See the schema. */
+  importFingerprint?: string | null;
   attributes?: { name: string; value: string; isFilterable?: boolean }[];
   /**
    * Rich description. Sanitised against an allowlist before storage - see
@@ -177,6 +192,10 @@ export async function createProduct(
             ? null
             : parseMinor(input.compareAtPriceMinor, 'compareAtPriceMinor'),
         currency: input.currency ?? business?.currency ?? 'INR',
+        isPriceOnRequest: input.isPriceOnRequest ?? false,
+        isOrderable: input.isOrderable ?? true,
+        unavailabilityReason: input.unavailabilityReason ?? null,
+        importFingerprint: input.importFingerprint ?? null,
         isStockTracked: input.isStockTracked ?? true,
         reorderThreshold: input.reorderThreshold ?? 0,
         minOrderQty: input.minOrderQty ?? 1,
@@ -275,6 +294,12 @@ export async function updateProduct(
     if (input.metaDescription !== undefined) {
       data.metaDescription = stripHtml(input.metaDescription);
     }
+    if (input.isPriceOnRequest !== undefined) data.isPriceOnRequest = input.isPriceOnRequest;
+    if (input.isOrderable !== undefined) data.isOrderable = input.isOrderable;
+    if (input.unavailabilityReason !== undefined) {
+      data.unavailabilityReason = input.unavailabilityReason;
+    }
+    if (input.importFingerprint !== undefined) data.importFingerprint = input.importFingerprint;
 
     if (input.sku !== undefined) {
       const sku = input.sku.trim().toUpperCase();
@@ -442,6 +467,7 @@ export async function publishProduct(
       shortDescription: product.shortDescription,
       description: product.description,
       basePriceMinor: product.basePriceMinor,
+      isPriceOnRequest: product.isPriceOnRequest,
       minOrderQty: product.minOrderQty,
       maxOrderQty: product.maxOrderQty,
       qtyIncrement: product.qtyIncrement,

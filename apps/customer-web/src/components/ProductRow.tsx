@@ -49,6 +49,7 @@ import { Link } from 'react-router-dom';
 import { Badge } from './ui';
 import { SaveForLaterButton } from './SaveForLaterButton';
 import { formatMoney, formatNumber } from '@/lib/format';
+import { packSummary } from '@/lib/packaging';
 import type { Product } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
 
@@ -108,6 +109,17 @@ export function ProductRow({ product }: { product: Product }): React.JSX.Element
   const { purchaseRules: rules } = product;
   const discount = discountPercent(product);
   const specs = product.attributes.slice(0, SPECS_SHOWN);
+
+  // Absent on a response from a server that predates this, and every product
+  // was buyable then.
+  const purchasability = product.purchasability ?? null;
+  const isPriceOnRequest = purchasability?.isPriceOnRequest ?? false;
+  const isUnavailable = purchasability !== null && !purchasability.isOrderable;
+
+  const packing = packSummary(product.packaging, {
+    perPack: (count, pack) => t('productCard.perPack', { n: count, pack }),
+    perCarton: (count) => t('productCard.perCarton', { n: count }),
+  });
 
   return (
     /*
@@ -200,8 +212,16 @@ export function ProductRow({ product }: { product: Product }): React.JSX.Element
           </ul>
         )}
 
-        {(rules.minOrderQty > 1 || rules.qtyIncrement > 1) && (
+        {/* How it is boxed, in one line. A wholesale buyer scanning a list
+            is deciding whether this is sold in the size they buy in, and that
+            is a different question from what it costs. */}
+        {packing !== null && <p className="text-xs tabular text-ink-subtle">{packing}</p>}
+
+        {(rules.minOrderQty > 1 || rules.qtyIncrement > 1 || isUnavailable) && (
           <div className="flex flex-wrap gap-1.5">
+            {/* First, because it overrides everything beside it: a minimum
+                order quantity is irrelevant on something nobody can order. */}
+            {isUnavailable && <Badge tone="warning">{t('productCard.currentlyUnavailable')}</Badge>}
             {rules.minOrderQty > 1 && (
               <Badge>{t('catalog.rowMinimum', { qty: formatNumber(rules.minOrderQty) })}</Badge>
             )}
@@ -219,30 +239,43 @@ export function ProductRow({ product }: { product: Product }): React.JSX.Element
        * specification on a phone, where a third column would be 90px wide.
        */}
       <div className="shrink-0 sm:w-40 sm:text-right lg:w-48">
-        <p className="text-xl font-semibold tabular text-ink">{formatMoney(product.price)}</p>
+        {/* A price, or the reason there is not one — never both, and never a
+            figure of zero.
 
-        {discount !== null && product.compareAtPrice !== null && (
-          <p className="mt-0.5 flex flex-wrap items-baseline gap-x-2 sm:justify-end">
-            <span className="text-sm tabular text-ink-subtle">
-              {/* The strikethrough is all a sighted reader gets; a screen
-                  reader is given the word. */}
-              <span className="sr-only">{t('productCard.was')}</span>
-              <s>{formatMoney(product.compareAtPrice)}</s>
-            </span>
-            <span className="text-sm font-semibold text-success">
-              {t('catalog.rowPercentOff', { percent: formatNumber(discount) })}
-            </span>
-          </p>
+            A range quoted per account genuinely has no number. The zero it is
+            stored as is a placeholder so the listing can reach it at all (see
+            the import service), and printing it would offer several hundred
+            medical products for nothing. */}
+        {isPriceOnRequest ? (
+          <p className="text-base font-semibold text-brand">{t('productCard.requestAQuote')}</p>
+        ) : (
+          <>
+            <p className="text-xl font-semibold tabular text-ink">{formatMoney(product.price)}</p>
+
+            {discount !== null && product.compareAtPrice !== null && (
+              <p className="mt-0.5 flex flex-wrap items-baseline gap-x-2 sm:justify-end">
+                <span className="text-sm tabular text-ink-subtle">
+                  {/* The strikethrough is all a sighted reader gets; a screen
+                      reader is given the word. */}
+                  <span className="sr-only">{t('productCard.was')}</span>
+                  <s>{formatMoney(product.compareAtPrice)}</s>
+                </span>
+                <span className="text-sm font-semibold text-success">
+                  {t('catalog.rowPercentOff', { percent: formatNumber(discount) })}
+                </span>
+              </p>
+            )}
+
+            <p className="mt-1 text-xxs text-ink-subtle">
+              {product.tax.inclusive
+                ? t('productCard.taxIncluded')
+                : t('productCard.plusTaxRate', {
+                    rate: product.tax.ratePercent,
+                    code: product.tax.code,
+                  })}
+            </p>
+          </>
         )}
-
-        <p className="mt-1 text-xxs text-ink-subtle">
-          {product.tax.inclusive
-            ? t('productCard.taxIncluded')
-            : t('productCard.plusTaxRate', {
-                rate: product.tax.ratePercent,
-                code: product.tax.code,
-              })}
-        </p>
       </div>
     </article>
   );

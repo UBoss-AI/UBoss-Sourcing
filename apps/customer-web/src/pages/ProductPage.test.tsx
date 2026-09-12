@@ -250,11 +250,14 @@ describe('ProductPage', () => {
     });
 
     const sent = JSON.parse(bodies[0] ?? '{}') as {
-      items: { variantId: string; quantity: number }[];
+      items: { variantId: string; quantity: number; orderingUnit: string }[];
     };
+    // `orderingUnit` rides along on every line now. PIECE is what a product
+    // with no recorded packing is counted in, and the quantity is unchanged by
+    // it — which is the point: pack ordering added a field, not a conversion.
     expect(sent.items).toEqual([
-      { productId: 'product-1', variantId: 'v1', quantity: 10 },
-      { productId: 'product-1', variantId: 'v2', quantity: 15 },
+      { productId: 'product-1', variantId: 'v1', quantity: 10, orderingUnit: 'PIECE' },
+      { productId: 'product-1', variantId: 'v2', quantity: 15, orderingUnit: 'PIECE' },
     ]);
   });
 

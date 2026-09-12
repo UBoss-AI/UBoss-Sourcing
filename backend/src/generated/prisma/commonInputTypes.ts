@@ -497,6 +497,57 @@ export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
   _max?: Prisma.NestedJsonFilter<$PrismaModel>
 }
 
+export type EnumPackingParseStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.PackingParseStatus | Prisma.EnumPackingParseStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.PackingParseStatus[]
+  notIn?: $Enums.PackingParseStatus[]
+  not?: Prisma.NestedEnumPackingParseStatusFilter<$PrismaModel> | $Enums.PackingParseStatus
+}
+
+export type EnumPackingParseStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PackingParseStatus | Prisma.EnumPackingParseStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.PackingParseStatus[]
+  notIn?: $Enums.PackingParseStatus[]
+  not?: Prisma.NestedEnumPackingParseStatusWithAggregatesFilter<$PrismaModel> | $Enums.PackingParseStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPackingParseStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPackingParseStatusFilter<$PrismaModel>
+}
+
+export type EnumPackDimensionKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.PackDimensionKind | Prisma.EnumPackDimensionKindFieldRefInput<$PrismaModel>
+  in?: $Enums.PackDimensionKind[]
+  notIn?: $Enums.PackDimensionKind[]
+  not?: Prisma.NestedEnumPackDimensionKindFilter<$PrismaModel> | $Enums.PackDimensionKind
+}
+
+export type EnumDimensionParseStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.DimensionParseStatus | Prisma.EnumDimensionParseStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.DimensionParseStatus[]
+  notIn?: $Enums.DimensionParseStatus[]
+  not?: Prisma.NestedEnumDimensionParseStatusFilter<$PrismaModel> | $Enums.DimensionParseStatus
+}
+
+export type EnumPackDimensionKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PackDimensionKind | Prisma.EnumPackDimensionKindFieldRefInput<$PrismaModel>
+  in?: $Enums.PackDimensionKind[]
+  notIn?: $Enums.PackDimensionKind[]
+  not?: Prisma.NestedEnumPackDimensionKindWithAggregatesFilter<$PrismaModel> | $Enums.PackDimensionKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPackDimensionKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPackDimensionKindFilter<$PrismaModel>
+}
+
+export type EnumDimensionParseStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DimensionParseStatus | Prisma.EnumDimensionParseStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.DimensionParseStatus[]
+  notIn?: $Enums.DimensionParseStatus[]
+  not?: Prisma.NestedEnumDimensionParseStatusWithAggregatesFilter<$PrismaModel> | $Enums.DimensionParseStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDimensionParseStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDimensionParseStatusFilter<$PrismaModel>
+}
+
 export type EnumWarehouseOperationalStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.WarehouseOperationalStatus | Prisma.EnumWarehouseOperationalStatusFieldRefInput<$PrismaModel>
   in?: $Enums.WarehouseOperationalStatus[]
@@ -627,6 +678,23 @@ export type EnumCartStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumCartStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumCartStatusFilter<$PrismaModel>
+}
+
+export type EnumOrderingUnitFilter<$PrismaModel = never> = {
+  equals?: $Enums.OrderingUnit | Prisma.EnumOrderingUnitFieldRefInput<$PrismaModel>
+  in?: $Enums.OrderingUnit[]
+  notIn?: $Enums.OrderingUnit[]
+  not?: Prisma.NestedEnumOrderingUnitFilter<$PrismaModel> | $Enums.OrderingUnit
+}
+
+export type EnumOrderingUnitWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.OrderingUnit | Prisma.EnumOrderingUnitFieldRefInput<$PrismaModel>
+  in?: $Enums.OrderingUnit[]
+  notIn?: $Enums.OrderingUnit[]
+  not?: Prisma.NestedEnumOrderingUnitWithAggregatesFilter<$PrismaModel> | $Enums.OrderingUnit
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumOrderingUnitFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumOrderingUnitFilter<$PrismaModel>
 }
 
 export type EnumOrderSourceFilter<$PrismaModel = never> = {
@@ -2299,6 +2367,57 @@ export type NestedJsonFilterBase<$PrismaModel = never> = {
   not?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel> | Prisma.JsonNullValueFilter
 }
 
+export type NestedEnumPackingParseStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.PackingParseStatus | Prisma.EnumPackingParseStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.PackingParseStatus[]
+  notIn?: $Enums.PackingParseStatus[]
+  not?: Prisma.NestedEnumPackingParseStatusFilter<$PrismaModel> | $Enums.PackingParseStatus
+}
+
+export type NestedEnumPackingParseStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PackingParseStatus | Prisma.EnumPackingParseStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.PackingParseStatus[]
+  notIn?: $Enums.PackingParseStatus[]
+  not?: Prisma.NestedEnumPackingParseStatusWithAggregatesFilter<$PrismaModel> | $Enums.PackingParseStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPackingParseStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPackingParseStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumPackDimensionKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.PackDimensionKind | Prisma.EnumPackDimensionKindFieldRefInput<$PrismaModel>
+  in?: $Enums.PackDimensionKind[]
+  notIn?: $Enums.PackDimensionKind[]
+  not?: Prisma.NestedEnumPackDimensionKindFilter<$PrismaModel> | $Enums.PackDimensionKind
+}
+
+export type NestedEnumDimensionParseStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.DimensionParseStatus | Prisma.EnumDimensionParseStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.DimensionParseStatus[]
+  notIn?: $Enums.DimensionParseStatus[]
+  not?: Prisma.NestedEnumDimensionParseStatusFilter<$PrismaModel> | $Enums.DimensionParseStatus
+}
+
+export type NestedEnumPackDimensionKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PackDimensionKind | Prisma.EnumPackDimensionKindFieldRefInput<$PrismaModel>
+  in?: $Enums.PackDimensionKind[]
+  notIn?: $Enums.PackDimensionKind[]
+  not?: Prisma.NestedEnumPackDimensionKindWithAggregatesFilter<$PrismaModel> | $Enums.PackDimensionKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPackDimensionKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPackDimensionKindFilter<$PrismaModel>
+}
+
+export type NestedEnumDimensionParseStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DimensionParseStatus | Prisma.EnumDimensionParseStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.DimensionParseStatus[]
+  notIn?: $Enums.DimensionParseStatus[]
+  not?: Prisma.NestedEnumDimensionParseStatusWithAggregatesFilter<$PrismaModel> | $Enums.DimensionParseStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDimensionParseStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDimensionParseStatusFilter<$PrismaModel>
+}
+
 export type NestedEnumWarehouseOperationalStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.WarehouseOperationalStatus | Prisma.EnumWarehouseOperationalStatusFieldRefInput<$PrismaModel>
   in?: $Enums.WarehouseOperationalStatus[]
@@ -2429,6 +2548,23 @@ export type NestedEnumCartStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumCartStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumCartStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumOrderingUnitFilter<$PrismaModel = never> = {
+  equals?: $Enums.OrderingUnit | Prisma.EnumOrderingUnitFieldRefInput<$PrismaModel>
+  in?: $Enums.OrderingUnit[]
+  notIn?: $Enums.OrderingUnit[]
+  not?: Prisma.NestedEnumOrderingUnitFilter<$PrismaModel> | $Enums.OrderingUnit
+}
+
+export type NestedEnumOrderingUnitWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.OrderingUnit | Prisma.EnumOrderingUnitFieldRefInput<$PrismaModel>
+  in?: $Enums.OrderingUnit[]
+  notIn?: $Enums.OrderingUnit[]
+  not?: Prisma.NestedEnumOrderingUnitWithAggregatesFilter<$PrismaModel> | $Enums.OrderingUnit
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumOrderingUnitFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumOrderingUnitFilter<$PrismaModel>
 }
 
 export type NestedEnumOrderSourceFilter<$PrismaModel = never> = {

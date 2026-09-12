@@ -24,9 +24,14 @@ import {
   type PricingLineInput,
   type PricingResult,
 } from '../../domain/pricing.js';
-import { newId, variantKeyOf } from '../../infra/ids.js';
+import {
+  resolveOrderingQuantity,
+  type OrderingUnit,
+} from '../../domain/ordering-unit.js';
+import { newId, variantKeyOf, NO_VARIANT_KEY } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { publicProductWhere } from '../catalog/catalog.visibility.js';
+import { assertPurchasable } from '../catalog/purchasability.js';
 import { isScheduleEligible } from '../catalog/recurring-eligibility.js';
 import { loadPricesForCurrency, priceKey } from '../catalog/price.service.js';
 import {
@@ -80,6 +85,20 @@ export interface CartLine {
   availableQty: number | null;
   isRecurringEligible: boolean;
   purchaseRules: { minOrderQty: number; maxOrderQty: number | null; qtyIncrement: number };
+  /**
+   * What the buyer chose to count in, and the conversion they were shown.
+   *
+   * Read off the line's own snapshot rather than the catalogue: a basket agreed
+   * at 100 to a box keeps reading "2 boxes (200 pieces)" even after the box has
+   * been re-specified at 50, because that is what they put in it.
+   */
+  ordering: {
+    unit: OrderingUnit;
+    unitQuantity: number;
+    piecesPerUnit: number;
+    /** What the source called the pack - "Box", "Pouch". Null for pieces. */
+    packLabel: string | null;
+  };
   /** Non-empty when this line cannot go to checkout as it stands. */
   issues: CartLineIssue[];
 }
@@ -287,6 +306,10 @@ export async function resolveCart(
     },
   });
 
+  // What each SKU's pack is called, so the basket can say "2 boxes" rather
+  // than "2 packs". One read for the whole basket.
+  const packLabels = await packLabelsFor(items.map((item) => item.productId));
+
   const availability = await getAvailabilityMap(
     items.map((item) => ({ productId: item.productId, variantId: item.variantId })),
   );
@@ -310,6 +333,7 @@ export async function resolveCart(
     imageUrl: string | null;
     availableQty: number | null;
     issues: CartLineIssue[];
+    ordering: CartLine['ordering'];
   }[] = [];
 
   for (const item of items) {
@@ -424,6 +448,24 @@ export async function resolveCart(
       imageUrl: product.media[0]?.media.url ?? null,
       availableQty,
       issues,
+      ordering: {
+        unit: item.orderingUnit,
+        unitQuantity: item.unitQuantity,
+        piecesPerUnit: item.piecesPerUnitSnapshot,
+        // This SKU's own words, falling back to the product's. Null for a line
+        // counted in pieces, and null where the source never named the pack -
+        // the storefront then says "box" or "carton" in the reader's own
+        // language rather than inventing a word for the supplier.
+        packLabel: (() => {
+          if (item.orderingUnit === 'PIECE') return null;
+          const labels =
+            packLabels.get(`${item.productId}:${item.variantKey}`) ??
+            packLabels.get(`${item.productId}:${NO_VARIANT_KEY}`) ??
+            null;
+          if (labels === null) return null;
+          return item.orderingUnit === 'INNER_PACK' ? labels.inner : labels.outer;
+        })(),
+      },
     });
   }
 
@@ -552,6 +594,7 @@ export async function resolveCart(
         maxOrderQty: items[index]?.product.maxOrderQty ?? null,
         qtyIncrement: items[index]?.product.qtyIncrement ?? 1,
       },
+      ordering: meta.ordering,
       issues: meta.issues,
     };
   });
@@ -764,14 +807,33 @@ export async function removeCoupon(customerProfileId: string): Promise<void> {
 export interface AddItemInput {
   productId: string;
   variantId?: string | null;
+  /**
+   * Pieces. Still the whole request when no pack unit is named, which is every
+   * caller that existed before pack ordering did.
+   */
   quantity: number;
+  /**
+   * What the buyer chose to count in, and how many of them.
+   *
+   * When these are present the piece count is worked out here, from the
+   * catalogue's own packaging row - `quantity` above is ignored. The
+   * conversion is deliberately never taken from the request: a client that
+   * could post its own "pieces per carton" could post 1 and buy a carton at
+   * the price of a syringe.
+   */
+  orderingUnit?: OrderingUnit | null;
+  unitQuantity?: number | null;
 }
 
 export interface AddedLine {
   itemId: string;
   productId: string;
   variantId: string | null;
+  /** Pieces, as always. */
   quantity: number;
+  orderingUnit: OrderingUnit;
+  unitQuantity: number;
+  piecesPerUnitSnapshot: number;
 }
 
 /**
@@ -850,6 +912,43 @@ export async function addItems(
   return addLines(customerProfileId, inputs, INDEXED_FIELD);
 }
 
+/**
+ * What each SKU's packs are called, keyed `productId:variantKey`.
+ *
+ * BOTH words, not one. The line knows whether it was counted in inner packs or
+ * in cartons, and those are different nouns on the same product - "2 pouches"
+ * and "2 cartons" are 400 pieces apart on the row this was first written
+ * against. Returning a single label and letting the caller hope was the bug:
+ * it printed the pouch's name beside a carton's quantity.
+ *
+ * The words come off the packing row the import wrote, so the basket says what
+ * the product page said and what the warehouse paperwork says. A generic
+ * "pack" everywhere would be safe and slightly wrong on every screen at once.
+ */
+interface PackLabels {
+  inner: string | null;
+  outer: string | null;
+}
+
+async function packLabelsFor(productIds: string[]): Promise<Map<string, PackLabels>> {
+  const unique = [...new Set(productIds)];
+  if (unique.length === 0) return new Map();
+
+  const rows = await prisma.productPackaging.findMany({
+    where: { productId: { in: unique } },
+    select: { productId: true, variantKey: true, innerPackType: true, outerPackType: true },
+  });
+
+  const byKey = new Map<string, PackLabels>();
+  for (const row of rows) {
+    byKey.set(`${row.productId}:${row.variantKey}`, {
+      inner: row.innerPackType,
+      outer: row.outerPackType,
+    });
+  }
+  return byKey;
+}
+
 /** One SKU's worth of a request, after validation and after de-duplication. */
 interface WantedLine {
   productId: string;
@@ -857,6 +956,9 @@ interface WantedLine {
   variantKey: string;
   quantity: number;
   minOrderQty: number;
+  orderingUnit: OrderingUnit;
+  unitQuantity: number;
+  piecesPerUnitSnapshot: number;
 }
 
 async function addLines(
@@ -894,7 +996,26 @@ async function addLines(
       ...publicProductWhere(),
       id: { in: [...new Set(inputs.map((input) => input.productId))] },
     },
-    select: { id: true, hasVariants: true, minOrderQty: true },
+    select: {
+      id: true,
+      hasVariants: true,
+      minOrderQty: true,
+      // Visible is not the same as sellable. See purchasability.ts.
+      isPriceOnRequest: true,
+      isOrderable: true,
+      unavailabilityReason: true,
+      // Every SKU's packing, so a pack unit can be converted without a second
+      // query per line.
+      packagings: {
+        select: {
+          variantKey: true,
+          piecesPerInnerPack: true,
+          innerPacksPerOuterCarton: true,
+          piecesPerOuterCarton: true,
+          parseStatus: true,
+        },
+      },
+    },
   });
   const productById = new Map(products.map((product) => [product.id, product]));
 
@@ -925,6 +1046,11 @@ async function addLines(
     // be able to tell those apart.
     if (product === undefined) throw notFound('Product');
 
+    // Published, and still not for sale - a price quoted per account, or a
+    // product the operator is holding. Refused here rather than at checkout, so
+    // nobody discovers it three screens later with a full basket.
+    assertPurchasable(product, nameField(index, 'productId'));
+
     const variantId = input.variantId ?? null;
 
     if (variantId !== null) {
@@ -948,6 +1074,27 @@ async function addLines(
     }
 
     const variantKey = variantKeyOf(variantId);
+
+    // This SKU's own packing, falling back to the product's. A size whose
+    // packing was never recorded separately is boxed like the product.
+    const packing =
+      product.packagings.find((row) => row.variantKey === variantKey) ??
+      product.packagings.find((row) => row.variantKey === NO_VARIANT_KEY) ??
+      null;
+
+    const resolved = resolveOrderingQuantity({
+      unit: input.orderingUnit,
+      unitQuantity: input.unitQuantity,
+      pieces: input.quantity,
+      conversion: {
+        piecesPerInnerPack: packing?.piecesPerInnerPack ?? null,
+        innerPacksPerOuterCarton: packing?.innerPacksPerOuterCarton ?? null,
+        piecesPerOuterCarton: packing?.piecesPerOuterCarton ?? null,
+        isReliable: packing?.parseStatus === 'PARSED' || packing?.parseStatus === 'PARTIAL',
+      },
+      field: nameField(index, 'unitQuantity'),
+    });
+
     const key = `${product.id}:${variantKey}`;
     const already = wanted.get(key);
 
@@ -955,8 +1102,14 @@ async function addLines(
       productId: product.id,
       variantId,
       variantKey,
-      quantity: (already?.quantity ?? 0) + input.quantity,
+      quantity: (already?.quantity ?? 0) + resolved.quantity,
       minOrderQty: product.minOrderQty,
+      // The same SKU twice in one request keeps the unit of the FIRST line and
+      // adds the pieces. Two lines counted in different units cannot both be
+      // shown back, and pieces is the one both agree on.
+      orderingUnit: already?.orderingUnit ?? resolved.orderingUnit,
+      unitQuantity: (already?.unitQuantity ?? 0) + resolved.unitQuantity,
+      piecesPerUnitSnapshot: already?.piecesPerUnitSnapshot ?? resolved.piecesPerUnitSnapshot,
     });
   }
 
@@ -981,12 +1134,23 @@ async function addLines(
 
       if (existing !== null) {
         const quantity = existing.quantity + line.quantity;
-        await tx.cartItem.update({ where: { id: existing.id }, data: { quantity } });
+        // The line keeps the unit it already had; only the counts move. A
+        // basket line silently changing from cartons to pieces because the
+        // second add was typed differently is a line the buyer stops trusting.
+        const unitQuantity =
+          existing.orderingUnit === line.orderingUnit
+            ? existing.unitQuantity + line.unitQuantity
+            : Math.round(quantity / Math.max(existing.piecesPerUnitSnapshot, 1));
+
+        await tx.cartItem.update({ where: { id: existing.id }, data: { quantity, unitQuantity } });
         added.push({
           itemId: existing.id,
           productId: line.productId,
           variantId: line.variantId,
           quantity,
+          orderingUnit: existing.orderingUnit,
+          unitQuantity,
+          piecesPerUnitSnapshot: existing.piecesPerUnitSnapshot,
         });
         continue;
       }
@@ -997,6 +1161,13 @@ async function addLines(
       const quantity = Math.max(line.quantity, line.minOrderQty);
       const itemId = newId();
 
+      // If the minimum raised the piece count, the pack count has to follow it
+      // or the line would read "1 box" beside a quantity of ten.
+      const unitQuantity =
+        quantity === line.quantity
+          ? line.unitQuantity
+          : Math.max(1, Math.ceil(quantity / Math.max(line.piecesPerUnitSnapshot, 1)));
+
       await tx.cartItem.create({
         data: {
           id: itemId,
@@ -1005,10 +1176,21 @@ async function addLines(
           variantId: line.variantId,
           variantKey: line.variantKey,
           quantity,
+          orderingUnit: line.orderingUnit,
+          unitQuantity,
+          piecesPerUnitSnapshot: line.piecesPerUnitSnapshot,
         },
       });
 
-      added.push({ itemId, productId: line.productId, variantId: line.variantId, quantity });
+      added.push({
+        itemId,
+        productId: line.productId,
+        variantId: line.variantId,
+        quantity,
+        orderingUnit: line.orderingUnit,
+        unitQuantity,
+        piecesPerUnitSnapshot: line.piecesPerUnitSnapshot,
+      });
     }
 
     return added;
@@ -1038,7 +1220,50 @@ export async function updateItemQuantity(
     return;
   }
 
-  await prisma.cartItem.update({ where: { id: itemId }, data: { quantity } });
+  // The quantity arrives in pieces, so the pack count is re-derived from the
+  // line's own snapshot rather than from the catalogue - the conversion this
+  // line was agreed at is the conversion it keeps.
+  const unitQuantity =
+    item.orderingUnit === 'PIECE'
+      ? quantity
+      : Math.max(1, Math.round(quantity / Math.max(item.piecesPerUnitSnapshot, 1)));
+
+  await prisma.cartItem.update({ where: { id: itemId }, data: { quantity, unitQuantity } });
+}
+
+/**
+ * Change a line by the pack, rather than by the piece.
+ *
+ * Separate from `updateItemQuantity` on purpose: this one is authoritative
+ * about packs and derives the pieces, and that one is authoritative about
+ * pieces and derives the packs. A single function taking both would have to
+ * decide which to believe when they disagree, and whichever it chose would be
+ * wrong for one of the two screens that calls it.
+ */
+export async function updateItemPackQuantity(
+  customerProfileId: string,
+  itemId: string,
+  unitQuantity: number,
+): Promise<void> {
+  if (!Number.isInteger(unitQuantity) || unitQuantity < 0) {
+    throw badRequest(ErrorCode.VALIDATION_FAILED, 'Choose a whole number of packs.', [
+      { field: 'unitQuantity', code: 'INVALID' },
+    ]);
+  }
+
+  const cartId = await getOrCreateCart(customerProfileId);
+  const item = await prisma.cartItem.findFirst({ where: { id: itemId, cartId } });
+  if (item === null) throw notFound('Cart item');
+
+  if (unitQuantity === 0) {
+    await prisma.cartItem.delete({ where: { id: itemId } });
+    return;
+  }
+
+  await prisma.cartItem.update({
+    where: { id: itemId },
+    data: { unitQuantity, quantity: unitQuantity * Math.max(item.piecesPerUnitSnapshot, 1) },
+  });
 }
 
 export async function removeItem(customerProfileId: string, itemId: string): Promise<void> {

@@ -19,6 +19,7 @@ import {
   removeItem,
   resolveCart,
   toCartView,
+  updateItemPackQuantity,
   updateItemQuantity,
 } from '../../modules/cart/cart.service.js';
 import {
@@ -31,7 +32,22 @@ import { currentUser, requireCustomer } from '../plugins/auth.js';
 const addItemSchema = z.object({
   productId: z.string().length(26),
   variantId: z.string().length(26).nullable().optional(),
+  /**
+   * Pieces. Required, and still the whole request for every caller that does
+   * not order by the pack - which is every caller written before packs existed.
+   */
   quantity: z.number().int().min(1).max(1_000_000),
+  /**
+   * Ordering by the box or the carton.
+   *
+   * Only the unit and how many of them: the conversion is looked up server-side
+   * from the catalogue's own packing row, never taken from the request. A
+   * client that could post its own "pieces per carton" could post 1 and buy a
+   * carton at the price of a syringe. When these are present, `quantity` above
+   * is ignored in favour of the figure the server works out.
+   */
+  orderingUnit: z.enum(['PIECE', 'INNER_PACK', 'OUTER_CARTON']).optional(),
+  unitQuantity: z.number().int().min(1).max(1_000_000).optional(),
 });
 
 /**
@@ -48,6 +64,20 @@ const addItemsSchema = z.object({
 const updateQuantitySchema = z.object({
   // Zero removes the line, which is what a quantity stepper sends at 0.
   quantity: z.number().int().min(0).max(1_000_000),
+});
+
+/**
+ * The same line, counted in packs.
+ *
+ * A separate route rather than a second field on the one above, because the two
+ * are authoritative about different things: that one states pieces and derives
+ * packs, this one states packs and derives pieces. One endpoint taking both
+ * would have to decide which to believe when a client sends a pair that does
+ * not multiply out, and whichever it chose would surprise one of the two
+ * screens that calls it.
+ */
+const updatePackQuantitySchema = z.object({
+  unitQuantity: z.number().int().min(0).max(1_000_000),
 });
 
 const checkoutSchema = z.object({
@@ -145,6 +175,25 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
     const body = updateQuantitySchema.parse(request.body);
 
     await updateItemQuantity(auth.customerProfileId ?? '', itemId, body.quantity);
+
+    const resolved = await resolveCart(auth.customerProfileId ?? '');
+    return reply.status(200).send({ cart: toCartView(resolved) });
+  });
+
+  /**
+   * Change how many packs of a line the customer wants.
+   *
+   * The stepper on the basket sends this when the line was added by the box or
+   * the carton, so "2" means two cartons and the pieces follow from the
+   * conversion the line was agreed at - not from today's catalogue, which may
+   * have been corrected since.
+   */
+  app.patch('/items/:itemId/packs', async (request, reply) => {
+    const auth = currentUser(request);
+    const { itemId } = itemParam.parse(request.params);
+    const body = updatePackQuantitySchema.parse(request.body);
+
+    await updateItemPackQuantity(auth.customerProfileId ?? '', itemId, body.unitQuantity);
 
     const resolved = await resolveCart(auth.customerProfileId ?? '');
     return reply.status(200).send({ cart: toCartView(resolved) });

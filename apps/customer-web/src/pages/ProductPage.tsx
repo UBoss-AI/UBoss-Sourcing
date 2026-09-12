@@ -51,12 +51,19 @@ import type {
   Money,
   Product,
   ProductDetailResponse,
+  ProductPackaging,
   ProductVariant,
   PurchaseRules,
   TaxInfo,
 } from '@/lib/types';
 import { ProductSafetyPanel } from '@/components/ProductSafetyPanel';
 import { ProductDevicePanel } from '@/components/ProductDevicePanel';
+import {
+  DimensionsSection,
+  OrderingUnitTabs,
+  PackagingSection,
+} from '@/components/ProductPackagingPanel';
+import { piecesPerUnit, type OrderingUnit } from '@/lib/packaging';
 import { useI18n } from '@/i18n/i18n-context';
 import type { Translate } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
@@ -234,10 +241,21 @@ function Gallery({ product }: { product: Product }): React.JSX.Element {
  * every stepper. They are the product's, so they are the same on each row; the
  * same grey sentence four times is noise where one copy of it was guidance.
  */
+/**
+ * The option list.
+ *
+ * `hidePrices` is set for a product quoted per account. Its options are stored
+ * at zero - the figure exists only so the listing query can reach the product
+ * at all - and printing "₹0.00" beside every size would offer several hundred
+ * medical items for nothing. The choice is still a real choice: the sizes have
+ * different barcodes, different cartons and different lead times, and the
+ * quotation is written against whichever one is asked for.
+ */
 function VariantPicker({
   variants,
   chosen,
   rules,
+  hidePrices,
   onToggle,
   onQuantityChange,
 }: {
@@ -245,6 +263,7 @@ function VariantPicker({
   /** Option id to the quantity wanted. An absent id is an option not chosen. */
   chosen: ReadonlyMap<string, number>;
   rules: PurchaseRules;
+  hidePrices: boolean;
   onToggle: (variant: ProductVariant) => void;
   onQuantityChange: (variant: ProductVariant, quantity: number) => void;
 }): React.JSX.Element {
@@ -324,7 +343,7 @@ function VariantPicker({
                     )}
                   </span>
 
-                  {variant.price !== null && (
+                  {variant.price !== null && !hidePrices && (
                     <span className="ml-auto shrink-0 pl-2 text-sm tabular text-ink-muted">
                       {formatMoney(variant.price)}
                     </span>
@@ -355,6 +374,34 @@ function VariantPicker({
       </ul>
     </fieldset>
   );
+}
+
+/**
+ * One thing the customer has chosen, and how they are counting it.
+ *
+ * `quantity` is pieces. Always pieces - it is what the basket, the warehouse
+ * and the invoice count in, and the pack figures beside it exist so the same
+ * choice can be shown back in the words the customer used.
+ */
+interface ChosenLine {
+  variantId: string | null;
+  quantity: number;
+  orderingUnit: OrderingUnit;
+  unitQuantity: number;
+  piecesPerUnit: number;
+}
+
+/**
+ * This size's own packing, falling back to the product's.
+ *
+ * A size whose packing was never recorded separately is boxed like the product
+ * it belongs to, which is both the honest default and what the server does
+ * when it converts the same line.
+ */
+function packagingFor(product: Product, variantId: string | null): ProductPackaging | null {
+  if (variantId === null) return product.packaging ?? null;
+  const variant = product.variants.find((candidate) => candidate.id === variantId);
+  return variant?.packaging ?? product.packaging ?? null;
 }
 
 /** One line of the ordering panel. */
@@ -531,6 +578,20 @@ export function ProductPage(): React.JSX.Element {
   const [quantity, setQuantity] = useState(1);
   const [addError, setAddError] = useState<string | null>(null);
 
+  /**
+   * What the numbers on this page are counting.
+   *
+   * One choice for the whole page rather than one per option: a buyer ordering
+   * three sizes of a cannula orders all three by the carton or all three by the
+   * piece, and a page where each row could be counted differently is a page
+   * where the total is impossible to hold in your head.
+   *
+   * It resets to pieces whenever the product changes, so a unit chosen on one
+   * product cannot follow the customer to the next one and quietly multiply
+   * what they type by two thousand.
+   */
+  const [orderingUnit, setOrderingUnit] = useState<OrderingUnit>('PIECE');
+
   const { currency, country, countries } = useLocale();
 
   // For turning the ISO code the server names its rate country by into
@@ -570,6 +631,7 @@ export function ProductPage(): React.JSX.Element {
 
     const only = product.variants.length === 1 ? product.variants[0] : undefined;
     setChosen(only === undefined ? new Map() : new Map([[only.id, opening]]));
+    setOrderingUnit('PIECE');
   }, [product]);
 
   // `exactOptionalPropertyTypes` means an absent description is an absent key,
@@ -596,18 +658,40 @@ export function ProductPage(): React.JSX.Element {
    * label, the price panel and the schedule link, so there is one description
    * of "what the customer chose" rather than four that can disagree.
    */
-  const chosenLines = useMemo((): { variantId: string | null; quantity: number }[] => {
+  const chosenLines = useMemo((): ChosenLine[] => {
     if (product === undefined) return [];
 
+    /**
+     * One line, counted in whatever unit the page is set to.
+     *
+     * `quantity` is always pieces, because that is what the server, the
+     * basket, the warehouse and the invoice all count in. The pack figures
+     * travel beside it so the basket can show the choice back - and the server
+     * recomputes the pieces from its own packing row regardless, so a browser
+     * that got this arithmetic wrong cannot buy anything at the wrong price.
+     */
+    const lineFor = (variantId: string | null, typed: number): ChosenLine => {
+      const packing = packagingFor(product, variantId);
+      const perUnit = piecesPerUnit(orderingUnit, packing) ?? 1;
+
+      return {
+        variantId,
+        quantity: typed * perUnit,
+        orderingUnit,
+        unitQuantity: typed,
+        piecesPerUnit: perUnit,
+      };
+    };
+
     if (!product.hasVariants || product.variants.length === 0) {
-      return [{ variantId: null, quantity }];
+      return [lineFor(null, quantity)];
     }
 
     return product.variants.flatMap((variant) => {
       const wanted = chosen.get(variant.id);
-      return wanted === undefined ? [] : [{ variantId: variant.id, quantity: wanted }];
+      return wanted === undefined ? [] : [lineFor(variant.id, wanted)];
     });
-  }, [product, chosen, quantity]);
+  }, [product, chosen, quantity, orderingUnit]);
 
   const addToCart = useMutation({
     // The bulk route even for a single line. It takes the same shape either
@@ -619,6 +703,10 @@ export function ProductPage(): React.JSX.Element {
           productId: product?.id,
           variantId: line.variantId,
           quantity: line.quantity,
+          // Sent as the unit and the count, never as the conversion: the
+          // server looks that up for itself. See cart.customer.ts.
+          orderingUnit: line.orderingUnit,
+          ...(line.orderingUnit === 'PIECE' ? {} : { unitQuantity: line.unitQuantity }),
         })),
       }),
     onSuccess: async () => {
@@ -731,10 +819,31 @@ export function ProductPage(): React.JSX.Element {
    */
   const scheduleLine = chosenLines.length === 1 ? chosenLines[0] : undefined;
 
+  // Absent on a response from a server that predates this, and every product
+  // was buyable then.
+  const purchasability = product.purchasability ?? null;
+  const isPriceOnRequest = purchasability?.isPriceOnRequest ?? false;
+  const isUnavailable = purchasability !== null && !purchasability.isOrderable;
+  // The operator's own sentence where they wrote one; a plain statement of
+  // fact where they did not. Never an empty notice.
+  const unavailabilityReason =
+    purchasability?.unavailabilityReason ?? t('product.currentlyUnavailable');
+  const canBuy = purchasability === null ? true : purchasability.canAddToCart;
+
+  // The packing of whatever is currently chosen. One option chosen shows that
+  // option's carton; none or several fall back to the product's, which is the
+  // row the import writes for exactly this.
+  const shownPackaging = packagingFor(product, onlyChosen?.id ?? null);
+
+  // The pieces the current choice comes to, for the line under the quantity
+  // boxes. Only shown when it is not simply the number already typed.
+  const totalPieces = chosenLines.reduce((sum, line) => sum + line.quantity, 0);
+
   const hasDetail =
     product.description !== null ||
     product.descriptionHtml !== null ||
-    product.attributes.length > 0;
+    product.attributes.length > 0 ||
+    product.packaging !== null;
 
   return (
     <>
@@ -797,6 +906,24 @@ export function ProductPage(): React.JSX.Element {
               single most-looked-at thing on this page, and a bordered block
               is what stops the eye at it on the way down. */}
           <div className="mt-5 rounded-lg border border-border bg-surface px-4 py-4 shadow-card">
+            {/* A price, or the reason there is not one - never both, and never
+                a figure of zero.
+
+                A product whose price is negotiated per account genuinely has
+                no number, and printing one would quote something nobody agreed
+                to charge. The panel keeps its size and position either way, so
+                the page does not reflow between two products in a range. */}
+            {isPriceOnRequest ? (
+              <>
+                <p className="text-2xl font-semibold tracking-tight text-brand">
+                  {t('product.priceOnRequest')}
+                </p>
+                <p className="mt-1.5 max-w-prose text-sm leading-relaxed text-ink-muted">
+                  {t('product.priceOnRequestBody', { store: business.displayName })}
+                </p>
+              </>
+            ) : (
+              <>
             <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <span className="text-3xl font-semibold tabular tracking-tight text-ink">
                 {isPriceRange
@@ -832,6 +959,20 @@ export function ProductPage(): React.JSX.Element {
                 })}
               </p>
             )}
+              </>
+            )}
+
+            {/* Listed, readable, and not for sale this week. Said here rather
+                than only on the disabled button, because somebody who scrolled
+                straight to the price should not have to find out lower down. */}
+            {isUnavailable && (
+              <p
+                role="status"
+                className="mt-3 rounded-md border border-warning/30 bg-warning-soft px-3 py-2 text-sm text-warning"
+              >
+                {unavailabilityReason}
+              </p>
+            )}
           </div>
 
           {/* --- The buy path ----------------------------------------------
@@ -840,11 +981,24 @@ export function ProductPage(): React.JSX.Element {
               the gallery, so it has to read as one task. */}
           <div className="mt-5 rounded-lg border border-border bg-surface px-4 py-4 shadow-card sm:px-5 sm:py-5">
             <div className="space-y-5">
+              {/* Above the quantity boxes, because it changes what the numbers
+                  in them mean. Absent entirely where the catalogue knows only
+                  one unit - see OrderingUnitTabs. */}
+              <OrderingUnitTabs
+                packaging={shownPackaging}
+                value={orderingUnit}
+                onChange={(unit) => {
+                  setOrderingUnit(unit);
+                  setAddError(null);
+                }}
+              />
+
               {needsVariant ? (
                 <VariantPicker
                   variants={product.variants}
                   chosen={chosen}
                   rules={rules}
+                  hidePrices={isPriceOnRequest}
                   onToggle={toggleVariant}
                   onQuantityChange={setVariantQuantity}
                 />
@@ -863,6 +1017,20 @@ export function ProductPage(): React.JSX.Element {
                 />
               )}
 
+              {/* What the packs come to.
+
+                  Shown only when the customer is counting in something other
+                  than pieces, because otherwise it would restate the number
+                  they just typed. This is the figure the basket, the warehouse
+                  and the invoice will all use, so seeing it here is what stops
+                  "2" meaning two syringes to the customer and four thousand to
+                  everybody else. */}
+              {orderingUnit !== 'PIECE' && totalPieces > 0 && (
+                <p className="rounded-md bg-surface-sunken px-3 py-2 text-sm tabular text-ink-muted">
+                  {t('packaging.comesTo', { n: formatNumber(totalPieces) })}
+                </p>
+              )}
+
               {addError !== null && (
                 <p
                   role="alert"
@@ -875,26 +1043,41 @@ export function ProductPage(): React.JSX.Element {
               {isCustomer ? (
                 <div className="space-y-2.5">
                   <div className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap">
-                    <Button
-                      variant="action"
-                      size="lg"
-                      disabled={!isReady}
-                      isLoading={addToCart.isPending}
-                      onClick={() => {
-                        addToCart.mutate();
-                      }}
-                      // Full width on a phone, where a half-width primary
-                      // action beside nothing reads as unfinished.
-                      className="w-full sm:w-auto"
-                    >
-                      {chosenLines.length > 1
-                        ? t('product.addOptionsToCart', {
-                            options: formatNumber(chosenLines.length),
-                          })
-                        : t('product.addToCart')}
-                    </Button>
+                    {/* Priced on request has no basket path at all - there
+                        is no figure to charge - so the button is replaced
+                        rather than disabled. A greyed-out Add to Cart invites
+                        somebody to keep clicking it looking for the reason. */}
+                    {isPriceOnRequest ? (
+                      <ButtonLink
+                        to={`/contact?product=${encodeURIComponent(product.sku)}`}
+                        variant="action"
+                        size="lg"
+                        className="w-full sm:w-auto"
+                      >
+                        {t('product.requestAQuote')}
+                      </ButtonLink>
+                    ) : (
+                      <Button
+                        variant="action"
+                        size="lg"
+                        disabled={!isReady || !canBuy}
+                        isLoading={addToCart.isPending}
+                        onClick={() => {
+                          addToCart.mutate();
+                        }}
+                        // Full width on a phone, where a half-width primary
+                        // action beside nothing reads as unfinished.
+                        className="w-full sm:w-auto"
+                      >
+                        {chosenLines.length > 1
+                          ? t('product.addOptionsToCart', {
+                              options: formatNumber(chosenLines.length),
+                            })
+                          : t('product.addToCart')}
+                      </Button>
+                    )}
 
-                    {canSchedule && scheduleLine !== undefined && (
+                    {canBuy && canSchedule && scheduleLine !== undefined && (
                       // Teal, beside the orange Add to Cart: two real choices,
                       // each visibly its own kind of commitment, and neither
                       // mistakable for the other.
@@ -1037,6 +1220,15 @@ export function ProductPage(): React.JSX.Element {
               </dl>
             </section>
           )}
+
+          {/* How it is boxed, and what the boxes measure.
+
+              Beside the specifications rather than inside them: a
+              specification is a fact about the product, and this is how it
+              arrives on a pallet - a different question, asked by a different
+              person, in a different part of the buying decision. */}
+          <PackagingSection packaging={shownPackaging} />
+          <DimensionsSection packaging={shownPackaging} />
 
           {/* GPSR Art. 19. Below the specifications because it is reference
               material rather than a selling point, but on the page and not
