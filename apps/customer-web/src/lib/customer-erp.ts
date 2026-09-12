@@ -153,6 +153,15 @@ export interface SystemOption {
   /** Instructions for the buyer's IT team. Shown on the network step. */
   networkNotes: string;
   supportsWebhooks: boolean;
+  /**
+   * Fixed OAuth addresses, where this system publishes exactly one pair.
+   *
+   * Null for anything the buyer hosts themselves, and the screen keeps asking
+   * for them. Set for a SaaS like monday, and the screen fills them in and
+   * stops asking - there is no right answer other than these two.
+   */
+  oauthAuthorizationUrl: string | null;
+  oauthTokenUrl: string | null;
 }
 
 /**
@@ -169,6 +178,15 @@ export interface VendorPresetOption {
   label: string;
   connector: ErpSystem;
   apiStyle: ErpApiStyle;
+  /**
+   * What this vendor accepts on the environment the options were asked for.
+   *
+   * Already narrowed by the server: a method that would be refused when the
+   * connection is saved is not in this list. EMPTY is a legitimate answer and
+   * means this vendor cannot be connected in that environment on this
+   * deployment at all - the screen says so rather than rendering an empty
+   * dropdown.
+   */
   authMethods: ErpAuthMethod[];
   /** Shown as the address placeholder. Never filled in for them. */
   baseUrlExample: string;
@@ -336,6 +354,34 @@ export function isFullConnection(
   // it is what distinguishes them. A role check here instead would mean the
   // screen deciding what it is allowed to see, which is the server's job.
   return 'baseUrl' in connection;
+}
+
+/** One product, on whichever side of the comparison it turned up. */
+export interface ReconciliationRow {
+  /** Their code. Equals `sku` on a matched row. */
+  erpCode: string;
+  sku: string | null;
+  productName: string | null;
+  onHandQty: number | null;
+  lastSyncedAt: string | null;
+}
+
+/**
+ * Where the two catalogues agree and where they do not.
+ *
+ * Counts are always complete; `rows` is a sample, because a buyer with a
+ * thousand unmatched codes needs the number and a few examples, not a thousand
+ * rows in a browser.
+ */
+export interface Reconciliation {
+  checkedAt: string;
+  erpCodeCount: number;
+  catalogueCount: number;
+  inBoth: { count: number; rows: ReconciliationRow[] };
+  onlyInErp: { count: number; rows: ReconciliationRow[] };
+  onlyHere: { count: number; rows: ReconciliationRow[] };
+  /** Their feed was longer than one pass reads, so the gaps are provisional. */
+  truncated: boolean;
 }
 
 export interface SampleCheckField {
@@ -727,6 +773,17 @@ export const customerErpApi = {
       .post<{ connection: ConnectionView }>(`${BASE}/connections/${id}/${action}`)
       .then((r) => r.connection),
 
+  /**
+   * Compare their catalogue against ours.
+   *
+   * A POST because it calls their system several times over a paged feed, and
+   * a GET would be re-run by every refresh and back button.
+   */
+  reconcile: (id: string) =>
+    api
+      .post<{ reconciliation: Reconciliation }>(`${BASE}/connections/${id}/reconcile`)
+      .then((r) => r.reconciliation),
+
   syncNow: (id: string) =>
     api.post<{ sync: SyncResult }>(`${BASE}/connections/${id}/sync`).then((r) => r.sync),
 
@@ -737,7 +794,15 @@ export const customerErpApi = {
       )
       .then((r) => r.authorization),
 
-  completeOAuth: (body: { connectionId: string; state: string; code: string }) =>
+  /**
+   * `connectionId` is optional, and the callback page does not send it.
+   *
+   * The ERP redirects the browser back with `code` and `state` and nothing
+   * else, so the server recovers the connection from the state it issued. See
+   * the route's own note on why remembering it in the browser instead is a way
+   * to strand an authorisation that otherwise worked.
+   */
+  completeOAuth: (body: { connectionId?: string; state: string; code: string }) =>
     api.post<{
       authorized: boolean;
       grantedScope: string | null;

@@ -121,6 +121,10 @@ export const customConnector: Connector = {
         'it and give us that address. If your firewall restricts who may call, ask your ' +
         'supplier for the addresses to allow.',
       supportsWebhooks: true,
+      // Self-hosted or buyer-configured: only they know where their own
+      // installation serves OAuth, so there is nothing sensible to default to.
+      oauthAuthorizationUrl: null,
+      oauthTokenUrl: null,
     };
   },
 

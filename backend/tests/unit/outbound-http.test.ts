@@ -23,11 +23,13 @@
  *      production process in that state, which is asserted in the env tests
  *      rather than here.
  */
+import { createServer } from 'node:http';
 import { describe, expect, it } from 'vitest';
 import {
   assertSafeErpUrl,
   isPubliclyRoutable,
   resolveSafeTarget,
+  safeFetch,
 } from '../../src/infra/outbound-http.js';
 import { AppError } from '../../src/domain/errors.js';
 
@@ -194,5 +196,55 @@ describe('resolveSafeTarget', () => {
     await expect(
       resolveSafeTarget(new URL('https://no-such-host.invalid/api'), { allowPrivate: false }),
     ).rejects.toMatchObject({ code: 'ERP_URL_NOT_ALLOWED' });
+  });
+});
+
+/**
+ * The pin, exercised against a real socket rather than described.
+ *
+ * Every other test in this file stops at `resolveSafeTarget` - it checks which
+ * address the guard PICKS, which is the security question. None of them opened
+ * a connection, and that gap hid a complete outage: the custom `lookup` that
+ * enforces the pin answered Node's older `(err, address, family)` contract
+ * only, while `net.connect` has asked with `{ all: true }` and expected an
+ * ARRAY since Node 20 gained happy eyeballs. Node read `addresses[0].address`
+ * off a string, got `undefined`, and failed every request with
+ * `ERR_INVALID_IP_ADDRESS` - which reached the buyer as "Your system could not
+ * be reached from here" about an ERP that was up and answering curl from the
+ * same machine.
+ *
+ * So this one makes the request. A local server rather than a public host,
+ * because a test that needs the internet is a test that fails on a train.
+ */
+describe('safeFetch against a real socket', () => {
+  it('connects through the pinned lookup', async () => {
+    const server = createServer((_request, response) => {
+      response.writeHead(200, { 'content-type': 'application/json' });
+      response.end('{"ok":true}');
+    });
+
+    // No host, so both address families answer - `localhost` resolves to ::1
+    // first on some machines and 127.0.0.1 first on others, and the pin takes
+    // whichever the guard picked.
+    await new Promise<void>((resolve) => { server.listen(0, resolve); });
+
+    const address = server.address();
+    const port = typeof address === 'object' && address !== null ? address.port : 0;
+
+    try {
+      // A HOSTNAME, not an IP literal: an IP short-circuits DNS and would never
+      // reach the custom lookup, which is exactly the code under test.
+      const result = await safeFetch(`http://localhost:${String(port)}/erp`, {
+        method: 'GET',
+        headers: {},
+        timeoutMs: 5000,
+        allowPrivate: true,
+      });
+
+      expect(result.status).toBe(200);
+      expect(result.bodyText).toBe('{"ok":true}');
+    } finally {
+      await new Promise<void>((resolve) => { server.close(() => { resolve(); }); });
+    }
   });
 });

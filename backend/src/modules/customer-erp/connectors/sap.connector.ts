@@ -139,6 +139,10 @@ export const sapConnector: Connector = {
         'address should be your SAP Cloud Connector or reverse proxy, reachable over HTTPS ' +
         'from the internet - not the SAP host itself.',
       supportsWebhooks: true,
+      // Self-hosted or buyer-configured: only they know where their own
+      // installation serves OAuth, so there is nothing sensible to default to.
+      oauthAuthorizationUrl: null,
+      oauthTokenUrl: null,
     };
   },
 

@@ -233,7 +233,7 @@ able to do on somebody's behalf.
 | `CUSTOMER_ERP_MAX_SYNC_RECORDS` | `5000` | Records read from a customer's ERP in one pass. The rest are taken next pass, from the stored cursor. |
 | `CUSTOMER_ERP_MAX_RESPONSE_BYTES` | `2097152` | Bytes of one response held in memory. |
 | `CUSTOMER_ERP_OAUTH_STATE_TTL_SECONDS` | `900` | How long an authorisation may stay in flight. |
-| `CUSTOMER_ERP_OAUTH_REDIRECT_URI` | *(empty)* | Where a customer's ERP sends them back to. Empty derives it from `API_PUBLIC_URL`, which is right for an ordinary deployment. Set it where a gateway's public address is not the API's own. |
+| `CUSTOMER_ERP_OAUTH_REDIRECT_URI` | *(empty)* | Where a customer's ERP sends them back to. A **storefront page**, not an API address: empty derives it from `CUSTOMER_WEB_PUBLIC_URL` + `/account/integrations/erp/oauth/callback`, which is right for an ordinary deployment. Set it where the storefront's public address is not the one you serve it on — behind a gateway, or through a development tunnel. |
 | `CUSTOMER_ERP_ALLOWED_HOST_SUFFIXES` | *(empty)* | Host suffixes a customer's address may end in. Empty means any publicly routable host — see below. |
 | `CUSTOMER_ERP_INVITE_TTL_HOURS` | `168` | How long an invitation to join an organisation stays valid. |
 | `MONDAY_OAUTH_CLIENT_ID` | *(empty)* | Your registered monday.com app — see below. |
@@ -244,10 +244,29 @@ able to do on somebody's behalf.
 monday's production OAuth uses an app registered by *you*, not by each customer;
 every buyer authorises the same app. Without one, the monday connector offers
 only the personal-token path, which is restricted to **sandbox** connections —
-so a customer can try monday out and cannot run their business on it. Register
-an app at monday.com's developer centre, set the redirect URI to whatever
-`CUSTOMER_ERP_OAUTH_REDIRECT_URI` resolves to, and put the id and secret here.
-The secret is yours: no customer ever sees or types it.
+so a customer can try monday out and cannot run their business on it. The setup
+wizard says so on its first step rather than letting somebody reach the end and
+be refused: with no app registered, a **production** monday connection offers no
+authentication method at all.
+
+To register one:
+
+1. Go to monday.com → **Developers** → **Build app**, and add the **OAuth &
+   Permissions** feature.
+2. Set the redirect URI to whatever `CUSTOMER_ERP_OAUTH_REDIRECT_URI` resolves
+   to — the storefront callback page, for example
+   `https://shop.example.com/account/integrations/erp/oauth/callback`. It is
+   compared character for character, so a trailing slash matters and `http`
+   will not do.
+3. Grant the scopes in `MONDAY_OAUTH_SCOPES`. Ask for fewer there than you
+   granted here and the consent screen simply asks for fewer; ask for more and
+   monday refuses the authorisation.
+4. Put the client id and secret here. The secret is yours: no customer ever sees
+   or types it.
+
+Change the public address later and the redirect URI changes with it — in
+monday's settings as well as here, or every authorisation fails at its last
+step.
 
 **SAP and custom connections need nothing from you.** Their OAuth client id and
 secret belong to the customer, are entered by them, and are encrypted per

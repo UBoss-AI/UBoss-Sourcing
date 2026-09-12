@@ -177,8 +177,19 @@ export async function runInventorySync(input: {
           event: { kind: 'INVENTORY', records: result.records },
         });
 
-        if (outcome.applied) applied += result.records.length;
-        else skipped += result.records.length;
+        /*
+         * The records that were RECORDED, not the page that contained them.
+         *
+         * A page is applied when anything in it matched, so counting the whole
+         * page as applied reported a sync that recorded one product as having
+         * recorded a hundred. `count` is the real figure where the handler
+         * knows it; a single-subject event has no count and is worth its own
+         * records.
+         */
+        const recorded = outcome.applied ? (outcome.count ?? result.records.length) : 0;
+
+        applied += recorded;
+        skipped += result.records.length - recorded;
       }
 
       cursor = result.nextCursor;

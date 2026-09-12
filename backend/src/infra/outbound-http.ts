@@ -504,8 +504,19 @@ export class OutboundRequestError extends Error {
   constructor(
     message: string,
     readonly code: 'TIMEOUT' | 'UNREACHABLE' | 'TOO_MANY_REDIRECTS' | 'RESPONSE_TOO_LARGE',
+    /**
+     * The socket error underneath, kept for the log and never for the buyer.
+     *
+     * `message` is deliberately vague because it is shown to somebody looking
+     * at a connection screen, and an ERP's own transport errors are not their
+     * problem to read. Discarding the cause entirely, though, is how a plain
+     * `ERR_INVALID_IP_ADDRESS` in this file's own DNS pin spent a long time
+     * looking like "the customer's ERP is down" - the one reading that could
+     * have named it was thrown away at the point it was caught.
+     */
+    options?: { cause?: unknown },
   ) {
-    super(message);
+    super(message, options);
     this.name = 'OutboundRequestError';
   }
 }
@@ -544,8 +555,38 @@ function requestOnce(
       {
         method: options.method,
         headers: options.headers,
-        // The pin. Called instead of DNS when the socket is opened.
-        lookup: (_hostname, _lookupOptions, callback) => {
+        /*
+         * The pin. Called instead of DNS when the socket is opened.
+         *
+         * TWO ANSWER SHAPES, and answering only one of them breaks every
+         * outbound call this file makes.
+         *
+         * `net.connect` gained happy-eyeballs in Node 20 and now asks with
+         * `{ all: true }`, which means "hand me the whole list" and expects
+         * `callback(err, [{ address, family }])`. The older contract is
+         * `callback(err, address, family)`. A pin that always answers the older
+         * one leaves Node reading `addresses[0].address` off a string, getting
+         * `undefined`, and failing with `ERR_INVALID_IP_ADDRESS` - which
+         * surfaced as "Your system could not be reached from here" against an
+         * ERP that was up, reachable, and answering curl from the same machine.
+         *
+         * So both shapes are answered, chosen by what was actually asked for.
+         * Dropping the custom lookup would be the other way to make the symptom
+         * go away and would delete the DNS-rebinding defence with it: the whole
+         * point is that the socket goes to an address that PASSED, not to
+         * whatever DNS says a second time.
+         */
+        lookup: (_hostname, lookupOptions, callback) => {
+          if ((lookupOptions as { all?: boolean }).all === true) {
+            (
+              callback as unknown as (
+                err: null,
+                addresses: { address: string; family: number }[],
+              ) => void
+            )(null, [{ address: target.address, family: target.family }]);
+            return;
+          }
+
           (callback as (err: null, address: string, family: number) => void)(
             null,
             target.address,
@@ -621,12 +662,13 @@ function requestOnce(
         // truncated body is still an answer, so it resolves rather than throws.
         response.on('close', complete);
 
-        response.on('error', () => {
+        response.on('error', (cause: unknown) => {
           finish(() => {
             rejectPromise(
               new OutboundRequestError(
                 'The connection closed before the response finished.',
                 'UNREACHABLE',
+                { cause },
               ),
             );
           });
@@ -655,13 +697,14 @@ function requestOnce(
       });
     });
 
-    request.on('error', () => {
+    request.on('error', (cause: unknown) => {
       finish(() => {
         rejectPromise(
           new OutboundRequestError(
             'The system could not be reached. Check the address and that it accepts ' +
               'connections from the internet.',
             'UNREACHABLE',
+            { cause },
           ),
         );
       });

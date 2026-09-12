@@ -60,6 +60,7 @@ import {
   type ErpEventState,
 } from '@/lib/customer-erp';
 import { AccountPanel } from '../AccountPanel';
+import { ErpMatchingTab } from './ErpMatchingTab';
 import {
   ENVIRONMENT_LABEL,
   EVENT_STATE_LABEL,
@@ -68,10 +69,14 @@ import {
   SYSTEM_LABEL,
 } from './erp-labels';
 
-type Tab = 'overview' | 'activity' | 'approvals' | 'deliveries';
+type Tab = 'overview' | 'matching' | 'activity' | 'approvals' | 'deliveries';
 
 const TABS: readonly { id: Tab; labelKey: Parameters<ReturnType<typeof useI18n>['t']>[0] }[] = [
   { id: 'overview', labelKey: 'erp.tab.overview' },
+  // Second, not last: "do the two systems hold the same products" is the
+  // question a buyer has on day one, and burying it behind the audit trail
+  // makes them ask a person instead.
+  { id: 'matching', labelKey: 'erp.tab.matching' },
   { id: 'activity', labelKey: 'erp.tab.activity' },
   { id: 'approvals', labelKey: 'erp.tab.approvals' },
   { id: 'deliveries', labelKey: 'erp.tab.deliveries' },
@@ -132,6 +137,27 @@ export function ErpConnectionPage(): React.JSX.Element {
     onError: (error: unknown) => { toast.error(errorMessage(t, error)); },
   });
 
+  /*
+   * Send the buyer to their own ERP's consent screen.
+   *
+   * A full-page assignment rather than a router navigation or a new window:
+   * the destination is a third party, and it has to be the top-level document
+   * so the buyer can see the address they are signing in to. A popup would also
+   * be blocked about half the time, which for a once-per-connection act is a
+   * worse trade than leaving the page.
+   *
+   * Nothing is remembered across the redirect. The server issued the `state`
+   * and can recover the connection from it, so the callback page has no
+   * bookkeeping of its own to lose.
+   */
+  const authorize = useMutation({
+    mutationFn: () => customerErpApi.startOAuth(id),
+    onSuccess: (authorization) => {
+      window.location.assign(authorization.authorizationUrl);
+    },
+    onError: (error: unknown) => { toast.error(errorMessage(t, error)); },
+  });
+
   const sync = useMutation({
     mutationFn: () => customerErpApi.syncNow(id),
     onSuccess: (result) => {
@@ -152,6 +178,20 @@ export function ErpConnectionPage(): React.JSX.Element {
   const full = isFullConnection(connection) ? connection : null;
   const actions = full?.actions ?? [];
 
+  /*
+   * Whether this connection is waiting on somebody to go and authorise it.
+   *
+   * Authorising is not a state transition and deliberately has no entry in the
+   * connection state machine - it changes credentials, not what the connection
+   * is allowed to do - so the button is derived from the two facts that decide
+   * it: the method needs a consent screen, and no tokens have come back from
+   * one yet. Once they have, the same button re-authorises, which is what a
+   * buyer needs after their ERP administrator revokes access or the refresh
+   * token finally expires.
+   */
+  const needsInteractiveOAuth = full?.authMethod === 'OAUTH2_AUTHORIZATION_CODE';
+  const isAuthorized = full?.credentials.some((entry) => entry.kind === 'OAUTH_TOKENS') ?? false;
+
   return (
     <>
       <PageHeader
@@ -167,6 +207,29 @@ export function ErpConnectionPage(): React.JSX.Element {
             <ButtonLink to="/account/integrations/erp" variant="ghost" size="sm">
               {t('erp.detail.backToList')}
             </ButtonLink>
+
+            {/*
+              * Ahead of Test, because on an unauthorised connection a test has
+              * nothing to test with, and the buyer pressing buttons left to
+              * right should meet them in the order they are meant to happen.
+              */}
+            {needsInteractiveOAuth && (
+              <Button
+                size="sm"
+                variant={isAuthorized ? 'ghost' : 'primary'}
+                onClick={() => { authorize.mutate(); }}
+                isLoading={authorize.isPending}
+              >
+                {isAuthorized
+                  ? t('erp.action.reauthorize')
+                  : t('erp.action.authorize', {
+                      system:
+                        connection.vendorLabel === connection.system
+                          ? t(SYSTEM_LABEL[connection.system])
+                          : connection.vendorLabel,
+                    })}
+              </Button>
+            )}
 
             {actions.includes('START_TEST') && (
               <Button size="sm" onClick={() => { test.mutate(); }} isLoading={test.isPending}>
@@ -255,6 +318,16 @@ export function ErpConnectionPage(): React.JSX.Element {
         </nav>
 
         {tab === 'overview' && <OverviewTab connection={connection} full={full} />}
+        {tab === 'matching' && (
+          <ErpMatchingTab
+            connectionId={id}
+            systemLabel={
+              connection.vendorLabel === connection.system
+                ? t(SYSTEM_LABEL[connection.system])
+                : connection.vendorLabel
+            }
+          />
+        )}
         {tab === 'activity' && <ActivityTab connectionId={id} canOperate={full !== null} />}
         {tab === 'approvals' && <ApprovalsTab connectionId={id} />}
         {tab === 'deliveries' && <DeliveriesTab connectionId={id} full={full} />}

@@ -554,6 +554,7 @@ on the layout route rather than on each page:
 | `/account/integrations/erp` | Connect your own ERP — twenty named systems or any documented API; health, logs, approvals, team | Integrations |
 | `/account/integrations/erp/new` | The six-step setup wizard | — |
 | `/account/integrations/erp/:id` | One connection: health, activity, approvals, deliveries | — |
+| `/account/integrations/erp/oauth/callback` | Where the buyer's own ERP sends them back after they authorise. Registered with that ERP, so not renameable on its own | — |
 | `/account/erp` | Redirects to `/account/integrations/erp` — an old bookmark | — |
 | `/account/coupons` | Codes available, and codes used | My stuff |
 | `/account/wishlist` | Lines saved without buying them | My stuff |
@@ -4750,6 +4751,22 @@ applied after resolution:
    uses `node:http`/`node:https` and not `fetch`: `fetch` re-resolves the
    hostname when it opens the socket, and an attacker's DNS server is free to
    answer differently the second time. The `lookup` override closes that window.
+
+   **That override has to answer two callback shapes.** `net.connect` gained
+   happy eyeballs in Node 20 and now asks with `{ all: true }`, meaning "give me
+   the whole list", and expects `callback(err, [{ address, family }])`. The
+   older contract is `callback(err, address, family)`. Answering only the older
+   one left Node reading `addresses[0].address` off a string, getting
+   `undefined`, and failing every outbound call with `ERR_INVALID_IP_ADDRESS` —
+   which reached the buyer as *"Your system could not be reached from here"*
+   about an ERP that was up and answering `curl` from the same machine. Every
+   customer ERP call went down with it, not just one connector's.
+
+   The test that would have caught it did not exist: every case here stopped at
+   `resolveSafeTarget` and asserted which address the guard **picks**, which is
+   the security question, and none of them opened a socket. There is now one
+   that makes a real request to a local server, and it fails if the pin is
+   answered wrongly.
 5. **No redirect is followed automatically.** A `Location` is a fresh URL that
    has been through none of the above, so it goes back to the top of the loop
    and is re-validated, at most three times. A 301/302/303 also drops the body
@@ -5246,6 +5263,22 @@ GraphQL error has to be treated as a failure even though it arrives with HTTP
 renamed by anybody with edit rights, and a mapping keyed on titles breaks
 silently the first time somebody tidies up a board.
 
+Which is why **the test's sample is the flattened item**, not monday's reply.
+monday returns an item's columns as a list of `{id, text, value}`, and no dotted
+path can reach into that — there is no `text2` to find, only an entry whose `id`
+happens to be `text2`. The inventory read has always flattened the list into an
+object before mapping it; `test()` did not, so the mapping check ran against a
+different shape from the one the sync produces. Every mapped field came back
+"not found", the required SKU with it, `mappingVerifiedAt` was therefore never
+set, and **a monday connection could never be switched on at all**. Both now go
+through one `flattenItem`. The board's own reference data — its id, its columns
+with their titles, its groups — rides alongside under `_board`, `_columns` and
+`_groups`, underscored so that a column called `board` cannot shadow it.
+
+The general rule that hid behind that: **a mapping check is only worth anything
+run against the same shape the real sync produces.** Checking one shape and
+syncing another reports a sound mapping as broken, or the reverse.
+
 **Odoo** — JSON-RPC, which fits none of the others: one address for everything,
 the model and the method inside the POST body, integer database ids where every
 other system uses codes, and a fault that arrives with HTTP 200 carrying a
@@ -5325,6 +5358,128 @@ say will be sent. All three are cleared the moment the configuration changes —
 because whatever the last test proved, it proved about settings that have since
 been replaced.
 
+**What "the mapping" means depends on what the connection does.** `mappedEntitiesFor`
+decides it, and every entity is gated on the policy flag that decides whether it
+is ever sent: ORDER on `sendPurchaseOrders`, INVOICE on `sendInvoices`, INVENTORY
+on `syncInventory`, PAYMENT on `sendPaymentReferences`. ORDER used to be ungated,
+and being the only one made a **read-only connection impossible to switch on**: a
+buyer whose ERP is a product list, with purchase orders switched off, was still
+required to map an order number, a currency and a line quantity — to a system
+that has none of the three, for a purchase order that was never going to be
+raised. `sendPurchaseOrders` defaults to **true** where a connection has
+expressed no opinion, matching the endpoint check beside it: purchase orders are
+what this feature is for, and switching them off is the deliberate act.
+
+### "Do the two systems hold the same products?"
+
+The question every buyer has on the first day, and for a long time the only
+answer was a sync log saying *"read 736 records and recorded 1"* — accurate, and
+silent about which one and about why the other 735 went nowhere.
+
+**Product matching** is the tab that answers it. `reconcile.service.ts` walks
+the buyer's feed through the same connector the sync uses, compares it against
+this store's catalogue, and returns three sets:
+
+| | What it means |
+|---|---|
+| **In both systems** | A product here whose SKU was found in theirs. The only ones the integration can act on. |
+| **Only in their system** | A code their ERP sent that matches no product here. Usually not an error — their ERP holds their whole catalogue, we hold the part they buy from this store. |
+| **Only here** | A product in this catalogue their ERP has never mentioned. **The one that costs money**, because its stock figure will never be updated and nobody would notice. |
+
+Three design decisions worth keeping:
+
+- **It is a live read on a button, not a stored report.** The matched set is
+  already in `customer_erp_inventory_links`; the other two are not, and nothing
+  stores the codes that did *not* match. A table for them would be a schema
+  carrying a copy of somebody else's catalogue, kept current, for a screen
+  looked at occasionally. So it costs one sync pass and happens when a person
+  asks.
+- **Matching is on SKU, exactly.** Not case-folded, not fuzzy. `FG/1BZ1B1-G`
+  and `EV-CANNULA-WP` are different products until somebody says otherwise, and
+  a reconciliation that guessed would attach a stock figure to the wrong item
+  and be believed.
+- **Nothing matching at all gets its own sentence**, because it almost always
+  means one thing — the two sides use different product codes — and saying so is
+  worth more than three correct numbers a buyer has to interpret.
+
+A feed longer than one pass reads sets `truncated`, and the screen says the two
+"only in" figures may be higher. A partial read makes matched products look
+unmatched, which is the one wrong conclusion this screen could lead somebody to.
+
+### Authorising with OAuth, and where the redirect lands
+
+Two of the connection's authentication methods are interactive: the buyer is
+sent to their own ERP, signs in there, approves a list of permissions, and is
+sent back. `OAUTH2_AUTHORIZATION_CODE` is that flow; monday.com production
+connections always use it.
+
+The route out is **Connect** on the connection screen, which calls
+`POST /connections/:id/oauth/start`. That returns an authorization URL rather
+than a redirect, because the caller is a `fetch` from a single-page app and a
+302 in an XHR response is followed by the fetch, not by the browser — the buyer
+would never see their own ERP's consent screen. The screen then assigns
+`window.location`, so the consent screen is the top-level document and the buyer
+can read the address they are signing in to.
+
+The route back is a **storefront page**, `/account/integrations/erp/oauth/callback`,
+and deliberately not this API:
+
+- The API's callback is a `POST`. A browser redirected by GET found a 404 at the
+  end of an authorisation that had otherwise worked.
+- An authorisation code arriving as a GET parameter is an authorisation code
+  written into the access log of every proxy on the way. Landing on a page keeps
+  it in a request body on the buyer's own authenticated session.
+
+The path is named in one place on each side — `OAUTH_CALLBACK_PATH` in
+`oauth.service.ts` and the route in `apps/customer-web/src/app/router.tsx` — and
+they have to move together, because the value is registered with the ERP and
+compared byte for byte at token exchange. `CUSTOMER_ERP_OAUTH_REDIRECT_URI`
+overrides it for a deployment whose public storefront address is not the one it
+serves the storefront on; empty derives it from `CUSTOMER_WEB_PUBLIC_URL`.
+
+**Nothing is carried across the redirect.** The ERP sends back exactly what it
+was given — `code` and `state` — and anything the browser was holding is gone
+the moment a provider decides to open the callback in a new tab. So the callback
+does not send a connection id: the server recovers it from the `state` row it
+issued. That relaxes nothing. The connection is still loaded through the
+tenant-scoped loader, and `completeAuthorization` still refuses a state that is
+used, expired, belongs to another connection, or was started by a different
+member of the organisation — that last one is what stops a leaked authorisation
+URL binding somebody else's ERP account to this buyer's connection.
+
+A consent screen can also say **no**. A buyer who presses Cancel comes back with
+`error` instead of `code`, and that is an ordinary outcome with its own words
+rather than the failure message.
+
+### A system with one set of OAuth addresses, and one with none
+
+A self-hosted ERP serves OAuth wherever its administrator put it, so the wizard
+asks for the token and sign-in addresses. A SaaS with one published pair does
+not get asked: a connector may declare `oauthAuthorizationUrl` and
+`oauthTokenUrl` in its defaults, the wizard stops asking, and the server uses
+the connector's values whatever arrives in the request. monday declares
+`https://auth.monday.com/oauth2/authorize` and `.../oauth2/token` — note
+`auth.monday.com`, not the `api.monday.com` base address, which is precisely the
+sort of thing a buyer asked to type it gets wrong once and diagnoses at a broken
+consent screen.
+
+The same step decides **what a buyer is not asked for at all**. Where the
+authorisation goes through the operator's registered application — monday, via
+`oauthUsesPlatformApp` — the client secret, the permissions and the redirect
+address are all the operator's, so none of the three is rendered.
+
+**A connector's offered authentication methods are narrowed by environment, and
+the list may legitimately be empty.** `defaults(environment).authMethods` is the
+authority: monday offers OAuth plus a personal token on a sandbox connection,
+OAuth alone on a production one, and — where the operator has registered no
+application — **nothing at all** in production, because the personal-token path
+is sandbox-only and a production connection cannot be made. The vendor catalogue
+is a static list of what a brand supports and knows nothing about environments,
+so `/options` intersects the two before the screen ever sees them. Leaving that
+unnarrowed is what once let a buyer pick production with a personal token, fill
+in every remaining step, and be refused at the end by a rule that was knowable
+at the first one.
+
 ### Why it is safe to let a customer type an address
 
 It is, unavoidably, a server-side request forgery primitive with a form field in
@@ -5393,6 +5548,15 @@ Everything that touches a buyer's ERP goes through a row in
 `customer_erp_sync_events` — the outbox — **including the things that turn out
 not to need a call at all**. That is what makes "why did my purchase order not
 appear" answerable: there is always a row, and it always says what happened.
+
+Which is why **a sync counts records, not pages.** `applyInboundEvent` answers
+per EVENT — a page of inventory is one event, and it is "applied" when anything
+in it matched — so the poller adding the whole page's length to its applied
+total reported a sync that recorded one product as having *"recorded 100"*. A
+hundredfold overstatement, in the one log this feature promises can always say
+what happened. The handler now returns `count` alongside `applied`, and the
+poller uses it; an event with a single subject has no count and is worth its own
+records.
 
 The idempotency key is the whole design:
 

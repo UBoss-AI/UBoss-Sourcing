@@ -291,6 +291,37 @@ export function assertMappingValid(rows: readonly MappingRow[]): void {
  * switched invoices off is not held to the invoice mapping. Returns labels
  * rather than keys, because the answer is shown to a person.
  */
+/**
+ * Which entities a connection is held to a complete mapping for.
+ *
+ * One entity per thing a connection actually does, each gated on the policy
+ * flag that decides whether it is ever sent. ORDER used to be ungated, and
+ * being the only one made a read-only connection impossible to switch on: a
+ * buyer whose ERP is a product list, with purchase orders switched off, was
+ * still required to map an order number, a currency and a line quantity - to
+ * an ERP that has none of the three, for a purchase order that was never going
+ * to be raised.
+ *
+ * `sendPurchaseOrders` defaults to TRUE where a connection has expressed no
+ * opinion, matching the endpoint check that runs beside this one. Purchase
+ * orders are what the feature is for; switching them off is the deliberate act.
+ */
+export function mappedEntitiesFor(policy: {
+  sendPurchaseOrders?: boolean | null;
+  sendInvoices?: boolean | null;
+  syncInventory?: boolean | null;
+  sendPaymentReferences?: boolean | null;
+} | null): MappingEntity[] {
+  const entities: MappingEntity[] = [];
+
+  if (policy?.sendPurchaseOrders ?? true) entities.push('ORDER');
+  if (policy?.sendInvoices === true) entities.push('INVOICE');
+  if (policy?.syncInventory === true) entities.push('INVENTORY');
+  if (policy?.sendPaymentReferences === true) entities.push('PAYMENT');
+
+  return entities;
+}
+
 export function missingRequiredFields(
   rows: readonly MappingRow[],
   entities: readonly MappingEntity[],

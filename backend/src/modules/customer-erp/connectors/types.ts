@@ -331,6 +331,17 @@ export interface ConnectorDefaults {
   /** Shown on the network step, for the buyer's IT team. */
   networkNotes: string;
   supportsWebhooks: boolean;
+  /**
+   * Fixed OAuth addresses, for a system that has exactly one pair of them.
+   *
+   * Null for anything self-hosted, where the addresses are whatever the
+   * buyer's own installation serves and only they can know them. Set for a SaaS
+   * with a single published endpoint - monday - so the buyer is never asked to
+   * type an address that has only one correct value and fails silently at the
+   * consent screen when mistyped.
+   */
+  oauthAuthorizationUrl: string | null;
+  oauthTokenUrl: string | null;
 }
 
 // ---------------------------------------------------------------------------

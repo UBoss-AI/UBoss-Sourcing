@@ -76,6 +76,7 @@ import { ErpCallError, hostPolicy, resolveEndpointUrl, safeErrorMessage } from '
 import {
   PLATFORM_FIELDS,
   assertMappingValid,
+  mappedEntitiesFor,
   missingRequiredFields,
   verifyAgainstSample,
   type MappingEntity,
@@ -885,6 +886,18 @@ function validateInput(input: ConnectionInput): ValidatedConnectionFields {
     input.authMethod === 'OAUTH2_AUTHORIZATION_CODE' &&
     env.MONDAY_OAUTH_CLIENT_ID.length > 0;
 
+  /*
+   * A system with fixed OAuth addresses gets them from its connector, not from
+   * whatever arrived in the request.
+   *
+   * monday serves one authorisation endpoint and one token endpoint for
+   * everybody, so there is no version of "the buyer knows better" here - only
+   * versions of them getting a fixed string wrong and finding out at the
+   * consent screen. Where the connector has no opinion, which is every
+   * self-hosted system, the buyer's own values stand.
+   */
+  const connectorDefaults = connectorFor(input.system).defaults(input.environment);
+
   connectorFor(input.system).validateConfiguration({
     environment: input.environment,
     authMethod: input.authMethod,
@@ -903,8 +916,9 @@ function validateInput(input: ConnectionInput): ValidatedConnectionFields {
       boardId: nullish(input.mondayBoardId),
       groupId: nullish(input.mondayGroupId),
     },
-    oauthTokenUrl: nullish(input.oauthTokenUrl),
-    oauthAuthorizationUrl: nullish(input.oauthAuthorizationUrl),
+    oauthTokenUrl: connectorDefaults.oauthTokenUrl ?? nullish(input.oauthTokenUrl),
+    oauthAuthorizationUrl:
+      connectorDefaults.oauthAuthorizationUrl ?? nullish(input.oauthAuthorizationUrl),
     mutualTlsEnabled: input.mutualTlsEnabled ?? false,
   });
 
@@ -936,8 +950,9 @@ function validateInput(input: ConnectionInput): ValidatedConnectionFields {
     authMethod: input.authMethod,
     apiKeyLocation: input.authMethod === 'API_KEY' ? (input.apiKeyLocation ?? 'HEADER') : null,
     apiKeyName: input.authMethod === 'API_KEY' ? nullish(input.apiKeyName) : null,
-    oauthAuthorizationUrl: nullish(input.oauthAuthorizationUrl),
-    oauthTokenUrl: nullish(input.oauthTokenUrl),
+    oauthAuthorizationUrl:
+      connectorDefaults.oauthAuthorizationUrl ?? nullish(input.oauthAuthorizationUrl),
+    oauthTokenUrl: connectorDefaults.oauthTokenUrl ?? nullish(input.oauthTokenUrl),
     oauthScope: nullish(input.oauthScope),
     oauthUsesPlatformApp,
     mutualTlsEnabled: input.mutualTlsEnabled ?? false,
@@ -1659,11 +1674,9 @@ export async function activateConnection(
     missingEndpoints,
   });
 
-  // And the mapping has to name everything that cannot be omitted.
-  const entities: MappingEntity[] = ['ORDER'];
-  if (policy?.sendInvoices === true) entities.push('INVOICE');
-  if (policy?.syncInventory === true) entities.push('INVENTORY');
-  if (policy?.sendPaymentReferences === true) entities.push('PAYMENT');
+  // And the mapping has to name everything that cannot be omitted, for the
+  // things this connection actually does. See `mappedEntitiesFor`.
+  const entities = mappedEntitiesFor(policy);
 
   const mappings: MappingRow[] = current.fieldMappings.map((row) => ({
     entity: row.entity,

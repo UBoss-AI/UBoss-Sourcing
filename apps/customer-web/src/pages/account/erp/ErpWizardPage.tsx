@@ -49,6 +49,7 @@ import {
   Textarea,
 } from '@/components/ui';
 import { AlertIcon, CheckIcon, ChevronRightIcon } from '@/components/icons';
+import { ApiError } from '@/lib/api';
 import { cx } from '@/lib/cx';
 import { errorMessage } from '@/lib/errors';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
@@ -284,8 +285,15 @@ export function ErpWizardPage(): React.JSX.Element {
    * methods, while SAP Business One's Service Layer offers exactly two. Showing
    * a buyer three ways to authenticate that their own system does not accept is
    * three ways to waste an afternoon.
+   *
+   * Both lists arrive already narrowed to the chosen ENVIRONMENT, which is why
+   * the options query is keyed on it. An EMPTY list is therefore a real answer
+   * and not a loading state: it means this vendor cannot be connected in this
+   * environment on this deployment, and the screen says so where the choice was
+   * made instead of letting the buyer fill in six more steps and be refused.
    */
   const offeredAuthMethods = preset?.authMethods ?? chosen?.authMethods;
+  const noAuthMethodAvailable = offeredAuthMethods !== undefined && offeredAuthMethods.length === 0;
 
   useEffect(() => {
     if (offeredAuthMethods === undefined || isEditing) return;
@@ -297,6 +305,35 @@ export function ErpWizardPage(): React.JSX.Element {
 
     if (system === 'MONDAY' && baseUrl.length === 0) setBaseUrl('https://api.monday.com');
   }, [offeredAuthMethods, system, authMethod, baseUrl.length, isEditing]);
+
+  /*
+   * Addresses the buyer is not asked for, because there is only one right
+   * answer and the server is going to use it regardless of what is typed here.
+   *
+   * Set for a SaaS that publishes one authorisation and one token endpoint -
+   * monday - and null for everything self-hosted, where only the buyer knows.
+   */
+  const fixedAuthorizationUrl = chosen?.oauthAuthorizationUrl ?? null;
+  const fixedTokenUrl = chosen?.oauthTokenUrl ?? null;
+
+  /*
+   * Whether this connection authorises through the STORE's registered
+   * application rather than one of the buyer's own.
+   *
+   * The same condition the server derives `oauthUsesPlatformApp` from, minus
+   * the half only the server can know - whether an application is registered at
+   * all. It does not need to: where none is, monday's interactive OAuth is not
+   * offered on this screen in the first place, so reaching this with both
+   * halves true means the store has one. It decides which fields are the
+   * buyer's to fill in: not the client secret, not the permissions, and not the
+   * redirect address, because none of the three is theirs.
+   */
+  const usesPlatformApp = system === 'MONDAY' && isInteractiveOAuth(authMethod);
+
+  useEffect(() => {
+    if (fixedAuthorizationUrl !== null) setOauthAuthorizationUrl(fixedAuthorizationUrl);
+    if (fixedTokenUrl !== null) setOauthTokenUrl(fixedTokenUrl);
+  }, [fixedAuthorizationUrl, fixedTokenUrl]);
 
   const body = (): ConnectionInput => ({
     name: name.trim(),
@@ -606,6 +643,7 @@ export function ErpWizardPage(): React.JSX.Element {
                     id={inputId}
                     aria-describedby={describedBy}
                     value={authMethod}
+                    disabled={noAuthMethodAvailable}
                     onChange={(event) => { setAuthMethod(event.target.value as ErpAuthMethod); }}
                   >
                     {(offeredAuthMethods ?? []).map((method) => (
@@ -629,11 +667,25 @@ export function ErpWizardPage(): React.JSX.Element {
               </Field>
             </div>
 
-            {/* What this method costs, said beside the choice. */}
-            <p className="mt-3 flex items-start gap-2 rounded-md bg-surface-sunken p-3 text-xs leading-relaxed text-ink-muted">
-              <AlertIcon aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              {t(AUTH_NOTE[authMethod])}
-            </p>
+            {/*
+              * Nothing this vendor accepts is available here.
+              *
+              * Said where the buyer can act on it - the environment is two
+              * fields up - and it names both ways out, because one of them is
+              * theirs and one of them is their supplier's.
+              */}
+            {noAuthMethodAvailable ? (
+              <p className="mt-3 flex items-start gap-2 rounded-md bg-warning-soft p-3 text-xs leading-relaxed text-ink">
+                <AlertIcon aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-warning" />
+                {t('erp.wizard.noAuthMethod')}
+              </p>
+            ) : (
+              /* What this method costs, said beside the choice. */
+              <p className="mt-3 flex items-start gap-2 rounded-md bg-surface-sunken p-3 text-xs leading-relaxed text-ink-muted">
+                <AlertIcon aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                {t(AUTH_NOTE[authMethod])}
+              </p>
+            )}
 
             {authMethod === 'API_KEY' && (
               <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -670,19 +722,34 @@ export function ErpWizardPage(): React.JSX.Element {
             {(authMethod === 'OAUTH2_CLIENT_CREDENTIALS' ||
               authMethod === 'OAUTH2_AUTHORIZATION_CODE') && (
               <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Field label={t('erp.wizard.tokenUrl')} required>
-                  {({ inputId, describedBy }) => (
-                    <Input
-                      id={inputId}
-                      aria-describedby={describedBy}
-                      type="url"
-                      value={oauthTokenUrl}
-                      onChange={(event) => { setOauthTokenUrl(event.target.value); }}
-                    />
-                  )}
-                </Field>
+                {/*
+                  * Two addresses the buyer types only when they are the one who
+                  * knows them.
+                  *
+                  * A self-hosted system serves OAuth wherever its administrator
+                  * put it, so it has to be asked for. A SaaS with one published
+                  * pair does not: asking there is offering somebody a chance to
+                  * mistype one of two fixed strings, and the mistake surfaces
+                  * as a broken consent screen rather than as a validation
+                  * error. The server uses its connector's addresses for those
+                  * systems regardless, so a field here would be a field that
+                  * silently does nothing.
+                  */}
+                {fixedTokenUrl === null && (
+                  <Field label={t('erp.wizard.tokenUrl')} required>
+                    {({ inputId, describedBy }) => (
+                      <Input
+                        id={inputId}
+                        aria-describedby={describedBy}
+                        type="url"
+                        value={oauthTokenUrl}
+                        onChange={(event) => { setOauthTokenUrl(event.target.value); }}
+                      />
+                    )}
+                  </Field>
+                )}
 
-                {isInteractiveOAuth(authMethod) && (
+                {isInteractiveOAuth(authMethod) && fixedAuthorizationUrl === null && (
                   <Field label={t('erp.wizard.authorizationUrl')} required>
                     {({ inputId, describedBy }) => (
                       <Input
@@ -696,24 +763,38 @@ export function ErpWizardPage(): React.JSX.Element {
                   </Field>
                 )}
 
-                <Field label={t('erp.wizard.scope')} hint={t('erp.wizard.scopeHint')}>
-                  {({ inputId, describedBy }) => (
-                    <Input
-                      id={inputId}
-                      aria-describedby={describedBy}
-                      value={oauthScope}
-                      onChange={(event) => { setOauthScope(event.target.value); }}
-                    />
-                  )}
-                </Field>
+                {/*
+                  * Which permissions to ask for - unless the store's own
+                  * registered application decides that, as it does for monday,
+                  * where the permissions are the operator's to set and are the
+                  * same for every buyer. Leaving the field visible there would
+                  * invite somebody to widen or narrow a list that is not read.
+                  */}
+                {!usesPlatformApp && (
+                  <Field label={t('erp.wizard.scope')} hint={t('erp.wizard.scopeHint')}>
+                    {({ inputId, describedBy }) => (
+                      <Input
+                        id={inputId}
+                        aria-describedby={describedBy}
+                        value={oauthScope}
+                        onChange={(event) => { setOauthScope(event.target.value); }}
+                      />
+                    )}
+                  </Field>
+                )}
 
                 {/*
                  * The redirect address the buyer registers with their own ERP.
                  * Shown here rather than after they have authorised, because
                  * registering it is the first thing they have to do on their
                  * side and discovering that afterwards means starting again.
+                 *
+                 * Not their job where the store's own application is used: that
+                 * address was registered once by whoever runs this store, and
+                 * showing it to a buyer who cannot act on it is an instruction
+                 * to go and look for a settings screen they do not have.
                  */}
-                {isInteractiveOAuth(authMethod) && (
+                {isInteractiveOAuth(authMethod) && !usesPlatformApp && (
                   <div className="sm:col-span-2">
                     <p className="rounded-md bg-surface-sunken p-3 text-xs leading-relaxed text-ink-muted">
                       {t('erp.wizard.redirectUriBody')}
@@ -723,12 +804,28 @@ export function ErpWizardPage(): React.JSX.Element {
                     </p>
                   </div>
                 )}
+
+                {/*
+                  * Nothing else belongs in this block for a store-registered
+                  * application: `SecretFields` below already says the one thing
+                  * there is to say, which is that there is nothing to enter.
+                  */}
               </div>
             )}
 
             <SecretFields
               authMethod={authMethod}
-              hidden={loaded !== undefined && isFullConnection(loaded) && loaded.oauthUsesPlatformApp}
+              /*
+               * `usesPlatformApp` as well as the saved flag, so a monday
+               * connection being created for the FIRST time stops asking for a
+               * client id and secret too. The saved flag only answers for a
+               * connection that already exists, which left the one case where
+               * the buyer has nothing to paste asking them to paste something.
+               */
+              hidden={
+                usesPlatformApp ||
+                (loaded !== undefined && isFullConnection(loaded) && loaded.oauthUsesPlatformApp)
+              }
               stored={loaded !== undefined && isFullConnection(loaded) ? loaded.credentials : []}
               values={secrets}
               onChange={(key, value) => { setSecrets((current) => ({ ...current, [key]: value })); }}
@@ -1380,13 +1477,53 @@ function MappingStep({
     }
   }, [loaded, rows]);
 
+  /*
+   * What the server said was wrong, field by field.
+   *
+   * The refusal carries a detail per offending row - which field, and why - and
+   * showing only its one-line summary threw all of that away. "Some of the
+   * field mapping needs attention" in a toast, over a table of twenty rows, is
+   * a puzzle rather than a message.
+   */
+  const [issues, setIssues] = useState<string[]>([]);
+
   const save = useMutation({
-    mutationFn: () => customerErpApi.saveMappings(connectionId, rows ?? []),
+    mutationFn: () =>
+      customerErpApi.saveMappings(
+        connectionId,
+        /*
+         * Rows the buyer emptied are dropped rather than sent.
+         *
+         * There is no delete button on this table - clearing the box IS the
+         * gesture for "I do not have this field" - and a row with neither a
+         * path nor a fixed value is refused by the server. So the two disagreed
+         * about what an empty box meant, and the buyer got a validation error
+         * for doing the only thing the screen let them do. Dropping them here
+         * makes the gesture mean what it looks like; a REQUIRED field dropped
+         * this way is still caught, by name, when the connection is switched
+         * on.
+         */
+        (rows ?? []).filter((row) =>
+          row.entity === 'STATUS'
+            ? (row.erpValue ?? '').trim().length > 0
+            : row.erpPath.trim().length > 0 || (row.constantValue ?? '').trim().length > 0,
+        ),
+      ),
     onSuccess: () => {
+      setIssues([]);
       void queryClient.invalidateQueries({ queryKey: erpKeys.connection(connectionId) });
       onNext();
     },
-    onError: (error: unknown) => { toast.error(errorMessage(t, error)); },
+    onError: (error: unknown) => {
+      setIssues(
+        error instanceof ApiError
+          ? error.details
+              .map((detail) => detail.message)
+              .filter((message): message is string => message !== undefined)
+          : [],
+      );
+      toast.error(errorMessage(t, error));
+    },
   });
 
   const test = useMutation({
@@ -1501,6 +1638,23 @@ function MappingStep({
                 ) : (
                   <span className="text-danger">{t('erp.wizard.notFound')}</span>
                 )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {issues.length > 0 && (
+        <div className="mb-5 rounded-md bg-warning-soft p-3">
+          <p className="flex items-center gap-2 text-sm font-medium text-ink">
+            <AlertIcon aria-hidden="true" className="h-4 w-4 text-warning" />
+            {t('erp.wizard.mappingRejected')}
+          </p>
+
+          <ul className="mt-2 list-disc space-y-1 pl-5">
+            {issues.map((issue) => (
+              <li key={issue} className="text-xs leading-relaxed text-ink">
+                {issue}
               </li>
             ))}
           </ul>

@@ -1221,7 +1221,21 @@ export async function applyInboundEvent(input: {
   organizationId: string;
   correlationId: string;
   event: InboundEvent;
-}): Promise<{ applied: boolean; note: string }> {
+}): Promise<{
+  applied: boolean;
+  note: string;
+  /**
+   * How many of the event's records were actually recorded.
+   *
+   * Only an inventory feed carries more than one, and only it sets this. The
+   * caller counting a whole PAGE as applied because one record in it matched
+   * is how a sync that recorded a single product reported "recorded 100" - a
+   * hundredfold overstatement in the one log this feature promises can always
+   * say what happened. Absent means "the event was one subject", and the caller
+   * falls back to the record count.
+   */
+  count?: number;
+}> {
   const policy = await policyFor(input.connectionId);
 
   // An OUTBOUND-only connection writes to their ERP and never reads from it.
@@ -1373,7 +1387,11 @@ export async function applyInboundEvent(input: {
         applied += 1;
       }
 
-      return { applied: applied > 0, note: `${applied} stock records recorded.` };
+      return {
+        applied: applied > 0,
+        note: `${applied} stock records recorded.`,
+        count: applied,
+      };
     }
   }
 }

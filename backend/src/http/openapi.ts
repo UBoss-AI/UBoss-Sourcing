@@ -1433,9 +1433,23 @@ const OPERATIONS: Readonly<Record<string, OperationDoc>> = Object.freeze({
   'POST /api/v1/account/integrations/erp/oauth/callback': {
     summary: 'Finish an OAuth authorisation',
     description:
-      'The state must be unused, unexpired, and belong to the member who started the flow - ' +
-      'without that last check a leaked authorisation URL would let somebody bind their own ' +
-      'ERP account to this buyer\'s connection.',
+      'Posted by the storefront callback page, which is where the ERP redirects the browser. ' +
+      '`connectionId` is optional and normally omitted: the ERP returns only `code` and ' +
+      '`state`, so the connection is recovered from the state this server issued. The state ' +
+      'must be unused, unexpired, belong to that connection, and belong to the member who ' +
+      'started the flow - without that last check a leaked authorisation URL would let ' +
+      'somebody bind their own ERP account to this buyer\'s connection.',
+    tags: ['Customer ERP'],
+    auth: 'customer',
+  },
+  'POST /api/v1/account/integrations/erp/connections/:id/reconcile': {
+    summary: 'Compare the buyer’s catalogue against ours',
+    description:
+      'Three sets: products in both, codes only in their system, and products only here. A ' +
+      'POST because it walks their paged feed through the connector the sync uses, and a GET ' +
+      'would be re-run by every refresh and prefetch. Matching is on SKU exactly - a ' +
+      'reconciliation that guessed would attach a stock figure to the wrong product and be ' +
+      'believed. Counts are complete; the rows are a sample.',
     tags: ['Customer ERP'],
     auth: 'customer',
   },

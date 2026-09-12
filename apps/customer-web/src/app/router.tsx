@@ -336,6 +336,24 @@ export const router = createBrowserRouter([
             ),
           },
           {
+            /*
+             * Where a buyer's own ERP sends them back after they authorise.
+             *
+             * The path is registered with that ERP and echoed on the token
+             * exchange, so it is not a route that can be renamed freely - the
+             * server names the same string in `oauth.service.ts`, and both have
+             * to move together. Two static segments, so React Router ranks it
+             * above `:id/edit` rather than matching a connection called
+             * "oauth".
+             */
+            path: 'integrations/erp/oauth/callback',
+            ...accountPage(() =>
+              import('@/pages/account/erp/ErpOAuthCallbackPage').then(
+                (m) => m.ErpOAuthCallbackPage,
+              ),
+            ),
+          },
+          {
             path: 'integrations/erp/:id',
             ...accountPage(() =>
               import('@/pages/account/erp/ErpConnectionPage').then((m) => m.ErpConnectionPage),

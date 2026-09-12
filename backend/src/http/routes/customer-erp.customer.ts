@@ -60,10 +60,12 @@ import {
 import {
   assertOAuthConfigured,
   completeAuthorization,
+  connectionIdForState,
   redirectUri,
   startAuthorization,
 } from '../../modules/customer-erp/oauth.service.js';
 import { listSyncJobs, syncNow } from '../../modules/customer-erp/polling.service.js';
+import { reconcile } from '../../modules/customer-erp/reconcile.service.js';
 import { decideApproval, listApprovals } from '../../modules/customer-erp/approval.service.js';
 import { listWebhookEvents } from '../../modules/customer-erp/webhook.service.js';
 import { prisma } from '../../infra/prisma.js';
@@ -260,7 +262,22 @@ export function registerCustomerErpRoutes(app: FastifyInstance): Promise<void> {
         label: preset.label,
         connector: preset.connector,
         apiStyle: preset.apiStyle,
-        authMethods: preset.authMethods,
+        /*
+         * What this vendor accepts, narrowed to what its connector will accept
+         * in THIS environment.
+         *
+         * A preset is a catalogue entry - it knows monday does OAuth and
+         * personal tokens, and nothing about sandbox or production. The
+         * connector is the one that knows a personal token is refused on a
+         * production connection, and that the OAuth path only exists where the
+         * operator has registered an app. The screen prefers the preset's list
+         * over the connector's, so leaving this unnarrowed is what let a buyer
+         * choose production with a personal token, fill in every step, and be
+         * refused at the end by a rule that was knowable at the first one.
+         */
+        authMethods: preset.authMethods.filter((method) =>
+          connectorFor(preset.connector).defaults(environment).authMethods.includes(method),
+        ),
         baseUrlExample: preset.baseUrlExample,
         notes: preset.notes,
         // Rendered as a warning. See `vendor-presets.ts` for why this is a
@@ -280,6 +297,11 @@ export function registerCustomerErpRoutes(app: FastifyInstance): Promise<void> {
           mappings: defaults.mappings,
           networkNotes: defaults.networkNotes,
           supportsWebhooks: defaults.supportsWebhooks,
+          // Null for everything the buyer hosts themselves, in which case the
+          // screen keeps asking for them. Set for a SaaS with one published
+          // pair, in which case the screen fills them in and stops asking.
+          oauthAuthorizationUrl: defaults.oauthAuthorizationUrl,
+          oauthTokenUrl: defaults.oauthTokenUrl,
         };
       }),
       platformFields: PLATFORM_FIELDS,
@@ -724,6 +746,29 @@ export function registerCustomerErpRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  /**
+   * Compare their catalogue against ours, and say where the two disagree.
+   *
+   * A POST because it calls their system - several times, over a paged feed -
+   * and a GET that did that would be re-run by every refresh, back button and
+   * link prefetcher. Rate limited accordingly: this is a question somebody asks
+   * when they are looking at it, not something a screen polls.
+   */
+  app.post(
+    '/connections/:id/reconcile',
+    { preHandler: requireFeature, config: { rateLimit: { max: 10, timeWindow: '10 minutes' } } },
+    async (request, reply) => {
+      const { id } = connectionIdParam.parse(request.params);
+      const membership = await membershipFor(request);
+
+      // Through the tenant-scoped loader first, so another organisation's
+      // connection id is a 404 before a single call leaves this server.
+      await getConnection(membership, id);
+
+      return reply.status(200).send({ reconciliation: await reconcile(membership, id) });
+    },
+  );
+
   // --- OAuth --------------------------------------------------------------
 
   /**
@@ -777,6 +822,18 @@ export function registerCustomerErpRoutes(app: FastifyInstance): Promise<void> {
    * itself. That keeps the authorisation code out of this server's access logs
    * as a GET query parameter, and lets the storefront render a result the buyer
    * can read instead of a JSON body.
+   *
+   * `connectionId` is optional because the ERP does not send it back. An
+   * authorisation is a full-page redirect to a third party, so the only things
+   * that survive it are the query parameters that third party chose to return:
+   * `code` and `state`. Requiring the caller to remember the connection meant
+   * remembering it in the browser across that redirect, and a provider that
+   * opens the callback in a new tab - or a buyer who restores the session -
+   * would lose it and strand a perfectly good authorisation. The state row
+   * already knows which connection it belongs to, so it is asked. Nothing is
+   * relaxed by this: the connection is still loaded through the tenant-scoped
+   * loader, and `completeAuthorization` still refuses a state that does not
+   * match the connection or was not started by the member finishing it.
    */
   app.post(
     '/oauth/callback',
@@ -784,18 +841,21 @@ export function registerCustomerErpRoutes(app: FastifyInstance): Promise<void> {
     async (request, reply) => {
       const body = z
         .object({
-          connectionId: z.string().length(26),
+          connectionId: z.string().length(26).optional(),
           state: z.string().min(16).max(128),
           code: z.string().min(4).max(4096),
         })
         .parse(request.body);
 
       const membership = await membershipFor(request);
-      await getConnection(membership, body.connectionId);
+
+      const connectionId = body.connectionId ?? (await connectionIdForState(body.state));
+
+      await getConnection(membership, connectionId);
 
       const connection = await prisma.customerErpConnection.findFirstOrThrow({
         where: {
-          id: body.connectionId,
+          id: connectionId,
           organizationId: membership.organizationId,
           deletedAt: null,
         },
@@ -818,6 +878,8 @@ export function registerCustomerErpRoutes(app: FastifyInstance): Promise<void> {
         customerProfileId: membership.customerProfileId,
       });
 
+      const view = await getConnection(membership, connectionId);
+
       return reply.status(200).send({
         authorized: true,
         // What the ERP actually granted, which is not always what was asked
@@ -825,7 +887,7 @@ export function registerCustomerErpRoutes(app: FastifyInstance): Promise<void> {
         // write" rather than discovering it at the first purchase order.
         grantedScope: result.scope,
         expiresAt: result.expiresAt?.toISOString() ?? null,
-        connection: await getConnection(membership, body.connectionId),
+        connection: view,
       });
     },
   );

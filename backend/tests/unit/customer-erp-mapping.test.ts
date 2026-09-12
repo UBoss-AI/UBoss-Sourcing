@@ -23,6 +23,7 @@ import {
   decimalToMinor,
   extractRecords,
   minorToDecimal,
+  mappedEntitiesFor,
   missingRequiredFields,
   readPath,
   statusFromErp,
@@ -386,5 +387,48 @@ describe('the published field list', () => {
         expect(spec.label.length).toBeGreaterThan(2);
       }
     }
+  });
+});
+
+/**
+ * Which entities a connection has to have mapped before it can be switched on.
+ *
+ * The regression here is a connection that only READS. Every entity is gated on
+ * the policy flag that decides whether it is ever sent - except ORDER, which
+ * was not, and being the only ungated one made a read-only connection
+ * impossible to activate: a buyer whose ERP is a product list, with purchase
+ * orders switched off, was still required to map an order number, a currency
+ * and a line quantity to a board that has none of the three.
+ */
+describe('mappedEntitiesFor', () => {
+  it('holds a connection to purchase orders when it has said nothing', () => {
+    // The endpoint check beside it defaults the same way. Purchase orders are
+    // what the feature is for; switching them off is the deliberate act.
+    expect(mappedEntitiesFor(null)).toEqual(['ORDER']);
+    expect(mappedEntitiesFor({})).toEqual(['ORDER']);
+  });
+
+  it('drops the order mapping once purchase orders are switched off', () => {
+    expect(mappedEntitiesFor({ sendPurchaseOrders: false })).toEqual([]);
+  });
+
+  it('asks only for what a read-only stock connection actually uses', () => {
+    const entities = mappedEntitiesFor({ sendPurchaseOrders: false, syncInventory: true });
+
+    expect(entities).toEqual(['INVENTORY']);
+    // The point of the whole thing: SKU is demanded, an order number is not.
+    expect(missingRequiredFields([], entities)).toEqual(['SKU / material number']);
+    expect(missingRequiredFields([], entities)).not.toContain('Our order number');
+  });
+
+  it('adds each optional entity only when its own flag is on', () => {
+    expect(
+      mappedEntitiesFor({
+        sendPurchaseOrders: true,
+        sendInvoices: true,
+        syncInventory: true,
+        sendPaymentReferences: true,
+      }),
+    ).toEqual(['ORDER', 'INVOICE', 'INVENTORY', 'PAYMENT']);
   });
 });

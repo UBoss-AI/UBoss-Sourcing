@@ -281,6 +281,13 @@ bullets([
   'Keep customer-supplied credentials encrypted and protected.',
   'The application rejects unsafe outbound destinations in normal production configuration.',
 ]);
+p('Some systems ask the customer to sign in rather than to type a password into UBOSS. For those, the connection screen shows a Connect button. The customer presses it, is taken to their own system, signs in there, and approves the list of permissions being asked for. Their system then sends them back to UBOSS, the connection is ready to test, and UBOSS is told which permissions were actually granted — so a customer whose administrator allowed less than was asked for is told straight away rather than at the first order that quietly fails.');
+p('A customer who changes their mind and cancels on that screen is told nothing was connected, and can start again whenever they are ready. The same button later reads Sign in again, for when their system’s access is withdrawn or expires.');
+p('A connection does not have to send anything. A customer whose own system is a product or price list, rather than a purchasing system, can switch every outgoing item off and use the connection only to read from their system. When they do, UBOSS asks them to match up only the information that connection actually uses — it does not ask a customer to describe a purchase order they have said they will never send.');
+p('A Product matching screen answers the question customers ask first: do both systems hold the same products? Pressing Check now reads the full product list from their system and compares it with their catalogue in UBOSS. It changes nothing — it only looks. The answer is three counts: products found in both systems, products their system has that are not sold here, and products here that their system has never mentioned. That last group is the one worth acting on, because UBOSS will never receive figures for them.');
+p('Products are matched on the product code, exactly as written on each side. Where nothing matches at all, the screen says so in plain words and explains the usual reason: the two systems use different codes for the same item. The customer can then either use the same code on both sides, or point the connection at whichever column of their system holds the code used here.');
+p('When a connection reads a list from the customer’s system, the activity record reports how many records were read and how many were recorded against products in UBOSS. A record that matches nothing here is counted as read but not recorded, so the two numbers together say plainly how much of their list UBOSS recognised.');
+p('Setting up a live connection to monday.com needs the store to have registered an application with monday.com first. Where the store has not, the setup wizard says so on its first step and offers a test connection instead, rather than letting the customer fill in every step and be refused at the end.');
 page();
 
 // 7
@@ -521,6 +528,7 @@ table(['Optional capability', 'When it appears / what is required'], [
   ['AutoPay', 'Requires both AutoPay features and a compatible payment-provider configuration.'],
   ['Admin ERP', 'Requires ERP integration feature and configured connection.'],
   ['Customer ERP', 'Requires customer integration path/configuration and safe endpoint validation.'],
+  ['Live monday.com connections', 'Requires the store to register an application with monday.com and hold its details in configuration. Without one, customers can still set up a monday.com test connection.'],
   ['Warehouse map provider', 'Works with configured Google Maps, vector-map or raster-tile settings; the screen still works without a map background.'],
   ['AI assistant / image search', 'Requires assistant configuration; guest AI access is separately configurable.'],
   ['Admin location gate', 'Can be enabled for staff sign-in; production deployment needs HTTPS for browser location access.'],

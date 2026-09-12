@@ -70,10 +70,32 @@ const MONDAY_API_PATH = '/v2';
  */
 const MONDAY_API_VERSION = '2024-10';
 
+/**
+ * monday's OAuth addresses.
+ *
+ * The same two for every installation of monday there is, which is why they are
+ * constants here rather than something the buyer types on the connection step.
+ * They are not on `api.monday.com` - authorisation lives on `auth.monday.com` -
+ * so a buyer left to work them out from the base address gets them wrong.
+ */
+const MONDAY_AUTHORIZE_URL = 'https://auth.monday.com/oauth2/authorize';
+const MONDAY_TOKEN_URL = 'https://auth.monday.com/oauth2/token';
+
 export const mondayConnector: Connector = {
   system: 'MONDAY',
 
   defaults(environment): ConnectorDefaults {
+    /*
+     * Only methods that would actually be ACCEPTED, for this environment and
+     * this deployment.
+     *
+     * Empty is a real answer and the screen has to be able to render it: a
+     * production connection on a deployment with no registered app cannot be
+     * made at all, and saying so on the first step is the whole point. Listing
+     * the personal token here instead - the one thing `validateConfiguration`
+     * refuses outright below - offered a choice that was never a choice, and
+     * only admitted it after the buyer had filled in every other step.
+     */
     const authMethods =
       env.MONDAY_OAUTH_CLIENT_ID.length > 0
         ? // OAuth first wherever the operator has registered an app, because it
@@ -83,7 +105,7 @@ export const mondayConnector: Connector = {
             : (['OAUTH2_AUTHORIZATION_CODE', 'MONDAY_PERSONAL_TOKEN'] as const))
         : // No registered app: only the personal-token path exists, and it is
           // sandbox-only, so a production connection cannot be made at all.
-          (['MONDAY_PERSONAL_TOKEN'] as const);
+          (environment === 'PRODUCTION' ? ([] as const) : (['MONDAY_PERSONAL_TOKEN'] as const));
 
     return {
       apiStyle: 'GRAPHQL',
@@ -130,6 +152,11 @@ export const mondayConnector: Connector = {
         'you want purchase orders created on. We ask only for the permissions listed on ' +
         'that screen.',
       supportsWebhooks: true,
+      // monday serves one authorisation endpoint and one token endpoint for
+      // every installation on earth, so asking a buyer to type them is asking
+      // them to get one of two fixed strings wrong.
+      oauthAuthorizationUrl: MONDAY_AUTHORIZE_URL,
+      oauthTokenUrl: MONDAY_TOKEN_URL,
     };
   },
 
@@ -218,13 +245,28 @@ export const mondayConnector: Connector = {
       message: `Connected to monday.com and read the board "${
         asText(readPath(board, 'name')) ?? context.monday.boardId ?? 'unnamed'
       }".`,
-      // The columns are the useful half of this for the mapping step, and the
-      // one item shows the buyer what their own data looks like.
+      /*
+       * The sample serves two readers, and the shape has to suit the stricter
+       * one.
+       *
+       * A person reads it to find out what their own board looks like, and the
+       * mapping check reads it to decide whether `text2` finds anything. So the
+       * item is FLATTENED to the top level - the same shape `readInventory`
+       * builds and the same shape the mapping is written against - rather than
+       * left as monday's `column_values` array, which no dotted path can reach
+       * into and which therefore reported every mapped field as missing.
+       *
+       * The board's own reference data sits under underscored keys so a column
+       * called `board` or `groups` cannot shadow it, and so a buyer reading the
+       * sample can tell at a glance which half is theirs.
+       */
       sample: redactForLedger({
-        board: { id: readPath(board, 'id'), name: readPath(board, 'name') },
-        columns: readPath(board, 'columns'),
-        groups: readPath(board, 'groups'),
-        item: readPath(board, 'items_page.items.0'),
+        ...flattenItem(readPath(board, 'items_page.items.0')),
+        _board: { id: readPath(board, 'id'), name: readPath(board, 'name') },
+        // The columns are the useful half of this for the mapping step: each
+        // one carries the id a mapping names beside the title the buyer sees.
+        _columns: readPath(board, 'columns'),
+        _groups: readPath(board, 'groups'),
       }),
     };
   },
@@ -659,13 +701,24 @@ function statusColumn(context: ConnectorContext, platformStatus: string): Record
   return { [columnId]: { label } };
 }
 
-function toInventoryRecord(
-  context: ConnectorContext,
-  item: unknown,
-): InboundInventoryRecord {
-  // monday returns columns as a list of `{id, text, value}`, which is not a
-  // shape a dotted path can address. Flattened first, so the buyer's mapping
-  // can say `text2` and mean the column called `text2`.
+/**
+ * One monday item, in the shape a mapping can actually address.
+ *
+ * monday returns columns as a list of `{id, text, value}`, which is not a shape
+ * a dotted path can reach into: there is no `text2` to find, only an entry
+ * somewhere in an array whose `id` happens to be `text2`. Flattening turns the
+ * list into the object the buyer's mapping is written against, so `text2` means
+ * the column called `text2`.
+ *
+ * Shared by the inventory read and by `test()` on purpose. The mapping check is
+ * only worth anything if it is run against the SAME shape the real sync will
+ * produce - checking a mapping against one shape and then syncing from another
+ * reports a mapping as sound and then finds nothing, or the reverse, which is
+ * what it did here: every monday mapping came back "not found", the required
+ * SKU with it, so the check could never pass and the connection could never be
+ * switched on.
+ */
+function flattenItem(item: unknown): Record<string, unknown> {
   const flattened: Record<string, unknown> = { name: readPath(item, 'name') };
 
   const columns = readPath(item, 'column_values');
@@ -676,6 +729,15 @@ function toInventoryRecord(
       flattened[id] = readPath(column, 'text');
     }
   }
+
+  return flattened;
+}
+
+function toInventoryRecord(
+  context: ConnectorContext,
+  item: unknown,
+): InboundInventoryRecord {
+  const flattened = flattenItem(item);
 
   const values = applyInbound(context.mappings, 'INVENTORY', flattened, {
     currencyExponent: context.currencyExponent,

@@ -125,13 +125,38 @@ async function resolveClient(
   return { clientId: primary.clientId, clientSecret: primary.clientSecret ?? null };
 }
 
-/** Where an ERP sends the buyer back to. Registered by them, compared by us. */
+/**
+ * The storefront route that finishes an authorisation.
+ *
+ * Declared here rather than in the frontend alone because both sides have to
+ * agree on it: the page lives at this path in `apps/customer-web`, and this is
+ * the address a buyer registers with their own ERP. Changing one without the
+ * other breaks every authorisation at its last step.
+ */
+export const OAUTH_CALLBACK_PATH = '/account/integrations/erp/oauth/callback';
+
+/**
+ * Where an ERP sends the buyer back to. Registered by them, compared by us.
+ *
+ * A STOREFRONT page, and deliberately not this API. The ERP redirects a
+ * BROWSER here with `code` and `state` in the query string; the page that
+ * receives them POSTs them to the API on the buyer's own authenticated
+ * session. Pointing this at the API instead sends that browser to a POST-only
+ * route - a 404 at the end of an authorisation that otherwise worked - and
+ * would put the authorisation code in this server's access log as a GET
+ * parameter, which is the thing the POST callback exists to avoid.
+ *
+ * The value reaches the ERP twice: as `redirect_uri` on the authorisation URL,
+ * and again on the token exchange, where a mismatch is usually rejected. It is
+ * stored on the state row, so a deployment whose public address changes
+ * mid-flow still redeems with the address it actually sent.
+ */
 export function redirectUri(): string {
   if (env.CUSTOMER_ERP_OAUTH_REDIRECT_URI.length > 0) {
     return env.CUSTOMER_ERP_OAUTH_REDIRECT_URI;
   }
 
-  return `${env.API_PUBLIC_URL.replace(/\/+$/, '')}/api/v1/account/integrations/erp/oauth/callback`;
+  return `${env.CUSTOMER_WEB_PUBLIC_URL.replace(/\/+$/, '')}${OAUTH_CALLBACK_PATH}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -214,6 +239,39 @@ export async function startAuthorization(
     scope,
     expiresAt: expiresAt.toISOString(),
   };
+}
+
+/**
+ * Which connection a returning authorisation belongs to.
+ *
+ * The ERP sends back only what it was given - `code` and `state` - so the
+ * connection has to be recovered from one of them, and `state` is the one this
+ * server issued. Carrying it in the browser across a full-page redirect to a
+ * third party instead would mean losing it whenever that third party opens the
+ * callback in a new tab.
+ *
+ * This answers "which connection", and nothing else. The caller still loads
+ * that connection through the tenant-scoped loader, and `completeAuthorization`
+ * still re-checks the state against it - so a state token belonging to somebody
+ * else's connection gets the caller no further than a 404.
+ */
+export async function connectionIdForState(stateToken: string): Promise<string> {
+  const state = await prisma.customerErpOAuthState.findUnique({
+    where: { stateToken },
+    select: { connectionId: true },
+  });
+
+  if (state === null) {
+    // The same words `completeAuthorization` refuses with, deliberately: an
+    // unknown state and a stale one are the same problem to the buyer, and
+    // telling them apart is a way to ask this server which tokens exist.
+    throw badRequest(
+      ErrorCode.CUSTOMER_ERP_OAUTH_FAILED,
+      'That authorisation could not be completed. Start it again from the connection.',
+    );
+  }
+
+  return state.connectionId;
 }
 
 /**

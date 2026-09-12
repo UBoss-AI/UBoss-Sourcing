@@ -102,6 +102,10 @@ export const odooConnector: Connector = {
         'names the database on every request, and Odoo Online hosts several under one ' +
         'address. A self-hosted Odoo has to be reachable over HTTPS.',
       supportsWebhooks: true,
+      // Self-hosted or buyer-configured: only they know where their own
+      // installation serves OAuth, so there is nothing sensible to default to.
+      oauthAuthorizationUrl: null,
+      oauthTokenUrl: null,
     };
   },
 
