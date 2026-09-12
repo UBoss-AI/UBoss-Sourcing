@@ -6202,6 +6202,11 @@ UBoss-Software/
 ├── PROJECT-GUIDE.hinglish.md       Same thing in Hinglish (not committed)
 ├── README.md                       Configuration, markets, payments, languages
 │
+├── scripts/
+│   ├── dev-stack.ps1               ← Start, stop and check the whole dev stack
+│   ├── build-feature-guide-doc.mjs ← The plain-language feature guide, as code
+│   └── auto-translate.mjs          New i18n keys into the other seven languages
+│
 ├── backend/
 │   ├── prisma/
 │   │   ├── schema.prisma           ← THE DATABASE SHAPE. 86 models.

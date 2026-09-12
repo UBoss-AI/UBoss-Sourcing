@@ -476,7 +476,48 @@ before any commit.
 
 # Part 2 — Running it
 
-Four terminals. Leave all four open.
+## The short way
+
+One command, from the repository root, in PowerShell:
+
+```powershell
+.\scripts\dev-stack.ps1
+```
+
+It starts MariaDB (if it is not already up), the API, the worker and both
+frontends, waits for each one to actually answer, and prints where everything
+is. Run it again any time — anything already healthy is left alone.
+
+| Command | What it does |
+|---|---|
+| `.\scripts\dev-stack.ps1` | Start whatever is not running |
+| `.\scripts\dev-stack.ps1 -Status` | Report what is up. Changes nothing |
+| `.\scripts\dev-stack.ps1 -Restart` | Stop everything, start it again |
+| `.\scripts\dev-stack.ps1 -Tunnel` | Same, but frontends in tunnel mode plus ngrok (Part 3) |
+| `.\scripts\dev-stack.ps1 -Stop` | Stop the stack. MariaDB is left up |
+| `.\scripts\dev-stack.ps1 -Stop -IncludeDatabase` | Stop MariaDB too |
+
+The processes are detached and hidden, so their output goes to `.dev-logs\`
+instead of a terminal. When something fails to start the script prints the tail
+of that component's log for you.
+
+Two behaviours worth knowing:
+
+- **It judges by port, not by process.** `tsx watch` keeps its parent alive
+  after its child crashes, so a process list will happily show you an API that
+  died on boot. A process that matches but whose port is dead is treated as a
+  crash, cleared, and started again.
+- **It will not silently drop a tunnel.** If the stack is already running in
+  tunnel mode, a plain `-Restart` keeps it there. Use `-Local` to come back
+  down deliberately.
+
+If `mysqld` is somewhere other than `C:\xampp\mysql\bin\`, pass `-MysqldPath`
+and `-MysqlIni`. If the database lives on another machine, pass `-SkipDatabase`.
+
+## The long way
+
+Four terminals. Leave all four open. This is the same thing the script does,
+and it is worth doing by hand once so the moving parts are familiar.
 
 ```bash
 # Terminal 1 — API
@@ -542,8 +583,12 @@ These are **development seeds**. Delete them before the system goes live —
 
 ## Stopping
 
-`Ctrl+C` in each terminal. When a port stays stuck, or you are not sure what is
-still alive:
+```powershell
+.\scripts\dev-stack.ps1 -Stop
+```
+
+Or `Ctrl+C` in each terminal, if you started them by hand. When a port stays
+stuck, or you are not sure what is still alive:
 
 ```powershell
 Get-CimInstance Win32_Process -Filter "Name='node.exe'" |
@@ -673,8 +718,14 @@ Restart the API after changing these — environment is read once, at boot.
 
 ## Each time: start it, in this order
 
-Order matters. Local servers first, tunnel last — the other way round leaves
-ngrok connected to nothing.
+The short way, which does all five steps below in the right order:
+
+```powershell
+.\scripts\dev-stack.ps1 -Tunnel
+```
+
+By hand, order matters. Local servers first, tunnel last — the other way round
+leaves ngrok connected to nothing.
 
 ```bash
 # 1

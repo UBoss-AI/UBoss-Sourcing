@@ -30,6 +30,38 @@ added to the other. They are one document, not two.
 `SETUP.md` (how to install and run) follows the same rule when the way the
 project is started changes.
 
+## The feature guide must stay true too
+
+`output/UBOSS_Sourcing_Feature_Guide.docx` explains, in **plain language for
+people who do not read code**, every feature the product has and how each one
+works. It is what a non-technical reader is handed when they ask "what can this
+system do?", so it has to describe the product as it is today, not as it was.
+
+It is **generated**, never hand-edited. The content lives in
+`scripts/build-feature-guide-doc.mjs`; editing the `.docx` in Word is throwing
+the change away, because the next rebuild overwrites it.
+
+**Whenever a feature is added, changed or removed, edit that script and rebuild
+the document in the same piece of work:**
+
+```bash
+cd scripts && npm run guide
+```
+
+Write it the way the rest of the guide is written:
+
+- **Simple English, short sentences.** The reader is a business person, not a
+  developer. No file names, no endpoints, no table names, no jargon.
+- **Say what the person can do and what the system does back**, in that order.
+- A feature that only appears when a flag or provider is switched on goes in
+  the "Optional features" section, and says what turns it on.
+- Put it in the section it belongs to (customer, admin, warehouse, system,
+  security) rather than appending to the end, and add it to the end-to-end
+  examples if it changes how somebody actually works through a task.
+
+Same standard as the two project guides: a guide that has quietly stopped being
+true is worse than no guide, because people trust it and act on it.
+
 ## Facts about this project that are easy to get wrong
 
 - **This is a product other companies buy and run themselves.** Nothing may

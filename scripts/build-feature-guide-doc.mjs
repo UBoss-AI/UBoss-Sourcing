@@ -17,9 +17,16 @@ import {
   WidthType,
 } from '../.ppt-build/node_modules/docx/dist/index.mjs';
 import { writeFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const out = resolve('output/UBOSS_Sourcing_Feature_Guide.docx');
+// Resolved from this file, not from the current directory. The guide has to be
+// rebuilt every time a feature lands, so it must not matter whether the person
+// rebuilding it is standing in the repository root or in scripts/ - a
+// cwd-relative path there writes the document into the wrong folder, or fails,
+// and the visible result is a guide that silently did not change.
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const out = resolve(repoRoot, 'output/UBOSS_Sourcing_Feature_Guide.docx');
 const C = { navy: '102A43', blue: '2563EB', teal: '059669', purple: '7C3AED', orange: 'D94801', ink: '1E293B', muted: '64748B', pale: 'F8FAFC', line: 'CBD5E1', white: 'FFFFFF' };
 const children = [];
 

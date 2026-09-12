@@ -4,6 +4,14 @@
   "private": true,
   "type": "module",
   "description": "Repository maintenance scripts. Kept out of both apps because they belong to neither and should not ship in either bundle.",
+  "scripts": {
+    "guide": "node build-feature-guide-doc.mjs",
+    "dev": "powershell -ExecutionPolicy Bypass -File ./dev-stack.ps1",
+    "dev:tunnel": "powershell -ExecutionPolicy Bypass -File ./dev-stack.ps1 -Tunnel",
+    "dev:status": "powershell -ExecutionPolicy Bypass -File ./dev-stack.ps1 -Status",
+    "dev:restart": "powershell -ExecutionPolicy Bypass -File ./dev-stack.ps1 -Restart",
+    "dev:stop": "powershell -ExecutionPolicy Bypass -File ./dev-stack.ps1 -Stop"
+  },
   "devDependencies": {
     "deepl-node": "^1.19.0"
   }

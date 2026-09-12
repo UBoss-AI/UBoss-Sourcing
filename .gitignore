@@ -31,3 +31,10 @@ output/
 # repository are tracked, and a blanket pattern would quietly keep the next
 # one out of a commit somebody meant to make.
 UBOSS_Sourcing_Screen_Flow_Poster_2026.pptx
+
+# Logs from scripts/dev-stack.ps1. Each of the five processes it starts is
+# detached with its stdout and stderr redirected here, because a hidden window
+# has nowhere else to put them - and those files are the whole reason a crash
+# on boot is diagnosable rather than just a Vite proxy error. Per-machine
+# scratch, and they contain local connection strings and seed credentials.
+.dev-logs/
