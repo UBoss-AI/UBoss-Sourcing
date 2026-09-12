@@ -366,7 +366,6 @@ export function mapWorksheet(sheet: Worksheet): MappedSheet {
         brand,
         sterilisation,
         packingType,
-        productCode,
       }),
       raw,
       displayName: displayNameFor({ genericName, model, brand, productCode }),

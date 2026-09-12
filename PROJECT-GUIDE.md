@@ -5960,11 +5960,47 @@ sterilisation and packing type. The **model or size** is deliberately not in
 that key — varying it is exactly what makes a row a variant. So seven gauges of
 one branded cannula become one listing with seven sizes rather than seven
 near-identical listings side by side in a grid. The workbook's 734 usable rows
-become **340 products and 734 variants**.
+become **223 products and 734 variants**.
 
 Packing type *is* in the key, because the same syringe is listed as a blister
 pack and as a ribbon pack with different barcodes and different carton sizes.
 Those are two things to order, not one thing described twice.
+
+**The product code is not in the key, and that one was learned the hard way.**
+It was originally the fallback for a row whose column D is blank — and a
+product code is unique per *row* by design, so the fallback quietly turned
+every unnamed row into a product of its own. Eight safety needles differing
+only in gauge came out as eight identical cards; the Easy Flush ribbon
+syringes as forty. A hundred and forty rows of the workbook carry no generic
+name, and all of them were affected. With no code in the key an unnamed row
+groups on its category, brand, sterilisation and packing — which is what a
+buyer means by "the same product" — and its gauge or fill becomes a size under
+it. That correction alone took the catalogue from 340 listings to 223.
+
+Two more things keep a grid free of cards that read alike:
+
+- **Punctuation does not make a second brand.** `normaliseForMatch` reduces
+  runs of punctuation to a single space, so the source's "Easy Flush(Balmung)"
+  and "Easy Flush (Balmung)" are one brand rather than two. On a
+  character-for-character comparison they split one product into four listings.
+- **A name that would repeat gains what separated it.** Three products of one
+  brand that differ only in packing are genuinely three things to order, and
+  they were all called "Flush Syringe · Easy Flush". `disambiguateNames` runs
+  over the finished plan and appends the packing type — then the sterilisation
+  if that is still not enough — because "is this name unique" is not a question
+  one family can answer about itself.
+
+### Changing a grouping rule
+
+A variant is found by its own fingerprint, which does not depend on how rows
+are grouped. So correcting a grouping rule re-points existing variants onto
+their new product — `productId` is in the variant *update*, not just the
+create, for exactly this — and leaves the old products holding nothing.
+
+The importer never deletes, so those are **reported rather than removed**: the
+run ends with a "Products left with nothing to sell" section naming each one,
+for an administrator to archive. An empty product is a listing with nothing in
+it, and it stays published until somebody acts on it.
 
 ### Column N: reading "how many are in a box"
 
@@ -6020,7 +6056,7 @@ Every section is present even when its count is zero, so a reader can tell
 "nothing was wrong" from "that check did not run":
 
 ```
-Categories detected      22      Products created  340
+Categories detected      22      Products created  223
 Candidate product rows   736     Variants created  734
 Rows skipped             0       Images changed    0
 Exact duplicates skipped 2       Prices overwritten 0
@@ -6169,7 +6205,7 @@ second run must not stack one on the other.
 
 One upload per photograph, not per product — two hundred cannulae share a single
 `media_assets` row, matched on the checksum the storage driver computes. On the
-catalogue this was written against: **240 products photographed from 13
+catalogue this was written against: **121 products photographed from 13
 uploads.**
 
 ### What is still unphotographed

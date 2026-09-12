@@ -147,6 +147,21 @@ export interface SheetImportReport {
   /** Only populated when the run was asked to publish. */
   published: number;
   publishRefused: { sku: string; name: string; reasons: string[] }[];
+
+  /**
+   * Imported products left holding no variants at all.
+   *
+   * Almost always the aftermath of a grouping rule changing: a variant is
+   * found by its own fingerprint, which does not depend on how rows are
+   * grouped, so correcting the rule re-points every variant onto its new
+   * product and the old one is left empty. An empty product is a listing with
+   * nothing to sell, and it stays published until somebody acts on it.
+   *
+   * Reported rather than deleted, because this importer never deletes - see
+   * the header. Archiving them is a decision for an administrator, and the
+   * report is how they find out there is one to take.
+   */
+  emptiedProducts: { sku: string; name: string }[];
 }
 
 // ---------------------------------------------------------------------------
@@ -173,6 +188,56 @@ interface PlannedProduct {
   attributes: { name: string; value: string; isFilterable: boolean }[];
   variants: PlannedVariant[];
   existingProductId: string | null;
+  /** Kept for `disambiguateNames`, which runs once the whole plan exists. */
+  packingType: string | null;
+  sterilisation: string | null;
+}
+
+/**
+ * Give two listings that would read identically something to tell them apart.
+ *
+ * A department can hold three products of one brand that differ only in how
+ * they are packed - blistered, ribboned, and in a peel-open pouch. Those are
+ * genuinely three things to order, with three barcodes and three carton sizes,
+ * so the grouping is right to keep them apart. But all three are called
+ * "Flush Syringe · Easy Flush", and three cards reading the same words is
+ * exactly the redundancy a buyer complains about.
+ *
+ * So whatever separated them in the key gets added to the name. Packing first,
+ * because it is what usually differs and what a buyer recognises; sterilisation
+ * second, for the rarer case. Anything still identical after both is left
+ * alone - it has a distinct SKU and slug, and inventing a further suffix would
+ * be decoration rather than information.
+ *
+ * Runs over the finished plan rather than per family, because "is this name
+ * unique" is not a question one family can answer about itself.
+ */
+function disambiguateNames(products: PlannedProduct[]): void {
+  const suffixes: ((product: PlannedProduct) => string | null)[] = [
+    (product) => product.packingType,
+    (product) => product.sterilisation,
+  ];
+
+  for (const suffix of suffixes) {
+    const byName = new Map<string, PlannedProduct[]>();
+    for (const product of products) {
+      const key = normaliseForMatch(product.name);
+      byName.set(key, [...(byName.get(key) ?? []), product]);
+    }
+
+    for (const clashing of byName.values()) {
+      if (clashing.length < 2) continue;
+
+      for (const product of clashing) {
+        const extra = suffix(product);
+        if (extra === null) continue;
+        // Only when it is not already in there: a product named after its
+        // packing would otherwise say it twice.
+        if (normaliseForMatch(product.name).includes(normaliseForMatch(extra))) continue;
+        product.name = `${product.name} · ${titleCase(extra)}`.slice(0, 255);
+      }
+    }
+  }
 }
 
 /**
@@ -397,7 +462,7 @@ async function plan(options: SheetImportOptions): Promise<{
     // The family name drops the model, because the model is what the variants
     // vary by. "I.V. Cannula 14G" as a product name with six other gauges
     // underneath it reads as a mistake.
-    const familyName = familyNameFor(head);
+    const familyName = familyNameFor(head, familyRecords.length);
 
     const status = normaliseForMatch(head.internalStatus);
     const unavailabilityReason = NOT_FOR_SALE_STATUSES.get(status) ?? null;
@@ -422,10 +487,16 @@ async function plan(options: SheetImportOptions): Promise<{
     addAttribute(ATTRIBUTE_SHELF_LIFE, head.shelfLife === null ? null : titleCase(head.shelfLife), true);
     addAttribute(ATTRIBUTE_PACK_SIZE, packSummary, false);
 
+    // The category, not the first row's product code, when there is no generic
+    // name. A family of eight safety needles has eight product codes and no
+    // reason to be called after whichever one the sheet listed first - and the
+    // SKU is on every card, so an arbitrary one is read as the product's.
+    // Matches what `familyNameFor` picks as the noun, so the SKU and the name
+    // describe the same thing.
     const sku =
       existing?.sku ??
       uniqueSku(
-        [head.genericName ?? head.productCode ?? familyName, head.brand, head.packingType]
+        [head.genericName ?? head.category, head.brand, head.packingType]
           .filter((part) => part !== null)
           .join(' '),
         takenSkus,
@@ -477,8 +548,12 @@ async function plan(options: SheetImportOptions): Promise<{
       attributes,
       variants,
       existingProductId: existing?.id ?? null,
+      packingType: head.packingType,
+      sterilisation: head.sterilisation,
     });
   }
+
+  disambiguateNames(products);
 
   // --- the report -----------------------------------------------------------
   const packingNeedsReview: SheetImportReport['packingNeedsReview'] = [];
@@ -553,6 +628,7 @@ async function plan(options: SheetImportOptions): Promise<{
     priceRowsCreated: 0,
     published: 0,
     publishRefused: [],
+    emptiedProducts: [],
   };
 
   return { mapped, products, report };
@@ -587,7 +663,7 @@ function sharedFigures(packing: SheetRecord['packing']): {
  * the band the row sits under - rather than anything invented here, and
  * "Flush Syringe · Easy Flush" is a listing somebody can actually shop from.
  */
-function familyNameFor(record: SheetRecord): string {
+function familyNameFor(record: SheetRecord, familySize: number): string {
   // The category, spelled as the source spells it. "ORAL SYIRINGE" comes back
   // as "Oral Syiringe" rather than silently corrected: this is the operator's
   // own catalogue and a typo is theirs to fix in the sheet.
@@ -600,12 +676,20 @@ function familyNameFor(record: SheetRecord): string {
     return `${noun} · ${titleCase(record.brand)}`.slice(0, 255);
   }
 
-  // Neither a name nor a brand: the category alone would give every unnamed
-  // row in it the same heading. The product code is the only thing left that
-  // tells them apart, and it is appended exactly as written - a code is not
-  // prose and title case makes it unrecognisable.
-  if (record.genericName === null && record.brand === null && record.productCode !== null) {
-    return `${noun} ${record.productCode}`.slice(0, 255);
+  // Neither a name nor a brand, and nothing else in the category to group
+  // with: the category alone would give two such listings the same heading, so
+  // the size distinguishes them - "Oral Syiringe 1 ML" and "Oral Syiringe 2 ML"
+  // rather than two cards reading the same word.
+  //
+  // Only for a family of one. In a family of several the model is the variant
+  // axis, and putting the first row's size in the product name would label a
+  // listing of eight gauges after whichever one the sheet happened to list
+  // first.
+  if (record.genericName === null && record.brand === null) {
+    if (familySize === 1 && record.model !== null) {
+      return `${noun} ${record.model}`.slice(0, 255);
+    }
+    return noun.slice(0, 255);
   }
 
   return noun.slice(0, 255);
@@ -968,7 +1052,19 @@ export async function importProductSheet(options: SheetImportOptions): Promise<S
               },
             });
           } else {
-            await tx.productVariant.update({ where: { id: variantId }, data: variantData });
+            // `productId` is in the update, not just the create.
+            //
+            // A variant is found by its own fingerprint, which does not depend
+            // on how rows are grouped into products - so correcting a grouping
+            // rule leaves existing variants attached to the products the old
+            // rule made. Without this they would stay there while the new
+            // product was created empty beside them, and the catalogue would
+            // hold both. Re-pointing them is what makes a rule change something
+            // a re-import fixes rather than something a reset fixes.
+            await tx.productVariant.update({
+              where: { id: variantId },
+              data: { productId, ...variantData },
+            });
           }
 
           await writePackaging(
@@ -1037,6 +1133,17 @@ export async function importProductSheet(options: SheetImportOptions): Promise<S
     },
     { timeout: TRANSACTION_TIMEOUT_MS, maxWait: TRANSACTION_MAX_WAIT_MS },
   );
+
+  // After the writes, never inside them: a variant only lands on its new
+  // product once the transaction has committed, so asking mid-flight would
+  // count products that are about to be refilled.
+  report.emptiedProducts = (
+    await prisma.product.findMany({
+      where: { importFingerprint: { not: null }, archivedAt: null, variants: { none: {} } },
+      select: { sku: true, name: true },
+      orderBy: { name: 'asc' },
+    })
+  ).map((product) => ({ sku: product.sku, name: product.name }));
 
   if (options.publish === true) await publishImported(products, options.actor, report);
 
@@ -1193,6 +1300,22 @@ export function formatReport(report: SheetImportReport): string {
     }
     if (report.ambiguousDuplicates.length > 25) {
       lines.push(`... and ${String(report.ambiguousDuplicates.length - 25)} more.`);
+    }
+  }
+
+  if (report.emptiedProducts.length > 0) {
+    heading('Products left with nothing to sell');
+    lines.push(
+      'These carry no variants any more, which normally means a grouping rule',
+      'changed and their sizes moved to another listing. Nothing is deleted here.',
+      'Archive them in the Admin Panel, or re-run after checking the rule.',
+      '',
+    );
+    for (const product of report.emptiedProducts.slice(0, 25)) {
+      lines.push(`${product.sku}  -  ${product.name}`);
+    }
+    if (report.emptiedProducts.length > 25) {
+      lines.push(`... and ${String(report.emptiedProducts.length - 25)} more.`);
     }
   }
 

@@ -45,9 +45,27 @@ export function cleanCell(value: string | null | undefined): string | null {
   return trimmed === '' ? null : trimmed;
 }
 
-/** The comparison form of a value: case-folded and whitespace-collapsed. */
+/**
+ * The comparison form of a value: case-folded, and punctuation reduced to
+ * single spaces.
+ *
+ * The punctuation half is not tidiness. The source carries one brand written
+ * both "Easy Flush(Balmung)" and "Easy Flush (Balmung)", and on a
+ * character-for-character comparison those are two brands - which split one
+ * product into four listings that a buyer reads as four identical cards. A
+ * hand-kept sheet will always do this somewhere, and a space before a bracket
+ * is not a fact about the product.
+ *
+ * It is safe for the identity fingerprint because nothing here is distinguished
+ * by punctuation alone: "25G X 1''" and "25G X 1.5''" still differ, and the
+ * barcode is compared as digits elsewhere. Two values that differ ONLY in where
+ * somebody put a bracket were always the same thing.
+ */
 export function normaliseForMatch(value: string | null | undefined): string {
-  return (cleanCell(value) ?? '').toLocaleUpperCase('en-GB');
+  return (cleanCell(value) ?? '')
+    .toLocaleUpperCase('en-GB')
+    .replace(/[^A-Z0-9]+/g, ' ')
+    .trim();
 }
 
 /**
@@ -102,6 +120,18 @@ export interface VariantIdentity {
  * variant rather than a separate product, so a 14G and an 18G of one branded
  * cannula become one listing with two sizes instead of two near-identical
  * listings side by side in a grid.
+ *
+ * The product code is deliberately absent too, and that one was learned the
+ * hard way. It was originally the fallback for a row with no generic name -
+ * and a product code is unique per ROW by design, so the fallback quietly
+ * turned every unnamed row into a product of its own. The safety needles came
+ * out as eight identical listings that differed only in gauge; the Easy Flush
+ * ribbon syringes as forty. A hundred and forty rows of the source workbook
+ * carry no name in column D, and all of them were affected.
+ *
+ * With no code in the key, an unnamed row groups on its category, brand,
+ * sterilisation and packing - which is what a buyer would call "the same
+ * product" - and its gauge or fill becomes a size under it.
  */
 export interface FamilyIdentity {
   category: string;
@@ -109,8 +139,6 @@ export interface FamilyIdentity {
   brand: string | null;
   sterilisation: string | null;
   packingType: string | null;
-  /** Only used when there is no generic name to group on. */
-  productCode: string | null;
 }
 
 function fingerprintOf(parts: (string | null)[]): string {
@@ -134,13 +162,13 @@ export function variantFingerprint(identity: VariantIdentity): string {
 }
 
 export function familyFingerprint(identity: FamilyIdentity): string {
-  // A row with no generic name has nothing to group on but its own code, so it
-  // becomes a family of one rather than joining every other unnamed row.
-  const grouping = identity.genericName ?? identity.productCode;
+  // An absent generic name contributes an empty string rather than a fallback.
+  // The brand, sterilisation and packing below are then what identify the
+  // product - see the note on FamilyIdentity for what the fallback cost.
   return fingerprintOf([
     'family/v1',
     normaliseForMatch(identity.category),
-    normaliseForMatch(grouping),
+    normaliseForMatch(identity.genericName),
     normaliseForMatch(identity.brand),
     normaliseForMatch(identity.sterilisation),
     normaliseForMatch(identity.packingType),

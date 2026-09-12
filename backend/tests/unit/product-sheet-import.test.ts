@@ -251,23 +251,41 @@ describe('product identity', () => {
       brand: 'ACCU VEIN',
       sterilisation: 'ETO STERILE',
       packingType: 'BLISTER PACK',
-      productCode: '3A114',
     };
 
-    // The model is what varies between variants, so it must not change the
-    // family - otherwise seven gauges become seven near-identical listings.
-    expect(familyFingerprint(family)).toBe(
-      familyFingerprint({ ...family, productCode: '3A118' }),
-    );
+    // The brand is what separates two listings of the same generic article.
     expect(familyFingerprint(family)).not.toBe(
       familyFingerprint({ ...family, brand: 'EASY FLON' }),
     );
+    // Sterilisation and packing are real product differences too: the same
+    // syringe blistered and ribboned has two barcodes and two carton sizes.
+    expect(familyFingerprint(family)).not.toBe(
+      familyFingerprint({ ...family, packingType: 'RIBBON PACK' }),
+    );
   });
 
-  it('gives an unnamed row a family of its own rather than merging them all', () => {
-    const first = { category: 'X', genericName: null, brand: null, sterilisation: null, packingType: null, productCode: 'A1' };
-    const second = { ...first, productCode: 'A2' };
-    expect(familyFingerprint(first)).not.toBe(familyFingerprint(second));
+  it('groups rows with no generic name on their brand, not their code', () => {
+    // The regression this exists for: the product code used to be the fallback
+    // when column D was blank, and a code is unique per ROW by design. Eight
+    // safety needles that differ only in gauge came out as eight identical
+    // listings - and 140 rows of the source workbook have no name in column D.
+    const needle = {
+      category: 'SAFETY NEEDLE',
+      genericName: null,
+      brand: 'Easy Safy Pric',
+      sterilisation: 'ETO STERILE',
+      packingType: 'Blister Pack',
+    };
+
+    // Same product, four gauges and a spare code suffix each: one listing.
+    // Nothing about the row's own code may reach the family key.
+    expect(familyFingerprint(needle)).toBe(familyFingerprint({ ...needle }));
+
+    // And a different brand in the same department is still a different
+    // product, so the merge cannot run away.
+    expect(familyFingerprint(needle)).not.toBe(
+      familyFingerprint({ ...needle, brand: 'Some Other Brand' }),
+    );
   });
 });
 
