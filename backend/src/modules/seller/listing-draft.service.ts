@@ -288,9 +288,46 @@ async function evaluateDraft(
   };
 }
 
+/**
+ * A moderator's own comments, as the seller must see them.
+ *
+ * `evaluateDraft` recomputes issues from the schema every time, so it can only
+ * ever produce the ones the machine can work out. A moderator's comment is not
+ * one of those - it is a sentence somebody wrote about this listing, stored on
+ * `SellerListingIssue` with `isFromModerator`, and `refreshDraftState`
+ * deliberately refuses to delete it when the seller saves.
+ *
+ * Kept OUT of `evaluateDraft` on purpose. That function's result is what
+ * `refreshDraftState` writes back to the table as the machine's own issues, and
+ * merging a moderator's comment into it would re-insert their sentence as the
+ * machine's on the seller's next keystroke - duplicated, and then deleted by
+ * the save after that.
+ */
+async function moderatorIssues(draftId: string): Promise<ListingIssue[]> {
+  const rows = await prisma.sellerListingIssue.findMany({
+    where: { draftId, isFromModerator: true, resolvedAt: null },
+    orderBy: { createdAt: 'asc' },
+  });
+
+  return rows.map((row) => ({
+    severity: row.severity,
+    code: row.code,
+    section: row.section,
+    attributeKey: row.attributeKey,
+    message: row.message,
+  }));
+}
+
 function toView(
   row: Awaited<ReturnType<typeof loadDraftRow>>,
   evaluation: Awaited<ReturnType<typeof evaluateDraft>>,
+  /**
+   * What the marketplace said, beside the field it said it about.
+   *
+   * Passed in rather than looked up here, because this function is the one
+   * place the whole wizard is assembled and it stays synchronous.
+   */
+  fromModerator: ListingIssue[] = [],
 ): DraftView {
   return {
     id: row.id,
@@ -307,7 +344,9 @@ function toView(
     generatedTitle: row.generatedTitle,
     sellerEditedTitle: row.sellerEditedTitle,
     sections: evaluation.sections,
-    issues: evaluation.issues,
+    // A moderator's comments first: they are the reason the listing came back,
+    // and the machine's own findings are the routine half of the list.
+    issues: [...fromModerator, ...evaluation.issues],
     isSubmittable: evaluation.isSubmittable,
     canPreviewTitle: evaluation.title?.ready === true,
     reviewComment: row.reviewComment,
@@ -333,7 +372,7 @@ export async function readDraft(
   assertSellerPermission(membership, SellerPermission.LISTING_READ);
 
   const row = await loadDraftRow(membership, draftId);
-  return toView(row, await evaluateDraft(row));
+  return toView(row, await evaluateDraft(row), await moderatorIssues(draftId));
 }
 
 // ---------------------------------------------------------------------------
@@ -593,7 +632,7 @@ async function refreshDraftState(
     });
   }
 
-  return toView(refreshed, await evaluateDraft(refreshed));
+  return toView(refreshed, await evaluateDraft(refreshed), await moderatorIssues(draftId));
 }
 
 /** Run the checks without saving. What the "Validate listing" button calls. */

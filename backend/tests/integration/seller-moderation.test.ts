@@ -21,6 +21,9 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { newId } from '../../src/infra/ids.js';
 import { prisma } from '../../src/infra/prisma.js';
+import { readDraft } from '../../src/modules/seller/listing-draft.service.js';
+import { permissionsForSellerRole } from '../../src/domain/seller-permissions.js';
+import type { SellerMembership } from '../../src/modules/seller/account.service.js';
 import {
   decideApplication,
   decideBrandRequest,
@@ -33,6 +36,7 @@ let adminUserId = '';
 let sellerId = '';
 let otherSellerId = '';
 let categoryId = '';
+let membership: SellerMembership;
 
 async function cleanUp(): Promise<void> {
   await prisma.sellerListingIssue.deleteMany({});
@@ -141,6 +145,22 @@ beforeAll(async () => {
   categoryId = category.id;
 
   sellerId = await makeSeller('mod-acme', 'Acme Supplies');
+
+  // Built by hand: what is under test is the service, not the login path.
+  membership = {
+    sellerAccountId: sellerId,
+    memberId: newId(),
+    customerProfileId: newId(),
+    displayName: 'Acme Supplies',
+    legalName: 'Acme Supplies Ltd',
+    slug: 'mod-acme',
+    status: 'APPROVED',
+    role: 'OWNER',
+    permissions: permissionsForSellerRole('OWNER'),
+    isTrading: true,
+    isApplicationEditable: false,
+    registrationCountry: 'IN',
+  };
   otherSellerId = await makeSeller('mod-rival', 'Rival Supplies');
 });
 
@@ -399,5 +419,42 @@ describe('decideApplication', () => {
     await prisma.sellerNotification.deleteMany({ where: { sellerAccountId: applicantId } });
     await prisma.sellerAuditLog.deleteMany({ where: { sellerAccountId: applicantId } });
     await prisma.sellerAccount.delete({ where: { id: applicantId } });
+  });
+});
+
+describe('what the seller is shown afterwards', () => {
+  it("puts a moderator's field comment back into the seller's own wizard", async () => {
+    const draftId = await makeDraft('PENDING_REVIEW');
+
+    await decideListing({
+      draftId,
+      to: 'ACTION_REQUIRED',
+      comment: 'See the note on the field.',
+      fieldComments: [
+        {
+          section: 'MEDICAL_COMPLIANCE',
+          attributeKey: 'ce_marking',
+          message: 'You have given a device class, so this needs a CE marking answer too.',
+        },
+      ],
+      adminUserId,
+    });
+
+    const view = await readDraft(membership, draftId);
+
+    /*
+     * The whole point of a per-field comment.
+     *
+     * `evaluateDraft` recomputes issues from the schema on every read, so it can
+     * only ever produce what the machine works out. A moderator's sentence lives
+     * on `SellerListingIssue` and has to be merged back in, or it is written,
+     * stored, and never seen by the one person it was written for.
+     */
+    const note = view.issues.find((issue) => issue.code === 'MODERATOR_COMMENT');
+
+    expect(note).toBeDefined();
+    expect(note?.section).toBe('MEDICAL_COMPLIANCE');
+    expect(note?.attributeKey).toBe('ce_marking');
+    expect(note?.message).toContain('CE marking answer');
   });
 });
