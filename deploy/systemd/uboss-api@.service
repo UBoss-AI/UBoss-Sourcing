@@ -1,0 +1,126 @@
+# =============================================================================
+# The UBOSS API - one instance per port.
+#
+# A TEMPLATE unit (note the `@`). The part after the `@` when you enable it
+# becomes `%i`, and here that is the PORT:
+#
+#   sudo systemctl enable --now uboss-api@4000
+#   sudo systemctl enable --now uboss-api@4001
+#   sudo systemctl enable --now uboss-api@4002
+#
+# Three on a four-core box. Node is single-threaded per process, so one API
+# uses exactly one core no matter how much traffic arrives - instances are the
+# only way to use the others. The fourth core is left for nginx, MariaDB and
+# the worker, none of which is idle.
+#
+# Keep this in step with the `upstream uboss_api` block in the nginx config:
+# an instance nginx does not know about serves nobody, and one nginx knows
+# about that is not running costs every third request a `fail_timeout` wait.
+#
+# WHY NOT node's own cluster module
+#
+# It would work, and it would put all the workers under one PID. systemd then
+# cannot restart one instance, cannot stagger a rolling restart, and cannot tell
+# you which one is wedged. Separate units cost one line of nginx config and buy
+# all three.
+# =============================================================================
+
+[Unit]
+Description=UBOSS Sourcing API (port %i)
+Documentation=file:/srv/uboss/current/docs/DEPLOYMENT.md
+
+# `After` orders startup; it does NOT wait for MariaDB to be ready to answer
+# queries, only for its unit to have started. The API handles that itself - it
+# fails fast on a bad connection and `Restart=always` brings it back - which is
+# more reliable than any ordering directive, because a database can also
+# disappear at three in the morning long after boot.
+After=network-online.target mariadb.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=uboss
+Group=uboss
+
+WorkingDirectory=/srv/uboss/current/backend
+
+# The release directory is a symlink that `release.sh` repoints. systemd
+# resolves it at start, so a restart after a release picks up the new code and
+# a running process keeps serving the old one until it is told to stop.
+Environment=NODE_ENV=production
+Environment=API_PORT=%i
+
+# Bound to loopback, never to the public interface. nginx is the only thing
+# that should be able to reach the API, and the surest way to guarantee that is
+# for the API not to be listening anywhere else. A firewall rule is a second
+# line of defence, not the first.
+Environment=API_HOST=127.0.0.1
+
+# Secrets live here, readable only by the service user. NOT in this file -
+# systemd units are world-readable by default and end up in `systemctl cat`
+# output, support tickets and screenshots.
+EnvironmentFile=/srv/uboss/shared/.env
+
+ExecStart=/usr/bin/node dist/http/server.js
+
+# SIGTERM is what the application's graceful shutdown listens for: it stops
+# accepting connections, lets in-flight work finish, shuts the queue down and
+# disconnects Prisma. An in-flight checkout MUST finish committing or a
+# customer is charged by the provider while the order never reaches CONFIRMED.
+KillSignal=SIGTERM
+
+# Longer than the application's own 15s ceiling, so its orderly exit always
+# wins the race. Shorter and systemd would SIGKILL a process that was seconds
+# from finishing exactly the write this exists to protect.
+TimeoutStopSec=30
+
+Restart=always
+RestartSec=2
+
+# Five failures in a minute means the problem is not transient - a bad
+# migration, a missing secret, a schema mismatch. Restarting forever would
+# hammer the database and bury the real error in a scrolling log.
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+# --- Logging ---------------------------------------------------------------
+# The application writes structured JSON to stdout (pino). journald keeps it,
+# rotates it, and `journalctl -u uboss-api@4000 -f` reads it. No log file to
+# fill a disk, no logrotate config to forget.
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=uboss-api-%i
+
+# --- Hardening -------------------------------------------------------------
+# This process handles payment webhooks and customer records. Everything below
+# narrows what it can reach if it is ever compromised.
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+LockPersonality=yes
+
+# `ProtectSystem=strict` makes the whole filesystem read-only. The one place
+# this process legitimately writes is the media directory, where uploaded
+# product images land.
+ReadWritePaths=/srv/uboss/media
+
+# --- Resource limits -------------------------------------------------------
+# A ceiling so one wedged instance cannot take the box down with it. 1 GB is
+# roughly four times what a healthy instance uses; hitting it means a leak, and
+# being restarted is the right answer to a leak.
+MemoryMax=1G
+MemoryHigh=768M
+
+# File descriptors. The default 1024 is not enough for an event-loop server
+# holding keepalive connections to nginx and a pool to MariaDB at the same time.
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,173 @@
+# =============================================================================
+# MariaDB settings for UBOSS on a 4 vCPU / 16 GB machine.
+#
+#   sudo cp deploy/mariadb/uboss.cnf /etc/mysql/mariadb.conf.d/99-uboss.cnf
+#   sudo systemctl restart mariadb
+#
+# A drop-in with a high number, so it loads last and wins over the packaged
+# defaults. Nothing here is clever; the defaults MariaDB ships are sized for a
+# machine with 512 MB of RAM and leaving them is how a 16 GB server ends up
+# reading every query off the disk.
+#
+# CHECK YOUR VERSION BEFORE COPYING THIS ANYWHERE ELSE. The schema targets
+# MariaDB 10.4, which has no `SKIP LOCKED` and no native UUID, and a few
+# settings below were renamed or removed in later releases -
+# `innodb_log_file_size` in particular behaves differently from 10.5 on.
+# =============================================================================
+
+[mysqld]
+
+# --- Memory ----------------------------------------------------------------
+#
+# The single most important number on this file, and the one most often left
+# at its 128 MB default.
+#
+# 6 GB of 16, not the 70-80% a dedicated database server would get, because
+# this box is not a dedicated database server. Three API instances at up to
+# 1 GB each, a worker at up to 1.5 GB, nginx, and the OS page cache all live
+# here too. 6 GB holds this catalogue, its indexes and the hot order rows
+# entirely in memory, which is the point at which more stops helping.
+#
+# Raise it only after checking that the box is not swapping. A database with a
+# buffer pool it cannot keep resident is slower than one with a small pool.
+innodb_buffer_pool_size = 6G
+
+# One instance per GB is the old advice and it is wrong on anything modern;
+# MariaDB handles a single large pool fine, and multiple instances just
+# fragment it. Two is a compromise that costs nothing.
+innodb_buffer_pool_instances = 2
+
+# --- Durability ------------------------------------------------------------
+#
+# DO NOT CHANGE EITHER OF THESE TWO. They are the difference between "the order
+# is committed" meaning it and meaning it probably.
+#
+# `innodb_flush_log_at_trx_commit = 1` flushes the log to disk on every commit.
+# 2 is measurably faster and loses up to a second of committed transactions if
+# the machine loses power. For a system where a commit is "this customer's card
+# was charged and this order exists", losing a second of them is not a
+# performance trade-off, it is a reconciliation nightmare somebody discovers
+# three weeks later.
+innodb_flush_log_at_trx_commit = 1
+
+# The same argument. `sync_binlog = 1` costs write throughput and is what makes
+# the binary log - and therefore point-in-time recovery - actually trustworthy.
+sync_binlog = 1
+
+# --- Write path ------------------------------------------------------------
+#
+# 1 GB of redo. Large, deliberately: the checkout path and the catalogue
+# importer both write in bursts, and a small log means InnoDB stops to
+# checkpoint in the middle of them. The cost is a longer crash recovery, which
+# happens rarely and is bounded.
+innodb_log_file_size = 1G
+innodb_log_buffer_size = 64M
+
+# Bypass the OS page cache. The buffer pool above is already caching this data;
+# letting the kernel cache it a second time wastes 6 GB of RAM caching a copy
+# of what is already in RAM.
+innodb_flush_method = O_DIRECT
+
+# NVMe. The default of 200 is a number from the era of spinning disks and it
+# throttles InnoDB's background flushing to a fraction of what this storage can
+# do. Hostinger's KVM plans are NVMe-backed; on anything else, lower this.
+innodb_io_capacity = 2000
+innodb_io_capacity_max = 4000
+
+# Four cores. More threads than cores means context switching, not throughput.
+innodb_read_io_threads = 4
+innodb_write_io_threads = 4
+innodb_thread_concurrency = 0
+
+# One tablespace per table. Without it, a deleted table's space is never
+# returned to the filesystem - it stays inside one ever-growing ibdata1 that
+# can only be reclaimed by dumping and reloading the entire database.
+innodb_file_per_table = 1
+
+# --- Connections -----------------------------------------------------------
+#
+# The arithmetic, which has to be done rather than guessed:
+#
+#   3 API instances  x DB_POOL_SIZE (12) = 36
+#   1 worker         x DB_POOL_SIZE (12) = 12
+#   migrations, prisma studio, a DBA at a prompt  ~ 10
+#                                          -------
+#                                            58 in normal use
+#
+# 200 leaves room for a rolling restart - where old and new instances briefly
+# overlap and both hold full pools - without the new ones being refused. Raise
+# `DB_POOL_SIZE` or the instance count and redo this sum; a pool that cannot
+# get a connection surfaces as a timeout in the middle of a checkout.
+max_connections = 200
+
+# A connection abandoned by a crashed client holds its locks until it is
+# reaped. Eight hours - the default - is long enough for a stale lock to block
+# the order table all morning.
+wait_timeout = 600
+interactive_timeout = 600
+
+# --- Query handling --------------------------------------------------------
+#
+# The query cache is OFF, and this is not an oversight. It serialises writes
+# behind a single global mutex, which on a schema where orders, stock and
+# schedules are written constantly makes it a net loss. It was removed
+# entirely in later MariaDB releases for exactly this reason.
+query_cache_type = 0
+query_cache_size = 0
+
+# Large enough for a catalogue import and a GDPR export bundle, both of which
+# move rows well above the 1 MB default.
+max_allowed_packet = 64M
+
+# --- Character set ---------------------------------------------------------
+#
+# Must match the schema. This storefront runs in eight languages, sells into
+# Europe and holds Greek, Polish and German product text; anything short of
+# utf8mb4 silently truncates at the first character outside the BMP - which
+# includes every emoji a customer types into a delivery note.
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+
+# --- Time ------------------------------------------------------------------
+#
+# UTC, and the schema depends on it. Every instant is a DATETIME(3) holding
+# UTC; wall-clock recurrence carries its own IANA timezone column. A server
+# running in local time applies an offset on the way in and out and every
+# scheduled delivery drifts.
+default_time_zone = '+00:00'
+
+# --- Logging ---------------------------------------------------------------
+#
+# Anything over a second is worth a look on a schema this well indexed.
+slow_query_log = 1
+slow_query_log_file = /var/log/mysql/slow.log
+long_query_time = 1
+
+# The ones that will eventually be a problem, caught before they are. A query
+# with no index is fast on a catalogue of 250 products and a tablescan on one
+# of 250,000.
+log_queries_not_using_indexes = 1
+# ...but capped, or a chatty unindexed query fills the disk with its own log.
+min_examined_row_limit = 1000
+
+# --- Binary log ------------------------------------------------------------
+#
+# Point-in-time recovery, and the thing that makes a nightly dump into a real
+# backup: the dump gets you to midnight, the binary log gets you to the minute
+# before the mistake.
+log_bin = /var/log/mysql/mysql-bin.log
+binlog_format = ROW
+expire_logs_days = 7
+max_binlog_size = 256M
+
+# --- Network ---------------------------------------------------------------
+#
+# Loopback only. RUNBOOK.md section 7 asks for this explicitly, and it is the
+# one line here that is a security control rather than a tuning knob: the API
+# and the worker are on this machine, so nothing legitimate connects from
+# anywhere else, and 3306 open to the internet is how a database is found by
+# somebody scanning for it.
+#
+# Moving the database to its own host later means changing this AND adding a
+# firewall rule - not just this.
+bind-address = 127.0.0.1

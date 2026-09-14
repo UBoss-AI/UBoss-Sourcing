@@ -1,0 +1,28 @@
+# Runs deploy/scripts/backup.sh once. Driven by uboss-backup.timer.
+[Unit]
+Description=UBOSS nightly backup
+Documentation=file:/srv/uboss/current/docs/DEPLOYMENT.md
+After=mariadb.service
+
+[Service]
+Type=oneshot
+User=uboss
+Group=uboss
+
+# The passphrase that encrypts the environment file in the backup. Set it here
+# rather than in the script, and `chmod 600` this unit if you do - the default
+# unit permissions are world-readable.
+#
+# Environment=UBOSS_BACKUP_PASSPHRASE=...
+
+ExecStart=/srv/uboss/repo/deploy/scripts/backup.sh
+
+# Backups must never compete with customers for the disk. `idle` scheduling
+# means the dump yields to anything the API or MariaDB wants to do, which
+# costs the backup a few minutes and costs the shop nothing.
+IOSchedulingClass=idle
+Nice=19
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=uboss-backup

@@ -1,0 +1,17 @@
+# A timer rather than a cron line, for one reason that matters: `Persistent`.
+# A machine that was rebooting at 02:30 misses a cron job silently and forever;
+# a persistent timer notices on the way up and runs it late.
+[Unit]
+Description=UBOSS nightly backup
+
+[Timer]
+OnCalendar=*-*-* 02:30:00
+
+# Spread the start over ten minutes. Irrelevant on one machine, and the habit
+# that stops fifty machines hitting the same backup target on the same second.
+RandomizedDelaySec=600
+
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,90 @@
+# =============================================================================
+# The UBOSS background worker.
+#
+#   sudo systemctl enable --now uboss-worker
+#
+# ONE INSTANCE. Not a template, and not because two would corrupt anything -
+# the job queue claims work with a lease (a conditional UPDATE and an
+# affected-rows check, because MariaDB 10.4 has no `SKIP LOCKED`), so a second
+# worker would be correct. It is one because on a four-core box the useful
+# parallelism is already inside it: `WORKER_CONCURRENCY` runs several jobs in
+# one process, and a second process would compete with the API for the same
+# cores while adding a second connection pool to the same database.
+#
+# Scale this by raising WORKER_CONCURRENCY first. Move to a second machine
+# before a second process on this one.
+#
+# WHAT IT DOES, AND WHY THAT MATTERS FOR SHUTDOWN
+#
+# Emails, scheduled orders, retries, ERP hand-offs and the occurrence charges
+# behind Subscribe & Reorder. That last one is why the stop timeout below is
+# what it is: an occurrence changes status inside this process with nobody
+# watching, and the states it moves between decide whether a card is charged.
+# =============================================================================
+
+[Unit]
+Description=UBOSS Sourcing background worker
+Documentation=file:/srv/uboss/current/docs/DEPLOYMENT.md
+After=network-online.target mariadb.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=uboss
+Group=uboss
+
+WorkingDirectory=/srv/uboss/current/backend
+
+Environment=NODE_ENV=production
+EnvironmentFile=/srv/uboss/shared/.env
+
+ExecStart=/usr/bin/node dist/worker/index.js
+
+KillSignal=SIGTERM
+
+# Longer than the API's 30s, deliberately.
+#
+# A worker asked to stop has to let a job that is already running finish, and
+# the longest of those is a card charge against a payment provider - a network
+# round trip to somebody else's server that cannot be safely abandoned halfway.
+# Killing it there leaves a charge whose outcome nothing recorded, which is the
+# single worst state this system can be in.
+TimeoutStopSec=120
+
+Restart=always
+RestartSec=5
+
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=uboss-worker
+
+# --- Hardening -------------------------------------------------------------
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+LockPersonality=yes
+
+# The worker writes generated documents - invoices, GDPR export bundles - into
+# the same media tree the API serves from.
+ReadWritePaths=/srv/uboss/media
+
+# --- Resource limits -------------------------------------------------------
+# Higher than an API instance: a GDPR export or a catalogue import assembles a
+# large document in memory before writing it.
+MemoryMax=1500M
+MemoryHigh=1200M
+
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
