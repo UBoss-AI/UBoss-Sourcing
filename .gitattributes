@@ -1,0 +1,14 @@
+# Applied migrations are checksummed BY BYTE, so their line endings are part of
+# the contract.
+#
+# Prisma records a SHA-256 of each migration file when it applies it, and warns
+# that the migration "was modified after it was applied" when the bytes on disk
+# no longer hash to the recorded value. Its offer to resolve that is to reset
+# the development database.
+#
+# Without this rule, a checkout on Windows rewrites every `.sql` to CRLF and
+# every one of those checksums changes — so a developer who has migrated on one
+# machine and cloned on another is told their history was tampered with, and
+# invited to drop their database over a line ending. Pinning LF makes the file
+# the same bytes everywhere.
+*.sql text eol=lf

@@ -1,0 +1,23 @@
+-- Remove an index no migration ever created.
+--
+-- `ix_erp_push_customer_connection` exists on some databases and in no
+-- migration. It was made by hand, and it is wrong twice over: its name says it
+-- covers a customer connection and it actually covers `createdAt` alone, and
+-- nothing in the codebase reads `erp_order_pushes` by time on its own. The two
+-- indexes that ARE declared - `ix_erp_push_connection_time` and
+-- `ix_erp_push_erp_connection_time` - both lead with a connection column and
+-- already carry `createdAt` behind it.
+--
+-- WHY IT IS WORTH A MIGRATION OF ITS OWN
+--
+-- While it exists, `schema.prisma` and the database disagree, and Prisma says
+-- so on every `migrate dev`: it reports the difference and offers to reset the
+-- development database to resolve it. That is a destructive answer to a stray
+-- index, and the cost is that nobody can run `migrate dev` without either
+-- losing their data or learning to ignore the warning - and a warning people
+-- have learned to ignore is a warning that will not be read when it matters.
+--
+-- `IF EXISTS` because this has to be a no-op on a database built from these
+-- migrations, where the index was never created in the first place. MariaDB
+-- has supported it on `ALTER TABLE ... DROP INDEX` since 10.0.
+ALTER TABLE `erp_order_pushes` DROP INDEX IF EXISTS `ix_erp_push_customer_connection`;
