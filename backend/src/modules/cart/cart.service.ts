@@ -177,6 +177,14 @@ export interface ResolvedCart {
     variantId: string | null;
     quantity: number;
     isStockTracked: boolean;
+    /**
+     * The seller's offer this line was bought from, or null for the operator's
+     * own stock. Checkout needs it to know whose shelf the units come off:
+     * reserving a seller's line against the operator's balances would hold
+     * units nobody has, and refuse an order the seller can fill perfectly
+     * well.
+     */
+    sellerOfferId: string | null;
   }[];
   blockingIssues: CartLineIssue[];
   /** Category of each priced line, positionally aligned with `pricing.lines`. */
@@ -333,6 +341,7 @@ export async function resolveCart(
           status: true,
           priceMinor: true,
           currency: true,
+          availableQuantity: true,
           sellerAccount: { select: { displayName: true, status: true } },
         },
       },
@@ -399,9 +408,21 @@ export async function resolveCart(
       }
     }
 
-    const availableQty = product.isStockTracked
-      ? (availability.get(`${item.productId}:${item.variantKey}`) ?? 0)
-      : null;
+    /*
+     * Whose shelf this line comes off.
+     *
+     * A seller's stock is theirs, in their own warehouse, on their own offer -
+     * the operator holds none of it and never will. Reading the operator's
+     * availability for a seller's line answers "how many do WE have", which is
+     * always zero, and every marketplace line would be permanently out of
+     * stock: buyable in the catalogue, refused in the basket, for a reason the
+     * shopper cannot act on and the seller cannot see.
+     */
+    const availableQty = item.sellerOffer !== null
+      ? item.sellerOffer.availableQuantity
+      : product.isStockTracked
+        ? (availability.get(`${item.productId}:${item.variantKey}`) ?? 0)
+        : null;
 
     if (availableQty !== null && availableQty < item.quantity) {
       issues.push({
@@ -684,6 +705,7 @@ export async function resolveCart(
       variantId: meta.variantId,
       quantity: meta.quantity,
       isStockTracked: meta.isStockTracked,
+      sellerOfferId: meta.sellerOfferId,
     })),
     blockingIssues,
     lineCategoryIds: couponLines.map((line) => line.categoryId),

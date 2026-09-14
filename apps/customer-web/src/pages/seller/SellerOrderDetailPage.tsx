@@ -39,6 +39,7 @@ import {
   fetchLocations,
   fetchSellerOrder,
   formatMinor,
+  nextActions,
   orderLabel,
   recordShipment,
   transitionOrder,
@@ -88,7 +89,7 @@ export function SellerOrderDetailPage(): React.JSX.Element {
       />
 
       <div className="flex flex-wrap items-center gap-2">
-        <Badge tone="brand">{orderLabel(order.status as SellerOrderStatus)}</Badge>
+        <Badge tone="brand">{orderLabel(order.status)}</Badge>
         {order.dispatchDueAt !== null && (
           <Badge tone={new Date(order.dispatchDueAt) < new Date() ? 'danger' : 'neutral'}>
             {new Date(order.dispatchDueAt) < new Date() ? 'Overdue since ' : 'Dispatch by '}
@@ -173,9 +174,16 @@ function Lines({ order }: { order: SellerOrderDetail }): React.JSX.Element {
               </div>
 
               <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-ink-muted">
+                {/*
+                  The line total carries the buyer's tax, so it is labelled as
+                  such: printed bare beside a unit price it does not multiply
+                  out to, it reads as an arithmetic mistake. What the seller
+                  actually earns is in the panel beside this one, where the
+                  tax is a line of its own.
+                */}
                 <span>
                   {formatMinor(line.unitPriceMinor, order.currency)} each ·{' '}
-                  {formatMinor(line.lineTotalMinor, order.currency)} line
+                  {formatMinor(line.lineTotalMinor, order.currency)} line with tax
                 </span>
                 {/*
                   Outstanding, not "remaining": a seller reading this is deciding
@@ -368,6 +376,19 @@ function WhatNext({
     order.status === 'READY_FOR_DISPATCH' ||
     order.status === 'ACCEPTED';
 
+  /*
+   * The moves worth offering, and only those this member may actually make.
+   *
+   * `nextActions` is the same short list the orders table draws, so one
+   * screen cannot offer a step the other hides; the server's own
+   * `allowedTransitions` then filters it, so a member without the permission
+   * is not shown a button that would come back refused. The labels are verbs
+   * for that reason too - a button reading "Accepted" names a state, and the
+   * seller is being asked to do something.
+   */
+  const permitted = new Set(order.allowedTransitions.map((entry) => entry.to));
+  const actions = nextActions(order.status).filter((action) => permitted.has(action.to));
+
   return (
     <Card title="What happens next">
       <div className="space-y-2 px-6 py-5">
@@ -383,20 +404,20 @@ function WhatNext({
           </Button>
         )}
 
-        {order.allowedTransitions.map((to) => (
+        {actions.map((action) => (
           <Button
-            key={to}
-            variant={to === 'CANCELLED' ? 'danger' : 'secondary'}
+            key={action.to}
+            variant={action.to === 'CANCELLED' ? 'danger' : 'secondary'}
             className="w-full"
             onClick={() => {
-              onTransition(to as SellerOrderStatus);
+              onTransition(action.to);
             }}
           >
-            {orderLabel(to as SellerOrderStatus)}
+            {action.label}
           </Button>
         ))}
 
-        {order.allowedTransitions.length === 0 && !canShip && (
+        {actions.length === 0 && !canShip && (
           <p className="text-sm text-ink-muted">
             Nothing to do here. This order has reached a state you cannot move it out of.
           </p>
@@ -458,7 +479,7 @@ function TransitionDialog({
     (!needsReason || reason.trim().length > 0) && (!needsLocation || locationId.length > 0);
 
   return (
-    <Modal isOpen title={`${orderLabel(to)} — ${order.sellerOrderNumber}`} onClose={onClose}>
+    <Modal isOpen title={`${actionLabel(to)} — ${order.sellerOrderNumber}`} onClose={onClose}>
       <div className="space-y-4">
         {needsLocation && (
           <Field
@@ -511,12 +532,42 @@ function TransitionDialog({
               mutation.mutate();
             }}
           >
-            {orderLabel(to)}
+            {actionLabel(to)}
           </Button>
         </div>
       </div>
     </Modal>
   );
+}
+
+/**
+ * The verb for a move, for the dialog that confirms it.
+ *
+ * `nextActions` labels a move from the status it starts at, which is what a
+ * list of buttons needs; a dialog only knows where it is going. Same words,
+ * so the button and the dialog it opens agree.
+ */
+function actionLabel(to: SellerOrderStatus): string {
+  switch (to) {
+    case 'ACCEPTED':
+      return 'Accept';
+    case 'PROCESSING':
+      return 'Start picking';
+    case 'READY_FOR_DISPATCH':
+      return 'Mark ready to go';
+    case 'SHIPPED':
+      return 'Mark as shipped';
+    case 'DELIVERED':
+      return 'Mark delivered';
+    case 'CANCELLED':
+      return 'Reject';
+    case 'RETURNED':
+      return 'Accept the return';
+    case 'DISPUTED':
+      return 'Dispute it';
+    default:
+      return orderLabel(to);
+  }
 }
 
 function ShipmentDialog({
@@ -549,7 +600,10 @@ function ShipmentDialog({
   );
 
   const contents = order.lines
-    .map((line) => ({ orderItemId: line.id, quantity: Number(quantities[line.id] ?? '0') }))
+    .map((line) => ({
+      orderItemId: line.orderItemId,
+      quantity: Number(quantities[line.id] ?? '0'),
+    }))
     .filter((entry) => Number.isFinite(entry.quantity) && entry.quantity > 0);
 
   const mutation = useMutation({

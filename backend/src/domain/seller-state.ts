@@ -20,6 +20,7 @@
  * button that works.
  */
 import { ErrorCode, conflict } from './errors.js';
+import { zonedCalendarDate, zonedTimeToUtc } from './recurrence.js';
 
 // ---------------------------------------------------------------------------
 // Who is asking
@@ -417,13 +418,29 @@ const ORDER_GROUP_TRANSITIONS: Readonly<
     { to: 'CANCELLED', actors: ['SELLER', 'OPERATOR'], requiresReason: true },
   ],
 
+  /*
+   * Straight to SHIPPED from here, and from PROCESSING, on purpose.
+   *
+   * "Picking" and "ready to go" are a seller telling their own staff where a
+   * box has got to. Plenty of sellers accept an order, pack it and hand it to
+   * a courier without touching either, and a shipment recorded with a carrier
+   * and a tracking number is evidence the goods have gone - refusing it
+   * because a bookkeeping step was skipped would leave the buyer with no
+   * tracking and the seller marked as never having dispatched.
+   *
+   * It is the recorded dispatch that makes the move, never a button that
+   * simply says SHIPPED: `recordShipment` asserts this transition once every
+   * line is accounted for.
+   */
   ACCEPTED: [
     { to: 'PROCESSING', actors: ['SELLER'] },
+    { to: 'SHIPPED', actors: ['SELLER'] },
     { to: 'CANCELLED', actors: ['SELLER', 'OPERATOR'], requiresReason: true },
   ],
 
   PROCESSING: [
     { to: 'READY_FOR_DISPATCH', actors: ['SELLER'] },
+    { to: 'SHIPPED', actors: ['SELLER'] },
     { to: 'CANCELLED', actors: ['SELLER', 'OPERATOR'], requiresReason: true },
   ],
 
@@ -521,4 +538,133 @@ export function assertSellerOrderTransition(request: SellerOrderTransitionReques
       [{ field: 'reason', code: 'REASON_REQUIRED', meta: { from, to } }],
     );
   }
+}
+
+// ---------------------------------------------------------------------------
+// The dispatch clock
+// ---------------------------------------------------------------------------
+
+/** What a seller's building says about when it can get a box out. */
+export interface DispatchSchedule {
+  /** IANA zone. A cut-off is a wall-clock time and means nothing without it. */
+  timezone: string;
+  /** Bitmask, Monday = 1. 31 is Mon-Fri. */
+  workingDaysMask: number;
+  /** `HH:MM` local. Null means the day counts however late it is. */
+  dispatchCutoff: string | null;
+  /** Working days between the order and the box leaving. */
+  handlingTimeDays: number;
+}
+
+/** Monday = 1 … Sunday = 7, in the given zone. */
+function isoWeekday(instant: Date, timeZone: string): number {
+  const name = new Intl.DateTimeFormat('en-US', { timeZone, weekday: 'short' }).format(instant);
+  const index = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].indexOf(name);
+
+  // An unrecognised abbreviation would otherwise silently mean "Sunday" and
+  // move every deadline. Treat it as a working day rather than guessing.
+  return index === -1 ? 1 : index + 1;
+}
+
+function isWorkingDay(instant: Date, schedule: DispatchSchedule): boolean {
+  // A mask of zero would mean "this place never works", which no operator
+  // means and which would loop forever below. Read it as the default week.
+  const mask = schedule.workingDaysMask === 0 ? 31 : schedule.workingDaysMask;
+
+  return (mask & (1 << (isoWeekday(instant, schedule.timezone) - 1))) !== 0;
+}
+
+/** `HH:MM` as minutes past midnight, or null when it is not one. */
+function minutesOfDay(cutoff: string | null): number | null {
+  if (cutoff === null) return null;
+
+  const match = /^(\d{1,2}):(\d{2})$/.exec(cutoff.trim());
+  if (match === null) return null;
+
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  if (hours > 23 || minutes > 59) return null;
+
+  return hours * 60 + minutes;
+}
+
+/**
+ * When this order has to be out of the door.
+ *
+ * Counted on the seller's own clock, in working days their own calendar
+ * decides, and it is what the overdue list and every SLA figure are measured
+ * against - so it is computed once, here, rather than in the screen that
+ * happens to be drawing a badge.
+ *
+ * An order accepted after the cut-off has missed today's van: the count starts
+ * tomorrow, because pretending otherwise gives the seller a deadline they
+ * could never have met. The deadline itself lands at the cut-off on the last
+ * working day counted, or at the end of that day where a building has never
+ * stated one - a deadline of "some time on Thursday" is honestly the end of
+ * Thursday, not the start of it.
+ *
+ * Public holidays are deliberately not modelled, for the reason given in
+ * `addBusinessDays`: a hard-coded list that is wrong is worse than a seller
+ * widening their own handling time on purpose.
+ */
+export function dispatchDeadline(schedule: DispatchSchedule, acceptedAt: Date): Date {
+  const cutoffMinutes = minutesOfDay(schedule.dispatchCutoff);
+  const endOfDayMinutes = 23 * 60 + 59;
+
+  const dayMs = 24 * 60 * 60 * 1000;
+  let cursor = acceptedAt;
+
+  /*
+   * Today only counts if the building is open and the van has not gone.
+   *
+   * Both halves matter: accepted at 9am on a Saturday the count starts on
+   * Monday, and accepted at 6pm on a Tuesday with a 5pm cut-off it starts on
+   * Wednesday.
+   */
+  const past =
+    cutoffMinutes !== null &&
+    afterCutoff(acceptedAt, schedule.timezone, cutoffMinutes);
+
+  if (past) cursor = new Date(cursor.getTime() + dayMs);
+
+  while (!isWorkingDay(cursor, schedule)) {
+    cursor = new Date(cursor.getTime() + dayMs);
+  }
+
+  let remaining = Math.max(0, Math.trunc(schedule.handlingTimeDays));
+
+  while (remaining > 0) {
+    cursor = new Date(cursor.getTime() + dayMs);
+    if (isWorkingDay(cursor, schedule)) remaining -= 1;
+  }
+
+  const { year, month, day } = zonedCalendarDate(cursor, schedule.timezone);
+
+  return zonedTimeToUtc(
+    year,
+    month,
+    day,
+    cutoffMinutes ?? endOfDayMinutes,
+    schedule.timezone,
+  );
+}
+
+/** Is this instant past `HH:MM` on its own day, in that zone? */
+function afterCutoff(instant: Date, timeZone: string, cutoffMinutes: number): boolean {
+  const formatter = new Intl.DateTimeFormat('en-GB', {
+    timeZone,
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+
+  const parts: Record<string, string> = {};
+  for (const part of formatter.formatToParts(instant)) {
+    if (part.type !== 'literal') parts[part.type] = part.value;
+  }
+
+  const hours = Number(parts['hour'] ?? '0');
+  const minutes = Number(parts['minute'] ?? '0');
+
+  return hours * 60 + minutes > cutoffMinutes;
 }

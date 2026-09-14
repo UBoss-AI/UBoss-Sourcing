@@ -184,6 +184,7 @@ export function makeWarehouseOptions(
     options: [],
     ineligible: [],
     restrictedLines: [],
+    sellerFulfilled: [],
     earliestDeliveryDate: null,
     quoteTtlSeconds: 900,
     computedAt: '2026-09-11T09:00:00.000Z',

@@ -253,22 +253,7 @@ export async function recordStockMovement(input: StockMovementInput): Promise<{ 
       },
     });
 
-    // The offer's denormalised total, recomputed from the rows rather than
-    // adjusted by the delta. Summing is one query and cannot drift; adding the
-    // delta drifts the first time a movement is written by anything that
-    // forgets to.
-    const totals = await tx.sellerInventory.aggregate({
-      where: { offerId: input.offerId },
-      _sum: { availableQuantity: true, reservedQuantity: true },
-    });
-
-    await tx.sellerOffer.update({
-      where: { id: input.offerId },
-      data: {
-        availableQuantity: totals._sum.availableQuantity ?? 0,
-        reservedQuantity: totals._sum.reservedQuantity ?? 0,
-      },
-    });
+    await refreshOfferTotals(tx, input.offerId);
 
     return { balance: next };
   };
@@ -363,6 +348,36 @@ export async function reserveStock(
       idempotencyKey: `reserve:${input.orderId}:${input.offerId}:${input.locationId}`,
     },
   });
+
+  await refreshOfferTotals(tx, input.offerId);
+}
+
+/**
+ * Put the offer's cached totals back in step with its locations.
+ *
+ * Every write to a `SellerInventory` row has to end here. The columns on the
+ * offer are what the storefront, the listings table and the buyer's basket
+ * read - nothing walks the locations at read time - so a reservation that
+ * moves a location row and leaves the offer alone keeps selling units that
+ * are already promised to somebody else.
+ *
+ * Summed rather than adjusted by the delta, for the reason
+ * `recordStockMovement` already sums: one query that cannot drift beats an
+ * increment that drifts the first time a caller forgets it.
+ */
+async function refreshOfferTotals(tx: PrismaTransaction, offerId: string): Promise<void> {
+  const totals = await tx.sellerInventory.aggregate({
+    where: { offerId },
+    _sum: { availableQuantity: true, reservedQuantity: true },
+  });
+
+  await tx.sellerOffer.update({
+    where: { id: offerId },
+    data: {
+      availableQuantity: totals._sum.availableQuantity ?? 0,
+      reservedQuantity: totals._sum.reservedQuantity ?? 0,
+    },
+  });
 }
 
 /** Give reserved stock back - a cancellation, an expired reservation. */
@@ -405,6 +420,65 @@ export async function releaseReservation(
       idempotencyKey: `release:${input.orderId}:${input.offerId}:${input.locationId}`,
     },
   });
+
+  await refreshOfferTotals(tx, input.offerId);
+}
+
+/**
+ * Reserved stock leaves the building.
+ *
+ * The other half of `reserveStock`, and it lives here for the same reason:
+ * the movement and the balance are one write, and a dispatch recorded without
+ * its movement is a ledger that stops adding up.
+ *
+ * Capped at what is actually reserved rather than refusing. A seller shipping
+ * a box is describing something that has already happened, and a hold that is
+ * short - stock adjusted between accepting and packing - is not a reason to
+ * refuse the parcel that is on the van. It is written down for exactly what it
+ * was.
+ */
+export async function consumeReservation(
+  tx: PrismaTransaction,
+  input: {
+    offerId: string;
+    locationId: string;
+    quantity: number;
+    sellerAccountId: string;
+    shipmentId: string;
+    lineId: string;
+  },
+): Promise<void> {
+  const row = await tx.sellerInventory.findUnique({
+    where: { offerId_locationId: { offerId: input.offerId, locationId: input.locationId } },
+    select: { id: true, availableQuantity: true, reservedQuantity: true },
+  });
+
+  if (row === null) return;
+
+  const dispatching = Math.min(input.quantity, row.reservedQuantity);
+  if (dispatching <= 0) return;
+
+  await tx.sellerInventory.update({
+    where: { id: row.id },
+    data: { reservedQuantity: { decrement: dispatching }, version: { increment: 1 } },
+  });
+
+  await tx.sellerInventoryMovement.create({
+    data: {
+      id: newId(),
+      sellerAccountId: input.sellerAccountId,
+      offerId: input.offerId,
+      locationId: input.locationId,
+      type: 'DISPATCH',
+      quantityDelta: -dispatching,
+      balanceAfter: row.availableQuantity,
+      referenceType: 'seller_shipment',
+      referenceId: input.shipmentId,
+      idempotencyKey: `dispatch:${input.shipmentId}:${input.lineId}`,
+    },
+  });
+
+  await refreshOfferTotals(tx, input.offerId);
 }
 
 /** The stock ledger for one offer, most recent first. */

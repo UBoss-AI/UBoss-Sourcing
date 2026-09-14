@@ -258,6 +258,14 @@ export interface RestrictedLine {
   reason: string | null;
 }
 
+/** What one seller is sending out of this basket. */
+export interface SellerFulfilledLines {
+  /** The name the buyer bought under, not the legal entity. */
+  sellerName: string;
+  lineCount: number;
+  itemCount: number;
+}
+
 export interface WarehouseOptionsResult {
   destination: {
     countryCode: string;
@@ -278,6 +286,17 @@ export interface WarehouseOptionsResult {
   ineligible: IneligibleWarehouse[];
   /** Products this destination will not accept from anywhere. */
   restrictedLines: RestrictedLine[];
+  /**
+   * The part of the basket a seller sends themselves, by seller.
+   *
+   * None of it is on the list above and none of it ever will be: those boxes
+   * leave the seller's own building, packed by them, on their own timetable.
+   * Said out loud because a buyer looking at a warehouse list that does not
+   * mention half their basket has no way to tell "forgotten" from "not ours
+   * to send" - and when the whole basket is a seller's, it is the only thing
+   * this section has to say.
+   */
+  sellerFulfilled: SellerFulfilledLines[];
   /** The soonest any option can deliver, or null when there are none. */
   earliestDeliveryDate: CalendarDay | null;
   /** How long each quote above stays an offer. */
@@ -544,18 +563,57 @@ export async function quoteWarehouseOptions(
   const netSubtotalMinor =
     resolved.pricing.totals.subtotalMinor - resolved.pricing.totals.discountMinor;
 
-  const items = resolved.sourceItems.map((item) => ({
-    productId: item.productId,
-    variantId: item.variantId,
-    quantity: item.quantity,
-  }));
+  /*
+   * Only the lines this shop sends itself.
+   *
+   * A marketplace line is somebody else's box. The seller picks it in their
+   * own building, from their own ledger, and names the place it leaves from
+   * when they accept the order - so an operator warehouse is neither short of
+   * it nor able to carry it. Measured against these shelves every such line
+   * reads as zero on hand, and one glove bought from a seller would close
+   * every warehouse in the country for a basket none of them was ever going
+   * to touch.
+   *
+   * The goods' own veto below is deliberately NOT narrowed this way: a
+   * product a country refuses is refused whoever ships it.
+   */
+  const items = resolved.sourceItems
+    .filter((item) => item.sellerOfferId === null)
+    .map((item) => ({
+      productId: item.productId,
+      variantId: item.variantId,
+      quantity: item.quantity,
+    }));
+
+  const restrictedProductIds = [
+    ...new Set(resolved.sourceItems.map((item) => item.productId)),
+  ];
+
+  // Grouped by name rather than by offer: the buyer is being told who is
+  // sending their parcels, and two lines from one seller are one parcel's
+  // worth of that answer, not two.
+  const sellerTotals = new Map<string, { lineCount: number; itemCount: number }>();
+
+  for (const line of resolved.lines) {
+    if (line.sellerOfferId === null) continue;
+    const name = line.sellerName ?? '';
+    const running = sellerTotals.get(name) ?? { lineCount: 0, itemCount: 0 };
+    sellerTotals.set(name, {
+      lineCount: running.lineCount + 1,
+      itemCount: running.itemCount + line.quantity,
+    });
+  }
+
+  const sellerFulfilled: SellerFulfilledLines[] = [...sellerTotals.entries()].map(
+    ([sellerName, totals]) => ({ sellerName, ...totals }),
+  );
 
   const productIds = [...new Set(items.map((item) => item.productId))];
 
   // --- What the goods themselves refuse ----------------------------------
   const [products, restrictions, countryRow, business] = await Promise.all([
     prisma.product.findMany({
-      where: { id: { in: productIds } },
+      where: { id: { in: restrictedProductIds } },
       select: {
         id: true,
         name: true,
@@ -567,7 +625,7 @@ export async function quoteWarehouseOptions(
       },
     }),
     prisma.productCountryRestriction.findMany({
-      where: { productId: { in: productIds }, countryCode: destination.countryCode },
+      where: { productId: { in: restrictedProductIds }, countryCode: destination.countryCode },
       select: { productId: true, reason: true },
     }),
     prisma.country.findUnique({
@@ -582,7 +640,7 @@ export async function quoteWarehouseOptions(
     restrictions.map((entry) => [entry.productId, entry.reason]),
   );
 
-  const restrictedLines: RestrictedLine[] = items
+  const restrictedLines: RestrictedLine[] = resolved.sourceItems
     .filter((item) => restrictionByProduct.has(item.productId))
     .map((item) => ({
       productId: item.productId,
@@ -590,6 +648,40 @@ export async function quoteWarehouseOptions(
       productName: productById.get(item.productId)?.name ?? item.productId,
       reason: restrictionByProduct.get(item.productId) ?? null,
     }));
+
+  /*
+   * A basket this shop sends none of.
+   *
+   * Every line came from a seller, so there is no warehouse question to put
+   * to the buyer: no building is picking any of it, and offering one would be
+   * asking them to choose where a parcel leaves from that leaves from
+   * somewhere else entirely. The answer is empty rather than a list of
+   * refusals - a refusal would read as "we cannot send this", when what is
+   * true is "we are not the ones sending it" - and the checkout carries on
+   * down the path it takes wherever warehouse fulfilment does not apply.
+   *
+   * What the destination itself refuses is still reported, because that is
+   * about the goods and not about who ships them.
+   */
+  if (items.length === 0) {
+    return {
+      destination: {
+        countryCode: destination.countryCode,
+        countryName: countryRow?.name ?? destination.countryCode,
+        postalCode: destination.postalCode,
+        addressId: destination.addressId,
+      },
+      isEstimate: destination.isEstimate,
+      currency,
+      options: [],
+      ineligible: [],
+      restrictedLines,
+      sellerFulfilled,
+      earliestDeliveryDate: null,
+      quoteTtlSeconds: Math.round(quoteTtlMs() / 1000),
+      computedAt: now.toISOString(),
+    };
+  }
 
   const needsColdChain = items.some(
     (item) => productById.get(item.productId)?.requiresColdChain === true,
@@ -986,6 +1078,7 @@ export async function quoteWarehouseOptions(
     options,
     ineligible,
     restrictedLines,
+    sellerFulfilled,
     earliestDeliveryDate: earliest,
     quoteTtlSeconds: Math.round(quoteTtlMs() / 1000),
     computedAt: now.toISOString(),

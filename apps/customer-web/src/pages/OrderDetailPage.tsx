@@ -476,6 +476,11 @@ export function OrderDetailPage(): React.JSX.Element {
                   {order.shipments.map((shipment, index) => (
                     <li key={`${shipment.trackingNumber ?? ''}:${String(index)}`}>
                       <span className="text-ink">{shipment.carrier ?? t('orderDetail.courier')}</span>
+                      {shipment.sentBy !== null && (
+                        <span className="ml-2 text-xs text-ink-muted">
+                          {t('orderDetail.sentBy', { seller: shipment.sentBy })}
+                        </span>
+                      )}
                       {shipment.trackingNumber !== null && (
                         <span className="ml-2 font-mono text-xs text-ink-muted">
                           {shipment.trackingNumber}

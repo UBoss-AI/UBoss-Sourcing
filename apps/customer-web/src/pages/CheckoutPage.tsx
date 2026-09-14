@@ -40,6 +40,7 @@ import { FulfilmentWarehouseSection } from '@/pages/checkout/FulfilmentWarehouse
 import { ApiError, NetworkError, api, newIdempotencyKey } from '@/lib/api';
 import {
   fetchWarehouseOptions,
+  isSellerOnlyFulfilment,
   revalidateQuote,
   secondsUntil,
   warehouseOptionsQueryKey,
@@ -877,7 +878,19 @@ export function CheckoutPage(): React.JSX.Element {
               After the address and before the payment, which is the order the
               decision actually happens in: the options depend on where it is
               going, and what it costs depends on which one is chosen. */}
-          <Section id="fulfilment-heading" step={2} title={t('fulfilment.heading')}>
+          <Section
+            id="fulfilment-heading"
+            step={2}
+            /* Titled for the answer, not for the question: a basket the
+               seller sends has no warehouse to choose, and heading it
+               "choose a warehouse" asks for a decision that is not
+               there to make. */
+            title={
+              isSellerOnlyFulfilment(fulfilmentData)
+                ? t('fulfilment.sellerSendsHeading')
+                : t('fulfilment.heading')
+            }
+          >
             <FulfilmentWarehouseSection
               data={fulfilmentData}
               isPending={warehouseOptions.isPending && shippingAddressId !== null}

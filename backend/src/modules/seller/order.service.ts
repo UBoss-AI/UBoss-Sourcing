@@ -27,19 +27,21 @@ import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.j
 import { SellerPermission } from '../../domain/seller-permissions.js';
 import {
   SELLER_ORDER_STOCK_HELD,
+  dispatchDeadline,
   allowedSellerOrderTransitions,
   assertSellerOrderTransition,
   type SellerOrderGroupStatusName,
 } from '../../domain/seller-state.js';
 import { newId } from '../../infra/ids.js';
-import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
+import { prisma } from '../../infra/prisma.js';
 import { recordSellerAudit } from './audit.service.js';
 import {
   assertSellerOwnership,
   assertSellerPermission,
   type SellerMembership,
 } from './account.service.js';
-import { releaseReservation } from './inventory.service.js';
+import { consumeReservation, releaseReservation, reserveStock } from './inventory.service.js';
+import { syncOrderWithSellerGroups } from './order-split.service.js';
 
 export interface SellerOrderRow {
   id: string;
@@ -218,6 +220,10 @@ export async function readSellerOrder(membership: SellerMembership, groupId: str
     deliveryAddress: group.order.shippingAddressJson,
     lines: group.lines.map((line) => ({
       id: line.id,
+      // The buyer order line this covers. Returned because a shipment says what
+      // went in the box in those terms, and a screen that only knows its own
+      // ids cannot name anything the rest of the order recognises.
+      orderItemId: line.orderItemId,
       offerId: line.offerId,
       sellerSku: line.offer.sellerSku,
       productName: line.offer.product.name,
@@ -280,7 +286,7 @@ export async function transitionSellerOrder(input: OrderTransitionInput): Promis
     input.to === 'CANCELLED' ? SellerPermission.ORDER_CANCEL : SellerPermission.ORDER_FULFIL,
   );
 
-  await prisma.$transaction(async (tx) => {
+  const orderId = await prisma.$transaction(async (tx) => {
     const group = await tx.sellerOrderGroup.findUnique({
       where: { id: input.groupId },
       include: { lines: { select: { offerId: true, quantity: true, fulfilledQuantity: true } } },
@@ -302,6 +308,7 @@ export async function transitionSellerOrder(input: OrderTransitionInput): Promis
     // no location has no dispatch deadline, so its SLA can never be breached
     // and it silently never appears in the overdue list.
     let locationId = group.locationId;
+    let dispatchDueAt: Date | null = group.dispatchDueAt;
 
     if (input.to === 'ACCEPTED') {
       locationId = input.locationId ?? group.locationId;
@@ -316,7 +323,14 @@ export async function transitionSellerOrder(input: OrderTransitionInput): Promis
 
       const location = await tx.sellerLocation.findUnique({
         where: { id: locationId },
-        select: { sellerAccountId: true, isOperational: true, handlingTimeDays: true },
+        select: {
+          sellerAccountId: true,
+          isOperational: true,
+          handlingTimeDays: true,
+          timezone: true,
+          workingDaysMask: true,
+          dispatchCutoff: true,
+        },
       });
 
       if (location === null) throw notFound('Location');
@@ -328,6 +342,49 @@ export async function transitionSellerOrder(input: OrderTransitionInput): Promis
           'That location is closed. Choose another, or reopen it first.',
         );
       }
+
+      /*
+       * Accepting is also where the units stop being available to anybody
+       * else.
+       *
+       * The operator's checkout cannot do this for a marketplace line: at
+       * that moment nobody has said which of the seller's buildings the
+       * parcel leaves from, and a reservation has to name a place or it
+       * cannot be released or dispatched again. Accepting is the first
+       * moment both facts exist - the order and the location - so it is
+       * where the hold is taken, and it is refused outright if the shelf
+       * cannot cover it rather than accepting an order that cannot ship.
+       */
+      for (const line of group.lines) {
+        const outstanding = line.quantity - line.fulfilledQuantity;
+        if (outstanding <= 0) continue;
+
+        await reserveStock(tx, {
+          offerId: line.offerId,
+          locationId,
+          quantity: outstanding,
+          orderId: group.orderId,
+        });
+      }
+
+      /*
+       * And where the clock starts.
+       *
+       * Counted from the building that was just named: its cut-off, its
+       * working week, its handling time. Before this moment there was no
+       * location to count against, which is why the split leaves the deadline
+       * null rather than inventing one - a seller marked late against a
+       * deadline computed from nothing has no way to argue with it.
+       */
+      dispatchDueAt = dispatchDeadline(
+        {
+          timezone: location.timezone,
+          workingDaysMask: location.workingDaysMask,
+          dispatchCutoff: location.dispatchCutoff,
+          handlingTimeDays: location.handlingTimeDays,
+        },
+        new Date(),
+      );
     }
 
     if (input.to === 'CANCELLED' && locationId !== null) {
@@ -351,7 +408,7 @@ export async function transitionSellerOrder(input: OrderTransitionInput): Promis
       data: {
         status: input.to,
         locationId,
-        ...(input.to === 'ACCEPTED' ? { acceptedAt: now } : {}),
+        ...(input.to === 'ACCEPTED' ? { acceptedAt: now, dispatchDueAt } : {}),
         ...(input.to === 'SHIPPED' ? { dispatchedAt: now } : {}),
         ...(input.to === 'DELIVERED' ? { deliveredAt: now } : {}),
         ...(input.to === 'CANCELLED'
@@ -372,7 +429,13 @@ export async function transitionSellerOrder(input: OrderTransitionInput): Promis
       correlationId: input.correlationId ?? null,
       tx,
     });
+
+    return group.orderId;
   });
+
+  // The buyer's order follows the sellers on an order nobody's staff touches.
+  // Outside the transaction on purpose - see `syncOrderWithSellerGroups`.
+  await syncOrderWithSellerGroups(orderId);
 }
 
 export interface ShipmentInput {
@@ -402,7 +465,7 @@ export async function recordShipment(input: ShipmentInput): Promise<{ shipmentId
 
   const shipmentId = newId();
 
-  await prisma.$transaction(async (tx) => {
+  const orderId = await prisma.$transaction(async (tx) => {
     const group = await tx.sellerOrderGroup.findUnique({
       where: { id: input.groupId },
       include: { lines: true },
@@ -452,36 +515,14 @@ export async function recordShipment(input: ShipmentInput): Promise<{ shipmentId
       // transaction, so a crash cannot leave units reserved for a parcel that
       // has left the building.
       if (group.locationId !== null) {
-        const stock = await tx.sellerInventory.findUnique({
-          where: {
-            offerId_locationId: { offerId: line.offerId, locationId: group.locationId },
-          },
-          select: { id: true, reservedQuantity: true, availableQuantity: true },
+        await consumeReservation(tx, {
+          offerId: line.offerId,
+          locationId: group.locationId,
+          quantity: entry.quantity,
+          sellerAccountId: group.sellerAccountId,
+          shipmentId,
+          lineId: line.id,
         });
-
-        if (stock !== null) {
-          const dispatching = Math.min(entry.quantity, stock.reservedQuantity);
-
-          await tx.sellerInventory.update({
-            where: { id: stock.id },
-            data: { reservedQuantity: { decrement: dispatching }, version: { increment: 1 } },
-          });
-
-          await tx.sellerInventoryMovement.create({
-            data: {
-              id: newId(),
-              sellerAccountId: group.sellerAccountId,
-              offerId: line.offerId,
-              locationId: group.locationId,
-              type: 'DISPATCH',
-              quantityDelta: -dispatching,
-              balanceAfter: stock.availableQuantity,
-              referenceType: 'seller_shipment',
-              referenceId: shipmentId,
-              idempotencyKey: `dispatch:${shipmentId}:${line.id}`,
-            },
-          });
-        }
       }
     }
 
@@ -530,23 +571,13 @@ export async function recordShipment(input: ShipmentInput): Promise<{ shipmentId
       correlationId: input.correlationId ?? null,
       tx,
     });
+
+    return group.orderId;
   });
 
-  return { shipmentId };
-}
+  // A dispatch is the event most likely to move the buyer's order, so it asks
+  // the same question the status transitions do.
+  await syncOrderWithSellerGroups(orderId);
 
-/**
- * Next sequential order number for a seller.
- *
- * Per seller, not global. A seller's paperwork should not tell them how many
- * orders the whole marketplace took last month, and a shared sequence does
- * exactly that.
- */
-export async function nextSellerOrderNumber(
-  tx: PrismaTransaction,
-  sellerAccountId: string,
-): Promise<string> {
-  const count = await tx.sellerOrderGroup.count({ where: { sellerAccountId } });
-  const year = new Date().getUTCFullYear();
-  return `SO-${String(year)}-${String(count + 1).padStart(5, '0')}`;
+  return { shipmentId };
 }

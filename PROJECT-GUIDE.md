@@ -2527,6 +2527,95 @@ it a disputed settlement cannot even be recomputed to show it was right.
 accepts and says where it ships from; inventing one before there is a location
 to compute it against marks a seller late against a deadline nobody gave them.
 
+#### Whose shelf, whose van, and what the buyer is told
+
+A marketplace line is somebody else's box from the moment it enters the basket,
+and four places used to assume otherwise. Each one looked fine on screen and was
+wrong underneath.
+
+**The basket counts the seller's stock, not the operator's.** `resolveCart`
+reads `SellerOffer.availableQuantity` for a line that names an offer. Measured
+against the operator's balances the answer is always zero, so every marketplace
+line was buyable in the catalogue and refused in the basket, for a reason the
+shopper could not act on and the seller could not see.
+
+**Checkout reserves nothing for it.** `submitCheckout` filters the seller lines
+out of the reservation: those units are in the seller's building, on their own
+ledger. Reaching for an operator balance that has never existed refused an order
+the seller could have filled from a full shelf.
+
+**The warehouse question is not asked.** `quoteWarehouseOptions` measures only
+the operator's own lines, so one glove bought from a seller cannot close every
+warehouse in the country for a basket none of them was going to touch. A basket
+made **entirely** of sellers' goods comes back with no options and no
+`ineligible` at all — there is no warehouse question to put — plus
+`sellerFulfilled`, which names who is sending it. The checkout titles that
+section *Sent by the seller* rather than *Choose your fulfilment warehouse* and
+carries on down the shipping-method path. An empty list with a warning would say
+"we cannot send this", when what is true is "we are not the ones sending it".
+The goods' own veto is deliberately not narrowed this way: a product a country
+refuses is refused whoever ships it.
+
+**The hold is taken when the seller accepts.** That is the first moment both
+facts exist — the order, and which of the seller's buildings it leaves from —
+and a reservation with no place cannot be released or dispatched again.
+Accepting therefore reserves every outstanding line at the named location and
+refuses outright if the shelf cannot cover it, which is also what makes the
+existing release-on-cancel correct rather than stock invented from nothing.
+Dispatching turns the hold into a `DISPATCH` movement; it never gives the units
+back.
+
+Every one of those writes ends at `refreshOfferTotals`, because
+`SellerOffer.availableQuantity` is a cached sum of the location rows and is what
+the storefront, the listings table and the basket read. Moving a location row
+and leaving the offer alone keeps the shop selling units that are already
+promised to somebody.
+
+**The deadline is computed on acceptance**, by `dispatchDeadline` in
+`seller-state.ts`, from the location's own clock: its IANA zone, its working-day
+bitmask, its `HH:MM` cut-off and its handling days. An order accepted after the
+cut-off starts counting tomorrow — pretending otherwise hands a seller a
+deadline they could never have met — and the deadline lands at the cut-off on
+the last working day counted, or at the end of that day where a building has
+never stated one. Public holidays are not modelled, for the reason
+`addBusinessDays` gives: a hard-coded list that is wrong is worse than a seller
+widening their own handling time on purpose.
+
+**The buyer's order follows the sellers.** On an order made only of sellers'
+goods nobody on the operator's staff picks anything, so its status has no other
+source: without `syncOrderWithSellerGroups` the order page says "Confirmed — we
+are getting your order ready" while a courier is carrying the box, and goes on
+saying it after the buyer has signed for it. It moves CONFIRMED → PROCESSING →
+SHIPPED → DELIVERED, one step at a time so the history support reads back is
+complete, and:
+
+- an order holding **any** of the operator's own lines is left alone, because
+  that part is genuinely the warehouse's work and staff drive it;
+- it moves only when **every** group has, since one seller of three dispatching
+  is not an order that has shipped;
+- a cancelled group does not hold the rest back, and an order whose groups are
+  all cancelled is not "shipped" — what happens to it is the operator's decision
+  through the refund path.
+
+It runs after the seller's own transaction commits rather than inside it:
+`transitionOrder` owns the buyer's order, commits its own transaction and then
+sends the buyer's email and hands the order to their ERP. It is written to be
+re-run, so a crash in between is repaired by the next dispatch rather than
+doubled. `CONFIRMED → PROCESSING` and `PROCESSING → SHIPPED` gained `SYSTEM` as
+an actor for exactly this, and nothing else.
+
+**A dispatch can be recorded straight from ACCEPTED.** "Picking" and "ready to
+go" are a seller telling their own staff where a box has got to; plenty of
+sellers accept, pack and hand to a courier without touching either. A shipment
+carrying a carrier and a tracking number is evidence the goods have gone, so
+`ACCEPTED → SHIPPED` and `PROCESSING → SHIPPED` are legal moves — made by the
+recorded dispatch, never by a button that simply says SHIPPED.
+
+**The buyer sees whose parcel it is.** `GET /orders/:id` merges the sellers'
+shipments into `shipments` with a `sentBy` naming the seller (null for the
+shop's own box), because an order arriving as two parcels on two days from two
+businesses is a tracking list the buyer cannot otherwise match to anything.
+
 #### How a line gets a seller: one storefront per seller
 
 `northwind.uboss.example` is Northwind's shop. `uboss.example` is the
@@ -4587,6 +4676,16 @@ warehouse under `NO_DELIVERY_ZONE`. **The storefront reads that as "this shop
 does not fulfil from warehouses here"**, hides nothing, blocks nothing, and
 lets checkout run the way it did before this feature existed. Blocking on an
 empty option list would have taken every such deployment offline.
+
+### Lines the shop is not sending
+
+Goods bought from a seller on the marketplace leave that seller's own building,
+so they are neither counted against a warehouse's stock nor carried by its
+lanes. They are reported separately as `sellerFulfilled`, named by seller, and a
+basket made entirely of them comes back with no options and no `ineligible` —
+there is no warehouse question to answer, and the checkout says *Sent by the
+seller* instead of asking one. See **One order, each seller's share of it** in
+section 4a for what happens to those lines afterwards.
 
 ### Estimated, and why it cannot be bought
 

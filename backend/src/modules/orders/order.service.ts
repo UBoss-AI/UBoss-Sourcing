@@ -352,7 +352,20 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
   const orderId = newId();
   const requiresApproval = resolved.limits.requiresApproval;
 
-  const stockedItems = resolved.sourceItems.filter((item) => item.isStockTracked);
+  /*
+   * The lines this shop reserves stock for.
+   *
+   * A marketplace line is left out, and not because it does not matter: those
+   * units sit in the seller's own warehouse, on their own offer, counted by
+   * their own ledger. Reserving them here would reach for a balance the
+   * operator has never held - always zero - and refuse an order the seller
+   * could fill from a full shelf. The seller's units are reserved when they
+   * accept the order and name the location it ships from, which is the same
+   * moment `sellerOrderService` releases them again on a cancellation.
+   */
+  const stockedItems = resolved.sourceItems.filter(
+    (item) => item.isStockTracked && item.sellerOfferId === null,
+  );
 
   const result = await prisma.$transaction(async (tx) => {
     const orderNumber = await nextOrderNumber(tx);

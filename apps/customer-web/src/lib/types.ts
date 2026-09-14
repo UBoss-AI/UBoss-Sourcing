@@ -820,6 +820,14 @@ export interface OrderTimelineEntry {
 }
 
 export interface OrderShipment {
+  /**
+   * The seller who sent this box, or null when the shop sent it itself.
+   *
+   * A marketplace order can arrive as two parcels on two days from two
+   * businesses, and a tracking list that does not say which is which is a
+   * list of numbers the buyer cannot match to anything.
+   */
+  sentBy: string | null;
   carrier: string | null;
   trackingNumber: string | null;
   trackingUrl: string | null;

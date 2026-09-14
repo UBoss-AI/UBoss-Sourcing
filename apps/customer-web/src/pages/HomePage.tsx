@@ -200,8 +200,19 @@ function Greeting(): React.JSX.Element {
               {eyebrow}
             </p>
 
+            {/*
+              The shop's own name, read from the configuration rather than the
+              phrase book.
+
+              It used to be a translation key whose value was this software's
+              own product name, which meant every business that bought this
+              product greeted its customers with the vendor's name - and on a
+              seller's shop front the seller's own customers were welcomed to
+              somebody else's marketplace. A name is not a string to translate;
+              it is a fact about who is selling.
+            */}
             <h1 className="mt-3 text-3xl font-semibold tracking-tight text-ink sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
-              {t('greeting.headline')}
+              {business.displayName}
             </h1>
 
             <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-muted">

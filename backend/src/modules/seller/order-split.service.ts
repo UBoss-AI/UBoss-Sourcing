@@ -274,3 +274,100 @@ export async function splitOrderToSellers(orderId: string, tx: Tx): Promise<Spli
 export async function splitOrder(orderId: string): Promise<SplitResult> {
   return prisma.$transaction((tx) => splitOrderToSellers(orderId, tx));
 }
+
+/**
+ * Let the sellers' progress move the buyer's order.
+ *
+ * The buyer has one order and reads one status. On a marketplace order that
+ * status has no other source: nobody on the operator's staff picks it, so
+ * without this it sits at "Confirmed - we are getting your order ready" while
+ * the seller packs it, ships it and the buyer signs for it.
+ *
+ * THREE RULES, AND EACH EXISTS BECAUSE THE OBVIOUS VERSION IS WRONG:
+ *
+ *   - **An order with any of the operator's own lines is left alone.** Part of
+ *     it is genuinely this shop's work, and a status saying "shipped" while a
+ *     box is still on their own shelf is a lie to the buyer and a lost pick in
+ *     the warehouse. Staff drive those, as they always have.
+ *   - **It moves only when every group has.** One seller of three dispatching
+ *     is not an order that has shipped. A buyer told "shipped" who then waits
+ *     a week for the other two boxes has been told something false.
+ *   - **Cancelled groups do not hold it back**, but an order whose groups are
+ *     ALL cancelled is not "shipped" either - it is cancelled, which is the
+ *     operator's decision through the refund path and not something to infer
+ *     from here.
+ *
+ * WHY THIS IS NOT IN THE CALLER'S TRANSACTION
+ *
+ * `transitionOrder` owns the buyer's order: it commits its own transaction and
+ * then sends the buyer's email and hands the order to their ERP. Reaching
+ * inside it from here would either skip both or nest one transaction in
+ * another and deadlock on the rows the outer one is holding. So this runs
+ * after the seller's group is safely written, and it is written to be re-run:
+ * it reads the groups as they are now and moves the order at most one step per
+ * state, so a crash in between is repaired by the next dispatch, the next
+ * delivery, or a call to this function - never doubled.
+ */
+export async function syncOrderWithSellerGroups(orderId: string): Promise<void> {
+  const operatorLines = await prisma.orderItem.count({
+    where: { orderId, sellerOfferId: null },
+  });
+
+  if (operatorLines > 0) return;
+
+  const groups = await prisma.sellerOrderGroup.findMany({
+    where: { orderId },
+    select: { status: true },
+  });
+
+  const live = groups.filter((group) => group.status !== 'CANCELLED');
+  if (live.length === 0) return;
+
+  const everyGroupDelivered = live.every((group) => group.status === 'DELIVERED');
+  const everyGroupGone = live.every(
+    (group) => group.status === 'SHIPPED' || group.status === 'DELIVERED',
+  );
+  const anyGroupStarted = live.some((group) => group.status !== 'NEW');
+
+  // Imported here rather than at the top of the file: `order.service` imports
+  // the split above, and a static import back would be a cycle.
+  const { transitionOrder } = await import('../orders/order.service.js');
+
+  const actor = { userId: null, email: null, type: 'SYSTEM' as const };
+
+  const move = async (
+    to: 'PROCESSING' | 'SHIPPED' | 'DELIVERED',
+    reason: string,
+  ): Promise<void> => {
+    await transitionOrder({ orderId, to, actor, reason });
+  };
+
+  /*
+   * One step at a time, through the states the machine actually has.
+   *
+   * CONFIRMED -> PROCESSING -> SHIPPED -> DELIVERED, never a jump: the history
+   * an order carries is what support reads back to a buyer asking what
+   * happened, and a row missing from it is a question nobody can answer. The
+   * status is re-read between steps because each one is its own transaction.
+   */
+  const statusOf = async (): Promise<string | null> => {
+    const row = await prisma.order.findUnique({ where: { id: orderId }, select: { status: true } });
+    return row?.status ?? null;
+  };
+
+  if ((await statusOf()) === 'CONFIRMED' && (anyGroupStarted || everyGroupGone)) {
+    await move('PROCESSING', 'A seller started work on their part');
+  }
+
+  if (!everyGroupGone) return;
+
+  if ((await statusOf()) === 'PROCESSING') {
+    await move('SHIPPED', 'Every seller has dispatched their part');
+  }
+
+  if (!everyGroupDelivered) return;
+
+  if ((await statusOf()) === 'SHIPPED') {
+    await move('DELIVERED', 'Every seller has delivered their part');
+  }
+}

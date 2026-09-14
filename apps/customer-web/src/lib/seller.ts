@@ -880,7 +880,7 @@ export interface SellerOrderDetail {
   id: string;
   sellerOrderNumber: string;
   orderNumber: string;
-  status: string;
+  status: SellerOrderStatus;
   buyerOrderStatus: string;
   placedAt: string | null;
   dispatchDueAt: string | null;
@@ -896,6 +896,8 @@ export interface SellerOrderDetail {
   deliveryAddress: unknown;
   lines: {
     id: string;
+    /** The buyer order line this covers. A shipment names its contents by this. */
+    orderItemId: string;
     offerId: string;
     sellerSku: string;
     productName: string;
@@ -924,8 +926,14 @@ export interface SellerOrderDetail {
     sellerResponse: string | null;
     createdAt: string;
   }[];
-  /** What this member may do next. The panel renders exactly these. */
-  allowedTransitions: string[];
+  /**
+   * What this member may do next. The panel renders exactly these.
+   *
+   * Each carries whether the move needs a reason written down, because that
+   * is a property of the transition and not of the screen: cancelling has to
+   * be explained wherever it is offered.
+   */
+  allowedTransitions: { to: SellerOrderStatus; requiresReason: boolean }[];
 }
 
 export function fetchSellerOrder(id: string): Promise<SellerOrderDetail> {
@@ -1165,5 +1173,40 @@ export function sectionLabel(section: ListingSection): string {
       // devices, so the LABEL is the general one. What a category actually
       // asks for in this section is the category's business.
       return 'Compliance and certification';
+  }
+}
+
+/**
+ * What a seller may do next, from this status.
+ *
+ * A short list rather than every legal transition: the server's state machine
+ * allows more than a seller should be offered in a row - moving straight from
+ * NEW to SHIPPED is legal in two hops and is not a button, because skipping
+ * "accepted" loses the dispatch clock the SLA is measured against.
+ */
+export function nextActions(
+  status: SellerOrderStatus,
+): { to: SellerOrderStatus; label: string; isPrimary: boolean }[] {
+  switch (status) {
+    case 'NEW':
+      return [
+        { to: 'ACCEPTED', label: 'Accept', isPrimary: true },
+        { to: 'CANCELLED', label: 'Reject', isPrimary: false },
+      ];
+    case 'ACCEPTED':
+      return [{ to: 'PROCESSING', label: 'Start picking', isPrimary: true }];
+    case 'PROCESSING':
+      return [{ to: 'READY_FOR_DISPATCH', label: 'Ready to go', isPrimary: true }];
+    case 'READY_FOR_DISPATCH':
+      return [{ to: 'SHIPPED', label: 'Mark as shipped', isPrimary: true }];
+    case 'SHIPPED':
+      return [{ to: 'DELIVERED', label: 'Mark delivered', isPrimary: false }];
+    case 'RETURN_REQUESTED':
+      return [
+        { to: 'RETURNED', label: 'Accept the return', isPrimary: true },
+        { to: 'DISPUTED', label: 'Dispute it', isPrimary: false },
+      ];
+    default:
+      return [];
   }
 }

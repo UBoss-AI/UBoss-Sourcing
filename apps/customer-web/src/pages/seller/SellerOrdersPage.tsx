@@ -34,6 +34,7 @@ import {
   fetchLocations,
   fetchSellerOrders,
   formatMinor,
+  nextActions,
   orderLabel,
   transitionOrder,
   type SellerOrderRow,
@@ -264,41 +265,6 @@ function OrdersBody(): React.JSX.Element {
       )}
     </div>
   );
-}
-
-/**
- * What a seller may do next, from this status.
- *
- * A short list rather than every legal transition: the server's state machine
- * allows more than a seller should be offered in a row - moving straight from
- * NEW to SHIPPED is legal in two hops and is not a button, because skipping
- * "accepted" loses the dispatch clock the SLA is measured against.
- */
-function nextActions(
-  status: SellerOrderStatus,
-): { to: SellerOrderStatus; label: string; isPrimary: boolean }[] {
-  switch (status) {
-    case 'NEW':
-      return [
-        { to: 'ACCEPTED', label: 'Accept', isPrimary: true },
-        { to: 'CANCELLED', label: 'Reject', isPrimary: false },
-      ];
-    case 'ACCEPTED':
-      return [{ to: 'PROCESSING', label: 'Start picking', isPrimary: true }];
-    case 'PROCESSING':
-      return [{ to: 'READY_FOR_DISPATCH', label: 'Ready to go', isPrimary: true }];
-    case 'READY_FOR_DISPATCH':
-      return [{ to: 'SHIPPED', label: 'Mark as shipped', isPrimary: true }];
-    case 'SHIPPED':
-      return [{ to: 'DELIVERED', label: 'Mark delivered', isPrimary: false }];
-    case 'RETURN_REQUESTED':
-      return [
-        { to: 'RETURNED', label: 'Accept the return', isPrimary: true },
-        { to: 'DISPUTED', label: 'Dispute it', isPrimary: false },
-      ];
-    default:
-      return [];
-  }
 }
 
 function TransitionDialog({

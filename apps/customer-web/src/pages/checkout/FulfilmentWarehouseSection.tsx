@@ -48,6 +48,7 @@ import type {
   WarehouseOption,
   WarehouseOptionsResponse,
 } from '@/lib/fulfilment';
+import { isSellerOnlyFulfilment } from '@/lib/fulfilment';
 import { useI18n } from '@/i18n/i18n-context';
 import type { Translate } from '@/i18n/i18n-context';
 
@@ -382,6 +383,26 @@ export function FulfilmentWarehouseSection({
 
   const place = data.destination.countryName;
 
+  /*
+   * Who, other than this shop, is sending part of this basket.
+   *
+   * Listed by name and never folded into the warehouse list: those parcels
+   * leave a building this shop does not run, on a date its own lanes have no
+   * opinion about.
+   */
+  const sellerFulfilled = data.sellerFulfilled;
+  const sellerNames = sellerFulfilled.map((entry) => entry.sellerName).join(', ');
+  const sellerItemCount = sellerFulfilled.reduce((total, entry) => total + entry.itemCount, 0);
+
+
+  if (isSellerOnlyFulfilment(data)) {
+    return (
+      <p role="status" className="mt-4 text-sm leading-relaxed text-ink-muted">
+        {t('fulfilment.sellerSendsBody', { seller: sellerNames })}
+      </p>
+    );
+  }
+
   return (
     <div className="mt-4">
       {/* --- What kind of answer this is ---------------------------------- */}
@@ -461,6 +482,19 @@ export function FulfilmentWarehouseSection({
             {t('fulfilment.noneBody', { place })}
           </p>
         </div>
+      )}
+
+      {/* --- The part of the basket this shop is not sending ---------------
+          Said beside the warehouse list rather than inside it: a buyer who
+          sees one warehouse covering "everything" and then receives two
+          parcels on two days was told something that was not true. */}
+      {sellerFulfilled.length > 0 && (
+        <p className="mt-3 rounded-md border border-border bg-surface-sunken px-3 py-2 text-xs leading-relaxed text-ink-muted">
+          {t('fulfilment.sellerSendsAlso', {
+            seller: sellerNames,
+            items: formatNumber(sellerItemCount),
+          })}
+        </p>
       )}
 
       {/* --- Why the rest are not here -------------------------------------

@@ -186,6 +186,32 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
         statusHistory: { orderBy: { createdAt: 'asc' } },
         shipments: true,
         approvals: true,
+        /*
+         * The sellers' own parcels.
+         *
+         * A marketplace order's boxes never appear in `shipments` - that table
+         * is this shop's own dispatches - so a buyer who bought from a seller
+         * would be shown a tracking list with nothing in it while a courier
+         * was carrying their order. Included here and merged below, named by
+         * whoever sent it, because "who is this parcel from" is the first
+         * question a buyer expecting two boxes asks.
+         */
+        sellerOrderGroups: {
+          select: {
+            sellerAccount: { select: { displayName: true } },
+            shipments: {
+              orderBy: { createdAt: 'asc' },
+              select: {
+                carrierName: true,
+                trackingNumber: true,
+                trackingUrl: true,
+                status: true,
+                dispatchedAt: true,
+                deliveredAt: true,
+              },
+            },
+          },
+        },
         // Which building it is coming from. The customer chose it at
         // checkout, so telling them is the least this screen can do - and
         // "ships from Antwerp, arriving Thursday to Monday" is the answer
@@ -270,14 +296,30 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
           reason: entry.reason,
           at: entry.createdAt.toISOString(),
         })),
-        shipments: order.shipments.map((shipment) => ({
-          carrier: shipment.carrier,
-          trackingNumber: shipment.trackingNumber,
-          trackingUrl: shipment.trackingUrl,
-          status: shipment.status,
-          dispatchedAt: shipment.dispatchedAt?.toISOString() ?? null,
-          deliveredAt: shipment.deliveredAt?.toISOString() ?? null,
-        })),
+        shipments: [
+          ...order.shipments.map((shipment) => ({
+            carrier: shipment.carrier,
+            trackingNumber: shipment.trackingNumber,
+            trackingUrl: shipment.trackingUrl,
+            status: shipment.status,
+            dispatchedAt: shipment.dispatchedAt?.toISOString() ?? null,
+            deliveredAt: shipment.deliveredAt?.toISOString() ?? null,
+            // This shop's own box. Null rather than the shop's name: a buyer
+            // on a shop's own site does not need telling who the shop is.
+            sentBy: null,
+          })),
+          ...order.sellerOrderGroups.flatMap((group) =>
+            group.shipments.map((shipment) => ({
+              carrier: shipment.carrierName,
+              trackingNumber: shipment.trackingNumber,
+              trackingUrl: shipment.trackingUrl,
+              status: shipment.status,
+              dispatchedAt: shipment.dispatchedAt?.toISOString() ?? null,
+              deliveredAt: shipment.deliveredAt?.toISOString() ?? null,
+              sentBy: group.sellerAccount.displayName,
+            })),
+          ),
+        ],
         approval: order.approvals[0] ?? null,
       },
     });

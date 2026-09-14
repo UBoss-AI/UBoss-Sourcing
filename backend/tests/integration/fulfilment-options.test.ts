@@ -90,6 +90,9 @@ async function resetAll(): Promise<void> {
   await prisma.cart.deleteMany({});
   await prisma.numberSequence.deleteMany({});
   await prisma.productCountryRestriction.deleteMany({});
+  // Before the products they hang off, and before the accounts that own them.
+  await prisma.sellerOffer.deleteMany({});
+  await prisma.sellerAccount.deleteMany({});
   await prisma.product.deleteMany({});
   await prisma.category.deleteMany({});
   await prisma.taxClass.deleteMany({});
@@ -226,6 +229,49 @@ async function product(options: {
 
 async function stock(locationId: string, productId: string, quantity: number): Promise<void> {
   await receiveStock({ productId, quantity, locationId }, adminActor);
+}
+
+/**
+ * A seller, and their offer of one of the operator's products.
+ *
+ * The stock behind it lives in the seller's own building and is deliberately
+ * NOT received into any warehouse here: that is the whole point of the cases
+ * below. A line bought from a seller must not be measured against the
+ * operator's shelves, where it reads as zero every time.
+ */
+async function sellerOffer(productId: string, priceMinor: bigint): Promise<string> {
+  const sellerAccountId = newId();
+
+  await prisma.sellerAccount.create({
+    data: {
+      id: sellerAccountId,
+      legalName: 'Northwind Fastenings Ltd',
+      displayName: 'Northwind Fastenings',
+      displayNameNormalized: 'northwind fastenings',
+      slug: 'fulfilment-northwind',
+      kind: 'WHOLESALER',
+      registrationCountry: 'IN',
+      status: 'APPROVED',
+    },
+  });
+
+  const offerId = newId();
+
+  await prisma.sellerOffer.create({
+    data: {
+      id: offerId,
+      sellerAccountId,
+      productId,
+      variantKey: '',
+      sellerSku: 'NW-BOLT',
+      status: 'ACTIVE',
+      priceMinor,
+      currency: 'INR',
+      availableQuantity: 500,
+    },
+  });
+
+  return offerId;
 }
 
 /** The options for the standard basket, to the standard address. */
@@ -556,6 +602,88 @@ describe('what makes a warehouse eligible', () => {
     expect(result.restrictedLines).toHaveLength(1);
     expect(result.restrictedLines[0]?.reason).toBe('No import licence');
     expect(result.ineligible.every((entry) => entry.reason === 'PRODUCT_RESTRICTED')).toBe(true);
+  });
+});
+
+describe('a basket somebody else is sending', () => {
+  it('asks no warehouse question at all when every line came from a seller', async () => {
+    await lane(puneId);
+    await lane(mumbaiId);
+
+    const offerId = await sellerOffer(boltId, 12_000n);
+    await addItem(customerProfileId, { productId: boltId, quantity: 2, sellerOfferId: offerId });
+
+    const result = await quote();
+
+    // Not "nowhere can send this" - nobody has refused anything. There is
+    // simply no warehouse involved, so the checkout falls through to the path
+    // it takes wherever warehouse fulfilment does not apply.
+    expect(result.options).toEqual([]);
+    expect(result.ineligible).toEqual([]);
+
+    // And it says who IS sending it, because a list with nothing in it leaves
+    // the buyer unable to tell "forgotten" from "not ours to send".
+    expect(result.sellerFulfilled).toEqual([
+      { sellerName: 'Northwind Fastenings', lineCount: 1, itemCount: 2 },
+    ]);
+  });
+
+  it('does not let a seller line close a warehouse that holds the rest', async () => {
+    await lane(puneId);
+    // The bolts are on the operator's shelf, as the fixture left them. The
+    // nuts are not, and never will be: they are in the seller's building.
+    const nutId = await product({ sku: 'FUL-NUT', priceMinor: 8_000n, weightGrams: 50 });
+    const offerId = await sellerOffer(nutId, 8_000n);
+    await addItem(customerProfileId, { productId: boltId, quantity: 2 });
+    await addItem(customerProfileId, { productId: nutId, quantity: 3, sellerOfferId: offerId });
+
+    const result = await quote();
+
+    // Pune is short of nothing it is actually sending. Measured the wrong way,
+    // the seller's three would read as zero on hand and close it.
+    expect(codesOf(result.options)).toEqual(['PNQ']);
+    expect(result.sellerFulfilled).toEqual([
+      { sellerName: 'Northwind Fastenings', lineCount: 1, itemCount: 3 },
+    ]);
+
+    // The warehouse quotes for its own line only.
+    const pune = byCode(result, 'PNQ');
+    expect(pune.lines.map((line) => line.productId)).toEqual([boltId]);
+  });
+
+  it('checks out without reaching for stock the operator has never held', async () => {
+    // A product this shop does not stock at all. Only the seller has any.
+    const gloveId = await product({ sku: 'FUL-GLOVE', priceMinor: 40_000n, weightGrams: 300 });
+    const offerId = await sellerOffer(gloveId, 40_000n);
+
+    await addItem(customerProfileId, { productId: gloveId, quantity: 2, sellerOfferId: offerId });
+
+    const order = await submitCheckout({
+      customerProfileId,
+      shippingAddressId: addressId,
+      paymentMode: 'ONLINE',
+      actor: CUSTOMER_ACTOR(),
+    });
+
+    // The order exists. Reserving this line against the operator's balances
+    // would have found zero and refused a basket the seller can fill from a
+    // full shelf.
+    expect(order.orderId).toBeTruthy();
+
+    const reservations = await prisma.stockReservation.count({
+      where: { orderId: order.orderId },
+    });
+
+    expect(reservations).toBe(0);
+
+    // And the line carries the offer, so the confirmation can split it to the
+    // seller who is actually packing it.
+    const item = await prisma.orderItem.findFirstOrThrow({
+      where: { orderId: order.orderId },
+      select: { sellerOfferId: true },
+    });
+
+    expect(item.sellerOfferId).toBe(offerId);
   });
 });
 

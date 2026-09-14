@@ -129,6 +129,13 @@ export interface RestrictedLine {
   reason: string | null;
 }
 
+/** What one seller is sending out of this basket, rather than a warehouse. */
+export interface SellerFulfilledLines {
+  sellerName: string;
+  lineCount: number;
+  itemCount: number;
+}
+
 export interface WarehouseOptionsResponse {
   destination: {
     countryCode: string;
@@ -143,6 +150,8 @@ export interface WarehouseOptionsResponse {
   options: WarehouseOption[];
   ineligible: IneligibleWarehouse[];
   restrictedLines: RestrictedLine[];
+  /** Lines a seller dispatches themselves. Never on the warehouse list. */
+  sellerFulfilled: SellerFulfilledLines[];
   earliestDeliveryDate: string | null;
   quoteTtlSeconds: number;
   computedAt: string;
@@ -218,4 +227,26 @@ export function secondsUntil(expiresAt: string, now: number = Date.now()): numbe
   if (Number.isNaN(at)) return 0;
 
   return Math.max(0, Math.floor((at - now) / 1000));
+}
+
+/**
+ * Is this a basket nothing in which leaves one of the shop's own warehouses?
+ *
+ * True only when every line came from a seller: no options, nothing refused,
+ * and at least one seller named. It is not the same as "nowhere can send it"
+ * — nobody has refused anything — so the checkout neither blocks on it nor
+ * dresses it as a warning, and the section is titled for what it says.
+ *
+ * Lives here rather than in the section that renders it because the page
+ * needs the same answer to title the section.
+ */
+export function isSellerOnlyFulfilment(
+  data: WarehouseOptionsResponse | undefined,
+): boolean {
+  return (
+    data !== undefined &&
+    data.options.length === 0 &&
+    data.ineligible.length === 0 &&
+    data.sellerFulfilled.length > 0
+  );
 }

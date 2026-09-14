@@ -72,7 +72,7 @@ describe('the row above the bar', () => {
     // The placeholder is also the input's accessible name, so this asserts
     // both. There is only one now: the bar cannot be switched into anything.
     expect(
-      screen.getByRole('textbox', { name: 'Search medical equipment and supplies' }),
+      screen.getByRole('textbox', { name: 'Search the catalogue' }),
     ).toBeInTheDocument();
   });
 
@@ -83,7 +83,7 @@ describe('the row above the bar', () => {
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /ai mode/i })).not.toBeInTheDocument();
     expect(
-      screen.getByRole('textbox', { name: 'Search medical equipment and supplies' }),
+      screen.getByRole('textbox', { name: 'Search the catalogue' }),
     ).toBeInTheDocument();
   });
 });

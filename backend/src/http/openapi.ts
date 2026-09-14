@@ -646,6 +646,12 @@ const OPERATIONS: Readonly<Record<string, OperationDoc>> = Object.freeze({
       '`isEstimate` marks an answer priced from `countryCode` because no address was given. It ' +
       'is a conversation, not an offer: `assertQuoteUsable` refuses such a quote at checkout ' +
       'with `FULFILMENT_QUOTE_INVALID`.\n\n' +
+      '**A seller’s own lines are not part of this question.** Goods bought from a seller on ' +
+      'the marketplace leave that seller’s building, so they are neither counted against an ' +
+      'operator warehouse’s stock nor carried by its lanes; they are listed separately under ' +
+      '`sellerFulfilled`. A basket made up entirely of them comes back with no options and no ' +
+      '`ineligible` — there is no warehouse question to answer — and checkout proceeds on the ' +
+      'shipping-method path.\n\n' +
       '`isFastest`, `isCheapest` and `isRecommended` are decided here so no client has to ' +
       'invent a second opinion about which option is best. An empty `options` is a 200 and a ' +
       'real answer — with `ineligible` beside it saying why each warehouse the buyer might ' +

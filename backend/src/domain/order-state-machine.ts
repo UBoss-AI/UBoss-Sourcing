@@ -73,13 +73,24 @@ const TRANSITIONS: Readonly<Record<OrderStatusName, readonly TransitionRule[]>> 
     { to: 'CANCELLED', actors: ['ADMIN', 'CUSTOMER', 'SYSTEM'], requiresReason: true },
   ],
 
+  /*
+   * SYSTEM moves these two because a marketplace order has nobody else.
+   *
+   * An order made entirely of sellers' goods is picked and dispatched in
+   * buildings this shop does not run: no member of staff ever opens it, so an
+   * ADMIN-only path would leave the buyer looking at "we are getting your
+   * order ready" while the parcel was delivered last week. The sellers'
+   * groups are what move it - see `syncOrderWithSellerGroups` - and an order
+   * with any line of the operator's own is still driven by staff, because
+   * that half is genuinely their work.
+   */
   CONFIRMED: [
-    { to: 'PROCESSING', actors: ['ADMIN'], permission: 'order.fulfil' },
+    { to: 'PROCESSING', actors: ['ADMIN', 'SYSTEM'], permission: 'order.fulfil' },
     { to: 'CANCELLED', actors: ['ADMIN'], permission: 'order.cancel', requiresReason: true },
   ],
 
   PROCESSING: [
-    { to: 'SHIPPED', actors: ['ADMIN'], permission: 'order.fulfil' },
+    { to: 'SHIPPED', actors: ['ADMIN', 'SYSTEM'], permission: 'order.fulfil' },
     { to: 'CANCELLED', actors: ['ADMIN'], permission: 'order.cancel', requiresReason: true },
   ],
 
