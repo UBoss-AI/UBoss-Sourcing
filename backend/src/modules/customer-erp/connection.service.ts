@@ -1430,6 +1430,11 @@ export async function testConnection(
     'START_TEST',
   );
 
+  // Where to put it back. A test started on a live connection has to leave it
+  // live - see `stateAfterTest`. Kept in memory rather than on the row because
+  // the only reader is the update at the end of this function.
+  const startedFrom = current.state;
+
   await prisma.customerErpConnection.update({
     where: { id: connectionId },
     data: { state: testingState, stateChangedAt: new Date() },
@@ -1471,11 +1476,12 @@ export async function testConnection(
     };
   }
 
-  // Back to DRAFT either way. The outcome lives in the columns.
+  // Back where the test found it, pass or fail. The outcome lives in the
+  // columns, not in the state.
   await prisma.customerErpConnection.update({
     where: { id: connectionId },
     data: {
-      state: assertConnectionTransition(testingState, 'TEST_FINISHED'),
+      state: assertConnectionTransition(testingState, 'TEST_FINISHED', startedFrom),
       stateChangedAt: new Date(),
       lastTestAt: new Date(),
       lastTestOk: result.ok,

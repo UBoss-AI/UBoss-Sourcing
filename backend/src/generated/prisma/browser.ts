@@ -890,6 +890,42 @@ export type CustomerErpInvoiceLink = Prisma.CustomerErpInvoiceLinkModel
  */
 export type CustomerErpInventoryLink = Prisma.CustomerErpInventoryLinkModel
 /**
+ * Model CustomerErpProductCode
+ * "Their code X is our product Y."
+ * 
+ * The answer to the problem every buyer meets on their first real sync, and
+ * the one thing the rest of this feature could not solve on its own: the two
+ * catalogues are keyed differently and nothing in either of them says how they
+ * correspond.
+ * 
+ * A worked example from a live connection. The buyer's monday board holds 708
+ * finished-goods codes (`FG/1BZ1B1-G`); the store's catalogue holds 247
+ * products (`EV-CANNULA-WP`). Both carry a barcode column, which would have
+ * been the obvious join - and the catalogue's is empty on every row. There is
+ * no identifier in common. A sync therefore read 708 records and recorded one,
+ * which was a coincidence.
+ * 
+ * `reconcile.service.ts` already said matching is on SKU "exactly... until
+ * somebody says otherwise". This table is where somebody says otherwise.
+ * 
+ * WHY PER CONNECTION AND NOT ON THE PRODUCT
+ * 
+ * The obvious shortcut is a `supplierCode` column on `Product`. It is wrong
+ * here for a reason that is structural rather than stylistic: **this software
+ * is sold to companies who run it themselves**, and one product is bought by
+ * many organisations who each call it something different in their own ERP.
+ * A code on the product row can hold exactly one of those answers.
+ * 
+ * NO `createdByProfileId`
+ * 
+ * Deliberately absent. Who created a mapping is a question the org audit log
+ * already answers - `recordOrgAudit` writes `mapping.linked` with the actor -
+ * and copying a person's id into a table of catalogue mappings would put
+ * personal data somewhere the Art. 15 export would then have to account for,
+ * to record something already recorded properly elsewhere.
+ */
+export type CustomerErpProductCode = Prisma.CustomerErpProductCodeModel
+/**
  * Model CustomerErpApproval
  * Somebody in the buyer's organisation being asked before a write happens.
  * 

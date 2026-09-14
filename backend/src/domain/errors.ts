@@ -545,6 +545,16 @@ export const ErrorCode = {
   /// The uploaded OpenAPI document could not be read, or described nothing
   /// this connector could use.
   CUSTOMER_ERP_SPEC_UNUSABLE: 'CUSTOMER_ERP_SPEC_UNUSABLE',
+  /// A product-code mapping could not be made: the code is already mapped to a
+  /// different product on this connection, the product does not exist, or an
+  /// uploaded mapping file could not be read. The message names which, and for
+  /// a file it names the line.
+  ///
+  /// A NEW code rather than a reuse of `CUSTOMER_ERP_MAPPING_INVALID`, which
+  /// both frontends already map to a message about FIELD mapping - "which part
+  /// of your ERP's response holds the SKU". A buyer told that, after uploading
+  /// a file of product codes, would go and look at the wrong screen.
+  CUSTOMER_ERP_PRODUCT_CODE_INVALID: 'CUSTOMER_ERP_PRODUCT_CODE_INVALID',
 } as const;
 
 export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];

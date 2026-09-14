@@ -24,8 +24,44 @@ import {
   canPerform,
   carriesTraffic,
   isCallable,
+  statusAfterPassingTest,
   statusLabel,
 } from '../../src/domain/erp-connection-state.js';
+
+describe('a test that passed', () => {
+  it('leaves a live connection live', () => {
+    // The regression this exists for: a passing test on a working connection
+    // used to land it in CONNECTED, which carries no traffic. The shop's orders
+    // stopped reaching its ERP because somebody asked whether they were.
+    expect(assertErpTransition('TESTING', 'TEST_PASSED', 'ACTIVE')).toBe('ACTIVE');
+    expect(carriesTraffic(assertErpTransition('TESTING', 'TEST_PASSED', 'ACTIVE'))).toBe(true);
+  });
+
+  it('leaves a paused connection paused', () => {
+    // PAUSED keeps every setting and needs no re-test to resume. CONNECTED
+    // would throw that away and hide the Resume button.
+    expect(assertErpTransition('TESTING', 'TEST_PASSED', 'PAUSED')).toBe('PAUSED');
+  });
+
+  it('still moves the out-of-service statuses forward to CONNECTED', () => {
+    // For these three a passing test is the fact that earns CONNECTED, and
+    // CONNECTED -> ACTIVATE is the only way traffic starts.
+    for (const status of ['DRAFT', 'CONNECTED', 'ERROR'] as const) {
+      expect(assertErpTransition('TESTING', 'TEST_PASSED', status)).toBe('CONNECTED');
+    }
+  });
+
+  it('falls back to CONNECTED when the origin is not known', () => {
+    expect(assertErpTransition('TESTING', 'TEST_PASSED')).toBe('CONNECTED');
+    expect(statusAfterPassingTest(null)).toBe('CONNECTED');
+  });
+
+  it('does not change where a FAILED test lands', () => {
+    // Deliberate and unchanged: a failed test shows the problem on the list
+    // screen rather than leaving a connection that looks fine and is not.
+    expect(assertErpTransition('TESTING', 'TEST_FAILED', 'ACTIVE')).toBe('ERROR');
+  });
+});
 
 describe('activation', () => {
   it('is reachable only from CONNECTED', () => {

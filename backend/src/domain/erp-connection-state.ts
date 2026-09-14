@@ -15,6 +15,11 @@
  *   response. A connection cannot reach ACTIVE from DRAFT, from ERROR, or by
  *   any path that skips those two facts.
  *
+ *   The one other arrival at ACTIVE does not start anything: a passing test
+ *   that BEGAN at ACTIVE returns there, because a connection already carrying
+ *   traffic should not be taken out of service by being asked whether it works.
+ *   PAUSED is handed back the same way. See `statusAfterPassingTest`.
+ *
  *   ERROR is entered by the machinery, never by a person. It means repeated
  *   failures took the connection out of service, and the only way out is a test
  *   that passes - which is deliberately the same door setup came through, so
@@ -86,6 +91,19 @@ const RULES: Readonly<Record<ErpConnectionAction, TransitionRule>> = Object.free
     to: 'TESTING',
     refusal: 'A test is already running for this connection.',
   },
+  /**
+   * A test passed.
+   *
+   * `to` is where a test started from DRAFT, CONNECTED or ERROR lands: CONNECTED
+   * is "proved and not switched on", and for those three a passing test is
+   * exactly the fact that earns it.
+   *
+   * A test started from ACTIVE or PAUSED goes back to ACTIVE or PAUSED instead -
+   * see `statusAfterPassingTest`. Landing those in CONNECTED took a live
+   * connection out of service for the crime of being asked whether it worked:
+   * CONNECTED does not carry traffic, so the shop's orders stopped reaching the
+   * ERP until somebody noticed and pressed Activate again.
+   */
   TEST_PASSED: {
     from: ['TESTING'],
     to: 'CONNECTED',
@@ -144,6 +162,7 @@ const RULES: Readonly<Record<ErpConnectionAction, TransitionRule>> = Object.free
 export function assertErpTransition(
   current: ErpConnectionStatusName,
   action: ErpConnectionAction,
+  startedFrom?: ErpConnectionStatusName | null,
 ): ErpConnectionStatusName {
   const rule = RULES[action];
 
@@ -154,7 +173,35 @@ export function assertErpTransition(
     );
   }
 
+  if (action === 'TEST_PASSED') return statusAfterPassingTest(startedFrom);
+
   return rule.to;
+}
+
+/**
+ * The statuses a passing test hands back untouched.
+ *
+ * Both mean somebody has already decided what this connection is for, and a
+ * test that agrees with them does not get to revisit it. DRAFT, CONNECTED and
+ * ERROR all mean "not carrying traffic", and for those CONNECTED is the step
+ * forward a passing test is supposed to produce.
+ */
+const TEST_RESUMES: readonly ErpConnectionStatusName[] = Object.freeze([
+  'ACTIVE',
+  'PAUSED',
+]);
+
+/**
+ * Where a passing test leaves the connection.
+ *
+ * A caller that cannot say where its test began gets CONNECTED - the old
+ * behaviour, and the right answer when the origin is genuinely unknown.
+ */
+export function statusAfterPassingTest(
+  startedFrom: ErpConnectionStatusName | null | undefined,
+): ErpConnectionStatusName {
+  if (startedFrom === null || startedFrom === undefined) return 'CONNECTED';
+  return TEST_RESUMES.includes(startedFrom) ? startedFrom : 'CONNECTED';
 }
 
 /** Whether an action is available, for rendering buttons rather than guarding. */

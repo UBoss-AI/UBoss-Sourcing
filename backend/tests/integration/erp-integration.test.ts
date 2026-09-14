@@ -885,6 +885,21 @@ describe('the connection lifecycle', () => {
     ).rejects.toMatchObject({ code: 'ERP_MAPPING_UNVERIFIED' });
   });
 
+  it('stays switched on when somebody tests a live connection', async () => {
+    // The regression: a PASSING test used to land an ACTIVE connection in
+    // CONNECTED, which carries no traffic. The shop's orders stopped reaching
+    // its ERP because an administrator asked whether they were.
+    const id = await activeConnection();
+
+    const result = await testConnection(adminActor, id);
+    expect(result.ok, `the test call failed: ${result.message}`).toBe(true);
+
+    const view = await getConnection(id);
+    expect(view.status).toBe('ACTIVE');
+    // The outcome still lands where the screen reads it.
+    expect(view.lastTestOk).toBe(true);
+  });
+
   it('lists what is blocking activation, so the screen can show it beside the button', async () => {
     const created = await createConnection(adminActor, connectionInput());
     const view = await getConnection(created.id);

@@ -28,6 +28,34 @@
  * and ACTIVATE is refused out of DRAFT until all three facts hold - see
  * `assertReadyToActivate`, which is where the refusal names the missing one.
  *
+ * A TEST PUTS THE CONNECTION BACK WHERE IT FOUND IT
+ *
+ * That setup path is not the only path through TESTING, and reading it as
+ * though it were is how a diagnostic became a destructive act. A test may also
+ * be started from ACTIVE - "it is live and something looks wrong, let me check
+ * it" is the commonest reason anybody presses the button - and from PAUSED. If
+ * every test finished in DRAFT, pressing Test on a live integration would take
+ * it out of service: no events dispatch from DRAFT, the Sync now button
+ * disappears, and nothing tells the buyer that looking has broken it. They then
+ * have to notice, and press Activate again.
+ *
+ * So TEST_FINISHED returns the connection to the state the test began in, for
+ * the two states where the test had no business changing anything: ACTIVE and
+ * PAUSED. A test is a question, and asking it is not a decision.
+ *
+ * DRAFT, ACTION_REQUIRED and FAILED still land in DRAFT, and that is not an
+ * oversight. Those three mean "not in service", DRAFT is the door back into
+ * service for all of them, and a passing test is exactly the fact that carries
+ * them through it - the same door RECONNECT opens. Resuming FAILED would leave
+ * a connection whose test just passed with no way forward but RECONNECT.
+ *
+ * What a failed test does NOT do is take a working connection out of service.
+ * The outcome lives in `lastTestOk` and `stateReason`, which is what the screen
+ * reads; a connection is suspended by repeated failures in real traffic, by
+ * SUSPEND, against `ERP_FAILURE_THRESHOLD`. One failed probe is not that, and
+ * treating it as that would make "find out what is wrong" the thing that
+ * stops the orders.
+ *
  * ACTION_REQUIRED AND FAILED ARE DIFFERENT THINGS
  *
  * ACTION_REQUIRED means the connection is fine and is waiting for a person: a
@@ -124,6 +152,10 @@ const CONNECTION_RULES: Readonly<
    * not in the state: a failed test leaves a draft a draft, which is what it
    * is. Marking it FAILED would say repeated failures took a working
    * connection out of service, and nothing of the sort happened.
+   *
+   * `to` is where a test STARTED FROM A DRAFT lands, and the fallback for a
+   * caller that cannot say where its test began. A test started from ACTIVE or
+   * PAUSED goes back to ACTIVE or PAUSED instead - see `stateAfterTest`.
    */
   TEST_FINISHED: {
     from: ['TESTING'],
@@ -182,13 +214,45 @@ const CONNECTION_RULES: Readonly<
 });
 
 /**
+ * The states a finished test hands back untouched.
+ *
+ * Both mean the buyer has already decided what this connection is for, and a
+ * test does not revisit that decision. Everything else a test can start from -
+ * DRAFT, ACTION_REQUIRED, FAILED - means "not in service", where DRAFT is the
+ * way back in and a passing test is what earns it. See this file's header.
+ */
+const TEST_RESUMES: readonly CustomerErpConnectionStateName[] = Object.freeze([
+  'ACTIVE',
+  'PAUSED',
+]);
+
+/**
+ * Where a finished test leaves the connection.
+ *
+ * Exported so a screen can say what the button will do without performing it,
+ * and so the rule has one statement rather than one per caller.
+ */
+export function stateAfterTest(
+  startedFrom: CustomerErpConnectionStateName | null | undefined,
+): CustomerErpConnectionStateName {
+  if (startedFrom === null || startedFrom === undefined) return 'DRAFT';
+  return TEST_RESUMES.includes(startedFrom) ? startedFrom : 'DRAFT';
+}
+
+/**
  * The state a connection ends in after `action`, or a 409 explaining why not.
  *
  * Callers use the return value. Nothing derives a state any other way.
+ *
+ * `startedFrom` is read by TEST_FINISHED alone, and is the state the test began
+ * in. A caller that omits it gets DRAFT - the old behaviour, and the right
+ * answer for a test whose origin genuinely is not known, such as one still in
+ * flight when the process restarted.
  */
 export function assertConnectionTransition(
   current: CustomerErpConnectionStateName,
   action: CustomerErpConnectionAction,
+  startedFrom?: CustomerErpConnectionStateName | null,
 ): CustomerErpConnectionStateName {
   const rule = CONNECTION_RULES[action];
 
@@ -198,6 +262,8 @@ export function assertConnectionTransition(
       `${rule.refusal} It is currently ${connectionStateLabel(current)}.`,
     );
   }
+
+  if (action === 'TEST_FINISHED') return stateAfterTest(startedFrom);
 
   return rule.to;
 }

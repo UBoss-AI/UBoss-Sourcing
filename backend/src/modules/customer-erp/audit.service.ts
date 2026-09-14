@@ -91,6 +91,21 @@ export const ORG_AUDIT_ACTIONS = [
   'endpoint.deleted',
   'mapping.saved',
   'mapping.verified',
+  /*
+   * Product-code cross-reference: "their code X is our product Y".
+   *
+   * Separate actions from `mapping.saved`, which is about FIELD mapping -
+   * which part of an ERP's response holds the SKU. These three are about
+   * CATALOGUE mapping, made by a person against a specific connection, and
+   * conflating the two in the audit trail would make "who decided this product
+   * is that one" unanswerable.
+   *
+   * This trail is also the reason `customer_erp_product_codes` carries no
+   * `createdByProfileId`: who did it is recorded properly here, once.
+   */
+  'mapping.linked',
+  'mapping.unlinked',
+  'mapping.imported',
   'warehouse_map.saved',
   'policy.updated',
   'sync.started',

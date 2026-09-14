@@ -25,6 +25,7 @@ import {
   eventStateLabel,
   isCallable,
   isEventSettled,
+  stateAfterTest,
   type CustomerErpEventStateName,
 } from '../../src/domain/customer-erp-state.js';
 
@@ -72,6 +73,62 @@ describe('connection activation', () => {
         missingEndpoints: [],
       }),
     ).not.toThrow();
+  });
+});
+
+describe('finishing a test', () => {
+  it('leaves a live connection live', () => {
+    // The regression this exists for: pressing Test on a working integration
+    // used to land it in DRAFT, which carries no traffic. The buyer's orders
+    // stopped reaching their ERP because somebody asked whether they were.
+    expect(assertConnectionTransition('TESTING', 'TEST_FINISHED', 'ACTIVE')).toBe('ACTIVE');
+    expect(carriesTraffic(assertConnectionTransition('TESTING', 'TEST_FINISHED', 'ACTIVE'))).toBe(
+      true,
+    );
+  });
+
+  it('leaves a paused connection paused', () => {
+    // PAUSED keeps every setting and needs no re-test to resume. Landing it in
+    // DRAFT would throw that away and hide the Resume button.
+    expect(assertConnectionTransition('TESTING', 'TEST_FINISHED', 'PAUSED')).toBe('PAUSED');
+  });
+
+  it('does not care whether the test passed', () => {
+    // The outcome is recorded in lastTestOk and stateReason, which is what the
+    // screen reads. A connection is taken out of service by repeated failures
+    // in real traffic - SUSPEND against ERP_FAILURE_THRESHOLD - never by one
+    // failed probe, because then "find out what is wrong" stops the orders.
+    expect(stateAfterTest('ACTIVE')).toBe('ACTIVE');
+  });
+
+  it('still lands the out-of-service states in DRAFT, which is their way back', () => {
+    // DRAFT is the door back into service for all three, and a passing test is
+    // the fact that carries them through it. Resuming FAILED would leave a
+    // connection whose test just passed with nowhere to go but RECONNECT.
+    for (const state of ['DRAFT', 'ACTION_REQUIRED', 'FAILED'] as const) {
+      expect(assertConnectionTransition('TESTING', 'TEST_FINISHED', state)).toBe('DRAFT');
+    }
+  });
+
+  it('falls back to DRAFT when the origin is not known', () => {
+    // A test still in flight when the process restarted has no origin to give.
+    expect(assertConnectionTransition('TESTING', 'TEST_FINISHED')).toBe('DRAFT');
+    expect(stateAfterTest(null)).toBe('DRAFT');
+  });
+
+  it('is still refused on a connection that is not being tested', () => {
+    for (const state of CustomerErpConnectionStateValues) {
+      if (state === 'TESTING') continue;
+      expect(() => assertConnectionTransition(state, 'TEST_FINISHED', 'ACTIVE')).toThrow();
+    }
+  });
+
+  it('can be started from every state a connection can be in service in', () => {
+    // Testing a live connection is the commonest reason anybody presses the
+    // button, so it stays allowed - it is the landing that changed.
+    for (const state of ['DRAFT', 'ACTIVE', 'PAUSED', 'ACTION_REQUIRED', 'FAILED'] as const) {
+      expect(assertConnectionTransition(state, 'START_TEST')).toBe('TESTING');
+    }
   });
 });
 

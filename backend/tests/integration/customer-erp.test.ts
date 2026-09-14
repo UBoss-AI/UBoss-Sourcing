@@ -81,6 +81,7 @@ async function reset(): Promise<void> {
   // Children before parents. Connections cascade to most of this, but the
   // deletes are explicit so a failure names the table rather than the FK.
   await prisma.customerErpApproval.deleteMany({});
+  await prisma.customerErpProductCode.deleteMany({});
   await prisma.customerErpOAuthState.deleteMany({});
   await prisma.customerErpWebhookEvent.deleteMany({});
   await prisma.customerErpSyncEvent.deleteMany({});

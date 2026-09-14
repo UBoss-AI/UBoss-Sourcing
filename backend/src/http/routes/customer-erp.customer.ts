@@ -66,6 +66,12 @@ import {
 } from '../../modules/customer-erp/oauth.service.js';
 import { listSyncJobs, syncNow } from '../../modules/customer-erp/polling.service.js';
 import { reconcile } from '../../modules/customer-erp/reconcile.service.js';
+import {
+  importProductCodes,
+  linkProductCode,
+  listProductCodes,
+  unlinkProductCode,
+} from '../../modules/customer-erp/product-code.service.js';
 import { decideApproval, listApprovals } from '../../modules/customer-erp/approval.service.js';
 import { listWebhookEvents } from '../../modules/customer-erp/webhook.service.js';
 import { prisma } from '../../infra/prisma.js';
@@ -766,6 +772,96 @@ export function registerCustomerErpRoutes(app: FastifyInstance): Promise<void> {
       await getConnection(membership, id);
 
       return reply.status(200).send({ reconciliation: await reconcile(membership, id) });
+    },
+  );
+
+  // --- Product code cross-reference ---------------------------------------
+  //
+  // "Their code X is our product Y." Where a buyer closes the gap the
+  // reconciliation screen above reports: on the connection that motivated this,
+  // the two catalogues shared no identifier at all, so the sync read 708
+  // records and recorded one. See `product-code.service.ts`.
+
+  app.get('/connections/:id/product-codes', async (request, reply) => {
+    const { id } = connectionIdParam.parse(request.params);
+    const membership = await membershipFor(request);
+
+    await getConnection(membership, id);
+
+    return reply.status(200).send({ productCodes: await listProductCodes(membership, id) });
+  });
+
+  app.post(
+    '/connections/:id/product-codes',
+    { preHandler: requireFeature },
+    async (request, reply) => {
+      const { id } = connectionIdParam.parse(request.params);
+      const membership = await membershipFor(request);
+
+      await getConnection(membership, id);
+
+      const body = z
+        .object({
+          erpCode: z.string().min(1).max(191),
+          productId: z.string().length(26),
+          variantKey: z.string().max(26).optional(),
+          note: z.string().max(512).nullish(),
+        })
+        .parse(request.body);
+
+      const productCode = await linkProductCode(membership, actorFor(request), id, {
+        erpCode: body.erpCode,
+        productId: body.productId,
+        variantKey: body.variantKey,
+        note: body.note ?? null,
+      });
+
+      return reply.status(201).send({ productCode });
+    },
+  );
+
+  app.delete(
+    '/connections/:id/product-codes/:mappingId',
+    { preHandler: requireFeature },
+    async (request, reply) => {
+      const { id } = connectionIdParam.parse(request.params);
+      const { mappingId } = z.object({ mappingId: z.string().length(26) }).parse(request.params);
+      const membership = await membershipFor(request);
+
+      await getConnection(membership, id);
+      await unlinkProductCode(membership, actorFor(request), id, mappingId);
+
+      return reply.status(204).send();
+    },
+  );
+
+  /**
+   * A two-column file: their code, our SKU.
+   *
+   * Text in a JSON body rather than multipart, deliberately. This is a
+   * spreadsheet export of a few hundred short lines - tens of kilobytes - and
+   * the multipart handler on this server exists for product photographs, with
+   * an image-shaped size limit and an image-shaped set of checks. Routing a CSV
+   * through it would mean either loosening those or explaining why a 40 kB text
+   * file was refused by something that accepts a 5 MB photograph.
+   *
+   * Rate limited hard: each call rewrites a catalogue cross-reference, and
+   * there is no version of this anybody needs to do twice a minute.
+   */
+  app.post(
+    '/connections/:id/product-codes/import',
+    { preHandler: requireFeature, config: { rateLimit: { max: 10, timeWindow: '10 minutes' } } },
+    async (request, reply) => {
+      const { id } = connectionIdParam.parse(request.params);
+      const membership = await membershipFor(request);
+
+      await getConnection(membership, id);
+
+      const body = z.object({ csv: z.string().min(1).max(2_000_000) }).parse(request.body);
+
+      const result = await importProductCodes(membership, actorFor(request), id, body.csv);
+
+      return reply.status(200).send({ result });
     },
   );
 

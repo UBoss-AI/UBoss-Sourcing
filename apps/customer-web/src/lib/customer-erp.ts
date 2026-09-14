@@ -384,6 +384,32 @@ export interface Reconciliation {
   truncated: boolean;
 }
 
+/**
+ * One statement of "their code X is our product Y".
+ *
+ * `sku` and `productName` are null when the product has since been removed from
+ * the catalogue. The mapping is kept rather than deleted — there is no foreign
+ * key, deliberately — so a screen has to be able to show it as broken instead
+ * of quietly losing it.
+ */
+export interface ProductCodeRow {
+  id: string;
+  erpCode: string;
+  productId: string;
+  sku: string | null;
+  productName: string | null;
+  variantKey: string;
+  note: string | null;
+  updatedAt: string;
+}
+
+export interface ProductCodeImportResult {
+  created: number;
+  updated: number;
+  /** In line order, so it reads alongside the file it came from. */
+  skipped: { line: number; erpCode: string; reason: string }[];
+}
+
 export interface SampleCheckField {
   entity: ErpMappingEntity;
   platformField: string;
@@ -783,6 +809,42 @@ export const customerErpApi = {
     api
       .post<{ reconciliation: Reconciliation }>(`${BASE}/connections/${id}/reconcile`)
       .then((r) => r.reconciliation),
+
+  /**
+   * The product-code cross-reference: "their code X is our product Y".
+   *
+   * How a buyer closes the gap `reconcile` reports. On the connection that
+   * motivated it the two catalogues shared no identifier at all, so the gap
+   * could be measured and not acted on.
+   */
+  listProductCodes: (id: string) =>
+    api
+      .get<{ productCodes: ProductCodeRow[] }>(`${BASE}/connections/${id}/product-codes`)
+      .then((r) => r.productCodes),
+
+  linkProductCode: (id: string, body: { erpCode: string; productId: string; note?: string }) =>
+    api
+      .post<{ productCode: ProductCodeRow }>(`${BASE}/connections/${id}/product-codes`, body)
+      .then((r) => r.productCode),
+
+  unlinkProductCode: (id: string, mappingId: string) =>
+    api.delete<never>(`${BASE}/connections/${id}/product-codes/${mappingId}`),
+
+  /**
+   * A two-column file: their code, then our SKU.
+   *
+   * The only realistic way to close a seven-hundred-row gap. Sent as text in a
+   * JSON body rather than as multipart: this is a spreadsheet export of a few
+   * hundred short lines, and the multipart handler on the server exists for
+   * product photographs, with image-shaped limits and image-shaped checks.
+   */
+  importProductCodes: (id: string, csv: string) =>
+    api
+      .post<{ result: ProductCodeImportResult }>(
+        `${BASE}/connections/${id}/product-codes/import`,
+        { csv },
+      )
+      .then((r) => r.result),
 
   syncNow: (id: string) =>
     api.post<{ sync: SyncResult }>(`${BASE}/connections/${id}/sync`).then((r) => r.sync),

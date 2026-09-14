@@ -27,12 +27,28 @@
  * the sync uses, and compares in memory. It costs what one sync pass costs and
  * happens only when a person presses a button.
  *
- * MATCHING IS ON SKU, EXACTLY
+ * MATCHING IS EXACT, AND THERE ARE NOW TWO WAYS TO MATCH
  *
- * Not case-folded, not trimmed of punctuation, not fuzzy. `FG/1BZ1B1-G` and
+ * Not case-folded, not trimmed of punctuation, never fuzzy. `FG/1BZ1B1-G` and
  * `EV-CANNULA-WP` are different products until somebody says otherwise, and a
  * reconciliation that guessed would be worse than one that reports the gap: it
  * would attach a stock figure to the wrong item and be believed.
+ *
+ * **"Somebody says otherwise" is now a thing somebody can actually do.** For a
+ * long time this comment described a rule with no escape hatch, and on the
+ * connection that motivated it the two catalogues shared no identifier at all -
+ * 708 codes on one side, 247 products on the other, barcodes present on one and
+ * empty on the other, and exactly one accidental collision between them. The
+ * screen reported the gap honestly and there was nothing to do about it.
+ *
+ * `customer_erp_product_codes` is the answer: an explicit, per-connection
+ * statement that their code is our product, made by a person, from the lists
+ * below. So a product matches if somebody mapped it, OR if the codes are
+ * identical - in that order, because a mapping is a decision and a matching
+ * string is a coincidence. This file and `productIdForSku` in
+ * `pipeline.service.ts` must agree on that order exactly, or this screen
+ * reports a product as unmatched while the sync is quietly recording figures
+ * against it.
  */
 import { env } from '../../config/env.js';
 import { prisma } from '../../infra/prisma.js';
@@ -139,20 +155,50 @@ export async function reconcile(
 
   const linkByProduct = new Map(links.map((row) => [row.productId, row]));
 
+  /*
+   * What somebody has explicitly mapped, for this connection.
+   *
+   * This screen has to agree with the sync exactly, or it is worse than
+   * useless: a reconciliation that reports a product as unmatched while the
+   * sync is quietly recording figures against it sends somebody hunting for a
+   * problem that does not exist. `productIdForSku` in `pipeline.service.ts`
+   * consults these first and an exact SKU second, so this does the same, in
+   * the same order.
+   */
+  const mappings = await prisma.customerErpProductCode.findMany({
+    where: { connectionId, organizationId: membership.organizationId },
+    select: { erpCode: true, productId: true },
+  });
+
+  /** Our product id -> the code THEY use for it, where somebody has said. */
+  const mappedCodeByProduct = new Map<string, string>();
+  for (const row of mappings) {
+    // Only a mapping whose code the feed actually mentioned is a match. One
+    // pointing at a code their system has stopped sending is a mapping, not a
+    // product they hold - and reporting it as "in both" would be inventing an
+    // agreement.
+    if (erp.has(row.erpCode)) mappedCodeByProduct.set(row.productId, row.erpCode);
+  }
+
   const inBoth: ReconciliationRow[] = [];
   const onlyHere: ReconciliationRow[] = [];
   const seen = new Set<string>();
 
   for (const product of products) {
-    if (erp.has(product.sku)) {
-      seen.add(product.sku);
+    // A mapping wins over a matching SKU, for the reason `productIdForSku`
+    // gives: a mapping is a decision and a matching string is a coincidence.
+    const matchedCode = mappedCodeByProduct.get(product.id)
+      ?? (erp.has(product.sku) ? product.sku : null);
+
+    if (matchedCode !== null) {
+      seen.add(matchedCode);
       const link = linkByProduct.get(product.id);
 
       inBoth.push({
-        erpCode: product.sku,
+        erpCode: matchedCode,
         sku: product.sku,
         productName: product.name,
-        onHandQty: erp.get(product.sku) ?? null,
+        onHandQty: erp.get(matchedCode) ?? null,
         lastSyncedAt: link?.lastSyncedAt?.toISOString() ?? null,
       });
       continue;

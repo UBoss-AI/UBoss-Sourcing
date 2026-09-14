@@ -1365,10 +1365,19 @@ export async function testConnection(
 
   // --- Record the outcome ------------------------------------------------
   //
-  // A failed test leaves the connection in ERROR rather than back where it
-  // started, so the list screen shows the problem rather than a connection that
-  // looks fine and silently is not.
-  const resultStatus = assertErpTransition(testingStatus, ok ? 'TEST_PASSED' : 'TEST_FAILED');
+  // A PASSING test puts the connection back where it found it: one started on a
+  // live connection leaves it live, rather than dropping it into CONNECTED,
+  // which carries no traffic. Asking a working connection whether it works must
+  // not be what stops the orders.
+  //
+  // A FAILED test still leaves it in ERROR rather than back where it started,
+  // so the list screen shows the problem rather than a connection that looks
+  // fine and silently is not.
+  const resultStatus = assertErpTransition(
+    testingStatus,
+    ok ? 'TEST_PASSED' : 'TEST_FAILED',
+    previousStatus,
+  );
 
   const updated = await prisma.erpConnection.update({
     where: { id: connectionId },

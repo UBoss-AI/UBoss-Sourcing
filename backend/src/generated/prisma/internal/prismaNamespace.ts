@@ -505,6 +505,7 @@ export const ModelName = {
   CustomerErpOrderLink: 'CustomerErpOrderLink',
   CustomerErpInvoiceLink: 'CustomerErpInvoiceLink',
   CustomerErpInventoryLink: 'CustomerErpInventoryLink',
+  CustomerErpProductCode: 'CustomerErpProductCode',
   CustomerErpApproval: 'CustomerErpApproval',
   CustomerErpOAuthState: 'CustomerErpOAuthState',
   CustomerErpAuditLog: 'CustomerErpAuditLog'
@@ -523,7 +524,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productMedia" | "productAttribute" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productMedia" | "productAttribute" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -7655,6 +7656,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CustomerErpProductCode: {
+      payload: Prisma.$CustomerErpProductCodePayload<ExtArgs>
+      fields: Prisma.CustomerErpProductCodeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerErpProductCodeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpProductCodePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerErpProductCodeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpProductCodePayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerErpProductCodeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpProductCodePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerErpProductCodeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpProductCodePayload>
+        }
+        findMany: {
+          args: Prisma.CustomerErpProductCodeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpProductCodePayload>[]
+        }
+        create: {
+          args: Prisma.CustomerErpProductCodeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpProductCodePayload>
+        }
+        createMany: {
+          args: Prisma.CustomerErpProductCodeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CustomerErpProductCodeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpProductCodePayload>
+        }
+        update: {
+          args: Prisma.CustomerErpProductCodeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpProductCodePayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerErpProductCodeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerErpProductCodeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CustomerErpProductCodeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerErpProductCodePayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerErpProductCodeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerErpProductCode>
+        }
+        groupBy: {
+          args: Prisma.CustomerErpProductCodeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpProductCodeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerErpProductCodeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerErpProductCodeCountAggregateOutputType> | number
+        }
+      }
+    }
     CustomerErpApproval: {
       payload: Prisma.$CustomerErpApprovalPayload<ExtArgs>
       fields: Prisma.CustomerErpApprovalFieldRefs
@@ -10133,6 +10200,21 @@ export const CustomerErpInventoryLinkScalarFieldEnum = {
 export type CustomerErpInventoryLinkScalarFieldEnum = (typeof CustomerErpInventoryLinkScalarFieldEnum)[keyof typeof CustomerErpInventoryLinkScalarFieldEnum]
 
 
+export const CustomerErpProductCodeScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  erpCode: 'erpCode',
+  productId: 'productId',
+  variantKey: 'variantKey',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerErpProductCodeScalarFieldEnum = (typeof CustomerErpProductCodeScalarFieldEnum)[keyof typeof CustomerErpProductCodeScalarFieldEnum]
+
+
 export const CustomerErpApprovalScalarFieldEnum = {
   id: 'id',
   connectionId: 'connectionId',
@@ -11707,6 +11789,19 @@ export const CustomerErpInventoryLinkOrderByRelevanceFieldEnum = {
 export type CustomerErpInventoryLinkOrderByRelevanceFieldEnum = (typeof CustomerErpInventoryLinkOrderByRelevanceFieldEnum)[keyof typeof CustomerErpInventoryLinkOrderByRelevanceFieldEnum]
 
 
+export const CustomerErpProductCodeOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  erpCode: 'erpCode',
+  productId: 'productId',
+  variantKey: 'variantKey',
+  note: 'note'
+} as const
+
+export type CustomerErpProductCodeOrderByRelevanceFieldEnum = (typeof CustomerErpProductCodeOrderByRelevanceFieldEnum)[keyof typeof CustomerErpProductCodeOrderByRelevanceFieldEnum]
+
+
 export const CustomerErpApprovalOrderByRelevanceFieldEnum = {
   id: 'id',
   connectionId: 'connectionId',
@@ -12666,6 +12761,7 @@ export type GlobalOmitConfig = {
   customerErpOrderLink?: Prisma.CustomerErpOrderLinkOmit
   customerErpInvoiceLink?: Prisma.CustomerErpInvoiceLinkOmit
   customerErpInventoryLink?: Prisma.CustomerErpInventoryLinkOmit
+  customerErpProductCode?: Prisma.CustomerErpProductCodeOmit
   customerErpApproval?: Prisma.CustomerErpApprovalOmit
   customerErpOAuthState?: Prisma.CustomerErpOAuthStateOmit
   customerErpAuditLog?: Prisma.CustomerErpAuditLogOmit

@@ -55,6 +55,9 @@ const { claimDueEvents, enqueueEvent } = await import(
 );
 const { dispatchEvent } = await import('../../src/modules/customer-erp/pipeline.service.js');
 const { runInventorySync } = await import('../../src/modules/customer-erp/polling.service.js');
+const { linkProductCode } = await import(
+  '../../src/modules/customer-erp/product-code.service.js'
+);
 
 import type { MockErp } from '../support/mock-erp.js';
 import type { OrgActor } from '../../src/modules/customer-erp/audit.service.js';
@@ -256,6 +259,37 @@ async function makeProducts(): Promise<Record<string, string>> {
 let createdCategoryId: string | null = null;
 let createdTaxClassId: string | null = null;
 
+/**
+ * A product whose SKU appears nowhere in the mock ERP's feed.
+ *
+ * The fixture for the cross-reference tests: before somebody maps a code to
+ * it, there is nothing that could connect this product to anything the ERP
+ * says, which is exactly the situation on a real connection where the two
+ * catalogues use different code systems.
+ */
+async function makeForeignProduct(): Promise<string> {
+  const { categoryId, taxClassId } = await referenceRows();
+  const sku = `FG/XREF-${newId().slice(-6)}`;
+  const id = newId();
+
+  await prisma.product.create({
+    data: {
+      id,
+      categoryId,
+      taxClassId,
+      name: 'Oral dispensing syringe, 1 ml',
+      slug: `xref-${id.slice(-10).toLowerCase()}`,
+      sku,
+      basePriceMinor: 250n,
+      currency: 'EUR',
+      status: 'ACTIVE',
+      isPublished: true,
+    },
+  });
+
+  return id;
+}
+
 async function referenceRows(): Promise<{ categoryId: string; taxClassId: string }> {
   const existingCategory = await prisma.category.findFirst({ select: { id: true } });
   const existingTaxClass = await prisma.taxClass.findFirst({ select: { id: true } });
@@ -396,6 +430,10 @@ afterAll(async () => {
    * breaks the next one's first test.
    */
   await prisma.product.deleteMany({ where: { sku: { startsWith: 'MOCK-SKU-' } } });
+  // The cross-reference fixtures, whose SKUs deliberately look nothing like the
+  // mock's. Leaving them behind holds a foreign key on the category below, and
+  // the failure surfaces as an unrelated FK violation in this file's teardown.
+  await prisma.product.deleteMany({ where: { sku: { startsWith: 'FG/XREF-' } } });
 
   if (createdCategoryId !== null) {
     await prisma.category.deleteMany({ where: { id: createdCategoryId } });
@@ -435,6 +473,62 @@ describe('connecting to a system that answers', () => {
     // The credential reached the ERP: the mock answers 401 without it.
     const read = erp.requestsTo('/products')[0];
     expect(read?.headers['x-api-key']).toBe(API_KEY);
+  });
+
+  it('keeps carrying orders after somebody tests it', async () => {
+    /*
+     * The regression. Testing was a destructive act on a live connection:
+     * TEST_FINISHED landed every test in DRAFT, so pressing Test to find out
+     * why an integration looked slow switched it off. Nothing said so - the
+     * Sync now button simply went away, and purchase orders stopped being
+     * raised until somebody noticed and pressed Activate again.
+     *
+     * Asserted against a real socket rather than on the state machine alone,
+     * because the claim is not "the enum says ACTIVE" - it is that an order
+     * confirmed after the test still reaches the ERP.
+     */
+    const { membership, profileId } = await makeBuyer();
+    const connectionId = await connectAndActivate(membership);
+    const { orderId } = await makeOrder(profileId);
+
+    const result = await testConnection(membership, actor, connectionId);
+    expect(result.ok, `the test call failed: ${result.message}`).toBe(true);
+
+    const after = await prisma.customerErpConnection.findUniqueOrThrow({
+      where: { id: connectionId },
+    });
+
+    expect(after.state).toBe('ACTIVE');
+    // The outcome still lands in the columns the screen reads.
+    expect(after.lastTestOk).toBe(true);
+    expect(after.lastTestAt).not.toBeNull();
+
+    await sendEvent(connectionId, membership, 'PURCHASE_ORDER_CREATE', orderId);
+
+    expect(erp.requestsTo('/purchase-orders')).toHaveLength(1);
+
+    const sent = await prisma.customerErpSyncEvent.findFirstOrThrow({ where: { orderId } });
+    expect(sent.state).toBe('SUCCEEDED');
+  });
+
+  it('leaves a paused connection paused after a test', async () => {
+    // PAUSED keeps every setting and resumes without a re-test. Landing it in
+    // DRAFT would throw that away and take the Resume button off the screen.
+    const { membership } = await makeBuyer();
+    const connectionId = await connectAndActivate(membership);
+
+    const { changeConnectionState } = await import(
+      '../../src/modules/customer-erp/connection.service.js'
+    );
+
+    await changeConnectionState(membership, actor, connectionId, 'PAUSE');
+    await testConnection(membership, actor, connectionId);
+
+    const after = await prisma.customerErpConnection.findUniqueOrThrow({
+      where: { id: connectionId },
+    });
+
+    expect(after.state).toBe('PAUSED');
   });
 
   it('refuses to activate when the ERP rejects the credential', async () => {
@@ -883,6 +977,101 @@ describe('reading stock back', () => {
     // is moved by a person through the Inventory screens, with a reason and an
     // actor against it - never by a customer's ERP.
     expect(await prisma.inventoryBalance.count()).toBe(balancesBefore);
+  });
+
+  /**
+   * A mapped code resolves; the same code unmapped does not.
+   *
+   * The whole point of the cross-reference, proved against a real socket rather
+   * than against the service that writes the table.
+   *
+   * The situation it was built for: a buyer's ERP and this catalogue share no
+   * identifier at all. On the connection that motivated it, 708 codes met 247
+   * products, the barcode column that should have joined them was empty on our
+   * side, and the sync read 708 records and recorded one - by accident. No
+   * mapping configuration fixes that, because the information needed to join
+   * the two catalogues did not exist anywhere yet.
+   */
+  it('records stock against the product somebody mapped a foreign code to', async () => {
+    const { membership } = await makeBuyer();
+    const connectionId = await connectAndActivate(membership);
+
+    // A product whose SKU appears NOWHERE in the mock's feed. Before a mapping
+    // exists there is nothing that could connect the two.
+    const foreignProductId = await makeForeignProduct();
+
+    const before = await runInventorySync({
+      connectionId,
+      organizationId: membership.organizationId,
+      trigger: 'MANUAL',
+      correlationId: newId(),
+    });
+
+    expect(before.status).toBe('SUCCEEDED');
+    expect(
+      await prisma.customerErpInventoryLink.count({
+        where: { connectionId, productId: foreignProductId },
+      }),
+    ).toBe(0);
+
+    // Somebody says otherwise: their MOCK-SKU-1 is our product.
+    await linkProductCode(membership, actor, connectionId, {
+      erpCode: 'MOCK-SKU-1',
+      productId: foreignProductId,
+    });
+
+    await runInventorySync({
+      connectionId,
+      organizationId: membership.organizationId,
+      trigger: 'MANUAL',
+      correlationId: newId(),
+    });
+
+    const link = await prisma.customerErpInventoryLink.findFirst({
+      where: { connectionId, productId: foreignProductId },
+    });
+
+    // The claim is about RESOLUTION - which product a foreign code lands on -
+    // and not about quantities. What the figure ends up as depends on the
+    // INVENTORY field mapping, which this fixture deliberately does not
+    // configure; asserting a number here would be testing the mapping engine
+    // through the wrong door and would break the day that fixture changed.
+    expect(link, 'the mapped code should now resolve to the mapped product').not.toBeNull();
+    expect(link?.productId).toBe(foreignProductId);
+  });
+
+  it('lets a mapping beat a SKU that happens to match', async () => {
+    /*
+     * A mapping is a decision somebody is accountable for; a matching string is
+     * a coincidence. Both of the live catalogues that motivated this feature
+     * contained exactly one accidental collision between two unrelated code
+     * systems, so this is not a hypothetical tie-break.
+     */
+    const { membership } = await makeBuyer();
+    const connectionId = await connectAndActivate(membership);
+
+    // MOCK-SKU-1 already matches a product by SKU - `makeProducts` created it.
+    const products = await makeProducts();
+    const matchedBySku = products['MOCK-SKU-1'];
+    const mappedDeliberately = await makeForeignProduct();
+
+    await linkProductCode(membership, actor, connectionId, {
+      erpCode: 'MOCK-SKU-1',
+      productId: mappedDeliberately,
+    });
+
+    await runInventorySync({
+      connectionId,
+      organizationId: membership.organizationId,
+      trigger: 'MANUAL',
+      correlationId: newId(),
+    });
+
+    const links = await prisma.customerErpInventoryLink.findMany({ where: { connectionId } });
+    const productIds = links.map((row) => row.productId);
+
+    expect(productIds).toContain(mappedDeliberately);
+    expect(productIds).not.toContain(matchedBySku);
   });
 
   /**

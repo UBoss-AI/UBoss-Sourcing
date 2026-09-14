@@ -972,7 +972,7 @@ async function applyReceivedQuantities(
   const policy = await policyFor(event.connectionId);
 
   for (const line of lines) {
-    const productId = await productIdForSku(line.sku);
+    const productId = await productIdForSku(event.connectionId, line.sku);
     if (productId === null) continue;
 
     await upsertInventoryLink(
@@ -1282,7 +1282,7 @@ export async function applyInboundEvent(input: {
       // there is, and it is what `receiptOnPlatformDelivery = false` defers to.
       for (const line of input.event.lines) {
         const productId =
-          line.sku === null ? null : await productIdForSku(line.sku);
+          line.sku === null ? null : await productIdForSku(input.connectionId, line.sku);
 
         if (productId === null) continue;
 
@@ -1344,7 +1344,7 @@ export async function applyInboundEvent(input: {
       for (const record of input.event.records) {
         if (record.sku === null) continue;
 
-        const productId = await productIdForSku(record.sku);
+        const productId = await productIdForSku(input.connectionId, record.sku);
         if (productId === null) continue;
 
         await prisma.customerErpInventoryLink.upsert({
@@ -1606,12 +1606,59 @@ async function materialMapFor(
   return result;
 }
 
-/** Our product for a SKU the ERP named. Null when we do not sell it. */
-async function productIdForSku(sku: string): Promise<string | null> {
-  if (sku.trim().length === 0) return null;
+/**
+ * Our product for a code the buyer's ERP named. Null when we cannot tell.
+ *
+ * Two ways of telling, and the order between them is the whole point.
+ *
+ * **First, what somebody mapped.** `customer_erp_product_codes` holds explicit
+ * statements - "your `FG/1BZ1B1-G` is our `EV-CANNULA-WP`" - made by a person
+ * in the buyer's organisation against THIS connection. It is consulted first
+ * because it is the only source here that somebody is accountable for.
+ *
+ * **Then, an exact SKU match.** Unchanged, and still right: plenty of buyers
+ * order under the same code the store sells under, and asking them to map two
+ * hundred products that already agree would be absurd.
+ *
+ * WHY A MAPPING WINS OVER A MATCHING SKU
+ *
+ * Because a mapping is a decision and a matching string is a coincidence. Both
+ * of the live catalogues that motivated this feature contained one accidental
+ * collision between two unrelated code systems. If a buyer has explicitly said
+ * what their code means, an accident must not outvote them.
+ *
+ * WHAT THIS DOES NOT DO
+ *
+ * It does not case-fold, trim punctuation, strip leading zeroes or fall back to
+ * anything fuzzy. A reconciliation that guessed would attach a stock figure to
+ * the wrong item and be believed, which is worse than reporting the gap - and
+ * reporting the gap is exactly what `reconcile.service.ts` is for.
+ */
+async function productIdForSku(connectionId: string, sku: string): Promise<string | null> {
+  const code = sku.trim();
+  if (code.length === 0) return null;
+
+  const mapped = await prisma.customerErpProductCode.findUnique({
+    where: { connectionId_erpCode: { connectionId, erpCode: code } },
+    select: { productId: true },
+  });
+
+  if (mapped !== null) {
+    // The product may since have been deleted from the catalogue. There is no
+    // foreign key - see the migration for why - so a mapping can outlive what
+    // it points at, and resolving to an id that no longer exists would fail
+    // further down with a message about a foreign key rather than about a
+    // missing product.
+    const stillExists = await prisma.product.findUnique({
+      where: { id: mapped.productId },
+      select: { id: true },
+    });
+
+    if (stillExists !== null) return stillExists.id;
+  }
 
   const product = await prisma.product.findFirst({
-    where: { sku: sku.trim() },
+    where: { sku: code },
     select: { id: true },
   });
 

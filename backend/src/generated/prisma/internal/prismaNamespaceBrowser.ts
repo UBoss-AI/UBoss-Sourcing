@@ -159,6 +159,7 @@ export const ModelName = {
   CustomerErpOrderLink: 'CustomerErpOrderLink',
   CustomerErpInvoiceLink: 'CustomerErpInvoiceLink',
   CustomerErpInventoryLink: 'CustomerErpInventoryLink',
+  CustomerErpProductCode: 'CustomerErpProductCode',
   CustomerErpApproval: 'CustomerErpApproval',
   CustomerErpOAuthState: 'CustomerErpOAuthState',
   CustomerErpAuditLog: 'CustomerErpAuditLog'
@@ -2421,6 +2422,21 @@ export const CustomerErpInventoryLinkScalarFieldEnum = {
 export type CustomerErpInventoryLinkScalarFieldEnum = (typeof CustomerErpInventoryLinkScalarFieldEnum)[keyof typeof CustomerErpInventoryLinkScalarFieldEnum]
 
 
+export const CustomerErpProductCodeScalarFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  erpCode: 'erpCode',
+  productId: 'productId',
+  variantKey: 'variantKey',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerErpProductCodeScalarFieldEnum = (typeof CustomerErpProductCodeScalarFieldEnum)[keyof typeof CustomerErpProductCodeScalarFieldEnum]
+
+
 export const CustomerErpApprovalScalarFieldEnum = {
   id: 'id',
   connectionId: 'connectionId',
@@ -3993,6 +4009,19 @@ export const CustomerErpInventoryLinkOrderByRelevanceFieldEnum = {
 } as const
 
 export type CustomerErpInventoryLinkOrderByRelevanceFieldEnum = (typeof CustomerErpInventoryLinkOrderByRelevanceFieldEnum)[keyof typeof CustomerErpInventoryLinkOrderByRelevanceFieldEnum]
+
+
+export const CustomerErpProductCodeOrderByRelevanceFieldEnum = {
+  id: 'id',
+  connectionId: 'connectionId',
+  organizationId: 'organizationId',
+  erpCode: 'erpCode',
+  productId: 'productId',
+  variantKey: 'variantKey',
+  note: 'note'
+} as const
+
+export type CustomerErpProductCodeOrderByRelevanceFieldEnum = (typeof CustomerErpProductCodeOrderByRelevanceFieldEnum)[keyof typeof CustomerErpProductCodeOrderByRelevanceFieldEnum]
 
 
 export const CustomerErpApprovalOrderByRelevanceFieldEnum = {

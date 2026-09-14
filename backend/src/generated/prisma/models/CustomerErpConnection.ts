@@ -688,6 +688,7 @@ export type CustomerErpConnectionWhereInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkListRelationFilter
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkListRelationFilter
   inventoryLinks?: Prisma.CustomerErpInventoryLinkListRelationFilter
+  productCodes?: Prisma.CustomerErpProductCodeListRelationFilter
   approvals?: Prisma.CustomerErpApprovalListRelationFilter
   oauthStates?: Prisma.CustomerErpOAuthStateListRelationFilter
 }
@@ -765,6 +766,7 @@ export type CustomerErpConnectionOrderByWithRelationInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkOrderByRelationAggregateInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkOrderByRelationAggregateInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkOrderByRelationAggregateInput
+  productCodes?: Prisma.CustomerErpProductCodeOrderByRelationAggregateInput
   approvals?: Prisma.CustomerErpApprovalOrderByRelationAggregateInput
   oauthStates?: Prisma.CustomerErpOAuthStateOrderByRelationAggregateInput
   _relevance?: Prisma.CustomerErpConnectionOrderByRelevanceInput
@@ -847,6 +849,7 @@ export type CustomerErpConnectionWhereUniqueInput = Prisma.AtLeast<{
   orderLinks?: Prisma.CustomerErpOrderLinkListRelationFilter
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkListRelationFilter
   inventoryLinks?: Prisma.CustomerErpInventoryLinkListRelationFilter
+  productCodes?: Prisma.CustomerErpProductCodeListRelationFilter
   approvals?: Prisma.CustomerErpApprovalListRelationFilter
   oauthStates?: Prisma.CustomerErpOAuthStateListRelationFilter
 }, "id" | "webhookSlug" | "organizationId_name">
@@ -1057,6 +1060,7 @@ export type CustomerErpConnectionCreateInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateCreateNestedManyWithoutConnectionInput
 }
@@ -1133,6 +1137,7 @@ export type CustomerErpConnectionUncheckedCreateInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalUncheckedCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedCreateNestedManyWithoutConnectionInput
 }
@@ -1209,6 +1214,7 @@ export type CustomerErpConnectionUpdateInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUpdateManyWithoutConnectionNestedInput
 }
@@ -1285,6 +1291,7 @@ export type CustomerErpConnectionUncheckedUpdateInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUncheckedUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedUpdateManyWithoutConnectionNestedInput
 }
@@ -1932,6 +1939,20 @@ export type CustomerErpConnectionUpdateOneRequiredWithoutInventoryLinksNestedInp
   update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerErpConnectionUpdateToOneWithWhereWithoutInventoryLinksInput, Prisma.CustomerErpConnectionUpdateWithoutInventoryLinksInput>, Prisma.CustomerErpConnectionUncheckedUpdateWithoutInventoryLinksInput>
 }
 
+export type CustomerErpConnectionCreateNestedOneWithoutProductCodesInput = {
+  create?: Prisma.XOR<Prisma.CustomerErpConnectionCreateWithoutProductCodesInput, Prisma.CustomerErpConnectionUncheckedCreateWithoutProductCodesInput>
+  connectOrCreate?: Prisma.CustomerErpConnectionCreateOrConnectWithoutProductCodesInput
+  connect?: Prisma.CustomerErpConnectionWhereUniqueInput
+}
+
+export type CustomerErpConnectionUpdateOneRequiredWithoutProductCodesNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerErpConnectionCreateWithoutProductCodesInput, Prisma.CustomerErpConnectionUncheckedCreateWithoutProductCodesInput>
+  connectOrCreate?: Prisma.CustomerErpConnectionCreateOrConnectWithoutProductCodesInput
+  upsert?: Prisma.CustomerErpConnectionUpsertWithoutProductCodesInput
+  connect?: Prisma.CustomerErpConnectionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerErpConnectionUpdateToOneWithWhereWithoutProductCodesInput, Prisma.CustomerErpConnectionUpdateWithoutProductCodesInput>, Prisma.CustomerErpConnectionUncheckedUpdateWithoutProductCodesInput>
+}
+
 export type CustomerErpConnectionCreateNestedOneWithoutApprovalsInput = {
   create?: Prisma.XOR<Prisma.CustomerErpConnectionCreateWithoutApprovalsInput, Prisma.CustomerErpConnectionUncheckedCreateWithoutApprovalsInput>
   connectOrCreate?: Prisma.CustomerErpConnectionCreateOrConnectWithoutApprovalsInput
@@ -2031,6 +2052,7 @@ export type CustomerErpConnectionCreateWithoutOrganizationInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateCreateNestedManyWithoutConnectionInput
 }
@@ -2106,6 +2128,7 @@ export type CustomerErpConnectionUncheckedCreateWithoutOrganizationInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalUncheckedCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedCreateNestedManyWithoutConnectionInput
 }
@@ -2273,6 +2296,7 @@ export type CustomerErpConnectionCreateWithoutCredentialsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateCreateNestedManyWithoutConnectionInput
 }
@@ -2348,6 +2372,7 @@ export type CustomerErpConnectionUncheckedCreateWithoutCredentialsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalUncheckedCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedCreateNestedManyWithoutConnectionInput
 }
@@ -2439,6 +2464,7 @@ export type CustomerErpConnectionUpdateWithoutCredentialsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUpdateManyWithoutConnectionNestedInput
 }
@@ -2514,6 +2540,7 @@ export type CustomerErpConnectionUncheckedUpdateWithoutCredentialsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUncheckedUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedUpdateManyWithoutConnectionNestedInput
 }
@@ -2589,6 +2616,7 @@ export type CustomerErpConnectionCreateWithoutEndpointsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateCreateNestedManyWithoutConnectionInput
 }
@@ -2664,6 +2692,7 @@ export type CustomerErpConnectionUncheckedCreateWithoutEndpointsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalUncheckedCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedCreateNestedManyWithoutConnectionInput
 }
@@ -2755,6 +2784,7 @@ export type CustomerErpConnectionUpdateWithoutEndpointsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUpdateManyWithoutConnectionNestedInput
 }
@@ -2830,6 +2860,7 @@ export type CustomerErpConnectionUncheckedUpdateWithoutEndpointsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUncheckedUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedUpdateManyWithoutConnectionNestedInput
 }
@@ -2905,6 +2936,7 @@ export type CustomerErpConnectionCreateWithoutFieldMappingsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateCreateNestedManyWithoutConnectionInput
 }
@@ -2980,6 +3012,7 @@ export type CustomerErpConnectionUncheckedCreateWithoutFieldMappingsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalUncheckedCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedCreateNestedManyWithoutConnectionInput
 }
@@ -3071,6 +3104,7 @@ export type CustomerErpConnectionUpdateWithoutFieldMappingsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUpdateManyWithoutConnectionNestedInput
 }
@@ -3146,6 +3180,7 @@ export type CustomerErpConnectionUncheckedUpdateWithoutFieldMappingsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUncheckedUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedUpdateManyWithoutConnectionNestedInput
 }
@@ -3221,6 +3256,7 @@ export type CustomerErpConnectionCreateWithoutWarehouseMapsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateCreateNestedManyWithoutConnectionInput
 }
@@ -3296,6 +3332,7 @@ export type CustomerErpConnectionUncheckedCreateWithoutWarehouseMapsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalUncheckedCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedCreateNestedManyWithoutConnectionInput
 }
@@ -3387,6 +3424,7 @@ export type CustomerErpConnectionUpdateWithoutWarehouseMapsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUpdateManyWithoutConnectionNestedInput
 }
@@ -3462,6 +3500,7 @@ export type CustomerErpConnectionUncheckedUpdateWithoutWarehouseMapsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUncheckedUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedUpdateManyWithoutConnectionNestedInput
 }
@@ -3537,6 +3576,7 @@ export type CustomerErpConnectionCreateWithoutPolicyInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateCreateNestedManyWithoutConnectionInput
 }
@@ -3612,6 +3652,7 @@ export type CustomerErpConnectionUncheckedCreateWithoutPolicyInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalUncheckedCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedCreateNestedManyWithoutConnectionInput
 }
@@ -3703,6 +3744,7 @@ export type CustomerErpConnectionUpdateWithoutPolicyInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUpdateManyWithoutConnectionNestedInput
 }
@@ -3778,6 +3820,7 @@ export type CustomerErpConnectionUncheckedUpdateWithoutPolicyInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUncheckedUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedUpdateManyWithoutConnectionNestedInput
 }
@@ -3853,6 +3896,7 @@ export type CustomerErpConnectionCreateWithoutEventsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateCreateNestedManyWithoutConnectionInput
 }
@@ -3928,6 +3972,7 @@ export type CustomerErpConnectionUncheckedCreateWithoutEventsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalUncheckedCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedCreateNestedManyWithoutConnectionInput
 }
@@ -4019,6 +4064,7 @@ export type CustomerErpConnectionUpdateWithoutEventsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUpdateManyWithoutConnectionNestedInput
 }
@@ -4094,6 +4140,7 @@ export type CustomerErpConnectionUncheckedUpdateWithoutEventsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUncheckedUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedUpdateManyWithoutConnectionNestedInput
 }
@@ -4169,6 +4216,7 @@ export type CustomerErpConnectionCreateWithoutJobsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateCreateNestedManyWithoutConnectionInput
 }
@@ -4244,6 +4292,7 @@ export type CustomerErpConnectionUncheckedCreateWithoutJobsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalUncheckedCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedCreateNestedManyWithoutConnectionInput
 }
@@ -4335,6 +4384,7 @@ export type CustomerErpConnectionUpdateWithoutJobsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUpdateManyWithoutConnectionNestedInput
 }
@@ -4410,6 +4460,7 @@ export type CustomerErpConnectionUncheckedUpdateWithoutJobsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUncheckedUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedUpdateManyWithoutConnectionNestedInput
 }
@@ -4485,6 +4536,7 @@ export type CustomerErpConnectionCreateWithoutWebhookEventsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateCreateNestedManyWithoutConnectionInput
 }
@@ -4560,6 +4612,7 @@ export type CustomerErpConnectionUncheckedCreateWithoutWebhookEventsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalUncheckedCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedCreateNestedManyWithoutConnectionInput
 }
@@ -4651,6 +4704,7 @@ export type CustomerErpConnectionUpdateWithoutWebhookEventsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUpdateManyWithoutConnectionNestedInput
 }
@@ -4726,6 +4780,7 @@ export type CustomerErpConnectionUncheckedUpdateWithoutWebhookEventsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUncheckedUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedUpdateManyWithoutConnectionNestedInput
 }
@@ -4801,6 +4856,7 @@ export type CustomerErpConnectionCreateWithoutOrderLinksInput = {
   webhookEvents?: Prisma.CustomerErpWebhookEventCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateCreateNestedManyWithoutConnectionInput
 }
@@ -4876,6 +4932,7 @@ export type CustomerErpConnectionUncheckedCreateWithoutOrderLinksInput = {
   webhookEvents?: Prisma.CustomerErpWebhookEventUncheckedCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalUncheckedCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedCreateNestedManyWithoutConnectionInput
 }
@@ -4967,6 +5024,7 @@ export type CustomerErpConnectionUpdateWithoutOrderLinksInput = {
   webhookEvents?: Prisma.CustomerErpWebhookEventUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUpdateManyWithoutConnectionNestedInput
 }
@@ -5042,6 +5100,7 @@ export type CustomerErpConnectionUncheckedUpdateWithoutOrderLinksInput = {
   webhookEvents?: Prisma.CustomerErpWebhookEventUncheckedUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUncheckedUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedUpdateManyWithoutConnectionNestedInput
 }
@@ -5117,6 +5176,7 @@ export type CustomerErpConnectionCreateWithoutInvoiceLinksInput = {
   webhookEvents?: Prisma.CustomerErpWebhookEventCreateNestedManyWithoutConnectionInput
   orderLinks?: Prisma.CustomerErpOrderLinkCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateCreateNestedManyWithoutConnectionInput
 }
@@ -5192,6 +5252,7 @@ export type CustomerErpConnectionUncheckedCreateWithoutInvoiceLinksInput = {
   webhookEvents?: Prisma.CustomerErpWebhookEventUncheckedCreateNestedManyWithoutConnectionInput
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalUncheckedCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedCreateNestedManyWithoutConnectionInput
 }
@@ -5283,6 +5344,7 @@ export type CustomerErpConnectionUpdateWithoutInvoiceLinksInput = {
   webhookEvents?: Prisma.CustomerErpWebhookEventUpdateManyWithoutConnectionNestedInput
   orderLinks?: Prisma.CustomerErpOrderLinkUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUpdateManyWithoutConnectionNestedInput
 }
@@ -5358,6 +5420,7 @@ export type CustomerErpConnectionUncheckedUpdateWithoutInvoiceLinksInput = {
   webhookEvents?: Prisma.CustomerErpWebhookEventUncheckedUpdateManyWithoutConnectionNestedInput
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUncheckedUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedUpdateManyWithoutConnectionNestedInput
 }
@@ -5433,6 +5496,7 @@ export type CustomerErpConnectionCreateWithoutInventoryLinksInput = {
   webhookEvents?: Prisma.CustomerErpWebhookEventCreateNestedManyWithoutConnectionInput
   orderLinks?: Prisma.CustomerErpOrderLinkCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateCreateNestedManyWithoutConnectionInput
 }
@@ -5508,6 +5572,7 @@ export type CustomerErpConnectionUncheckedCreateWithoutInventoryLinksInput = {
   webhookEvents?: Prisma.CustomerErpWebhookEventUncheckedCreateNestedManyWithoutConnectionInput
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalUncheckedCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedCreateNestedManyWithoutConnectionInput
 }
@@ -5599,6 +5664,7 @@ export type CustomerErpConnectionUpdateWithoutInventoryLinksInput = {
   webhookEvents?: Prisma.CustomerErpWebhookEventUpdateManyWithoutConnectionNestedInput
   orderLinks?: Prisma.CustomerErpOrderLinkUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUpdateManyWithoutConnectionNestedInput
 }
@@ -5674,6 +5740,327 @@ export type CustomerErpConnectionUncheckedUpdateWithoutInventoryLinksInput = {
   webhookEvents?: Prisma.CustomerErpWebhookEventUncheckedUpdateManyWithoutConnectionNestedInput
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedUpdateManyWithoutConnectionNestedInput
+  approvals?: Prisma.CustomerErpApprovalUncheckedUpdateManyWithoutConnectionNestedInput
+  oauthStates?: Prisma.CustomerErpOAuthStateUncheckedUpdateManyWithoutConnectionNestedInput
+}
+
+export type CustomerErpConnectionCreateWithoutProductCodesInput = {
+  id: string
+  name: string
+  system: $Enums.CustomerErpSystem
+  apiStyle?: $Enums.CustomerErpApiStyle
+  environment?: $Enums.CustomerErpEnvironment
+  vendorPreset?: string | null
+  erpVersion?: string | null
+  state?: $Enums.CustomerErpConnectionState
+  stateReason?: string | null
+  stateChangedAt?: Date | string
+  baseUrl: string
+  apiVersion?: string | null
+  networkMode?: $Enums.CustomerErpNetworkMode
+  networkNotes?: string | null
+  tenantIdentifier?: string | null
+  customHeadersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  timeoutMs?: number
+  sapCompanyCode?: string | null
+  sapPurchasingOrg?: string | null
+  sapPurchasingGroup?: string | null
+  sapPlant?: string | null
+  sapStorageLocation?: string | null
+  sapCommunicationScenario?: string | null
+  mondayWorkspaceId?: string | null
+  mondayBoardId?: string | null
+  mondayGroupId?: string | null
+  authMethod?: $Enums.CustomerErpAuthMethod
+  apiKeyLocation?: $Enums.CustomerErpApiKeyLocation | null
+  apiKeyName?: string | null
+  oauthAuthorizationUrl?: string | null
+  oauthTokenUrl?: string | null
+  oauthScope?: string | null
+  oauthUsesPlatformApp?: boolean
+  mutualTlsEnabled?: boolean
+  webhookEnabled?: boolean
+  webhookSlug: string
+  webhookSignatureHeader?: string
+  webhookTimestampHeader?: string | null
+  webhookToleranceSeconds?: number
+  pollingEnabled?: boolean
+  pollingIntervalMinutes?: number
+  pollingTimezone?: string
+  lastPolledAt?: Date | string | null
+  nextPollAt?: Date | string | null
+  pollCursor?: string | null
+  lastTestAt?: Date | string | null
+  lastTestOk?: boolean | null
+  lastTestHttpStatus?: number | null
+  lastTestDurationMs?: number | null
+  lastTestMessage?: string | null
+  mappingVerifiedAt?: Date | string | null
+  consecutiveFailures?: number
+  circuitOpenedAt?: Date | string | null
+  lastSuccessAt?: Date | string | null
+  lastFailureAt?: Date | string | null
+  createdByProfileId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  organization: Prisma.BuyerOrganizationCreateNestedOneWithoutConnectionsInput
+  credentials?: Prisma.CustomerErpCredentialCreateNestedManyWithoutConnectionInput
+  endpoints?: Prisma.CustomerErpEndpointCreateNestedManyWithoutConnectionInput
+  fieldMappings?: Prisma.CustomerErpFieldMappingCreateNestedManyWithoutConnectionInput
+  warehouseMaps?: Prisma.CustomerErpWarehouseMapCreateNestedManyWithoutConnectionInput
+  policy?: Prisma.CustomerErpSyncPolicyCreateNestedOneWithoutConnectionInput
+  events?: Prisma.CustomerErpSyncEventCreateNestedManyWithoutConnectionInput
+  jobs?: Prisma.CustomerErpSyncJobCreateNestedManyWithoutConnectionInput
+  webhookEvents?: Prisma.CustomerErpWebhookEventCreateNestedManyWithoutConnectionInput
+  orderLinks?: Prisma.CustomerErpOrderLinkCreateNestedManyWithoutConnectionInput
+  invoiceLinks?: Prisma.CustomerErpInvoiceLinkCreateNestedManyWithoutConnectionInput
+  inventoryLinks?: Prisma.CustomerErpInventoryLinkCreateNestedManyWithoutConnectionInput
+  approvals?: Prisma.CustomerErpApprovalCreateNestedManyWithoutConnectionInput
+  oauthStates?: Prisma.CustomerErpOAuthStateCreateNestedManyWithoutConnectionInput
+}
+
+export type CustomerErpConnectionUncheckedCreateWithoutProductCodesInput = {
+  id: string
+  organizationId: string
+  name: string
+  system: $Enums.CustomerErpSystem
+  apiStyle?: $Enums.CustomerErpApiStyle
+  environment?: $Enums.CustomerErpEnvironment
+  vendorPreset?: string | null
+  erpVersion?: string | null
+  state?: $Enums.CustomerErpConnectionState
+  stateReason?: string | null
+  stateChangedAt?: Date | string
+  baseUrl: string
+  apiVersion?: string | null
+  networkMode?: $Enums.CustomerErpNetworkMode
+  networkNotes?: string | null
+  tenantIdentifier?: string | null
+  customHeadersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  timeoutMs?: number
+  sapCompanyCode?: string | null
+  sapPurchasingOrg?: string | null
+  sapPurchasingGroup?: string | null
+  sapPlant?: string | null
+  sapStorageLocation?: string | null
+  sapCommunicationScenario?: string | null
+  mondayWorkspaceId?: string | null
+  mondayBoardId?: string | null
+  mondayGroupId?: string | null
+  authMethod?: $Enums.CustomerErpAuthMethod
+  apiKeyLocation?: $Enums.CustomerErpApiKeyLocation | null
+  apiKeyName?: string | null
+  oauthAuthorizationUrl?: string | null
+  oauthTokenUrl?: string | null
+  oauthScope?: string | null
+  oauthUsesPlatformApp?: boolean
+  mutualTlsEnabled?: boolean
+  webhookEnabled?: boolean
+  webhookSlug: string
+  webhookSignatureHeader?: string
+  webhookTimestampHeader?: string | null
+  webhookToleranceSeconds?: number
+  pollingEnabled?: boolean
+  pollingIntervalMinutes?: number
+  pollingTimezone?: string
+  lastPolledAt?: Date | string | null
+  nextPollAt?: Date | string | null
+  pollCursor?: string | null
+  lastTestAt?: Date | string | null
+  lastTestOk?: boolean | null
+  lastTestHttpStatus?: number | null
+  lastTestDurationMs?: number | null
+  lastTestMessage?: string | null
+  mappingVerifiedAt?: Date | string | null
+  consecutiveFailures?: number
+  circuitOpenedAt?: Date | string | null
+  lastSuccessAt?: Date | string | null
+  lastFailureAt?: Date | string | null
+  createdByProfileId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  credentials?: Prisma.CustomerErpCredentialUncheckedCreateNestedManyWithoutConnectionInput
+  endpoints?: Prisma.CustomerErpEndpointUncheckedCreateNestedManyWithoutConnectionInput
+  fieldMappings?: Prisma.CustomerErpFieldMappingUncheckedCreateNestedManyWithoutConnectionInput
+  warehouseMaps?: Prisma.CustomerErpWarehouseMapUncheckedCreateNestedManyWithoutConnectionInput
+  policy?: Prisma.CustomerErpSyncPolicyUncheckedCreateNestedOneWithoutConnectionInput
+  events?: Prisma.CustomerErpSyncEventUncheckedCreateNestedManyWithoutConnectionInput
+  jobs?: Prisma.CustomerErpSyncJobUncheckedCreateNestedManyWithoutConnectionInput
+  webhookEvents?: Prisma.CustomerErpWebhookEventUncheckedCreateNestedManyWithoutConnectionInput
+  orderLinks?: Prisma.CustomerErpOrderLinkUncheckedCreateNestedManyWithoutConnectionInput
+  invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedCreateNestedManyWithoutConnectionInput
+  inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedCreateNestedManyWithoutConnectionInput
+  approvals?: Prisma.CustomerErpApprovalUncheckedCreateNestedManyWithoutConnectionInput
+  oauthStates?: Prisma.CustomerErpOAuthStateUncheckedCreateNestedManyWithoutConnectionInput
+}
+
+export type CustomerErpConnectionCreateOrConnectWithoutProductCodesInput = {
+  where: Prisma.CustomerErpConnectionWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerErpConnectionCreateWithoutProductCodesInput, Prisma.CustomerErpConnectionUncheckedCreateWithoutProductCodesInput>
+}
+
+export type CustomerErpConnectionUpsertWithoutProductCodesInput = {
+  update: Prisma.XOR<Prisma.CustomerErpConnectionUpdateWithoutProductCodesInput, Prisma.CustomerErpConnectionUncheckedUpdateWithoutProductCodesInput>
+  create: Prisma.XOR<Prisma.CustomerErpConnectionCreateWithoutProductCodesInput, Prisma.CustomerErpConnectionUncheckedCreateWithoutProductCodesInput>
+  where?: Prisma.CustomerErpConnectionWhereInput
+}
+
+export type CustomerErpConnectionUpdateToOneWithWhereWithoutProductCodesInput = {
+  where?: Prisma.CustomerErpConnectionWhereInput
+  data: Prisma.XOR<Prisma.CustomerErpConnectionUpdateWithoutProductCodesInput, Prisma.CustomerErpConnectionUncheckedUpdateWithoutProductCodesInput>
+}
+
+export type CustomerErpConnectionUpdateWithoutProductCodesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  system?: Prisma.EnumCustomerErpSystemFieldUpdateOperationsInput | $Enums.CustomerErpSystem
+  apiStyle?: Prisma.EnumCustomerErpApiStyleFieldUpdateOperationsInput | $Enums.CustomerErpApiStyle
+  environment?: Prisma.EnumCustomerErpEnvironmentFieldUpdateOperationsInput | $Enums.CustomerErpEnvironment
+  vendorPreset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.EnumCustomerErpConnectionStateFieldUpdateOperationsInput | $Enums.CustomerErpConnectionState
+  stateReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stateChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  apiVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  networkMode?: Prisma.EnumCustomerErpNetworkModeFieldUpdateOperationsInput | $Enums.CustomerErpNetworkMode
+  networkNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantIdentifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customHeadersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  timeoutMs?: Prisma.IntFieldUpdateOperationsInput | number
+  sapCompanyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapPurchasingOrg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapPurchasingGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapPlant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapStorageLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapCommunicationScenario?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mondayWorkspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mondayBoardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mondayGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authMethod?: Prisma.EnumCustomerErpAuthMethodFieldUpdateOperationsInput | $Enums.CustomerErpAuthMethod
+  apiKeyLocation?: Prisma.NullableEnumCustomerErpApiKeyLocationFieldUpdateOperationsInput | $Enums.CustomerErpApiKeyLocation | null
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  oauthAuthorizationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  oauthTokenUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  oauthScope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  oauthUsesPlatformApp?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mutualTlsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webhookSlug?: Prisma.StringFieldUpdateOperationsInput | string
+  webhookSignatureHeader?: Prisma.StringFieldUpdateOperationsInput | string
+  webhookTimestampHeader?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookToleranceSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  pollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pollingIntervalMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  pollingTimezone?: Prisma.StringFieldUpdateOperationsInput | string
+  lastPolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nextPollAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pollCursor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastTestAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastTestOk?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  lastTestHttpStatus?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lastTestDurationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lastTestMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mappingVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consecutiveFailures?: Prisma.IntFieldUpdateOperationsInput | number
+  circuitOpenedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSuccessAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastFailureAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  organization?: Prisma.BuyerOrganizationUpdateOneRequiredWithoutConnectionsNestedInput
+  credentials?: Prisma.CustomerErpCredentialUpdateManyWithoutConnectionNestedInput
+  endpoints?: Prisma.CustomerErpEndpointUpdateManyWithoutConnectionNestedInput
+  fieldMappings?: Prisma.CustomerErpFieldMappingUpdateManyWithoutConnectionNestedInput
+  warehouseMaps?: Prisma.CustomerErpWarehouseMapUpdateManyWithoutConnectionNestedInput
+  policy?: Prisma.CustomerErpSyncPolicyUpdateOneWithoutConnectionNestedInput
+  events?: Prisma.CustomerErpSyncEventUpdateManyWithoutConnectionNestedInput
+  jobs?: Prisma.CustomerErpSyncJobUpdateManyWithoutConnectionNestedInput
+  webhookEvents?: Prisma.CustomerErpWebhookEventUpdateManyWithoutConnectionNestedInput
+  orderLinks?: Prisma.CustomerErpOrderLinkUpdateManyWithoutConnectionNestedInput
+  invoiceLinks?: Prisma.CustomerErpInvoiceLinkUpdateManyWithoutConnectionNestedInput
+  inventoryLinks?: Prisma.CustomerErpInventoryLinkUpdateManyWithoutConnectionNestedInput
+  approvals?: Prisma.CustomerErpApprovalUpdateManyWithoutConnectionNestedInput
+  oauthStates?: Prisma.CustomerErpOAuthStateUpdateManyWithoutConnectionNestedInput
+}
+
+export type CustomerErpConnectionUncheckedUpdateWithoutProductCodesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  system?: Prisma.EnumCustomerErpSystemFieldUpdateOperationsInput | $Enums.CustomerErpSystem
+  apiStyle?: Prisma.EnumCustomerErpApiStyleFieldUpdateOperationsInput | $Enums.CustomerErpApiStyle
+  environment?: Prisma.EnumCustomerErpEnvironmentFieldUpdateOperationsInput | $Enums.CustomerErpEnvironment
+  vendorPreset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erpVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.EnumCustomerErpConnectionStateFieldUpdateOperationsInput | $Enums.CustomerErpConnectionState
+  stateReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stateChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  apiVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  networkMode?: Prisma.EnumCustomerErpNetworkModeFieldUpdateOperationsInput | $Enums.CustomerErpNetworkMode
+  networkNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantIdentifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customHeadersJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  timeoutMs?: Prisma.IntFieldUpdateOperationsInput | number
+  sapCompanyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapPurchasingOrg?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapPurchasingGroup?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapPlant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapStorageLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapCommunicationScenario?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mondayWorkspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mondayBoardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mondayGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authMethod?: Prisma.EnumCustomerErpAuthMethodFieldUpdateOperationsInput | $Enums.CustomerErpAuthMethod
+  apiKeyLocation?: Prisma.NullableEnumCustomerErpApiKeyLocationFieldUpdateOperationsInput | $Enums.CustomerErpApiKeyLocation | null
+  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  oauthAuthorizationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  oauthTokenUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  oauthScope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  oauthUsesPlatformApp?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mutualTlsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webhookSlug?: Prisma.StringFieldUpdateOperationsInput | string
+  webhookSignatureHeader?: Prisma.StringFieldUpdateOperationsInput | string
+  webhookTimestampHeader?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookToleranceSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  pollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pollingIntervalMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  pollingTimezone?: Prisma.StringFieldUpdateOperationsInput | string
+  lastPolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nextPollAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pollCursor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastTestAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastTestOk?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  lastTestHttpStatus?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lastTestDurationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lastTestMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mappingVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consecutiveFailures?: Prisma.IntFieldUpdateOperationsInput | number
+  circuitOpenedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSuccessAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastFailureAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  credentials?: Prisma.CustomerErpCredentialUncheckedUpdateManyWithoutConnectionNestedInput
+  endpoints?: Prisma.CustomerErpEndpointUncheckedUpdateManyWithoutConnectionNestedInput
+  fieldMappings?: Prisma.CustomerErpFieldMappingUncheckedUpdateManyWithoutConnectionNestedInput
+  warehouseMaps?: Prisma.CustomerErpWarehouseMapUncheckedUpdateManyWithoutConnectionNestedInput
+  policy?: Prisma.CustomerErpSyncPolicyUncheckedUpdateOneWithoutConnectionNestedInput
+  events?: Prisma.CustomerErpSyncEventUncheckedUpdateManyWithoutConnectionNestedInput
+  jobs?: Prisma.CustomerErpSyncJobUncheckedUpdateManyWithoutConnectionNestedInput
+  webhookEvents?: Prisma.CustomerErpWebhookEventUncheckedUpdateManyWithoutConnectionNestedInput
+  orderLinks?: Prisma.CustomerErpOrderLinkUncheckedUpdateManyWithoutConnectionNestedInput
+  invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedUpdateManyWithoutConnectionNestedInput
+  inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUncheckedUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedUpdateManyWithoutConnectionNestedInput
 }
@@ -5750,6 +6137,7 @@ export type CustomerErpConnectionCreateWithoutApprovalsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateCreateNestedManyWithoutConnectionInput
 }
 
@@ -5825,6 +6213,7 @@ export type CustomerErpConnectionUncheckedCreateWithoutApprovalsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedCreateNestedManyWithoutConnectionInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedCreateNestedManyWithoutConnectionInput
 }
 
@@ -5916,6 +6305,7 @@ export type CustomerErpConnectionUpdateWithoutApprovalsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUpdateManyWithoutConnectionNestedInput
 }
 
@@ -5991,6 +6381,7 @@ export type CustomerErpConnectionUncheckedUpdateWithoutApprovalsInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedUpdateManyWithoutConnectionNestedInput
 }
 
@@ -6066,6 +6457,7 @@ export type CustomerErpConnectionCreateWithoutOauthStatesInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalCreateNestedManyWithoutConnectionInput
 }
 
@@ -6141,6 +6533,7 @@ export type CustomerErpConnectionUncheckedCreateWithoutOauthStatesInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedCreateNestedManyWithoutConnectionInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedCreateNestedManyWithoutConnectionInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedCreateNestedManyWithoutConnectionInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedCreateNestedManyWithoutConnectionInput
   approvals?: Prisma.CustomerErpApprovalUncheckedCreateNestedManyWithoutConnectionInput
 }
 
@@ -6232,6 +6625,7 @@ export type CustomerErpConnectionUpdateWithoutOauthStatesInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUpdateManyWithoutConnectionNestedInput
 }
 
@@ -6307,6 +6701,7 @@ export type CustomerErpConnectionUncheckedUpdateWithoutOauthStatesInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUncheckedUpdateManyWithoutConnectionNestedInput
 }
 
@@ -6443,6 +6838,7 @@ export type CustomerErpConnectionUpdateWithoutOrganizationInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUpdateManyWithoutConnectionNestedInput
 }
@@ -6518,6 +6914,7 @@ export type CustomerErpConnectionUncheckedUpdateWithoutOrganizationInput = {
   orderLinks?: Prisma.CustomerErpOrderLinkUncheckedUpdateManyWithoutConnectionNestedInput
   invoiceLinks?: Prisma.CustomerErpInvoiceLinkUncheckedUpdateManyWithoutConnectionNestedInput
   inventoryLinks?: Prisma.CustomerErpInventoryLinkUncheckedUpdateManyWithoutConnectionNestedInput
+  productCodes?: Prisma.CustomerErpProductCodeUncheckedUpdateManyWithoutConnectionNestedInput
   approvals?: Prisma.CustomerErpApprovalUncheckedUpdateManyWithoutConnectionNestedInput
   oauthStates?: Prisma.CustomerErpOAuthStateUncheckedUpdateManyWithoutConnectionNestedInput
 }
@@ -6600,6 +6997,7 @@ export type CustomerErpConnectionCountOutputType = {
   orderLinks: number
   invoiceLinks: number
   inventoryLinks: number
+  productCodes: number
   approvals: number
   oauthStates: number
 }
@@ -6615,6 +7013,7 @@ export type CustomerErpConnectionCountOutputTypeSelect<ExtArgs extends runtime.T
   orderLinks?: boolean | CustomerErpConnectionCountOutputTypeCountOrderLinksArgs
   invoiceLinks?: boolean | CustomerErpConnectionCountOutputTypeCountInvoiceLinksArgs
   inventoryLinks?: boolean | CustomerErpConnectionCountOutputTypeCountInventoryLinksArgs
+  productCodes?: boolean | CustomerErpConnectionCountOutputTypeCountProductCodesArgs
   approvals?: boolean | CustomerErpConnectionCountOutputTypeCountApprovalsArgs
   oauthStates?: boolean | CustomerErpConnectionCountOutputTypeCountOauthStatesArgs
 }
@@ -6697,6 +7096,13 @@ export type CustomerErpConnectionCountOutputTypeCountInvoiceLinksArgs<ExtArgs ex
  */
 export type CustomerErpConnectionCountOutputTypeCountInventoryLinksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.CustomerErpInventoryLinkWhereInput
+}
+
+/**
+ * CustomerErpConnectionCountOutputType without action
+ */
+export type CustomerErpConnectionCountOutputTypeCountProductCodesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerErpProductCodeWhereInput
 }
 
 /**
@@ -6787,6 +7193,7 @@ export type CustomerErpConnectionSelect<ExtArgs extends runtime.Types.Extensions
   orderLinks?: boolean | Prisma.CustomerErpConnection$orderLinksArgs<ExtArgs>
   invoiceLinks?: boolean | Prisma.CustomerErpConnection$invoiceLinksArgs<ExtArgs>
   inventoryLinks?: boolean | Prisma.CustomerErpConnection$inventoryLinksArgs<ExtArgs>
+  productCodes?: boolean | Prisma.CustomerErpConnection$productCodesArgs<ExtArgs>
   approvals?: boolean | Prisma.CustomerErpConnection$approvalsArgs<ExtArgs>
   oauthStates?: boolean | Prisma.CustomerErpConnection$oauthStatesArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerErpConnectionCountOutputTypeDefaultArgs<ExtArgs>
@@ -6871,6 +7278,7 @@ export type CustomerErpConnectionInclude<ExtArgs extends runtime.Types.Extension
   orderLinks?: boolean | Prisma.CustomerErpConnection$orderLinksArgs<ExtArgs>
   invoiceLinks?: boolean | Prisma.CustomerErpConnection$invoiceLinksArgs<ExtArgs>
   inventoryLinks?: boolean | Prisma.CustomerErpConnection$inventoryLinksArgs<ExtArgs>
+  productCodes?: boolean | Prisma.CustomerErpConnection$productCodesArgs<ExtArgs>
   approvals?: boolean | Prisma.CustomerErpConnection$approvalsArgs<ExtArgs>
   oauthStates?: boolean | Prisma.CustomerErpConnection$oauthStatesArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerErpConnectionCountOutputTypeDefaultArgs<ExtArgs>
@@ -6891,6 +7299,7 @@ export type $CustomerErpConnectionPayload<ExtArgs extends runtime.Types.Extensio
     orderLinks: Prisma.$CustomerErpOrderLinkPayload<ExtArgs>[]
     invoiceLinks: Prisma.$CustomerErpInvoiceLinkPayload<ExtArgs>[]
     inventoryLinks: Prisma.$CustomerErpInventoryLinkPayload<ExtArgs>[]
+    productCodes: Prisma.$CustomerErpProductCodePayload<ExtArgs>[]
     approvals: Prisma.$CustomerErpApprovalPayload<ExtArgs>[]
     oauthStates: Prisma.$CustomerErpOAuthStatePayload<ExtArgs>[]
   }
@@ -7431,6 +7840,7 @@ export interface Prisma__CustomerErpConnectionClient<T, Null = never, ExtArgs ex
   orderLinks<T extends Prisma.CustomerErpConnection$orderLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerErpConnection$orderLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerErpOrderLinkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   invoiceLinks<T extends Prisma.CustomerErpConnection$invoiceLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerErpConnection$invoiceLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerErpInvoiceLinkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   inventoryLinks<T extends Prisma.CustomerErpConnection$inventoryLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerErpConnection$inventoryLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerErpInventoryLinkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  productCodes<T extends Prisma.CustomerErpConnection$productCodesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerErpConnection$productCodesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerErpProductCodePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   approvals<T extends Prisma.CustomerErpConnection$approvalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerErpConnection$approvalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerErpApprovalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   oauthStates<T extends Prisma.CustomerErpConnection$oauthStatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerErpConnection$oauthStatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerErpOAuthStatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -8126,6 +8536,30 @@ export type CustomerErpConnection$inventoryLinksArgs<ExtArgs extends runtime.Typ
   take?: number
   skip?: number
   distinct?: Prisma.CustomerErpInventoryLinkScalarFieldEnum | Prisma.CustomerErpInventoryLinkScalarFieldEnum[]
+}
+
+/**
+ * CustomerErpConnection.productCodes
+ */
+export type CustomerErpConnection$productCodesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerErpProductCode
+   */
+  select?: Prisma.CustomerErpProductCodeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerErpProductCode
+   */
+  omit?: Prisma.CustomerErpProductCodeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerErpProductCodeInclude<ExtArgs> | null
+  where?: Prisma.CustomerErpProductCodeWhereInput
+  orderBy?: Prisma.CustomerErpProductCodeOrderByWithRelationInput | Prisma.CustomerErpProductCodeOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerErpProductCodeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerErpProductCodeScalarFieldEnum | Prisma.CustomerErpProductCodeScalarFieldEnum[]
 }
 
 /**
