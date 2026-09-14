@@ -50,12 +50,15 @@
  * **Delivery coverage is driven from here, and it is two gestures rather
  * than one.** On a device with a real pointer, moving onto a marker asks the
  * server which countries that warehouse reaches and the map flies in to show
- * them; moving off puts the camera back. On a touch device there is no
- * "moving off", so the tap that selects a warehouse opens the coverage too
- * and a close button on the panel is what ends it. Which of the two applies
- * is read from `(hover: hover) and (pointer: fine)` rather than from the
- * width of the window - a laptop with a narrow window still has a mouse, and
- * a large tablet still does not.
+ * them. It then stays: pointing at another warehouse swaps the answer, and
+ * taking the pointer off the map puts the camera back. Nothing smaller ends
+ * it, because the flight itself moves the marker out from under a pointer
+ * that has not gone anywhere - see the effect that owns the close. On a touch
+ * device there is no pointer to move at all, so the tap that selects a
+ * warehouse opens the coverage too and a close button on the panel is what
+ * ends it. Which of the two applies is read from `(hover: hover) and
+ * (pointer: fine)` rather than from the width of the window - a laptop with a
+ * narrow window still has a mouse, and a large tablet still does not.
  *
  * The layers, the arcs and the camera live in `coverage-visual.ts`, which is
  * not React and should not pretend to be. This component owns *when* they
@@ -324,19 +327,12 @@ function canHover(): boolean {
 const HOVER_INTENT_MS = 140;
 
 /**
- * How long the coverage stays up after the pointer leaves a marker.
+ * How long the coverage stays up after the pointer leaves the map.
  *
- * The panel is 250 pixels of glass in the top-right corner with a real button
- * on every country in it, and the marker it belongs to is somewhere else on
- * the map. Closing the instant the pointer leaves the marker means the answer
- * cannot be read - it is taken away during the journey towards it - and it
- * also means that moving from one marker to its neighbour blanks the screen
- * in between, which is the flicker this delay exists to remove.
- *
- * So leaving only *schedules* the close, and three things cancel it: arriving
- * at another marker, coming back to the same one, and the pointer reaching
- * the panel itself. 260ms is longer than the gap between two markers a cursor
- * is crossing and shorter than the pause of somebody who has moved on.
+ * Leaving only *schedules* the close, so a pointer that clips the edge of the
+ * map on the way somewhere else inside it does not blank the screen, and
+ * coming back within this cancels it. 260ms is longer than either of those
+ * and shorter than the pause of somebody who has moved on.
  */
 const HOVER_LEAVE_MS = 260;
 
@@ -355,9 +351,9 @@ function cancelTimer(timer: React.RefObject<number | null>): void {
 /**
  * Arm the close, cancelling whatever was already pending.
  *
- * Shared by the two places that decide the pointer has gone: leaving a
- * marker, and leaving the panel. Also at module scope, for the same reason
- * `cancelTimer` is.
+ * At module scope for the same reason `cancelTimer` is: it touches nothing
+ * but the two refs it is handed, so the effect that calls it does not have to
+ * carry it as a dependency.
  */
 function scheduleClose(
   timer: React.RefObject<number | null>,
@@ -383,6 +379,8 @@ export function WarehouseMapLibre({
   const { t } = useI18n();
 
   const containerRef = useRef<HTMLDivElement>(null);
+  /** The map and the panel over it - what the close gesture is measured from. */
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const markersRef = useRef<Map<string, Marker>>(new Map());
   /** The library, kept so the later effects need not re-import it. */
@@ -725,11 +723,18 @@ export function WarehouseMapLibre({
           }, HOVER_INTENT_MS);
         });
 
+        // Leaving a marker cancels an opening that has not happened yet, and
+        // does nothing else. It deliberately does *not* close what is already
+        // open, because most of the time the pointer has not gone anywhere:
+        // showing the coverage flies the camera in and pitches it, which
+        // slides the marker out from under a cursor that never moved, and the
+        // browser reports that as a `mouseleave` like any other. Closing on
+        // it was the panel appearing and then taking itself away a quarter of
+        // a second later, every time. What ends the gesture is the effect
+        // below; what changes its subject is a `mouseenter` on another
+        // marker.
         element.addEventListener('mouseleave', () => {
           cancelTimer(hoverTimerRef);
-          // Scheduled, not done. See HOVER_LEAVE_MS: the answer has to
-          // survive the journey towards it and the gap between two markers.
-          scheduleClose(leaveTimerRef, onPointAtRef);
         });
       }
 
@@ -798,6 +803,57 @@ export function WarehouseMapLibre({
     else visualRef.current.show(coverage);
   }, [coverageId, coverage, status]);
 
+  // --- What closes the coverage ---------------------------------------------
+  //
+  // The pointer leaving the map, and nothing smaller than that.
+  //
+  // Anything smaller is wrong here, because the ground moves. Showing the
+  // coverage flies the camera in and pitches it, so the marker the pointer is
+  // resting on travels out from under it while the pointer sits still - a
+  // close armed by leaving the marker fires on the map's own animation, and
+  // the answer flashes up and vanishes.
+  //
+  // The panel counts as part of the map for this. It is a corner of glass
+  // with a button on every country in it, the marker that opened it is
+  // somewhere else, and the pointer has to cross open map to reach it.
+  //
+  // So once the map is showing one warehouse's coverage it keeps showing it
+  // until somebody says otherwise, in one of the two ways somebody can:
+  // pointing at a different warehouse, which swaps the subject, or taking the
+  // pointer off the map, which ends the gesture.
+  //
+  // Native listeners on the wrapper rather than React props on the overlay:
+  // the pointer arrives from and leaves for elements MapLibre owns, outside
+  // React's tree, and React derives enter and leave from the same two events
+  // it does everywhere else - it was measured not raising them for that
+  // journey. `pointerenter`/`pointerleave` bound to the element itself are
+  // indifferent to which tree the other end of the journey belongs to.
+  //
+  // Hover devices only, like the marker listeners: a touch `pointerleave`
+  // fires when the finger lifts, which would close the coverage the tap had
+  // just opened.
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (wrapper === null || hoverCapableRef.current !== true) return undefined;
+
+    const onEnter = (): void => {
+      cancelTimer(leaveTimerRef);
+    };
+    const onLeave = (): void => {
+      cancelTimer(hoverTimerRef);
+      scheduleClose(leaveTimerRef, onPointAtRef);
+    };
+
+    wrapper.addEventListener('pointerenter', onEnter);
+    wrapper.addEventListener('pointerleave', onLeave);
+    return () => {
+      wrapper.removeEventListener('pointerenter', onEnter);
+      wrapper.removeEventListener('pointerleave', onLeave);
+    };
+    // The element is the same one for the life of the component, and
+    // everything else in here is a ref.
+  }, []);
+
   // The layers and the pending hover timer both outlive a re-render and
   // neither outlives the component. `dispose` rather than `hide`: on unmount
   // there is no camera left to fly back.
@@ -863,7 +919,7 @@ export function WarehouseMapLibre({
   }, [status]);
 
   return (
-    <div className="relative">
+    <div ref={wrapperRef} className="relative">
       {/* The accessible copy of everything below. See the note at the top of
           this file for why the map itself is hidden rather than described. */}
       <p className="sr-only">
@@ -875,41 +931,14 @@ export function WarehouseMapLibre({
           it is the only place the coverage answer exists in words.
           `pointer-events-none` on the positioning layer so the map can still
           be dragged everywhere the panel is not; the panel itself turns them
-          back on. */}
+          back on.
+
+          No hover handlers of its own, either. The panel is inside the
+          wrapper, and the wrapper is what the close is measured from, so
+          reading a country in here and opening its flap is not a departure at
+          all - there is no pending close for it to have to cancel. */}
       {overlay !== undefined && (
-        <div
-          className="pointer-events-none absolute inset-0 z-10"
-          // The panel is part of the hover rather than something that happens
-          // after it: reaching it cancels the pending close, so the countries
-          // in it can be read and their flaps opened, and leaving it starts
-          // the close the same way leaving a marker does.
-          //
-          // `over`/`out` rather than `enter`/`leave`, which is not a detail.
-          // React derives enter and leave from the same two events, and the
-          // pointer here arrives from a marker - a DOM element MapLibre owns,
-          // outside React's tree - which is a journey React's derivation does
-          // not raise an `onMouseEnter` for on this layer. It was measured
-          // doing exactly nothing. `over` and `out` are the real bubbling
-          // events and arrive whatever the pointer came from.
-          //
-          // Moving *within* the panel fires `out` immediately followed by
-          // `over`, which schedules a close and cancels it in the same tick -
-          // no timer ever elapses in between, so it costs nothing.
-          // No onFocus/onBlur beside them, which the a11y rule asks for and
-          // this is the case it cannot know about: the keyboard equivalent of
-          // this gesture is not focus, it is the *Delivery coverage* button in
-          // the detail panel, and it opens and closes with that one button.
-          // Closing on blur would take the panel away from a keyboard reader
-          // the moment they tabbed towards the flaps in it.
-          // eslint-disable-next-line jsx-a11y/mouse-events-have-key-events
-          onMouseOver={() => {
-            cancelTimer(leaveTimerRef);
-          }}
-          // eslint-disable-next-line jsx-a11y/mouse-events-have-key-events
-          onMouseOut={() => {
-            scheduleClose(leaveTimerRef, onPointAtRef);
-          }}
-        >
+        <div className="pointer-events-none absolute inset-0 z-10">
           {overlay}
         </div>
       )}
