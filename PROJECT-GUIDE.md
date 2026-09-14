@@ -2523,6 +2523,39 @@ it a disputed settlement cannot even be recomputed to show it was right.
   which is the honest default — a deployment that has not decided what it
   charges must not quietly start charging something.
 
+##### Where an operator sets it
+
+Two screens, because there are two rates and they answer different questions.
+
+**Settings → Marketplace commission** carries the standard rate, as a
+percentage, saved as basis points. It says what it is taken from — the goods,
+never the tax, never the delivery — and that changing it applies from the next
+confirmed order onwards, because that is the first thing anybody asks and the
+answer is not obvious from a number in a box.
+
+**A seller's own page, under Sellers**, carries theirs: a card reading either
+*Marketplace standard rate*, with the figure standard currently means, or *Own
+rate: 2.50%*. The dialog is two choices rather than a box that can be emptied,
+and that is the whole design of it — **null and zero are different promises**.
+Null means "whatever the marketplace charges" and follows the standard rate
+wherever it goes; zero is a decision to take nothing from this seller and stays
+at nothing when the standard rate rises. A blank field cannot say which was
+meant.
+
+`setSellerCommission` writes three things and none is optional: the column, the
+operator's audit entry with the staff user on it, and the seller's own audit
+entry with the operator as a **role**. It then tells the seller, with the
+figure and the sentence that orders already confirmed keep the rate that applied
+to them — a change to what a business is charged that arrives only as a smaller
+number on next month's statement is how a commercial relationship ends. Setting
+the rate a seller already has writes nothing at all, because a notification per
+save trains a seller to ignore them.
+
+Both paths refuse anything outside 0–10000 basis points rather than clamping it.
+A rate above the whole sale would mean the marketplace keeps more than the goods
+were worth, and quietly rounding a typed 200% down to 100% hides the typo behind
+a rate nobody meant either.
+
 `dispatchDueAt` is deliberately null at this point. It is set when the seller
 accepts and says where it ships from; inventing one before there is a location
 to compute it against marks a seller late against a deadline nobody gave them.

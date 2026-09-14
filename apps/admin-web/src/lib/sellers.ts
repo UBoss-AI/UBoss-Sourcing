@@ -181,6 +181,20 @@ export function decideSellerApplication(id: string, decision: SellerDecision): P
   return api.post<never>(`/admin/sellers/${id}/decision`, decision);
 }
 
+/**
+ * Put one seller on their own commission rate, or back on the standard one.
+ *
+ * Basis points, or null for "whatever the marketplace charges". Null is not
+ * zero: null follows the standard rate when it moves, zero is a promise to
+ * take nothing from this seller whatever the standard becomes.
+ */
+export function setSellerCommission(
+  id: string,
+  commissionBasisPoints: number | null,
+): Promise<never> {
+  return api.patch<never>(`/admin/sellers/${id}/commission`, { commissionBasisPoints });
+}
+
 // ---------------------------------------------------------------------------
 // Listing moderation and brand requests
 // ---------------------------------------------------------------------------

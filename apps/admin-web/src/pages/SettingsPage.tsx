@@ -51,6 +51,7 @@ import { CatalogueTranslationPanel } from './settings/CatalogueTranslationPanel'
 import { PolicyLinksPanel } from './settings/PolicyLinksPanel';
 import { VatRatesPanel } from './settings/VatRatesPanel';
 import { ErpPanel } from './settings/ErpPanel';
+import { MarketplacePanel } from './settings/MarketplacePanel';
 import { ProcessorsPanel } from './settings/ProcessorsPanel';
 
 interface BusinessProfile {
@@ -72,6 +73,8 @@ interface BusinessProfile {
   vatCountry: string | null;
   /** Whether a listing must satisfy GPSR Art. 19 before it can publish. */
   gpsrEnforced: boolean;
+  /** What the marketplace keeps from a seller's sale, in basis points. */
+  sellerCommissionBasisPoints: number;
   currency: string;
   timezone: string;
   invoicePrefix: string;
@@ -1001,6 +1004,10 @@ export function SettingsPage(): React.JSX.Element {
             trades on. Both frontends read these links, so they are not a
             storefront decoration. */}
         <PolicyLinksPanel />
+        {/* Above tax, below the terms: what this business keeps from a
+            seller's sale is a commercial term of the same kind as the policies
+            above it, and it is read far more often than a tax class. */}
+        <MarketplacePanel />
         <TaxClassesPanel />
         {/* Directly under the tax classes: a class carries the BAND, this
             carries the percentage that band means in each member state, and

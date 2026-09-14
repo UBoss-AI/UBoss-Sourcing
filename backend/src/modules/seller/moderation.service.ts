@@ -19,11 +19,12 @@
  *     seller who has been waiting three days for a review may not want their
  *     listing to go live at 2am with no stock.
  */
-import { ErrorCode, conflict, notFound } from '../../domain/errors.js';
+import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import { assertListingTransition } from '../../domain/seller-state.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { storage } from '../../infra/storage/index.js';
+import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { OPERATOR_LABEL, recordSellerAudit } from './audit.service.js';
 import { transitionApplication } from './account.service.js';
 import { loadListingSchema } from './listing-schema.service.js';
@@ -144,6 +145,121 @@ export async function readApplication(sellerAccountId: string) {
   if (account === null) throw notFound('Seller application');
 
   return account;
+}
+
+export interface SellerCommissionInput {
+  sellerAccountId: string;
+  /**
+   * Basis points, or null to put this seller back on the marketplace's own
+   * rate. 250 is 2.50%.
+   */
+  basisPoints: number | null;
+  adminUserId: string;
+  correlationId?: string | null;
+}
+
+/**
+ * Put one seller on their own commission rate, or back on the standard one.
+ *
+ * The rate is a commercial term, so three things follow from that and none of
+ * them is optional.
+ *
+ * **It changes nothing that has already been sold.** Every seller order group
+ * carries the rate that was in force when the order was confirmed
+ * (`commissionBasisPointsApplied`), and settlements are computed from that
+ * figure rather than from this column. A rate that reached back through
+ * finished orders would move money a seller has already been told they earned.
+ *
+ * **Null is not zero.** Null means "whatever the marketplace charges", and it
+ * follows the platform rate when that moves; zero is a deliberate promise to
+ * take nothing from this seller and stays at zero whatever the platform does.
+ * Collapsing the two would silently re-rate every seller the day somebody set
+ * a platform rate.
+ *
+ * **The seller is told.** A change to what a business is charged that arrives
+ * only as a smaller number on next month's statement is the kind of surprise
+ * that ends a commercial relationship. It goes to their notifications and to
+ * their own audit log, where an operator appears as a role rather than as a
+ * named member of staff.
+ */
+export async function setSellerCommission(input: SellerCommissionInput): Promise<void> {
+  const { basisPoints } = input;
+
+  if (
+    basisPoints !== null &&
+    (!Number.isInteger(basisPoints) || basisPoints < 0 || basisPoints > 10_000)
+  ) {
+    throw badRequest(ErrorCode.VALIDATION_FAILED, 'Commission must be between 0% and 100%.', [
+      { field: 'commissionBasisPoints', code: 'OUT_OF_RANGE' },
+    ]);
+  }
+
+  const account = await prisma.sellerAccount.findUnique({
+    where: { id: input.sellerAccountId },
+    select: { id: true, displayName: true, commissionBasisPoints: true },
+  });
+
+  if (account === null) throw notFound('Seller');
+  if (account.commissionBasisPoints === basisPoints) return;
+
+  const platformRate =
+    (await prisma.businessProfile.findFirst({ select: { sellerCommissionBasisPoints: true } }))
+      ?.sellerCommissionBasisPoints ?? 0;
+
+  await prisma.sellerAccount.update({
+    where: { id: account.id },
+    data: { commissionBasisPoints: basisPoints },
+  });
+
+  await recordAudit({
+    action: AuditAction.SETTINGS_UPDATED,
+    resourceType: 'seller_account',
+    resourceId: account.id,
+    actorType: 'ADMIN',
+    actorUserId: input.adminUserId,
+    actorEmail: null,
+    before: { commissionBasisPoints: account.commissionBasisPoints },
+    after: { commissionBasisPoints: basisPoints },
+    correlationId: input.correlationId ?? null,
+  });
+
+  await recordSellerAudit({
+    sellerAccountId: account.id,
+    action: 'seller.commission.changed',
+    actor: { type: 'ADMIN', label: OPERATOR_LABEL },
+    resourceType: 'seller_account',
+    resourceId: account.id,
+    before: { commissionBasisPoints: account.commissionBasisPoints },
+    after: { commissionBasisPoints: basisPoints },
+    summary:
+      basisPoints === null
+        ? `Commission is now the marketplace's standard rate (${percentOf(platformRate)}).`
+        : `Commission is now ${percentOf(basisPoints)}.`,
+    correlationId: input.correlationId ?? null,
+  });
+
+  await notifySeller({
+    sellerAccountId: account.id,
+    // The nearest kind that exists: this is a change to the account itself
+    // rather than to a listing, an order or a payout. A kind of its own would
+    // be a schema migration for a label, and the title says what it is.
+    kind: 'APPLICATION_STATUS',
+    title: 'Your commission rate has changed',
+    body:
+      (basisPoints === null
+        ? `You are now on the marketplace's standard rate of ${percentOf(platformRate)}.`
+        : `Your rate is now ${percentOf(basisPoints)}.`) +
+      ' Orders already placed keep the rate that applied when they were confirmed.',
+    linkPath: '/seller/payments',
+    severity: 'INFO',
+    subjectType: 'seller_account',
+    subjectId: account.id,
+  });
+}
+
+/** "2.50%" from 250. Two decimals, because a rate of 12.5% is not 13%. */
+function percentOf(basisPoints: number): string {
+  return `${(basisPoints / 100).toFixed(2)}%`;
 }
 
 export interface ApplicationDecisionInput {

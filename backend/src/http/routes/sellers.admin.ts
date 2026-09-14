@@ -24,6 +24,7 @@ import {
   listReviewQueue,
   readApplication,
   readListingForReview,
+  setSellerCommission,
 } from '../../modules/seller/moderation.service.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
 
@@ -114,6 +115,39 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
           : { resubmissionAllowed: body.resubmissionAllowed }),
         correlationId: request.correlationId,
         expectedVersion: body.expectedVersion ?? null,
+      });
+
+      return reply.status(204).send();
+    },
+  );
+
+  /**
+   * One seller's own commission rate.
+   *
+   * `SETTINGS_WRITE` rather than a customer permission: this is what the
+   * marketplace charges, which is the same kind of authority as setting the
+   * standard rate in Settings, and the person who decides a commercial term is
+   * not necessarily the person who reviews applications.
+   */
+  app.patch(
+    '/sellers/:id/commission',
+    { preHandler: requireAdmin(Permission.SETTINGS_WRITE) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const auth = currentUser(request);
+
+      const body = z
+        .object({
+          /** Basis points, or null to follow the marketplace's own rate. */
+          commissionBasisPoints: z.number().int().min(0).max(10_000).nullable(),
+        })
+        .parse(request.body);
+
+      await setSellerCommission({
+        sellerAccountId: params.id,
+        basisPoints: body.commissionBasisPoints,
+        adminUserId: auth.id,
+        correlationId: request.correlationId,
       });
 
       return reply.status(204).send();

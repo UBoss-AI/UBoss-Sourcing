@@ -60,6 +60,17 @@ export interface BusinessProfileInput {
    * and blocking its catalogue on one would be this software inventing law.
    */
   gpsrEnforced?: boolean;
+  /**
+   * What the marketplace keeps when a seller's offer is bought, in basis
+   * points. 250 is 2.50%.
+   *
+   * The PLATFORM rate — every seller without one of their own is settled
+   * against it. Changing it moves nothing that has already been sold: the rate
+   * in force is copied onto each seller order group when the order is
+   * confirmed, precisely so a settlement can be recomputed months later and
+   * still come out the same.
+   */
+  sellerCommissionBasisPoints?: number;
   logoMediaId?: string | null;
   addressJson?: Record<string, unknown> | null;
   currency?: string;
@@ -86,6 +97,7 @@ export async function getBusinessProfile(): Promise<Record<string, unknown> | nu
     vatNumber: profile.vatNumber,
     vatCountry: profile.vatCountry,
     gpsrEnforced: profile.gpsrEnforced,
+    sellerCommissionBasisPoints: profile.sellerCommissionBasisPoints,
     logo: profile.logoMedia,
     address: profile.addressJson,
     currency: profile.currency,
@@ -138,6 +150,28 @@ export async function updateBusinessProfile(
   if (input.gstin !== undefined) data.gstin = input.gstin;
   if (input.vatNumber !== undefined) data.vatNumber = input.vatNumber;
   if (input.gpsrEnforced !== undefined) data.gpsrEnforced = input.gpsrEnforced;
+
+  /*
+   * Refused rather than clamped when it is out of range.
+   *
+   * 10000 basis points is the whole of the goods. A figure above it would mean
+   * the marketplace keeps more than the sale was worth and the seller owes
+   * money for having sold something, and quietly rounding a typed 50000 down
+   * to 100% would hide the typo behind a rate nobody meant either.
+   */
+  if (input.sellerCommissionBasisPoints !== undefined) {
+    const basisPoints = input.sellerCommissionBasisPoints;
+
+    if (!Number.isInteger(basisPoints) || basisPoints < 0 || basisPoints > 10_000) {
+      throw badRequest(
+        ErrorCode.VALIDATION_FAILED,
+        'Commission must be between 0% and 100%.',
+        [{ field: 'sellerCommissionBasisPoints', code: 'OUT_OF_RANGE' }],
+      );
+    }
+
+    data.sellerCommissionBasisPoints = basisPoints;
+  }
   if (input.vatCountry !== undefined) {
     data.vatCountry = input.vatCountry === null ? null : input.vatCountry.toUpperCase();
   }
@@ -165,6 +199,10 @@ export async function updateBusinessProfile(
           supportEmail: existing.supportEmail,
           currency: existing.currency,
           timezone: existing.timezone,
+          // In the audit entry because it is a commercial term: "who changed
+          // the commission, when, and from what" is a question that gets asked
+          // after a seller disputes a statement.
+          sellerCommissionBasisPoints: existing.sellerCommissionBasisPoints,
         },
         after: input,
         ipAddress: actor.ipAddress ?? null,

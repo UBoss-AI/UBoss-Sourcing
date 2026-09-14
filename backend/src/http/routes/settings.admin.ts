@@ -145,6 +145,9 @@ export function registerAdminSettingsRoutes(app: FastifyInstance): Promise<void>
           // Turning this on refuses to publish a product that does not carry
           // what GPSR Art. 19 requires. See docs/PRODUCT-SAFETY.md.
           gpsrEnforced: z.boolean().optional(),
+          // Basis points: 250 is 2.50%. The platform rate every seller without
+          // one of their own is settled against.
+          sellerCommissionBasisPoints: z.number().int().min(0).max(10_000).optional(),
           logoMediaId: z.string().length(26).nullable().optional(),
           addressJson: z.record(z.string(), z.unknown()).nullable().optional(),
           currency: z.string().length(3).optional(),

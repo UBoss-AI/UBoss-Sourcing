@@ -30,11 +30,12 @@ import {
   Card,
   CheckboxField,
   Field,
+  Input,
   PageHeader,
   Textarea,
 } from '@/components/ui';
 import { cx } from '@/lib/cx';
-import { ApiError } from '@/lib/api';
+import { ApiError, api } from '@/lib/api';
 import {
   ONBOARDING_STEPS,
   applicationStatusLabel,
@@ -42,6 +43,7 @@ import {
   decideSellerApplication,
   documentKindLabel,
   fetchSellerApplication,
+  setSellerCommission,
   type SellerApplicationDetail,
   type SellerDecision,
 } from '@/lib/sellers';
@@ -200,6 +202,25 @@ function DecisionButtons({
 function ApplicationBody({ seller }: { seller: SellerApplicationDetail }): React.JSX.Element {
   const profile = seller.businessProfile;
   const steps = seller.onboarding?.stepsJson ?? {};
+
+  const [editingCommission, setEditingCommission] = useState(false);
+
+  /*
+   * What "standard" currently means, for the sentence beside the rate.
+   *
+   * The same query key the Settings page uses, so a rate changed there and a
+   * seller opened here do not disagree. It is allowed to fail quietly: a
+   * seller's own rate is readable without it, and a card that refuses to
+   * render because a second request failed is worse than one that says
+   * "set under Settings".
+   */
+  const platform = useQuery({
+    queryKey: ['business-profile'],
+    queryFn: () =>
+      api.get<{ business: { sellerCommissionBasisPoints: number } }>('/admin/settings/business'),
+  });
+
+  const platformRate = platform.data?.business.sellerCommissionBasisPoints ?? null;
 
   return (
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)]">
@@ -569,6 +590,48 @@ function ApplicationBody({ seller }: { seller: SellerApplicationDetail }): React
           because the whole point of keeping them in a separate column is that
           somebody writing here believes that.
         */}
+        <Card title="Commission">
+          <div className="space-y-3 px-5 py-4">
+            <p className="text-sm text-ink">
+              {seller.commissionBasisPoints === null
+                ? 'Marketplace standard rate'
+                : `Own rate: ${percentOf(seller.commissionBasisPoints)}`}
+            </p>
+
+            {/*
+              Said in full rather than assumed. An operator looking at a seller
+              wants to know what this business is charged, and "standard" is
+              only half an answer without the figure standard currently means.
+            */}
+            <p className="text-xxs leading-relaxed text-ink-muted">
+              {seller.commissionBasisPoints === null
+                ? `They are charged whatever the marketplace charges, which is ${
+                    platformRate === null ? 'set under Settings' : percentOf(platformRate)
+                  } today, and they follow it when it changes.`
+                : 'This rate is theirs. It does not move when the marketplace standard rate does.'}
+            </p>
+
+            <Button
+              size="sm"
+              onClick={() => {
+                setEditingCommission(true);
+              }}
+            >
+              Change
+            </Button>
+          </div>
+        </Card>
+
+        {editingCommission && (
+          <CommissionDialog
+            seller={seller}
+            platformRate={platformRate}
+            onClose={() => {
+              setEditingCommission(false);
+            }}
+          />
+        )}
+
         <Card title="Internal notes" tone="danger">
           <div className="px-5 py-4">
             <p className="text-xxs font-medium text-danger">The seller never sees this.</p>
@@ -639,6 +702,165 @@ function TimeRow({ label, value }: { label: string; value: string | null }): Rea
       <dt className="text-ink-muted">{label}</dt>
       <dd className="text-ink">{new Date(value).toLocaleString()}</dd>
     </div>
+  );
+}
+
+/** "2.50%" from 250. Two decimals, because 12.5% is not 13%. */
+function percentOf(basisPoints: number): string {
+  return `${(basisPoints / 100).toFixed(2)}%`;
+}
+
+/**
+ * Putting one seller on their own rate, or back on the marketplace's.
+ *
+ * Two choices rather than a box that can be emptied, because "no rate" and "a
+ * rate of zero" are different promises and a blank field does not say which
+ * was meant. Null follows the standard rate wherever it goes; zero is a
+ * decision to take nothing from this seller and stays at nothing.
+ *
+ * Nothing already sold moves either way — each seller's share of an order
+ * carries the rate that applied when it was confirmed — and the dialog says so,
+ * because the question "does this fix last month's statement" is the first one
+ * anybody asks.
+ */
+function CommissionDialog({
+  seller,
+  platformRate,
+  onClose,
+}: {
+  seller: SellerApplicationDetail;
+  platformRate: number | null;
+  onClose: () => void;
+}): React.JSX.Element {
+  const toast = useToast();
+  const client = useQueryClient();
+
+  const [ownRate, setOwnRate] = useState(seller.commissionBasisPoints !== null);
+  const [percent, setPercent] = useState(
+    seller.commissionBasisPoints === null ? '' : String(Number((seller.commissionBasisPoints / 100).toFixed(2))),
+  );
+  const [error, setError] = useState<string | null>(null);
+
+  const mutation = useMutation({
+    mutationFn: (basisPoints: number | null) => setSellerCommission(seller.id, basisPoints),
+    onSuccess: async () => {
+      await client.invalidateQueries({ queryKey: ['admin', 'seller', seller.id] });
+      toast.success(`${seller.displayName} — commission updated.`);
+      onClose();
+    },
+    onError: (failure: unknown) => {
+      setError(
+        failure instanceof ApiError
+          ? failure.message
+          : 'That commission rate could not be saved.',
+      );
+    },
+  });
+
+  const submit = (): void => {
+    if (!ownRate) {
+      void mutation.mutateAsync(null);
+      return;
+    }
+
+    const parsed = Number(percent.trim().replace('%', ''));
+
+    if (!Number.isFinite(parsed) || parsed < 0 || parsed > 100 || percent.trim().length === 0) {
+      setError('Enter a rate between 0 and 100.');
+      return;
+    }
+
+    void mutation.mutateAsync(Math.round(parsed * 100));
+  };
+
+  return (
+    <Modal isOpen title={`Commission — ${seller.displayName}`} onClose={onClose}>
+      <div className="space-y-4">
+        {error !== null && (
+          <Callout tone="danger" role="alert">
+            {error}
+          </Callout>
+        )}
+
+        <fieldset className="space-y-2">
+          <legend className="sr-only">Which rate applies to this seller</legend>
+
+          <label className="flex items-start gap-2.5 text-sm text-ink">
+            <input
+              type="radio"
+              name="commission-kind"
+              // Named here as well as beside it: the visible label carries a
+              // second line of explanation, and a screen reader announcing the
+              // whole paragraph as the choice is worse than a short answer.
+              aria-label="The marketplace standard rate"
+              className="mt-1 h-4 w-4 shrink-0"
+              checked={!ownRate}
+              onChange={() => {
+                setError(null);
+                setOwnRate(false);
+              }}
+            />
+            <span>
+              The marketplace standard rate
+              <span className="mt-0.5 block text-xxs text-ink-muted">
+                {platformRate === null
+                  ? 'Whatever is set under Settings, now and when it changes.'
+                  : `${percentOf(platformRate)} today, and it follows that figure when it changes.`}
+              </span>
+            </span>
+          </label>
+
+          <label className="flex items-start gap-2.5 text-sm text-ink">
+            <input
+              type="radio"
+              name="commission-kind"
+              aria-label="A rate of their own"
+              className="mt-1 h-4 w-4 shrink-0"
+              checked={ownRate}
+              onChange={() => {
+                setError(null);
+                setOwnRate(true);
+              }}
+            />
+            <span>
+              A rate of their own
+              <span className="mt-0.5 block text-xxs text-ink-muted">
+                Stays where it is put, whatever the standard rate does afterwards.
+              </span>
+            </span>
+          </label>
+        </fieldset>
+
+        {ownRate && (
+          <Field label="Their rate (%)" hint="Between 0 and 100. Type 2.5 for two and a half per cent.">
+            {({ inputId, describedBy }) => (
+              <Input
+                id={inputId}
+                aria-describedby={describedBy}
+                inputMode="decimal"
+                value={percent}
+                onChange={(event) => {
+                  setError(null);
+                  setPercent(event.currentTarget.value);
+                }}
+              />
+            )}
+          </Field>
+        )}
+
+        <Callout tone="neutral">
+          The seller is told. Orders already confirmed keep the rate that applied to them, so no
+          statement they have already been sent can move.
+        </Callout>
+
+        <div className="flex justify-end gap-2">
+          <Button onClick={onClose}>Cancel</Button>
+          <Button variant="primary" isLoading={mutation.isPending} onClick={submit}>
+            Save
+          </Button>
+        </div>
+      </div>
+    </Modal>
   );
 }
 
