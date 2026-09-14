@@ -65,7 +65,24 @@ export interface OrderItem {
   name: string;
   sku: string;
   variantName: string | null;
+  /** Pieces. What the warehouse picks and what `unitPrice` is per. */
   quantity: number;
+  /**
+   * What the customer ordered, in the unit they ordered it in.
+   *
+   * Cartons on anything placed since the shop settled on the carton. Shown
+   * beside the piece count rather than instead of it: staff answering "how
+   * many did they order?" and staff answering "how many do we pick?" are
+   * asking two different questions with two different answers.
+   *
+   * Optional because an order served by a server that predates the field
+   * legitimately lacks it.
+   */
+  ordering?: {
+    unit: 'PIECE' | 'INNER_PACK' | 'OUTER_CARTON';
+    unitQuantity: number;
+    piecesPerUnit: number;
+  } | null;
   unitPrice: Money;
   lineSubtotal: Money;
   tax: Money;

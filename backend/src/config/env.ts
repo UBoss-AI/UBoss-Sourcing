@@ -7,6 +7,11 @@
  */
 import { config as loadDotenv } from 'dotenv';
 import { z } from 'zod';
+// The one place the carton's default size is written down. Imported rather
+// than repeated, because two copies of a number that decides what a basket
+// costs is one copy too many. The domain never imports this file back - see
+// the note on the constant itself.
+import { DEFAULT_PIECES_PER_CARTON } from '../domain/ordering-unit.js';
 
 loadDotenv();
 
@@ -247,6 +252,24 @@ const envSchema = z
     /// building as the buyer. The storefront reads this from /config, so
     /// nothing about the figure is hard-coded in a browser.
     SCHEDULE_MIN_NOTICE_DAYS: intFromString(0, 365).default(7),
+
+    // --- The selling unit ---
+    //
+    // How many pieces are in one carton.
+    //
+    // This shop sells by the carton and by nothing else: a buyer chooses a
+    // number of cartons, and the piece count that reaches the warehouse, the
+    // invoice and the ERP is that number multiplied by this one. It is a
+    // setting rather than a constant because the next deployment of this
+    // software packs its own product its own way, and a figure compiled into
+    // a browser bundle is a figure the operator who bought it cannot change.
+    //
+    // Changing it does not rewrite history. Every basket line, plan line and
+    // order line keeps the carton size it was agreed at, so "2 cartons" on an
+    // invoice from last year still means the pieces it meant last year.
+    //
+    // The storefront reads it from /config and shows it beside every price.
+    PIECES_PER_CARTON: intFromString(1, 1_000_000).default(DEFAULT_PIECES_PER_CARTON),
 
     // --- Fulfilment quotes ---
     //

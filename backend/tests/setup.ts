@@ -54,6 +54,27 @@ process.env.MAP_STYLE_URL = '';
 process.env.MAP_GOOGLE_API_KEY = '';
 process.env.MAP_GOOGLE_MAP_ID = '';
 
+/**
+ * A carton of one piece, unless the test file has said otherwise.
+ *
+ * The shop sells cartons of 500 and the rest of this suite is about tax,
+ * coupons, stock, payments and invoices - none of which care how many pieces
+ * a carton holds, and all of which become unreadable if every seeded price,
+ * every stock figure and every expected total is multiplied by five hundred.
+ * One piece to the carton keeps those numbers the size a person can check by
+ * hand, and changes nothing about the code paths they exercise: a basket line
+ * still goes through `resolveOrderingQuantity` and still comes out counted in
+ * cartons.
+ *
+ * The conversion itself is pinned where it belongs:
+ *   - `tests/unit/ordering-unit.test.ts` for the arithmetic and the rounding,
+ *   - `tests/integration/carton-ordering.test.ts` end to end at 500, which
+ *     sets this variable itself before it loads the app.
+ *
+ * `??=`, so a test file that has already chosen a size keeps it.
+ */
+process.env.PIECES_PER_CARTON ??= '1';
+
 // No VIES either. Checking a VAT number reaches a member state's own register
 // through the Commission's service, which is slow, offline as often as not,
 // and rude to call from a test suite. Empty means "cannot check", which is a

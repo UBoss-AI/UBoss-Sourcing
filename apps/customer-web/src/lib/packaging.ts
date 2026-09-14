@@ -1,121 +1,104 @@
 /**
- * Packing, as words and as arithmetic.
+ * The carton, as words and as arithmetic.
  *
- * Two jobs, kept together because they must not disagree: the sentence a
- * screen shows ("100 per box · 2,000 per carton") and the conversion the
- * quantity calculator runs. A card that says one thing and a calculator that
- * multiplies by another is the specific failure this file exists to prevent.
+ * This shop sells one thing: a carton. Not pieces, not inner boxes — a buyer
+ * chooses a number of cartons, and one carton holds `piecesPerCarton` pieces,
+ * which the server publishes in `/config` because it is the operator's setting
+ * and not a figure baked into this bundle.
  *
- * Nothing here invents a figure. Every function returns null where the
- * catalogue is silent, and the caller renders nothing rather than a zero — a
- * "0 per carton" is a claim the catalogue never made.
+ * Two jobs, kept together because they must not disagree: the sentence a screen
+ * shows ("One carton has 500 pieces") and the multiplication that turns the
+ * catalogue's piece price into the carton price beside it. A page that says one
+ * thing and prices another is the specific failure this file exists to prevent.
+ *
+ * Nothing here invents a figure, and nothing here is a second pricing engine.
+ * It multiplies ONE catalogue price by ONE carton size, both of which came off
+ * the server, and it never sums, discounts or taxes anything — the basket is
+ * the only place a total is worked out.
  */
-import type { Translate } from '@/i18n/i18n-context';
-import type { ProductPackaging } from './types';
-import { formatNumber } from './format';
+import { useStorefront } from '@/app/storefront-context';
+import { multiplyMinor } from './format';
 
+/**
+ * The unit column as the API still spells it.
+ *
+ * Only `OUTER_CARTON` is ever written now. The other two are on basket, plan
+ * and order rows placed before the shop settled on the carton, and a screen
+ * showing one of those has to keep describing it honestly.
+ */
 export type OrderingUnit = 'PIECE' | 'INNER_PACK' | 'OUTER_CARTON';
 
+/** The one unit anything is sold in. Mirrors `SELLING_UNIT` on the server. */
+export const SELLING_UNIT = 'OUTER_CARTON' as const;
+
 /**
- * How many pieces one of `unit` holds, or null.
+ * Pieces in a carton when `/config` has not answered yet, or answered without
+ * the field — a response cached from before it existed.
  *
- * Mirrors `backend/src/domain/ordering-unit.ts` deliberately: the browser shows
- * the total as it is typed and the server recomputes it before anything is
- * bought, so the two have to agree on the arithmetic. They agree by doing the
- * same thing, not by trusting each other — the server never reads a conversion
- * the browser sends.
+ * The same 500 the server defaults to. Every caller goes through
+ * `usePiecesPerCarton`, so this is the one place the fallback is written down.
  */
-export function piecesPerUnit(
-  unit: OrderingUnit,
-  packaging: ProductPackaging | null | undefined,
-): number | null {
-  if (unit === 'PIECE') return 1;
-  if (packaging === null || packaging === undefined || !packaging.isReliable) return null;
+export const DEFAULT_PIECES_PER_CARTON = 500;
 
-  if (unit === 'INNER_PACK') return packaging.piecesPerInnerPack;
-
-  if (packaging.piecesPerOuterCarton !== null) return packaging.piecesPerOuterCarton;
-  if (packaging.piecesPerInnerPack !== null && packaging.innerPacksPerOuterCarton !== null) {
-    return packaging.piecesPerInnerPack * packaging.innerPacksPerOuterCarton;
-  }
-  return null;
-}
-
-/** The units this product can be ordered in. Pieces is always one of them. */
-export function availableUnits(packaging: ProductPackaging | null | undefined): OrderingUnit[] {
-  return (['PIECE', 'INNER_PACK', 'OUTER_CARTON'] as const).filter(
-    (unit) => piecesPerUnit(unit, packaging) !== null,
-  );
+/** This deployment's carton size. */
+export function usePiecesPerCarton(): number {
+  const { ordering } = useStorefront();
+  const configured = ordering?.piecesPerCarton;
+  return typeof configured === 'number' && configured > 0
+    ? configured
+    : DEFAULT_PIECES_PER_CARTON;
 }
 
 /**
- * The one-line summary a card shows.
+ * What one carton costs, from what one piece costs.
  *
- * Short on purpose. A card is scanned, not read, and the full breakdown is two
- * headings down the product page. Returns null when there is nothing to say,
- * so the card does not grow an empty row.
+ * The catalogue prices a piece; every figure a shopper sees is the price of a
+ * carton, because that is the only thing they can buy. Doing the arithmetic in
+ * one function rather than at each price on each page is what stops the product
+ * card and the product page quoting two different numbers for one product.
  */
-export function packSummary(
-  packaging: ProductPackaging | null | undefined,
-  labels: { perPack: (count: string, pack: string) => string; perCarton: (count: string) => string },
-): string | null {
-  if (packaging === null || packaging === undefined) return null;
-
-  const parts: string[] = [];
-  const packLabel = (packaging.innerPackType ?? 'pack').toLowerCase();
-
-  if (packaging.piecesPerInnerPack !== null) {
-    parts.push(labels.perPack(formatNumber(packaging.piecesPerInnerPack), packLabel));
-  }
-
-  const perCarton = piecesPerUnit('OUTER_CARTON', packaging);
-  if (perCarton !== null) parts.push(labels.perCarton(formatNumber(perCarton)));
-
-  return parts.length === 0 ? null : parts.join(' · ');
+export function cartonPriceMinor(pieceMinor: string, piecesPerCarton: number): string {
+  return multiplyMinor(pieceMinor, piecesPerCarton);
 }
 
 /**
- * English plural for the handful of pack nouns a supplier sheet uses.
+ * The pieces a carton count comes to.
  *
- * Not a general pluraliser and not trying to be: the words are "box", "pouch",
- * "packet", "bag", "tray", "carton", all of which obey the sibilant rule. It is
- * done here rather than with an i18next plural key because the noun itself is
- * interpolated — it comes off the supplier's own text — and a plural form
- * chosen by the catalogue cannot inflect a word the catalogue has never seen.
- *
- * The mirror of `pluralise` in the backend's packing parser, for the same
- * reason the conversion is mirrored: both sides have to say the same sentence.
+ * Against a line's own snapshot wherever there is one - a basket agreed at 500
+ * to a carton keeps reading "2 cartons (1,000 pieces)" even after the operator
+ * re-specifies the carton, because that is what was agreed.
  */
-export function pluralisePack(word: string, count: number): string {
-  if (count === 1) return word;
-  return /(?:s|x|z|ch|sh)$/i.test(word) ? `${word}es` : `${word}s`;
+export function piecesFor(cartons: number, piecesPerCarton: number): number {
+  return cartons * piecesPerCarton;
 }
 
 /**
- * What to call one of an ordering unit.
+ * A basket, plan or order line described in the unit it was agreed in.
  *
- * The supplier's own word wherever the sheet gave one - "Box", "Pouch", "Pkt" -
- * so the screen matches the paperwork a warehouse is reading from. The
- * translated fallback is for a product whose packing was recorded without
- * naming the pack.
+ * Null for a line placed before this shop settled on the carton — those keep
+ * being shown in pieces, because that is what was agreed and an old receipt
+ * that reworded itself is a receipt that no longer matches what was signed.
+ *
+ * The carton size is the line's OWN snapshot, never today's setting, for the
+ * same reason.
  */
-export function unitLabel(
-  unit: OrderingUnit,
-  packaging: ProductPackaging | null | undefined,
-  t: Translate,
-): string {
-  if (unit === 'PIECE') return t('packaging.pieces');
-  if (unit === 'INNER_PACK') return packaging?.innerPackType ?? t('packaging.innerPack');
-  return packaging?.outerPackType ?? t('packaging.outerCarton');
+export function cartonsOfLine(
+  ordering: { unit: OrderingUnit; unitQuantity: number; piecesPerUnit: number } | null | undefined,
+): { cartons: number; piecesPerCarton: number } | null {
+  if (ordering === null || ordering === undefined) return null;
+  if (ordering.unit !== SELLING_UNIT) return null;
+  return { cartons: ordering.unitQuantity, piecesPerCarton: Math.max(ordering.piecesPerUnit, 1) };
 }
 
-/** Whether there is enough here to be worth a Packaging section at all. */
-export function hasPackagingDetail(packaging: ProductPackaging | null | undefined): boolean {
+/**
+ * Whether there is anything left worth a Packaging section.
+ *
+ * Only what the supplier said about the product itself now: what it is packed
+ * as, and how big the boxes are. The piece counts never reach the browser -
+ * see `packaging.service.ts` - because the supplier's "2,000 to a carton" and
+ * this shop's carton of 500 cannot both be true on one page.
+ */
+export function hasPackagingDetail(packaging: { packingType: string | null; dimensions: unknown[] } | null | undefined): boolean {
   if (packaging === null || packaging === undefined) return false;
-  return (
-    packaging.piecesPerInnerPack !== null ||
-    packaging.piecesPerOuterCarton !== null ||
-    packaging.packingType !== null ||
-    packaging.dimensions.length > 0
-  );
+  return packaging.packingType !== null || packaging.dimensions.length > 0;
 }

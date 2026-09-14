@@ -39,6 +39,7 @@ import { BoxIcon, TrashIcon } from '@/components/icons';
 import { api } from '@/lib/api';
 import { errorMessage } from '@/lib/errors';
 import { formatDate, formatMoneyMinor } from '@/lib/format';
+import { cartonPriceMinor, usePiecesPerCarton } from '@/lib/packaging';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { useI18n } from '@/i18n/i18n-context';
 import type { WishlistItem } from '@/lib/types';
@@ -52,6 +53,7 @@ interface WishlistResponse {
 
 export function WishlistPage(): React.JSX.Element {
   const { t, language } = useI18n();
+  const piecesPerCarton = usePiecesPerCarton();
   const { business } = useStorefront();
   const { isCustomer } = useSession();
   const { currency, country } = useLocale();
@@ -175,7 +177,13 @@ export function WishlistPage(): React.JSX.Element {
                       </span>
                     ) : (
                       <span className="text-sm font-semibold tabular text-ink">
-                        {formatMoneyMinor(item.priceMinor, item.currency)}
+                        {/* The carton price, like every other price a shopper
+                            sees. The saved figure is per piece, which is what
+                            the catalogue prices and nothing anyone can buy. */}
+                        {formatMoneyMinor(
+                          cartonPriceMinor(item.priceMinor, piecesPerCarton),
+                          item.currency,
+                        )}
                       </span>
                     )}
                     <span className="text-xs text-ink-subtle">

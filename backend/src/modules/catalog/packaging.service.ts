@@ -1,11 +1,20 @@
 /**
- * Packaging, on its way to a screen.
+ * Packaging, on its way to a storefront screen.
  *
- * One shape, built once, used by the storefront, the admin panel and anything
- * else that has to say how many are in a box. Two serialisers would be two
- * places to forget that the formula has to agree with the figures, and a page
- * that shows "100 × 20 = 2,000" beside a carton count of 1,800 is worse than
- * one that shows neither.
+ * **No piece counts leave here.** The shop sells one thing - a carton, holding
+ * the number of pieces `PIECES_PER_CARTON` names - and the supplier's own
+ * "100 per box, 20 boxes to a carton" would contradict it on the same page.
+ * Two carton sizes on one screen is a buyer working out which of them their
+ * order was priced at, and one of the two answers is always wrong.
+ *
+ * What is left is what the supplier's sheet says about the product rather than
+ * about the quantity: what it is packed as, and how big the boxes are. Those
+ * do not compete with the selling unit, and a buyer sizing a shelf or a pallet
+ * needs them.
+ *
+ * The admin console still sees the sheet's own figures in full - see
+ * `catalog.admin.ts`. Somebody reviewing an import has to be able to read what
+ * the supplier actually wrote.
  *
  * The sticker artwork dimension is filtered out of the public shape here, not
  * at each call site. It is a print specification for the operator's label
@@ -15,7 +24,6 @@
 import type { PackDimensionKind } from '../../generated/prisma/enums.js';
 import { prisma } from '../../infra/prisma.js';
 import { dimensionLabel } from './sheet-import/dimension-parser.js';
-import { packingFormula } from './sheet-import/packing-parser.js';
 
 /**
  * The dimensions a buyer is shown, in the order a buyer reads them.
@@ -35,14 +43,6 @@ const DIMENSION_LABELS: Record<string, string> = {
 export interface PackagingRow {
   variantKey: string;
   packingType: string | null;
-  packingRawText: string | null;
-  piecesPerInnerPack: number | null;
-  innerPacksPerOuterCarton: number | null;
-  piecesPerOuterCarton: number | null;
-  innerPackType: string | null;
-  outerPackType: string | null;
-  parseStatus: string;
-  validationMessage?: string | null;
   dimensions: {
     kind: string;
     rawText: string;
@@ -52,17 +52,17 @@ export interface PackagingRow {
   }[];
 }
 
-/** Columns a public read may select off `product_packaging`. An allowlist. */
+/**
+ * Columns a public read may select off `product_packaging`. An allowlist.
+ *
+ * The piece counts are deliberately absent. They are the supplier's own
+ * packing arithmetic, they no longer decide what anything costs or how much
+ * arrives, and a storefront that received them would eventually print one of
+ * them beside a carton of 500.
+ */
 export const PUBLIC_PACKAGING_SELECT = {
   variantKey: true,
   packingType: true,
-  packingRawText: true,
-  piecesPerInnerPack: true,
-  innerPacksPerOuterCarton: true,
-  piecesPerOuterCarton: true,
-  innerPackType: true,
-  outerPackType: true,
-  parseStatus: true,
   dimensions: {
     where: { kind: { in: PUBLIC_DIMENSION_ORDER } },
     select: { kind: true, rawText: true, displayValue: true, unit: true, parseStatus: true },
@@ -70,26 +70,8 @@ export const PUBLIC_PACKAGING_SELECT = {
 } as const;
 
 export interface SerialisedPackaging {
+  /** What the supplier packs it as - "Blister", "Pouch". Never a quantity. */
   packingType: string | null;
-  /** The source text, so a buyer can see exactly what the supplier said. */
-  sourceText: string | null;
-  piecesPerInnerPack: number | null;
-  innerPacksPerOuterCarton: number | null;
-  piecesPerOuterCarton: number | null;
-  innerPackType: string | null;
-  outerPackType: string | null;
-  /** "100 pieces × 20 boxes = 2,000 pieces", or null when unknown. */
-  formula: string | null;
-  /**
-   * Whether the figures can be trusted for arithmetic.
-   *
-   * The quantity calculator offers a pack unit only where this is true. A
-   * NEEDS_REVIEW row - one whose own multiplication disagrees - is shown as
-   * text and not used to convert anything, because converting from a figure
-   * nobody has confirmed is how a buyer orders twice what they meant to.
-   */
-  isReliable: boolean;
-  parseStatus: string;
   dimensions: {
     kind: string;
     label: string;
@@ -106,15 +88,6 @@ export function serialisePackaging(row: PackagingRow | null | undefined): Serial
 
   return {
     packingType: row.packingType,
-    sourceText: row.packingRawText,
-    piecesPerInnerPack: row.piecesPerInnerPack,
-    innerPacksPerOuterCarton: row.innerPacksPerOuterCarton,
-    piecesPerOuterCarton: row.piecesPerOuterCarton,
-    innerPackType: row.innerPackType,
-    outerPackType: row.outerPackType,
-    formula: packingFormula(row),
-    isReliable: row.parseStatus === 'PARSED' || row.parseStatus === 'PARTIAL',
-    parseStatus: row.parseStatus,
     dimensions: PUBLIC_DIMENSION_ORDER.flatMap((kind) => {
       const dimension = byKind.get(kind);
       if (dimension === undefined) return [];

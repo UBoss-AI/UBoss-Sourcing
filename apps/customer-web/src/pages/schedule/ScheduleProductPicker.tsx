@@ -28,7 +28,8 @@ import { Modal } from '@/components/Modal';
 import { Badge, Button, Field, Input, Spinner } from '@/components/ui';
 import { SearchIcon } from '@/components/icons';
 import { api } from '@/lib/api';
-import { formatMoney } from '@/lib/format';
+import { formatMoneyMinor } from '@/lib/format';
+import { cartonPriceMinor, usePiecesPerCarton } from '@/lib/packaging';
 import { useI18n } from '@/i18n/i18n-context';
 import type { Product } from '@/lib/types';
 
@@ -56,6 +57,7 @@ export function ScheduleProductPicker({
 }): React.JSX.Element {
   const { t } = useI18n();
   const { currency, country } = useLocale();
+  const piecesPerCarton = usePiecesPerCarton();
 
   const [term, setTerm] = useState('');
   const [search, setSearch] = useState('');
@@ -181,7 +183,11 @@ export function ScheduleProductPicker({
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm text-ink">{product.name}</span>
                       <span className="block truncate font-mono text-xxs uppercase text-ink-subtle">
-                        {product.sku} · {formatMoney(product.price)}
+                        {product.sku} ·{' '}
+                        {formatMoneyMinor(
+                          cartonPriceMinor(product.price.minor, piecesPerCarton),
+                          product.price.currency,
+                        )}
                       </span>
                     </span>
 

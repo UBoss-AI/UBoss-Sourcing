@@ -32,10 +32,11 @@ import { GrandTotalRow, TotalRow } from '@/components/Totals';
 import { CheckIcon, DotIcon, RepeatIcon } from '@/components/icons';
 import { api } from '@/lib/api';
 import { cx } from '@/lib/cx';
-import { formatDateTime, formatMoney, formatNumber } from '@/lib/format';
+import { formatDateTime, formatMoney, formatMoneyMinor, formatNumber } from '@/lib/format';
+import { SELLING_UNIT, cartonPriceMinor, cartonsOfLine } from '@/lib/packaging';
 import { orderStatusExplanation, orderStatusLabel, orderStatusTone } from '@/lib/order-status';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
-import type { OrderAddress, OrderDetail } from '@/lib/types';
+import type { OrderAddress, OrderDetail, OrderItem } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
 
@@ -69,6 +70,42 @@ function AddressBlock({
         </address>
       )}
     </div>
+  );
+}
+
+/**
+ * One line's quantity and unit price, in the unit it was bought in.
+ *
+ * Cartons and the carton price for anything bought since the shop settled on
+ * the carton; pieces and the piece price for the older lines, which keep
+ * describing themselves the way they were agreed. Both prints show the piece
+ * count, because that is what was picked, shipped and taxed.
+ */
+function LineQuantity({ item }: { item: OrderItem }): React.JSX.Element {
+  const { t } = useI18n();
+  const cartons = cartonsOfLine(item.ordering);
+
+  if (cartons === null) {
+    return (
+      <p className="text-xs text-ink-muted">
+        {formatNumber(item.quantity)} × {formatMoney(item.unitPrice)}
+      </p>
+    );
+  }
+
+  return (
+    <>
+      <p className="text-xs text-ink-muted">
+        {t('packaging.nCartons', { count: cartons.cartons })} ×{' '}
+        {formatMoneyMinor(
+          cartonPriceMinor(item.unitPrice.minor, cartons.piecesPerCarton),
+          item.unitPrice.currency,
+        )}
+      </p>
+      <p className="text-xxs tabular text-ink-subtle">
+        {t('cart.piecesTotal', { n: formatNumber(item.quantity) })}
+      </p>
+    </>
   );
 }
 
@@ -130,6 +167,11 @@ export function OrderDetailPage(): React.JSX.Element {
         await api.post('/cart/items', {
           productId: item.productId,
           variantId: item.variantId,
+          // The cartons that were ordered, not the pieces they came to. A
+          // piece count would be taken back up to whole cartons by the
+          // server anyway; sending the cartons says plainly what is meant.
+          orderingUnit: SELLING_UNIT,
+          unitQuantity: cartonsOfLine(item.ordering)?.cartons ?? 1,
           quantity: item.quantity,
         });
       }
@@ -281,9 +323,12 @@ export function OrderDetailPage(): React.JSX.Element {
                       <p className="text-sm font-semibold tabular text-ink">
                         {formatMoney(item.lineTotal)}
                       </p>
-                      <p className="text-xs text-ink-muted">
-                        {formatNumber(item.quantity)} × {formatMoney(item.unitPrice)}
-                      </p>
+                      {/* Counted the way it was ordered, with the pieces under
+                          it. An order that said "1,000 × ₹12.50" to somebody
+                          who bought two cartons is a dispute nobody can
+                          settle; one that said only "2 cartons" cannot be
+                          checked against the total beside it. */}
+                      <LineQuantity item={item} />
                       <p className="text-xxs text-ink-subtle">incl. {formatMoney(item.tax)} tax</p>
                     </div>
                   </div>

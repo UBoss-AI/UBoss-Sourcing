@@ -31,6 +31,7 @@ import { env } from '../../config/env.js';
 import { ErrorCode, badRequest, type ErrorCodeValue } from '../../domain/errors.js';
 import { todayIn } from '../../domain/delivery-dates.js';
 import { serialiseMoney } from '../../domain/money.js';
+import { SELLING_UNIT, cartonsForPieces } from '../../domain/ordering-unit.js';
 import {
   describeRule,
   isRepeating,
@@ -489,21 +490,22 @@ function itemsFromCart(
       const substitute = config.substitutes?.[line.itemId];
 
       // The customer may have retyped the quantity on the review screen, and
-      // that number is in pieces like every other quantity. The pack count
-      // follows it through the line's own snapshot, so a plan built from a
-      // basket of cartons stays a plan of cartons.
-      const quantity = config.quantities?.[line.itemId] ?? line.quantity;
+      // that number is in pieces like every other quantity. It is taken up to
+      // whole cartons, because a plan that charged for two and a half cartons
+      // a month is a plan nobody can ship - and the carton count follows it
+      // through the line's own snapshot rather than today's setting.
+      const asked = config.quantities?.[line.itemId] ?? line.quantity;
       const piecesPerUnit = Math.max(line.ordering.piecesPerUnit, 1);
+      const isPieces = line.ordering.unit === 'PIECE';
+      const unitQuantity = isPieces ? asked : cartonsForPieces(asked, piecesPerUnit);
+      const quantity = isPieces ? asked : unitQuantity * piecesPerUnit;
 
       return {
         productId: line.productId,
         variantId: line.variantId,
         quantity,
         orderingUnit: line.ordering.unit,
-        unitQuantity:
-          line.ordering.unit === 'PIECE'
-            ? quantity
-            : Math.max(1, Math.round(quantity / piecesPerUnit)),
+        unitQuantity,
         piecesPerUnitSnapshot: line.ordering.piecesPerUnit,
         substituteProductId: substitute?.productId ?? null,
         substituteVariantId: substitute?.variantId ?? null,
@@ -667,9 +669,10 @@ function snapshotOf(preview: CartSchedulePreview): Prisma.InputJsonValue {
     orderingUnits: preview.quote.lines.map((line) => ({
       productId: line.productId,
       variantId: line.variantId,
-      unit: line.ordering?.unit ?? 'PIECE',
-      unitQuantity: line.ordering?.unitQuantity ?? line.quantity,
-      piecesPerUnit: line.ordering?.piecesPerUnit ?? 1,
+      unit: line.ordering?.unit ?? SELLING_UNIT,
+      unitQuantity:
+        line.ordering?.unitQuantity ?? cartonsForPieces(line.quantity, env.PIECES_PER_CARTON),
+      piecesPerUnit: line.ordering?.piecesPerUnit ?? env.PIECES_PER_CARTON,
     })),
     totals: {
       subtotalMinor: preview.quote.totals.subtotal.minor,

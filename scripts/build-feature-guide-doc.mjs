@@ -159,13 +159,15 @@ h2('3.1 Home page and catalogue');
 table(['Customer action', 'What the system provides'], [
   ['Open the home page', 'Brand introduction, product search, product categories, latest / featured catalogue items, basket access and account access.'],
   ['Browse all products', 'A list of published products available for the selected market.'],
-  ['Open a category', 'Only the products within that category, with normal catalogue tools.'],
+  ['Open a category', 'Only the products within that category, with normal catalogue tools. Anything filed inside it is shown as cards above the results.'],
   ['Search for a product', 'Search results for product names, identifiers and relevant catalogue content.'],
   ['Use filters and sort', 'Narrow the catalogue by the available catalogue facets and change ordering.'],
   ['Use voice search', 'Use supported browser voice input for a search query.'],
   ['Use image search', 'Upload a product image to match relevant products when the feature is available to the signed-in customer.'],
 ], [3500, 6800]);
 p('Each department on the home page carries a picture of what is in it — a cannula beside IV Cannula, a glove beside Surgical Gloves — so a buyer can find the department they came for by shape before they finish reading the labels. A department the system does not recognise by name gets a plain shape instead of a wrong picture.');
+p('The top of the home page carries a moving three-dimensional graphic: a turning centrepiece with two rings around it, and four cards riding those rings for the four things a buyer can do beyond ordinary ordering — ask the assistant, schedule a repeat delivery, set up automatic payment, and connect their own business system. The cards are real buttons, not decoration, and each one either opens the screen behind it or explains why it cannot.');
+p('The graphic is built to be polite about what it costs. It stops completely as soon as it is scrolled out of view or the tab is put in the background, it shows a still picture instead of moving for anyone whose device is set to reduce motion, and on a phone or a computer that would struggle with it the page falls back to a plain drawn version that looks finished in its own right. It is also downloaded separately from the rest of the shop, so a buyer who only wants to search for a product never waits for it.');
 h2('3.2 Product detail page');
 bullets([
   'See product images, product name, SKU/reference, specifications and descriptions.',
@@ -175,24 +177,23 @@ bullets([
   'View tax and market price context before adding to the basket.',
   'Add the item to the basket or save it for later where the relevant feature is available.',
 ]);
-h2('3.3 Packaging, and ordering by the box or the carton');
-p('Many products in this trade are sold by the box and the carton rather than one at a time. Where the business has recorded how a product is packed, the product page shows it and lets the buyer order in whichever unit suits them.');
+h2('3.3 Ordering by the carton');
+p('Everything in this shop is sold by the carton, and one carton holds 500 pieces. There is nothing else to choose: no single pieces, no inner boxes, and no different carton size to check from one product to the next. The buyer types a number of cartons, and every price they have been shown is the price of one carton.');
 table(['What the customer sees', 'What the customer can do'], [
-  ['A short pack summary on every listing, such as “100 per box · 2,000 per carton”.', 'Decide from the list whether an item is sold in the size they buy in, before opening it.'],
-  ['A Packaging and ordering section, with pieces per box, boxes per carton and pieces per carton set out separately.', 'Check the exact breakdown instead of working it out from a line of supplier text.'],
-  ['The conversion written out in one line: “100 pieces × 20 boxes = 2,000 pieces”.', 'See the whole relationship at a glance.'],
-  ['A ready-reckoner for 1, 2, 5 and 10 of the chosen unit.', 'Answer “if I order five cartons, how many is that?” without a calculator.'],
-  ['A choice of ordering unit above the quantity box: Pieces, Box, or Carton.', 'Type “2” and mean two cartons, with the piece total shown underneath as they type.'],
-  ['The price restated in the unit being counted, with the price of one piece kept beside it.', 'Read what a box or a carton costs straight off the page, instead of multiplying it out themselves.'],
-  ['A Dimensions section with the primary pack, inner box and outer carton sizes.', 'Check what will arrive against the space they have.'],
+  ['A line under every product in the list: “One carton has 500 pieces”, with the price of a carton beside it.', 'Compare prices down a page knowing that every figure is the price of the same thing.'],
+  ['The same sentence above the quantity box on the product page: “Ordered by the carton · one carton has 500 pieces”.', 'Know what the number they are about to type is counting, before they type it.'],
+  ['Under the price, what that price is the price of: “per carton of 500 pieces”, with the price of one piece beside it.', 'Read what a carton costs straight off the page, and check the arithmetic behind it if they want to.'],
+  ['A Packaging and ordering section stating the carton, with a ready-reckoner for 1, 2, 5 and 10 cartons.', 'Answer “if I order five cartons, how many is that?” without a calculator.'],
+  ['A running line under the quantity box: “That comes to 1,000 pieces.”', 'See the number the warehouse will pick before committing to it.'],
+  ['A Dimensions section with the box sizes as the supplier recorded them.', 'Check what will arrive against the space they have.'],
 ]);
 bullets([
-  'The basket keeps the unit the buyer chose. A line added as two cartons is counted in cartons in the basket, on the order and on a repeating plan, with the piece total shown beside it.',
-  'Only units the business has actually recorded a figure for are offered. A product whose carton quantity is not on file can only be ordered by the piece.',
-  'A pack size is not a minimum order. Any minimum is a separate rule the business sets, and the page says so.',
-  'The price shown for a box or a carton is the price of one piece multiplied by how many it holds. It is not a total: tax, discounts and the quantity ordered are still worked out at the basket and the checkout.',
+  'The basket counts cartons and prints the piece total under them, and so does a repeating plan.',
+  'An order shows both: how many cartons were ordered, and the pieces those came to. The invoice names the packing in the line description, such as “Disposable Syringe 5ml (2 cartons of 500)”.',
+  'A carton is not a minimum order. Any minimum is a separate rule the business sets, and the page says so.',
+  'The price of a carton is the price of one piece multiplied by 500. It is not a total: tax, discounts and how many cartons were ordered are still worked out at the basket and the checkout.',
 ]);
-note('Sizes as recorded', 'Pack dimensions are shown exactly as the business recorded them. Where the source did not state whether a measurement is in millimetres or inches, the page says so rather than assuming one.', C.purple);
+note('How many is in a carton', 'Five hundred is a setting, not a fixed part of the software. A business that packs its own product differently changes one number, and every price, every quantity box and every page that says “one carton has 500 pieces” follows it.', C.purple);
 h2('3.4 AI Mode');
 p('AI Mode is a full page, not a small floating chat window. A visitor can ask product questions before opening an account when guest access is allowed. A signed-in customer can keep a conversation history.');
 bullets([
@@ -215,7 +216,7 @@ bullets([
   'Review product subtotal, tax, delivery context and estimated total.',
   'Move eligible items toward repeat purchase planning when recurring orders are enabled.',
   'Use the two purchase workspaces: Instant Buy cart and Schedule Cart.',
-  'Change a line by the box or the carton where it was added that way, with the piece total updating beside it.',
+  'Change a line by the carton, with the piece total updating beside it.',
 ]);
 h2('4.2 Customer warehouse choice — exact behaviour');
 p('Yes. Once a customer has basket items, the basket can show a “Where this can ship from” panel. It helps the buyer decide which eligible warehouse they prefer for the order.');
@@ -306,9 +307,13 @@ p('Some systems ask the customer to sign in rather than to type a password into 
 p('A customer who changes their mind and cancels on that screen is told nothing was connected, and can start again whenever they are ready. The same button later reads Sign in again, for when their system’s access is withdrawn or expires.');
 p('A connection does not have to send anything. A customer whose own system is a product or price list, rather than a purchasing system, can switch every outgoing item off and use the connection only to read from their system. When they do, UBOSS asks them to match up only the information that connection actually uses — it does not ask a customer to describe a purchase order they have said they will never send.');
 p('A Product matching screen answers the question customers ask first: do both systems hold the same products? Pressing Check now reads the full product list from their system and compares it with their catalogue in UBOSS. It changes nothing — it only looks. The answer is three counts: products found in both systems, products their system has that are not sold here, and products here that their system has never mentioned. That last group is the one worth acting on, because UBOSS will never receive figures for them.');
-p('Products are matched on the product code, exactly as written on each side. Where nothing matches at all, the screen says so in plain words and explains the usual reason: the two systems use different codes for the same item. The customer can then either use the same code on both sides, or point the connection at whichever column of their system holds the code used here.');
+p('Products are matched on the product code, exactly as written on each side. Where nothing matches at all, the screen says so in plain words and explains the usual reason: the two systems use different codes for the same item.');
+p('When that happens, and it is common, the same screen is where the customer fixes it. They can tell UBOSS which product in this catalogue each of their own codes means. Rather than pairing them one at a time, they paste two columns straight out of a spreadsheet — their code, then the code used here — separated by a comma, semicolon or tab, so a file exported by any spreadsheet is accepted as it is. A heading row is ignored.');
+p('Any line that names a product this catalogue does not have is reported back with its line number and the reason, and everything else is still saved. A long list will usually contain a few codes that have since been retired, and refusing the whole file because of three of them would leave the customer with nothing.');
+p('Once a code is paired, every sync from then on uses that pairing, and the matching screen counts that product as found in both systems. A pairing the customer has made is always preferred over two codes that merely happen to look the same. Nothing is ever guessed: UBOSS will not decide that two codes probably mean the same product, because a wrong pairing quietly attaches real stock figures to the wrong item and is believed for months.');
 p('When a connection reads a list from the customer’s system, the activity record reports how many records were read and how many were recorded against products in UBOSS. A record that matches nothing here is counted as read but not recorded, so the two numbers together say plainly how much of their list UBOSS recognised.');
 p('Setting up a live connection to monday.com needs the store to have registered an application with monday.com first. Where the store has not, the setup wizard says so on its first step and offers a test connection instead, rather than letting the customer fill in every step and be refused at the end.');
+p('Checking a connection never switches it off. A customer can press Test at any time, including on a connection that is switched on and carrying their orders, and it is left exactly as it was — switched on if it was switched on, paused if it was paused. Only the result changes: the screen shows whether the check succeeded, when it ran and what the customer’s system said. A connection is taken out of service by repeated real failures, never by a single check.');
 page();
 
 // 7
@@ -375,12 +380,13 @@ table(['What it does', 'Why it works this way'], [
   ['Never publishes on its own. Everything arrives as a draft.', 'Publishing is a separate, recorded decision, with its own checks.'],
   ['Can be run again on the same file without creating duplicates.', 'Supplier sheets get corrected and re-sent, and the second run should update the first, not double it.'],
 ]);
-p('The system reads how each product is packed out of the supplier’s own wording, and reports what it could and could not understand.');
+p('The system reads how each product is packed out of the supplier’s own wording, and reports what it could and could not understand. This is a record of what the supplier said, and staff can read it in full; it does not decide what anything is sold in. Everything is sold in the shop’s own carton of 500 — see 3.3.');
 bullets([
-  'Where the figures are complete and multiply out correctly, the product can be ordered by the box and by the carton.',
+  'Where the figures are complete and multiply out correctly, they are recorded as read.',
   'Where the sheet gives only a carton total, that total is recorded and nothing is guessed about what is inside it.',
-  'Where the sheet’s own figures contradict each other, the product is flagged for review and can only be ordered by the piece until somebody confirms it.',
+  'Where the sheet’s own figures contradict each other, the product is flagged for somebody to check.',
   'The supplier’s original wording is always kept beside whatever was understood from it.',
+  'None of these figures reach a customer page. A supplier’s “2,000 per carton” printed next to the shop’s carton of 500 would leave a buyer working out which one their order was priced at.',
 ]);
 p('Products whose internal status on the sheet is “Hold” or “Working on it” are created unavailable to order. Licence status, production capacity, launch date and internal status are stored for staff only and never appear on a customer page.');
 note('Where duplicates go', 'Supplier sheets often reuse a product code or a barcode across genuinely different items. Those are imported as separate products and listed in the report for somebody to check, never merged together.', C.purple);
@@ -394,7 +400,22 @@ bullets([
   'One command lists everything still on a placeholder, grouped by department, so the list can be worked through and only ever gets shorter.',
 ]);
 note('Why the mark matters', 'A placeholder and a real price look identical once saved, and a customer can order at either. The mark is what makes “which of these did we make up?” a question with an answer months later.', C.purple);
-h2('8.5 Product photographs');
+h2('8.5 Grouping the catalogue under one department');
+p('When a supplier sheet is loaded, every category band in it becomes a department of its own. A business that sells one kind of thing then has a shop front listing two dozen departments named after individual products, which reads as a parts list rather than a shop.');
+p('Staff can choose one name for the whole catalogue and file every existing department underneath it in a single step.');
+table(['What it does', 'Why it works this way'], [
+  ['Creates the department under the name you give it, and moves every other department inside it.', 'Nothing is renamed, nothing is deleted, and no product moves — each one stays where it was filed, one level further in.'],
+  ['The shop front then shows that one department.', 'A buyer arriving at a shop front wants to know what kind of supplier this is first, and which shelf second.'],
+  ['Opening it shows every product in the catalogue, and the old departments appear on that page as their own cards above the results.', 'Nothing became harder to find. The shelves are one click in instead of being the whole front page, and they are still shown as pictures rather than buried in a list.'],
+  ['Shows a full preview before anything is moved.', 'You can see exactly which departments would move, and how much is in each, before any of it happens.'],
+  ['Can be run again after the next supplier sheet.', 'A new sheet introduces new departments. Running it again sweeps those in and leaves everything already inside alone.'],
+]);
+bullets([
+  'The name is yours to choose. Nothing in the system assumes what this business sells.',
+  'The number on a department card counts everything beneath it, not only what is filed directly in it, and counts only products a customer can actually open.',
+  'A department a customer cannot see keeps its contents hidden with it, exactly as before.',
+]);
+h2('8.6 Product photographs');
 p('A supplier sheet carries no photographs. The system can take your own product photography — a folder of image files — resize it for the web and put each picture on the products it actually shows.');
 table(['What it does', 'Why it works this way'], [
   ['Uses only your own photographs.', 'A stock picture of another company’s product presented as yours is a false record, and on a medical device that is worse than no picture at all.'],
@@ -404,14 +425,14 @@ table(['What it does', 'Why it works this way'], [
   ['Reports what is still unphotographed, by department.', 'That list is the useful part: it tells you exactly what to photograph next.'],
 ]);
 p('Products with no photograph keep the neutral placeholder the catalogue already shows, and they still list, search and sell normally.');
-h2('8.6 Product safety and legal product information');
+h2('8.7 Product safety and legal product information');
 bullets([
   'Maintain product safety information for medical-device and regulatory needs.',
   'Record manufacturer/economic operator information for EU product-safety requirements.',
   'Maintain product specifications and product documents where provided.',
   'Keep product media and product safety details available to appropriate customer-facing views.',
 ]);
-h2('8.7 Coupons and manufacturers');
+h2('8.8 Coupons and manufacturers');
 bullets([
   'Create and manage coupons, code rules, validity periods and usage context.',
   'Maintain manufacturer/economic operator data used by catalogue and product compliance information.',
@@ -530,6 +551,7 @@ bullets([
   'Configure the supplier/operator ERP connection in Settings → ERP: address, credential, endpoints, field mapping, tests, sync and activity.',
   'Monitor the customer’s own ERP connections separately, with support visibility designed not to expose their secrets.',
   'Use safe outbound HTTP rules, encrypted secrets and logged integration activity.',
+  'Test a connection at any time, including one that is switched on and carrying orders. A successful test leaves it exactly as it was; only a failed test takes it out of service, so the problem is visible on the connection list.',
 ]);
 note('Two different ERP features', 'Admin ERP is the supplier’s warehouse/business system. Customer ERP is the buyer’s own purchasing system. They are deliberately separate so ownership, credentials and support access remain clear.', C.orange);
 page();
@@ -553,7 +575,11 @@ bullets([
   'Order status transitions are centrally controlled; staff cannot write an arbitrary status directly.',
   'Money is stored/calculated using integer minor units rather than unsafe floating-point decimal arithmetic.',
 ]);
-h2('13.3 Notifications');
+h2('13.3 Updates and backups');
+p('New versions are installed without taking the shop offline. The new version is built and checked first, and only then are the parts serving customers replaced one at a time — each one proved working before the next is touched — so somebody browsing or checking out during an update does not notice one happening. If anything fails while the new version is being prepared, nothing is replaced at all and the shop carries on as it was. A version that turns out to be wrong can be put back to the previous one.');
+p('A backup runs every night without anyone starting it. It copies the whole database, the uploaded product pictures and documents, and an encrypted copy of the system settings — the settings matter because without them a restored copy has the information and no way to open it. Each night’s copy is checked for the two faults that otherwise go unnoticed for months: a copy that stopped halfway, and a copy of an empty database. Two weeks of nightly copies are kept.');
+p('Two things about backups are deliberately left to the operator, because only they can decide them. A copy kept on the same machine protects against a mistake and against nothing else, so the copies should also be sent somewhere off the machine. And a backup nobody has ever restored is a hope rather than a plan, so a practice restore belongs in the regular operating routine.');
+h2('13.4 Notifications');
 bullets([
   'Customer notifications can include registration/activation, password reset, order, payment, schedule and contact-confirmation events.',
   'Staff notifications can include sign-ins, low stock, payment/order actions, customer approval and operational alerts.',
@@ -615,8 +641,8 @@ h1('16. Simple End-to-End Examples');
 h2('Example A — Customer buys a product');
 table(['Step', 'Customer action', 'System response'], [
   ['1', 'Opens home page and searches products.', 'Shows catalogue items available in the chosen country/currency.'],
-  ['2', 'Opens a product, chooses variant and quantity.', 'Checks product/variant relationship and quantity rules.'],
-  ['3', 'Adds item to basket.', 'Stores the basket line and recalculates server-owned totals.'],
+  ['2', 'Opens a product, chooses variant and how many cartons.', 'Checks product/variant relationship and quantity rules, and shows what the cartons come to in pieces.'],
+  ['3', 'Adds item to basket.', 'Turns the cartons into pieces using its own carton size, stores the basket line and recalculates server-owned totals.'],
   ['4', 'Reviews “Where this can ship from”.', 'Shows eligible warehouses, lead-time/fee information and any partial-stock warnings.'],
   ['5', 'Chooses a warehouse preference and continues.', 'Records preference; actual total remains the clearly shown checkout total.'],
   ['6', 'Selects address/payment choice and places order.', 'Creates one order, reserves stock, applies tax/coupon/limits and starts payment/approval path.'],

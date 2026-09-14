@@ -13,8 +13,10 @@
  * Every status change goes through `assertTransition` and appends to
  * `order_status_history`. No service writes `orders.status` directly.
  */
+import { env } from '../../config/env.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import { serialiseMoney } from '../../domain/money.js';
+import { SELLING_UNIT, cartonsForPieces } from '../../domain/ordering-unit.js';
 import type { PaymentInstrument } from '../../domain/payment-instrument.js';
 import {
   assertTotalsConsistent,
@@ -447,9 +449,12 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
         // join. An invoice that says 4,000 pieces where the buyer ordered 2
         // cartons is a dispute waiting to be had, and the packing it was
         // worked out from may not survive to the day somebody asks.
-        orderingUnit: resolved.lines[index]?.ordering.unit ?? 'PIECE',
-        unitQuantity: resolved.lines[index]?.ordering.unitQuantity ?? line.quantity,
-        piecesPerUnitSnapshot: resolved.lines[index]?.ordering.piecesPerUnit ?? 1,
+        orderingUnit: resolved.lines[index]?.ordering.unit ?? SELLING_UNIT,
+        unitQuantity:
+          resolved.lines[index]?.ordering.unitQuantity ??
+          cartonsForPieces(line.quantity, env.PIECES_PER_CARTON),
+        piecesPerUnitSnapshot:
+          resolved.lines[index]?.ordering.piecesPerUnit ?? env.PIECES_PER_CARTON,
       })),
     });
 

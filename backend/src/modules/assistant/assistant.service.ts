@@ -174,6 +174,11 @@ async function buildCatalogueSnapshot(): Promise<string> {
   const currency = profile?.currency ?? env.DEFAULT_CURRENCY;
   const money = (minor: bigint): string => `${currency} ${(Number(minor) / 100).toFixed(2)}`;
 
+  // The catalogue prices a piece; the shop sells a carton of them. See the
+  // SOLD BY THE CARTON line below.
+  const piecesPerCarton = env.PIECES_PER_CARTON;
+  const cartonMoney = (minor: bigint): string => money(minor * BigInt(piecesPerCarton));
+
   const lines: string[] = [];
 
   lines.push(`STORE: ${profile?.displayName ?? 'this store'}`);
@@ -184,6 +189,18 @@ async function buildCatalogueSnapshot(): Promise<string> {
     lines.push(`SUPPORT PHONE: ${profile.supportPhone}`);
   }
   lines.push(`PRICES QUOTED IN: ${currency}`);
+  /*
+   * The assistant is told the selling unit before it is told a single price.
+   *
+   * Every figure below is what one carton costs, because a carton is the only
+   * thing anybody can buy here. An assistant quoting a piece price would be
+   * quoting a number five hundred times smaller than the one on the product
+   * page it is sending the shopper to - and it is exactly the surface where a
+   * wrong number is believed.
+   */
+  lines.push(
+    `SOLD BY THE CARTON ONLY. One carton has ${String(piecesPerCarton)} pieces, and every price below is the price of one carton.`,
+  );
   lines.push('');
   lines.push(`PUBLISHED PRODUCTS (${String(products.length)}):`);
 
@@ -192,7 +209,7 @@ async function buildCatalogueSnapshot(): Promise<string> {
     lines.push(`## ${product.name}`);
     lines.push(`- product page: /product/${product.slug}`);
     lines.push(`- category: ${product.category.name}`);
-    lines.push(`- price: ${money(product.basePriceMinor)}`);
+    lines.push(`- price: ${cartonMoney(product.basePriceMinor)} per carton`);
     lines.push(
       `- tax: ${product.taxClass.ratePercent.toString()}% ${product.taxClass.isInclusive ? '(included in the price)' : '(added to the price)'}`,
     );
@@ -201,8 +218,11 @@ async function buildCatalogueSnapshot(): Promise<string> {
 
     if (product.minOrderQty > 1 || product.qtyIncrement > 1) {
       const rules: string[] = [];
-      if (product.minOrderQty > 1) rules.push(`minimum ${String(product.minOrderQty)}`);
-      if (product.qtyIncrement > 1) rules.push(`in multiples of ${String(product.qtyIncrement)}`);
+      // Both are written in pieces, which is what the server applies them to.
+      if (product.minOrderQty > 1) rules.push(`minimum ${String(product.minOrderQty)} pieces`);
+      if (product.qtyIncrement > 1) {
+        rules.push(`in multiples of ${String(product.qtyIncrement)} pieces`);
+      }
       lines.push(`- ordering rules: ${rules.join(', ')}`);
     }
 
@@ -215,7 +235,8 @@ async function buildCatalogueSnapshot(): Promise<string> {
     if (product.variants.length > 0) {
       lines.push(`- variants (${String(product.variants.length)}), product code then description:`);
       for (const variant of product.variants) {
-        const price = variant.priceMinor === null ? '' : ` — ${money(variant.priceMinor)}`;
+        const price =
+          variant.priceMinor === null ? '' : ` — ${cartonMoney(variant.priceMinor)} per carton`;
         lines.push(`  · ${variant.sku}: ${variant.name}${price}`);
       }
     } else {

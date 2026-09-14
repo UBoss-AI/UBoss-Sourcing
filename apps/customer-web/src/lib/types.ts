@@ -98,6 +98,22 @@ export interface StorefrontConfig {
   };
 
   /**
+   * The selling unit. One carton, holding this many pieces.
+   *
+   * Every price a shopper sees is the price of one carton, worked out from the
+   * catalogue's piece price and this number, so the storefront cannot print a
+   * price before it has read this. It is the operator's setting rather than a
+   * constant in the bundle, for the same reason the currency is.
+   *
+   * Optional because a config response cached from before the block existed
+   * legitimately lacks it. Read it through `usePiecesPerCarton`, which
+   * supplies the documented fallback rather than treating absence as zero.
+   */
+  ordering?: {
+    piecesPerCarton: number;
+  };
+
+  /**
    * What the chat widget has to say about itself before anyone types.
    *
    * AI Act Art. 50(1) obliges the deployer to tell a person they are
@@ -164,7 +180,10 @@ export interface CategoryNode {
   depth: number;
   sortOrder: number;
   isActive: boolean;
+  /** Products filed directly in this category, and nothing else. */
   productCount: number;
+  /** Products in this category and in every category beneath it. */
+  totalProductCount: number;
   children: CategoryNode[];
 }
 
@@ -231,26 +250,18 @@ export interface PackDimension {
  * and nothing else. Nothing here is ever derived in the browser — the server
  * does the arithmetic, and a missing figure stays missing.
  */
+/**
+ * What the supplier's sheet said about the product, minus every quantity.
+ *
+ * No piece counts, on purpose: the shop sells one carton of
+ * `config.ordering.piecesPerCarton` pieces, and the supplier's own "2,000 to a
+ * carton" printed on the same page would be a second answer to the only
+ * question that decides what a buyer pays. The server stopped sending them —
+ * see `packaging.service.ts`.
+ */
 export interface ProductPackaging {
+  /** What it is packed as — "Blister", "Pouch". Never a quantity. */
   packingType: string | null;
-  /** What the supplier actually wrote, kept so a dispute has an answer. */
-  sourceText: string | null;
-  piecesPerInnerPack: number | null;
-  innerPacksPerOuterCarton: number | null;
-  piecesPerOuterCarton: number | null;
-  /** The source's own word — "Box", "Pouch", "Packet". */
-  innerPackType: string | null;
-  outerPackType: string | null;
-  /** "100 pieces × 20 boxes = 2,000 pieces", or null when unknown. */
-  formula: string | null;
-  /**
-   * False when the source's own multiplication contradicted itself.
-   *
-   * The pack calculator offers only pieces in that case. Converting from a
-   * figure nobody has confirmed is how a buyer orders twice what they meant to.
-   */
-  isReliable: boolean;
-  parseStatus: 'PARSED' | 'PARTIAL' | 'NEEDS_REVIEW' | 'UNPARSED';
   dimensions: PackDimension[];
 }
 
@@ -507,21 +518,22 @@ export interface CartLine {
   /** The cart's copy carries no recurring flag — that sits on the line. */
   purchaseRules: Omit<PurchaseRules, 'isRecurringEligible'>;
   /**
-   * What the customer chose to count in, and the conversion they were shown.
+   * How many cartons, and the carton size they were shown.
    *
-   * Read off the line's own snapshot rather than today's catalogue: a basket
-   * agreed at 100 to a box keeps reading "2 boxes (200 pieces)" even after the
-   * box has been re-specified at 50, because that is what they put in it.
+   * Read off the line's own snapshot rather than today's setting: a basket
+   * agreed at 500 to a carton keeps reading "2 cartons (1,000 pieces)" even
+   * after the operator re-specifies the carton, because that is what they put
+   * in it.
    *
-   * Optional, because a server that predates pack ordering sends no such thing
-   * and every line it does send is counted in pieces.
+   * Optional, and `unit` can still say `PIECE` or `INNER_PACK` on a line put
+   * in a basket before the shop settled on the carton. Nothing new is ever
+   * written that way.
    */
   ordering?: {
     unit: 'PIECE' | 'INNER_PACK' | 'OUTER_CARTON';
+    /** Cartons. */
     unitQuantity: number;
     piecesPerUnit: number;
-    /** The supplier's own word — "Box", "Pouch". Null when counting pieces. */
-    packLabel: string | null;
   } | null;
   /** Per-line problems: out of stock, below minimum, no longer published. */
   issues: CartIssue[];
@@ -756,7 +768,24 @@ export interface OrderItem {
   sku: string;
   variantName: string | null;
   imageUrl: string | null;
+  /** Pieces. What the warehouse picks and what `unitPrice` is per. */
   quantity: number;
+  /**
+   * What the buyer ordered, in the unit they ordered it in.
+   *
+   * Cartons on anything placed since this shop settled on the carton. Read
+   * off the line's own snapshot, so an order placed when a carton held a
+   * different number still describes itself correctly.
+   *
+   * Optional because an order served by a server that predates the field
+   * legitimately lacks it, and a screen that assumed it would print "0
+   * cartons" on somebody's receipt.
+   */
+  ordering?: {
+    unit: 'PIECE' | 'INNER_PACK' | 'OUTER_CARTON';
+    unitQuantity: number;
+    piecesPerUnit: number;
+  } | null;
   unitPrice: Money;
   lineSubtotal: Money;
   tax: Money;

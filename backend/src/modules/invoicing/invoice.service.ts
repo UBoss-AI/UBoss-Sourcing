@@ -209,11 +209,33 @@ export async function issueInvoice(input: IssueInvoiceInput): Promise<IssuedInvo
   const lines: InvoiceLineView[] = order.items.map((item) => {
     const net = item.lineSubtotalMinor - item.discountMinor;
 
+    const name =
+      item.variantNameSnapshot === null
+        ? item.nameSnapshot
+        : `${item.nameSnapshot} — ${item.variantNameSnapshot}`;
+
+    /**
+     * What the customer ordered, in the words they ordered it in.
+     *
+     * The quantity column stays in pieces - it is what the price is per, what
+     * the warehouse picked, and what `unitCode="C62"` means on the UBL line.
+     * But Art. 226(6) asks for the nature of the goods as well as the amount,
+     * and "2 cartons of 500" is how the buyer's own purchase order reads. An
+     * invoice for 1,000 of something somebody ordered two of is an invoice
+     * they will ring up about.
+     *
+     * Off the line's own snapshot, so re-specifying the carton cannot reword
+     * an invoice that has already been issued.
+     */
+    const packed =
+      item.orderingUnit === 'OUTER_CARTON'
+        ? ` (${item.unitQuantity.toLocaleString('en')} ${
+            item.unitQuantity === 1 ? 'carton' : 'cartons'
+          } of ${item.piecesPerUnitSnapshot.toLocaleString('en')})`
+        : '';
+
     return {
-      description:
-        item.variantNameSnapshot === null
-          ? item.nameSnapshot
-          : `${item.nameSnapshot} — ${item.variantNameSnapshot}`,
+      description: `${name}${packed}`,
       sku: item.skuSnapshot,
       quantity: item.quantity,
       unitPriceMinor: item.unitPriceMinor.toString(),

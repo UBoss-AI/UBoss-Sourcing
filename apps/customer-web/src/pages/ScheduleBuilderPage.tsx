@@ -42,7 +42,13 @@ import { PageEmptyState } from '@/components/PageEmptyState';
 import { ApiError, NetworkError, api } from '@/lib/api';
 import { formatIsoDate } from '@/lib/calendar-date';
 import { useDeliveryWindow } from '@/lib/delivery-window';
-import { formatMoney, formatNumber } from '@/lib/format';
+import { formatMoney, formatMoneyMinor, formatNumber } from '@/lib/format';
+import {
+  DEFAULT_PIECES_PER_CARTON,
+  SELLING_UNIT,
+  cartonPriceMinor,
+  usePiecesPerCarton,
+} from '@/lib/packaging';
 import { clampToRules } from '@/lib/quantity-rules';
 /*
  * The interval mapping, shared with the schedule workspace.
@@ -79,6 +85,26 @@ type PaymentMode = 'AUTO_PAY' | 'PAYMENT_LINK';
  * nothing about the recurrence changed, only a question nobody could answer.
  */
 const DEFAULT_RUN_AT_MINUTE = 360;
+
+/**
+ * The carton size a draft line was agreed at, falling back to today's.
+ *
+ * The line's own snapshot wherever it has one - a plan built from a basket
+ * agreed before the carton was re-specified keeps the carton it was agreed
+ * at, because that is the quantity a worker will charge for months from now.
+ */
+function cartonSizeOf(item: ScheduleItemDraft, fallback = DEFAULT_PIECES_PER_CARTON): number {
+  const snapshot = item.ordering?.piecesPerUnit;
+  return snapshot !== undefined && snapshot > 0 ? snapshot : fallback;
+}
+
+/** How many cartons this line is, worked out from the pieces if need be. */
+function cartonsPerDelivery(item: ScheduleItemDraft): number {
+  if (item.ordering !== null && item.ordering.unit === SELLING_UNIT) {
+    return item.ordering.unitQuantity;
+  }
+  return Math.max(1, Math.ceil(item.quantity / cartonSizeOf(item)));
+}
 
 interface ScheduleItemDraft {
   productId: string;
@@ -130,6 +156,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
   const productId = searchParams.get('productId');
   const variantId = searchParams.get('variantId');
   const requestedQuantity = Number(searchParams.get('quantity') ?? '0');
+  const piecesPerCarton = usePiecesPerCarton();
 
   const fromCart = productId === null;
 
@@ -314,10 +341,12 @@ export function ScheduleBuilderPage(): React.JSX.Element {
     if (found === undefined) return;
 
     const rules = found.purchaseRules;
-    const quantity = clampToRules(
-      requestedQuantity > 0 ? requestedQuantity : rules.minOrderQty,
-      rules,
-    );
+    // The link carries a piece count. It came off a product page that only
+    // sells whole cartons, so it divides exactly - but it is taken up to a
+    // whole carton anyway, because a plan that charged for part of one is a
+    // plan nobody can ship.
+    const asked = clampToRules(requestedQuantity > 0 ? requestedQuantity : rules.minOrderQty, rules);
+    const cartons = Math.max(1, Math.ceil(asked / piecesPerCarton));
 
     const variant = found.variants.find((candidate) => candidate.id === variantId);
 
@@ -325,10 +354,12 @@ export function ScheduleBuilderPage(): React.JSX.Element {
       {
         productId: found.id,
         variantId,
-        quantity,
-        // Arrived from a product page link, which carries a piece count in the
-        // URL and nothing about packs. Pieces is the honest reading of that.
-        ordering: null,
+        quantity: cartons * piecesPerCarton,
+        ordering: {
+          unit: SELLING_UNIT,
+          unitQuantity: cartons,
+          piecesPerUnit: piecesPerCarton,
+        },
         name: found.name,
         sku: variant?.sku ?? found.sku,
         unitPrice: variant?.price ?? found.price,
@@ -341,7 +372,7 @@ export function ScheduleBuilderPage(): React.JSX.Element {
     setName((current) =>
       current === '' ? t('scheduleBuilder.repeatName', { product: found.name }) : current,
     );
-  }, [fromCart, cart.data, product.data, requestedQuantity, variantId, t]);
+  }, [fromCart, cart.data, product.data, requestedQuantity, variantId, piecesPerCarton, t]);
 
   const create = useMutation({
     mutationFn: () =>
@@ -368,8 +399,10 @@ export function ScheduleBuilderPage(): React.JSX.Element {
           variantId: item.variantId,
           quantity: item.quantity,
           // Shown back on every plan screen; never priced from. The server
-          // prices `quantity` and only `quantity` - see QuoteItemInput.
-          ...(item.ordering === null
+          // prices `quantity` and only `quantity` - see QuoteItemInput - and
+          // normalises all four figures to whole cartons before anything is
+          // written. See the item schema in `schedules.ts`.
+          ...(item.ordering === null || item.ordering.unit !== SELLING_UNIT
             ? {}
             : {
                 orderingUnit: item.ordering.unit,
@@ -519,30 +552,55 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                     </div>
                     {item.unitPrice !== null && (
                       <p className="text-sm tabular text-ink">
-                        {formatMoney(item.unitPrice)}
-                        <span className="text-xs text-ink-muted"> each</span>
+                        {formatMoneyMinor(
+                          cartonPriceMinor(item.unitPrice.minor, cartonSizeOf(item)),
+                          item.unitPrice.currency,
+                        )}
+                        <span className="text-xs text-ink-muted">
+                          {' '}
+                          {t('productCard.perCartonLabel')}
+                        </span>
                       </p>
                     )}
                   </div>
 
                   <div className="mt-2">
+                    {/* Cartons per delivery, not pieces. The quantity rules
+                        are written in pieces and the server applies them to
+                        the piece total; stepping the carton count by a piece
+                        increment would be a control nobody could use. */}
                     <QuantityInput
-                      value={item.quantity}
-                      label={t('scheduleBuilder.quantityPerDelivery')}
+                      value={cartonsPerDelivery(item)}
+                      label={t('scheduleBuilder.cartonsPerDelivery')}
                       rules={{
-                        minOrderQty: item.minOrderQty,
-                        maxOrderQty: item.maxOrderQty,
-                        qtyIncrement: item.qtyIncrement,
+                        minOrderQty: 1,
+                        maxOrderQty: null,
+                        qtyIncrement: 1,
                         isRecurringEligible: true,
                       }}
-                      onChange={(quantity) => {
+                      onChange={(cartons) => {
                         setItems((current) =>
-                          current.map((candidate, position) =>
-                            position === index ? { ...candidate, quantity } : candidate,
-                          ),
+                          current.map((candidate, position) => {
+                            if (position !== index) return candidate;
+                            const perCarton = cartonSizeOf(candidate);
+                            return {
+                              ...candidate,
+                              quantity: cartons * perCarton,
+                              ordering: {
+                                unit: SELLING_UNIT,
+                                unitQuantity: cartons,
+                                piecesPerUnit: perCarton,
+                              },
+                            };
+                          }),
                         );
                       }}
                     />
+                    <p className="mt-1 text-xxs tabular text-ink-subtle">
+                      {t('packaging.oneCartonHas', { n: formatNumber(cartonSizeOf(item)) })}
+                      {' · '}
+                      {t('cart.piecesTotal', { n: formatNumber(item.quantity) })}
+                    </p>
                   </div>
                 </li>
               ))}
@@ -1056,7 +1114,12 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                 <p className="mt-1 text-sm text-ink">
                   {items[0]?.unitPrice === null || items[0]?.unitPrice === undefined
                     ? t('scheduleBuilder.calculatedAtEachDelivery')
-                    : t('scheduleBuilder.perUnit', { amount: formatMoney(items[0].unitPrice) })}
+                    : t('scheduleBuilder.perUnit', {
+                        amount: formatMoneyMinor(
+                          cartonPriceMinor(items[0].unitPrice.minor, cartonSizeOf(items[0])),
+                          items[0].unitPrice.currency,
+                        ),
+                      })}
                 </p>
               ) : (
                 <p className="mt-1 text-lg font-semibold tabular text-ink">

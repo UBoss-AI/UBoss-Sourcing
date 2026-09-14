@@ -11,6 +11,7 @@ import { z } from 'zod';
 import { ErrorCode, forbidden, notFound } from '../../domain/errors.js';
 import { serialiseMoney } from '../../domain/money.js';
 import { Permission } from '../../domain/permissions.js';
+import { resolveOrderingQuantity } from '../../domain/ordering-unit.js';
 import { env } from '../../config/env.js';
 import { prisma } from '../../infra/prisma.js';
 import {
@@ -53,13 +54,14 @@ const itemSchema = z.object({
   /** Pieces. The figure `quoteSchedule` prices, and the only one it prices. */
   quantity: z.number().int().min(1).max(1_000_000),
   /**
-   * The unit the customer agreed the plan in, for showing back.
+   * The unit the customer agreed the plan in, for showing back. Cartons, and
+   * only cartons - see `domain/ordering-unit.ts`.
    *
    * Accepted but never priced from - see `QuoteItemInput`. A client that sent
    * a flattering conversion here would change what the plan screen says and
    * nothing about what is charged.
    */
-  orderingUnit: z.enum(['PIECE', 'INNER_PACK', 'OUTER_CARTON']).optional(),
+  orderingUnit: z.enum(['OUTER_CARTON']).optional(),
   unitQuantity: z.number().int().min(1).max(1_000_000).optional(),
   piecesPerUnitSnapshot: z.number().int().min(1).max(1_000_000).optional(),
   /**
@@ -71,6 +73,34 @@ const itemSchema = z.object({
    */
   substituteProductId: z.string().length(26).nullable().optional(),
   substituteVariantId: z.string().length(26).nullable().optional(),
+}).transform((item) => {
+  /**
+   * Whole cartons, decided here and nowhere else.
+   *
+   * At the edge rather than in the service because two things downstream read
+   * the same item: the review screen the customer confirms, and the row the
+   * worker charges them from weeks later. Rounding in one and not the other is
+   * how somebody is charged a figure nobody showed them.
+   *
+   * The client's own `piecesPerUnitSnapshot` is discarded rather than trusted.
+   * It only ever decided what the plan screen says, but a screen that says
+   * "2 cartons (4 pieces)" is a screen the customer stops believing.
+   */
+  const ordering = resolveOrderingQuantity({
+    unit: item.orderingUnit,
+    unitQuantity: item.unitQuantity,
+    pieces: item.quantity,
+    piecesPerCarton: env.PIECES_PER_CARTON,
+    field: 'items',
+  });
+
+  return {
+    ...item,
+    quantity: ordering.quantity,
+    orderingUnit: ordering.orderingUnit,
+    unitQuantity: ordering.unitQuantity,
+    piecesPerUnitSnapshot: ordering.piecesPerUnitSnapshot,
+  };
 });
 
 /**

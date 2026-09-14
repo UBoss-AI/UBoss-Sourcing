@@ -41,12 +41,15 @@ import { SearchIcon } from '@/components/icons';
 import { api } from '@/lib/api';
 import {
   currencySymbol,
-  formatMoney,
+  formatMoneyMinor,
   formatNumber,
   majorToMinor,
   minorToMajor,
 } from '@/lib/format';
+import { cartonPriceMinor, usePiecesPerCarton } from '@/lib/packaging';
 import { cx } from '@/lib/cx';
+import { CategoryCards } from '@/components/catalog/CategoryCards';
+import { findCategoryInTree, stockedCategories } from '@/lib/category-tree';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { CatalogFilterFacets, CategoryNode, ProductListResponse } from '@/lib/types';
 import { translateKey, useI18n } from '@/i18n/i18n-context';
@@ -192,9 +195,7 @@ function FacetGroup({
 
   const needle = term.trim().toLowerCase();
   const matching =
-    needle === ''
-      ? values
-      : values.filter((entry) => entry.value.toLowerCase().includes(needle));
+    needle === '' ? values : values.filter((entry) => entry.value.toLowerCase().includes(needle));
 
   // A ticked value always shows, however far down the list it sits. Otherwise
   // a filter that is doing something is invisible until the group is unfolded.
@@ -307,24 +308,7 @@ function CategoryBlock({
 
   if (tree === undefined) return null;
 
-  /** The node for a slug, and its parent, from one walk of the tree. */
-  const found = ((): { node: CategoryNode; parent: CategoryNode | null } | null => {
-    if (currentSlug === null) return null;
-
-    const walk = (
-      nodes: CategoryNode[],
-      parent: CategoryNode | null,
-    ): { node: CategoryNode; parent: CategoryNode | null } | null => {
-      for (const node of nodes) {
-        if (node.slug === currentSlug) return { node, parent };
-        const hit = walk(node.children, node);
-        if (hit !== null) return hit;
-      }
-      return null;
-    };
-
-    return walk(tree, null);
-  })();
+  const found = findCategoryInTree(tree, currentSlug);
 
   // A slug that is not in the tree is a stale link. The listing already
   // handles that as an empty result rather than an error, so this simply falls
@@ -378,7 +362,7 @@ function CategoryBlock({
                 {/* The count is the operator's own number, so a department
                     with nothing published in it says so before it is opened. */}
                 <span className="shrink-0 text-xxs tabular text-ink-subtle">
-                  {formatNumber(child.productCount)}
+                  {formatNumber(child.totalProductCount)}
                 </span>
               </Link>
             </li>
@@ -423,18 +407,31 @@ function FilterFields({
   const maxMinor = searchParams.get('maxPrice');
   const queryTerm = searchParams.get('q') ?? '';
 
+  /**
+   * The shopper types carton prices; the API filters on piece prices.
+   *
+   * Every other figure on this page is what a carton costs, so a filter that
+   * quietly meant "per piece" would return an empty grid for any number a
+   * shopper actually typed. The URL parameter stays in piece minor units - it
+   * is the API's own contract and a bookmarked link has to keep working - and
+   * the conversion happens on the way in and on the way out, here.
+   */
+  const piecesPerCarton = usePiecesPerCarton();
+  const toCarton = (pieceMinor: string): string =>
+    cartonPriceMinor(pieceMinor, piecesPerCarton);
+
   // Local, so typing stays responsive; committed to the URL on submit.
-  const [minText, setMinText] = useState(minMinor === null ? '' : minorToMajor(minMinor));
-  const [maxText, setMaxText] = useState(maxMinor === null ? '' : minorToMajor(maxMinor));
+  const [minText, setMinText] = useState(minMinor === null ? '' : minorToMajor(toCarton(minMinor)));
+  const [maxText, setMaxText] = useState(maxMinor === null ? '' : minorToMajor(toCarton(maxMinor)));
   const [priceError, setPriceError] = useState<string | null>(null);
   const [termText, setTermText] = useState(queryTerm);
 
   // Keep the boxes in step with the URL, so Back, Clear all or a removed chip
   // resets them too.
   useEffect(() => {
-    setMinText(minMinor === null ? '' : minorToMajor(minMinor));
-    setMaxText(maxMinor === null ? '' : minorToMajor(maxMinor));
-  }, [minMinor, maxMinor]);
+    setMinText(minMinor === null ? '' : minorToMajor(cartonPriceMinor(minMinor, piecesPerCarton)));
+    setMaxText(maxMinor === null ? '' : minorToMajor(cartonPriceMinor(maxMinor, piecesPerCarton)));
+  }, [minMinor, maxMinor, piecesPerCarton]);
 
   useEffect(() => {
     setTermText(queryTerm);
@@ -465,7 +462,24 @@ function FilterFields({
       return;
     }
 
-    setParam({ minPrice: min, maxPrice: max });
+    /*
+     * Carton prices back down to the piece prices the API filters on.
+     *
+     * The two bounds round in opposite directions, and both outwards: a floor
+     * of £500 a carton keeps every product whose carton could cost £500, and
+     * a ceiling of £500 keeps every product whose carton could cost £500. A
+     * bound rounded the other way would hide a product that sits exactly on
+     * the number the shopper typed.
+     */
+    const perCarton = BigInt(Math.max(1, piecesPerCarton));
+    const floorDiv = (minor: string): string => (BigInt(minor) / perCarton).toString();
+    const ceilDiv = (minor: string): string =>
+      ((BigInt(minor) + perCarton - 1n) / perCarton).toString();
+
+    setParam({
+      minPrice: min === null ? null : ceilDiv(min),
+      maxPrice: max === null ? null : floorDiv(max),
+    });
   };
 
   const toggleAttr = (name: string, value: string, checked: boolean): void => {
@@ -594,8 +608,8 @@ function FilterFields({
           {range?.min != null && range.max != null && (
             <p className="mt-2 text-xs text-ink-muted">
               {t('catalog.priceRangeHint', {
-                min: formatMoney(range.min),
-                max: formatMoney(range.max),
+                min: formatMoneyMinor(toCarton(range.min.minor), range.min.currency),
+                max: formatMoneyMinor(toCarton(range.max.minor), range.max.currency),
               })}
             </p>
           )}
@@ -944,6 +958,26 @@ export function CatalogPage(): React.JSX.Element {
 
   const categoryName = categoryDetail.data?.category.name ?? null;
 
+  /*
+   * The shelves inside this department.
+   *
+   * A department filed above two dozen sub-categories is a page whose most
+   * useful control is not a filter but a picture of what is in it — the same
+   * cards the front page shows, one level down. The sidebar lists the same
+   * names, and deliberately: the list is the compact way to jump between them
+   * once you are deep in the results, and this is the way in.
+   *
+   * Not on a search result. "Insulin Syringe" is not inside "cannula 24g", and
+   * a band of departments above the matches would be answering a question
+   * nobody asked.
+   */
+  const subCategories =
+    q !== ''
+      ? []
+      : stockedCategories(
+          findCategoryInTree(categoryTree.data?.categories, category)?.node.children ?? [],
+        );
+
   const heading =
     q !== ''
       ? t('catalog.resultsFor', { query: q })
@@ -953,7 +987,11 @@ export function CatalogPage(): React.JSX.Element {
   // department are not the same thing arrived at the same way, and the
   // eyebrow is cheaper than saying so in the heading.
   const eyebrow =
-    q !== '' ? t('common.search') : categoryName === null ? t('catalog.catalogue') : t('catalog.category');
+    q !== ''
+      ? t('common.search')
+      : categoryName === null
+        ? t('catalog.catalogue')
+        : t('catalog.category');
 
   useDocumentMeta(
     {
@@ -1204,6 +1242,18 @@ export function CatalogPage(): React.JSX.Element {
         </div>
       </header>
 
+      {subCategories.length > 0 && (
+        <section aria-labelledby="what-is-inside" className="mb-6">
+          <h2
+            id="what-is-inside"
+            className="mb-3 text-xxs font-semibold uppercase tracking-[0.14em] text-ink-subtle"
+          >
+            {t('catalog.whatIsInside')}
+          </h2>
+          <CategoryCards categories={subCategories} />
+        </section>
+      )}
+
       {/*
        * The toolbar.
        *
@@ -1252,13 +1302,13 @@ export function CatalogPage(): React.JSX.Element {
           </div>
 
           {/*
-            * Left-aligned, and on its own line when there are chips.
-            *
-            * Right-aligned it left a wide empty band across the strip on
-            * every visit with no filters applied, which is most of them. Read
-            * from the left it works like a row of column headings, which is
-            * what choosing an order is.
-            */}
+           * Left-aligned, and on its own line when there are chips.
+           *
+           * Right-aligned it left a wide empty band across the strip on
+           * every visit with no filters applied, which is most of them. Read
+           * from the left it works like a row of column headings, which is
+           * what choosing an order is.
+           */}
           <div className="w-full min-w-0 lg:w-auto">{sortControl}</div>
         </div>
       </div>
@@ -1399,14 +1449,14 @@ export function CatalogPage(): React.JSX.Element {
           {products.data !== undefined && products.data.products.length > 0 && (
             <>
               {/*
-                * One bordered sheet with hairlines between the rows, rather
-                * than a card per product.
-                *
-                * A department is a list you read down, and forty separate
-                * cards each with their own border and shadow is forty edges
-                * competing with the one boundary that matters — where one
-                * product stops and the next begins.
-                */}
+               * One bordered sheet with hairlines between the rows, rather
+               * than a card per product.
+               *
+               * A department is a list you read down, and forty separate
+               * cards each with their own border and shadow is forty edges
+               * competing with the one boundary that matters — where one
+               * product stops and the next begins.
+               */}
               <ul className="divide-y divide-border-subtle overflow-hidden rounded-lg border border-border bg-surface shadow-card">
                 {products.data.products.map((product) => (
                   <li key={product.id}>

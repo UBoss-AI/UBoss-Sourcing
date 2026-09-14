@@ -164,7 +164,10 @@ describe('ProductPage', () => {
     // panel above can print only one figure and cannot be that row's price
     // once a second option is chosen; and once in the panel, because one
     // option chosen is still one price.
-    expect(screen.getAllByText('₹199.00')).toHaveLength(2);
+    //
+    // The carton's price, not the piece's: ₹199.00 × 500. Every figure on
+    // this page is the price of the thing that can actually be bought.
+    expect(screen.getAllByText('₹99500.00')).toHaveLength(2);
     expect(screen.getByText('Price shown for 5 Litre.')).toBeInTheDocument();
   });
 
@@ -252,12 +255,24 @@ describe('ProductPage', () => {
     const sent = JSON.parse(bodies[0] ?? '{}') as {
       items: { variantId: string; quantity: number; orderingUnit: string }[];
     };
-    // `orderingUnit` rides along on every line now. PIECE is what a product
-    // with no recorded packing is counted in, and the quantity is unchanged by
-    // it — which is the point: pack ordering added a field, not a conversion.
+    // Cartons, and the pieces they come to. The quantity boxes count the
+    // thing that is for sale, and the piece count travels beside it for the
+    // warehouse — the server recomputes it from its own setting either way.
     expect(sent.items).toEqual([
-      { productId: 'product-1', variantId: 'v1', quantity: 10, orderingUnit: 'PIECE' },
-      { productId: 'product-1', variantId: 'v2', quantity: 15, orderingUnit: 'PIECE' },
+      {
+        productId: 'product-1',
+        variantId: 'v1',
+        quantity: 5000,
+        orderingUnit: 'OUTER_CARTON',
+        unitQuantity: 10,
+      },
+      {
+        productId: 'product-1',
+        variantId: 'v2',
+        quantity: 7500,
+        orderingUnit: 'OUTER_CARTON',
+        unitQuantity: 15,
+      },
     ]);
   });
 
@@ -284,16 +299,18 @@ describe('ProductPage', () => {
     await user.click(await screen.findByRole('button', { name: /1 Litre/ }));
     await user.click(screen.getByRole('button', { name: /5 Litre/ }));
 
-    expect(screen.getByText('₹45.50 to ₹199.00')).toBeInTheDocument();
+    // Both ends of the band are carton prices: ₹45.50 × 500 and ₹199.00 × 500.
+    expect(screen.getByText('₹22750.00 to ₹99500.00')).toBeInTheDocument();
     expect(
       screen.getByText('The lowest and the highest of the 2 options you chose.'),
     ).toBeInTheDocument();
 
-    // ₹45.50 + ₹199.00, or either of them times its quantity. This page has no
-    // pricing engine and must never grow one: the cart is where a total is
-    // worked out, and a second answer here is a second answer that can differ.
-    expect(screen.queryByText('₹244.50')).not.toBeInTheDocument();
-    expect(screen.queryByText('₹3,440.00')).not.toBeInTheDocument();
+    // The two added together, or either of them times its quantity. This page
+    // has no pricing engine and must never grow one: the cart is where a total
+    // is worked out, and a second answer here is a second answer that can
+    // differ.
+    expect(screen.queryByText('₹122250.00')).not.toBeInTheDocument();
+    expect(screen.queryByText('₹1720000.00')).not.toBeInTheDocument();
   });
 
   it('offers a repeat purchase for one chosen option, and says why not for two', async () => {
@@ -302,9 +319,11 @@ describe('ProductPage', () => {
     renderProduct(twoOptions(), { recurring: true });
 
     await user.click(await screen.findByRole('button', { name: /1 Litre/ }));
+    // Pieces in the link, because that is what the builder prices — ten
+    // cartons of 500. The builder shows it back as cartons.
     expect(screen.getByRole('link', { name: /schedule your cart/i })).toHaveAttribute(
       'href',
-      '/schedules/new?productId=product-1&quantity=10&variantId=v1',
+      '/schedules/new?productId=product-1&quantity=5000&variantId=v1',
     );
 
     await user.click(screen.getByRole('button', { name: /5 Litre/ }));
@@ -346,7 +365,9 @@ describe('ProductPage', () => {
     });
 
     expect(bodies[0]).toContain('"variantId":"v2"');
-    expect(bodies[0]).toContain('"quantity":10');
+    // Ten cartons of 500, sent as both.
+    expect(bodies[0]).toContain('"unitQuantity":10');
+    expect(bodies[0]).toContain('"quantity":5000');
   });
 
   it('shows the server’s refusal verbatim when an add is rejected', async () => {

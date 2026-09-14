@@ -1,18 +1,17 @@
 /**
- * The product page, for a catalogue sold by the box.
+ * The product page, for a catalogue sold by the carton.
  *
  * Three things are pinned here, and each one is a way a wholesale order goes
  * wrong quietly.
  *
- *   **The conversion.** Two cartons of something boxed 100 × 20 is four
- *   thousand pieces, and the page has to say so before the customer commits —
- *   a "2" that means two to them and four thousand to the warehouse is the
- *   whole failure mode.
+ *   **The conversion.** Two cartons is a thousand pieces, and the page has to
+ *   say so before the customer commits — a "2" that means two to them and a
+ *   thousand to the warehouse is the whole failure mode.
  *
- *   **The unit that is not offered.** A product whose carton quantity nobody
- *   recorded must not offer a carton, and one whose figures contradicted each
- *   other must not offer anything but pieces. Offering a conversion that has
- *   to be refused at the basket wastes the customer's time at the worst moment.
+ *   **The unit that is not offered.** There is no unit picker, because there
+ *   is no choice: pieces and inner boxes cannot be bought. A control offering
+ *   one option reads as broken, and a page that let somebody pick pieces would
+ *   be offering something the basket has to refuse.
  *
  *   **The price that is not a price.** A product quoted per account shows an
  *   invitation, never a number and never a zero, and its buy button is
@@ -38,19 +37,19 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-/** 100 to a box, 20 boxes to a carton — the commonest shape in the source. */
+/** The carton this shop sells, and the one every figure below counts in. */
+const PER_CARTON = 500;
+
+/**
+ * What the server still sends about packing: no quantities.
+ *
+ * The piece counts were removed from the public shape on purpose — the
+ * supplier's "2,000 to a carton" and this shop's carton of 500 cannot both be
+ * true on one page. See `packaging.service.ts`.
+ */
 function packing(overrides: Partial<ProductPackaging> = {}): ProductPackaging {
   return {
     packingType: 'Blister Pack',
-    sourceText: '100Pcs x 20Box=2000Pcs',
-    piecesPerInnerPack: 100,
-    innerPacksPerOuterCarton: 20,
-    piecesPerOuterCarton: 2000,
-    innerPackType: 'Box',
-    outerPackType: 'Carton',
-    formula: '100 pieces × 20 boxes = 2,000 pieces',
-    isReliable: true,
-    parseStatus: 'PARSED',
     dimensions: [
       {
         kind: 'OUTER_CARTON',
@@ -94,26 +93,33 @@ const simpleRules = {
 };
 
 describe('packaging on the product page', () => {
-  it('states the conversion as one sentence', async () => {
+  it('states the carton as one sentence', async () => {
     renderProduct(makeProduct({ purchaseRules: simpleRules, packaging: packing() }));
 
     const formula = await screen.findByTestId('packing-formula');
-    // Built on the server, so this sentence and the basket's arithmetic come
-    // from one place. Asserting the text is asserting that nothing in the
-    // browser recomputed it.
-    expect(formula).toHaveTextContent('100 pieces × 20 boxes = 2,000 pieces');
+    expect(formula).toHaveTextContent('One carton has 500 pieces');
   });
 
-  it('breaks the carton down without confusing it with the box', async () => {
+  it('says how it is sold and what a carton holds', async () => {
     renderProduct(makeProduct({ purchaseRules: simpleRules, packaging: packing() }));
 
     const section = await screen.findByRole('region', { name: /packaging and ordering/i });
-    expect(within(section).getByText('Pieces per box')).toBeInTheDocument();
-    expect(within(section).getByText('Box per carton')).toBeInTheDocument();
+    expect(within(section).getByText('Sold in')).toBeInTheDocument();
     expect(within(section).getByText('Pieces per carton')).toBeInTheDocument();
+    // The supplier's own inner-box counts are gone. Two carton sizes on one
+    // page is a buyer working out which their order was priced at.
+    expect(within(section).queryByText('Pieces per box')).not.toBeInTheDocument();
   });
 
-  it('says packing is not a minimum, because a B2B buyer will assume it is', async () => {
+  it('offers no unit to choose, because there is only one', async () => {
+    renderProduct(makeProduct({ purchaseRules: simpleRules, packaging: packing() }));
+
+    await screen.findByRole('region', { name: /packaging and ordering/i });
+    expect(screen.queryByRole('radiogroup')).not.toBeInTheDocument();
+    expect(screen.getByText(/ordered by the carton/i)).toBeInTheDocument();
+  });
+
+  it('says a carton is not a minimum, because a B2B buyer will assume it is', async () => {
     renderProduct(makeProduct({ purchaseRules: simpleRules, packaging: packing() }));
 
     expect(await screen.findByText(/not a minimum order/i)).toBeInTheDocument();
@@ -123,26 +129,22 @@ describe('packaging on the product page', () => {
     const user = userEvent.setup();
     renderProduct(makeProduct({ purchaseRules: simpleRules, packaging: packing() }));
 
-    await user.click(await screen.findByRole('radio', { name: /carton/i }));
-
-    const quantity = screen.getByRole('spinbutton');
+    const quantity = await screen.findByRole('spinbutton');
     await user.clear(quantity);
     await user.type(quantity, '2');
 
     // The number the warehouse will pick, said out loud on the page the
-    // decision is made on. The whole sentence, because "4,000 pieces" also
+    // decision is made on. The whole sentence, because "1,000 pieces" also
     // appears in the ready-reckoner two sections down — and that one is a
     // table of what-ifs rather than a statement about this order.
-    expect(await screen.findByText('That comes to 4,000 pieces.')).toBeInTheDocument();
+    expect(await screen.findByText('That comes to 1,000 pieces.')).toBeInTheDocument();
   });
 
   it('sends the unit and the count, and lets the server do the conversion', async () => {
     const user = userEvent.setup();
     renderProduct(makeProduct({ purchaseRules: simpleRules, packaging: packing() }));
 
-    await user.click(await screen.findByRole('radio', { name: /carton/i }));
-
-    const quantity = screen.getByRole('spinbutton');
+    const quantity = await screen.findByRole('spinbutton');
     await user.clear(quantity);
     await user.type(quantity, '2');
     await user.click(screen.getByRole('button', { name: /add to cart/i }));
@@ -156,43 +158,10 @@ describe('packaging on the product page', () => {
     };
 
     expect(sent.items[0]).toMatchObject({ orderingUnit: 'OUTER_CARTON', unitQuantity: 2 });
-    // The pieces go too, but the server recomputes them from its own packing
-    // row — a browser that got this wrong cannot buy anything at the wrong
-    // price. See cart.service.ts.
-    expect(sent.items[0]?.quantity).toBe(4000);
-  });
-
-  it('does not offer a carton it cannot convert', async () => {
-    renderProduct(
-      makeProduct({
-        purchaseRules: simpleRules,
-        packaging: packing({
-          piecesPerInnerPack: 100,
-          innerPacksPerOuterCarton: null,
-          piecesPerOuterCarton: null,
-          formula: null,
-        }),
-      }),
-    );
-
-    await screen.findByRole('region', { name: /packaging and ordering/i });
-    expect(screen.queryByRole('radio', { name: /carton/i })).not.toBeInTheDocument();
-    expect(screen.getByRole('radio', { name: /box/i })).toBeInTheDocument();
-  });
-
-  it('offers pieces only where the supplier’s own figures disagreed', async () => {
-    renderProduct(
-      makeProduct({
-        purchaseRules: simpleRules,
-        packaging: packing({ isReliable: false, parseStatus: 'NEEDS_REVIEW' }),
-      }),
-    );
-
-    // No unit control at all: pieces is the only thing left, and a radio group
-    // with one option reads as broken rather than as simple.
-    await screen.findByRole('region', { name: /packaging and ordering/i });
-    expect(screen.queryByRole('radiogroup')).not.toBeInTheDocument();
-    expect(screen.getByText(/do not multiply out/i)).toBeInTheDocument();
+    // The pieces go too, but the server recomputes them from its own setting —
+    // a browser that got this wrong cannot buy anything at the wrong price.
+    // See cart.service.ts.
+    expect(sent.items[0]?.quantity).toBe(2 * PER_CARTON);
   });
 
   it('shows a size as written where the source stated no unit', async () => {
@@ -205,8 +174,8 @@ describe('packaging on the product page', () => {
   });
 });
 
-describe('the price follows the unit being counted', () => {
-  /** ₹12.50 a piece, 100 to a box, 20 boxes to a carton. */
+describe('the price is the price of a carton', () => {
+  /** ₹12.50 a piece, 500 to the carton. */
   function pricedProduct(): Product {
     return makeProduct({
       purchaseRules: simpleRules,
@@ -217,46 +186,24 @@ describe('the price follows the unit being counted', () => {
     });
   }
 
-  it('prices a piece when pieces are what is being counted', async () => {
+  it('prices the carton, not the piece', async () => {
     renderProduct(pricedProduct());
-    expect(await screen.findByText('₹12.50')).toBeInTheDocument();
+
+    // 12.50 × 500. Done on BigInt minor units, never on a float.
+    expect(await screen.findByText('₹6250.00')).toBeInTheDocument();
+    // The piece price is never the headline, but it stays on screen so a
+    // buyer can check the arithmetic that produced the figure above it.
+    expect(screen.getByText(/per carton of 500 pieces · ₹12\.50 per piece/i)).toBeInTheDocument();
   });
 
-  it('prices a box when the buyer switches to boxes', async () => {
-    const user = userEvent.setup();
+  it('never shows the piece price as the headline figure', async () => {
     renderProduct(pricedProduct());
 
-    await user.click(await screen.findByRole('radio', { name: /box/i }));
-
-    // 12.50 x 100. The buyer is thinking in boxes, so the headline figure is
-    // what a box costs - and the per-piece price stays on screen beside it so
-    // neither number can be mistaken for the other.
-    expect(await screen.findByText('₹1250.00')).toBeInTheDocument();
-    expect(screen.getByText(/per box of 100 · ₹12\.50 per piece/i)).toBeInTheDocument();
-  });
-
-  it('prices a carton when the buyer switches to cartons', async () => {
-    const user = userEvent.setup();
-    renderProduct(pricedProduct());
-
-    await user.click(await screen.findByRole('radio', { name: /carton/i }));
-
-    // 12.50 x 2,000. Done on BigInt minor units, never on a float.
-    expect(await screen.findByText('₹25000.00')).toBeInTheDocument();
-    expect(screen.getByText(/per carton of 2,000/i)).toBeInTheDocument();
-  });
-
-  it('says nothing extra while counting in pieces', async () => {
-    renderProduct(pricedProduct());
-
-    await screen.findByText('₹12.50');
-    // "per piece of 1 · ₹12.50 per piece" would be noise on the one line of
-    // the page nobody may misread.
-    expect(screen.queryByText(/per piece$/i)).not.toBeInTheDocument();
+    await screen.findByText('₹6250.00');
+    expect(screen.queryByText('₹12.50')).not.toBeInTheDocument();
   });
 
   it('scales the strike-through by the same factor as the price', async () => {
-    const user = userEvent.setup();
     renderProduct(
       makeProduct({
         purchaseRules: simpleRules,
@@ -268,12 +215,10 @@ describe('the price follows the unit being counted', () => {
       }),
     );
 
-    await user.click(await screen.findByRole('radio', { name: /box/i }));
-
-    // Both sides multiplied by 100: a fifth off a piece is a fifth off a box.
-    // Scaling only one of them would invent a saving that was never offered.
-    expect(await screen.findByText('₹1250.00')).toBeInTheDocument();
-    expect(screen.getByText('₹1500.00')).toBeInTheDocument();
+    // Both sides multiplied by 500: a sixth off a piece is a sixth off a
+    // carton. Scaling only one would invent a saving nobody offered.
+    expect(await screen.findByText('₹6250.00')).toBeInTheDocument();
+    expect(screen.getByText('₹7500.00')).toBeInTheDocument();
   });
 });
 

@@ -241,6 +241,23 @@ export function registerCustomerOrderRoutes(app: FastifyInstance): Promise<void>
           variantName: item.variantNameSnapshot,
           imageUrl: item.imageUrlSnapshot,
           quantity: item.quantity,
+          /**
+           * What the buyer actually ordered, in the unit they ordered it in.
+           *
+           * The quantity beside it is pieces, which is what the warehouse
+           * picks and what the price is per. Both are sent because an order
+           * that says "1,000 × 12.50" to somebody who bought two cartons is a
+           * dispute nobody can settle, and one that says only "2 cartons"
+           * cannot be checked against the total.
+           *
+           * Read off the line's own snapshot, so an order placed when a
+           * carton held a different number still describes itself correctly.
+           */
+          ordering: {
+            unit: item.orderingUnit,
+            unitQuantity: item.unitQuantity,
+            piecesPerUnit: item.piecesPerUnitSnapshot,
+          },
           unitPrice: serialiseMoney(item.unitPriceMinor, order.currency),
           lineSubtotal: serialiseMoney(item.lineSubtotalMinor, order.currency),
           tax: serialiseMoney(item.taxAmountMinor, order.currency),
@@ -423,6 +440,13 @@ export function registerAdminOrderRoutes(app: FastifyInstance): Promise<void> {
             sku: item.skuSnapshot,
             variantName: item.variantNameSnapshot,
             quantity: item.quantity,
+            // Pieces above, cartons here. Staff answering a query about an
+            // order are reading the same two numbers the customer is.
+            ordering: {
+              unit: item.orderingUnit,
+              unitQuantity: item.unitQuantity,
+              piecesPerUnit: item.piecesPerUnitSnapshot,
+            },
             unitPrice: serialiseMoney(item.unitPriceMinor, order.currency),
             lineSubtotal: serialiseMoney(item.lineSubtotalMinor, order.currency),
             tax: serialiseMoney(item.taxAmountMinor, order.currency),

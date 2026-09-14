@@ -31,6 +31,7 @@
 import { env } from '../../config/env.js';
 import { ErrorCode } from '../../domain/errors.js';
 import { serialiseMoney, type Minor } from '../../domain/money.js';
+import { SELLING_UNIT, cartonsForPieces, type OrderingUnit } from '../../domain/ordering-unit.js';
 import {
   assertTotalsConsistent,
   priceLines,
@@ -107,7 +108,7 @@ export interface QuoteLine {
    * was agreed was a number of pieces, and the stand-in delivers that number
    * however its own boxes happen to be sized.
    */
-  ordering: { unit: 'PIECE' | 'INNER_PACK' | 'OUTER_CARTON'; unitQuantity: number; piecesPerUnit: number };
+  ordering: { unit: OrderingUnit; unitQuantity: number; piecesPerUnit: number };
   /** Set when this line is being filled by the customer's saved substitute. */
   substitutedFor: { productId: string; name: string } | null;
 }
@@ -151,7 +152,7 @@ export interface QuoteItemInput {
    * reads as three cartons on every screen and in the consent snapshot, rather
    * than as the six thousand pieces it works out to.
    */
-  orderingUnit?: 'PIECE' | 'INNER_PACK' | 'OUTER_CARTON' | null;
+  orderingUnit?: OrderingUnit | null;
   unitQuantity?: number | null;
   piecesPerUnitSnapshot?: number | null;
   /** The customer's saved stand-in for this line, when they named one. */
@@ -439,14 +440,15 @@ export async function quoteSchedule(input: QuoteScheduleInput): Promise<Schedule
   }
 
   // Keyed on the SKU the customer put on the plan, so a substituted line finds
-  // the ordering of the line it replaced rather than falling back to pieces.
+  // the ordering of the line it replaced rather than falling back to a guess.
   const orderingByKey = new Map(
     input.items.map((item) => [
       `${item.productId}:${item.variantId ?? ''}`,
       {
-        unit: item.orderingUnit ?? ('PIECE' as const),
-        unitQuantity: item.unitQuantity ?? item.quantity,
-        piecesPerUnit: item.piecesPerUnitSnapshot ?? 1,
+        unit: item.orderingUnit ?? SELLING_UNIT,
+        unitQuantity:
+          item.unitQuantity ?? cartonsForPieces(item.quantity, env.PIECES_PER_CARTON),
+        piecesPerUnit: item.piecesPerUnitSnapshot ?? env.PIECES_PER_CARTON,
       },
     ]),
   );
@@ -472,9 +474,9 @@ export async function quoteSchedule(input: QuoteScheduleInput): Promise<Schedule
         `${lineMeta[index]?.substitutedFor?.productId ?? priced.productId}:${priced.variantId ?? ''}`,
       ) ??
       orderingByKey.get(`${priced.productId}:${priced.variantId ?? ''}`) ?? {
-        unit: 'PIECE' as const,
-        unitQuantity: priced.quantity,
-        piecesPerUnit: 1,
+        unit: SELLING_UNIT,
+        unitQuantity: cartonsForPieces(priced.quantity, env.PIECES_PER_CARTON),
+        piecesPerUnit: env.PIECES_PER_CARTON,
       },
     substitutedFor: lineMeta[index]?.substitutedFor ?? null,
   }));

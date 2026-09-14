@@ -52,7 +52,8 @@ import { AlertIcon, PlusIcon, TrashIcon } from '@/components/icons';
 import { api } from '@/lib/api';
 import { cx } from '@/lib/cx';
 import { errorMessage } from '@/lib/errors';
-import { formatDateTime, formatMoney, formatNumber } from '@/lib/format';
+import { formatDateTime, formatMoney, formatMoneyMinor, formatNumber } from '@/lib/format';
+import { cartonPriceMinor, usePiecesPerCarton } from '@/lib/packaging';
 import { clampToRules } from '@/lib/quantity-rules';
 import { scheduleStatusLabel, scheduleStatusTone } from '@/lib/order-status';
 import { cadenceDraftFrom, isSameCadence, recurrencePayload } from '@/lib/schedule-cadence';
@@ -146,6 +147,7 @@ function lockReason(schedule: Schedule): 'cancelled' | 'completed' | 'cutoff' | 
 
 export function ScheduleEditor({ scheduleId }: { scheduleId: string }): React.JSX.Element {
   const { t } = useI18n();
+  const piecesPerCarton = usePiecesPerCarton();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const toast = useToast();
@@ -325,8 +327,20 @@ export function ScheduleEditor({ scheduleId }: { scheduleId: string }): React.JS
     (address) => address.archivedAt === null,
   );
 
-  const setItem = (index: number, quantity: number): void => {
-    setItems(currentItems.map((item, at) => (at === index ? { ...item, quantity } : item)));
+  /**
+   * A line's quantity, set in cartons.
+   *
+   * The draft holds pieces, because that is what the server prices and what
+   * every estimate below is worked out from. The control counts cartons,
+   * because that is the only thing this shop sells - and the two are one
+   * multiplication apart, done here so nothing else has to know.
+   */
+  const setItemCartons = (index: number, cartons: number): void => {
+    setItems(
+      currentItems.map((item, at) =>
+        at === index ? { ...item, quantity: cartons * piecesPerCarton } : item,
+      ),
+    );
     setSaveError(null);
   };
 
@@ -348,10 +362,12 @@ export function ScheduleEditor({ scheduleId }: { scheduleId: string }): React.JS
       {
         productId: picked.productId,
         variantId: null,
-        // The smallest legal quantity, not one: a product sold in tens starts
-        // at ten, and clamping to the increment is what stops a minimum of 10
-        // with a step of 4 producing a number the server would only flag.
-        quantity: clampToRules(picked.minOrderQty, rules),
+        // One carton, or as many as the product's minimum needs. The minimum
+        // is written in pieces and the shop ships whole cartons, so a minimum
+        // that lands mid-carton takes the whole carton above it.
+        quantity:
+          Math.max(1, Math.ceil(clampToRules(picked.minOrderQty, rules) / piecesPerCarton)) *
+          piecesPerCarton,
         name: picked.name,
         sku: picked.sku,
         slug: picked.slug,
@@ -539,8 +555,15 @@ export function ScheduleEditor({ scheduleId }: { scheduleId: string }): React.JS
 
                     {priced !== undefined && (
                       <p className="mt-1 text-xs text-ink-muted">
+                        {/* The carton price, like every other price a
+                            customer is shown. The estimate quotes a piece,
+                            which is what the plan is worked out from and
+                            nothing anybody can order. */}
                         {t('scheduleCart.unitPrice', {
-                          price: formatMoney(priced.unitPrice),
+                          price: formatMoneyMinor(
+                            cartonPriceMinor(priced.unitPrice.minor, piecesPerCarton),
+                            priced.unitPrice.currency,
+                          ),
                         })}
                         <span className="mx-1.5 text-ink-subtle">·</span>
                         <span className="tabular text-ink">{formatMoney(priced.lineTotal)}</span>
@@ -559,8 +582,16 @@ export function ScheduleEditor({ scheduleId }: { scheduleId: string }): React.JS
 
                   <div className="flex shrink-0 items-end gap-2">
                     <QuantityInput
-                      value={item.quantity}
-                      rules={item.rules}
+                      value={Math.max(1, Math.ceil(item.quantity / piecesPerCarton))}
+                      // Cartons have no minimum or increment of their own:
+                      // those rules are written in pieces and the server
+                      // applies them to the piece total.
+                      rules={{
+                        minOrderQty: 1,
+                        maxOrderQty: null,
+                        qtyIncrement: 1,
+                        isRecurringEligible: true,
+                      }}
                       disabled={isReadOnly}
                       ruleHint={false}
                       /*
@@ -571,10 +602,10 @@ export function ScheduleEditor({ scheduleId }: { scheduleId: string }): React.JS
                        * block and squeezed the product's own column to one
                        * word per line.
                        */
-                      label={t('cart.quantity')}
+                      label={t('cart.cartons')}
                       itemName={lineName}
-                      onChange={(quantity) => {
-                        setItem(index, quantity);
+                      onChange={(cartons) => {
+                        setItemCartons(index, cartons);
                       }}
                     />
 

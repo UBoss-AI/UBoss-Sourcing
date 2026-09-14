@@ -29,6 +29,7 @@ import type { Prisma } from '../../generated/prisma/client.js';
 import { env } from '../../config/env.js';
 import { todayIn } from '../../domain/delivery-dates.js';
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
+import { SELLING_UNIT, cartonsForPieces, type OrderingUnit } from '../../domain/ordering-unit.js';
 import {
   describeRule,
   isRepeating,
@@ -77,12 +78,12 @@ export interface ScheduleItemInput {
    * The unit the customer agreed the plan in, and the conversion at that
    * moment.
    *
-   * Absent means pieces, which is what every caller written before pack
-   * ordering sent. Snapshotted rather than looked up at charge time: somebody
-   * who agreed to three cartons a month must keep receiving three cartons even
-   * if the carton is re-specified in between.
+   * Absent means the route did not normalise them, which only happens for a
+   * caller inside the server. Snapshotted rather than looked up at charge
+   * time: somebody who agreed to three cartons a month must keep receiving
+   * three cartons even if the carton is re-specified in between.
    */
-  orderingUnit?: 'PIECE' | 'INNER_PACK' | 'OUTER_CARTON' | null;
+  orderingUnit?: OrderingUnit | null;
   unitQuantity?: number | null;
   piecesPerUnitSnapshot?: number | null;
   /** The one product the customer authorises as a stand-in for this line. */
@@ -518,9 +519,10 @@ export async function createSchedule(
             // in. The pieces are what `quoteSchedule` prices; these are what
             // the plan screen shows back, and they must not drift apart when
             // the packing is corrected months from now.
-            orderingUnit: item.orderingUnit ?? 'PIECE',
-            unitQuantity: item.unitQuantity ?? item.quantity,
-            piecesPerUnitSnapshot: item.piecesPerUnitSnapshot ?? 1,
+            orderingUnit: item.orderingUnit ?? SELLING_UNIT,
+            unitQuantity:
+              item.unitQuantity ?? cartonsForPieces(item.quantity, env.PIECES_PER_CARTON),
+            piecesPerUnitSnapshot: item.piecesPerUnitSnapshot ?? env.PIECES_PER_CARTON,
             substituteProductId: item.substituteProductId ?? null,
             substituteVariantId: item.substituteVariantId ?? null,
             substituteVariantKey: variantKeyOf(item.substituteVariantId ?? null),
@@ -1775,9 +1777,10 @@ export async function updateSchedule(
           variantId: item.variantId ?? null,
           variantKey: variantKeyOf(item.variantId ?? null),
           quantity: item.quantity,
-          orderingUnit: item.orderingUnit ?? 'PIECE',
-          unitQuantity: item.unitQuantity ?? item.quantity,
-          piecesPerUnitSnapshot: item.piecesPerUnitSnapshot ?? 1,
+          orderingUnit: item.orderingUnit ?? SELLING_UNIT,
+          unitQuantity:
+            item.unitQuantity ?? cartonsForPieces(item.quantity, env.PIECES_PER_CARTON),
+          piecesPerUnitSnapshot: item.piecesPerUnitSnapshot ?? env.PIECES_PER_CARTON,
           substituteProductId: item.substituteProductId ?? null,
           substituteVariantId: item.substituteVariantId ?? null,
           substituteVariantKey: variantKeyOf(item.substituteVariantId ?? null),

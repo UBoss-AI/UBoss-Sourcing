@@ -26,6 +26,7 @@ interface ConfigResponse {
   localisation: Record<string, unknown>;
   assistant: Record<string, unknown>;
   fulfilment: Record<string, unknown>;
+  ordering: Record<string, unknown>;
 }
 
 describe('GET /api/v1/config', () => {
@@ -52,7 +53,13 @@ describe('GET /api/v1/config', () => {
       // change.
       'fulfilment',
       'localisation',
+      // The selling unit. Every price the storefront prints is the price of
+      // one carton, worked out from the catalogue's piece price and this
+      // figure, so the browser cannot render a price without it.
+      'ordering',
     ]);
+
+    expect(Object.keys(body.ordering).sort()).toEqual(['piecesPerCarton']);
 
     expect(Object.keys(body.fulfilment).sort()).toEqual([
       // How long a warehouse option stays an offer, so the checkout page can

@@ -1,137 +1,141 @@
 /**
- * Ordering by the pack.
+ * Ordering by the carton.
  *
- * The whole feature is one conversion and one refusal, and both of them are
+ * The whole feature is one conversion and one rounding, and both of them are
  * worth pinning.
  *
- * The conversion: two cartons of a product boxed 100 × 20 is four thousand
- * pieces, and that multiplication is done on the server from the catalogue's
- * own figures. A client that could post its own conversion could post "1 piece
- * per carton" and buy a carton at the price of a syringe.
+ * The conversion: two cartons is a thousand pieces, and that multiplication is
+ * done on the server from the deployment's own setting. A client that could
+ * post its own conversion could post "1 piece per carton" and buy a carton at
+ * the price of a syringe.
  *
- * The refusal: a pack unit the catalogue has no figure for is rejected, never
- * silently treated as one piece. A buyer who asked for two cartons and received
- * two syringes has been failed far worse than one who was told the carton
- * quantity is not on file.
+ * The rounding: a caller that still speaks in pieces gets whole cartons, taken
+ * upwards. Part of a carton is not something this shop can ship, and quietly
+ * delivering less than was asked for is the worse of the two answers.
  */
 import { describe, expect, it } from 'vitest';
 import {
-  availableUnits,
+  DEFAULT_PIECES_PER_CARTON,
+  SELLING_UNIT,
+  cartonsForPieces,
   describeOrderingQuantity,
-  piecesPerUnit,
   resolveOrderingQuantity,
-  type PackConversion,
 } from '../../src/domain/ordering-unit.js';
 import { assertPurchasable, isPurchasable } from '../../src/modules/catalog/purchasability.js';
 import { validateForPublish } from '../../src/modules/catalog/catalog.visibility.js';
 
-/** 100 to a box, 20 boxes to a carton, 2,000 to the carton. */
-const FULL: PackConversion = {
-  piecesPerInnerPack: 100,
-  innerPacksPerOuterCarton: 20,
-  piecesPerOuterCarton: 2000,
-  isReliable: true,
-};
+/** This deployment's carton, and the one every case below counts in. */
+const PER_CARTON = 500;
 
-/** A carton total and nothing about how it is boxed inside. */
-const TOTAL_ONLY: PackConversion = {
-  piecesPerInnerPack: null,
-  innerPacksPerOuterCarton: null,
-  piecesPerOuterCarton: 400,
-  isReliable: true,
-};
+describe('ordering by the carton', () => {
+  it('ships a carton of five hundred unless a deployment says otherwise', () => {
+    // One number, in one place: `env.PIECES_PER_CARTON` takes its default
+    // from this constant rather than repeating it, so the two cannot drift
+    // and price a basket differently depending on which reached it first.
+    // (`env` itself is 1 in this suite - see tests/setup.ts.)
+    expect(DEFAULT_PIECES_PER_CARTON).toBe(PER_CARTON);
+  });
 
-/** Figures that were read, but whose own multiplication disagreed. */
-const UNRELIABLE: PackConversion = { ...FULL, isReliable: false };
-
-describe('pack conversion', () => {
-  it('converts packs to pieces on the server side', () => {
+  it('converts cartons to pieces on the server side', () => {
     const resolved = resolveOrderingQuantity({
-      unit: 'OUTER_CARTON',
+      unit: SELLING_UNIT,
       unitQuantity: 2,
       // Deliberately a lie: a client sending a flattering piece count must not
       // be able to influence the answer.
       pieces: 1,
-      conversion: FULL,
+      piecesPerCarton: PER_CARTON,
       field: 'unitQuantity',
     });
 
-    expect(resolved.quantity).toBe(4000);
-    expect(resolved.orderingUnit).toBe('OUTER_CARTON');
-    expect(resolved.unitQuantity).toBe(2);
-    expect(resolved.piecesPerUnitSnapshot).toBe(2000);
+    expect(resolved).toEqual({
+      quantity: 1000,
+      orderingUnit: 'OUTER_CARTON',
+      unitQuantity: 2,
+      piecesPerUnitSnapshot: PER_CARTON,
+    });
   });
 
-  it('leaves the piece path exactly as it was', () => {
+  it('takes a caller that still speaks in pieces up to whole cartons', () => {
+    // 600 pieces is two cartons. Rounding down would ship 500 to somebody who
+    // asked for 600, and say nothing about it.
     const resolved = resolveOrderingQuantity({
       unit: undefined,
       unitQuantity: undefined,
-      pieces: 7,
-      conversion: FULL,
+      pieces: 600,
+      piecesPerCarton: PER_CARTON,
       field: 'quantity',
     });
 
     expect(resolved).toEqual({
-      quantity: 7,
-      orderingUnit: 'PIECE',
-      unitQuantity: 7,
-      piecesPerUnitSnapshot: 1,
+      quantity: 1000,
+      orderingUnit: 'OUTER_CARTON',
+      unitQuantity: 2,
+      piecesPerUnitSnapshot: PER_CARTON,
     });
   });
 
-  it('works a carton out from the factors when no total was stated', () => {
-    const derived: PackConversion = { ...FULL, piecesPerOuterCarton: null };
-    expect(piecesPerUnit('OUTER_CARTON', derived)).toBe(2000);
+  it('never rounds a piece count down to nothing', () => {
+    expect(cartonsForPieces(1, PER_CARTON)).toBe(1);
+    expect(cartonsForPieces(PER_CARTON, PER_CARTON)).toBe(1);
+    expect(cartonsForPieces(PER_CARTON + 1, PER_CARTON)).toBe(2);
   });
 
-  it('never works an inner pack out from a carton total', () => {
-    // 400 to a carton says nothing about how they are boxed inside, and
-    // dividing by an invented box count would be inventing twice.
-    expect(piecesPerUnit('INNER_PACK', TOTAL_ONLY)).toBeNull();
-    expect(piecesPerUnit('OUTER_CARTON', TOTAL_ONLY)).toBe(400);
+  it('honours a deployment that packs its cartons differently', () => {
+    const resolved = resolveOrderingQuantity({
+      unit: SELLING_UNIT,
+      unitQuantity: 3,
+      pieces: 0,
+      piecesPerCarton: 250,
+      field: 'unitQuantity',
+    });
+
+    expect(resolved.quantity).toBe(750);
+    expect(resolved.piecesPerUnitSnapshot).toBe(250);
   });
 
-  it('refuses a pack unit the catalogue cannot convert', () => {
-    expect(() =>
-      resolveOrderingQuantity({
-        unit: 'INNER_PACK',
-        unitQuantity: 3,
-        pieces: 3,
-        conversion: TOTAL_ONLY,
-        field: 'items.0.unitQuantity',
-      }),
-    ).toThrowError(/box/i);
-  });
-
-  it('will not convert from figures that contradicted themselves', () => {
-    // The source said 100 × 20 = 1,800. Until somebody says which is right,
-    // nothing is sold by the carton off it.
-    expect(piecesPerUnit('OUTER_CARTON', UNRELIABLE)).toBeNull();
-    expect(availableUnits(UNRELIABLE)).toEqual(['PIECE']);
-  });
-
-  it('offers only the units it can actually convert', () => {
-    expect(availableUnits(FULL)).toEqual(['PIECE', 'INNER_PACK', 'OUTER_CARTON']);
-    expect(availableUnits(TOTAL_ONLY)).toEqual(['PIECE', 'OUTER_CARTON']);
-  });
-
-  it('rejects a pack count that is not a whole positive number', () => {
+  it('rejects a carton count that is not a whole positive number', () => {
     for (const unitQuantity of [0, -1, 1.5]) {
       expect(() =>
         resolveOrderingQuantity({
-          unit: 'OUTER_CARTON',
+          unit: SELLING_UNIT,
           unitQuantity,
           pieces: 1,
-          conversion: FULL,
+          piecesPerCarton: PER_CARTON,
           field: 'unitQuantity',
         }),
       ).toThrowError();
     }
   });
 
-  it('describes a line from its own snapshot, not from today’s packing', () => {
-    // The line was agreed at 100 to a box. The catalogue now says 50. What the
-    // customer is shown is still what they agreed to.
+  it('refuses a basket nothing downstream could hold', () => {
+    expect(() =>
+      resolveOrderingQuantity({
+        unit: SELLING_UNIT,
+        unitQuantity: 100_000,
+        pieces: 1,
+        piecesPerCarton: PER_CARTON,
+        field: 'unitQuantity',
+      }),
+    ).toThrowError();
+  });
+
+  it('describes a line from its own snapshot, not from today’s setting', () => {
+    // The line was agreed at 500 to a carton. The deployment now says 250.
+    // What the customer is shown is still what they agreed to.
+    expect(
+      describeOrderingQuantity({
+        quantity: 1000,
+        orderingUnit: 'OUTER_CARTON',
+        unitQuantity: 2,
+        piecesPerUnitSnapshot: 500,
+      }),
+    ).toEqual({ unit: 'OUTER_CARTON', unitQuantity: 2, pieces: 1000, piecesPerUnit: 500 });
+  });
+
+  it('still describes a line placed before the shop sold cartons', () => {
+    // Rows written when pieces were orderable keep saying so. An old invoice
+    // that reworded itself would be an invoice that no longer matches what
+    // was signed.
     expect(
       describeOrderingQuantity({
         quantity: 200,

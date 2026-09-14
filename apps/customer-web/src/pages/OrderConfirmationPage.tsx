@@ -25,7 +25,8 @@ import { GrandTotalRow, TotalRow } from '@/components/Totals';
 import { CheckIcon } from '@/components/icons';
 import { Badge, ButtonLink, ErrorState, LoadingState } from '@/components/ui';
 import { api } from '@/lib/api';
-import { formatDateTime, formatMoney } from '@/lib/format';
+import { formatDateTime, formatMoney, formatMoneyMinor, formatNumber } from '@/lib/format';
+import { cartonPriceMinor, cartonsOfLine } from '@/lib/packaging';
 import { orderStatusLabel, orderStatusTone } from '@/lib/order-status';
 import type { Translate } from '@/i18n/i18n-context';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
@@ -242,9 +243,33 @@ export function OrderConfirmationPage(): React.JSX.Element {
             <li key={item.id} className="flex justify-between gap-4 py-3">
               <span className="min-w-0">
                 <span className="block text-ink">{item.name}</span>
-                <span className="text-xs text-ink-muted">
-                  {item.quantity} × {formatMoney(item.unitPrice)}
-                </span>
+                {/* In the unit it was bought in, with the pieces under it.
+                    A receipt that said "1,000 × ₹12.50" to somebody who
+                    bought two cartons is a receipt they have to decode. */}
+                {(() => {
+                  const cartons = cartonsOfLine(item.ordering);
+                  if (cartons === null) {
+                    return (
+                      <span className="text-xs text-ink-muted">
+                        {item.quantity} × {formatMoney(item.unitPrice)}
+                      </span>
+                    );
+                  }
+                  return (
+                    <>
+                      <span className="block text-xs text-ink-muted">
+                        {t('packaging.nCartons', { count: cartons.cartons })} ×{' '}
+                        {formatMoneyMinor(
+                          cartonPriceMinor(item.unitPrice.minor, cartons.piecesPerCarton),
+                          item.unitPrice.currency,
+                        )}
+                      </span>
+                      <span className="block text-xxs tabular text-ink-subtle">
+                        {t('cart.piecesTotal', { n: formatNumber(item.quantity) })}
+                      </span>
+                    </>
+                  );
+                })()}
               </span>
               <span className="shrink-0 tabular text-ink">{formatMoney(item.lineTotal)}</span>
             </li>

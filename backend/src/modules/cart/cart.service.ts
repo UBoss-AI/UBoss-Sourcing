@@ -18,6 +18,7 @@ import {
   notFound,
   type ErrorCodeValue,
 } from '../../domain/errors.js';
+import { env } from '../../config/env.js';
 import { serialiseMoney, type Minor } from '../../domain/money.js';
 import {
   priceLines,
@@ -25,10 +26,12 @@ import {
   type PricingResult,
 } from '../../domain/pricing.js';
 import {
+  SELLING_UNIT,
+  cartonsForPieces,
   resolveOrderingQuantity,
   type OrderingUnit,
 } from '../../domain/ordering-unit.js';
-import { newId, variantKeyOf, NO_VARIANT_KEY } from '../../infra/ids.js';
+import { newId, variantKeyOf } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { publicProductWhere } from '../catalog/catalog.visibility.js';
 import { assertPurchasable } from '../catalog/purchasability.js';
@@ -94,10 +97,9 @@ export interface CartLine {
    */
   ordering: {
     unit: OrderingUnit;
+    /** Cartons. */
     unitQuantity: number;
     piecesPerUnit: number;
-    /** What the source called the pack - "Box", "Pouch". Null for pieces. */
-    packLabel: string | null;
   };
   /** Non-empty when this line cannot go to checkout as it stands. */
   issues: CartLineIssue[];
@@ -306,10 +308,6 @@ export async function resolveCart(
     },
   });
 
-  // What each SKU's pack is called, so the basket can say "2 boxes" rather
-  // than "2 packs". One read for the whole basket.
-  const packLabels = await packLabelsFor(items.map((item) => item.productId));
-
   const availability = await getAvailabilityMap(
     items.map((item) => ({ productId: item.productId, variantId: item.variantId })),
   );
@@ -448,23 +446,14 @@ export async function resolveCart(
       imageUrl: product.media[0]?.media.url ?? null,
       availableQty,
       issues,
+      // The unit is not the supplier's word for their own outer pack - it is
+      // the carton this shop sells, which the storefront names in the
+      // reader's own language. A sheet that called its outer pack a "box"
+      // would otherwise print "box" beside a carton count.
       ordering: {
         unit: item.orderingUnit,
         unitQuantity: item.unitQuantity,
         piecesPerUnit: item.piecesPerUnitSnapshot,
-        // This SKU's own words, falling back to the product's. Null for a line
-        // counted in pieces, and null where the source never named the pack -
-        // the storefront then says "box" or "carton" in the reader's own
-        // language rather than inventing a word for the supplier.
-        packLabel: (() => {
-          if (item.orderingUnit === 'PIECE') return null;
-          const labels =
-            packLabels.get(`${item.productId}:${item.variantKey}`) ??
-            packLabels.get(`${item.productId}:${NO_VARIANT_KEY}`) ??
-            null;
-          if (labels === null) return null;
-          return item.orderingUnit === 'INNER_PACK' ? labels.inner : labels.outer;
-        })(),
       },
     });
   }
@@ -912,43 +901,6 @@ export async function addItems(
   return addLines(customerProfileId, inputs, INDEXED_FIELD);
 }
 
-/**
- * What each SKU's packs are called, keyed `productId:variantKey`.
- *
- * BOTH words, not one. The line knows whether it was counted in inner packs or
- * in cartons, and those are different nouns on the same product - "2 pouches"
- * and "2 cartons" are 400 pieces apart on the row this was first written
- * against. Returning a single label and letting the caller hope was the bug:
- * it printed the pouch's name beside a carton's quantity.
- *
- * The words come off the packing row the import wrote, so the basket says what
- * the product page said and what the warehouse paperwork says. A generic
- * "pack" everywhere would be safe and slightly wrong on every screen at once.
- */
-interface PackLabels {
-  inner: string | null;
-  outer: string | null;
-}
-
-async function packLabelsFor(productIds: string[]): Promise<Map<string, PackLabels>> {
-  const unique = [...new Set(productIds)];
-  if (unique.length === 0) return new Map();
-
-  const rows = await prisma.productPackaging.findMany({
-    where: { productId: { in: unique } },
-    select: { productId: true, variantKey: true, innerPackType: true, outerPackType: true },
-  });
-
-  const byKey = new Map<string, PackLabels>();
-  for (const row of rows) {
-    byKey.set(`${row.productId}:${row.variantKey}`, {
-      inner: row.innerPackType,
-      outer: row.outerPackType,
-    });
-  }
-  return byKey;
-}
-
 /** One SKU's worth of a request, after validation and after de-duplication. */
 interface WantedLine {
   productId: string;
@@ -1004,17 +956,6 @@ async function addLines(
       isPriceOnRequest: true,
       isOrderable: true,
       unavailabilityReason: true,
-      // Every SKU's packing, so a pack unit can be converted without a second
-      // query per line.
-      packagings: {
-        select: {
-          variantKey: true,
-          piecesPerInnerPack: true,
-          innerPacksPerOuterCarton: true,
-          piecesPerOuterCarton: true,
-          parseStatus: true,
-        },
-      },
     },
   });
   const productById = new Map(products.map((product) => [product.id, product]));
@@ -1075,23 +1016,15 @@ async function addLines(
 
     const variantKey = variantKeyOf(variantId);
 
-    // This SKU's own packing, falling back to the product's. A size whose
-    // packing was never recorded separately is boxed like the product.
-    const packing =
-      product.packagings.find((row) => row.variantKey === variantKey) ??
-      product.packagings.find((row) => row.variantKey === NO_VARIANT_KEY) ??
-      null;
-
+    // The carton is the only thing on sale, and its size is the deployment's
+    // setting rather than anything the supplier's sheet said or the client
+    // sent. The sheet's own packing still describes the product on the page;
+    // it no longer decides what a carton is.
     const resolved = resolveOrderingQuantity({
       unit: input.orderingUnit,
       unitQuantity: input.unitQuantity,
       pieces: input.quantity,
-      conversion: {
-        piecesPerInnerPack: packing?.piecesPerInnerPack ?? null,
-        innerPacksPerOuterCarton: packing?.innerPacksPerOuterCarton ?? null,
-        piecesPerOuterCarton: packing?.piecesPerOuterCarton ?? null,
-        isReliable: packing?.parseStatus === 'PARSED' || packing?.parseStatus === 'PARTIAL',
-      },
+      piecesPerCarton: env.PIECES_PER_CARTON,
       field: nameField(index, 'unitQuantity'),
     });
 
@@ -1104,9 +1037,7 @@ async function addLines(
       variantKey,
       quantity: (already?.quantity ?? 0) + resolved.quantity,
       minOrderQty: product.minOrderQty,
-      // The same SKU twice in one request keeps the unit of the FIRST line and
-      // adds the pieces. Two lines counted in different units cannot both be
-      // shown back, and pieces is the one both agree on.
+      // The same SKU twice in one request adds the cartons up into one line.
       orderingUnit: already?.orderingUnit ?? resolved.orderingUnit,
       unitQuantity: (already?.unitQuantity ?? 0) + resolved.unitQuantity,
       piecesPerUnitSnapshot: already?.piecesPerUnitSnapshot ?? resolved.piecesPerUnitSnapshot,
@@ -1158,15 +1089,20 @@ async function addLines(
       // A brand-new line starts at the product minimum when the request asks
       // for less - a B2B product with a minimum of 10 should not sit in the
       // cart at 1 and fail only at checkout.
-      const quantity = Math.max(line.quantity, line.minOrderQty);
+      //
+      // The minimum is written in pieces and the shop ships whole cartons, so
+      // a minimum that lands mid-carton takes the whole carton above it.
+      const perCarton = Math.max(1, line.piecesPerUnitSnapshot);
+      const quantity =
+        line.orderingUnit === SELLING_UNIT
+          ? cartonsForPieces(Math.max(line.quantity, line.minOrderQty), perCarton) * perCarton
+          : Math.max(line.quantity, line.minOrderQty);
       const itemId = newId();
 
-      // If the minimum raised the piece count, the pack count has to follow it
-      // or the line would read "1 box" beside a quantity of ten.
+      // If the minimum raised the piece count, the carton count has to follow
+      // it or the line would read "1 carton" beside a quantity of a thousand.
       const unitQuantity =
-        quantity === line.quantity
-          ? line.unitQuantity
-          : Math.max(1, Math.ceil(quantity / Math.max(line.piecesPerUnitSnapshot, 1)));
+        quantity === line.quantity ? line.unitQuantity : cartonsForPieces(quantity, perCarton);
 
       await tx.cartItem.create({
         data: {
@@ -1220,15 +1156,28 @@ export async function updateItemQuantity(
     return;
   }
 
-  // The quantity arrives in pieces, so the pack count is re-derived from the
-  // line's own snapshot rather than from the catalogue - the conversion this
-  // line was agreed at is the conversion it keeps.
-  const unitQuantity =
-    item.orderingUnit === 'PIECE'
-      ? quantity
-      : Math.max(1, Math.round(quantity / Math.max(item.piecesPerUnitSnapshot, 1)));
+  // The quantity arrives in pieces, and the shop sells whole cartons, so it is
+  // rounded up to one and the piece count moves with it. Rounding is against
+  // the line's own snapshot rather than the current setting - the carton this
+  // line was agreed at is the carton it keeps.
+  //
+  // A line left over from before cartons is stepped in pieces exactly as it
+  // always was. Nothing new is ever written that way.
+  if (item.orderingUnit === 'PIECE') {
+    await prisma.cartItem.update({
+      where: { id: itemId },
+      data: { quantity, unitQuantity: quantity },
+    });
+    return;
+  }
 
-  await prisma.cartItem.update({ where: { id: itemId }, data: { quantity, unitQuantity } });
+  const perCarton = Math.max(1, item.piecesPerUnitSnapshot);
+  const unitQuantity = cartonsForPieces(quantity, perCarton);
+
+  await prisma.cartItem.update({
+    where: { id: itemId },
+    data: { quantity: unitQuantity * perCarton, unitQuantity },
+  });
 }
 
 /**

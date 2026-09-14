@@ -48,8 +48,8 @@
 import { Link } from 'react-router-dom';
 import { Badge } from './ui';
 import { SaveForLaterButton } from './SaveForLaterButton';
-import { formatMoney, formatNumber } from '@/lib/format';
-import { packSummary } from '@/lib/packaging';
+import { formatMoneyMinor, formatNumber } from '@/lib/format';
+import { cartonPriceMinor, usePiecesPerCarton } from '@/lib/packaging';
 import type { Product } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
 
@@ -116,10 +116,14 @@ export function ProductRow({ product }: { product: Product }): React.JSX.Element
   const isPriceOnRequest = purchasability?.isPriceOnRequest ?? false;
   const isUnavailable = purchasability !== null && !purchasability.isOrderable;
 
-  const packing = packSummary(product.packaging, {
-    perPack: (count, pack) => t('productCard.perPack', { n: count, pack }),
-    perCarton: (count) => t('productCard.perCarton', { n: count }),
-  });
+  // Priced by the carton, because that is the only thing a shopper can buy.
+  // See ProductCard, which does the same arithmetic for the same reason.
+  const piecesPerCarton = usePiecesPerCarton();
+  const cartonMinor = cartonPriceMinor(product.price.minor, piecesPerCarton);
+  const compareAtCartonMinor =
+    product.compareAtPrice === null
+      ? null
+      : cartonPriceMinor(product.compareAtPrice.minor, piecesPerCarton);
 
   return (
     /*
@@ -215,7 +219,9 @@ export function ProductRow({ product }: { product: Product }): React.JSX.Element
         {/* How it is boxed, in one line. A wholesale buyer scanning a list
             is deciding whether this is sold in the size they buy in, and that
             is a different question from what it costs. */}
-        {packing !== null && <p className="text-xs tabular text-ink-subtle">{packing}</p>}
+        <p className="text-xs tabular text-ink-subtle">
+          {t('packaging.oneCartonHas', { n: formatNumber(piecesPerCarton) })}
+        </p>
 
         {(rules.minOrderQty > 1 || rules.qtyIncrement > 1 || isUnavailable) && (
           <div className="flex flex-wrap gap-1.5">
@@ -250,15 +256,18 @@ export function ProductRow({ product }: { product: Product }): React.JSX.Element
           <p className="text-base font-semibold text-brand">{t('productCard.requestAQuote')}</p>
         ) : (
           <>
-            <p className="text-xl font-semibold tabular text-ink">{formatMoney(product.price)}</p>
+            <p className="text-xl font-semibold tabular text-ink">
+              {formatMoneyMinor(cartonMinor, product.price.currency)}
+            </p>
+            <p className="text-xxs text-ink-subtle">{t('productCard.perCartonLabel')}</p>
 
-            {discount !== null && product.compareAtPrice !== null && (
+            {discount !== null && compareAtCartonMinor !== null && (
               <p className="mt-0.5 flex flex-wrap items-baseline gap-x-2 sm:justify-end">
                 <span className="text-sm tabular text-ink-subtle">
                   {/* The strikethrough is all a sighted reader gets; a screen
                       reader is given the word. */}
                   <span className="sr-only">{t('productCard.was')}</span>
-                  <s>{formatMoney(product.compareAtPrice)}</s>
+                  <s>{formatMoneyMinor(compareAtCartonMinor, product.price.currency)}</s>
                 </span>
                 <span className="text-sm font-semibold text-success">
                   {t('catalog.rowPercentOff', { percent: formatNumber(discount) })}

@@ -48,6 +48,7 @@ import type { QuoteCheck, WarehouseOptionsRequest } from '@/lib/fulfilment';
 import { cx } from '@/lib/cx';
 import { formatIsoDate } from '@/lib/calendar-date';
 import { formatMoney, formatNumber } from '@/lib/format';
+import { cartonsOfLine } from '@/lib/packaging';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type {
   Address,
@@ -1141,7 +1142,15 @@ export function CheckoutPage(): React.JSX.Element {
                 <li key={line.itemId} className="flex justify-between gap-3">
                   <span className="min-w-0 text-ink-muted">
                     <span className="block truncate text-ink">{line.name}</span>
-                    <span className="text-xs">× {formatNumber(line.quantity)}</span>
+                    {/* Counted the way the basket counts it, so the check
+                        before paying matches the basket it came from. */}
+                    <span className="text-xs">
+                      {cartonsOfLine(line.ordering) === null
+                        ? `× ${formatNumber(line.quantity)}`
+                        : `× ${t('packaging.nCartons', {
+                            count: cartonsOfLine(line.ordering)?.cartons ?? 0,
+                          })}`}
+                    </span>
                   </span>
                   <span className="shrink-0 tabular text-ink">{formatMoney(line.lineTotal)}</span>
                 </li>

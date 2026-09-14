@@ -34,19 +34,28 @@ const addItemSchema = z.object({
   variantId: z.string().length(26).nullable().optional(),
   /**
    * Pieces. Required, and still the whole request for every caller that does
-   * not order by the pack - which is every caller written before packs existed.
+   * not count in cartons - an ERP, an API client, a reorder of a line placed
+   * before this shop settled on the carton.
+   *
+   * A piece count is rounded UP to whole cartons, because a part carton is not
+   * something this shop can ship. 600 pieces is two cartons of 500.
    */
   quantity: z.number().int().min(1).max(1_000_000),
   /**
-   * Ordering by the box or the carton.
+   * Ordering by the carton, which is the only way anything is sold.
    *
-   * Only the unit and how many of them: the conversion is looked up server-side
-   * from the catalogue's own packing row, never taken from the request. A
-   * client that could post its own "pieces per carton" could post 1 and buy a
-   * carton at the price of a syringe. When these are present, `quantity` above
-   * is ignored in favour of the figure the server works out.
+   * Only the unit and how many of them: the carton size is the deployment's
+   * own setting, never taken from the request. A client that could post its
+   * own "pieces per carton" could post 1 and buy a carton at the price of a
+   * syringe. When these are present, `quantity` above is ignored in favour of
+   * the figure the server works out.
+   *
+   * `PIECE` and `INNER_PACK` are gone from the enum on purpose. They are still
+   * in the database for rows written before the change, and they are refused
+   * here rather than quietly reinterpreted - a client asking for 3 pieces
+   * should be told the shop does not sell them, not handed three cartons.
    */
-  orderingUnit: z.enum(['PIECE', 'INNER_PACK', 'OUTER_CARTON']).optional(),
+  orderingUnit: z.enum(['OUTER_CARTON']).optional(),
   unitQuantity: z.number().int().min(1).max(1_000_000).optional(),
 });
 
@@ -63,15 +72,16 @@ const addItemsSchema = z.object({
 
 const updateQuantitySchema = z.object({
   // Zero removes the line, which is what a quantity stepper sends at 0.
+  // Anything else is pieces, rounded up to whole cartons by the service.
   quantity: z.number().int().min(0).max(1_000_000),
 });
 
 /**
- * The same line, counted in packs.
+ * The same line, counted in cartons. What the storefront's stepper sends.
  *
  * A separate route rather than a second field on the one above, because the two
  * are authoritative about different things: that one states pieces and derives
- * packs, this one states packs and derives pieces. One endpoint taking both
+ * cartons, this one states cartons and derives pieces. One endpoint taking both
  * would have to decide which to believe when a client sends a pair that does
  * not multiply out, and whichever it chose would surprise one of the two
  * screens that calls it.

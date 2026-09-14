@@ -81,7 +81,8 @@ function serveCatalog(): void {
               depth: 0,
               sortOrder: 1,
               isActive: true,
-              productCount: 40,
+              productCount: 0,
+              totalProductCount: 40,
               children: [
                 {
                   id: 'c1',
@@ -92,6 +93,7 @@ function serveCatalog(): void {
                   sortOrder: 1,
                   isActive: true,
                   productCount: 7,
+                  totalProductCount: 7,
                   children: [],
                 },
                 {
@@ -103,6 +105,7 @@ function serveCatalog(): void {
                   sortOrder: 2,
                   isActive: true,
                   productCount: 12,
+                  totalProductCount: 12,
                   children: [],
                 },
               ],
@@ -155,7 +158,9 @@ describe('CatalogPage filters', () => {
     renderWithProviders(<CatalogPage />, { route: '/products' });
 
     expect(
-      await screen.findByText('Prices here run from ₹420.00 to ₹4,500.00.'),
+      // Carton prices, because the boxes beside this take carton prices and
+      // every figure in the grid below is one. 420.00 × 500 and 4,500.00 × 500.
+      await screen.findByText('Prices here run from ₹210000.00 to ₹2250000.00.'),
     ).toBeInTheDocument();
   });
 
@@ -362,6 +367,43 @@ describe('CatalogPage listing controls', () => {
     const here = within(panel).getByText('Line Access');
     expect(here).toHaveAttribute('aria-current', 'page');
     expect(here.closest('a')).toBeNull();
+  });
+
+  /**
+   * The sidebar is how you jump between shelves once you are among the
+   * results; this is how you see what the shelves are in the first place. A
+   * department filed above two dozen sub-categories whose only sign of them is
+   * a list in the filter panel is a department that looks empty of structure.
+   */
+  it('shows what is inside the department as cards, not only in the sidebar', async () => {
+    renderWithProviders(
+      <Routes>
+        <Route path="/category/:slug" element={<CatalogPage />} />
+      </Routes>,
+      { route: '/category/consumables' },
+    );
+
+    const inside = await screen.findByRole('region', { name: 'What is inside' });
+
+    // The count is the whole subtree, because that is what opening it shows.
+    const card = within(inside).getByRole('link', { name: /Line Access/ });
+    expect(card).toHaveAttribute('href', '/category/line-access');
+    expect(within(inside).getByText('7 products')).toBeInTheDocument();
+    expect(within(inside).getByRole('link', { name: /Syringes/ })).toBeInTheDocument();
+  });
+
+  it('does not offer the shelves above a set of search results', async () => {
+    renderWithProviders(
+      <Routes>
+        <Route path="/category/:slug" element={<CatalogPage />} />
+      </Routes>,
+      { route: '/category/consumables?q=cannula' },
+    );
+
+    // The results are for a phrase, not for a place, so "what is inside" is
+    // answering a question nobody asked.
+    await screen.findByRole('complementary');
+    expect(screen.queryByRole('region', { name: 'What is inside' })).not.toBeInTheDocument();
   });
 
   it('lists the top level when no category is chosen', async () => {

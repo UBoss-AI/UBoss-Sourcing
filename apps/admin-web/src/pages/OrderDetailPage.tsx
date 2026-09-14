@@ -485,8 +485,24 @@ export function OrderDetailPage(): React.JSX.Element {
                         )}
                         <p className="font-mono text-xxs text-ink-subtle">{item.sku}</p>
                       </td>
+                      {/* Both numbers, because they answer two questions.
+                          "How many did they order?" is cartons; "how many do
+                          we pick?" is pieces, and the price beside this is
+                          per piece. An order line that showed only one of the
+                          two is a support call. */}
                       <td className="px-4 py-2.5 text-right tabular">
-                        {formatNumber(item.quantity)}
+                        {item.ordering != null && item.ordering.unit === 'OUTER_CARTON' ? (
+                          <>
+                            <span className="block">
+                              {t('orderDetail.nCartons', { count: item.ordering.unitQuantity })}
+                            </span>
+                            <span className="block text-xxs text-ink-subtle">
+                              {t('orderDetail.nPieces', { n: formatNumber(item.quantity) })}
+                            </span>
+                          </>
+                        ) : (
+                          formatNumber(item.quantity)
+                        )}
                       </td>
                       <td className="whitespace-nowrap px-4 py-2.5 text-right tabular">
                         {formatMoney(item.unitPrice)}

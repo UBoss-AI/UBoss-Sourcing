@@ -46,7 +46,8 @@ import { clampToRules } from '@/lib/quantity-rules';
 import { Badge, Button, ButtonLink, ErrorState, LoadingState } from '@/components/ui';
 import { api } from '@/lib/api';
 import { autoPayApi, autoPayKeys } from '@/lib/autopay';
-import { formatMoney, formatNumber } from '@/lib/format';
+import { formatMoney, formatMoneyMinor, formatNumber } from '@/lib/format';
+import { cartonPriceMinor } from '@/lib/packaging';
 import { useI18n } from '@/i18n/i18n-context';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { Cart, CartIssue, CartLine, PurchaseRules } from '@/lib/types';
@@ -114,26 +115,23 @@ function IssueNotice({
 }
 
 /**
- * The pack this line is counted in, or null where it is counted in pieces.
+ * The cartons this line is counted in, or null where it is counted in pieces.
  *
- * Null is the answer for every line added before pack ordering existed and for
- * every line a customer chose to count in pieces, and it is what keeps the
- * ordinary quantity stepper exactly as it was.
+ * Null is the answer only for a line put in a basket before this shop settled
+ * on the carton, and it is what keeps the ordinary quantity stepper working
+ * for one. Nothing new is ever added that way.
  */
-function packsOf(
+function cartonsOf(
   line: CartLine,
   t: ReturnType<typeof useI18n>['t'],
-): { unitQuantity: number; label: string } | null {
+): { unitQuantity: number; piecesPerUnit: number; label: string } | null {
   const ordering = line.ordering ?? null;
   if (ordering === null || ordering.unit === 'PIECE') return null;
 
   return {
     unitQuantity: ordering.unitQuantity,
-    // The supplier's own word where there is one, so the basket says the same
-    // thing the product page and the delivery note say.
-    label:
-      ordering.packLabel ??
-      (ordering.unit === 'INNER_PACK' ? t('packaging.innerPack') : t('packaging.outerCarton')),
+    piecesPerUnit: Math.max(ordering.piecesPerUnit, 1),
+    label: t('packaging.outerCarton'),
   };
 }
 
@@ -154,7 +152,24 @@ function LineRow({
 
   const rules = toPurchaseRules(line);
   const available = typeof line.availableQty === 'number' ? line.availableQty : null;
-  const packs = packsOf(line, t);
+  const packs = cartonsOf(line, t);
+
+  /**
+   * What one carton of this line costs.
+   *
+   * `line.unitPrice` is the price of a piece, which is what the server prices
+   * and totals in. A basket that printed it beside a carton count would be
+   * showing a figure five hundred times smaller than the line total next to
+   * it. The factor is the line's OWN snapshot, so a basket agreed before the
+   * carton was re-specified still adds up.
+   */
+  const cartonPrice =
+    packs === null
+      ? null
+      : formatMoneyMinor(
+          cartonPriceMinor(line.unitPrice.minor, packs.piecesPerUnit),
+          line.unitPrice.currency,
+        );
 
   /**
    * The one-click correction for an issue, when there is an obvious one.
@@ -254,7 +269,9 @@ function LineRow({
               {formatMoney(line.lineTotal)}
             </span>
             <span className="mt-0.5 block text-xxs text-ink-muted">
-              {formatMoney(line.unitPrice)} each
+              {cartonPrice === null
+                ? `${formatMoney(line.unitPrice)} each`
+                : t('cart.perCarton', { price: cartonPrice })}
               {line.taxInclusive
                 ? ` ${t('cart.taxIncludedNote')}`
                 : ` ${t('cart.plusTaxRate', { rate: line.taxRatePercent })}`}
@@ -304,7 +321,7 @@ function LineRow({
               <QuantityInput
                 value={packs.unitQuantity}
                 onChange={onPackQuantityChange}
-                // A pack count has no minimum or increment of its own: those
+                // A carton count has no minimum or increment of its own: those
                 // rules are written in pieces and the server applies them to
                 // the piece total. Passing them here would step the carton
                 // count by the product's piece increment.
@@ -319,6 +336,8 @@ function LineRow({
                 itemName={line.variantName ?? line.name}
               />
               <p className="mt-1 text-xxs tabular text-ink-subtle">
+                {t('packaging.oneCartonHas', { n: formatNumber(packs.piecesPerUnit) })}
+                {' · '}
                 {t('cart.piecesTotal', { n: formatNumber(line.quantity) })}
               </p>
             </div>

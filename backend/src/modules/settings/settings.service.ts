@@ -859,6 +859,22 @@ export async function getStorefrontConfig(): Promise<Record<string, unknown>> {
     },
 
     /**
+     * The selling unit, published so the storefront can say it out loud.
+     *
+     * This shop sells cartons and nothing else, and every price a shopper is
+     * shown is the price of one carton. That figure is a piece price
+     * multiplied by this number, so the browser needs it before it can print
+     * a price at all - and it prints "one carton has 500 pieces" beside it, so
+     * nobody has to guess what the figure is the price of.
+     *
+     * A setting rather than a constant for the same reason the currency is:
+     * the next company to buy this software packs its own product its own way.
+     */
+    ordering: {
+      piecesPerCarton: env.PIECES_PER_CARTON,
+    },
+
+    /**
      * What the chat widget has to say about itself before anyone types.
      *
      * AI Act Art. 50(1) obliges the deployer to inform a person that they are

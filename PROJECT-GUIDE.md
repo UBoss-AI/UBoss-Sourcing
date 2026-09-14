@@ -1001,9 +1001,78 @@ The decision table lives in
 `apps/customer-web/src/components/greeting/orchestration-nodes.ts`, on its own,
 so it can be read and tested without rendering an SVG.
 
+### The WebGL stage
+
+**The orb is rendered, not drawn.** `components/greeting/HeroStage.tsx` puts a
+real 3D scene behind the whole hero card — a faceted core with its own lattice,
+two rings that genuinely pass in front of and behind it, a depth field of
+particles, and a ground plane receding into fog — with an actual perspective
+camera, actual lights, and lighting that rakes across the facets as the pointer
+moves. It is anchored to `.orch-stage` by **measurement**, so the core sits
+exactly where the drawn sphere used to and the four cards still orbit that
+point at every window width.
+
+**It is an enhancement and never a dependency.** The CSS backdrop and the drawn
+sphere stay underneath it and are what a visitor sees until the scene fades in
+over them. `HeroStage` stands down completely — rendering *nothing*, not an
+empty canvas — when any of these hold:
+
+- the environment has no `WebGL2RenderingContext` (a blocklisted driver, a
+  locked-down browser, jsdom in the test suite);
+- the device reports 4 GB of memory or fewer, or four cores or fewer;
+- the context cannot be created, or the chunk never arrives.
+
+Only when it has rendered a real frame does it call `onActive`, at which point
+`HomePage` sets `data-stage="on"` on the hero and `orchestration.css` fades out
+the drawn sphere, its glow, its aura and its rings. **The attribute is set from
+a rendered frame, never optimistically** — hiding the CSS sphere on hope is how
+a blocked driver gets a hero with a hole in it.
+
+**three.js is lazily imported inside the effect**, so it builds as its own
+chunk (~705 kB raw, ~181 kB gzipped) that the rest of the storefront never
+downloads. `HomePage`'s own chunk is ~38 kB. The landing page's job is to get
+somebody to the products; a hero that put half a megabyte in front of that
+would be working against the page it decorates.
+
+**Four brakes stop it costing anything**, and the first is measurable: with the
+hero scrolled out of view the render loop runs **zero** frames, and resumes at
+~60 on return.
+
+| Brake | Mechanism |
+|---|---|
+| Off-screen | `IntersectionObserver` stops the loop |
+| Hidden tab | `visibilitychange` |
+| Reduced motion | One frame is drawn, then nothing — a still image, which is what was asked for |
+| Pixel density | `devicePixelRatio` capped at 2 |
+
+Everything is disposed on unmount — geometries, materials, the renderer and
+every listener. Browsers cap live WebGL contexts per page at around sixteen and
+silently kill the oldest, so a storefront that leaked one per visit to `/` would
+watch earlier scenes go black.
+
+**Colours come from the storefront's own CSS custom properties** and are re-read
+when the theme changes, so a deployment that changes `--brand` gets a core in
+its own blue. Two of them are *derived* rather than read, in
+`stage-palette.ts`, and the reason is a real bug: **no token in the palette is
+light on both themes, and none is dark on both.** `--bloom` is a pale sky on
+the light theme and a deep navy on the dark one — used as a bead riding a ring
+it rendered darker than the page and read as a hole punched through it. So
+highlights are `lighten(--brand)` and the core's body is `darken(--brand)`,
+the latter because the hub paints **Sourcing** over the middle of it in white
+and the pale version of that was about 1.9:1. `HeroStage.test.tsx` asserts both:
+the highlight reads as light on either theme, and the body clears 4.5:1 against
+white on either theme.
+
+**Below `lg` the core is much larger** (0.62 of the square against 0.38). The
+ceiling on the desktop figure exists because four cards ride a circle around
+the square — and below `lg` they do not, they sit still in a grid underneath,
+which leaves the square empty and the ceiling with nothing to protect.
+
 ### The animation
 
-Everything that moves animates **`transform` and `opacity` only** — the orb's
+The drawn layer is what runs when the stage stands down, and what still draws
+the orbit guides, the spokes, the radial lines and the four cards when it does
+not. Everything that moves animates **`transform` and `opacity` only** — the orb's
 wireframe rotates in three dimensions, its specular highlight orbits, an arc
 travels round its rim, its aura breathes, the two drawn ring guides
 counter-rotate, particles ride them, a light travels out along each spoke, and
@@ -1264,9 +1333,14 @@ grid of cards and it is now a **list of wide rows beside a filter rail**, which
 is the shape a department is actually read in.
 
 ```
-Home / Products / Line Access
+Home / Products / Medical Devices
 CATEGORY
-Line Access   7 products
+Medical Devices   239 products
+WHAT IS INSIDE
+┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
+│ ▣ ABG Kit│ │ ▣ Adult  │ │ ▣ Flush  │ │ ▣ IV     │
+│ 6 products│ │ 15 …    │ │ 6 …      │ │ 51 …     │
+└──────────┘ └──────────┘ └──────────┘ └──────────┘
 ┌──────────────────────────────────────────────────────────────┐
 │ Sort by  Newest first  Price: low to high  …                 │
 └──────────────────────────────────────────────────────────────┘
@@ -1282,6 +1356,15 @@ Line Access   7 products
 │  ▢ …          │  └─────────────────────────────────────────┘
 └───────────────┘
 ```
+
+**What is inside, above the results.** A category with sub-categories shows
+them as cards between the heading and the toolbar — the same cards the front
+page uses, from the same component, so a shopper who learnt a department by its
+mark on one page finds the same mark on the other. The filter rail lists the
+same names, and deliberately: the list is the compact way to hop between
+shelves once you are deep in the results, and the cards are the way in. They
+are not shown above a set of search results, where "what is inside" is
+answering a question nobody asked.
 
 **Why rows.** A card 240px wide holds a name, a code and a price. A buyer
 choosing between eleven infusion sets needs the *differences* — the bore, the
@@ -1306,7 +1389,8 @@ results down the page.
 
 **The panel says where you are in the tree.** At the top of the filters: the
 parent as a link with a back chevron, the current category stated in bold and
-not a link, and the children beneath it with their product counts. With no
+not a link, and the children beneath it with their product counts — each one
+the whole subtree beneath that child, which is what clicking it will show. With no
 category chosen it lists the top level instead. It reads
 `/catalog/categories` — the tree, which every page that shows categories has
 already loaded — rather than the category endpoint, which returns the category
@@ -2299,24 +2383,32 @@ exclusion picker offers all two hundred and fifty and the rows carry no foreign
 key. See `GET /inventory/world-countries` below.
 
 **The gesture depends on the input device, not the screen width.** With a real
-pointer, hovering shows the coverage and moving away puts it back. With no
-pointer there is no "moving away", so the tap that selects a warehouse opens
-the coverage and the panel grows a close button. `(hover: hover) and (pointer:
-fine)` is what decides, because a laptop with a narrow window still has a mouse
-and a large tablet still does not.
+pointer, hovering a marker shows the coverage and taking the pointer off the
+map puts it back. With no pointer there is nothing to take away, so the tap
+that selects a warehouse opens the coverage and the panel grows a close
+button. `(hover: hover) and (pointer: fine)` is what decides, because a laptop
+with a narrow window still has a mouse and a large tablet still does not.
 
 **Opening is deliberate and closing is forgiving, which are two different
 numbers.** A marker has to be held for **140ms** before anything is requested,
 so dragging the map past five markers does not fire five requests and five
-camera flights. Leaving only *schedules* the close, **260ms** later, and three
-things cancel it: arriving at another marker, coming back to the same one, and
-the pointer reaching the panel. That last one is what makes the panel readable
-at all — it is in the far corner of the map with a button on every country in
-it, and closing the instant the pointer left the marker took the answer away
-during the journey towards it. The same delay is why moving from one marker to
-its neighbour changes the subject in one step instead of blanking the map
-between them. On the way out the panel fades and slides over 200ms rather than
-vanishing, holding the answer it was showing while it goes.
+camera flights. What closes it is the pointer leaving **the map** — not the
+marker — and even that only *schedules* the close, **260ms** later, which
+coming back cancels.
+
+Leaving the marker used to be the close, and it was wrong for a reason that
+took a while to see: showing the answer flies the camera in and pitches it,
+which slides the marker out from under a cursor that has not moved, and the
+browser reports that as leaving. So the panel appeared and then took itself
+away, every single time, and the harder somebody held the mouse still the more
+certainly it happened. Now the map holds one warehouse's coverage until
+somebody says otherwise, in one of the two ways somebody can: pointing at
+another warehouse, which changes the subject in one step rather than blanking
+the map between them, or taking the pointer off the map, which ends it. The
+panel counts as part of the map for this, so reading a country in it and
+opening its flap is not a departure. On the way out the panel fades and slides
+over 200ms rather than vanishing, holding the answer it was showing while it
+goes.
 
 **The markers are built once and changed in place.** Pointing at one used to
 rebuild every marker on the map — which blinked, and, on the marker under the
@@ -2771,8 +2863,14 @@ carton, pieces per carton, the source's own words for both packs, and the raw
 text every figure was read out of. The raw text is not redundant with the
 numbers beside it: it is the only thing that can settle an argument about what
 the supplier actually said, and `parseStatus` records how much of it was
-understood. `NEEDS_REVIEW` means the source's own multiplication contradicts
-itself, and such a row is displayed but never converted from.
+understood.
+
+**None of those piece counts decide what anything costs or how much arrives.**
+This shop sells one carton of `PIECES_PER_CARTON` pieces and nothing else —
+see *The carton, which is the only thing this shop sells*. The packing row is
+a record of what the supplier wrote, kept for the administrator reviewing an
+import; `PUBLIC_PACKAGING_SELECT` keeps every count out of the storefront, so
+a buyer is never shown two different carton sizes on one page.
 
 `product_pack_dimensions` holds the box sizes, one per kind, as written.
 `unit` is nullable and stays NULL unless the source actually named one. The
@@ -4834,6 +4932,18 @@ these, exactly as `assertTransition` is for orders. Two edges carry the weight:
   change a base URL and have the next paid order posted to the new address
   untested.
 
+**Testing a live connection leaves it live.** A passing test started from
+`ACTIVE` goes back to `ACTIVE`, and one started from `PAUSED` back to `PAUSED` —
+the diagram's `TESTING → CONNECTED` edge is where a test started from `DRAFT`,
+`CONNECTED` or `ERROR` lands. It has to work this way because `CONNECTED`
+carries no traffic: landing every passing test there meant pressing **Test
+connection** on a working integration silently stopped the shop's orders
+reaching its ERP until somebody noticed and pressed Activate again. Asking a
+connection whether it works is a question, not a decision.
+
+A *failing* test still lands in `ERROR`, deliberately, so the list screen shows
+the problem rather than a connection that looks fine and silently is not.
+
 **At most one connection may be `ACTIVE`.** MariaDB 10.4 has no partial index, so
 this is enforced in the service rather than by the schema — the screen offers
 several rows so a sandbox and a migration have somewhere to live, and exactly one
@@ -5440,10 +5550,10 @@ Three design decisions worth keeping:
   carrying a copy of somebody else's catalogue, kept current, for a screen
   looked at occasionally. So it costs one sync pass and happens when a person
   asks.
-- **Matching is on SKU, exactly.** Not case-folded, not fuzzy. `FG/1BZ1B1-G`
-  and `EV-CANNULA-WP` are different products until somebody says otherwise, and
-  a reconciliation that guessed would attach a stock figure to the wrong item
-  and be believed.
+- **Matching is exact.** Not case-folded, not fuzzy. `FG/1BZ1B1-G` and
+  `EV-CANNULA-WP` are different products until somebody says otherwise, and a
+  reconciliation that guessed would attach a stock figure to the wrong item and
+  be believed.
 - **Nothing matching at all gets its own sentence**, because it almost always
   means one thing — the two sides use different product codes — and saying so is
   worth more than three correct numbers a buyer has to interpret.
@@ -5451,6 +5561,62 @@ Three design decisions worth keeping:
 A feed longer than one pass reads sets `truncated`, and the screen says the two
 "only in" figures may be higher. A partial read makes matched products look
 unmatched, which is the one wrong conclusion this screen could lead somebody to.
+
+### "Somebody says otherwise": the product code cross-reference
+
+For a long time the rule above described a door with nothing behind it. On the
+first real connection this feature met, the two catalogues shared **no
+identifier at all**:
+
+| | |
+|---|---|
+| Their monday.com board | 708 finished-goods codes, `FG/1BZ1B1-G` |
+| This catalogue | 247 products, `EV-CANNULA-WP` |
+| Barcodes on their side | 559 |
+| Barcodes on ours | **0** |
+| Matched | **1**, and it was a coincidence |
+
+No mapping configuration fixes that, because the information needed to join the
+two catalogues did not exist anywhere yet. Somebody has to supply it.
+
+`customer_erp_product_codes` is where they do. One row is an explicit statement
+— *their code X is our product Y* — made by a person, against one connection.
+
+**Resolution consults it first, then an exact SKU.** `productIdForSku` in
+`pipeline.service.ts` and `reconcile.service.ts` must agree on that order
+exactly, or the screen reports a product as unmatched while the sync is quietly
+recording figures against it. A mapping wins over a matching SKU because **a
+mapping is a decision somebody is accountable for and a matching string is a
+coincidence** — and both live catalogues contained exactly one accidental
+collision, so that tie-break is not hypothetical.
+
+Three decisions worth keeping:
+
+- **Per connection, never a column on `products`.** The shortcut would be
+  `products.supplierCode`. It is wrong because this software is sold to
+  companies who run it themselves, and one product is bought by many
+  organisations who each call it something different in their own ERP. A column
+  on the product row holds one of those answers, and the second buyer to
+  connect overwrites the first.
+- **Bulk paste, not a row of dropdowns.** Seven hundred codes against two
+  hundred products is not a job anybody finishes one dropdown at a time. The
+  screen takes two columns straight out of a spreadsheet — comma, semicolon or
+  tab, because a German Excel writes semicolons — and reports the rows it could
+  not use **with their line numbers**, importing the rest. A file that size will
+  have a few stale codes, and refusing all of it because of three is how
+  somebody gives up.
+- **No foreign key to `products`.** A restrictive one would let one buyer's
+  private mapping veto the operator's own catalogue; a cascading one would
+  silently delete an afternoon's work when a product was renamed and re-added.
+  So a mapping can outlive what it points at, resolution tolerates the miss, and
+  the screen shows the row as broken rather than hiding it.
+
+There is also **no `createdByProfileId`** on the table. Who mapped what is
+recorded in the org audit log (`mapping.linked`, `mapping.unlinked`,
+`mapping.imported`); copying a person's id into a table of catalogue mappings
+would put personal data where the Art. 15 export would have to account for it —
+see `tests/unit/export-bundle-completeness.test.ts` — in order to record
+something already recorded properly elsewhere.
 
 ### Authorising with OAuth, and where the redirect lands
 
@@ -5634,6 +5800,28 @@ terminal and has no way out.**
 | `ACTION_REQUIRED` | Waiting for a person — an expired authorisation, an undecided approval. |
 | `FAILED` | Repeated failures took it out of service. Nobody chose this. |
 | `DISCONNECTED` | Switched off, credentials destroyed, history kept. |
+
+Setup is `DRAFT → TESTING → DRAFT`, as many times as it takes, and activation is
+refused out of `DRAFT` until a test has passed, a mapping has been checked and
+the endpoints the policy needs exist.
+
+**A test puts the connection back where it found it.** `TESTING` is not only a
+setup state — testing a *live* connection is the commonest reason anybody
+presses the button — so a test started from `ACTIVE` returns to `ACTIVE` and one
+started from `PAUSED` returns to `PAUSED`, whether it passed or failed. Landing
+every test in `DRAFT` meant pressing **Test** on a working integration switched
+it off: no events dispatched, the **Sync now** button disappeared, and nothing
+said why.
+
+`DRAFT`, `ACTION_REQUIRED` and `FAILED` still land in `DRAFT`, which is not an
+oversight — all three mean "not in service", `DRAFT` is the door back in, and a
+passing test is what carries them through it.
+
+The *outcome* of a test never lives in the state. It lives in `lastTestOk`,
+`lastTestMessage` and `stateReason`, which is what the screen reads. A
+connection is taken out of service by repeated failures in real traffic
+(`ERP_FAILURE_THRESHOLD`), never by one failed probe — otherwise "find out what
+is wrong" becomes the thing that stops the orders.
 
 | Event state | Means |
 |---|---|
@@ -5875,8 +6063,10 @@ already exists:
    MRP column, which is a consumer-facing figure from a different market under
    a different regulation, and is emphatically not this deployment's selling
    price.
-2. **It sells in packs.** `100Pcs x 20Box=2000Pcs` is the whole commercial
-   relationship: a hospital orders two cartons, not four thousand syringes.
+2. **It sells in packs.** `100Pcs x 20Box=2000Pcs` is how the supplier
+   describes their own boxing: a hospital orders cartons, not loose syringes.
+   What this shop sells them is its own carton of `PIECES_PER_CARTON` pieces —
+   the sheet's figures are recorded, and the selling unit is the setting.
 3. **It carries the operator's own workflow** — licence status, production
    capacity, "Working on it" — mixed into the same rows as the product facts a
    buyer is allowed to see.
@@ -6201,61 +6391,184 @@ precisely the mistake `product_prices` exists to prevent.
 
 ---
 
-## Packaging, and ordering by the box
+## One department, not twenty-six
+
+The importer files each product under the category band its sheet row carried,
+and creates that category if it does not exist yet. Every one of them lands at
+the **top level**, because the sheet has no idea which of them belong together.
+The storefront front page shows the top level — that is what a department is —
+so a freshly imported catalogue greets a buyer with twenty-six cards reading
+"ABG Kit", "Flush Syringe", "Ryles Tube", "Sterile Water With 10% Glycerine".
+
+That is a parts list. A buyer arriving at a shop front wants to know what kind
+of shop it is first, and which shelf second.
+
+```bash
+cd backend
+npm run catalog:group -- --name "Medical Devices"            # dry run
+npm run catalog:group -- --name "Medical Devices" --apply
+npm run catalog:group -- --name "Medical Devices" --apply --actor admin@example.com
+```
+
+It creates the named department if it is not already there, active, and moves
+every other top-level category underneath it. Nothing is renamed, nothing is
+deleted, and no product changes hands — a product stays in the category it was
+imported into, and that category is now one level down.
+
+Afterwards the front page shows one card. Opening it lists **every product in
+the catalogue**, because a category page has always filtered on the whole
+subtree — and the twenty-six appear on that page as their own cards, above the
+results, in the same grid the front page used to show. The filter rail lists
+them too, as it always has.
+
+**Re-running it is the point, not a risk.** The next import will create new
+top-level categories for any band the sheet has that the catalogue does not, so
+this is the command that sweeps them in afterwards. Anything already inside the
+department is left alone, and a second run with nothing to do says so.
+
+### The name is an argument, never a constant
+
+What a deployment sells is the operator's business. Two operators running this
+same code will type two different names here, and one of them will not be
+selling medical devices at all — so the department is named on the command
+line, and nothing in the codebase knows what this catalogue happens to contain.
+
+### What this changed about the counts
+
+A department that holds nothing directly and everything in its children would
+have advertised itself as empty and then shown two hundred products. So
+`/catalog/categories` now returns two numbers per node:
+
+| Field | Counts |
+|---|---|
+| `productCount` | Products filed **directly** in that category |
+| `totalProductCount` | That category **and every category beneath it** |
+
+The storefront reads `totalProductCount` everywhere it shows a number — the
+front page card and the filter panel's sub-category list — because that is what
+opening the category will actually show. The admin panel keeps reading
+`productCount`, because there the question is "what is filed here", which is
+the question asked before archiving a category.
+
+The public tree counts **published** products only, so the card and the page it
+opens agree; the admin tree counts drafts and unpublished products too, because
+those are what refuse to let a category be archived.
+
+### One department gets a bigger card
+
+The front-page strip never lays out more columns than there are departments — a
+single card in the corner of a four-wide grid reads as a page that failed to
+load the other three. With exactly one it is drawn as the doorway it is: full
+width, a larger mark, the name at title size, and a second line saying how many
+sub-categories sit behind it.
+
+---
+
+## The carton, which is the only thing this shop sells
 
 A wholesale buyer's first question about a consumable is not what it costs, it
-is how it is boxed — that is the unit they order in, the unit their store room
+is how it arrives — that is the unit they order in, the unit their store room
 counts in, and the unit their own purchase order is written in.
 
-**The listing** carries one line: `100 per box · 2,000 per carton`.
+Here the answer is the same for everything in the catalogue: **one carton, and
+one carton has 500 pieces.** There is no piece to buy, no inner box to buy, and
+no per-product carton size to check. A buyer types a number of cartons and
+every price they have been shown is the price of one of those.
 
-**The product page** gets two new sections. *Packaging and ordering* breaks the
-figures out, states the conversion as one sentence — `100 pieces × 20 boxes =
-2,000 pieces` — and offers a ready-reckoner for 1, 2, 5 and 10 of whichever unit
-the buyer is counting in. *Dimensions* shows the three box sizes as the supplier
-recorded them.
+The number is `PIECES_PER_CARTON`, an environment setting that defaults to 500.
+It is a setting rather than a constant because the next company to buy this
+software packs its own product its own way, and a figure compiled into a
+browser bundle is a figure the operator who bought it cannot change. The
+storefront reads it from `GET /config`, in the `ordering.piecesPerCarton` block,
+and can render no price until it has.
 
-Above the quantity boxes sits a three-way control — **Pieces / Box of 20 /
-Carton of 2,000** — and under them a live line saying what the choice comes to:
-*That comes to 4,000 pieces.* Only units the catalogue can actually convert are
-offered, and a row whose figures contradicted each other offers pieces only.
+**The listing and the cards** carry one line under the name: *One carton has
+500 pieces*, and the figure beside it is what a carton costs.
 
-**The price follows the unit.** Switch the control to *Carton of 2,000* and
-the headline figure becomes what a carton costs, with the per-piece price kept
-on the line underneath — *per carton of 2,000 · ₹100.00 per piece* — and every
-option in the list repriced the same way. A buyer who is thinking in cartons
-should not have to do the multiplication on a calculator beside the screen.
+**The product page** says the same thing three times over, because it is the
+one fact a reader must not get wrong: above the quantity box (*Ordered by the
+carton · one carton has 500 pieces*), under the price (*per carton of 500
+pieces · ₹12.50 per piece*), and in the *Packaging and ordering* section, which
+also offers a ready-reckoner for 1, 2, 5 and 10 cartons. *Dimensions* still
+shows the box sizes as the supplier recorded them. Under the quantity box a
+live line says what the choice comes to: *That comes to 1,000 pieces.*
+
+**The supplier's own piece counts never reach the browser.** A sheet that says
+`100Pcs x 20Box=2000Pcs` still imports, and an administrator reviewing the
+import sees every figure of it — but `packaging.service.ts` strips the counts
+out of the public shape. A supplier's "2,000 to a carton" printed beside this
+shop's carton of 500 is a buyer working out which of the two their order was
+priced at, and one of those answers is always wrong.
+
+**The price is always the price of a carton.** The catalogue prices a piece;
+every customer-facing figure is that piece price multiplied by the carton size.
+That happens in one function — `cartonPriceMinor` in
+`apps/customer-web/src/lib/packaging.ts` — so the card, the product page, the
+basket and the schedule cannot quote four different numbers for one product.
 
 This is not a second pricing engine and must not become one. It multiplies one
-catalogue price by one catalogue pack size, both of which came off the server,
-and it still prints no total: no tax, no discount, no sum across the options
-chosen. The strike-through is scaled by the same factor, because a tenth off a
-piece is a tenth off a carton and scaling only one side would invent a saving
-nobody offered. The arithmetic is `multiplyMinor` in
+catalogue price by one carton size, both of which came off the server, and it
+still prints no total: no tax, no discount, no sum across the options chosen.
+The strike-through is scaled by the same factor, because a tenth off a piece is
+a tenth off a carton and scaling only one side would invent a saving nobody
+offered. The arithmetic is `multiplyMinor` in
 `apps/customer-web/src/lib/format.ts` — BigInt minor units multiplied by a
 whole count of physical things, exact, and never a float.
 
-Two rules hold this together.
+The catalogue's price filter takes carton prices too, and converts them back to
+piece prices before it calls the API — rounding the floor up and the ceiling
+down, both outwards, so a product sitting exactly on the number somebody typed
+is never hidden by it.
+
+Three rules hold this together.
 
 **Quantity is always pieces.** `cart_items.quantity`, `order_items.quantity` and
-`recurring_schedule_items.quantity` mean exactly what they meant before, and
-every price, tax, reservation and stock path reads them unchanged. Three new
-columns beside each — `orderingUnit`, `unitQuantity`, `piecesPerUnitSnapshot` —
-record what the buyer chose. Had the quantity column itself learned about packs,
-every one of those paths would have had to learn too, and one of them would have
-been missed.
+`recurring_schedule_items.quantity` mean exactly what they always meant, and
+every price, tax, reservation, warehouse and ERP path reads them unchanged.
+Three columns beside each — `orderingUnit`, `unitQuantity`,
+`piecesPerUnitSnapshot` — record what the buyer chose. Had the quantity column
+itself learned about cartons, every one of those paths would have had to learn
+too, and one of them would have been missed.
 
-**The conversion is done on the server, from the catalogue's own packing row,
-and snapshotted.** A client that could post its own "pieces per carton" could
-post 1 and buy a carton at the price of a syringe. And packing gets corrected:
-"2 cartons" has to keep meaning the 4,000 pieces it meant on the day it was
+**The conversion is done on the server, from the deployment's own setting, and
+snapshotted.** A client that could post its own "pieces per carton" could post
+1 and buy a carton at the price of a syringe. And the setting can be changed:
+"2 cartons" has to keep meaning the 1,000 pieces it meant on the day it was
 agreed. That matters most on a schedule, where the charge happens months later
 inside a worker with nobody watching.
 
-**Packing is not a minimum.** A carton of 2,000 does not mean 2,000 is the least
-somebody may buy; the minimum order quantity is a separate rule the operator
-sets deliberately. The page says so, because a B2B buyer who has met both will
-assume otherwise.
+**No route can produce a part carton.** `POST /cart/items` accepts
+`orderingUnit: "OUTER_CARTON"` and a carton count, and refuses `PIECE` and
+`INNER_PACK` outright rather than reinterpreting them — a client asking for
+three pieces is told the shop does not sell them. A caller that sends a bare
+`quantity` in pieces (an ERP, an API client, a reorder of an old line) is
+rounded **up** to whole cartons, because part of a carton is not something this
+shop can ship and quietly delivering less than was asked for is the worse of
+the two answers. A product minimum that lands mid-carton takes the whole carton
+above it. `PATCH /cart/items/:id` does the same with a piece count.
+
+**A carton is not a minimum.** A carton of 500 does not mean 500 is the least
+somebody may buy in one order; the minimum order quantity is a separate rule
+the operator sets deliberately, written in pieces. The page says so, because a
+B2B buyer who has met both will assume otherwise.
+
+**What the rest of the system shows.** The basket steps in cartons and prints
+the piece total under it. An order line, on the customer's page and in the
+admin console, shows both — *2 cartons × ₹6,250.00* over *1,000 pieces* —
+because "how many did they order?" and "how many do we pick?" are two
+questions with two answers. The invoice keeps its quantity column in pieces,
+which is what the unit price is per and what `unitCode="C62"` means on the UBL
+line, and names the packing in the description: *Disposable Syringe 5ml
+(2 cartons of 500)*. The AI assistant is told the selling unit before it is
+told a single price, and every price in its catalogue snapshot is a carton
+price.
+
+**In the tests.** `tests/unit/ordering-unit.test.ts` pins the arithmetic and
+the rounding. The integration suite runs with a carton of one piece — see the
+note in `backend/tests/setup.ts` — so that its seeded prices, stock figures and
+expected totals stay the size a person can check by hand; and
+`tests/integration/carton-ordering.test.ts` sets the carton to 500 itself and
+proves the whole path end to end, basket to order row.
 
 ---
 
@@ -6897,6 +7210,7 @@ before that answer lands.
 |---|---|---|
 | `SCHEDULE_MIN_NOTICE_DAYS` | `7` | How many **calendar days** of notice a schedule's first delivery needs, counted on the customer's own clock. Zero is a real setting — a shop delivering from stock in the buyer's own city has no week to ask for. The picker greys out everything below it; `createSchedule` and `updateSchedule` refuse it with `SCHEDULE_DATE_TOO_SOON` whatever the browser did. Note this is only half the floor: a plan pinned to a warehouse is held to `max(this, that warehouse's soonest)` — see 9.5 |
 | `FULFILMENT_QUOTE_TTL_MINUTES` | `15` | How long a warehouse option stays an offer. Each option written by `POST /fulfilment/warehouse-options` carries an expiry, and after it the quote is refused rather than repriced — which is what makes the total on the card the total on the order. Too short and a customer reading the page loses their offer mid-decision; too long and the shop is holding a price against stock that has moved. The checkout page is told the figure so it can re-ask *before* the lapse rather than after |
+| `PIECES_PER_CARTON` | `500` | How many pieces are in one carton — the only unit this shop sells in. A buyer chooses cartons; the piece count that reaches the warehouse, the invoice and the ERP is that number multiplied by this one, and every price a shopper sees is the catalogue's piece price multiplied by it. Published to the storefront in `/config` under `ordering`, because a browser cannot print a price without it. Changing it does not rewrite history: every basket, plan and order line keeps the carton size it was agreed at |
 
 Neither has a feature flag, and neither needs one. A deployment that has drawn
 no delivery zones gets no warehouse options, the checkout section says nothing,
@@ -6917,6 +7231,83 @@ setting:
 
 `EMAIL_DRIVER=log` is where you find confirmation links and temporary passwords
 while developing. It is refused in production.
+
+---
+
+# 14a. Running it on a server
+
+`docs/DEPLOYMENT.md` is the procedure, `deploy/` holds the files, and
+`backend/docs/RUNBOOK.md` remains the authority on operating it once it is up.
+What follows is only the shape, so the rest of this guide makes sense in a
+production context.
+
+## One box, four processes
+
+The target is a single VPS — the shape most buyers start with. nginx terminates
+TLS and serves both SPAs off disk; **three** API instances sit behind it on
+loopback ports; one worker and one MariaDB sit behind them.
+
+Three API instances because **Node is single-threaded per process**: one
+instance uses exactly one core however much traffic arrives, so on four cores
+three is the number that leaves anything for nginx, MariaDB and the worker.
+They are separate systemd units rather than Node's `cluster` module, which
+would put them all under one PID and take away the ability to restart, stagger
+or diagnose one of them.
+
+One worker, and **not** because two would break: the queue claims work with a
+lease — a conditional `UPDATE` and an affected-rows check, because MariaDB 10.4
+has no `SKIP LOCKED` — so a second is correct. It is one because the useful
+parallelism is already inside it (`WORKER_CONCURRENCY`) and a second process
+would compete for the same four cores.
+
+## What the box holds
+
+```
+/srv/uboss/{repo,releases,current→,shared/.env,media,backups}
+```
+
+`shared/` and `media/` sit **outside** the release directories deliberately:
+they are the two things a deploy must not touch and a rollback must not revert.
+
+## Releasing
+
+`deploy/scripts/release.sh` builds into a new timestamped directory, migrates,
+repoints `current`, and restarts the API instances one at a time — waiting for
+each to answer `/health/ready` before touching the next — so the site stays up.
+Nothing is swapped until every build has succeeded.
+
+**The rule the script cannot enforce:** migrations run before the new code
+starts, so during the rolling restart the *old* code runs against the *new*
+schema. Additive changes are fine; a rename or a drop is two releases — add the
+new shape and write to both, deploy, then remove the old shape once nothing
+reads it. `rollback.sh` repoints the symlink and restarts, and deliberately
+does **not** touch the database, which is why that rule matters.
+
+## Two database users, not one
+
+The application runs as a user with `SELECT, INSERT, UPDATE, DELETE` and
+nothing else — no DDL, and `UPDATE`/`DELETE` revoked on `audit_logs`, because an
+append-only audit trail the application can rewrite is not an audit trail. That
+user cannot run a migration, so `release.sh` uses a second one for that single
+command via `MIGRATE_DATABASE_URL`, which the running application never reads.
+See `backend/docs/RUNBOOK.md` §7.
+
+## What it will and will not carry
+
+A 4 vCPU / 16 GB box comfortably **stores** millions of customers — that is a
+row count — and serves roughly 800–1,500 catalogue reads a second and low
+thousands of concurrent shoppers. It will not serve millions of *concurrent*
+users; nothing on one machine will.
+
+What runs out first, in order: **database CPU**, then API cores, then disk on
+media, then RAM. That order is the buying guide.
+
+**Nothing has to be rewritten to grow.** The API keeps no state in the process
+— sessions are cookies, the queue is in the database with a lease, uploads go to
+object storage — so the same build runs on five machines behind a load balancer
+unchanged. `docs/DEPLOYMENT.md` gives the order: tune, then a CDN, then move the
+database off the box, then add API machines, then split the worker. Read
+replicas are last and are the first step that needs application work.
 
 ---
 
@@ -6957,6 +7348,7 @@ UBoss-Software/
 │   │   │   ├── catalog/
 │   │   │   │   ├── purchasability.ts   ← The one "may this be bought" rule
 │   │   │   │   ├── packaging.service.ts  Packing, on its way to a screen
+│   │   │   │   ├── group-root-categories.cli.ts  npm run catalog:group
 │   │   │   │   └── sheet-import/       ← Loading a supplier product sheet
 │   │   │   │       ├── xlsx-reader.ts        A small, read-only .xlsx reader
 │   │   │   │       ├── packing-parser.ts     ← "100Pcs x 20Box=2000Pcs"
@@ -7056,7 +7448,7 @@ UBoss-Software/
 | Add or move a warehouse | `/warehouses` in the panel; `modules/inventory/location.service.ts` |
 | Put a background behind the warehouse map | `MAP_STYLE_URL` in `backend/.env` (or `MAP_TILE_URL`, or `MAP_GOOGLE_API_KEY` + `MAP_GOOGLE_MAP_ID`) |
 | Get the map's country names in English | `MAP_STYLE_URL` — a vector style. Raster tiles have the local name painted into the picture |
-| Change how long a marker must be hovered, or how long "Delivers to" lingers after the pointer leaves | `HOVER_INTENT_MS` and `HOVER_LEAVE_MS` in `pages/warehouse/WarehouseMapLibre.tsx` |
+| Change how long a marker must be hovered, or how long "Delivers to" lingers after the pointer leaves the map | `HOVER_INTENT_MS` and `HOVER_LEAVE_MS` in `pages/warehouse/WarehouseMapLibre.tsx` — and the effect beside them that decides leaving the map, rather than leaving the marker, is what closes it |
 | Change how the "Delivers to" panel leaves | `COVERAGE_EXIT_MS` in `lib/delivery-coverage.ts` **and** the matching `duration-200` on the panel's root — see `lib/use-lingering.ts` for what keeps it mounted while it goes |
 | Change how far one warehouse delivers | its **Delivery radius** on the warehouse form. Leave it empty and `DELIVERY_COVERAGE_RADIUS_KM` applies |
 | Stop delivering to a country from one warehouse | **Countries this warehouse will not deliver to** on the warehouse form. The radius still reaches it; the storefront no longer offers it |
@@ -7075,6 +7467,7 @@ UBoss-Software/
 | Change how much notice a first delivery needs | `SCHEDULE_MIN_NOTICE_DAYS` in the backend's environment — published to both browsers through `/config`, so the calendar redraws around it with no rebuild. `DELIVERY_NOTICE_DAYS` in `lib/schedule-cadence.ts` is only the fallback until that answer lands |
 | Change which warehouse an order may ship from | The delivery zones on the warehouse (`WarehouseDeliveryZone`), not the map's circle — `modules/fulfilment/warehouse-options.service.ts` is what reads them |
 | Change how long a warehouse quote stands | `FULFILMENT_QUOTE_TTL_MINUTES` in the backend's environment; the checkout page reads it back from `/config` and re-asks before it lapses |
+| Change how many pieces are in a carton | `PIECES_PER_CARTON` in the backend's environment — published through `/config`, so every price and every quantity box follows it with no rebuild. `DEFAULT_PIECES_PER_CARTON` in `domain/ordering-unit.ts` is the one place the 500 is written down, and `lib/packaging.ts` holds the browser's fallback until `/config` answers |
 | Change how a date is picked anywhere | `components/DatePicker.tsx`; the day arithmetic is `lib/calendar-date.ts` and never a `Date` |
 | Change when an edit is refused because a delivery is in flight | `IN_FLIGHT_OCCURRENCE_STATUSES` in `modules/recurring/schedule.service.ts` — read the note first |
 | Change what a product card under an AI answer shows | `GET /catalog/product-cards` for the data, `pages/ai/AiProductCards.tsx` for the card |

@@ -43,8 +43,8 @@ import { Badge, Button, ButtonLink } from '@/components/ui';
 import { AlertIcon, BoxIcon, CartIcon } from '@/components/icons';
 import { api } from '@/lib/api';
 import { errorMessage } from '@/lib/errors';
-import { formatMoney, formatNumber } from '@/lib/format';
-import { clampToRules } from '@/lib/quantity-rules';
+import { formatMoneyMinor, formatNumber } from '@/lib/format';
+import { SELLING_UNIT, cartonPriceMinor, usePiecesPerCarton } from '@/lib/packaging';
 import { useI18n } from '@/i18n/i18n-context';
 import type { Money, Product } from '@/lib/types';
 
@@ -172,6 +172,7 @@ function ProductTile({ product }: { product: AiProductCard }): React.JSX.Element
   const [addError, setAddError] = useState<string | null>(null);
 
   const rules = product.purchaseRules;
+  const piecesPerCarton = usePiecesPerCarton();
   const needsOptions = product.hasVariants && product.variants.length > 0;
   const soldOut = product.availability.isStockTracked && !product.availability.inStock;
   const unpriced = product.price === null;
@@ -195,11 +196,15 @@ function ProductTile({ product }: { product: AiProductCard }): React.JSX.Element
       api.post('/cart/items', {
         productId: product.id,
         variantId: null,
-        // The minimum, clamped to the increment. A card cannot ask for a
-        // quantity, so it asks for the smallest legal one — and clamping is
-        // what stops a minimum of 10 with an increment of 4 sending a number
-        // the server would only flag.
-        quantity: clampToRules(rules.minOrderQty, rules),
+        // One carton. A card cannot ask for a quantity, so it asks for the
+        // smallest thing this shop sells - and the piece count that goes with
+        // it is the carton, not the product's minimum, because a minimum
+        // written in pieces would buy part of a carton nobody can ship.
+        //
+        // The server recomputes the pieces from its own setting regardless.
+        orderingUnit: SELLING_UNIT,
+        unitQuantity: 1,
+        quantity: piecesPerCarton,
       }),
     onSuccess: async () => {
       setAddError(null);
@@ -267,7 +272,13 @@ function ProductTile({ product }: { product: AiProductCard }): React.JSX.Element
               ) : (
                 <>
                   <span className="text-sm font-semibold tabular text-ink">
-                    {formatMoney(product.price)}
+                    {formatMoneyMinor(
+                      cartonPriceMinor(product.price.minor, piecesPerCarton),
+                      product.price.currency,
+                    )}
+                  </span>
+                  <span className="text-xxs text-ink-subtle">
+                    {t('packaging.oneCartonHas', { n: formatNumber(piecesPerCarton) })}
                   </span>
                   <span className="text-xxs text-ink-subtle">
                     {product.tax.inclusive

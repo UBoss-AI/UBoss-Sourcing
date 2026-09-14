@@ -302,16 +302,18 @@ describe('editing a schedule', () => {
       route: `/accounts/schedule?id=${schedule().id}`,
     });
 
-    // The basket, with the product on it and its own quantity.
+    // The basket, with the product on it and its own quantity — in cartons,
+    // which is the only unit this shop sells. The plan holds 20 pieces, which
+    // is the one carton it takes to hold them.
     expect(await screen.findByText('Nitrile Examination Gloves')).toBeInTheDocument();
-    expect(screen.getByRole('spinbutton', { name: /^Quantity$/i })).toHaveValue(20);
+    expect(screen.getByRole('spinbutton', { name: /^Cartons$/i })).toHaveValue(1);
 
     // The steppers name the line, even though the visible label does not.
     // Two lines of one product are otherwise two controls a screen reader
-    // hears as "Increase quantity by 10" twice over.
+    // hears as "Increase quantity by 1" twice over.
     expect(
       screen.getByRole('button', {
-        name: /Increase the quantity of Nitrile Examination Gloves by 10/i,
+        name: /Increase the quantity of Nitrile Examination Gloves by 1/i,
       }),
     ).toBeInTheDocument();
 
@@ -476,11 +478,12 @@ describe('editing a schedule', () => {
       route: `/accounts/schedule?id=${schedule().id}`,
     });
 
-    const quantity = await screen.findByRole('spinbutton', { name: /^Quantity$/i });
+    const quantity = await screen.findByRole('spinbutton', { name: /^Cartons$/i });
 
-    // The increment is 10, so the stepper goes to 30 rather than 21.
+    // Cartons step by one. The product's increment is written in pieces and
+    // the server applies it to the piece total.
     await user.click(screen.getByRole('button', { name: /increase/i }));
-    expect(quantity).toHaveValue(30);
+    expect(quantity).toHaveValue(2);
 
     await user.click(screen.getByRole('button', { name: /apply changes/i }));
 
@@ -490,8 +493,9 @@ describe('editing a schedule', () => {
 
     // Absolute, not incremental: every line with its quantity, plus the whole
     // recurrence. Applying this body twice lands on the same state.
+    // Two cartons of 500, sent as the piece count the server prices.
     expect(bodies[0]?.['items']).toEqual([
-      { productId: '01JPRODUCT0000000000000001', variantId: null, quantity: 30 },
+      { productId: '01JPRODUCT0000000000000001', variantId: null, quantity: 1000 },
     ]);
     expect(bodies[0]).toHaveProperty('frequency', 'MONTHLY');
     expect(bodies[0]).toHaveProperty('timezone', 'Asia/Kolkata');
@@ -552,7 +556,7 @@ describe('editing a schedule', () => {
       route: `/accounts/schedule?id=${schedule().id}`,
     });
 
-    await screen.findByRole('spinbutton', { name: /^Quantity$/i });
+    await screen.findByRole('spinbutton', { name: /^Cartons$/i });
     await user.click(screen.getByRole('button', { name: /increase/i }));
     await user.click(screen.getByRole('button', { name: /apply changes/i }));
 
@@ -580,7 +584,7 @@ describe('editing a schedule', () => {
 
     // Nothing editable, so nothing that looks editable.
     expect(screen.getByRole('button', { name: /apply changes/i })).toBeDisabled();
-    expect(screen.getByRole('spinbutton', { name: /^Quantity$/i })).toBeDisabled();
+    expect(screen.getByRole('spinbutton', { name: /^Cartons$/i })).toBeDisabled();
     expect(screen.queryByRole('button', { name: /add a product/i })).toBeNull();
   });
 

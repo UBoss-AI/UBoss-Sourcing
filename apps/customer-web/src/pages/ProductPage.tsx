@@ -57,12 +57,8 @@ import type {
 } from '@/lib/types';
 import { ProductSafetyPanel } from '@/components/ProductSafetyPanel';
 import { ProductDevicePanel } from '@/components/ProductDevicePanel';
-import {
-  DimensionsSection,
-  OrderingUnitTabs,
-  PackagingSection,
-} from '@/components/ProductPackagingPanel';
-import { piecesPerUnit, unitLabel, type OrderingUnit } from '@/lib/packaging';
+import { DimensionsSection, PackagingSection } from '@/components/ProductPackagingPanel';
+import { SELLING_UNIT, cartonPriceMinor, usePiecesPerCarton, type OrderingUnit } from '@/lib/packaging';
 import { useI18n } from '@/i18n/i18n-context';
 import type { Translate } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
@@ -589,18 +585,14 @@ export function ProductPage(): React.JSX.Element {
   const [addError, setAddError] = useState<string | null>(null);
 
   /**
-   * What the numbers on this page are counting.
+   * What the numbers on this page are counting: cartons.
    *
-   * One choice for the whole page rather than one per option: a buyer ordering
-   * three sizes of a cannula orders all three by the carton or all three by the
-   * piece, and a page where each row could be counted differently is a page
-   * where the total is impossible to hold in your head.
-   *
-   * It resets to pieces whenever the product changes, so a unit chosen on one
-   * product cannot follow the customer to the next one and quietly multiply
-   * what they type by two thousand.
+   * There is no control for this and no state behind it. The shop sells one
+   * unit, every quantity box on the page counts in it, and every price on the
+   * page is the price of one of it. A picker offering a choice that has one
+   * option is a control that reads as broken.
    */
-  const [orderingUnit, setOrderingUnit] = useState<OrderingUnit>('PIECE');
+  const piecesPerCarton = usePiecesPerCarton();
 
   const { currency, country, countries } = useLocale();
 
@@ -641,7 +633,6 @@ export function ProductPage(): React.JSX.Element {
 
     const only = product.variants.length === 1 ? product.variants[0] : undefined;
     setChosen(only === undefined ? new Map() : new Map([[only.id, opening]]));
-    setOrderingUnit('PIECE');
   }, [product]);
 
   // `exactOptionalPropertyTypes` means an absent description is an absent key,
@@ -672,26 +663,21 @@ export function ProductPage(): React.JSX.Element {
     if (product === undefined) return [];
 
     /**
-     * One line, counted in whatever unit the page is set to.
+     * One line: a number of cartons, and the pieces they come to.
      *
      * `quantity` is always pieces, because that is what the server, the
-     * basket, the warehouse and the invoice all count in. The pack figures
+     * basket, the warehouse and the invoice all count in. The carton figures
      * travel beside it so the basket can show the choice back - and the server
-     * recomputes the pieces from its own packing row regardless, so a browser
-     * that got this arithmetic wrong cannot buy anything at the wrong price.
+     * recomputes the pieces from its own setting regardless, so a browser that
+     * got this arithmetic wrong cannot buy anything at the wrong price.
      */
-    const lineFor = (variantId: string | null, typed: number): ChosenLine => {
-      const packing = packagingFor(product, variantId);
-      const perUnit = piecesPerUnit(orderingUnit, packing) ?? 1;
-
-      return {
-        variantId,
-        quantity: typed * perUnit,
-        orderingUnit,
-        unitQuantity: typed,
-        piecesPerUnit: perUnit,
-      };
-    };
+    const lineFor = (variantId: string | null, typed: number): ChosenLine => ({
+      variantId,
+      quantity: typed * piecesPerCarton,
+      orderingUnit: SELLING_UNIT,
+      unitQuantity: typed,
+      piecesPerUnit: piecesPerCarton,
+    });
 
     if (!product.hasVariants || product.variants.length === 0) {
       return [lineFor(null, quantity)];
@@ -701,7 +687,7 @@ export function ProductPage(): React.JSX.Element {
       const wanted = chosen.get(variant.id);
       return wanted === undefined ? [] : [lineFor(variant.id, wanted)];
     });
-  }, [product, chosen, quantity, orderingUnit]);
+  }, [product, chosen, quantity, piecesPerCarton]);
 
   const addToCart = useMutation({
     // The bulk route even for a single line. It takes the same shape either
@@ -713,10 +699,10 @@ export function ProductPage(): React.JSX.Element {
           productId: product?.id,
           variantId: line.variantId,
           quantity: line.quantity,
-          // Sent as the unit and the count, never as the conversion: the
-          // server looks that up for itself. See cart.customer.ts.
+          // Sent as the unit and the carton count, never as the conversion:
+          // the server looks that up for itself. See cart.customer.ts.
           orderingUnit: line.orderingUnit,
-          ...(line.orderingUnit === 'PIECE' ? {} : { unitQuantity: line.unitQuantity }),
+          unitQuantity: line.unitQuantity,
         })),
       }),
     onSuccess: async () => {
@@ -797,37 +783,35 @@ export function ProductPage(): React.JSX.Element {
   /**
    * The price, in the unit the customer has chosen to count in.
    *
-   * The catalogue prices a piece. A buyer who has switched the control to
-   * "Carton of 2,000" is thinking in cartons, and a page that answers them with
-   * the price of one syringe is making them do the multiplication - which they
-   * will do on a calculator beside the screen, and sometimes get wrong.
+   * The catalogue prices a piece; the shop sells a carton. A buyer is thinking
+   * in cartons because that is the only thing they can put in a basket, and a
+   * page that answers them with the price of one syringe is making them do the
+   * multiplication - which they will do on a calculator beside the screen, and
+   * sometimes get wrong.
    *
    * Two things keep this from becoming a second pricing engine, which is the
    * thing this page must never grow. It multiplies ONE catalogue price by ONE
-   * catalogue pack size, both of which came off the server; and it still prints
-   * no total - no tax, no discount, no sum across the options chosen. Restating
-   * a unit price in a bigger unit is not a total, and the per-piece figure stays
-   * on screen beside it so neither number can be mistaken for the other.
-   *
-   * The factor is per variant, because two sizes of one product are not always
-   * boxed the same.
+   * carton size, both of which came off the server; and it still prints no
+   * total - no tax, no discount, no sum across the options chosen. Restating a
+   * unit price in a bigger unit is not a total, and the line underneath says
+   * what the figure is the price of, so neither number can be misread.
    */
-  const piecesPerChosenUnit = (variantId: string | null): number =>
-    piecesPerUnit(orderingUnit, packagingFor(product, variantId)) ?? 1;
-
   interface UnitPrice {
-    /** Minor units for one of the chosen ordering unit. */
+    /** Minor units for one carton. */
     minor: string;
     /** What one piece costs, kept for the line printed underneath. */
     pieceMinor: string;
-    /** How many pieces that unit holds, for the same line. */
+    /** How many pieces that carton holds, for the same line. */
     pieces: number;
   }
 
   const unitPriceOf = (variant: ProductVariant | null): UnitPrice => {
     const price = variant?.price ?? product.price;
-    const pieces = piecesPerChosenUnit(variant?.id ?? null);
-    return { minor: multiplyMinor(price.minor, pieces), pieceMinor: price.minor, pieces };
+    return {
+      minor: cartonPriceMinor(price.minor, piecesPerCarton),
+      pieceMinor: price.minor,
+      pieces: piecesPerCarton,
+    };
   };
 
   // The currency the server quoted these figures in, which is what they must
@@ -1004,20 +988,17 @@ export function ProductPage(): React.JSX.Element {
               {hasDiscount && <Badge tone="action">{t('product.reducedPrice')}</Badge>}
             </p>
 
-            {/* What that figure is the price OF, and what one piece costs.
+            {/* What that figure is the price OF.
 
-                Only when the two differ. Counting in pieces, this would say
-                "per piece" under a per-piece price and then repeat it - which
-                is noise on the one line of the page nobody may misread. */}
-            {orderingUnit !== 'PIECE' && (
-              <p className="mt-1 text-sm font-medium text-brand">
-                {t('product.pricePerUnit', {
-                  unit: unitLabel(orderingUnit, shownPackaging, t).toLowerCase(),
-                  pieces: formatNumber(displayUnitPrice.pieces),
-                  each: formatMoneyMinor(displayUnitPrice.pieceMinor, priceCurrency),
-                })}
-              </p>
-            )}
+                Never omitted. The number above is the price of a carton of
+                five hundred, and a buyer who reads it as the price of one
+                syringe has misread the only figure on the page that matters. */}
+            <p className="mt-1 text-sm font-medium text-brand">
+              {t('product.pricePerCarton', {
+                pieces: formatNumber(displayUnitPrice.pieces),
+                each: formatMoneyMinor(displayUnitPrice.pieceMinor, priceCurrency),
+              })}
+            </p>
 
             <p className="mt-1.5 text-sm text-ink-muted">
               {taxLine(t, product.tax, countryNames)}
@@ -1058,17 +1039,12 @@ export function ProductPage(): React.JSX.Element {
               the gallery, so it has to read as one task. */}
           <div className="mt-5 rounded-lg border border-border bg-surface px-4 py-4 shadow-card sm:px-5 sm:py-5">
             <div className="space-y-5">
-              {/* Above the quantity boxes, because it changes what the numbers
-                  in them mean. Absent entirely where the catalogue knows only
-                  one unit - see OrderingUnitTabs. */}
-              <OrderingUnitTabs
-                packaging={shownPackaging}
-                value={orderingUnit}
-                onChange={(unit) => {
-                  setOrderingUnit(unit);
-                  setAddError(null);
-                }}
-              />
+              {/* What the quantity boxes below are counting, said before they
+                  are reached rather than after. There is no control here
+                  because there is no choice: this shop sells cartons. */}
+              <p className="text-xs font-medium text-ink-muted">
+                {t('packaging.orderingInCartons', { n: formatNumber(piecesPerCarton) })}
+              </p>
 
               {needsVariant ? (
                 <VariantPicker
@@ -1076,8 +1052,8 @@ export function ProductPage(): React.JSX.Element {
                   chosen={chosen}
                   rules={rules}
                   hidePrices={isPriceOnRequest}
-                  // Each row priced in the unit the control above is set to, or
-                  // the list would read in pieces under a heading that says
+                  // Each row priced by the carton, or the list would read in
+                  // pieces under a page that prices everything else in
                   // cartons.
                   priceOf={(variant) => unitPriceOf(variant).minor}
                   currency={priceCurrency}
@@ -1099,15 +1075,12 @@ export function ProductPage(): React.JSX.Element {
                 />
               )}
 
-              {/* What the packs come to.
+              {/* What the cartons come to.
 
-                  Shown only when the customer is counting in something other
-                  than pieces, because otherwise it would restate the number
-                  they just typed. This is the figure the basket, the warehouse
-                  and the invoice will all use, so seeing it here is what stops
-                  "2" meaning two syringes to the customer and four thousand to
-                  everybody else. */}
-              {orderingUnit !== 'PIECE' && totalPieces > 0 && (
+                  This is the figure the basket, the warehouse and the invoice
+                  will all use, so seeing it here is what stops "2" meaning two
+                  syringes to the customer and a thousand to everybody else. */}
+              {totalPieces > 0 && (
                 <p className="rounded-md bg-surface-sunken px-3 py-2 text-sm tabular text-ink-muted">
                   {t('packaging.comesTo', { n: formatNumber(totalPieces) })}
                 </p>
