@@ -205,6 +205,23 @@ const SORT_ORDERS = {
   name_desc: [{ product: { name: 'desc' } }, { productId: 'asc' }],
 } as const satisfies Record<string, Prisma.ProductPriceOrderByWithRelationInput[]>;
 
+/**
+ * The same sorts, against a seller's own offers.
+ *
+ * A seller's shop front is rooted at `seller_offers` rather than at
+ * `product_prices`, because on that shop the price of a thing IS the seller's
+ * price — sorting by the operator's column would order a seller's grid by
+ * somebody else's numbers, which is wrong in a way nobody would ever spot from
+ * the screen.
+ */
+const SELLER_SORT_ORDERS = {
+  newest: [{ product: { publishedAt: 'desc' } }, { productId: 'desc' }],
+  price_asc: [{ priceMinor: 'asc' }, { productId: 'asc' }],
+  price_desc: [{ priceMinor: 'desc' }, { productId: 'asc' }],
+  name_asc: [{ product: { name: 'asc' } }, { productId: 'asc' }],
+  name_desc: [{ product: { name: 'desc' } }, { productId: 'asc' }],
+} as const satisfies Record<string, Prisma.SellerOfferOrderByWithRelationInput[]>;
+
 type PublicProduct = NonNullable<
   Awaited<ReturnType<typeof prisma.product.findFirst<{ select: typeof PUBLIC_PRODUCT_SELECT }>>>
 >;
@@ -705,13 +722,104 @@ function priceWhereFor(
   };
 }
 
+/**
+ * One page of a seller's own catalogue.
+ *
+ * The same answer shape as the operator's grid, built from the seller's offers.
+ * Three things are deliberately different, and each of them is the point of the
+ * seller having a shop front at all:
+ *
+ *   - **Only what they sell.** A product the seller has no active offer for is
+ *     not in their shop, however published it is in the operator's catalogue.
+ *   - **Their price, everywhere.** The card, the sort and the price filter all
+ *     read `seller_offers.priceMinor`.
+ *   - **Their currency.** An offer is priced in one currency and is never
+ *     converted: a figure invented at browse time is one the seller never
+ *     agreed to and would be settled against something else.
+ *
+ * Variant "from" pricing is not attempted. A seller lists the options they
+ * actually stock, which is often one of six, and a range built from the
+ * operator's variant prices would quote sizes this seller does not sell.
+ */
+async function listSellerProducts(input: {
+  sellerAccountId: string;
+  query: z.infer<typeof listQuerySchema>;
+  productWhere: Prisma.ProductWhereInput;
+  currency: string;
+  language: string | null;
+  shelf: ShelfContext;
+}): Promise<Record<string, unknown>> {
+  const { sellerAccountId, query, productWhere, currency, language, shelf } = input;
+
+  const bounded = query.minPrice !== undefined || query.maxPrice !== undefined;
+
+  const where: Prisma.SellerOfferWhereInput = {
+    sellerAccountId,
+    status: 'ACTIVE',
+    currency,
+    // The offer is for the base product or for one option; either way the
+    // product itself still has to be publicly visible, so an unpublished
+    // product cannot be reached through a seller's shop.
+    product: productWhere,
+    ...(bounded
+      ? {
+          priceMinor: {
+            ...(query.minPrice !== undefined ? { gte: toListed(BigInt(query.minPrice), shelf.scale) } : {}),
+            ...(query.maxPrice !== undefined ? { lte: toListed(BigInt(query.maxPrice), shelf.scale) } : {}),
+          },
+        }
+      : {}),
+  };
+
+  const [rows, total] = await Promise.all([
+    prisma.sellerOffer.findMany({
+      where,
+      select: {
+        priceMinor: true,
+        compareAtPriceMinor: true,
+        product: { select: publicProductSelect(language) },
+      },
+      orderBy: [...SELLER_SORT_ORDERS[query.sort]],
+      skip: (query.page - 1) * query.limit,
+      take: query.limit,
+    }),
+    prisma.sellerOffer.count({ where }),
+  ]);
+
+  return {
+    products: rows.map((row) =>
+      serialiseProduct(
+        row.product,
+        currency,
+        { basePriceMinor: row.priceMinor, compareAtPriceMinor: row.compareAtPriceMinor },
+        new Map(),
+        shelf,
+      ),
+    ),
+    currency,
+    country: shelf.country,
+    pagination: {
+      page: query.page,
+      limit: query.limit,
+      total,
+      totalPages: Math.ceil(total / query.limit),
+    },
+  };
+}
+
 export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void> {
   /** Storefront navigation. Inactive categories are excluded by default. */
   app.get('/categories', async (request, reply) => {
     // The category bar is on every page of the storefront, so it has to follow
     // the same language as the products beneath it.
     const { language } = detailQuerySchema.parse(request.query);
-    const tree = await listCategoryTree({ language: languageForRequest(language) });
+    const tree = await listCategoryTree({
+      language: languageForRequest(language),
+      // On a seller's shop front the counts describe their catalogue, not the
+      // operator's — a sidebar promising 239 beside a grid of four is 235
+      // links to a 404.
+      sellerAccountId: request.storefront?.sellerAccountId ?? null,
+    });
     return reply.status(200).send({ categories: tree });
   });
 
@@ -744,6 +852,28 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
         country: shelf.country,
         pagination: { page: query.page, limit: query.limit, total: 0, totalPages: 0 },
       });
+    }
+
+    /*
+     * On a seller's own shop front, the grid is THEIR catalogue.
+     *
+     * Rooted at their offers rather than at the operator's price rows, which is
+     * what makes the filter, the sort and every figure on a card come from the
+     * same place the shopper will be charged from. Restricting the operator's
+     * grid and then overwriting the prices afterwards would leave the sort
+     * ordering a seller's shelf by somebody else's numbers.
+     */
+    if (request.storefront !== null) {
+      const result = await listSellerProducts({
+        sellerAccountId: request.storefront.sellerAccountId,
+        query,
+        productWhere,
+        currency,
+        language,
+        shelf,
+      });
+
+      return reply.status(200).send(result);
     }
 
     // Rooted at the price row for this currency, so the filter and the sort
@@ -916,7 +1046,40 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
       currency,
     );
 
-    const base = prices.get(priceKey(product.id, null)) ?? null;
+    /*
+     * On a seller's shop front, their offer IS the product's price.
+     *
+     * And a product they do not offer is not in their shop at all, however
+     * published it is in the operator's catalogue — 404, the same answer an
+     * unpublished product gets, because a shopper must not be able to tell
+     * "this seller does not stock it" from "no such product" by the status
+     * code alone.
+     */
+    let sellerOffer: { basePriceMinor: bigint; compareAtPriceMinor: bigint | null } | null = null;
+
+    if (request.storefront !== null) {
+      const offer = await prisma.sellerOffer.findFirst({
+        where: {
+          sellerAccountId: request.storefront.sellerAccountId,
+          productId: product.id,
+          status: 'ACTIVE',
+          currency,
+        },
+        // Cheapest first, so a seller listing several options of one product
+        // shows the "from" figure rather than whichever row came back first.
+        orderBy: { priceMinor: 'asc' },
+        select: { priceMinor: true, compareAtPriceMinor: true },
+      });
+
+      if (offer === null) throw notFound('Product');
+
+      sellerOffer = {
+        basePriceMinor: offer.priceMinor,
+        compareAtPriceMinor: offer.compareAtPriceMinor,
+      };
+    }
+
+    const base = sellerOffer ?? prices.get(priceKey(product.id, null)) ?? null;
 
     // Per-size packing, which the listing deliberately does not carry. The
     // detail page is where somebody chooses a size and then works out how many
@@ -937,6 +1100,7 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
             })
           ).map((row) => row.currencyCode)
         : [];
+
 
     return reply.status(200).send({
       product: serialiseProduct(product, currency, base, prices, shelf, variantPackaging),

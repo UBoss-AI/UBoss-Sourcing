@@ -555,6 +555,127 @@ export const ErrorCode = {
   /// of your ERP's response holds the SKU". A buyer told that, after uploading
   /// a file of product codes, would go and look at the wrong screen.
   CUSTOMER_ERP_PRODUCT_CODE_INVALID: 'CUSTOMER_ERP_PRODUCT_CODE_INVALID',
+
+  // --- Seller Hub ---
+  //
+  // New codes throughout. Nothing here reuses an existing one, because both
+  // frontends map every code to a sentence in eight languages and repurposing
+  // one silently changes what a buyer is told somewhere else.
+
+  /// The signed-in account has no seller organisation. Distinct from
+  /// SELLER_NOT_APPROVED: this one means "you have not applied", and the
+  /// action is to start an application rather than to wait.
+  SELLER_ACCOUNT_REQUIRED: 'SELLER_ACCOUNT_REQUIRED',
+  /// There is an application, and it has not been approved. The message names
+  /// the state, because "submitted" and "action required" need opposite
+  /// responses from the seller.
+  SELLER_NOT_APPROVED: 'SELLER_NOT_APPROVED',
+  /// The account was approved and has since been stopped. Kept apart from
+  /// SELLER_NOT_APPROVED so a suspended seller is never told to finish an
+  /// application they already finished.
+  SELLER_SUSPENDED: 'SELLER_SUSPENDED',
+  /// The member holds a seller role that does not carry this action - a
+  /// Finance Viewer editing a listing, a Support Member issuing a payout.
+  SELLER_ROLE_DENIED: 'SELLER_ROLE_DENIED',
+  /// The row exists and belongs to a different seller. Returned as 404 by the
+  /// route layer for the same reason `assertOwnership` does: confirming that
+  /// somebody else's listing exists is itself a leak.
+  SELLER_RESOURCE_DENIED: 'SELLER_RESOURCE_DENIED',
+  /// The public display name is taken.
+  SELLER_DISPLAY_NAME_TAKEN: 'SELLER_DISPLAY_NAME_TAKEN',
+  /// The application cannot move the way it was asked to. Same shape as
+  /// ORDER_TRANSITION_NOT_ALLOWED and separate from it, because the states and
+  /// the remedies are different.
+  SELLER_APPLICATION_TRANSITION_NOT_ALLOWED: 'SELLER_APPLICATION_TRANSITION_NOT_ALLOWED',
+  /// Submission was refused because required onboarding steps are unfinished.
+  /// `details` carries one entry per missing step, keyed to the step so the
+  /// interface can link straight to it.
+  SELLER_ONBOARDING_INCOMPLETE: 'SELLER_ONBOARDING_INCOMPLETE',
+  /// A rejected application whose operator closed resubmission.
+  SELLER_RESUBMISSION_NOT_ALLOWED: 'SELLER_RESUBMISSION_NOT_ALLOWED',
+  /// Somebody else saved this application, listing or offer since it was
+  /// loaded. The client reloads and shows what changed rather than
+  /// overwriting it.
+  SELLER_STALE_VERSION: 'SELLER_STALE_VERSION',
+
+  /// The last owner cannot be removed or demoted. An organisation with no
+  /// owner has nobody who can invite one.
+  SELLER_LAST_OWNER: 'SELLER_LAST_OWNER',
+  /// The invitation is expired, already accepted, revoked, or addressed to a
+  /// different email than the one signed in.
+  SELLER_INVITATION_INVALID: 'SELLER_INVITATION_INVALID',
+  /// This account already belongs to a seller organisation. One profile, one
+  /// seller - see `SellerMember`.
+  SELLER_MEMBERSHIP_EXISTS: 'SELLER_MEMBERSHIP_EXISTS',
+
+  /// A listing draft cannot move the way it was asked to.
+  LISTING_TRANSITION_NOT_ALLOWED: 'LISTING_TRANSITION_NOT_ALLOWED',
+  /// Submission refused: required sections do not pass. `details` carries one
+  /// entry per blocking issue, each naming its section and attribute, so the
+  /// interface puts every refusal beside the field that caused it rather than
+  /// showing one sentence at the top.
+  LISTING_NOT_SUBMITTABLE: 'LISTING_NOT_SUBMITTABLE',
+  /// A value failed its category attribute definition - wrong type, outside
+  /// bounds, not an allowed option, failed the pattern.
+  LISTING_ATTRIBUTE_INVALID: 'LISTING_ATTRIBUTE_INVALID',
+  /// A required image slot is empty, or an uploaded image failed a check.
+  LISTING_IMAGE_REQUIRED: 'LISTING_IMAGE_REQUIRED',
+  /// The title cannot be generated yet because a title-component attribute is
+  /// missing or invalid. This is what keeps "Preview title" from producing a
+  /// half-title that a seller then believes.
+  LISTING_TITLE_NOT_READY: 'LISTING_TITLE_NOT_READY',
+  /// Policy does not let this seller edit a generated title.
+  LISTING_TITLE_NOT_EDITABLE: 'LISTING_TITLE_NOT_EDITABLE',
+  /// This seller already uses that SKU on another offer or draft.
+  SELLER_SKU_ALREADY_EXISTS: 'SELLER_SKU_ALREADY_EXISTS',
+  /// This seller already has an offer on this product and variant. A second
+  /// one would put the same seller against themselves on the buyer's page.
+  SELLER_OFFER_ALREADY_EXISTS: 'SELLER_OFFER_ALREADY_EXISTS',
+  /// The pack hierarchy does not multiply out - units per pack times packs per
+  /// box does not give the stated units per box, or a figure is zero.
+  LISTING_PACK_CONVERSION_INVALID: 'LISTING_PACK_CONVERSION_INVALID',
+  /// Volume price bands overlap, or a band is not cheaper than the one below.
+  SELLER_PRICE_TIER_INVALID: 'SELLER_PRICE_TIER_INVALID',
+
+  /// The brand is not approved for use on a published listing.
+  BRAND_NOT_APPROVED: 'BRAND_NOT_APPROVED',
+  /// A brand by that name already exists, or a request for it is already
+  /// pending. The message names which and links to it - a seller refused
+  /// without being told where the existing one is will simply ask again.
+  BRAND_ALREADY_EXISTS: 'BRAND_ALREADY_EXISTS',
+
+  /// The seller has no location that can hold or dispatch this.
+  SELLER_LOCATION_REQUIRED: 'SELLER_LOCATION_REQUIRED',
+  /// The location code is already used by this seller.
+  SELLER_LOCATION_CODE_EXISTS: 'SELLER_LOCATION_CODE_EXISTS',
+  /// Stock would go negative, or the conditional update lost a race. The
+  /// caller retries; it is not a validation failure.
+  SELLER_INVENTORY_CONFLICT: 'SELLER_INVENTORY_CONFLICT',
+
+  /// The seller's part of an order cannot move the way it was asked to.
+  SELLER_ORDER_TRANSITION_NOT_ALLOWED: 'SELLER_ORDER_TRANSITION_NOT_ALLOWED',
+  /// More units were claimed as dispatched or returned than the line holds.
+  SELLER_FULFILMENT_QUANTITY_INVALID: 'SELLER_FULFILMENT_QUANTITY_INVALID',
+
+  /// The deployment has no payout provider configured, so payout onboarding
+  /// cannot start.
+  ///
+  /// The single most important code in this block. It exists so that "we
+  /// cannot verify a bank account here" can never be rendered as "verified":
+  /// the screen shows a configuration-required state naming the environment
+  /// variable, and no verification row is written.
+  SELLER_PAYOUT_PROVIDER_UNCONFIGURED: 'SELLER_PAYOUT_PROVIDER_UNCONFIGURED',
+  /// The payout account exists but the provider will not pay it yet, or the
+  /// operator is holding it. The message says which and what is outstanding.
+  SELLER_PAYOUT_NOT_ELIGIBLE: 'SELLER_PAYOUT_NOT_ELIGIBLE',
+  /// A settlement that is not closed, already paid, or on hold.
+  SELLER_SETTLEMENT_NOT_PAYABLE: 'SELLER_SETTLEMENT_NOT_PAYABLE',
+
+  /// A document was refused: wrong type, too large, failed its scan, or the
+  /// scanner is unavailable and the deployment refuses unscanned uploads.
+  SELLER_DOCUMENT_REJECTED: 'SELLER_DOCUMENT_REJECTED',
+  /// A required agreement has not been accepted at its current version.
+  SELLER_AGREEMENT_REQUIRED: 'SELLER_AGREEMENT_REQUIRED',
 } as const;
 
 export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];

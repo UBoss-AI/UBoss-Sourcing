@@ -323,6 +323,21 @@ model BusinessProfile {
   /// as warnings, so the gap is visible before it is enforced.
   gpsrEnforced Boolean @default(false)
 
+  /// What the marketplace keeps when a seller's offer is bought, in basis
+  /// points (250 = 2.50%).
+  ///
+  /// Basis points rather than a decimal percentage: a rate stored as 0.025
+  /// comes back as 0.024999999 often enough that a settlement stops
+  /// reconciling, and the figure people argue about is the one in the
+  /// contract. Zero by default, and that default is the honest one — a
+  /// deployment that has not decided what it charges must not quietly start
+  /// charging something.
+  ///
+  /// This is the PLATFORM rate. `SellerAccount.commissionBasisPoints`
+  /// overrides it per seller, which is why that column is nullable: a seller
+  /// negotiated onto their own schedule keeps it when this moves.
+  sellerCommissionBasisPoints Int @default(0) @db.SmallInt
+
   /// Whether a product marked as a medical device must carry its MDR
   /// identification before it publishes.
   ///
@@ -617,6 +632,12 @@ model Category {
   couponCategories CouponCategory[]
   translations     CategoryTranslation[]
 
+  /// The fields the listing wizard asks for in this category, and the drafts
+  /// still being written against it. See the LISTING SCHEMA block at the end
+  /// of this file.
+  attributeDefinitions CategoryAttributeDefinition[]
+  listingDrafts        SellerListingDraft[]
+
   imageMedia  MediaAsset? @relation("CategoryImage", fields: [imageMediaId], references: [id], onDelete: SetNull)
   bannerMedia MediaAsset? @relation("CategoryBanner", fields: [bannerMediaId], references: [id], onDelete: SetNull)
 
@@ -645,9 +666,9 @@ model Product {
   /// Set when publication is scheduled ahead of time.
   publishFrom DateTime?     @db.DateTime(3)
 
-  taxClassId          String  @db.Char(26)
-  basePriceMinor      BigInt
-  currency            String  @db.Char(3)
+  taxClassId     String @db.Char(26)
+  basePriceMinor BigInt
+  currency       String @db.Char(3)
 
   /// This price is a placeholder somebody still has to replace.
   ///
@@ -697,7 +718,7 @@ model Product {
   ///
   /// Stock is a different answer again: out of stock is a fact about a
   /// warehouse, this is a decision about the product.
-  isOrderable      Boolean @default(true)
+  isOrderable Boolean @default(true)
 
   /// Why it cannot be ordered, in the operator's own words, shown to the
   /// customer beside the "Currently unavailable" notice. Null shows the
@@ -711,6 +732,23 @@ model Product {
 
   isRecurringEligible Boolean @default(false)
   hasVariants         Boolean @default(false)
+
+  /// A catalogue entry that exists because a seller listed it, rather than
+  /// because the operator stocks it.
+  ///
+  /// The difference it makes is where the price and the stock come from. A
+  /// marketplace product has neither of its own - `basePriceMinor` is the
+  /// lowest live offer and the buyer buys from a `SellerOffer` - so nothing
+  /// may set a price on one directly. Default false, which is what every
+  /// product that existed before the Seller Hub is, and they behave exactly as
+  /// they did.
+  isMarketplaceProduct Boolean @default(false)
+
+  /// The seller who first described this item. Kept for the trail and for
+  /// moderation - "who told us this is what a Class IIb pump is" has to have an
+  /// answer - and NOT as ownership: once the product exists, any approved
+  /// seller may offer it.
+  createdBySellerAccountId String? @db.Char(26)
 
   /// Whether this has to travel refrigerated.
   ///
@@ -794,23 +832,33 @@ model Product {
   manufacturer  EconomicOperator? @relation("ProductManufacturer", fields: [manufacturerId], references: [id], onDelete: Restrict)
   euResponsible EconomicOperator? @relation("ProductEuResponsible", fields: [euResponsibleId], references: [id], onDelete: Restrict)
 
-  variants           ProductVariant[]
-  media              ProductMedia[]
-  attributes         ProductAttribute[]
-  inventoryBalances  InventoryBalance[]
-  inventoryMovements InventoryMovement[]
-  stockReservations  StockReservation[]
-  cartItems          CartItem[]
-  orderItems         OrderItem[]
-  scheduleItems      RecurringScheduleItem[]
-  substituteForItems RecurringScheduleItem[] @relation("ScheduleItemSubstitute")
-  prices             ProductPrice[]
-  translations       ProductTranslation[]
-  wishlistItems      WishlistItem[]
+  variants            ProductVariant[]
+  media               ProductMedia[]
+  attributes          ProductAttribute[]
+  inventoryBalances   InventoryBalance[]
+  inventoryMovements  InventoryMovement[]
+  stockReservations   StockReservation[]
+  cartItems           CartItem[]
+  orderItems          OrderItem[]
+  scheduleItems       RecurringScheduleItem[]
+  substituteForItems  RecurringScheduleItem[]     @relation("ScheduleItemSubstitute")
+  prices              ProductPrice[]
+  translations        ProductTranslation[]
+  wishlistItems       WishlistItem[]
   countryRestrictions ProductCountryRestriction[]
-  packagings         ProductPackaging[]
-  importRecords      ProductImportRecord[]
+  packagings          ProductPackaging[]
+  importRecords       ProductImportRecord[]
 
+  /// Every seller offering this item. Empty for a product the operator stocks
+  /// themselves, which is every product that existed before the Seller Hub -
+  /// see the SELLER HUB block at the end of this file for why the price lives
+  /// on the offer rather than here.
+  sellerOffers SellerOffer[]
+
+  createdBySellerAccount SellerAccount? @relation(fields: [createdBySellerAccountId], references: [id], onDelete: SetNull)
+
+  @@index([isMarketplaceProduct, status], map: "ix_product_marketplace")
+  @@index([createdBySellerAccountId], map: "ix_product_created_by_seller")
   @@index([categoryId, status, isPublished], map: "ix_product_category_visibility")
   @@index([status, isPublished, archivedAt], map: "ix_product_visibility")
   @@index([basePriceMinor], map: "ix_product_price")
@@ -871,6 +919,8 @@ model ProductVariant {
   /// See `Product.importFingerprint`. This one is per source row.
   importFingerprint String? @unique(map: "uq_variant_import_fingerprint") @db.Char(64)
 
+  sellerOffers SellerOffer[]
+
   @@index([productId, isActive, sortOrder], map: "ix_variant_product")
   @@map("product_variants")
 }
@@ -909,7 +959,6 @@ model ProductAttribute {
   @@index([name, value], map: "ix_product_attribute_lookup")
   @@map("product_attributes")
 }
-
 
 // ---------------------------------------------------------------------------
 // PACKAGING
@@ -1295,15 +1344,15 @@ model InventoryLocation {
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
-  country      Country?            @relation(fields: [countryCode], references: [code], onDelete: Restrict)
-  balances     InventoryBalance[]
-  movements    InventoryMovement[]
-  reservations StockReservation[]
-  schedules    RecurringSchedule[]
-  exclusions   WarehouseCountryExclusion[]
-  deliveryZones WarehouseDeliveryZone[]
+  country          Country?                    @relation(fields: [countryCode], references: [code], onDelete: Restrict)
+  balances         InventoryBalance[]
+  movements        InventoryMovement[]
+  reservations     StockReservation[]
+  schedules        RecurringSchedule[]
+  exclusions       WarehouseCountryExclusion[]
+  deliveryZones    WarehouseDeliveryZone[]
   fulfilmentQuotes FulfilmentQuote[]
-  fulfilledOrders  Order[]             @relation("OrderFulfilmentLocation")
+  fulfilledOrders  Order[]                     @relation("OrderFulfilmentLocation")
 
   /// The map's own query: every active warehouse, ordered so the default
   /// comes first. Also serves the country filter on its leading column.
@@ -1450,8 +1499,8 @@ model WarehouseDeliveryZone {
   /// currency has to match the one the basket is quoted in or the lane is not
   /// offered - a fee converted at a rate this software chose would be an
   /// exchange-rate opinion printed as a price.
-  shippingFeeMinor    BigInt @default(0)
-  shippingFeeCurrency String @db.Char(3)
+  shippingFeeMinor    BigInt  @default(0)
+  shippingFeeCurrency String  @db.Char(3)
   /// Basket value at or above which the lane is free. Null = never free.
   freeAboveMinor      BigInt?
 
@@ -1731,6 +1780,12 @@ model CustomerProfile {
   /// uniqueness is enforced and the reason for it is written down.
   organizationMembership BuyerOrganizationMember?
 
+  /// Their place in a SELLER organisation, if they sell here as well as buy.
+  /// At most one, on the same reasoning as the line above - see
+  /// `SellerMember`. This is what makes "become a seller" reuse the existing
+  /// login instead of minting a second account.
+  sellerMembership SellerMember?
+
   @@index([organization], map: "ix_customer_organization")
   @@index([createdAt], map: "ix_customer_created")
   @@map("customer_profiles")
@@ -1858,6 +1913,21 @@ model CartItem {
   variantId  String? @db.Char(26)
   variantKey String  @default("") @db.VarChar(26)
 
+  /// Whose offer this line is, when it is a seller's rather than the
+  /// operator's own stock.
+  ///
+  /// NULL is not missing data: it means the operator sells it, which is what
+  /// every row on a single-supplier deployment is. Making it required would
+  /// mean inventing an offer for the operator, and the operator is not a seller
+  /// - no commission, no settlement, no seller order number.
+  sellerOfferId String? @db.Char(26)
+  /// `sellerOfferId`, or '' for the operator's own stock. Never null, and the
+  /// reason the unique index below works: MariaDB treats every NULL in a UNIQUE
+  /// index as distinct, so a nullable column there would let the same operator
+  /// SKU be added twice instead of bumping the quantity. Exactly the trick
+  /// `variantKey` above plays, for exactly the same reason.
+  sellerOfferKey String @default("") @db.VarChar(26)
+
   /// Always pieces. Every price, stock check, reservation and tax line reads
   /// this and nothing else, so adding pack ordering changed none of them.
   quantity Int
@@ -1880,13 +1950,18 @@ model CartItem {
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
 
-  cart    Cart            @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  product Product         @relation(fields: [productId], references: [id], onDelete: Restrict)
-  variant ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  cart        Cart            @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product     Product         @relation(fields: [productId], references: [id], onDelete: Restrict)
+  variant     ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  sellerOffer SellerOffer?    @relation(fields: [sellerOfferId], references: [id], onDelete: Restrict)
 
-  /// One line per purchasable unit. Re-adding the same SKU bumps quantity.
-  @@unique([cartId, productId, variantKey], map: "uq_cart_item_sku")
+  /// One line per purchasable unit PER SELLER. Re-adding the same SKU from the
+  /// same seller bumps quantity; the same product from two sellers is two
+  /// lines, because they are two different things to buy at two prices out of
+  /// two warehouses.
+  @@unique([cartId, productId, variantKey, sellerOfferKey], map: "uq_cart_item_sku")
   @@index([productId], map: "ix_cart_item_product")
+  @@index([sellerOfferId], map: "ix_cart_item_seller_offer")
   @@map("cart_items")
 }
 
@@ -2076,6 +2151,12 @@ model Order {
   invoices         Invoice[]
   erpPush          ErpOrderPush?
 
+  /// The marketplace sellers with lines in this order, one group each. Empty
+  /// for an order the operator fulfils themselves, which every order placed
+  /// before the Seller Hub is. The buyer still has ONE order - see the ORDERS,
+  /// SPLIT BY SELLER block at the end of this file.
+  sellerOrderGroups SellerOrderGroup[]
+
   @@index([customerProfileId, createdAt], map: "ix_order_customer_time")
   @@index([status, createdAt], map: "ix_order_status_time")
   @@index([source, createdAt], map: "ix_order_source_time")
@@ -2093,6 +2174,13 @@ model OrderItem {
   productId String  @db.Char(26)
   variantId String? @db.Char(26)
 
+  /// Whose offer was bought, when it was a seller's rather than the operator's
+  /// own stock. Null means the operator sold it. This is what
+  /// `splitOrderToSellers` groups on, so a line without it never reaches a
+  /// seller's queue — which is correct, because nobody else is owed anything
+  /// for it.
+  sellerOfferId String? @db.Char(26)
+
   /// --- Immutable snapshots taken at checkout ---
   nameSnapshot         String  @db.VarChar(255)
   skuSnapshot          String  @db.VarChar(64)
@@ -2100,9 +2188,9 @@ model OrderItem {
   taxClassCodeSnapshot String  @db.VarChar(32)
   imageUrlSnapshot     String? @db.VarChar(1024)
 
-  unitPriceMinor    BigInt
+  unitPriceMinor BigInt
   /// Pieces, like everywhere else. The unit price is per piece.
-  quantity          Int
+  quantity       Int
 
   /// What the buyer ordered in, frozen with the rest of the line. An invoice
   /// that says 4,000 pieces where the buyer ordered 2 cartons is a dispute
@@ -2123,12 +2211,14 @@ model OrderItem {
 
   createdAt DateTime @default(now()) @db.DateTime(3)
 
-  order   Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product Product         @relation(fields: [productId], references: [id], onDelete: Restrict)
-  variant ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  order       Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product         @relation(fields: [productId], references: [id], onDelete: Restrict)
+  variant     ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  sellerOffer SellerOffer?    @relation(fields: [sellerOfferId], references: [id], onDelete: Restrict)
 
   @@index([orderId], map: "ix_order_item_order")
   @@index([productId], map: "ix_order_item_product")
+  @@index([sellerOfferId], map: "ix_order_item_seller_offer")
   @@map("order_items")
 }
 
@@ -3163,7 +3253,6 @@ model ErpOrderPush {
 // ===========================================================================
 // FULFILMENT AND AFTER-SALE
 // ===========================================================================
-
 
 // ===========================================================================
 // FULFILMENT QUOTES
@@ -5737,8 +5826,8 @@ model BuyerOrganization {
   /// founder can leave.
   createdByProfileId String? @db.Char(26)
 
-  createdAt DateTime @default(now()) @db.DateTime(3)
-  updatedAt DateTime @updatedAt @db.DateTime(3)
+  createdAt  DateTime  @default(now()) @db.DateTime(3)
+  updatedAt  DateTime  @updatedAt @db.DateTime(3)
   /// Soft delete. Connections, events and audit rows still read back.
   archivedAt DateTime? @db.DateTime(3)
 
@@ -6154,11 +6243,11 @@ model CustomerErpConnection {
   /// decide default paths.
   erpVersion String? @db.VarChar(64)
 
-  state           CustomerErpConnectionState @default(DRAFT)
+  state          CustomerErpConnectionState @default(DRAFT)
   /// Why it is where it is, in words safe to show on a screen. Never a
   /// provider body, never a header, never a credential.
-  stateReason     String?                    @db.VarChar(512)
-  stateChangedAt  DateTime                   @default(now()) @db.DateTime(3)
+  stateReason    String?                    @db.VarChar(512)
+  stateChangedAt DateTime                   @default(now()) @db.DateTime(3)
 
   // --- Where -------------------------------------------------------------
   /// Scheme + host + optional port + optional base path. Re-validated on every
@@ -6171,11 +6260,11 @@ model CustomerErpConnection {
   /// address.
   apiVersion String? @db.VarChar(32)
 
-  networkMode CustomerErpNetworkMode @default(PUBLIC_HTTPS)
+  networkMode  CustomerErpNetworkMode @default(PUBLIC_HTTPS)
   /// Free text from the buyer's IT team: which virtual host the Cloud
   /// Connector maps, which VPN the gateway terminates. Shown back to them and
   /// to support. Never interpreted.
-  networkNotes String? @db.VarChar(1024)
+  networkNotes String?                @db.VarChar(1024)
 
   /// The buyer's own identifier for itself inside its ERP - a tenant id, a
   /// customer number, a monday account slug. Sent where the connector needs
@@ -6236,21 +6325,21 @@ model CustomerErpConnection {
   //
   // The buyer's ERP calls US. There is no unsigned mode: an unauthenticated
   // endpoint that moves somebody's stock is not a feature.
-  webhookEnabled         Boolean @default(false)
+  webhookEnabled          Boolean @default(false)
   /// Public, unguessable path segment: 32 bytes of CSPRNG, base64url. Not the
   /// authentication - the signature is - but it keeps the endpoint from being
   /// found by iterating ids.
-  webhookSlug            String  @unique(map: "uq_customer_erp_webhook_slug") @db.VarChar(64)
+  webhookSlug             String  @unique(map: "uq_customer_erp_webhook_slug") @db.VarChar(64)
   /// The header the ERP puts its signature in.
-  webhookSignatureHeader String  @default("X-UBOSS-Signature") @db.VarChar(64)
+  webhookSignatureHeader  String  @default("X-UBOSS-Signature") @db.VarChar(64)
   /// The header carrying the signed timestamp, for replay protection. Where an
   /// ERP signs the timestamp into the signature header itself, this is null
   /// and the connector parses it out.
-  webhookTimestampHeader String? @db.VarChar(64)
+  webhookTimestampHeader  String? @db.VarChar(64)
   /// How far out of step with our clock an inbound webhook may be, in seconds.
   /// Outside it the delivery is refused: a signature stays valid for ever, so
   /// without this a captured request is a replay for ever too.
-  webhookToleranceSeconds Int    @default(300)
+  webhookToleranceSeconds Int     @default(300)
 
   // --- Polling fallback ----------------------------------------------------
   pollingEnabled         Boolean   @default(false)
@@ -6385,7 +6474,7 @@ model CustomerErpEndpoint {
   /// Set on an endpoint the buyer has configured but does not want used yet.
   enabled Boolean @default(true)
 
-  pagination CustomerErpPagination @default(NONE)
+  pagination           CustomerErpPagination @default(NONE)
   /// Query parameter names for the paging style in use, and where the records
   /// and the next cursor are found in the response. Shape depends on
   /// `pagination`; validated against a closed set of keys on write.
@@ -6528,12 +6617,12 @@ model CustomerErpSyncPolicy {
   /// Which events this connection actually sends. A buyer may want purchase
   /// orders and nothing else, and switching an event off is not the same as
   /// having no endpoint for it.
-  sendPurchaseOrders   Boolean @default(true)
-  sendShipmentStatus   Boolean @default(true)
-  sendGoodsReceipts    Boolean @default(true)
-  sendInvoices         Boolean @default(true)
+  sendPurchaseOrders    Boolean @default(true)
+  sendShipmentStatus    Boolean @default(true)
+  sendGoodsReceipts     Boolean @default(true)
+  sendInvoices          Boolean @default(true)
   sendPaymentReferences Boolean @default(true)
-  syncInventory        Boolean @default(false)
+  syncInventory         Boolean @default(false)
 
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
@@ -6617,7 +6706,7 @@ model CustomerErpSyncEvent {
   httpStatus Int?
   durationMs Int?
 
-  errorCode String? @db.VarChar(64)
+  errorCode    String? @db.VarChar(64)
   /// Safe to read: no credential, no Authorization header, no verbatim
   /// provider body. `safeErrorMessage` is the only thing that writes here.
   errorMessage String? @db.VarChar(1024)
@@ -6730,7 +6819,7 @@ model CustomerErpWebhookEvent {
   /// A row exists either way: a rejected delivery is exactly the thing an
   /// operator needs to see, and dropping it silently is how a buyer spends a
   /// week wondering why nothing arrives.
-  verified Boolean @default(false)
+  verified        Boolean @default(false)
   /// Why it was refused, in words safe to show. Never says WHICH check failed
   /// in a response - an endpoint that distinguishes "wrong signature" from "no
   /// secret configured" is an oracle - but the row itself may record it,
@@ -6770,7 +6859,7 @@ model CustomerErpOrderLink {
   connectionId   String @db.Char(26)
   organizationId String @db.Char(26)
 
-  orderId String @db.Char(26)
+  orderId      String  @db.Char(26)
   /// Set when a scheduled delivery caused this. Every occurrence of a schedule
   /// goes through the same pipeline as an instant purchase and gets its own
   /// link row, because each one is a separate delivery the buyer receipts
@@ -6778,11 +6867,11 @@ model CustomerErpOrderLink {
   occurrenceId String? @db.Char(26)
 
   /// What the ERP calls the purchase order it created.
-  erpPurchaseOrderId String? @db.VarChar(191)
+  erpPurchaseOrderId     String? @db.VarChar(191)
   /// The human-readable number, where the ERP has both.
   erpPurchaseOrderNumber String? @db.VarChar(64)
   /// The ERP's own status word for it, kept verbatim so support can quote it.
-  erpOrderStatus String? @db.VarChar(64)
+  erpOrderStatus         String? @db.VarChar(64)
 
   /// The ERP's goods receipt, once there is one. Its presence is what makes an
   /// on-hand stock write legitimate.
@@ -6796,11 +6885,11 @@ model CustomerErpOrderLink {
   receivedQty Int @default(0)
 
   /// The carrier and tracking last synced.
-  shipmentStatus  String? @db.VarChar(64)
-  trackingNumber  String? @db.VarChar(128)
+  shipmentStatus String? @db.VarChar(64)
+  trackingNumber String? @db.VarChar(128)
 
-  pushedAt      DateTime? @db.DateTime(3)
-  lastSyncedAt  DateTime? @db.DateTime(3)
+  pushedAt     DateTime? @db.DateTime(3)
+  lastSyncedAt DateTime? @db.DateTime(3)
 
   createdAt DateTime @default(now()) @db.DateTime(3)
   updatedAt DateTime @updatedAt @db.DateTime(3)
@@ -6833,20 +6922,20 @@ model CustomerErpInvoiceLink {
   /// What we told them it was for. Frozen at sync time rather than read back
   /// from the invoice, so a later credit note does not silently rewrite what
   /// was sent.
-  currency        String  @db.Char(3)
+  currency        String    @db.Char(3)
   grandTotalMinor BigInt
-  taxMinor        BigInt  @default(0)
+  taxMinor        BigInt    @default(0)
   dueAt           DateTime? @db.DateTime(3)
   /// Where the buyer's own systems can fetch the document. A URL on THIS
   /// platform - we do not send them somebody else's.
-  documentUrl     String? @db.VarChar(1024)
+  documentUrl     String?   @db.VarChar(1024)
 
   /// The provider's reference for the money, once it has moved. A reference
   /// and a status: never a card number, never a bank account, never a token.
   /// The buyer's ERP has no business holding an instrument and this platform
   /// has no business handing one over.
-  paymentReference String? @db.VarChar(191)
-  paymentStatus    String? @db.VarChar(32)
+  paymentReference String?   @db.VarChar(191)
+  paymentStatus    String?   @db.VarChar(32)
   paymentSyncedAt  DateTime? @db.DateTime(3)
 
   syncedAt  DateTime? @db.DateTime(3)
@@ -7124,4 +7213,2191 @@ model CustomerErpAuditLog {
   @@index([connectionId, createdAt], map: "ix_customer_erp_audit_conn_time")
   @@index([action], map: "ix_customer_erp_audit_action")
   @@map("customer_erp_audit_logs")
+}
+
+// ===========================================================================
+// SELLER HUB — third-party sellers on the marketplace
+//
+// One decision shapes everything below it: a seller is a TENANT, not a flag on
+// a user. `SellerAccount` is the tenant, `SellerMember` puts a person in it,
+// and every seller-owned row carries `sellerAccountId`. That is what makes
+// "one seller cannot read another seller's orders" a property of the schema
+// rather than a line in a code review.
+//
+// The second decision is the split between a CATALOGUE PRODUCT and a SELLER
+// OFFER. Ten sellers offering the same infusion pump produce one `Product` row
+// and ten `SellerOffer` rows. Putting a price on the product would make "the
+// same product" mean "the same price", which is the one thing a marketplace
+// cannot say.
+//
+// Money here obeys the same rule as everywhere else in this schema: BigInt
+// minor units, never a Float, including commission and payout figures.
+// ===========================================================================
+
+/// Where a seller's application has got to.
+///
+/// The order matters: this is a state machine, enforced in
+/// `domain/seller-state.ts`, and nothing writes this column directly - the
+/// same rule `OrderStatus` and `ScheduleStatus` follow, for the same reason.
+/// An application decides whether a business may put medical devices in front
+/// of hospitals, so "how did it get to APPROVED" must always have an answer.
+enum SellerApplicationStatus {
+  /// Being filled in. The only state the seller may edit freely.
+  DRAFT
+  /// Handed to the operator. The seller can look but not change.
+  SUBMITTED
+  /// An administrator has picked it up.
+  UNDER_REVIEW
+  /// Sent back with a reason. Editable again, and the reason is seller-visible.
+  ACTION_REQUIRED
+  /// May sell. The only state in which a listing can be submitted.
+  APPROVED
+  /// Refused. Resubmission is allowed only if the operator left it open.
+  REJECTED
+  /// Was approved, now stopped. Existing orders stay; new listings and new
+  /// orders do not. Distinct from REJECTED because the history is different
+  /// and so is the way back.
+  SUSPENDED
+}
+
+/// What a seller is, commercially. Decides which compliance evidence the
+/// onboarding asks for - a manufacturer needs a Declaration of Conformity, a
+/// reseller needs an authorisation from whoever does.
+enum SellerKind {
+  MANUFACTURER
+  AUTHORISED_DISTRIBUTOR
+  WHOLESALER
+  RESELLER
+}
+
+/// Who somebody is inside one seller organisation.
+///
+/// Seven, from the brief, and they are not interchangeable with the operator's
+/// admin roles in `domain/permissions.ts`: these grant authority over ONE
+/// seller's own data and nothing else. A Seller Owner is not an administrator
+/// of this marketplace and must never be able to become one.
+enum SellerMemberRole {
+  /// Everything, including inviting people, accepting the agreement and
+  /// handing ownership on. At least one exists at all times.
+  OWNER
+  /// Everything except changing who is in the organisation and the legal
+  /// agreements.
+  ADMIN
+  /// Listings, brands, media, product data. No payouts, no team.
+  CATALOGUE_MANAGER
+  /// Stock, warehouses, reorder thresholds, ERP inventory sync.
+  INVENTORY_MANAGER
+  /// Orders, shipments, returns.
+  ORDER_MANAGER
+  /// Settlements, payouts, statements. Read-only - a marketplace seller does
+  /// not move their own money from here.
+  FINANCE_VIEWER
+  /// Reads orders and returns to answer a buyer. No money, no catalogue.
+  SUPPORT_MEMBER
+}
+
+/// A seller business, as a tenant.
+///
+/// Created the moment somebody presses "Become a seller" and completes
+/// authentication - not when they are approved. An application has to live
+/// somewhere while it is being written, and giving a half-finished application
+/// its own tenant from the start means the resume-later path is just "read
+/// your own rows" rather than a second storage mechanism for drafts.
+///
+/// `displayName` is the public shopfront name and is UNIQUE through
+/// `displayNameNormalized`, because a buyer choosing between two offers needs
+/// the seller names to mean something. `legalName` is not unique: two
+/// unrelated businesses genuinely can be registered under the same name in
+/// different countries.
+model SellerAccount {
+  id String @id @db.Char(26)
+
+  /// The registered business name, as it appears on the registration document.
+  legalName String @db.VarChar(255)
+
+  /// What buyers see. Chosen by the seller, checked for availability, and
+  /// changeable only while the application is not yet approved - afterwards it
+  /// is an operator action, because it appears on orders already placed.
+  displayName           String @db.VarChar(160)
+  /// Lowercased, punctuation-stripped `displayName`. UNIQUE - this is the
+  /// public namespace.
+  displayNameNormalized String @unique(map: "uq_seller_display_name") @db.VarChar(160)
+
+  /// URL fragment for the public seller page. Derived from `displayName`.
+  slug String @unique(map: "uq_seller_slug") @db.VarChar(180)
+
+  kind SellerKind @default(RESELLER)
+
+  status SellerApplicationStatus @default(DRAFT)
+
+  /// ISO-3166-1 alpha-2. Decides which onboarding requirements apply - see
+  /// `SellerOnboardingRequirement`. NOT a hard-coded list of Indian fields:
+  /// this product is sold to companies who operate in their own countries.
+  registrationCountry String @db.Char(2)
+
+  /// What the seller trades in. Shown on the public seller page.
+  description String? @db.Text
+
+  /// The seller's own mark, for their own shop front.
+  ///
+  /// An object key, like `SellerDocument.storageKey`, and deliberately NOT a
+  /// `MediaAsset` relation: that table is the operator's catalogue library,
+  /// reachable from their media picker and counted in their reports, and a
+  /// seller's brand mark does not belong in it.
+  ///
+  /// Null is a working state, not missing data. A seller who has not uploaded
+  /// one gets a shop front rendering their initial, which is better than
+  /// showing the operator's logo above a seller's name.
+  logoStorageKey String? @db.VarChar(512)
+
+  /// Seller-visible reason for the current status, when there is one. Written
+  /// on ACTION_REQUIRED, REJECTED and SUSPENDED. Kept apart from
+  /// `internalNotes`, which the seller never sees - conflating the two is how
+  /// an operator's private assessment ends up on a seller's screen.
+  statusReason  String? @db.Text
+  /// Operator-only. Never serialised to a seller route.
+  internalNotes String? @db.Text
+
+  /// Whether a rejected application may be started again. False means the
+  /// operator closed the door and a new attempt needs them to reopen it.
+  resubmissionAllowed Boolean @default(true)
+
+  /// The commission the operator takes, in basis points (250 = 2.50%). A
+  /// SETTING with a null default meaning "use the platform rate", never a
+  /// hard-coded percentage: what a marketplace charges is a business decision
+  /// each deployment makes for itself.
+  commissionBasisPoints Int? @db.SmallInt
+
+  /// Rolled-up performance, recomputed by the worker. Nullable because a
+  /// seller with no orders has no score, which is different from a score of
+  /// zero.
+  qualityScore Decimal? @db.Decimal(5, 2)
+
+  submittedAt DateTime? @db.DateTime(3)
+  reviewedAt  DateTime? @db.DateTime(3)
+  approvedAt  DateTime? @db.DateTime(3)
+  suspendedAt DateTime? @db.DateTime(3)
+
+  /// The profile that pressed "Become a seller". Kept for the trail; authority
+  /// lives in `seller_members`, because a founder can leave.
+  createdByProfileId String? @db.Char(26)
+
+  /// Optimistic concurrency. Two tabs editing one application is a real case -
+  /// onboarding is long and people open it twice.
+  version Int @default(0)
+
+  createdAt  DateTime  @default(now()) @db.DateTime(3)
+  updatedAt  DateTime  @updatedAt @db.DateTime(3)
+  /// Soft delete. Settlements, orders and audit rows still read back.
+  archivedAt DateTime? @db.DateTime(3)
+
+  members            SellerMember[]
+  invitations        SellerInvitation[]
+  onboarding         SellerOnboardingProgress?
+  businessProfile    SellerBusinessProfile?
+  verificationCases  SellerVerificationCase[]
+  documents          SellerDocument[]
+  agreements         SellerAgreementAcceptance[]
+  payoutAccount      SellerPayoutAccountReference?
+  locations          SellerLocation[]
+  brandRequests      BrandRequest[]
+  listingDrafts      SellerListingDraft[]
+  offers             SellerOffer[]
+  inventory          SellerInventory[]
+  inventoryMovements SellerInventoryMovement[]
+  bulkImports        SellerBulkImportJob[]
+  orderGroups        SellerOrderGroup[]
+  shipments          SellerShipment[]
+  returns            SellerReturn[]
+  settlements        SellerSettlement[]
+  payouts            SellerPayout[]
+  notifications      SellerNotification[]
+  auditLogs          SellerAuditLog[]
+  createdProducts    Product[]
+
+  @@index([status, createdAt], map: "ix_seller_status")
+  @@index([registrationCountry], map: "ix_seller_country")
+  @@map("seller_accounts")
+}
+
+/// One person's place in one seller organisation.
+///
+/// `customerProfileId` is UNIQUE for the same reason it is on
+/// `BuyerOrganizationMember`: an account that could act for two sellers would
+/// need every screen in the Seller Hub to ask "as whom?", including the one
+/// that ships an order. A person who genuinely sells for two businesses opens
+/// a second account.
+model SellerMember {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+
+  customerProfileId String @unique(map: "uq_seller_member_profile") @db.Char(26)
+
+  role SellerMemberRole @default(SUPPORT_MEMBER)
+
+  invitedByProfileId String? @db.Char(26)
+
+  joinedAt  DateTime  @default(now()) @db.DateTime(3)
+  updatedAt DateTime  @updatedAt @db.DateTime(3)
+  /// Set instead of deleting the row, so historical actions still resolve to a
+  /// person. A removed member fails the guard.
+  removedAt DateTime? @db.DateTime(3)
+
+  sellerAccount   SellerAccount   @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+  customerProfile CustomerProfile @relation(fields: [customerProfileId], references: [id], onDelete: Cascade)
+
+  @@index([sellerAccountId, role], map: "ix_seller_member_role")
+  @@index([sellerAccountId, removedAt], map: "ix_seller_member_active")
+  @@map("seller_members")
+}
+
+/// An outstanding invitation to join a seller organisation.
+///
+/// Token stored as a SHA-256 hash, single-use, expiring - the same treatment a
+/// password reset gets, and for the same reason: an invitation grants standing
+/// inside a business that ships medical devices.
+model SellerInvitation {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+
+  emailNormalized String           @db.VarChar(320)
+  role            SellerMemberRole @default(SUPPORT_MEMBER)
+
+  tokenHash String   @unique(map: "uq_seller_invitation_token") @db.Char(64)
+  expiresAt DateTime @db.DateTime(3)
+
+  invitedByProfileId  String?   @db.Char(26)
+  acceptedAt          DateTime? @db.DateTime(3)
+  acceptedByProfileId String?   @db.Char(26)
+  revokedAt           DateTime? @db.DateTime(3)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  sellerAccount SellerAccount @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+
+  @@index([sellerAccountId, acceptedAt], map: "ix_seller_invitation_account")
+  @@index([emailNormalized], map: "ix_seller_invitation_email")
+  @@map("seller_invitations")
+}
+
+/// How far through onboarding a seller is, step by step.
+///
+/// One row per seller, with a JSON map of step -> state rather than a column
+/// per step. The steps a country requires are configurable - see
+/// `SellerOnboardingRequirement` - so a fixed column list would be wrong the
+/// first time a deployment turned one off.
+///
+/// `completedSteps` is derived, recomputed on every save, and stored anyway:
+/// the dashboard and the header progress indicator both read it on pages that
+/// have no other reason to load the whole application.
+model SellerOnboardingProgress {
+  id              String @id @db.Char(26)
+  sellerAccountId String @unique(map: "uq_seller_onboarding_account") @db.Char(26)
+
+  /// Step key -> `{ state, updatedAt, message }`. States are NOT_STARTED,
+  /// IN_PROGRESS, COMPLETE, ERROR and UNDER_REVIEW.
+  stepsJson Json
+
+  /// Denormalised counters for the progress bar. Derived from `stepsJson`.
+  completedSteps Int @default(0)
+  requiredSteps  Int @default(0)
+
+  /// Where the seller was when they last stopped, so "continue setup" lands on
+  /// the right screen rather than at the beginning.
+  lastStepKey String? @db.VarChar(64)
+
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  sellerAccount SellerAccount @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+
+  @@map("seller_onboarding_progress")
+}
+
+/// Which onboarding steps and documents a country demands.
+///
+/// This table is the whole reason the brief says "do not hard-code GSTIN or
+/// PAN for every seller". A deployment in Germany needs a VAT number and an
+/// EORI; one in India needs a GSTIN; one selling class IIb devices in the EU
+/// needs a notified-body certificate and the others do not. Seeded with
+/// defaults and edited by the operator.
+///
+/// `countryCode` NULL means "applies everywhere" - and because MariaDB treats
+/// every NULL in a UNIQUE index as distinct, the unique key uses `countryKey`,
+/// which is the country code or '*', never null.
+model SellerOnboardingRequirement {
+  id String @id @db.Char(26)
+
+  /// ISO-3166-1 alpha-2, or null for a rule that applies to every country.
+  countryCode String? @db.Char(2)
+  /// `countryCode` or '*'. Never null - see the note above about MariaDB
+  /// UNIQUE indexes and NULL.
+  countryKey  String  @db.VarChar(2)
+
+  /// Which step of onboarding this belongs to, e.g. `business_identity`.
+  stepKey  String @db.VarChar(64)
+  /// Which field or document inside that step, e.g. `vat_number`.
+  fieldKey String @db.VarChar(64)
+
+  /// Shown to the seller beside the field.
+  label    String  @db.VarChar(160)
+  helpText String? @db.VarChar(512)
+
+  isRequired Boolean @default(true)
+  /// A document upload rather than a typed value.
+  isDocument Boolean @default(false)
+
+  /// Regex the value must match, when the identifier has a published format.
+  /// Applied server-side; the frontend gets it only as a hint.
+  validationPattern String? @db.VarChar(255)
+
+  /// Only applies to sellers of this kind. Null means all kinds - and since
+  /// that null sits inside the unique key below, two rows differing only by a
+  /// null kind would both be accepted on MariaDB. `uq_seller_requirement` is
+  /// therefore advisory for that one case and the service checks it too.
+  appliesToKind SellerKind?
+
+  sortOrder Int @default(0)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  @@unique([countryKey, stepKey, fieldKey, appliesToKind], map: "uq_seller_requirement")
+  @@index([countryKey, stepKey], map: "ix_seller_requirement_step")
+  @@map("seller_onboarding_requirements")
+}
+
+/// The business behind a seller account: who it is, where it is registered,
+/// what it is registered as.
+///
+/// Split from `SellerAccount` rather than widening it because these are the
+/// fields an administrator reviews and a seller changes rarely, while the
+/// parent row carries state that changes constantly. It also keeps the
+/// identifiers - tax numbers, registration numbers - in one table that can be
+/// treated as sensitive in its own right.
+model SellerBusinessProfile {
+  id              String @id @db.Char(26)
+  sellerAccountId String @unique(map: "uq_seller_business_profile_account") @db.Char(26)
+
+  /// Whoever signs for the business. A person, so this row is personal data
+  /// and is disclosed in the Art. 15 export.
+  representativeName  String? @db.VarChar(160)
+  representativeEmail String? @db.VarChar(320)
+  representativePhone String? @db.VarChar(32)
+  representativeRole  String? @db.VarChar(120)
+
+  supportEmail String? @db.VarChar(320)
+  supportPhone String? @db.VarChar(32)
+
+  preferredLanguage String? @db.VarChar(12)
+  timezone          String? @db.VarChar(64)
+
+  companyRegistrationNumber String? @db.VarChar(64)
+  /// VAT, GST or whichever registration the country uses. One column, because
+  /// a business holds one registration per jurisdiction and the jurisdiction is
+  /// `SellerAccount.registrationCountry`.
+  taxRegistrationNumber     String? @db.VarChar(64)
+  /// EU Economic Operators Registration and Identification, where it applies.
+  eoriNumber                String? @db.VarChar(32)
+  /// Single Registration Number under EUDAMED, for actors in the EU medical
+  /// device system.
+  eudamedSrn                String? @db.VarChar(64)
+
+  websiteUrl      String? @db.VarChar(512)
+  yearsInBusiness Int?    @db.SmallInt
+
+  registeredAddressLine1 String? @db.VarChar(255)
+  registeredAddressLine2 String? @db.VarChar(255)
+  registeredCity         String? @db.VarChar(120)
+  registeredRegion       String? @db.VarChar(120)
+  registeredPostcode     String? @db.VarChar(24)
+  registeredCountry      String? @db.Char(2)
+
+  /// Null means "same as registered". Stored separately rather than copied, so
+  /// changing the registered address does not silently change where invoices
+  /// go.
+  billingAddressLine1 String? @db.VarChar(255)
+  billingAddressLine2 String? @db.VarChar(255)
+  billingCity         String? @db.VarChar(120)
+  billingRegion       String? @db.VarChar(120)
+  billingPostcode     String? @db.VarChar(24)
+  billingCountry      String? @db.Char(2)
+
+  /// Additional country-specific identifiers, keyed by the `fieldKey` of the
+  /// `SellerOnboardingRequirement` that asked for them. JSON because the set of
+  /// them is configuration, not schema.
+  extraIdentifiersJson Json?
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+
+  @@map("seller_business_profiles")
+}
+
+/// What is being checked, and by what.
+///
+/// One enum rather than a boolean per check because the set grows: the brief
+/// alone names business registration, identity, tax registration, bank account
+/// and medical compliance, and a deployment in a new country will want more.
+enum SellerVerificationKind {
+  /// The business exists and is registered where it says it is.
+  BUSINESS_REGISTRATION
+  /// The authorised representative is who they say they are.
+  REPRESENTATIVE_IDENTITY
+  /// The tax number is live and belongs to this business. Where a public
+  /// register exists - VIES for EU VAT - it is consulted; where one does not,
+  /// this is a human review.
+  TAX_REGISTRATION
+  /// The payout account belongs to the business. See the note on
+  /// `SellerPayoutAccountReference` about what this repository can and cannot
+  /// do here.
+  BANK_ACCOUNT
+  /// ISO 13485, CE/MDR/IVDR, notified body, Declaration of Conformity.
+  MEDICAL_COMPLIANCE
+  /// The seller is entitled to sell the brands it has claimed.
+  BRAND_AUTHORISATION
+}
+
+/// How a verification ended.
+enum SellerVerificationState {
+  /// Nothing has been attempted.
+  NOT_STARTED
+  /// Waiting on the seller to supply something.
+  AWAITING_INPUT
+  /// Handed to a provider or a reviewer, no answer yet.
+  IN_PROGRESS
+  /// Passed.
+  VERIFIED
+  /// Failed, with a reason the seller can act on.
+  FAILED
+  /// Could not be attempted because the deployment has no provider configured.
+  ///
+  /// This state exists precisely so that "we cannot check this" never renders
+  /// as "checked and fine". A seller sees a configuration-required message and
+  /// an operator sees which environment variable is missing.
+  PROVIDER_UNCONFIGURED
+  /// Passed once, now stale - a certificate expired, a registration lapsed.
+  EXPIRED
+}
+
+/// One verification attempt against one seller.
+///
+/// Rows accumulate rather than being overwritten: a seller whose tax check
+/// failed twice before passing is a different risk from one that passed first
+/// time, and an operator reviewing an application needs to see both.
+/// `isCurrent` marks the latest per kind so the common read is one indexed row.
+model SellerVerificationCase {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+
+  kind  SellerVerificationKind
+  state SellerVerificationState @default(NOT_STARTED)
+
+  /// Which adapter answered, e.g. `vies`, `stripe_connect`, `manual_review`.
+  /// Null while nothing has been attempted.
+  provider String? @db.VarChar(48)
+
+  /// The provider's own reference, for tracing a decision back to them.
+  providerReference String? @db.VarChar(128)
+
+  /// Seller-visible. Says what to do about a failure, not what went wrong
+  /// internally.
+  failureReason  String? @db.Text
+  /// Operator-only detail. Never serialised to a seller route.
+  internalDetail String? @db.Text
+
+  /// Set when the evidence has a shelf life - a certificate, a licence. The
+  /// worker raises a document-expiry notification before this date.
+  expiresAt DateTime? @db.DateTime(3)
+
+  /// The newest case for this seller and kind. Exactly one per pair, enforced
+  /// by the service rather than the index: MariaDB cannot express "at most one
+  /// true per group" without a generated column, and the extra column would
+  /// have to be maintained anyway.
+  isCurrent Boolean @default(true)
+
+  /// The administrator who decided it, for a manual review. Null for an
+  /// automated answer.
+  decidedByUserId String?   @db.Char(26)
+  decidedAt       DateTime? @db.DateTime(3)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+
+  @@index([sellerAccountId, kind, isCurrent], map: "ix_seller_verification_current")
+  @@index([state, expiresAt], map: "ix_seller_verification_expiry")
+  @@map("seller_verification_cases")
+}
+
+/// What a document is evidence of.
+enum SellerDocumentKind {
+  BUSINESS_REGISTRATION
+  TAX_CERTIFICATE
+  IDENTITY_PROOF
+  ADDRESS_PROOF
+  ISO_13485
+  CE_CERTIFICATE
+  DECLARATION_OF_CONFORMITY
+  NOTIFIED_BODY_CERTIFICATE
+  REGULATORY_LICENCE
+  BRAND_AUTHORISATION
+  TRADEMARK_EVIDENCE
+  INSTRUCTIONS_FOR_USE
+  STERILISATION_EVIDENCE
+  BANK_STATEMENT
+  OTHER
+}
+
+/// Where a stored file has got to in the checks every upload goes through.
+///
+/// `PENDING_SCAN` is the default and it matters: a file that has been accepted
+/// but not scanned is not yet readable by anybody but the seller who uploaded
+/// it. No malware scanner is configured in this repository, so nothing leaves
+/// this state automatically - which is the honest behaviour, not a bug.
+enum SellerDocumentScanState {
+  PENDING_SCAN
+  CLEAN
+  INFECTED
+  SCAN_FAILED
+  /// No scanner is configured for this deployment. The operator decides
+  /// whether to approve by eye; the state records that no machine did.
+  SCANNER_UNCONFIGURED
+}
+
+/// A file a seller uploaded as evidence.
+///
+/// The bytes are NOT here. `storageKey` names an object in the configured
+/// store, read back through a short-lived signed URL issued per request by
+/// somebody who has passed the ownership check. A document proving a
+/// director's identity must not be reachable by guessing a URL, and a
+/// permanent link is a guessable URL that never expires.
+model SellerDocument {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+
+  kind SellerDocumentKind
+
+  /// Which onboarding requirement this satisfies, when it was uploaded to
+  /// satisfy one. Null for documents attached to a listing or supplied
+  /// unprompted.
+  requirementFieldKey String? @db.VarChar(64)
+
+  /// Opaque key in the object store. Never a path a browser can construct.
+  storageKey String @db.VarChar(512)
+
+  /// The name the seller's own file had. Shown back to them, never used to
+  /// build a path - see `safeFileName`.
+  originalFileName String @db.VarChar(255)
+  contentType      String @db.VarChar(128)
+  byteSize         Int
+
+  /// SHA-256 of the bytes, so the same file uploaded twice is recognisable and
+  /// a stored file can be proved unmodified.
+  contentHash String @db.Char(64)
+
+  scanState SellerDocumentScanState @default(PENDING_SCAN)
+  scannedAt DateTime?               @db.DateTime(3)
+
+  /// An operator approved this as evidence. Separate from `scanState`: a clean
+  /// file can still be the wrong document.
+  approvedAt       DateTime? @db.DateTime(3)
+  approvedByUserId String?   @db.Char(26)
+  rejectedReason   String?   @db.Text
+
+  /// For certificates. Drives the expiry warnings on the dashboard.
+  issuedOn  DateTime? @db.Date
+  expiresOn DateTime? @db.Date
+
+  uploadedByProfileId String? @db.Char(26)
+
+  createdAt    DateTime  @default(now()) @db.DateTime(3)
+  updatedAt    DateTime  @updatedAt @db.DateTime(3)
+  /// Superseded by a newer upload of the same kind. Kept, not deleted: the
+  /// document an approval was granted against must stay readable.
+  supersededAt DateTime? @db.DateTime(3)
+
+  sellerAccount SellerAccount @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+
+  @@index([sellerAccountId, kind, supersededAt], map: "ix_seller_document_kind")
+  @@index([expiresOn], map: "ix_seller_document_expiry")
+  @@map("seller_documents")
+}
+
+/// Which agreement a seller accepted.
+enum SellerAgreementKind {
+  MARKETPLACE_AGREEMENT
+  COMMISSION_SCHEDULE
+  RETURNS_POLICY
+  PRIVACY_POLICY
+  INTELLECTUAL_PROPERTY_DECLARATION
+}
+
+/// How the acceptance was captured.
+///
+/// The distinction this enum draws is the point of the whole model, and it is
+/// the one the brief is emphatic about: a signature drawn with a mouse is NOT
+/// a verified legal signature. It is evidence that somebody at that session
+/// drew something, and it is recorded as `DRAWN_CONSENT` accordingly. A real
+/// e-signature requires a provider that can bind the act to an identity, and
+/// this repository has none configured.
+enum SellerConsentMethod {
+  /// A checkbox with a policy version and a timestamp. Legally the same weight
+  /// as any click-through, which is what it is.
+  CLICKWRAP
+  /// A drawing, or a typed name rendered as one. Stored as evidence alongside
+  /// the clickwrap record, never instead of it, and never described in the
+  /// interface as a verified signature.
+  DRAWN_CONSENT
+  /// An approved e-signature provider bound the acceptance to a verified
+  /// identity. No provider is configured here; this member exists so the
+  /// adapter has something to write when one is.
+  QUALIFIED_ESIGNATURE
+}
+
+/// A seller accepting one agreement, once, at a version.
+///
+/// Immutable. A new acceptance is a new row, because "which version of the
+/// commission schedule was this seller on in March" is a question that gets
+/// asked when money is disputed.
+model SellerAgreementAcceptance {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+
+  kind    SellerAgreementKind
+  /// The published version of the document that was accepted, e.g.
+  /// `2026-09-01`. Meaningless to compare across kinds; meaningful within one.
+  version String              @db.VarChar(32)
+
+  method SellerConsentMethod @default(CLICKWRAP)
+
+  /// The person who clicked. Personal data, and disclosed in the Art. 15
+  /// export.
+  acceptedByProfileId String? @db.Char(26)
+  acceptedName        String? @db.VarChar(160)
+
+  /// Where the drawn signature image lives, for `DRAWN_CONSENT`. An object key
+  /// like `SellerDocument.storageKey`, not the bytes.
+  signatureStorageKey String? @db.VarChar(512)
+
+  /// Evidence of the act itself. IP and user agent are the usual minimum for a
+  /// click-through to be worth anything later.
+  ipAddress String? @db.VarChar(45)
+  userAgent String? @db.VarChar(512)
+
+  acceptedAt DateTime @default(now()) @db.DateTime(3)
+
+  sellerAccount SellerAccount @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+
+  @@index([sellerAccountId, kind, acceptedAt], map: "ix_seller_agreement_kind")
+  @@map("seller_agreement_acceptances")
+}
+
+/// How far a payout account has got with the provider.
+enum SellerPayoutAccountState {
+  /// Nothing started.
+  NOT_STARTED
+  /// The provider has an account and wants more from the seller.
+  REQUIREMENTS_DUE
+  /// The provider is checking.
+  PENDING_VERIFICATION
+  /// Money can be sent.
+  ENABLED
+  /// The provider has stopped payouts on this account.
+  RESTRICTED
+  /// No payout provider is configured for this deployment.
+  ///
+  /// The screens that would collect an account number render a
+  /// configuration-required state instead of a form. Collecting bank details
+  /// into a database that has nowhere to send them would be worse than useless:
+  /// it would be a liability.
+  PROVIDER_UNCONFIGURED
+}
+
+/// The marketplace's pointer to a payout account held somewhere else.
+///
+/// READ THE COLUMN LIST: there is no account number, no sort code, no IBAN and
+/// no cardholder name anywhere in it, and that is deliberate. A marketplace
+/// does not need to hold bank details to pay a seller - it needs a connected
+/// account identifier at a provider that does. Storing the details here would
+/// put this deployment inside the scope of rules it has no reason to be in,
+/// to no benefit.
+///
+/// `last4` and `bankName` are the exceptions, and only because a seller
+/// looking at their own payout settings has to be able to tell which account
+/// it is. Both come back from the provider; neither is enough to move money.
+model SellerPayoutAccountReference {
+  id              String @id @db.Char(26)
+  sellerAccountId String @unique(map: "uq_seller_payout_account") @db.Char(26)
+
+  /// Which provider holds the account, e.g. `stripe_connect`. Null while the
+  /// deployment has none configured.
+  provider String? @db.VarChar(48)
+
+  /// The provider's account identifier, e.g. a Stripe `acct_...`. This is the
+  /// only credential-shaped thing in the table and it is not a credential: it
+  /// names an account, it does not authorise anything against it.
+  providerAccountId String? @db.VarChar(128)
+
+  state SellerPayoutAccountState @default(NOT_STARTED)
+
+  /// What the provider still wants, as it said it. Shown to the seller so
+  /// "pending" is never a dead end.
+  pendingRequirementsJson Json?
+
+  /// Enough to recognise the account, not enough to use it.
+  bankName       String? @db.VarChar(120)
+  accountLast4   String? @db.VarChar(4)
+  payoutCurrency String? @db.Char(3)
+  payoutCountry  String? @db.Char(2)
+
+  /// Whether the provider will currently send money. Distinct from `state`:
+  /// an account can be ENABLED and still have payouts paused by the operator.
+  payoutsEnabled Boolean @default(false)
+
+  /// The operator has paused payouts to this seller, regardless of what the
+  /// provider thinks. Used while a dispute is open.
+  payoutsHeldByOperator Boolean @default(false)
+  payoutHoldReason      String? @db.Text
+
+  lastSyncedAt DateTime? @db.DateTime(3)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+
+  @@index([state], map: "ix_seller_payout_account_state")
+  @@map("seller_payout_account_references")
+}
+
+/// What a seller location is for. A place can be more than one, which is why
+/// these are booleans on the row rather than a kind enum.
+model SellerLocation {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+
+  /// Seller-chosen, unique within the seller. Appears on every stock movement
+  /// ever recorded against the place, which is why it cannot be reused.
+  code String @db.VarChar(32)
+  name String @db.VarChar(160)
+
+  addressLine1 String  @db.VarChar(255)
+  addressLine2 String? @db.VarChar(255)
+  city         String  @db.VarChar(120)
+  region       String? @db.VarChar(120)
+  postcode     String  @db.VarChar(24)
+  countryCode  String  @db.Char(2)
+
+  /// Where the place actually is. Null when nobody has geocoded it yet - which
+  /// is not the same as 0,0, a point in the Atlantic that several systems have
+  /// shipped to.
+  latitude  Decimal? @db.Decimal(10, 7)
+  longitude Decimal? @db.Decimal(10, 7)
+
+  /// IANA zone, e.g. `Europe/Amsterdam`. Dispatch cutoffs are wall-clock times
+  /// at the warehouse, so they are meaningless without it.
+  timezone String @default("UTC") @db.VarChar(64)
+
+  isPickupLocation Boolean @default(true)
+  isReturnLocation Boolean @default(true)
+
+  /// `HH:MM` in `timezone`. An order placed after this ships the next working
+  /// day.
+  dispatchCutoff   String? @db.VarChar(5)
+  /// Bitmask, Monday = 1. 31 is Mon-Fri. Stored as an int because a seven-way
+  /// boolean set is what a bitmask is for and MariaDB has no array type.
+  workingDaysMask  Int     @default(31)
+  /// Working days between an order and its dispatch.
+  handlingTimeDays Int     @default(1)
+
+  /// ISO-3166-1 alpha-2 codes this location will ship to. Empty means "no
+  /// restriction beyond the marketplace's own".
+  shipsToCountriesJson Json?
+
+  /// Cold chain, controlled substances, sterile storage. Drives which products
+  /// may be stocked here.
+  hasColdChain         Boolean @default(false)
+  hasControlledStorage Boolean @default(false)
+  hasSterileStorage    Boolean @default(false)
+
+  /// Whether stock here can be sold at all. A closed location keeps its
+  /// history and its balances and offers none of it.
+  isOperational Boolean @default(true)
+  closedReason  String? @db.VarChar(255)
+
+  createdAt  DateTime  @default(now()) @db.DateTime(3)
+  updatedAt  DateTime  @updatedAt @db.DateTime(3)
+  archivedAt DateTime? @db.DateTime(3)
+
+  sellerAccount SellerAccount             @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+  inventory     SellerInventory[]
+  movements     SellerInventoryMovement[]
+  shipments     SellerShipment[]
+
+  @@unique([sellerAccountId, code], map: "uq_seller_location_code")
+  @@index([sellerAccountId, isOperational], map: "ix_seller_location_operational")
+  @@index([countryCode], map: "ix_seller_location_country")
+  @@map("seller_locations")
+}
+
+// ---------------------------------------------------------------------------
+// BRANDS
+//
+// A brand is marketplace-wide, not seller-owned. Three distributors selling
+// the same manufacturer's catheters must all attach to ONE brand row, or the
+// buyer's brand filter returns three of everything and the manufacturer
+// appears three times in a facet.
+// ---------------------------------------------------------------------------
+
+/// Whether a brand may be used on a listing.
+enum BrandStatus {
+  /// Usable.
+  APPROVED
+  /// Somebody asked for it and nobody has decided yet. Usable on a DRAFT
+  /// listing so the seller is not blocked, never on a published one.
+  PENDING
+  /// Refused, with a reason.
+  REJECTED
+  /// Was approved, withdrawn. Existing listings keep it and cannot be
+  /// republished until they change it.
+  RETIRED
+}
+
+/// A manufacturer or brand name, marketplace-wide.
+model Brand {
+  id String @id @db.Char(26)
+
+  name           String @db.VarChar(160)
+  /// Lowercased, punctuation and whitespace stripped. UNIQUE, and the reason
+  /// the duplicate check works: "B.Braun", "B Braun" and "b. braun" are one
+  /// brand and three strings.
+  nameNormalized String @unique(map: "uq_brand_name_normalized") @db.VarChar(160)
+  slug           String @unique(map: "uq_brand_slug") @db.VarChar(180)
+
+  status BrandStatus @default(PENDING)
+
+  /// The legal manufacturer behind the brand, when it differs from the brand
+  /// name - "Aesculap" is a brand of "B. Braun Melsungen AG".
+  manufacturerLegalName String? @db.VarChar(255)
+  manufacturerCountry   String? @db.Char(2)
+
+  description String? @db.Text
+  websiteUrl  String? @db.VarChar(512)
+
+  /// Object key for the brand mark. Optional; a brand with no logo renders as
+  /// its initials rather than as a broken image.
+  logoStorageKey String? @db.VarChar(512)
+
+  rejectedReason String? @db.Text
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  requests BrandRequest[]
+  offers   SellerOffer[]
+  drafts   SellerListingDraft[]
+
+  @@index([status, name], map: "ix_brand_status_name")
+  @@map("brands")
+}
+
+enum BrandRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  /// The operator wants evidence before deciding.
+  INFORMATION_REQUESTED
+}
+
+/// A seller asking for a brand they cannot find.
+///
+/// Kept apart from `Brand` because the two answer different questions. The
+/// brand row is "does this name exist in the catalogue"; the request is "did
+/// THIS seller ask for it, when, with what evidence, and what did we say". A
+/// brand approved for one seller's request is then available to every seller,
+/// which is correct - a brand is not owned by whoever asked first.
+model BrandRequest {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+
+  /// Set once a brand row exists for this request - either matched to an
+  /// existing one or created on approval.
+  brandId String? @db.Char(26)
+
+  /// What the seller typed. Kept verbatim even after a match, because "we
+  /// approved 'Braun' when they asked for 'Brawn'" is a thing that needs to be
+  /// visible.
+  requestedName String @db.VarChar(160)
+
+  manufacturerLegalName String? @db.VarChar(255)
+  websiteUrl            String? @db.VarChar(512)
+  /// Why this seller is entitled to sell it - "we manufacture it", "we are the
+  /// authorised distributor for Benelux".
+  justification         String? @db.Text
+
+  status BrandRequestStatus @default(PENDING)
+
+  decisionReason  String?   @db.Text
+  decidedByUserId String?   @db.Char(26)
+  decidedAt       DateTime? @db.DateTime(3)
+
+  requestedByProfileId String? @db.Char(26)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+  brand         Brand?        @relation(fields: [brandId], references: [id], onDelete: SetNull)
+
+  @@index([sellerAccountId, status], map: "ix_brand_request_seller")
+  @@index([status, createdAt], map: "ix_brand_request_queue")
+  @@map("brand_requests")
+}
+
+// ---------------------------------------------------------------------------
+// THE LISTING SCHEMA
+//
+// The wizard renders itself from these rows. That is the difference between a
+// form that works for one category and a marketplace: an infusion pump needs a
+// flow rate and a connector type, a surgical glove needs a size and a powder
+// state, and neither list belongs in a React component.
+//
+// The completion counters the seller sees - "Product Description (8/8)" - are
+// counted over these definitions, server-side. The frontend never decides what
+// "complete" means.
+// ---------------------------------------------------------------------------
+
+/// What kind of control an attribute is, and therefore how its value is
+/// validated and stored.
+enum ListingAttributeType {
+  TEXT
+  LONG_TEXT
+  /// Sanitised HTML. Stored post-sanitisation, never rendered raw - the same
+  /// rule `Product.descriptionHtml` follows.
+  RICH_TEXT
+  NUMBER
+  DECIMAL
+  /// A number and a unit, e.g. `120 mm`. The unit is constrained to
+  /// `allowedUnitsJson`, because "12 cm" and "120 mm" sorting apart in a facet
+  /// is what unconstrained units produce.
+  MEASUREMENT
+  DROPDOWN
+  MULTI_SELECT
+  BOOLEAN
+  DATE
+  /// A repeating group of key/value rows - "In the box: 1 x mask, 2 x filter".
+  KEY_VALUE_LIST
+  /// A file the seller uploads against this attribute, e.g. an IFU PDF.
+  DOCUMENT
+}
+
+/// Which section of the listing workspace an attribute appears in.
+///
+/// These are the sections the seller sees a completion count for, so the enum
+/// is the contract between the wizard's left-hand progress and the server's
+/// counting.
+enum ListingSection {
+  PRODUCT_PHOTOS
+  PRICE_STOCK_SHIPPING
+  PRODUCT_DESCRIPTION
+  ADDITIONAL_INFORMATION
+  MEDICAL_COMPLIANCE
+}
+
+/// One field the listing wizard renders, for one category.
+///
+/// Scoped to a category, and inherited down the category tree by the service
+/// rather than duplicated per leaf: a definition on "Infusion" applies to
+/// "Infusion > Pumps" unless a definition with the same key overrides it.
+/// Duplicating them would mean adding a field to a top-level category meant
+/// editing forty rows.
+model CategoryAttributeDefinition {
+  id String @id @db.Char(26)
+
+  /// Null means "every category" - the fields every product has regardless of
+  /// what it is. `categoryKey` carries the same value as a non-null string for
+  /// the unique index, because MariaDB treats NULLs in a UNIQUE index as
+  /// distinct and two global definitions of `brand` would both be accepted.
+  categoryId  String? @db.Char(26)
+  categoryKey String  @db.VarChar(26)
+
+  /// Stable machine name, e.g. `sterile_status`. Appears in the draft JSON and
+  /// in the import template header, so renaming one is a migration.
+  attributeKey String @db.VarChar(64)
+
+  label    String  @db.VarChar(160)
+  helpText String? @db.VarChar(512)
+
+  section ListingSection
+  type    ListingAttributeType
+
+  isRequired Boolean @default(false)
+
+  /// The unit shown beside a NUMBER or DECIMAL that always has the same one.
+  /// For MEASUREMENT the seller picks from `allowedUnitsJson` instead.
+  unit             String? @db.VarChar(24)
+  allowedUnitsJson Json?
+
+  /// Options for DROPDOWN and MULTI_SELECT, as `[{ value, label }]`.
+  allowedValuesJson Json?
+
+  /// Server-side bounds. Applied in `listing-validation.ts`; sent to the
+  /// frontend so it can say the same thing sooner, never so it can decide.
+  minNumber Decimal? @db.Decimal(18, 6)
+  maxNumber Decimal? @db.Decimal(18, 6)
+  minLength Int?
+  maxLength Int?
+  /// Regex, for identifiers with a published format - UDI-DI, GTIN.
+  pattern   String?  @db.VarChar(255)
+
+  /// Buyers can filter on it. Drives which attributes get indexed.
+  isSearchable       Boolean @default(false)
+  /// Two listings differing only in this attribute are variants of one
+  /// another - size, length, gauge, pack quantity.
+  isVariantDimension Boolean @default(false)
+  /// Contributes to the generated product title, in `titleOrder`.
+  isTitleComponent   Boolean @default(false)
+  titleOrder         Int?    @db.SmallInt
+
+  /// Only asked when the product is a regulated device - carries a device
+  /// class, a UDI, a CE mark. Lets one category serve both a sterile implant
+  /// and a waiting-room chair.
+  isRegulatoryOnly Boolean @default(false)
+
+  sortOrder Int @default(0)
+
+  /// Turned off without deleting. A definition that has values stored against
+  /// it on live listings cannot be deleted without losing them.
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryKey, attributeKey], map: "uq_category_attribute_key")
+  @@index([categoryId, section, sortOrder], map: "ix_category_attribute_section")
+  @@map("category_attribute_definitions")
+}
+
+// ---------------------------------------------------------------------------
+// THE LISTING DRAFT
+//
+// A draft is not a Product. It is the seller's working copy, and it is allowed
+// to be invalid, half-finished and contradictory for as long as they need. A
+// `Product` row is created only when a draft is approved, which is what keeps
+// an abandoned wizard from leaving an unpublishable product in the catalogue
+// forever.
+// ---------------------------------------------------------------------------
+
+/// Where a listing is in its journey from "started" to "buyable".
+///
+/// Enforced by `assertListingTransition` in `domain/seller-state.ts`. Nothing
+/// writes this column directly, for the same reason nothing writes
+/// `Order.status`: the step from READY_FOR_SUBMISSION to PENDING_REVIEW is what
+/// hands a medical device to a moderator, and the step from APPROVED is what
+/// puts it in front of a hospital.
+enum ListingDraftStatus {
+  /// Being written. Autosaves land here.
+  DRAFT
+  /// The seller pressed submit and the automated checks refused it. Editable,
+  /// and every refusal is attached to a field.
+  VALIDATION_FAILED
+  /// Every required section passes. The submit button is live.
+  READY_FOR_SUBMISSION
+  /// With the moderators. Read-only for the seller.
+  PENDING_REVIEW
+  /// A moderator sent it back. Editable, with comments attached to fields.
+  ACTION_REQUIRED
+  /// Approved. A `Product` and a `SellerOffer` now exist; the draft is kept as
+  /// the record of what was approved.
+  APPROVED
+  /// Refused outright.
+  REJECTED
+  /// The seller abandoned it.
+  ARCHIVED
+}
+
+/// A seller's working copy of a listing.
+///
+/// The bulk of it is `attributesJson` rather than a column per field, and that
+/// is forced by the same thing that makes `CategoryAttributeDefinition` exist:
+/// the fields are configuration. What is NOT in the JSON is anything the
+/// database has to index, constrain or join on - category, brand, status, the
+/// seller's SKU - because those are queries, not content.
+model SellerListingDraft {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+
+  status ListingDraftStatus @default(DRAFT)
+
+  /// Chosen at step one. Null only for the brief moment before the seller has
+  /// picked one, which is a real state the wizard renders.
+  categoryId String? @db.Char(26)
+  brandId    String? @db.Char(26)
+
+  /// Set when the seller matched an existing catalogue product instead of
+  /// describing a new one. The offer then attaches to that product and the
+  /// product's own specifications are not editable here - which is the point
+  /// of matching.
+  matchedProductId String? @db.Char(26)
+
+  /// The product this draft produced, once approved. Null until then.
+  publishedProductId String? @db.Char(26)
+  publishedOfferId   String? @db.Char(26)
+
+  /// The seller's own code for the item. Unique within the seller, checked
+  /// against live offers as well as other drafts - a duplicate SKU is one of
+  /// the automated quality checks.
+  sellerSku String? @db.VarChar(64)
+
+  /// Attribute key -> value, validated against the category's definitions.
+  attributesJson Json?
+
+  /// The commercial terms: price, currency, MOQ, increments, tiers, handling.
+  /// Separate from `attributesJson` because these are the OFFER, not the
+  /// product, and they survive into `SellerOffer` unchanged.
+  offerJson Json?
+
+  /// Per-location stock the seller typed in the wizard, applied to
+  /// `SellerInventory` on approval.
+  stockJson Json?
+
+  /// Pack hierarchy: base unit, units per pack, packs per box, and so on, with
+  /// the calculated total sellable units. Decimal-safe arithmetic lives in
+  /// `packaging.ts`; this stores what the seller entered and what it worked
+  /// out to, so a later change to the arithmetic is visible rather than silent.
+  packagingJson Json?
+
+  /// The title the rules generated, and the fields that produced it. Null
+  /// until every title-component attribute is valid - which is exactly when
+  /// "Preview title" becomes pressable.
+  generatedTitle       String? @db.VarChar(512)
+  generatedTitleSource Json?
+  /// A title the seller edited, where policy allows it. Null means the
+  /// generated one stands.
+  sellerEditedTitle    String? @db.VarChar(512)
+
+  /// Section key -> `{ complete, required, state }`, recomputed server-side on
+  /// every save. Stored rather than derived on read because the listings table
+  /// shows a quality column for hundreds of rows at a time.
+  sectionStateJson Json?
+
+  /// Moderator's decision text, seller-visible.
+  reviewComment    String?   @db.Text
+  reviewedByUserId String?   @db.Char(26)
+  reviewedAt       DateTime? @db.DateTime(3)
+  submittedAt      DateTime? @db.DateTime(3)
+
+  /// Optimistic concurrency. The wizard autosaves from a long-lived tab and
+  /// sellers leave two open; this is what stops one overwriting the other.
+  version Int @default(0)
+
+  createdByProfileId String? @db.Char(26)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount             @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+  category      Category?                 @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  brand         Brand?                    @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  media         SellerListingDraftMedia[]
+  issues        SellerListingIssue[]
+
+  @@index([sellerAccountId, status, updatedAt], map: "ix_listing_draft_seller_status")
+  @@index([status, submittedAt], map: "ix_listing_draft_review_queue")
+  @@index([sellerAccountId, sellerSku], map: "ix_listing_draft_sku")
+  @@map("seller_listing_drafts")
+}
+
+/// Which photograph this is meant to be.
+///
+/// Named slots rather than a free gallery, because the required set is
+/// category-driven and a moderator checking "is there a readable UDI label"
+/// needs to know which image claims to be one. The slots the brief lists, plus
+/// OTHER for anything else the seller wants to include.
+enum ListingMediaSlot {
+  FRONT_VIEW
+  BACK_VIEW
+  SIDE_VIEW
+  PACKAGING
+  PRODUCT_LABEL
+  UDI_LABEL
+  DIMENSIONS_REFERENCE
+  CONNECTOR_VIEW
+  STERILE_SEAL
+  INSTRUCTIONS_VIEW
+  OTHER
+  /// A PDF rather than a photograph - an IFU, a certificate.
+  DOCUMENT
+  /// A short video of the product. Its own slot rather than a flag on OTHER,
+  /// because a buyer looking for "is there a video" and a moderator checking
+  /// the photographs are both asking about a specific thing.
+  VIDEO
+}
+
+/// Picture or video.
+enum SellerMediaKind {
+  IMAGE
+  VIDEO
+}
+
+/// A file attached to a draft listing.
+///
+/// Uploaded straight to object storage with a presigned URL: the bytes never
+/// pass through this API, which is what keeps a 12 MB photograph from
+/// occupying a request worker. The row is written when the seller asks for the
+/// presigned URL and confirmed when the upload finishes, so an abandoned
+/// upload leaves a row marked incomplete rather than a file nobody can find.
+model SellerListingDraftMedia {
+  id      String @id @db.Char(26)
+  draftId String @db.Char(26)
+
+  slot ListingMediaSlot @default(OTHER)
+
+  storageKey       String  @db.VarChar(512)
+  originalFileName String  @db.VarChar(255)
+  contentType      String  @db.VarChar(128)
+  byteSize         Int     @default(0)
+  contentHash      String? @db.Char(64)
+
+  /// Whether these bytes are a picture or a video. Decides how the gallery
+  /// renders it and which size limit the upload was held to - see
+  /// `assertWithinMediaSizeLimit`.
+  kind SellerMediaKind @default(IMAGE)
+
+  widthPx  Int?
+  heightPx Int?
+
+  /// Length of a video, where it could be read. Null for a picture, and null
+  /// for a video whose container did not say - which is not an error, just an
+  /// unknown, and the gallery shows the clip without a duration.
+  durationSeconds Int?
+
+  /// Alt text. Required before submission for the primary image, because a
+  /// catalogue a screen-reader cannot describe is a catalogue some buyers
+  /// cannot use.
+  altText String? @db.VarChar(255)
+
+  /// The image shown first. Exactly one per draft, enforced in the service.
+  isPrimary Boolean @default(false)
+
+  sortOrder Int @default(0)
+
+  /// The upload was confirmed as finished. Rows that never get here are swept.
+  uploadedAt DateTime? @db.DateTime(3)
+
+  scanState SellerDocumentScanState @default(PENDING_SCAN)
+
+  /// A moderator looked at it. Distinct from the scan: a clean file can still
+  /// be a photograph of the wrong thing, or carry a watermark.
+  moderationState String? @db.VarChar(24)
+  moderationNote  String? @db.VarChar(512)
+
+  /// Why an automated check refused it - too small, blurred, duplicate of
+  /// another slot. Shown beside the slot with the action that fixes it.
+  rejectionCode String? @db.VarChar(48)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  draft SellerListingDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
+
+  @@index([draftId, sortOrder], map: "ix_listing_media_order")
+  @@index([draftId, kind], map: "ix_listing_media_kind")
+  @@index([draftId, slot], map: "ix_listing_media_slot")
+  @@map("seller_listing_draft_media")
+}
+
+/// How badly an issue blocks a listing.
+enum ListingIssueSeverity {
+  /// Submission is refused until it is fixed.
+  BLOCKER
+  /// Submission is allowed; the moderator will see it.
+  WARNING
+  /// Advice. Improves the listing, blocks nothing.
+  ADVISORY
+}
+
+/// One thing wrong with a listing, tied to the field it is wrong in.
+///
+/// The tie to a field is the entire value of this table. "Your listing failed
+/// validation" is not a message anybody can act on; "Pack quantity must divide
+/// into units per box - Price, Stock and Shipping - Units per box" is, and it
+/// is what lets the wizard put the error beside the input and the submit
+/// button explain itself.
+model SellerListingIssue {
+  id      String @id @db.Char(26)
+  draftId String @db.Char(26)
+
+  severity ListingIssueSeverity @default(BLOCKER)
+
+  /// Stable code, e.g. `MISSING_REQUIRED_IMAGE`. The frontend translates it;
+  /// the stored `message` is the fallback.
+  code String @db.VarChar(64)
+
+  section      ListingSection?
+  attributeKey String?         @db.VarChar(64)
+
+  message String @db.VarChar(512)
+
+  /// Raised by the automated checks, or written by a moderator. Both end up
+  /// beside the same field, which is what the seller needs; the source decides
+  /// whether re-running validation clears it.
+  isFromModerator Boolean @default(false)
+
+  resolvedAt DateTime? @db.DateTime(3)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  draft SellerListingDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
+
+  @@index([draftId, resolvedAt], map: "ix_listing_issue_open")
+  @@map("seller_listing_issues")
+}
+
+// ---------------------------------------------------------------------------
+// THE OFFER
+//
+// What a particular seller will sell a particular catalogue product for. This
+// is the row a buyer actually buys from, and the reason the marketplace can
+// show three prices for one product without three product pages.
+// ---------------------------------------------------------------------------
+
+enum SellerOfferStatus {
+  /// Approved but not switched on by the seller.
+  INACTIVE
+  /// Buyable.
+  ACTIVE
+  /// The seller paused it - holidays, a recall, a supplier problem.
+  PAUSED
+  /// Something is wrong that the seller must fix: an expired certificate, a
+  /// retired brand, a compliance document nobody renewed. Not buyable, and the
+  /// listings page says why.
+  NEEDS_CHANGES
+  /// Withdrawn. Kept because orders reference it.
+  ARCHIVED
+}
+
+/// One seller's terms for one catalogue product.
+///
+/// The `variantKey` trick is the one from the top of this file, and it is here
+/// for exactly the reason described there: a nullable `variantId` inside the
+/// unique key would let MariaDB accept two base-product offers from one seller,
+/// because it treats every NULL as distinct. `variantKey` is the variant ULID
+/// or '', never null, so the uniqueness actually holds.
+model SellerOffer {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+
+  productId  String  @db.Char(26)
+  variantId  String? @db.Char(26)
+  /// `variantId`, or '' for the base product. Never null. See the note above.
+  variantKey String  @default("") @db.VarChar(26)
+
+  /// The seller's own code. Unique within the seller: it is what their
+  /// warehouse, their ERP and their invoices all key on, so two products
+  /// sharing one would make a picking list ambiguous.
+  sellerSku String @db.VarChar(64)
+
+  brandId String? @db.Char(26)
+
+  status SellerOfferStatus @default(INACTIVE)
+
+  /// Minor units. BigInt, like every other money column in this schema - a
+  /// price crossing the API as a JS number is how a 19-digit paise figure
+  /// silently loses its last digit.
+  priceMinor BigInt
+  currency   String @db.Char(3)
+
+  /// Strike-through price. Must be at or above `priceMinor`; checked in the
+  /// service and by a CHECK constraint.
+  compareAtPriceMinor BigInt?
+
+  /// Which tax class the operator files this under. Reuses the existing
+  /// `TaxClass` rows rather than inventing a seller-specific tax system.
+  taxClassId String? @db.Char(26)
+
+  /// The unit a buyer orders in - piece, pack, box, carton. Reuses the
+  /// existing `OrderingUnit` enum so a marketplace line and an operator line
+  /// behave identically in a cart.
+  orderingUnit OrderingUnit @default(PIECE)
+
+  minimumOrderQuantity Int  @default(1)
+  /// Quantities must be a multiple of this. 1 means no restriction.
+  orderIncrement       Int  @default(1)
+  maximumOrderQuantity Int?
+
+  /// Working days from order to dispatch, when it differs from the location's
+  /// default. Null means "use the location".
+  handlingTimeDays Int?
+
+  /// Months of shelf life the seller guarantees will remain on dispatch. A
+  /// hospital that receives a reagent expiring next week cannot use it, so
+  /// this is a commercial term, not a product fact.
+  guaranteedShelfLifeMonths Int? @db.SmallInt
+
+  warrantyMonths Int? @db.SmallInt
+
+  /// ISO-3166-1 alpha-2 codes the seller will ship this to. Empty means
+  /// "wherever the locations reach".
+  sellingRegionsJson Json?
+
+  /// Denormalised from `SellerInventory` so the listings table and the buyer's
+  /// product page do not each sum a ledger. Recomputed inside the same
+  /// transaction as the movement that changed it.
+  availableQuantity Int @default(0)
+  reservedQuantity  Int @default(0)
+
+  /// Quality, as the automated checks scored it at the last save. 0-100.
+  qualityScore Int? @db.SmallInt
+
+  /// Why it is NEEDS_CHANGES, seller-visible.
+  statusReason String? @db.Text
+
+  /// The draft this came from, kept so "what exactly was approved" has an
+  /// answer.
+  sourceDraftId String? @db.Char(26)
+
+  publishedAt DateTime? @db.DateTime(3)
+
+  version Int @default(0)
+
+  createdAt  DateTime  @default(now()) @db.DateTime(3)
+  updatedAt  DateTime  @updatedAt @db.DateTime(3)
+  archivedAt DateTime? @db.DateTime(3)
+
+  sellerAccount SellerAccount     @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+  product       Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant       ProductVariant?   @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  brand         Brand?            @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  priceTiers    SellerPriceTier[]
+  inventory     SellerInventory[]
+  orderLines    SellerOrderLine[]
+  /// Baskets and orders that chose THIS seller's offer. Both are RESTRICT on
+  /// delete: an offer somebody has bought is evidence of what was sold, and
+  /// removing it would leave the line pointing at nothing. Archive instead.
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+
+  @@unique([sellerAccountId, productId, variantKey], map: "uq_seller_offer_product")
+  @@unique([sellerAccountId, sellerSku], map: "uq_seller_offer_sku")
+  @@index([productId, status, priceMinor], map: "ix_seller_offer_product_price")
+  @@index([sellerAccountId, status, updatedAt], map: "ix_seller_offer_seller_status")
+  @@index([status, availableQuantity], map: "ix_seller_offer_stock")
+  @@map("seller_offers")
+}
+
+/// "Cheaper if you take more."
+///
+/// A band, not a step: `minQuantity` starts a band that runs until the next
+/// one begins. Overlapping bands are refused in the service, because a
+/// quantity matching two prices has no answer a buyer would accept.
+model SellerPriceTier {
+  id      String @id @db.Char(26)
+  offerId String @db.Char(26)
+
+  minQuantity Int
+  priceMinor  BigInt
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  offer SellerOffer @relation(fields: [offerId], references: [id], onDelete: Cascade)
+
+  @@unique([offerId, minQuantity], map: "uq_seller_price_tier")
+  @@index([offerId, minQuantity], map: "ix_seller_price_tier_band")
+  @@map("seller_price_tiers")
+}
+
+/// Stock of one offer at one of the seller's locations.
+///
+/// Separate from the operator's `InventoryBalance` rather than sharing it: the
+/// two are different ledgers with different owners, and a seller adjusting
+/// their own stock must never write a row the operator's warehouse team reads
+/// as theirs. The discipline is the same - movements are the truth, the
+/// balance is a running total, and both move inside one transaction.
+model SellerInventory {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+  offerId         String @db.Char(26)
+  locationId      String @db.Char(26)
+
+  /// On hand and sellable.
+  availableQuantity   Int @default(0)
+  /// Held for orders that are not yet dispatched.
+  reservedQuantity    Int @default(0)
+  /// Present, unsellable: damaged, quarantined, past its date.
+  quarantinedQuantity Int @default(0)
+
+  /// Below this, the dashboard raises a low-stock alert. 0 disables it.
+  reorderThreshold Int @default(0)
+
+  /// Batch or lot, where the product's regulatory class requires traceability.
+  /// Nullable, because not every product does - a dressing pack does, a
+  /// waiting-room chair does not.
+  batchNumber String? @db.VarChar(64)
+
+  manufacturedOn DateTime? @db.Date
+  expiresOn      DateTime? @db.Date
+
+  /// Optimistic concurrency, and the thing that makes concurrent reservation
+  /// safe on MariaDB 10.4 without `SKIP LOCKED`: a decrement is a conditional
+  /// UPDATE checking this, and a zero-row result means somebody else got there
+  /// first.
+  version Int @default(0)
+
+  /// What the seller's own ERP last said, and when. Null when no ERP is
+  /// connected. Kept beside the balance rather than in the sync log because
+  /// "these numbers disagree" is a thing the inventory screen shows.
+  erpQuantity Int?
+  erpSyncedAt DateTime? @db.DateTime(3)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount  @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+  offer         SellerOffer    @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  location      SellerLocation @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([offerId, locationId], map: "uq_seller_inventory_offer_location")
+  @@index([sellerAccountId, availableQuantity], map: "ix_seller_inventory_low")
+  @@index([expiresOn], map: "ix_seller_inventory_expiry")
+  @@map("seller_inventory")
+}
+
+/// Why stock moved. Mirrors `InventoryMovementType` in shape but not in
+/// membership: a seller receives, adjusts, reserves and ships, and does not do
+/// the operator-only movements.
+enum SellerInventoryMovementType {
+  RECEIPT
+  ADJUSTMENT
+  RESERVATION
+  RESERVATION_RELEASE
+  DISPATCH
+  RETURN
+  QUARANTINE
+  QUARANTINE_RELEASE
+  /// An ERP sync overwrote the balance. Recorded as a movement so the ledger
+  /// still adds up afterwards.
+  ERP_RECONCILIATION
+}
+
+/// Every change to seller stock, ever.
+///
+/// Append-only. The balance is derived from these and cached on
+/// `SellerInventory`; when the two disagree the movements win, which is only
+/// true if nothing ever edits a movement.
+model SellerInventoryMovement {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+  offerId         String @db.Char(26)
+  locationId      String @db.Char(26)
+
+  type SellerInventoryMovementType
+
+  /// Signed. Negative takes stock away. Stored signed rather than as a
+  /// magnitude plus a direction so that summing the column is the balance.
+  quantityDelta Int
+
+  /// The balance after this movement, for auditing without replaying
+  /// everything.
+  balanceAfter Int
+
+  /// What caused it - an order id, an import job id, a sync run id.
+  referenceType String? @db.VarChar(48)
+  referenceId   String? @db.Char(26)
+
+  /// Required for ADJUSTMENT. An adjustment with no reason is how stock
+  /// quietly disappears.
+  reason String? @db.VarChar(255)
+
+  batchNumber String? @db.VarChar(64)
+
+  /// The person, when a person did it. Null for worker and ERP movements.
+  actorProfileId String? @db.Char(26)
+
+  /// Makes a retried write harmless. A sync that times out and is repeated
+  /// must not move the same stock twice.
+  idempotencyKey String? @db.VarChar(128)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  sellerAccount SellerAccount  @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+  location      SellerLocation @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([sellerAccountId, idempotencyKey], map: "uq_seller_movement_idempotency")
+  @@index([offerId, createdAt], map: "ix_seller_movement_offer")
+  @@index([sellerAccountId, createdAt], map: "ix_seller_movement_seller")
+  @@map("seller_inventory_movements")
+}
+
+/// A spreadsheet of listings, being processed.
+///
+/// The dry run is not optional decoration: a seller uploading 900 rows needs
+/// to be told which 12 are wrong BEFORE anything is created, because the
+/// alternative is 888 live listings and a cleanup job. `isDryRun` distinguishes
+/// the two passes over the same file.
+model SellerBulkImportJob {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+
+  /// Reuses the existing `JobStatus` enum rather than adding a parallel one.
+  status JobStatus @default(PENDING)
+
+  isDryRun Boolean @default(true)
+
+  /// The category the template was generated for. A template is
+  /// category-specific because the columns are the category's attributes.
+  categoryId String? @db.Char(26)
+
+  originalFileName String @db.VarChar(255)
+  storageKey       String @db.VarChar(512)
+
+  /// Seller's column header -> attribute key, when they did not use the
+  /// template unchanged.
+  columnMappingJson Json?
+
+  totalRows   Int @default(0)
+  validRows   Int @default(0)
+  invalidRows Int @default(0)
+  createdRows Int @default(0)
+  updatedRows Int @default(0)
+
+  /// Where the downloadable correction file went - the seller's own rows with
+  /// an error column appended, so they fix and re-upload rather than retype.
+  errorReportStorageKey String? @db.VarChar(512)
+
+  failureReason String? @db.Text
+
+  startedAt  DateTime? @db.DateTime(3)
+  finishedAt DateTime? @db.DateTime(3)
+
+  requestedByProfileId String? @db.Char(26)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount              @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+  rowErrors     SellerBulkImportRowError[]
+
+  @@index([sellerAccountId, createdAt], map: "ix_seller_import_seller")
+  @@map("seller_bulk_import_jobs")
+}
+
+/// One row of one upload that could not be accepted.
+model SellerBulkImportRowError {
+  id    String @id @db.Char(26)
+  jobId String @db.Char(26)
+
+  /// 1-based, as the spreadsheet numbers them. Off-by-one here means a seller
+  /// looking at the wrong line in their own file.
+  rowNumber Int
+
+  columnName String? @db.VarChar(128)
+  code       String  @db.VarChar(64)
+  message    String  @db.VarChar(512)
+
+  /// The offending cell, so the report is readable without the original file
+  /// open beside it.
+  rawValue String? @db.VarChar(512)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  job SellerBulkImportJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId, rowNumber], map: "ix_seller_import_error_row")
+  @@map("seller_bulk_import_row_errors")
+}
+
+// ---------------------------------------------------------------------------
+// ORDERS, SPLIT BY SELLER
+//
+// A buyer places ONE order. That order may contain lines from three sellers
+// dispatched from four warehouses. `Order` is untouched - it still belongs to
+// the buyer and still moves through `assertTransition` - and the seller's view
+// of it is a GROUP over its lines.
+//
+// The alternative, an order row per seller, was rejected: it would give the
+// buyer three order numbers for one checkout, three payment intents and three
+// invoices, and would mean touching every existing order path.
+// ---------------------------------------------------------------------------
+
+/// Where a seller's part of an order has got to.
+///
+/// Deliberately NOT the same enum as `OrderStatus`. The buyer's order is
+/// "confirmed" when it is paid; the seller's part of it is "new" until they
+/// accept it, and one seller shipping does not make the buyer's order shipped.
+enum SellerOrderGroupStatus {
+  NEW
+  ACCEPTED
+  PROCESSING
+  READY_FOR_DISPATCH
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  RETURN_REQUESTED
+  RETURNED
+  REFUNDED
+  DISPUTED
+}
+
+/// One seller's part of one buyer order.
+model SellerOrderGroup {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+  orderId         String @db.Char(26)
+
+  /// Sequential per seller, so a seller's own paperwork has its own numbering
+  /// and does not leak how many orders the marketplace as a whole took.
+  sellerOrderNumber String @db.VarChar(32)
+
+  status SellerOrderGroupStatus @default(NEW)
+
+  /// Where it ships from. Chosen by the seller when they accept, or allocated
+  /// automatically where only one location holds the stock.
+  locationId String? @db.Char(26)
+
+  /// The money, as it concerns this seller. Minor units, BigInt, in
+  /// `currency`. Computed once when the group is created and never recomputed
+  /// from a live price - a seller's settlement must not move because they
+  /// edited an offer afterwards.
+  goodsTotalMinor    BigInt @default(0)
+  taxTotalMinor      BigInt @default(0)
+  shippingTotalMinor BigInt @default(0)
+  /// What the marketplace keeps. Derived from the commission rate in force at
+  /// the moment the order was placed, stored so it stays that.
+  commissionMinor    BigInt @default(0)
+  /// What the seller is owed before deductions.
+  sellerNetMinor     BigInt @default(0)
+  currency           String @db.Char(3)
+
+  /// The rate actually used, kept beside the figure it produced. Without it a
+  /// disputed settlement cannot be recomputed.
+  commissionBasisPointsApplied Int @default(0) @db.SmallInt
+
+  /// When the seller must dispatch by, from the location's handling time and
+  /// cutoff. The dashboard's SLA warnings read this.
+  dispatchDueAt DateTime? @db.DateTime(3)
+
+  acceptedAt         DateTime? @db.DateTime(3)
+  dispatchedAt       DateTime? @db.DateTime(3)
+  deliveredAt        DateTime? @db.DateTime(3)
+  cancelledAt        DateTime? @db.DateTime(3)
+  /// Why, when a seller rejected it. Counts against their performance.
+  cancellationReason String?   @db.Text
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount   SellerAccount          @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+  order           Order                  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  lines           SellerOrderLine[]
+  shipments       SellerShipment[]
+  returns         SellerReturn[]
+  settlementLines SellerSettlementLine[]
+
+  @@unique([sellerAccountId, sellerOrderNumber], map: "uq_seller_order_number")
+  @@unique([orderId, sellerAccountId], map: "uq_seller_order_group")
+  @@index([sellerAccountId, status, createdAt], map: "ix_seller_order_group_status")
+  @@index([sellerAccountId, dispatchDueAt], map: "ix_seller_order_group_sla")
+  @@map("seller_order_groups")
+}
+
+/// One line of a buyer order, attributed to one seller's offer.
+///
+/// A join row rather than a duplicate of `OrderItem`: quantity and price live
+/// on the order item, which is the record the buyer was charged against.
+/// What this adds is which offer fulfilled it and what the seller earns from
+/// it, both of which the buyer's line has no business knowing.
+model SellerOrderLine {
+  id           String @id @db.Char(26)
+  orderGroupId String @db.Char(26)
+  orderItemId  String @db.Char(26)
+  offerId      String @db.Char(26)
+
+  quantity Int
+
+  unitPriceMinor  BigInt
+  lineTotalMinor  BigInt
+  commissionMinor BigInt @default(0)
+  sellerNetMinor  BigInt @default(0)
+  currency        String @db.Char(3)
+
+  /// Dispatched so far. Less than `quantity` while a partial fulfilment is
+  /// open.
+  fulfilledQuantity Int @default(0)
+  returnedQuantity  Int @default(0)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  orderGroup SellerOrderGroup @relation(fields: [orderGroupId], references: [id], onDelete: Cascade)
+  offer      SellerOffer      @relation(fields: [offerId], references: [id], onDelete: Restrict)
+
+  @@unique([orderItemId], map: "uq_seller_order_line_item")
+  @@index([orderGroupId], map: "ix_seller_order_line_group")
+  @@index([offerId], map: "ix_seller_order_line_offer")
+  @@map("seller_order_lines")
+}
+
+/// A parcel a seller sent.
+///
+/// Separate from the operator's `Shipment` for the same reason seller stock is
+/// separate from operator stock: different owner, different ledger. The
+/// tracking number a seller types must not appear on an operator's dispatch
+/// screen as though the warehouse sent it.
+model SellerShipment {
+  id              String  @id @db.Char(26)
+  sellerAccountId String  @db.Char(26)
+  orderGroupId    String  @db.Char(26)
+  locationId      String? @db.Char(26)
+
+  /// Reuses the existing `ShipmentStatus` enum.
+  status ShipmentStatus @default(CREATED)
+
+  carrierName    String? @db.VarChar(120)
+  trackingNumber String? @db.VarChar(128)
+  trackingUrl    String? @db.VarChar(512)
+
+  /// What went in the box, as `[{ orderItemId, quantity }]`. JSON because a
+  /// shipment line has no identity of its own and nothing joins to it.
+  contentsJson Json?
+
+  dispatchedAt DateTime? @db.DateTime(3)
+  deliveredAt  DateTime? @db.DateTime(3)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount    @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+  orderGroup    SellerOrderGroup @relation(fields: [orderGroupId], references: [id], onDelete: Cascade)
+  location      SellerLocation?  @relation(fields: [locationId], references: [id], onDelete: SetNull)
+
+  @@index([sellerAccountId, status], map: "ix_seller_shipment_status")
+  @@index([orderGroupId], map: "ix_seller_shipment_group")
+  @@map("seller_shipments")
+}
+
+/// A buyer sending something back to a seller.
+///
+/// Reuses `ReturnStatus`. What it adds over the operator's `ReturnRequest` is
+/// the seller's own response and the platform's decision when the two disagree,
+/// because a marketplace return is a three-party conversation and a two-party
+/// model loses the arbitration.
+model SellerReturn {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+  orderGroupId    String @db.Char(26)
+
+  status ReturnStatus @default(REQUESTED)
+
+  /// Stable code plus the buyer's own words.
+  reasonCode String  @db.VarChar(48)
+  reasonText String? @db.Text
+
+  /// Object keys for photographs the buyer supplied.
+  evidenceJson Json?
+
+  /// What the seller said about it.
+  sellerResponse    String?   @db.Text
+  sellerRespondedAt DateTime? @db.DateTime(3)
+
+  /// The operator's decision when the seller and the buyer disagree.
+  platformDecision       String?   @db.VarChar(24)
+  platformDecisionReason String?   @db.Text
+  decidedByUserId        String?   @db.Char(26)
+  decidedAt              DateTime? @db.DateTime(3)
+
+  /// Minor units, deducted from the seller's settlement when the return is
+  /// upheld.
+  refundAmountMinor BigInt?
+  currency          String? @db.Char(3)
+
+  returnTrackingNumber String?   @db.VarChar(128)
+  receivedAt           DateTime? @db.DateTime(3)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount    @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+  orderGroup    SellerOrderGroup @relation(fields: [orderGroupId], references: [id], onDelete: Cascade)
+
+  @@index([sellerAccountId, status, createdAt], map: "ix_seller_return_status")
+  @@map("seller_returns")
+}
+
+// ---------------------------------------------------------------------------
+// MONEY OWED, AND MONEY SENT
+//
+// Two tables, not one, because they answer different questions and move at
+// different times. A SETTLEMENT is arithmetic over a period: this is what you
+// earned, this is what we kept, this is what is left. A PAYOUT is a transfer
+// that either happened or did not. Merging them means a failed transfer
+// destroys the record of what was owed.
+// ---------------------------------------------------------------------------
+
+enum SellerSettlementStatus {
+  /// The period is still open; lines are still being added.
+  OPEN
+  /// Closed and totalled, not yet paid.
+  PENDING_PAYOUT
+  /// A payout covering it has succeeded.
+  PAID
+  /// The operator is holding it - an open dispute, a compliance question.
+  ON_HOLD
+}
+
+/// What a seller earned over one period.
+model SellerSettlement {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+
+  /// Human-readable, e.g. `STL-2026-09-0007`. From `NumberSequence`, so it is
+  /// gapless and the seller's statements are numbered like documents rather
+  /// than like rows.
+  reference String @db.VarChar(32)
+
+  status SellerSettlementStatus @default(OPEN)
+
+  periodStart DateTime @db.DateTime(3)
+  periodEnd   DateTime @db.DateTime(3)
+
+  currency String @db.Char(3)
+
+  /// Every figure minor units, BigInt. The identity that must hold:
+  /// gross - commission - processingFee - refunds + adjustments = net.
+  /// Checked in the service and asserted in a test, because a settlement that
+  /// does not add up is a dispute nobody can settle.
+  grossMinor         BigInt @default(0)
+  taxMinor           BigInt @default(0)
+  shippingMinor      BigInt @default(0)
+  commissionMinor    BigInt @default(0)
+  processingFeeMinor BigInt @default(0)
+  refundsMinor       BigInt @default(0)
+  adjustmentsMinor   BigInt @default(0)
+  netPayableMinor    BigInt @default(0)
+
+  /// Where the downloadable statement went.
+  statementStorageKey String? @db.VarChar(512)
+
+  closedAt DateTime? @db.DateTime(3)
+
+  holdReason String? @db.Text
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount          @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+  lines         SellerSettlementLine[]
+  payouts       SellerPayout[]
+
+  @@unique([reference], map: "uq_seller_settlement_reference")
+  @@index([sellerAccountId, status, periodEnd], map: "ix_seller_settlement_period")
+  @@map("seller_settlements")
+}
+
+/// What a settlement line is for. Determines its sign.
+enum SellerSettlementLineKind {
+  SALE
+  COMMISSION
+  PROCESSING_FEE
+  REFUND
+  RETURN_DEDUCTION
+  SHIPPING_CHARGE
+  /// Anything the operator adds by hand, always with a reason.
+  MANUAL_ADJUSTMENT
+}
+
+/// One entry on a statement.
+model SellerSettlementLine {
+  id           String  @id @db.Char(26)
+  settlementId String  @db.Char(26)
+  orderGroupId String? @db.Char(26)
+
+  kind SellerSettlementLineKind
+
+  /// Signed minor units. A commission is negative. Summing the column gives
+  /// `netPayableMinor`, which is the only reason the identity above can be
+  /// asserted rather than hoped for.
+  amountMinor BigInt
+  currency    String @db.Char(3)
+
+  description String  @db.VarChar(255)
+  /// Required for MANUAL_ADJUSTMENT.
+  reason      String? @db.Text
+
+  occurredAt DateTime @db.DateTime(3)
+
+  createdByUserId String? @db.Char(26)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  settlement SellerSettlement  @relation(fields: [settlementId], references: [id], onDelete: Cascade)
+  orderGroup SellerOrderGroup? @relation(fields: [orderGroupId], references: [id], onDelete: SetNull)
+
+  @@index([settlementId, kind], map: "ix_seller_settlement_line_kind")
+  @@index([orderGroupId], map: "ix_seller_settlement_line_group")
+  @@map("seller_settlement_lines")
+}
+
+enum SellerPayoutStatus {
+  /// Created, nothing sent.
+  PENDING
+  /// Handed to the provider.
+  IN_TRANSIT
+  PAID
+  /// The provider refused or the transfer bounced. An actionable state with a
+  /// reason - NOT a reason to delete anything. The settlement it covers stays
+  /// exactly as it was and can be paid again.
+  FAILED
+  CANCELLED
+}
+
+/// One transfer to a seller.
+model SellerPayout {
+  id              String  @id @db.Char(26)
+  sellerAccountId String  @db.Char(26)
+  settlementId    String? @db.Char(26)
+
+  reference String @db.VarChar(32)
+
+  status SellerPayoutStatus @default(PENDING)
+
+  amountMinor BigInt
+  currency    String @db.Char(3)
+
+  /// Which provider moved it, and its own id for the transfer. The pair is how
+  /// a seller's bank statement is reconciled against this table.
+  provider         String? @db.VarChar(48)
+  providerPayoutId String? @db.VarChar(128)
+
+  /// Signed webhooks drive this column. A redirect never does - the same rule
+  /// order confirmation follows, for the same reason.
+  providerStatusRaw String? @db.VarChar(64)
+
+  failureCode     String? @db.VarChar(64)
+  failureReason   String? @db.Text
+  /// What the operator or the seller must do about a failure. Written rather
+  /// than inferred, so a failed payout is never a dead end.
+  remediationHint String? @db.VarChar(512)
+
+  scheduledFor DateTime? @db.DateTime(3)
+  paidAt       DateTime? @db.DateTime(3)
+
+  /// Makes a retried payout request harmless. The one guarantee that matters
+  /// here: a retry must never pay a seller twice.
+  idempotencyKey String? @db.VarChar(128)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  sellerAccount SellerAccount     @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+  settlement    SellerSettlement? @relation(fields: [settlementId], references: [id], onDelete: SetNull)
+
+  @@unique([reference], map: "uq_seller_payout_reference")
+  @@unique([sellerAccountId, idempotencyKey], map: "uq_seller_payout_idempotency")
+  @@index([sellerAccountId, status, createdAt], map: "ix_seller_payout_status")
+  @@map("seller_payouts")
+}
+
+/// What a seller is being told about.
+enum SellerNotificationKind {
+  APPLICATION_STATUS
+  LISTING_DECISION
+  NEW_ORDER
+  DISPATCH_SLA_WARNING
+  LOW_STOCK
+  ERP_SYNC_FAILURE
+  DOCUMENT_EXPIRING
+  PAYOUT_RESULT
+  RETURN_OR_DISPUTE
+  SECURITY_EVENT
+  BRAND_REQUEST_DECISION
+}
+
+/// An in-app notification for a seller organisation.
+///
+/// Addressed to the ORGANISATION, with an optional member, because most of
+/// these concern the business rather than a person: a low-stock warning is for
+/// whoever is looking. Read state is per member, in `readByJson`, rather than
+/// one row per member - a seller with twelve staff would otherwise get twelve
+/// rows per event.
+model SellerNotification {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+
+  kind SellerNotificationKind
+
+  title String @db.VarChar(200)
+  body  String @db.Text
+
+  /// Where pressing it goes, as an in-app path.
+  linkPath String? @db.VarChar(255)
+
+  /// What it is about, for deduplication - one low-stock notice per offer per
+  /// day rather than one per stock movement.
+  subjectType String? @db.VarChar(48)
+  subjectId   String? @db.Char(26)
+
+  severity String @default("INFO") @db.VarChar(16)
+
+  /// `{ "<profileId>": "<iso timestamp>" }`.
+  readByJson Json?
+
+  createdAt DateTime  @default(now()) @db.DateTime(3)
+  /// Swept after this. Notifications are not a record; the audit log is.
+  expiresAt DateTime? @db.DateTime(3)
+
+  sellerAccount SellerAccount @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+
+  @@index([sellerAccountId, createdAt], map: "ix_seller_notification_feed")
+  @@index([sellerAccountId, kind, subjectId], map: "ix_seller_notification_subject")
+  @@map("seller_notifications")
+}
+
+/// Everything that happened to one seller account, and who did it.
+///
+/// Separate from the operator's `AuditLog` because a seller can read this one.
+/// An operator's audit trail contains internal notes, other sellers' ids and
+/// staff names, none of which belong on a seller's own screen; giving the
+/// seller a filtered view of it is the kind of filter that fails open once.
+model SellerAuditLog {
+  id              String @id @db.Char(26)
+  sellerAccountId String @db.Char(26)
+
+  /// `seller.listing.submitted`, `seller.member.invited`.
+  action String @db.VarChar(96)
+
+  /// Which side acted. A seller reading "your listing was paused" needs to
+  /// know whether they did it.
+  actorType   ActorType
+  actorUserId String?   @db.Char(26)
+  /// Shown to the seller. For an operator action this is a role, never a
+  /// staff member's name.
+  actorLabel  String?   @db.VarChar(120)
+
+  resourceType String  @db.VarChar(48)
+  resourceId   String? @db.Char(26)
+
+  beforeJson Json?
+  afterJson  Json?
+
+  /// Seller-visible summary. Written deliberately rather than derived from the
+  /// JSON, because the JSON is a diff and a diff is not a sentence.
+  summary String? @db.VarChar(512)
+
+  correlationId String? @db.Char(26)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  sellerAccount SellerAccount @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
+
+  @@index([sellerAccountId, createdAt], map: "ix_seller_audit_time")
+  @@index([sellerAccountId, action], map: "ix_seller_audit_action")
+  @@map("seller_audit_logs")
 }

@@ -162,7 +162,39 @@ export const ModelName = {
   CustomerErpProductCode: 'CustomerErpProductCode',
   CustomerErpApproval: 'CustomerErpApproval',
   CustomerErpOAuthState: 'CustomerErpOAuthState',
-  CustomerErpAuditLog: 'CustomerErpAuditLog'
+  CustomerErpAuditLog: 'CustomerErpAuditLog',
+  SellerAccount: 'SellerAccount',
+  SellerMember: 'SellerMember',
+  SellerInvitation: 'SellerInvitation',
+  SellerOnboardingProgress: 'SellerOnboardingProgress',
+  SellerOnboardingRequirement: 'SellerOnboardingRequirement',
+  SellerBusinessProfile: 'SellerBusinessProfile',
+  SellerVerificationCase: 'SellerVerificationCase',
+  SellerDocument: 'SellerDocument',
+  SellerAgreementAcceptance: 'SellerAgreementAcceptance',
+  SellerPayoutAccountReference: 'SellerPayoutAccountReference',
+  SellerLocation: 'SellerLocation',
+  Brand: 'Brand',
+  BrandRequest: 'BrandRequest',
+  CategoryAttributeDefinition: 'CategoryAttributeDefinition',
+  SellerListingDraft: 'SellerListingDraft',
+  SellerListingDraftMedia: 'SellerListingDraftMedia',
+  SellerListingIssue: 'SellerListingIssue',
+  SellerOffer: 'SellerOffer',
+  SellerPriceTier: 'SellerPriceTier',
+  SellerInventory: 'SellerInventory',
+  SellerInventoryMovement: 'SellerInventoryMovement',
+  SellerBulkImportJob: 'SellerBulkImportJob',
+  SellerBulkImportRowError: 'SellerBulkImportRowError',
+  SellerOrderGroup: 'SellerOrderGroup',
+  SellerOrderLine: 'SellerOrderLine',
+  SellerShipment: 'SellerShipment',
+  SellerReturn: 'SellerReturn',
+  SellerSettlement: 'SellerSettlement',
+  SellerSettlementLine: 'SellerSettlementLine',
+  SellerPayout: 'SellerPayout',
+  SellerNotification: 'SellerNotification',
+  SellerAuditLog: 'SellerAuditLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -311,6 +343,7 @@ export const BusinessProfileScalarFieldEnum = {
   supportPhone: 'supportPhone',
   gstin: 'gstin',
   gpsrEnforced: 'gpsrEnforced',
+  sellerCommissionBasisPoints: 'sellerCommissionBasisPoints',
   mdrEnforced: 'mdrEnforced',
   vatNumber: 'vatNumber',
   vatCountry: 'vatCountry',
@@ -496,6 +529,8 @@ export const ProductScalarFieldEnum = {
   qtyIncrement: 'qtyIncrement',
   isRecurringEligible: 'isRecurringEligible',
   hasVariants: 'hasVariants',
+  isMarketplaceProduct: 'isMarketplaceProduct',
+  createdBySellerAccountId: 'createdBySellerAccountId',
   requiresColdChain: 'requiresColdChain',
   weightGrams: 'weightGrams',
   metaTitle: 'metaTitle',
@@ -829,6 +864,8 @@ export const CartItemScalarFieldEnum = {
   productId: 'productId',
   variantId: 'variantId',
   variantKey: 'variantKey',
+  sellerOfferId: 'sellerOfferId',
+  sellerOfferKey: 'sellerOfferKey',
   quantity: 'quantity',
   orderingUnit: 'orderingUnit',
   unitQuantity: 'unitQuantity',
@@ -894,6 +931,7 @@ export const OrderItemScalarFieldEnum = {
   orderId: 'orderId',
   productId: 'productId',
   variantId: 'variantId',
+  sellerOfferId: 'sellerOfferId',
   nameSnapshot: 'nameSnapshot',
   skuSnapshot: 'skuSnapshot',
   variantNameSnapshot: 'variantNameSnapshot',
@@ -2493,6 +2531,727 @@ export const CustomerErpAuditLogScalarFieldEnum = {
 export type CustomerErpAuditLogScalarFieldEnum = (typeof CustomerErpAuditLogScalarFieldEnum)[keyof typeof CustomerErpAuditLogScalarFieldEnum]
 
 
+export const SellerAccountScalarFieldEnum = {
+  id: 'id',
+  legalName: 'legalName',
+  displayName: 'displayName',
+  displayNameNormalized: 'displayNameNormalized',
+  slug: 'slug',
+  kind: 'kind',
+  status: 'status',
+  registrationCountry: 'registrationCountry',
+  description: 'description',
+  logoStorageKey: 'logoStorageKey',
+  statusReason: 'statusReason',
+  internalNotes: 'internalNotes',
+  resubmissionAllowed: 'resubmissionAllowed',
+  commissionBasisPoints: 'commissionBasisPoints',
+  qualityScore: 'qualityScore',
+  submittedAt: 'submittedAt',
+  reviewedAt: 'reviewedAt',
+  approvedAt: 'approvedAt',
+  suspendedAt: 'suspendedAt',
+  createdByProfileId: 'createdByProfileId',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  archivedAt: 'archivedAt'
+} as const
+
+export type SellerAccountScalarFieldEnum = (typeof SellerAccountScalarFieldEnum)[keyof typeof SellerAccountScalarFieldEnum]
+
+
+export const SellerMemberScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  customerProfileId: 'customerProfileId',
+  role: 'role',
+  invitedByProfileId: 'invitedByProfileId',
+  joinedAt: 'joinedAt',
+  updatedAt: 'updatedAt',
+  removedAt: 'removedAt'
+} as const
+
+export type SellerMemberScalarFieldEnum = (typeof SellerMemberScalarFieldEnum)[keyof typeof SellerMemberScalarFieldEnum]
+
+
+export const SellerInvitationScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  emailNormalized: 'emailNormalized',
+  role: 'role',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  invitedByProfileId: 'invitedByProfileId',
+  acceptedAt: 'acceptedAt',
+  acceptedByProfileId: 'acceptedByProfileId',
+  revokedAt: 'revokedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type SellerInvitationScalarFieldEnum = (typeof SellerInvitationScalarFieldEnum)[keyof typeof SellerInvitationScalarFieldEnum]
+
+
+export const SellerOnboardingProgressScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  stepsJson: 'stepsJson',
+  completedSteps: 'completedSteps',
+  requiredSteps: 'requiredSteps',
+  lastStepKey: 'lastStepKey',
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type SellerOnboardingProgressScalarFieldEnum = (typeof SellerOnboardingProgressScalarFieldEnum)[keyof typeof SellerOnboardingProgressScalarFieldEnum]
+
+
+export const SellerOnboardingRequirementScalarFieldEnum = {
+  id: 'id',
+  countryCode: 'countryCode',
+  countryKey: 'countryKey',
+  stepKey: 'stepKey',
+  fieldKey: 'fieldKey',
+  label: 'label',
+  helpText: 'helpText',
+  isRequired: 'isRequired',
+  isDocument: 'isDocument',
+  validationPattern: 'validationPattern',
+  appliesToKind: 'appliesToKind',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerOnboardingRequirementScalarFieldEnum = (typeof SellerOnboardingRequirementScalarFieldEnum)[keyof typeof SellerOnboardingRequirementScalarFieldEnum]
+
+
+export const SellerBusinessProfileScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  representativeName: 'representativeName',
+  representativeEmail: 'representativeEmail',
+  representativePhone: 'representativePhone',
+  representativeRole: 'representativeRole',
+  supportEmail: 'supportEmail',
+  supportPhone: 'supportPhone',
+  preferredLanguage: 'preferredLanguage',
+  timezone: 'timezone',
+  companyRegistrationNumber: 'companyRegistrationNumber',
+  taxRegistrationNumber: 'taxRegistrationNumber',
+  eoriNumber: 'eoriNumber',
+  eudamedSrn: 'eudamedSrn',
+  websiteUrl: 'websiteUrl',
+  yearsInBusiness: 'yearsInBusiness',
+  registeredAddressLine1: 'registeredAddressLine1',
+  registeredAddressLine2: 'registeredAddressLine2',
+  registeredCity: 'registeredCity',
+  registeredRegion: 'registeredRegion',
+  registeredPostcode: 'registeredPostcode',
+  registeredCountry: 'registeredCountry',
+  billingAddressLine1: 'billingAddressLine1',
+  billingAddressLine2: 'billingAddressLine2',
+  billingCity: 'billingCity',
+  billingRegion: 'billingRegion',
+  billingPostcode: 'billingPostcode',
+  billingCountry: 'billingCountry',
+  extraIdentifiersJson: 'extraIdentifiersJson',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerBusinessProfileScalarFieldEnum = (typeof SellerBusinessProfileScalarFieldEnum)[keyof typeof SellerBusinessProfileScalarFieldEnum]
+
+
+export const SellerVerificationCaseScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  kind: 'kind',
+  state: 'state',
+  provider: 'provider',
+  providerReference: 'providerReference',
+  failureReason: 'failureReason',
+  internalDetail: 'internalDetail',
+  expiresAt: 'expiresAt',
+  isCurrent: 'isCurrent',
+  decidedByUserId: 'decidedByUserId',
+  decidedAt: 'decidedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerVerificationCaseScalarFieldEnum = (typeof SellerVerificationCaseScalarFieldEnum)[keyof typeof SellerVerificationCaseScalarFieldEnum]
+
+
+export const SellerDocumentScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  kind: 'kind',
+  requirementFieldKey: 'requirementFieldKey',
+  storageKey: 'storageKey',
+  originalFileName: 'originalFileName',
+  contentType: 'contentType',
+  byteSize: 'byteSize',
+  contentHash: 'contentHash',
+  scanState: 'scanState',
+  scannedAt: 'scannedAt',
+  approvedAt: 'approvedAt',
+  approvedByUserId: 'approvedByUserId',
+  rejectedReason: 'rejectedReason',
+  issuedOn: 'issuedOn',
+  expiresOn: 'expiresOn',
+  uploadedByProfileId: 'uploadedByProfileId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  supersededAt: 'supersededAt'
+} as const
+
+export type SellerDocumentScalarFieldEnum = (typeof SellerDocumentScalarFieldEnum)[keyof typeof SellerDocumentScalarFieldEnum]
+
+
+export const SellerAgreementAcceptanceScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  kind: 'kind',
+  version: 'version',
+  method: 'method',
+  acceptedByProfileId: 'acceptedByProfileId',
+  acceptedName: 'acceptedName',
+  signatureStorageKey: 'signatureStorageKey',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  acceptedAt: 'acceptedAt'
+} as const
+
+export type SellerAgreementAcceptanceScalarFieldEnum = (typeof SellerAgreementAcceptanceScalarFieldEnum)[keyof typeof SellerAgreementAcceptanceScalarFieldEnum]
+
+
+export const SellerPayoutAccountReferenceScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  provider: 'provider',
+  providerAccountId: 'providerAccountId',
+  state: 'state',
+  pendingRequirementsJson: 'pendingRequirementsJson',
+  bankName: 'bankName',
+  accountLast4: 'accountLast4',
+  payoutCurrency: 'payoutCurrency',
+  payoutCountry: 'payoutCountry',
+  payoutsEnabled: 'payoutsEnabled',
+  payoutsHeldByOperator: 'payoutsHeldByOperator',
+  payoutHoldReason: 'payoutHoldReason',
+  lastSyncedAt: 'lastSyncedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerPayoutAccountReferenceScalarFieldEnum = (typeof SellerPayoutAccountReferenceScalarFieldEnum)[keyof typeof SellerPayoutAccountReferenceScalarFieldEnum]
+
+
+export const SellerLocationScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  code: 'code',
+  name: 'name',
+  addressLine1: 'addressLine1',
+  addressLine2: 'addressLine2',
+  city: 'city',
+  region: 'region',
+  postcode: 'postcode',
+  countryCode: 'countryCode',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  timezone: 'timezone',
+  isPickupLocation: 'isPickupLocation',
+  isReturnLocation: 'isReturnLocation',
+  dispatchCutoff: 'dispatchCutoff',
+  workingDaysMask: 'workingDaysMask',
+  handlingTimeDays: 'handlingTimeDays',
+  shipsToCountriesJson: 'shipsToCountriesJson',
+  hasColdChain: 'hasColdChain',
+  hasControlledStorage: 'hasControlledStorage',
+  hasSterileStorage: 'hasSterileStorage',
+  isOperational: 'isOperational',
+  closedReason: 'closedReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  archivedAt: 'archivedAt'
+} as const
+
+export type SellerLocationScalarFieldEnum = (typeof SellerLocationScalarFieldEnum)[keyof typeof SellerLocationScalarFieldEnum]
+
+
+export const BrandScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  nameNormalized: 'nameNormalized',
+  slug: 'slug',
+  status: 'status',
+  manufacturerLegalName: 'manufacturerLegalName',
+  manufacturerCountry: 'manufacturerCountry',
+  description: 'description',
+  websiteUrl: 'websiteUrl',
+  logoStorageKey: 'logoStorageKey',
+  rejectedReason: 'rejectedReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BrandScalarFieldEnum = (typeof BrandScalarFieldEnum)[keyof typeof BrandScalarFieldEnum]
+
+
+export const BrandRequestScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  brandId: 'brandId',
+  requestedName: 'requestedName',
+  manufacturerLegalName: 'manufacturerLegalName',
+  websiteUrl: 'websiteUrl',
+  justification: 'justification',
+  status: 'status',
+  decisionReason: 'decisionReason',
+  decidedByUserId: 'decidedByUserId',
+  decidedAt: 'decidedAt',
+  requestedByProfileId: 'requestedByProfileId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BrandRequestScalarFieldEnum = (typeof BrandRequestScalarFieldEnum)[keyof typeof BrandRequestScalarFieldEnum]
+
+
+export const CategoryAttributeDefinitionScalarFieldEnum = {
+  id: 'id',
+  categoryId: 'categoryId',
+  categoryKey: 'categoryKey',
+  attributeKey: 'attributeKey',
+  label: 'label',
+  helpText: 'helpText',
+  section: 'section',
+  type: 'type',
+  isRequired: 'isRequired',
+  unit: 'unit',
+  allowedUnitsJson: 'allowedUnitsJson',
+  allowedValuesJson: 'allowedValuesJson',
+  minNumber: 'minNumber',
+  maxNumber: 'maxNumber',
+  minLength: 'minLength',
+  maxLength: 'maxLength',
+  pattern: 'pattern',
+  isSearchable: 'isSearchable',
+  isVariantDimension: 'isVariantDimension',
+  isTitleComponent: 'isTitleComponent',
+  titleOrder: 'titleOrder',
+  isRegulatoryOnly: 'isRegulatoryOnly',
+  sortOrder: 'sortOrder',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CategoryAttributeDefinitionScalarFieldEnum = (typeof CategoryAttributeDefinitionScalarFieldEnum)[keyof typeof CategoryAttributeDefinitionScalarFieldEnum]
+
+
+export const SellerListingDraftScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  status: 'status',
+  categoryId: 'categoryId',
+  brandId: 'brandId',
+  matchedProductId: 'matchedProductId',
+  publishedProductId: 'publishedProductId',
+  publishedOfferId: 'publishedOfferId',
+  sellerSku: 'sellerSku',
+  attributesJson: 'attributesJson',
+  offerJson: 'offerJson',
+  stockJson: 'stockJson',
+  packagingJson: 'packagingJson',
+  generatedTitle: 'generatedTitle',
+  generatedTitleSource: 'generatedTitleSource',
+  sellerEditedTitle: 'sellerEditedTitle',
+  sectionStateJson: 'sectionStateJson',
+  reviewComment: 'reviewComment',
+  reviewedByUserId: 'reviewedByUserId',
+  reviewedAt: 'reviewedAt',
+  submittedAt: 'submittedAt',
+  version: 'version',
+  createdByProfileId: 'createdByProfileId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerListingDraftScalarFieldEnum = (typeof SellerListingDraftScalarFieldEnum)[keyof typeof SellerListingDraftScalarFieldEnum]
+
+
+export const SellerListingDraftMediaScalarFieldEnum = {
+  id: 'id',
+  draftId: 'draftId',
+  slot: 'slot',
+  storageKey: 'storageKey',
+  originalFileName: 'originalFileName',
+  contentType: 'contentType',
+  byteSize: 'byteSize',
+  contentHash: 'contentHash',
+  kind: 'kind',
+  widthPx: 'widthPx',
+  heightPx: 'heightPx',
+  durationSeconds: 'durationSeconds',
+  altText: 'altText',
+  isPrimary: 'isPrimary',
+  sortOrder: 'sortOrder',
+  uploadedAt: 'uploadedAt',
+  scanState: 'scanState',
+  moderationState: 'moderationState',
+  moderationNote: 'moderationNote',
+  rejectionCode: 'rejectionCode',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerListingDraftMediaScalarFieldEnum = (typeof SellerListingDraftMediaScalarFieldEnum)[keyof typeof SellerListingDraftMediaScalarFieldEnum]
+
+
+export const SellerListingIssueScalarFieldEnum = {
+  id: 'id',
+  draftId: 'draftId',
+  severity: 'severity',
+  code: 'code',
+  section: 'section',
+  attributeKey: 'attributeKey',
+  message: 'message',
+  isFromModerator: 'isFromModerator',
+  resolvedAt: 'resolvedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type SellerListingIssueScalarFieldEnum = (typeof SellerListingIssueScalarFieldEnum)[keyof typeof SellerListingIssueScalarFieldEnum]
+
+
+export const SellerOfferScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  productId: 'productId',
+  variantId: 'variantId',
+  variantKey: 'variantKey',
+  sellerSku: 'sellerSku',
+  brandId: 'brandId',
+  status: 'status',
+  priceMinor: 'priceMinor',
+  currency: 'currency',
+  compareAtPriceMinor: 'compareAtPriceMinor',
+  taxClassId: 'taxClassId',
+  orderingUnit: 'orderingUnit',
+  minimumOrderQuantity: 'minimumOrderQuantity',
+  orderIncrement: 'orderIncrement',
+  maximumOrderQuantity: 'maximumOrderQuantity',
+  handlingTimeDays: 'handlingTimeDays',
+  guaranteedShelfLifeMonths: 'guaranteedShelfLifeMonths',
+  warrantyMonths: 'warrantyMonths',
+  sellingRegionsJson: 'sellingRegionsJson',
+  availableQuantity: 'availableQuantity',
+  reservedQuantity: 'reservedQuantity',
+  qualityScore: 'qualityScore',
+  statusReason: 'statusReason',
+  sourceDraftId: 'sourceDraftId',
+  publishedAt: 'publishedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  archivedAt: 'archivedAt'
+} as const
+
+export type SellerOfferScalarFieldEnum = (typeof SellerOfferScalarFieldEnum)[keyof typeof SellerOfferScalarFieldEnum]
+
+
+export const SellerPriceTierScalarFieldEnum = {
+  id: 'id',
+  offerId: 'offerId',
+  minQuantity: 'minQuantity',
+  priceMinor: 'priceMinor',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerPriceTierScalarFieldEnum = (typeof SellerPriceTierScalarFieldEnum)[keyof typeof SellerPriceTierScalarFieldEnum]
+
+
+export const SellerInventoryScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  offerId: 'offerId',
+  locationId: 'locationId',
+  availableQuantity: 'availableQuantity',
+  reservedQuantity: 'reservedQuantity',
+  quarantinedQuantity: 'quarantinedQuantity',
+  reorderThreshold: 'reorderThreshold',
+  batchNumber: 'batchNumber',
+  manufacturedOn: 'manufacturedOn',
+  expiresOn: 'expiresOn',
+  version: 'version',
+  erpQuantity: 'erpQuantity',
+  erpSyncedAt: 'erpSyncedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerInventoryScalarFieldEnum = (typeof SellerInventoryScalarFieldEnum)[keyof typeof SellerInventoryScalarFieldEnum]
+
+
+export const SellerInventoryMovementScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  offerId: 'offerId',
+  locationId: 'locationId',
+  type: 'type',
+  quantityDelta: 'quantityDelta',
+  balanceAfter: 'balanceAfter',
+  referenceType: 'referenceType',
+  referenceId: 'referenceId',
+  reason: 'reason',
+  batchNumber: 'batchNumber',
+  actorProfileId: 'actorProfileId',
+  idempotencyKey: 'idempotencyKey',
+  createdAt: 'createdAt'
+} as const
+
+export type SellerInventoryMovementScalarFieldEnum = (typeof SellerInventoryMovementScalarFieldEnum)[keyof typeof SellerInventoryMovementScalarFieldEnum]
+
+
+export const SellerBulkImportJobScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  status: 'status',
+  isDryRun: 'isDryRun',
+  categoryId: 'categoryId',
+  originalFileName: 'originalFileName',
+  storageKey: 'storageKey',
+  columnMappingJson: 'columnMappingJson',
+  totalRows: 'totalRows',
+  validRows: 'validRows',
+  invalidRows: 'invalidRows',
+  createdRows: 'createdRows',
+  updatedRows: 'updatedRows',
+  errorReportStorageKey: 'errorReportStorageKey',
+  failureReason: 'failureReason',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  requestedByProfileId: 'requestedByProfileId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerBulkImportJobScalarFieldEnum = (typeof SellerBulkImportJobScalarFieldEnum)[keyof typeof SellerBulkImportJobScalarFieldEnum]
+
+
+export const SellerBulkImportRowErrorScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  rowNumber: 'rowNumber',
+  columnName: 'columnName',
+  code: 'code',
+  message: 'message',
+  rawValue: 'rawValue',
+  createdAt: 'createdAt'
+} as const
+
+export type SellerBulkImportRowErrorScalarFieldEnum = (typeof SellerBulkImportRowErrorScalarFieldEnum)[keyof typeof SellerBulkImportRowErrorScalarFieldEnum]
+
+
+export const SellerOrderGroupScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  orderId: 'orderId',
+  sellerOrderNumber: 'sellerOrderNumber',
+  status: 'status',
+  locationId: 'locationId',
+  goodsTotalMinor: 'goodsTotalMinor',
+  taxTotalMinor: 'taxTotalMinor',
+  shippingTotalMinor: 'shippingTotalMinor',
+  commissionMinor: 'commissionMinor',
+  sellerNetMinor: 'sellerNetMinor',
+  currency: 'currency',
+  commissionBasisPointsApplied: 'commissionBasisPointsApplied',
+  dispatchDueAt: 'dispatchDueAt',
+  acceptedAt: 'acceptedAt',
+  dispatchedAt: 'dispatchedAt',
+  deliveredAt: 'deliveredAt',
+  cancelledAt: 'cancelledAt',
+  cancellationReason: 'cancellationReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerOrderGroupScalarFieldEnum = (typeof SellerOrderGroupScalarFieldEnum)[keyof typeof SellerOrderGroupScalarFieldEnum]
+
+
+export const SellerOrderLineScalarFieldEnum = {
+  id: 'id',
+  orderGroupId: 'orderGroupId',
+  orderItemId: 'orderItemId',
+  offerId: 'offerId',
+  quantity: 'quantity',
+  unitPriceMinor: 'unitPriceMinor',
+  lineTotalMinor: 'lineTotalMinor',
+  commissionMinor: 'commissionMinor',
+  sellerNetMinor: 'sellerNetMinor',
+  currency: 'currency',
+  fulfilledQuantity: 'fulfilledQuantity',
+  returnedQuantity: 'returnedQuantity',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerOrderLineScalarFieldEnum = (typeof SellerOrderLineScalarFieldEnum)[keyof typeof SellerOrderLineScalarFieldEnum]
+
+
+export const SellerShipmentScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  orderGroupId: 'orderGroupId',
+  locationId: 'locationId',
+  status: 'status',
+  carrierName: 'carrierName',
+  trackingNumber: 'trackingNumber',
+  trackingUrl: 'trackingUrl',
+  contentsJson: 'contentsJson',
+  dispatchedAt: 'dispatchedAt',
+  deliveredAt: 'deliveredAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerShipmentScalarFieldEnum = (typeof SellerShipmentScalarFieldEnum)[keyof typeof SellerShipmentScalarFieldEnum]
+
+
+export const SellerReturnScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  orderGroupId: 'orderGroupId',
+  status: 'status',
+  reasonCode: 'reasonCode',
+  reasonText: 'reasonText',
+  evidenceJson: 'evidenceJson',
+  sellerResponse: 'sellerResponse',
+  sellerRespondedAt: 'sellerRespondedAt',
+  platformDecision: 'platformDecision',
+  platformDecisionReason: 'platformDecisionReason',
+  decidedByUserId: 'decidedByUserId',
+  decidedAt: 'decidedAt',
+  refundAmountMinor: 'refundAmountMinor',
+  currency: 'currency',
+  returnTrackingNumber: 'returnTrackingNumber',
+  receivedAt: 'receivedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerReturnScalarFieldEnum = (typeof SellerReturnScalarFieldEnum)[keyof typeof SellerReturnScalarFieldEnum]
+
+
+export const SellerSettlementScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  reference: 'reference',
+  status: 'status',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
+  currency: 'currency',
+  grossMinor: 'grossMinor',
+  taxMinor: 'taxMinor',
+  shippingMinor: 'shippingMinor',
+  commissionMinor: 'commissionMinor',
+  processingFeeMinor: 'processingFeeMinor',
+  refundsMinor: 'refundsMinor',
+  adjustmentsMinor: 'adjustmentsMinor',
+  netPayableMinor: 'netPayableMinor',
+  statementStorageKey: 'statementStorageKey',
+  closedAt: 'closedAt',
+  holdReason: 'holdReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerSettlementScalarFieldEnum = (typeof SellerSettlementScalarFieldEnum)[keyof typeof SellerSettlementScalarFieldEnum]
+
+
+export const SellerSettlementLineScalarFieldEnum = {
+  id: 'id',
+  settlementId: 'settlementId',
+  orderGroupId: 'orderGroupId',
+  kind: 'kind',
+  amountMinor: 'amountMinor',
+  currency: 'currency',
+  description: 'description',
+  reason: 'reason',
+  occurredAt: 'occurredAt',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt'
+} as const
+
+export type SellerSettlementLineScalarFieldEnum = (typeof SellerSettlementLineScalarFieldEnum)[keyof typeof SellerSettlementLineScalarFieldEnum]
+
+
+export const SellerPayoutScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  settlementId: 'settlementId',
+  reference: 'reference',
+  status: 'status',
+  amountMinor: 'amountMinor',
+  currency: 'currency',
+  provider: 'provider',
+  providerPayoutId: 'providerPayoutId',
+  providerStatusRaw: 'providerStatusRaw',
+  failureCode: 'failureCode',
+  failureReason: 'failureReason',
+  remediationHint: 'remediationHint',
+  scheduledFor: 'scheduledFor',
+  paidAt: 'paidAt',
+  idempotencyKey: 'idempotencyKey',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SellerPayoutScalarFieldEnum = (typeof SellerPayoutScalarFieldEnum)[keyof typeof SellerPayoutScalarFieldEnum]
+
+
+export const SellerNotificationScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  kind: 'kind',
+  title: 'title',
+  body: 'body',
+  linkPath: 'linkPath',
+  subjectType: 'subjectType',
+  subjectId: 'subjectId',
+  severity: 'severity',
+  readByJson: 'readByJson',
+  createdAt: 'createdAt',
+  expiresAt: 'expiresAt'
+} as const
+
+export type SellerNotificationScalarFieldEnum = (typeof SellerNotificationScalarFieldEnum)[keyof typeof SellerNotificationScalarFieldEnum]
+
+
+export const SellerAuditLogScalarFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  action: 'action',
+  actorType: 'actorType',
+  actorUserId: 'actorUserId',
+  actorLabel: 'actorLabel',
+  resourceType: 'resourceType',
+  resourceId: 'resourceId',
+  beforeJson: 'beforeJson',
+  afterJson: 'afterJson',
+  summary: 'summary',
+  correlationId: 'correlationId',
+  createdAt: 'createdAt'
+} as const
+
+export type SellerAuditLogScalarFieldEnum = (typeof SellerAuditLogScalarFieldEnum)[keyof typeof SellerAuditLogScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -2755,6 +3514,7 @@ export const ProductOrderByRelevanceFieldEnum = {
   taxClassId: 'taxClassId',
   currency: 'currency',
   unavailabilityReason: 'unavailabilityReason',
+  createdBySellerAccountId: 'createdBySellerAccountId',
   metaTitle: 'metaTitle',
   metaDescription: 'metaDescription',
   importFingerprint: 'importFingerprint',
@@ -2992,7 +3752,9 @@ export const CartItemOrderByRelevanceFieldEnum = {
   cartId: 'cartId',
   productId: 'productId',
   variantId: 'variantId',
-  variantKey: 'variantKey'
+  variantKey: 'variantKey',
+  sellerOfferId: 'sellerOfferId',
+  sellerOfferKey: 'sellerOfferKey'
 } as const
 
 export type CartItemOrderByRelevanceFieldEnum = (typeof CartItemOrderByRelevanceFieldEnum)[keyof typeof CartItemOrderByRelevanceFieldEnum]
@@ -3028,6 +3790,7 @@ export const OrderItemOrderByRelevanceFieldEnum = {
   orderId: 'orderId',
   productId: 'productId',
   variantId: 'variantId',
+  sellerOfferId: 'sellerOfferId',
   nameSnapshot: 'nameSnapshot',
   skuSnapshot: 'skuSnapshot',
   variantNameSnapshot: 'variantNameSnapshot',
@@ -4066,4 +4829,472 @@ export const CustomerErpAuditLogOrderByRelevanceFieldEnum = {
 } as const
 
 export type CustomerErpAuditLogOrderByRelevanceFieldEnum = (typeof CustomerErpAuditLogOrderByRelevanceFieldEnum)[keyof typeof CustomerErpAuditLogOrderByRelevanceFieldEnum]
+
+
+export const SellerAccountOrderByRelevanceFieldEnum = {
+  id: 'id',
+  legalName: 'legalName',
+  displayName: 'displayName',
+  displayNameNormalized: 'displayNameNormalized',
+  slug: 'slug',
+  registrationCountry: 'registrationCountry',
+  description: 'description',
+  logoStorageKey: 'logoStorageKey',
+  statusReason: 'statusReason',
+  internalNotes: 'internalNotes',
+  createdByProfileId: 'createdByProfileId'
+} as const
+
+export type SellerAccountOrderByRelevanceFieldEnum = (typeof SellerAccountOrderByRelevanceFieldEnum)[keyof typeof SellerAccountOrderByRelevanceFieldEnum]
+
+
+export const SellerMemberOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  customerProfileId: 'customerProfileId',
+  invitedByProfileId: 'invitedByProfileId'
+} as const
+
+export type SellerMemberOrderByRelevanceFieldEnum = (typeof SellerMemberOrderByRelevanceFieldEnum)[keyof typeof SellerMemberOrderByRelevanceFieldEnum]
+
+
+export const SellerInvitationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  emailNormalized: 'emailNormalized',
+  tokenHash: 'tokenHash',
+  invitedByProfileId: 'invitedByProfileId',
+  acceptedByProfileId: 'acceptedByProfileId'
+} as const
+
+export type SellerInvitationOrderByRelevanceFieldEnum = (typeof SellerInvitationOrderByRelevanceFieldEnum)[keyof typeof SellerInvitationOrderByRelevanceFieldEnum]
+
+
+export const SellerOnboardingProgressOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  lastStepKey: 'lastStepKey'
+} as const
+
+export type SellerOnboardingProgressOrderByRelevanceFieldEnum = (typeof SellerOnboardingProgressOrderByRelevanceFieldEnum)[keyof typeof SellerOnboardingProgressOrderByRelevanceFieldEnum]
+
+
+export const SellerOnboardingRequirementOrderByRelevanceFieldEnum = {
+  id: 'id',
+  countryCode: 'countryCode',
+  countryKey: 'countryKey',
+  stepKey: 'stepKey',
+  fieldKey: 'fieldKey',
+  label: 'label',
+  helpText: 'helpText',
+  validationPattern: 'validationPattern'
+} as const
+
+export type SellerOnboardingRequirementOrderByRelevanceFieldEnum = (typeof SellerOnboardingRequirementOrderByRelevanceFieldEnum)[keyof typeof SellerOnboardingRequirementOrderByRelevanceFieldEnum]
+
+
+export const SellerBusinessProfileOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  representativeName: 'representativeName',
+  representativeEmail: 'representativeEmail',
+  representativePhone: 'representativePhone',
+  representativeRole: 'representativeRole',
+  supportEmail: 'supportEmail',
+  supportPhone: 'supportPhone',
+  preferredLanguage: 'preferredLanguage',
+  timezone: 'timezone',
+  companyRegistrationNumber: 'companyRegistrationNumber',
+  taxRegistrationNumber: 'taxRegistrationNumber',
+  eoriNumber: 'eoriNumber',
+  eudamedSrn: 'eudamedSrn',
+  websiteUrl: 'websiteUrl',
+  registeredAddressLine1: 'registeredAddressLine1',
+  registeredAddressLine2: 'registeredAddressLine2',
+  registeredCity: 'registeredCity',
+  registeredRegion: 'registeredRegion',
+  registeredPostcode: 'registeredPostcode',
+  registeredCountry: 'registeredCountry',
+  billingAddressLine1: 'billingAddressLine1',
+  billingAddressLine2: 'billingAddressLine2',
+  billingCity: 'billingCity',
+  billingRegion: 'billingRegion',
+  billingPostcode: 'billingPostcode',
+  billingCountry: 'billingCountry'
+} as const
+
+export type SellerBusinessProfileOrderByRelevanceFieldEnum = (typeof SellerBusinessProfileOrderByRelevanceFieldEnum)[keyof typeof SellerBusinessProfileOrderByRelevanceFieldEnum]
+
+
+export const SellerVerificationCaseOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  provider: 'provider',
+  providerReference: 'providerReference',
+  failureReason: 'failureReason',
+  internalDetail: 'internalDetail',
+  decidedByUserId: 'decidedByUserId'
+} as const
+
+export type SellerVerificationCaseOrderByRelevanceFieldEnum = (typeof SellerVerificationCaseOrderByRelevanceFieldEnum)[keyof typeof SellerVerificationCaseOrderByRelevanceFieldEnum]
+
+
+export const SellerDocumentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  requirementFieldKey: 'requirementFieldKey',
+  storageKey: 'storageKey',
+  originalFileName: 'originalFileName',
+  contentType: 'contentType',
+  contentHash: 'contentHash',
+  approvedByUserId: 'approvedByUserId',
+  rejectedReason: 'rejectedReason',
+  uploadedByProfileId: 'uploadedByProfileId'
+} as const
+
+export type SellerDocumentOrderByRelevanceFieldEnum = (typeof SellerDocumentOrderByRelevanceFieldEnum)[keyof typeof SellerDocumentOrderByRelevanceFieldEnum]
+
+
+export const SellerAgreementAcceptanceOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  version: 'version',
+  acceptedByProfileId: 'acceptedByProfileId',
+  acceptedName: 'acceptedName',
+  signatureStorageKey: 'signatureStorageKey',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent'
+} as const
+
+export type SellerAgreementAcceptanceOrderByRelevanceFieldEnum = (typeof SellerAgreementAcceptanceOrderByRelevanceFieldEnum)[keyof typeof SellerAgreementAcceptanceOrderByRelevanceFieldEnum]
+
+
+export const SellerPayoutAccountReferenceOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  provider: 'provider',
+  providerAccountId: 'providerAccountId',
+  bankName: 'bankName',
+  accountLast4: 'accountLast4',
+  payoutCurrency: 'payoutCurrency',
+  payoutCountry: 'payoutCountry',
+  payoutHoldReason: 'payoutHoldReason'
+} as const
+
+export type SellerPayoutAccountReferenceOrderByRelevanceFieldEnum = (typeof SellerPayoutAccountReferenceOrderByRelevanceFieldEnum)[keyof typeof SellerPayoutAccountReferenceOrderByRelevanceFieldEnum]
+
+
+export const SellerLocationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  code: 'code',
+  name: 'name',
+  addressLine1: 'addressLine1',
+  addressLine2: 'addressLine2',
+  city: 'city',
+  region: 'region',
+  postcode: 'postcode',
+  countryCode: 'countryCode',
+  timezone: 'timezone',
+  dispatchCutoff: 'dispatchCutoff',
+  closedReason: 'closedReason'
+} as const
+
+export type SellerLocationOrderByRelevanceFieldEnum = (typeof SellerLocationOrderByRelevanceFieldEnum)[keyof typeof SellerLocationOrderByRelevanceFieldEnum]
+
+
+export const BrandOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name',
+  nameNormalized: 'nameNormalized',
+  slug: 'slug',
+  manufacturerLegalName: 'manufacturerLegalName',
+  manufacturerCountry: 'manufacturerCountry',
+  description: 'description',
+  websiteUrl: 'websiteUrl',
+  logoStorageKey: 'logoStorageKey',
+  rejectedReason: 'rejectedReason'
+} as const
+
+export type BrandOrderByRelevanceFieldEnum = (typeof BrandOrderByRelevanceFieldEnum)[keyof typeof BrandOrderByRelevanceFieldEnum]
+
+
+export const BrandRequestOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  brandId: 'brandId',
+  requestedName: 'requestedName',
+  manufacturerLegalName: 'manufacturerLegalName',
+  websiteUrl: 'websiteUrl',
+  justification: 'justification',
+  decisionReason: 'decisionReason',
+  decidedByUserId: 'decidedByUserId',
+  requestedByProfileId: 'requestedByProfileId'
+} as const
+
+export type BrandRequestOrderByRelevanceFieldEnum = (typeof BrandRequestOrderByRelevanceFieldEnum)[keyof typeof BrandRequestOrderByRelevanceFieldEnum]
+
+
+export const CategoryAttributeDefinitionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  categoryId: 'categoryId',
+  categoryKey: 'categoryKey',
+  attributeKey: 'attributeKey',
+  label: 'label',
+  helpText: 'helpText',
+  unit: 'unit',
+  pattern: 'pattern'
+} as const
+
+export type CategoryAttributeDefinitionOrderByRelevanceFieldEnum = (typeof CategoryAttributeDefinitionOrderByRelevanceFieldEnum)[keyof typeof CategoryAttributeDefinitionOrderByRelevanceFieldEnum]
+
+
+export const SellerListingDraftOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  categoryId: 'categoryId',
+  brandId: 'brandId',
+  matchedProductId: 'matchedProductId',
+  publishedProductId: 'publishedProductId',
+  publishedOfferId: 'publishedOfferId',
+  sellerSku: 'sellerSku',
+  generatedTitle: 'generatedTitle',
+  sellerEditedTitle: 'sellerEditedTitle',
+  reviewComment: 'reviewComment',
+  reviewedByUserId: 'reviewedByUserId',
+  createdByProfileId: 'createdByProfileId'
+} as const
+
+export type SellerListingDraftOrderByRelevanceFieldEnum = (typeof SellerListingDraftOrderByRelevanceFieldEnum)[keyof typeof SellerListingDraftOrderByRelevanceFieldEnum]
+
+
+export const SellerListingDraftMediaOrderByRelevanceFieldEnum = {
+  id: 'id',
+  draftId: 'draftId',
+  storageKey: 'storageKey',
+  originalFileName: 'originalFileName',
+  contentType: 'contentType',
+  contentHash: 'contentHash',
+  altText: 'altText',
+  moderationState: 'moderationState',
+  moderationNote: 'moderationNote',
+  rejectionCode: 'rejectionCode'
+} as const
+
+export type SellerListingDraftMediaOrderByRelevanceFieldEnum = (typeof SellerListingDraftMediaOrderByRelevanceFieldEnum)[keyof typeof SellerListingDraftMediaOrderByRelevanceFieldEnum]
+
+
+export const SellerListingIssueOrderByRelevanceFieldEnum = {
+  id: 'id',
+  draftId: 'draftId',
+  code: 'code',
+  attributeKey: 'attributeKey',
+  message: 'message'
+} as const
+
+export type SellerListingIssueOrderByRelevanceFieldEnum = (typeof SellerListingIssueOrderByRelevanceFieldEnum)[keyof typeof SellerListingIssueOrderByRelevanceFieldEnum]
+
+
+export const SellerOfferOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  productId: 'productId',
+  variantId: 'variantId',
+  variantKey: 'variantKey',
+  sellerSku: 'sellerSku',
+  brandId: 'brandId',
+  currency: 'currency',
+  taxClassId: 'taxClassId',
+  statusReason: 'statusReason',
+  sourceDraftId: 'sourceDraftId'
+} as const
+
+export type SellerOfferOrderByRelevanceFieldEnum = (typeof SellerOfferOrderByRelevanceFieldEnum)[keyof typeof SellerOfferOrderByRelevanceFieldEnum]
+
+
+export const SellerPriceTierOrderByRelevanceFieldEnum = {
+  id: 'id',
+  offerId: 'offerId'
+} as const
+
+export type SellerPriceTierOrderByRelevanceFieldEnum = (typeof SellerPriceTierOrderByRelevanceFieldEnum)[keyof typeof SellerPriceTierOrderByRelevanceFieldEnum]
+
+
+export const SellerInventoryOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  offerId: 'offerId',
+  locationId: 'locationId',
+  batchNumber: 'batchNumber'
+} as const
+
+export type SellerInventoryOrderByRelevanceFieldEnum = (typeof SellerInventoryOrderByRelevanceFieldEnum)[keyof typeof SellerInventoryOrderByRelevanceFieldEnum]
+
+
+export const SellerInventoryMovementOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  offerId: 'offerId',
+  locationId: 'locationId',
+  referenceType: 'referenceType',
+  referenceId: 'referenceId',
+  reason: 'reason',
+  batchNumber: 'batchNumber',
+  actorProfileId: 'actorProfileId',
+  idempotencyKey: 'idempotencyKey'
+} as const
+
+export type SellerInventoryMovementOrderByRelevanceFieldEnum = (typeof SellerInventoryMovementOrderByRelevanceFieldEnum)[keyof typeof SellerInventoryMovementOrderByRelevanceFieldEnum]
+
+
+export const SellerBulkImportJobOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  categoryId: 'categoryId',
+  originalFileName: 'originalFileName',
+  storageKey: 'storageKey',
+  errorReportStorageKey: 'errorReportStorageKey',
+  failureReason: 'failureReason',
+  requestedByProfileId: 'requestedByProfileId'
+} as const
+
+export type SellerBulkImportJobOrderByRelevanceFieldEnum = (typeof SellerBulkImportJobOrderByRelevanceFieldEnum)[keyof typeof SellerBulkImportJobOrderByRelevanceFieldEnum]
+
+
+export const SellerBulkImportRowErrorOrderByRelevanceFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  columnName: 'columnName',
+  code: 'code',
+  message: 'message',
+  rawValue: 'rawValue'
+} as const
+
+export type SellerBulkImportRowErrorOrderByRelevanceFieldEnum = (typeof SellerBulkImportRowErrorOrderByRelevanceFieldEnum)[keyof typeof SellerBulkImportRowErrorOrderByRelevanceFieldEnum]
+
+
+export const SellerOrderGroupOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  orderId: 'orderId',
+  sellerOrderNumber: 'sellerOrderNumber',
+  locationId: 'locationId',
+  currency: 'currency',
+  cancellationReason: 'cancellationReason'
+} as const
+
+export type SellerOrderGroupOrderByRelevanceFieldEnum = (typeof SellerOrderGroupOrderByRelevanceFieldEnum)[keyof typeof SellerOrderGroupOrderByRelevanceFieldEnum]
+
+
+export const SellerOrderLineOrderByRelevanceFieldEnum = {
+  id: 'id',
+  orderGroupId: 'orderGroupId',
+  orderItemId: 'orderItemId',
+  offerId: 'offerId',
+  currency: 'currency'
+} as const
+
+export type SellerOrderLineOrderByRelevanceFieldEnum = (typeof SellerOrderLineOrderByRelevanceFieldEnum)[keyof typeof SellerOrderLineOrderByRelevanceFieldEnum]
+
+
+export const SellerShipmentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  orderGroupId: 'orderGroupId',
+  locationId: 'locationId',
+  carrierName: 'carrierName',
+  trackingNumber: 'trackingNumber',
+  trackingUrl: 'trackingUrl'
+} as const
+
+export type SellerShipmentOrderByRelevanceFieldEnum = (typeof SellerShipmentOrderByRelevanceFieldEnum)[keyof typeof SellerShipmentOrderByRelevanceFieldEnum]
+
+
+export const SellerReturnOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  orderGroupId: 'orderGroupId',
+  reasonCode: 'reasonCode',
+  reasonText: 'reasonText',
+  sellerResponse: 'sellerResponse',
+  platformDecision: 'platformDecision',
+  platformDecisionReason: 'platformDecisionReason',
+  decidedByUserId: 'decidedByUserId',
+  currency: 'currency',
+  returnTrackingNumber: 'returnTrackingNumber'
+} as const
+
+export type SellerReturnOrderByRelevanceFieldEnum = (typeof SellerReturnOrderByRelevanceFieldEnum)[keyof typeof SellerReturnOrderByRelevanceFieldEnum]
+
+
+export const SellerSettlementOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  reference: 'reference',
+  currency: 'currency',
+  statementStorageKey: 'statementStorageKey',
+  holdReason: 'holdReason'
+} as const
+
+export type SellerSettlementOrderByRelevanceFieldEnum = (typeof SellerSettlementOrderByRelevanceFieldEnum)[keyof typeof SellerSettlementOrderByRelevanceFieldEnum]
+
+
+export const SellerSettlementLineOrderByRelevanceFieldEnum = {
+  id: 'id',
+  settlementId: 'settlementId',
+  orderGroupId: 'orderGroupId',
+  currency: 'currency',
+  description: 'description',
+  reason: 'reason',
+  createdByUserId: 'createdByUserId'
+} as const
+
+export type SellerSettlementLineOrderByRelevanceFieldEnum = (typeof SellerSettlementLineOrderByRelevanceFieldEnum)[keyof typeof SellerSettlementLineOrderByRelevanceFieldEnum]
+
+
+export const SellerPayoutOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  settlementId: 'settlementId',
+  reference: 'reference',
+  currency: 'currency',
+  provider: 'provider',
+  providerPayoutId: 'providerPayoutId',
+  providerStatusRaw: 'providerStatusRaw',
+  failureCode: 'failureCode',
+  failureReason: 'failureReason',
+  remediationHint: 'remediationHint',
+  idempotencyKey: 'idempotencyKey'
+} as const
+
+export type SellerPayoutOrderByRelevanceFieldEnum = (typeof SellerPayoutOrderByRelevanceFieldEnum)[keyof typeof SellerPayoutOrderByRelevanceFieldEnum]
+
+
+export const SellerNotificationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  title: 'title',
+  body: 'body',
+  linkPath: 'linkPath',
+  subjectType: 'subjectType',
+  subjectId: 'subjectId',
+  severity: 'severity'
+} as const
+
+export type SellerNotificationOrderByRelevanceFieldEnum = (typeof SellerNotificationOrderByRelevanceFieldEnum)[keyof typeof SellerNotificationOrderByRelevanceFieldEnum]
+
+
+export const SellerAuditLogOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sellerAccountId: 'sellerAccountId',
+  action: 'action',
+  actorUserId: 'actorUserId',
+  actorLabel: 'actorLabel',
+  resourceType: 'resourceType',
+  resourceId: 'resourceId',
+  summary: 'summary',
+  correlationId: 'correlationId'
+} as const
+
+export type SellerAuditLogOrderByRelevanceFieldEnum = (typeof SellerAuditLogOrderByRelevanceFieldEnum)[keyof typeof SellerAuditLogOrderByRelevanceFieldEnum]
 

@@ -63,6 +63,20 @@ export interface CartLine {
   itemId: string;
   productId: string;
   variantId: string | null;
+  /**
+   * Whose offer this line is. Null means the operator's own stock.
+   *
+   * Checkout freezes it onto the order item, and it is the only thing that
+   * later tells the split which seller's work and whose money this line is.
+   */
+  sellerOfferId: string | null;
+  /**
+   * The seller's trading name, for the basket to show beside the line.
+   *
+   * A basket holding the same product from two sellers is otherwise two
+   * identical rows at two prices, which reads as a bug rather than a choice.
+   */
+  sellerName: string | null;
   name: string;
   /**
    * The chosen option's own name - "3 ml", "Box of 100" - or null where the
@@ -305,6 +319,23 @@ export async function resolveCart(
         },
       },
       variant: true,
+      /*
+       * The seller's offer, where the line names one.
+       *
+       * Loaded with the line rather than looked up later because it decides the
+       * PRICE: a marketplace line is bought at the seller's price, not the
+       * operator's catalogue price, and pricing it from the catalogue would
+       * charge the buyer one figure and settle the seller against another.
+       */
+      sellerOffer: {
+        select: {
+          id: true,
+          status: true,
+          priceMinor: true,
+          currency: true,
+          sellerAccount: { select: { displayName: true, status: true } },
+        },
+      },
     },
   });
 
@@ -325,6 +356,8 @@ export async function resolveCart(
     itemId: string;
     productId: string;
     variantId: string | null;
+    sellerOfferId: string | null;
+    sellerName: string | null;
     quantity: number;
     isStockTracked: boolean;
     slug: string;
@@ -384,7 +417,10 @@ export async function resolveCart(
     // Priced from the CURRENT catalogue rows. The cart stores no price of its own.
     const price = prices.get(priceKey(item.productId, item.variantId));
 
-    if (price === undefined) {
+    // Only when the operator is the one selling it. A seller's line is priced
+    // by their offer below, and a product the operator has no price for in this
+    // currency is still perfectly sellable by somebody else.
+    if (price === undefined && item.sellerOfferId === null) {
       issues.push({
         code: ErrorCode.PRICE_UNAVAILABLE_IN_CURRENCY,
         message: `${product.name} is not sold in ${currency}.`,
@@ -392,7 +428,39 @@ export async function resolveCart(
       });
     }
 
-    const listedPriceMinor: Minor = price?.basePriceMinor ?? 0n;
+    /*
+     * A marketplace line is priced by its SELLER, not by the catalogue.
+     *
+     * The catalogue price is the operator's own, and on a line the buyer chose
+     * a seller for it is the wrong number: it would show them one figure,
+     * charge them that, and then settle the seller against theirs. So the
+     * offer's price wins where there is one — and where the offer has stopped
+     * being sellable, the line is blocked rather than quietly falling back to
+     * the operator's price, which would substitute a different seller's deal
+     * for the one the buyer agreed to.
+     */
+    const offer = item.sellerOffer;
+
+    if (offer !== null && offer.status !== 'ACTIVE') {
+      issues.push({
+        code: ErrorCode.CART_ITEM_UNAVAILABLE,
+        message: `${offer.sellerAccount.displayName} is no longer selling ${product.name}.`,
+        meta: { productId: product.id, sellerOfferId: offer.id },
+      });
+    }
+
+    if (offer !== null && offer.currency !== currency) {
+      issues.push({
+        code: ErrorCode.PRICE_UNAVAILABLE_IN_CURRENCY,
+        message: `${offer.sellerAccount.displayName} does not sell ${product.name} in ${currency}.`,
+        meta: { productId: product.id, currency, sellerOfferId: offer.id },
+      });
+    }
+
+    const listedPriceMinor: Minor =
+      offer !== null && offer.currency === currency
+        ? offer.priceMinor
+        : (price?.basePriceMinor ?? 0n);
 
     // Under FLAT_RATE this returns the catalogue's own figures untouched.
     // Under an EU treatment it resolves the destination's rate for this
@@ -440,6 +508,11 @@ export async function resolveCart(
       itemId: item.id,
       productId: product.id,
       variantId: item.variantId,
+      sellerOfferId: item.sellerOfferId,
+      // Shown beside the line so a basket holding the same product from two
+      // sellers is two lines the buyer can tell apart. Without it they are two
+      // identical rows at two prices, which reads as a bug.
+      sellerName: offer?.sellerAccount.displayName ?? null,
       quantity: item.quantity,
       isStockTracked: product.isStockTracked,
       slug: product.slug,
@@ -563,6 +636,8 @@ export async function resolveCart(
       itemId: meta.itemId,
       productId: meta.productId,
       variantId: meta.variantId,
+      sellerOfferId: meta.sellerOfferId,
+      sellerName: meta.sellerName,
       name: priced?.nameSnapshot ?? '',
       variantName: priced?.variantNameSnapshot ?? null,
       sku: priced?.skuSnapshot ?? '',
@@ -812,6 +887,16 @@ export interface AddItemInput {
    */
   orderingUnit?: OrderingUnit | null;
   unitQuantity?: number | null;
+  /**
+   * Whose offer to buy, on a marketplace deployment.
+   *
+   * Absent means the operator's own stock, which is what every caller that
+   * existed before the Seller Hub did means and what most lines still are. When
+   * it IS given it is checked against the product on the same line: an offer id
+   * belonging to some other product is the same class of mistake as a variant
+   * id belonging to some other product, and is refused the same way.
+   */
+  sellerOfferId?: string | null;
 }
 
 export interface AddedLine {
@@ -906,6 +991,9 @@ interface WantedLine {
   productId: string;
   variantId: string | null;
   variantKey: string;
+  sellerOfferId: string | null;
+  /** `sellerOfferId`, or '' for the operator. Never null — see the schema. */
+  sellerOfferKey: string;
   quantity: number;
   minOrderQty: number;
   orderingUnit: OrderingUnit;
@@ -1028,13 +1116,52 @@ async function addLines(
       field: nameField(index, 'unitQuantity'),
     });
 
-    const key = `${product.id}:${variantKey}`;
+    /*
+     * Whose offer, where one was named.
+     *
+     * Checked against the product and the variant on the same line, not just
+     * fetched: an offer id belonging to somebody else's product would otherwise
+     * put that seller's name — and that seller's commission — on a line for a
+     * product they do not sell. It must also be on sale, for the same reason a
+     * paused listing does not appear in search.
+     */
+    const sellerOfferId = input.sellerOfferId ?? null;
+
+    if (sellerOfferId !== null) {
+      const offer = await prisma.sellerOffer.findUnique({
+        where: { id: sellerOfferId },
+        select: { id: true, productId: true, variantKey: true, status: true },
+      });
+
+      if (offer === null || offer.productId !== product.id || offer.variantKey !== variantKey) {
+        throw badRequest(
+          ErrorCode.VALIDATION_FAILED,
+          'That seller does not offer this product.',
+          [{ field: nameField(index, 'sellerOfferId'), code: 'NOT_FOUND' }],
+        );
+      }
+
+      if (offer.status !== 'ACTIVE') {
+        throw badRequest(
+          ErrorCode.VALIDATION_FAILED,
+          'That seller is not selling this at the moment.',
+          [{ field: nameField(index, 'sellerOfferId'), code: 'NOT_ON_SALE' }],
+        );
+      }
+    }
+
+    // The offer is part of the key: the same product from two sellers is two
+    // basket lines, because they are two things to buy at two prices out of two
+    // warehouses. Same rule the unique index enforces.
+    const key = `${product.id}:${variantKey}:${sellerOfferId ?? ''}`;
     const already = wanted.get(key);
 
     wanted.set(key, {
       productId: product.id,
       variantId,
       variantKey,
+      sellerOfferId,
+      sellerOfferKey: sellerOfferId ?? '',
       quantity: (already?.quantity ?? 0) + resolved.quantity,
       minOrderQty: product.minOrderQty,
       // The same SKU twice in one request adds the cartons up into one line.
@@ -1052,13 +1179,15 @@ async function addLines(
     for (const line of wanted.values()) {
       // Re-adding an option already in the cart increases its quantity rather
       // than creating a second line, which is what the unique
-      // (cartId, productId, variantKey) index enforces anyway.
+      // (cartId, productId, variantKey, sellerOfferKey) index enforces anyway.
+      // The same product from a different seller is a different line.
       const existing = await tx.cartItem.findUnique({
         where: {
-          cartId_productId_variantKey: {
+          cartId_productId_variantKey_sellerOfferKey: {
             cartId,
             productId: line.productId,
             variantKey: line.variantKey,
+            sellerOfferKey: line.sellerOfferKey,
           },
         },
       });
@@ -1111,6 +1240,12 @@ async function addLines(
           productId: line.productId,
           variantId: line.variantId,
           variantKey: line.variantKey,
+          sellerOfferId: line.sellerOfferId,
+          // Never null, and always the same value as the column above. See the
+          // schema: MariaDB's UNIQUE index treats NULLs as distinct, so the
+          // nullable column alone cannot be part of the key that makes
+          // re-adding a SKU bump its quantity.
+          sellerOfferKey: line.sellerOfferKey,
           quantity,
           orderingUnit: line.orderingUnit,
           unitQuantity,

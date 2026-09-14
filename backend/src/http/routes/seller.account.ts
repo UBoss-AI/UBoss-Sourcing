@@ -1,0 +1,483 @@
+/**
+ * Becoming a seller, and the application that follows.
+ *
+ * These are the only seller routes reachable WITHOUT an existing seller
+ * organisation - `POST /apply` creates one and `GET /me` answers "does this
+ * account sell here?", which the storefront header asks on every page load and
+ * which must therefore answer "no" rather than throwing.
+ *
+ * Everything below them uses `requireSeller`, so the seller account id comes
+ * from the session and never from the request.
+ */
+import type { FastifyInstance } from 'fastify';
+import { z } from 'zod';
+import { env } from '../../config/env.js';
+import { ErrorCode } from '../../domain/errors.js';
+import { newId } from '../../infra/ids.js';
+import { logoUrlFor, removeSellerLogo, uploadSellerLogo } from '../../modules/seller/logo.service.js';
+import {
+  changeMemberRole,
+  findSellerMembership,
+  isDisplayNameAvailable,
+  removeMember,
+  startSellerApplication,
+} from '../../modules/seller/account.service.js';
+import {
+  acceptAgreement,
+  readOnboarding,
+  requirementsFor,
+  saveBusinessProfile,
+  submitApplication,
+} from '../../modules/seller/onboarding.service.js';
+import { prisma } from '../../infra/prisma.js';
+import { SellerPermission } from '../../domain/seller-permissions.js';
+import { currentUser, requireCustomer } from '../plugins/auth.js';
+import { currentSeller, requireSeller } from '../plugins/seller.js';
+
+const applySchema = z.object({
+  legalName: z.string().trim().min(2).max(255),
+  displayName: z.string().trim().min(2).max(160),
+  registrationCountry: z.string().trim().length(2).toUpperCase(),
+  kind: z
+    .enum(['MANUFACTURER', 'AUTHORISED_DISTRIBUTOR', 'WHOLESALER', 'RESELLER'])
+    .optional(),
+});
+
+const businessProfileSchema = z.object({
+  representativeName: z.string().trim().max(160).nullable().optional(),
+  representativeEmail: z.string().trim().email().max(320).nullable().optional(),
+  representativePhone: z.string().trim().max(32).nullable().optional(),
+  representativeRole: z.string().trim().max(120).nullable().optional(),
+  supportEmail: z.string().trim().email().max(320).nullable().optional(),
+  supportPhone: z.string().trim().max(32).nullable().optional(),
+  preferredLanguage: z.string().trim().max(12).nullable().optional(),
+  timezone: z.string().trim().max(64).nullable().optional(),
+  companyRegistrationNumber: z.string().trim().max(64).nullable().optional(),
+  taxRegistrationNumber: z.string().trim().max(64).nullable().optional(),
+  eoriNumber: z.string().trim().max(32).nullable().optional(),
+  eudamedSrn: z.string().trim().max(64).nullable().optional(),
+  websiteUrl: z.string().trim().url().max(512).nullable().optional(),
+  yearsInBusiness: z.number().int().min(0).max(500).nullable().optional(),
+  registeredAddressLine1: z.string().trim().max(255).nullable().optional(),
+  registeredAddressLine2: z.string().trim().max(255).nullable().optional(),
+  registeredCity: z.string().trim().max(120).nullable().optional(),
+  registeredRegion: z.string().trim().max(120).nullable().optional(),
+  registeredPostcode: z.string().trim().max(24).nullable().optional(),
+  registeredCountry: z.string().trim().length(2).toUpperCase().nullable().optional(),
+  billingAddressLine1: z.string().trim().max(255).nullable().optional(),
+  billingAddressLine2: z.string().trim().max(255).nullable().optional(),
+  billingCity: z.string().trim().max(120).nullable().optional(),
+  billingRegion: z.string().trim().max(120).nullable().optional(),
+  billingPostcode: z.string().trim().max(24).nullable().optional(),
+  billingCountry: z.string().trim().length(2).toUpperCase().nullable().optional(),
+  extraIdentifiers: z.record(z.string(), z.string().max(255)).nullable().optional(),
+});
+
+const agreementSchema = z.object({
+  kind: z.enum([
+    'MARKETPLACE_AGREEMENT',
+    'COMMISSION_SCHEDULE',
+    'RETURNS_POLICY',
+    'PRIVACY_POLICY',
+    'INTELLECTUAL_PROPERTY_DECLARATION',
+  ]),
+  version: z.string().trim().min(1).max(32),
+  acceptedName: z.string().trim().min(2).max(160),
+  /**
+   * The drawn signature, as an object key from a previous upload.
+   *
+   * Accepted as EVIDENCE beside the click-through, never as a verified legal
+   * signature - see `acceptAgreement`, where the distinction is enforced and
+   * explained. The interface must not describe it as a signature that has been
+   * verified, because nothing here verified anything.
+   */
+  signatureStorageKey: z.string().trim().max(512).nullable().optional(),
+});
+
+/**
+ * Routes that answer before a seller organisation exists.
+ *
+ * Registered with `requireCustomer` rather than `requireSeller`, which is the
+ * whole reason they are in a separate function: `requireSeller` refuses an
+ * account that has never applied, and these two are how an account applies.
+ */
+export function registerSellerEntryRoutes(app: FastifyInstance): Promise<void> {
+  app.addHook('preHandler', requireCustomer);
+
+  /**
+   * "Do I sell here, and how is it going?"
+   *
+   * Answers 200 with `{ seller: null }` for an ordinary buyer rather than 403.
+   * The storefront header calls this on every page to decide between "Become a
+   * seller" and "Seller Hub", and a 403 on the common case would put an error
+   * in the console of every page view.
+   */
+  app.get('/me', async (request, reply) => {
+    const auth = currentUser(request);
+    const membership = await findSellerMembership(auth.customerProfileId ?? '');
+
+    if (membership === null) {
+      return reply.header('cache-control', 'no-store').status(200).send({ seller: null });
+    }
+
+    return reply.header('cache-control', 'no-store').status(200).send({
+      seller: {
+        sellerAccountId: membership.sellerAccountId,
+        displayName: membership.displayName,
+        legalName: membership.legalName,
+        slug: membership.slug,
+        status: membership.status,
+        role: membership.role,
+        isTrading: membership.isTrading,
+        isApplicationEditable: membership.isApplicationEditable,
+        permissions: [...membership.permissions],
+      },
+    });
+  });
+
+  /** Is this public shop name free? Called as the seller types it. */
+  app.get('/display-name-available', async (request, reply) => {
+    const query = z.object({ name: z.string().trim().min(1).max(160) }).parse(request.query);
+    const available = await isDisplayNameAvailable(query.name);
+
+    return reply.header('cache-control', 'no-store').status(200).send({ available });
+  });
+
+  /**
+   * Start a seller application.
+   *
+   * Rate-limited because it creates a tenant. Without a limit, one account
+   * could not create more than one - `SellerMember.customerProfileId` is
+   * unique - but a script could still burn through display names, and a taken
+   * name is not recoverable without an operator.
+   */
+  app.post(
+    '/apply',
+    { config: { rateLimit: { max: 5, timeWindow: '1 hour' } } },
+    async (request, reply) => {
+      const auth = currentUser(request);
+      const body = applySchema.parse(request.body);
+
+      const membership = await startSellerApplication({
+        customerProfileId: auth.customerProfileId ?? '',
+        legalName: body.legalName,
+        displayName: body.displayName,
+        registrationCountry: body.registrationCountry,
+        ...(body.kind === undefined ? {} : { kind: body.kind }),
+        correlationId: request.correlationId,
+        userId: auth.id,
+      });
+
+      return reply.status(201).send({
+        sellerAccountId: membership.sellerAccountId,
+        displayName: membership.displayName,
+        status: membership.status,
+        role: membership.role,
+      });
+    },
+  );
+
+  return Promise.resolve();
+}
+
+/** Everything that needs an existing seller organisation. */
+export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void> {
+  app.addHook('preHandler', requireSeller());
+
+  /** The onboarding checklist: every step, its state, and what it still needs. */
+  app.get('/onboarding', async (request, reply) => {
+    const view = await readOnboarding(currentSeller(request));
+    return reply.header('cache-control', 'no-store').status(200).send(view);
+  });
+
+  /** The fields this seller's country and kind demand, for a single step. */
+  app.get('/onboarding/requirements', async (request, reply) => {
+    const seller = currentSeller(request);
+
+    const account = await prisma.sellerAccount.findUnique({
+      where: { id: seller.sellerAccountId },
+      select: { kind: true, registrationCountry: true },
+    });
+
+    const requirements = await requirementsFor(
+      account?.registrationCountry ?? seller.registrationCountry,
+      account?.kind ?? 'RESELLER',
+    );
+
+    return reply.status(200).send({ requirements });
+  });
+
+  app.get('/business-profile', async (request, reply) => {
+    const seller = currentSeller(request);
+
+    const [account, profile] = await Promise.all([
+      prisma.sellerAccount.findUnique({
+        where: { id: seller.sellerAccountId },
+        select: {
+          legalName: true,
+          displayName: true,
+          slug: true,
+          kind: true,
+          registrationCountry: true,
+          description: true,
+          status: true,
+          statusReason: true,
+          version: true,
+          logoStorageKey: true,
+        },
+      }),
+      prisma.sellerBusinessProfile.findUnique({
+        where: { sellerAccountId: seller.sellerAccountId },
+      }),
+    ]);
+
+    return reply.header('cache-control', 'no-store').status(200).send({
+      // The key never leaves the server; the URL is built from it on read, so
+      // moving the object store cannot leave a screen pointing at nothing.
+      account:
+        account === null
+          ? null
+          : { ...account, logoStorageKey: undefined, logoUrl: logoUrlFor(account.logoStorageKey) },
+      // `internalNotes` is deliberately not in either select. It is the
+      // operator's private assessment and a seller must never read it.
+      profile,
+    });
+  });
+
+  app.patch('/business-profile', async (request, reply) => {
+    const body = businessProfileSchema.parse(request.body);
+
+    const result = await saveBusinessProfile(
+      currentSeller(request),
+      body,
+      request.correlationId,
+    );
+
+    return reply.status(200).send(result);
+  });
+
+  /** The store details step: the public name, description and support contacts. */
+  /**
+   * The mark on the seller's own shop front.
+   *
+   * `UPLOAD_MAX_BYTES` as the transport ceiling, and the service applies the
+   * real check once the bytes have said what they are — a 40 MB file claiming
+   * to be a PNG is still refused, and so is an SVG, whatever it is named.
+   */
+  app.post(
+    '/logo',
+    { preHandler: requireSeller(SellerPermission.ACCOUNT_WRITE) },
+    async (request, reply) => {
+      const upload = await request.file({ limits: { fileSize: env.UPLOAD_MAX_BYTES } });
+
+      if (upload === undefined) {
+        return reply.status(400).send({
+          error: { code: ErrorCode.VALIDATION_FAILED, message: 'No file was attached.' },
+        });
+      }
+
+      const result = await uploadSellerLogo({
+        membership: currentSeller(request),
+        buffer: await upload.toBuffer(),
+        correlationId: request.correlationId,
+      });
+
+      return reply.status(200).send(result);
+    },
+  );
+
+  app.delete(
+    '/logo',
+    { preHandler: requireSeller(SellerPermission.ACCOUNT_WRITE) },
+    async (request, reply) => {
+      await removeSellerLogo({
+        membership: currentSeller(request),
+        correlationId: request.correlationId,
+      });
+
+      return reply.status(204).send();
+    },
+  );
+
+  app.patch('/store-profile', async (request, reply) => {
+    const seller = currentSeller(request);
+    const body = z
+      .object({
+        description: z.string().trim().max(4000).nullable().optional(),
+        supportEmail: z.string().trim().email().max(320).nullable().optional(),
+        supportPhone: z.string().trim().max(32).nullable().optional(),
+      })
+      .parse(request.body);
+
+    await prisma.sellerAccount.update({
+      where: { id: seller.sellerAccountId },
+      data: { ...(body.description === undefined ? {} : { description: body.description }) },
+    });
+
+    await saveBusinessProfile(
+      seller,
+      {
+        ...(body.supportEmail === undefined ? {} : { supportEmail: body.supportEmail }),
+        ...(body.supportPhone === undefined ? {} : { supportPhone: body.supportPhone }),
+      },
+      request.correlationId,
+    );
+
+    return reply.status(204).send();
+  });
+
+  app.post('/agreements', async (request, reply) => {
+    const body = agreementSchema.parse(request.body);
+
+    await acceptAgreement({
+      membership: currentSeller(request),
+      kind: body.kind,
+      version: body.version,
+      acceptedName: body.acceptedName,
+      signatureStorageKey: body.signatureStorageKey ?? null,
+      // Both recorded as evidence of the act. A click-through with neither is
+      // worth very little if it is ever challenged.
+      ipAddress: request.ip,
+      userAgent: request.headers['user-agent'] ?? null,
+      correlationId: request.correlationId,
+    });
+
+    return reply.status(204).send();
+  });
+
+  app.get('/agreements', async (request, reply) => {
+    const seller = currentSeller(request);
+
+    const rows = await prisma.sellerAgreementAcceptance.findMany({
+      where: { sellerAccountId: seller.sellerAccountId },
+      orderBy: { acceptedAt: 'desc' },
+      select: {
+        id: true,
+        kind: true,
+        version: true,
+        method: true,
+        acceptedName: true,
+        acceptedAt: true,
+      },
+    });
+
+    return reply.status(200).send({ agreements: rows });
+  });
+
+  /** Hand the application to the marketplace. */
+  app.post(
+    '/submit',
+    { config: { rateLimit: { max: 10, timeWindow: '1 hour' } } },
+    async (request, reply) => {
+      await submitApplication(currentSeller(request), request.correlationId);
+      return reply.status(204).send();
+    },
+  );
+
+  // --- The team -----------------------------------------------------------
+
+  app.get('/members', { preHandler: requireSeller(SellerPermission.MEMBER_READ) }, async (request, reply) => {
+    const seller = currentSeller(request);
+
+    const rows = await prisma.sellerMember.findMany({
+      where: { sellerAccountId: seller.sellerAccountId, removedAt: null },
+      orderBy: { joinedAt: 'asc' },
+      select: {
+        id: true,
+        role: true,
+        joinedAt: true,
+        customerProfile: { select: { fullName: true, user: { select: { email: true } } } },
+      },
+    });
+
+    return reply.status(200).send({
+      members: rows.map((row) => ({
+        id: row.id,
+        role: row.role,
+        joinedAt: row.joinedAt.toISOString(),
+        name: row.customerProfile.fullName,
+        email: row.customerProfile.user.email,
+      })),
+    });
+  });
+
+  app.patch(
+    '/members/:memberId',
+    { preHandler: requireSeller(SellerPermission.MEMBER_WRITE) },
+    async (request, reply) => {
+      const params = z.object({ memberId: z.string().length(26) }).parse(request.params);
+      const body = z
+        .object({
+          role: z.enum([
+            'OWNER',
+            'ADMIN',
+            'CATALOGUE_MANAGER',
+            'INVENTORY_MANAGER',
+            'ORDER_MANAGER',
+            'FINANCE_VIEWER',
+            'SUPPORT_MEMBER',
+          ]),
+        })
+        .parse(request.body);
+
+      await changeMemberRole(
+        currentSeller(request),
+        params.memberId,
+        body.role,
+        request.correlationId,
+      );
+
+      return reply.status(204).send();
+    },
+  );
+
+  app.delete(
+    '/members/:memberId',
+    { preHandler: requireSeller(SellerPermission.MEMBER_WRITE) },
+    async (request, reply) => {
+      const params = z.object({ memberId: z.string().length(26) }).parse(request.params);
+      await removeMember(currentSeller(request), params.memberId, request.correlationId);
+      return reply.status(204).send();
+    },
+  );
+
+  // --- The seller's own record of what happened --------------------------
+
+  app.get(
+    '/audit',
+    { preHandler: requireSeller(SellerPermission.AUDIT_READ) },
+    async (request, reply) => {
+      const seller = currentSeller(request);
+      const query = z
+        .object({ limit: z.coerce.number().int().min(1).max(200).default(50) })
+        .parse(request.query);
+
+      const rows = await prisma.sellerAuditLog.findMany({
+        where: { sellerAccountId: seller.sellerAccountId },
+        orderBy: { createdAt: 'desc' },
+        take: query.limit,
+        // `beforeJson`/`afterJson` are deliberately omitted from the list. The
+        // seller reads `summary`; the diffs are for support, and shipping them
+        // to a browser by default is how a redaction bug becomes a disclosure.
+        select: {
+          id: true,
+          action: true,
+          actorLabel: true,
+          resourceType: true,
+          resourceId: true,
+          summary: true,
+          createdAt: true,
+        },
+      });
+
+      return reply.status(200).send({
+        entries: rows.map((row) => ({ ...row, createdAt: row.createdAt.toISOString() })),
+      });
+    },
+  );
+
+  /** An idempotency-safe id the client can use for a draft it is about to create. */
+  app.get('/new-id', async (_request, reply) => reply.status(200).send({ id: newId() }));
+
+  return Promise.resolve();
+}

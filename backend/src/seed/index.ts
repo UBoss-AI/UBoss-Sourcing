@@ -18,6 +18,7 @@ import {
 import { hashPassword } from '../infra/crypto.js';
 import { newId } from '../infra/ids.js';
 import { seedReferenceData } from './reference-data.js';
+import { seedSellerHub } from './seller-hub.js';
 import { prisma } from '../infra/prisma.js';
 
 /**
@@ -1151,7 +1152,9 @@ async function main(): Promise<void> {
   console.log(
     `  reference data: ${String(reference.currencies)} currencies, ` +
       `${String(reference.countries)} countries, ` +
-      `${String(reference.backfilledPrices)} prices backfilled`,
+      `${String(reference.backfilledPrices)} prices backfilled, ` +
+      `${String(reference.starterDepartments)} starter department(s) planted ` +
+      `with ${String(reference.starterSubCategories)} sub-categories`,
   );
   // After the reference data, not before: `inventory_locations.countryCode` is
   // a foreign key into `countries`, and the four member states these sit in
@@ -1174,6 +1177,24 @@ async function main(): Promise<void> {
   }
   await seedStaff();
   await seedCustomers();
+
+  // The Seller Hub last: it seeds configuration rather than data, and it needs
+  // the categories above to already exist for an operator to attach
+  // category-specific attributes to afterwards.
+  const sellerHub = await seedSellerHub();
+  console.log(
+    `
+  Seller Hub: ${String(sellerHub.requirements)} onboarding requirement(s), ` +
+      `${String(sellerHub.attributes)} shared listing field(s), ` +
+      `${String(sellerHub.categoryAttributes)} category-specific field(s), ` +
+      `${String(sellerHub.flags)} setting(s)`,
+  );
+  if (sellerHub.retiredGlobals > 0) {
+    console.log(
+      `    ${String(sellerHub.retiredGlobals)} shared field(s) retired - they are no longer asked ` +
+        `of every category, and any answers already given are kept`,
+    );
+  }
 
   console.log('\nSeed complete. Development sign-in credentials:\n');
   console.log('  Admin Panel  POST /api/v1/admin/auth/login');

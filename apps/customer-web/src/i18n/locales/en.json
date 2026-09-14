@@ -168,6 +168,7 @@
   "header.myOrders": "My orders",
   "header.repeatPurchases": "Repeat purchases",
   "header.brandTagline": "Business purchasing",
+  "header.sellerTagline": "Seller storefront",
   "header.cartEmpty": "Basket, empty",
   "header.cartCount_one": "Basket, {{count}} item",
   "header.cartCount_other": "Basket, {{count}} items",
@@ -1919,7 +1920,7 @@
   "erp.wizard.scopeHint": "Ask for the least your system will accept. We show you what it actually granted.",
   "erp.wizard.redirectUriBody": "Register this address in your own system as the place to send you back to:",
   "erp.wizard.mappingRejected": "These rows need attention before the mapping can be saved:",
-  "erp.wizard.noAuthMethod":"This system cannot be connected as a live connection here. Choose a test connection above, or ask your supplier to register an application with it.",
+  "erp.wizard.noAuthMethod": "This system cannot be connected as a live connection here. Choose a test connection above, or ask your supplier to register an application with it.",
   "erp.wizard.credentials": "Credentials",
   "erp.wizard.storedCredential": "Currently using {{hint}}",
   "erp.wizard.leaveBlankToKeep": "Leave blank to keep what is stored.",
@@ -2050,5 +2051,15 @@
   "errors.pricedOnRequest": "This one is priced per account, so it cannot go straight into a basket. Ask us for a quotation and we will price it for you.",
   "errors.notOrderable": "This product cannot be ordered at the moment.",
   "errors.packSizeUnknown": "We have not recorded how many pieces are in a carton of this product yet, so it cannot be ordered yet. Ask us and we will confirm it.",
-  "product.pricePerCarton": "per carton of {{pieces}} pieces · {{each}} per piece"
+  "product.pricePerCarton": "per carton of {{pieces}} pieces · {{each}} per piece",
+  "seller.header.becomeASeller": "Become a seller",
+  "seller.header.sell": "Sell on UBOSS",
+  "seller.header.setup": "Continue seller setup",
+  "seller.header.hub": "Seller Hub",
+  "seller.header.continueSetup": "Continue setup",
+  "seller.header.continueSetupPercent": "Continue setup · {{percent}}%",
+  "seller.header.applicationSubmitted": "Application submitted",
+  "seller.header.applicationNeedsChanges": "Application needs changes",
+  "seller.header.sellingPaused": "Selling paused",
+  "seller.header.sellerHub": "Seller Hub"
 }

@@ -50,6 +50,7 @@ import { useSession } from '@/auth/session-context';
 import { useStorefront } from '@/app/storefront-context';
 import { api } from '@/lib/api';
 import { AccountMenu } from '@/components/account/AccountMenu';
+import { BecomeSellerButton } from '@/layout/BecomeSellerButton';
 import { MarketMenu } from '@/components/market/MarketMenu';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { CartIcon } from '@/components/icons';
@@ -66,7 +67,7 @@ import { useI18n } from '@/i18n/i18n-context';
  * accessible name should be the business, not the business plus a tagline.
  */
 function BrandMark(): React.JSX.Element {
-  const { business } = useStorefront();
+  const { business, seller } = useStorefront();
   const { t } = useI18n();
 
   return (
@@ -110,7 +111,14 @@ function BrandMark(): React.JSX.Element {
           aria-hidden="true"
           className="hidden text-xxs font-medium uppercase tracking-[0.14em] text-ink-subtle sm:block"
         >
-          {t('header.brandTagline')}
+          {/*
+            On a seller's own shop front, say whose shop it is rather than
+            what kind of shop it is. A buyer who followed a link to
+            northwind.example needs to know they are on Northwind's storefront
+            and not on the marketplace's, because it decides who they are
+            buying from and who they chase about it.
+          */}
+          {seller === undefined ? t('header.brandTagline') : t('header.sellerTagline')}
         </span>
       </span>
     </Link>
@@ -217,6 +225,14 @@ export function Header(): React.JSX.Element {
               its numbers mean is the question a buyer answers on arrival, and
               the account is what they do afterwards. */}
           <MarketMenu />
+
+          {/* Before the account, after the market. It is a way INTO a
+              different part of the product rather than a setting on this
+              account, so it belongs in the bar rather than inside the profile
+              menu - somebody who has never sold here has no reason to open a
+              menu with their own name on it. */}
+          <BecomeSellerButton />
+
           <AccountMenu />
           <CartLink />
         </div>

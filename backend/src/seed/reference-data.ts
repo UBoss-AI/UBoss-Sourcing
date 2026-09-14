@@ -14,6 +14,7 @@
 import { currencyExponent } from '../domain/money.js';
 import { prisma } from '../infra/prisma.js';
 import { backfillBaseCurrencyPrices } from '../modules/catalog/price.service.js';
+import { seedStarterCategories } from './starter-categories.js';
 import { EU_COUNTRY_SEEDS, seedVatReference } from './vat-reference.js';
 
 interface CurrencySeed {
@@ -112,6 +113,8 @@ export async function seedReferenceData(): Promise<{
   countries: number;
   backfilledPrices: number;
   vatRates: number;
+  starterDepartments: number;
+  starterSubCategories: number;
 }> {
   for (const currency of CURRENCIES) {
     // Throws if money.ts does not know this code, which is the point: a
@@ -176,6 +179,13 @@ export async function seedReferenceData(): Promise<{
   // before it invoices anything.
   const vat = await seedVatReference();
 
+  // The departments a seller can file a product under. Production needs these
+  // for the same reason it needs the currencies: without them the listing
+  // wizard opens on an empty category picker, and a marketplace whose sellers
+  // cannot choose a category is a marketplace whose sellers cannot list.
+  // Create-only, so an operator's own taxonomy is never disturbed.
+  const starter = await seedStarterCategories();
+
   const base = CURRENCIES.find((currency) => currency.isBase === true)?.code ?? 'INR';
   const backfilledPrices = await backfillBaseCurrencyPrices(base);
 
@@ -184,5 +194,7 @@ export async function seedReferenceData(): Promise<{
     countries: COUNTRIES.length,
     backfilledPrices,
     vatRates: vat.ratesCreated,
+    starterDepartments: starter.departments,
+    starterSubCategories: starter.children,
   };
 }

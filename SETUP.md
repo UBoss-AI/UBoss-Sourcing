@@ -231,6 +231,29 @@ DATABASE_URL="mysql://root:my-password@127.0.0.1:3306/uboss"
 
 `.env` holds local secrets. Keep it private, and never commit it.
 
+#### Optional: give each seller their own shop front
+
+Sellers can have a web address of their own — `northwind.localhost:5174` serves
+the shop of the seller whose slug is `northwind`. It is off unless you say which
+domain the subdomains hang off:
+
+```env
+SELLER_STOREFRONT_DOMAIN="localhost"
+```
+
+Leave it empty and there are no seller shop fronts at all: every request is the
+operator's own shop, which is what a single-supplier deployment wants and what
+the software does without this line.
+
+Two things to know when trying it locally:
+
+- **`*.localhost` needs no hosts-file entry.** Chrome, Edge and Firefox all
+  resolve it to 127.0.0.1 on their own. `curl` does not, so test it with
+  `curl -H "Host: northwind.localhost" http://127.0.0.1:4000/api/v1/config`.
+- **The API must be restarted after changing this.** It is read once at boot,
+  so `tsx watch` reloading a source file does not pick it up —
+  `scripts\dev-stack.ps1 -Restart`.
+
 ### 4. Create the tables and the sample data
 
 Still inside `backend`:

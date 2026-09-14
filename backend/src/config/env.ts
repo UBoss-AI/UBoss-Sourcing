@@ -122,6 +122,16 @@ const envSchema = z
     S3_SECRET_ACCESS_KEY: z.string().default(''),
     S3_FORCE_PATH_STYLE: booleanFromString.default(true),
     UPLOAD_MAX_BYTES: intFromString(1024, 104_857_600).default(5_242_880),
+    /**
+     * The ceiling for a VIDEO, separate from the one for a photograph.
+     *
+     * A shared limit would force an operator who wants to accept one
+     * thirty-second product video to raise the photograph ceiling to match -
+     * and the photograph ceiling is what stops somebody uploading a RAW file
+     * per product. 64 MB by default: enough for a short clip at 1080p,
+     * nowhere near enough for a feature film.
+     */
+    UPLOAD_VIDEO_MAX_BYTES: intFromString(1024, 536_870_912).default(67_108_864),
 
     // --- Email ---
     EMAIL_DRIVER: z.enum(['log', 'smtp']).default('log'),
@@ -270,6 +280,23 @@ const envSchema = z
     //
     // The storefront reads it from /config and shows it beside every price.
     PIECES_PER_CARTON: intFromString(1, 1_000_000).default(DEFAULT_PIECES_PER_CARTON),
+
+    // --- Per-seller storefronts ---
+    //
+    // The domain seller subdomains hang off: `uboss.example` makes
+    // `northwind.uboss.example` the storefront of the seller whose slug is
+    // `northwind`. The bare domain stays the operator's own shop.
+    //
+    // EMPTY TURNS THE WHOLE THING OFF, which is the default and the state every
+    // existing deployment is in. A single-supplier shop has no seller
+    // storefronts to serve, and a host it does not recognise must never be
+    // guessed at — an unset value means every request is the operator's,
+    // exactly as it was before this existed.
+    //
+    // A setting rather than a constant for the usual reason: the business that
+    // buys this software runs it on its own domain, and one compiled into the
+    // server is one they cannot change.
+    SELLER_STOREFRONT_DOMAIN: z.string().trim().toLowerCase().default(''),
 
     // --- Fulfilment quotes ---
     //

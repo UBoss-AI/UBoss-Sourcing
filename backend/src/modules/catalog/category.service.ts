@@ -367,7 +367,19 @@ export interface CategoryNode {
  * callers - the storefront navigation must never show a draft category.
  */
 export async function listCategoryTree(
-  options: { includeInactive?: boolean; language?: string | null } = {},
+  options: {
+    includeInactive?: boolean;
+    language?: string | null;
+    /**
+     * Count only what this seller offers.
+     *
+     * On a seller's own shop front the counts have to describe THEIR catalogue.
+     * A sidebar reading "Medical Devices 239" beside a grid holding four is not
+     * a rounding difference — it is the operator's shop advertised inside
+     * somebody else's, and every one of those 239 is a link to a 404.
+     */
+    sellerAccountId?: string | null;
+  } = {},
 ): Promise<CategoryNode[]> {
   // `language: ''` matches no stored row, so an unlocalised caller gets an
   // empty array rather than every language's copy.
@@ -386,7 +398,21 @@ export async function listCategoryTree(
    * everything, because there the figure answers "what is filed here" - the
    * question asked before archiving a category, which drafts also block.
    */
-  const productCount = includeInactive ? true : { where: publicProductWhere() };
+  const sellerAccountId = options.sellerAccountId ?? null;
+
+  const productCount = includeInactive
+    ? true
+    : {
+        where: {
+          ...publicProductWhere(),
+          // On a seller's shop, a product counts only where that seller has it
+          // on sale. Anything else counts the operator's shelf on somebody
+          // else's shop front.
+          ...(sellerAccountId === null
+            ? {}
+            : { sellerOffers: { some: { sellerAccountId, status: 'ACTIVE' as const } } }),
+        },
+      };
 
   const rows = await prisma.category.findMany({
     where,

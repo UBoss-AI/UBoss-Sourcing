@@ -6,7 +6,7 @@
  * computes its own totals is a client that can disagree with the server about
  * what an order costs.
  */
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { ErrorCode, badRequest } from '../../domain/errors.js';
 import { PaymentInstrumentValues } from '../../domain/payment-instrument.js';
@@ -27,11 +27,21 @@ import {
   runIdempotent,
 } from '../../modules/orders/idempotency.service.js';
 import { submitCheckout } from '../../modules/orders/order.service.js';
+import { prisma } from '../../infra/prisma.js';
 import { currentUser, requireCustomer } from '../plugins/auth.js';
 
 const addItemSchema = z.object({
   productId: z.string().length(26),
   variantId: z.string().length(26).nullable().optional(),
+  /**
+   * Whose offer to buy, where several businesses sell the same product.
+   *
+   * Absent means the operator's own stock, which is what every caller that
+   * existed before the marketplace did means. The service re-checks it against
+   * the product on the same line and against the offer still being on sale —
+   * this only says the shape is right.
+   */
+  sellerOfferId: z.string().length(26).nullable().optional(),
   /**
    * Pieces. Required, and still the whole request for every caller that does
    * not count in cartons - an ERP, an API client, a reorder of a line placed
@@ -133,6 +143,50 @@ const shippingQuerySchema = z.object({
   shippingMethodCode: z.string().max(32).optional(),
 });
 
+/**
+ * Whose offer a line is, on the shop front it was added from.
+ *
+ * On a seller's own storefront the seller is not a choice the shopper makes —
+ * they are the shop. So the offer is resolved here, from the HOST the request
+ * arrived on, and a `sellerOfferId` in the body is ignored rather than trusted:
+ * accepting one would let a shopper on `northwind.uboss.example` post somebody
+ * else's offer id and buy at that seller's price out of that seller's stock.
+ *
+ * A product this seller does not offer is refused by `addLines`, which re-checks
+ * the offer against the product on the line — reaching this point with one is a
+ * shopper following a stale link to a product the seller has since withdrawn.
+ *
+ * On the operator's own storefront this changes nothing: it returns the line
+ * exactly as it arrived, `sellerOfferId` and all, which is what an API client
+ * or a future integration needs.
+ */
+async function withStorefrontSeller<T extends { productId: string; variantId?: string | null }>(
+  request: FastifyRequest,
+  item: T,
+): Promise<T & { sellerOfferId?: string | null }> {
+  if (request.storefront === null) return item;
+
+  const offer = await prisma.sellerOffer.findFirst({
+    where: {
+      sellerAccountId: request.storefront.sellerAccountId,
+      productId: item.productId,
+      variantKey: item.variantId ?? '',
+      status: 'ACTIVE',
+    },
+    select: { id: true },
+  });
+
+  if (offer === null) {
+    throw badRequest(
+      ErrorCode.CART_ITEM_UNAVAILABLE,
+      `${request.storefront.displayName} does not sell this.`,
+      [{ field: 'productId', code: 'NOT_OFFERED_HERE' }],
+    );
+  }
+
+  return { ...item, sellerOfferId: offer.id };
+}
+
 export function registerCartRoutes(app: FastifyInstance): Promise<void> {
   /** Every cart route requires an activated customer; guest checkout is off. */
   app.addHook('preHandler', requireCustomer);
@@ -152,7 +206,7 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
     const auth = currentUser(request);
     const body = addItemSchema.parse(request.body);
 
-    await addItem(auth.customerProfileId ?? '', body);
+    await addItem(auth.customerProfileId ?? '', await withStorefrontSeller(request, body));
 
     // Repriced and revalidated, so the client sees immediately if the line it
     // just added has a stock or limit problem.
@@ -173,7 +227,10 @@ export function registerCartRoutes(app: FastifyInstance): Promise<void> {
     const auth = currentUser(request);
     const body = addItemsSchema.parse(request.body);
 
-    await addItems(auth.customerProfileId ?? '', body.items);
+    await addItems(
+      auth.customerProfileId ?? '',
+      await Promise.all(body.items.map((item) => withStorefrontSeller(request, item))),
+    );
 
     const resolved = await resolveCart(auth.customerProfileId ?? '');
     return reply.status(201).send({ cart: toCartView(resolved) });

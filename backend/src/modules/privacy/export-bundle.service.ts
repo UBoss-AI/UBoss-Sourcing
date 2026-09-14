@@ -77,6 +77,11 @@ export const SECTIONS = Object.freeze({
     // ERP connection is the COMPANY's and is not disclosed here - see the
     // section itself for why the line falls where it does.
     'organisationMembership',
+    // Their place in a SELLER organisation, where they sell here as well as buy.
+    // A membership is a fact about an individual, so it is disclosed - the same
+    // line `organisationMembership` draws. The seller BUSINESS's own data is not
+    // theirs and does not come with it.
+    'sellerMembership',
   ]),
   withheld: Object.freeze([
     {
@@ -98,6 +103,14 @@ export const SECTIONS = Object.freeze({
         'Security and accountability log of administrative actions. Entries naming this ' +
         'subject are retained under Art. 17(3)(b) and are available on request; the log as a ' +
         'whole describes staff activity and is not the subject’s personal data.',
+    },
+    {
+      section: 'sellerAuditTrail',
+      reason:
+        'Accountability log of actions taken on a seller account - listings submitted, stock ' +
+        'adjusted, orders dispatched. It belongs to the seller BUSINESS rather than to any one ' +
+        'member of it, and most entries describe colleagues. Entries naming this subject are ' +
+        'retained under Art. 17(3)(b) and are available on request.',
     },
   ]),
 });
@@ -782,6 +795,39 @@ export async function buildCustomerBundle(subject: BundleSubject): Promise<Recor
         // person, and their identity is that person's data rather than this
         // subject's.
         joinedByInvitation: membership.invitedByProfileId !== null,
+      };
+    })(),
+
+    /*
+     * Their place in a seller organisation, if they sell here.
+     *
+     * The same shape and the same line as `organisationMembership` above: what
+     * the business is called, what authority this person holds in it, and when
+     * they got it. Not the business's catalogue, stock, orders or money - those
+     * belong to the company, and a departing employee is not entitled to a copy
+     * of their former employer's sales.
+     *
+     * `removedAt` is not filtered out. A former membership is still a fact
+     * about this person and is still held, so a copy of what is held has to
+     * include it.
+     */
+    sellerMembership: await (async () => {
+      const membership = await prisma.sellerMember.findUnique({
+        where: { customerProfileId: profile?.id ?? '' },
+        include: { sellerAccount: { select: { displayName: true, legalName: true } } },
+      });
+
+      if (membership === null) return null;
+
+      return {
+        sellerName: membership.sellerAccount.displayName,
+        registeredName: membership.sellerAccount.legalName,
+        role: membership.role,
+        joinedAt: iso(membership.joinedAt),
+        // Whether somebody invited them, not who - the inviter is a different
+        // person, and their identity is that person's data.
+        joinedByInvitation: membership.invitedByProfileId !== null,
+        removedAt: iso(membership.removedAt),
       };
     })(),
   });

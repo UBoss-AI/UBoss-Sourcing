@@ -967,3 +967,319 @@ export type CustomerErpOAuthState = Prisma.CustomerErpOAuthStateModel
  * visible, and its VALUE never is.
  */
 export type CustomerErpAuditLog = Prisma.CustomerErpAuditLogModel
+/**
+ * Model SellerAccount
+ * A seller business, as a tenant.
+ * 
+ * Created the moment somebody presses "Become a seller" and completes
+ * authentication - not when they are approved. An application has to live
+ * somewhere while it is being written, and giving a half-finished application
+ * its own tenant from the start means the resume-later path is just "read
+ * your own rows" rather than a second storage mechanism for drafts.
+ * 
+ * `displayName` is the public shopfront name and is UNIQUE through
+ * `displayNameNormalized`, because a buyer choosing between two offers needs
+ * the seller names to mean something. `legalName` is not unique: two
+ * unrelated businesses genuinely can be registered under the same name in
+ * different countries.
+ */
+export type SellerAccount = Prisma.SellerAccountModel
+/**
+ * Model SellerMember
+ * One person's place in one seller organisation.
+ * 
+ * `customerProfileId` is UNIQUE for the same reason it is on
+ * `BuyerOrganizationMember`: an account that could act for two sellers would
+ * need every screen in the Seller Hub to ask "as whom?", including the one
+ * that ships an order. A person who genuinely sells for two businesses opens
+ * a second account.
+ */
+export type SellerMember = Prisma.SellerMemberModel
+/**
+ * Model SellerInvitation
+ * An outstanding invitation to join a seller organisation.
+ * 
+ * Token stored as a SHA-256 hash, single-use, expiring - the same treatment a
+ * password reset gets, and for the same reason: an invitation grants standing
+ * inside a business that ships medical devices.
+ */
+export type SellerInvitation = Prisma.SellerInvitationModel
+/**
+ * Model SellerOnboardingProgress
+ * How far through onboarding a seller is, step by step.
+ * 
+ * One row per seller, with a JSON map of step -> state rather than a column
+ * per step. The steps a country requires are configurable - see
+ * `SellerOnboardingRequirement` - so a fixed column list would be wrong the
+ * first time a deployment turned one off.
+ * 
+ * `completedSteps` is derived, recomputed on every save, and stored anyway:
+ * the dashboard and the header progress indicator both read it on pages that
+ * have no other reason to load the whole application.
+ */
+export type SellerOnboardingProgress = Prisma.SellerOnboardingProgressModel
+/**
+ * Model SellerOnboardingRequirement
+ * Which onboarding steps and documents a country demands.
+ * 
+ * This table is the whole reason the brief says "do not hard-code GSTIN or
+ * PAN for every seller". A deployment in Germany needs a VAT number and an
+ * EORI; one in India needs a GSTIN; one selling class IIb devices in the EU
+ * needs a notified-body certificate and the others do not. Seeded with
+ * defaults and edited by the operator.
+ * 
+ * `countryCode` NULL means "applies everywhere" - and because MariaDB treats
+ * every NULL in a UNIQUE index as distinct, the unique key uses `countryKey`,
+ * which is the country code or '*', never null.
+ */
+export type SellerOnboardingRequirement = Prisma.SellerOnboardingRequirementModel
+/**
+ * Model SellerBusinessProfile
+ * The business behind a seller account: who it is, where it is registered,
+ * what it is registered as.
+ * 
+ * Split from `SellerAccount` rather than widening it because these are the
+ * fields an administrator reviews and a seller changes rarely, while the
+ * parent row carries state that changes constantly. It also keeps the
+ * identifiers - tax numbers, registration numbers - in one table that can be
+ * treated as sensitive in its own right.
+ */
+export type SellerBusinessProfile = Prisma.SellerBusinessProfileModel
+/**
+ * Model SellerVerificationCase
+ * One verification attempt against one seller.
+ * 
+ * Rows accumulate rather than being overwritten: a seller whose tax check
+ * failed twice before passing is a different risk from one that passed first
+ * time, and an operator reviewing an application needs to see both.
+ * `isCurrent` marks the latest per kind so the common read is one indexed row.
+ */
+export type SellerVerificationCase = Prisma.SellerVerificationCaseModel
+/**
+ * Model SellerDocument
+ * A file a seller uploaded as evidence.
+ * 
+ * The bytes are NOT here. `storageKey` names an object in the configured
+ * store, read back through a short-lived signed URL issued per request by
+ * somebody who has passed the ownership check. A document proving a
+ * director's identity must not be reachable by guessing a URL, and a
+ * permanent link is a guessable URL that never expires.
+ */
+export type SellerDocument = Prisma.SellerDocumentModel
+/**
+ * Model SellerAgreementAcceptance
+ * A seller accepting one agreement, once, at a version.
+ * 
+ * Immutable. A new acceptance is a new row, because "which version of the
+ * commission schedule was this seller on in March" is a question that gets
+ * asked when money is disputed.
+ */
+export type SellerAgreementAcceptance = Prisma.SellerAgreementAcceptanceModel
+/**
+ * Model SellerPayoutAccountReference
+ * The marketplace's pointer to a payout account held somewhere else.
+ * 
+ * READ THE COLUMN LIST: there is no account number, no sort code, no IBAN and
+ * no cardholder name anywhere in it, and that is deliberate. A marketplace
+ * does not need to hold bank details to pay a seller - it needs a connected
+ * account identifier at a provider that does. Storing the details here would
+ * put this deployment inside the scope of rules it has no reason to be in,
+ * to no benefit.
+ * 
+ * `last4` and `bankName` are the exceptions, and only because a seller
+ * looking at their own payout settings has to be able to tell which account
+ * it is. Both come back from the provider; neither is enough to move money.
+ */
+export type SellerPayoutAccountReference = Prisma.SellerPayoutAccountReferenceModel
+/**
+ * Model SellerLocation
+ * What a seller location is for. A place can be more than one, which is why
+ * these are booleans on the row rather than a kind enum.
+ */
+export type SellerLocation = Prisma.SellerLocationModel
+/**
+ * Model Brand
+ * A manufacturer or brand name, marketplace-wide.
+ */
+export type Brand = Prisma.BrandModel
+/**
+ * Model BrandRequest
+ * A seller asking for a brand they cannot find.
+ * 
+ * Kept apart from `Brand` because the two answer different questions. The
+ * brand row is "does this name exist in the catalogue"; the request is "did
+ * THIS seller ask for it, when, with what evidence, and what did we say". A
+ * brand approved for one seller's request is then available to every seller,
+ * which is correct - a brand is not owned by whoever asked first.
+ */
+export type BrandRequest = Prisma.BrandRequestModel
+/**
+ * Model CategoryAttributeDefinition
+ * One field the listing wizard renders, for one category.
+ * 
+ * Scoped to a category, and inherited down the category tree by the service
+ * rather than duplicated per leaf: a definition on "Infusion" applies to
+ * "Infusion > Pumps" unless a definition with the same key overrides it.
+ * Duplicating them would mean adding a field to a top-level category meant
+ * editing forty rows.
+ */
+export type CategoryAttributeDefinition = Prisma.CategoryAttributeDefinitionModel
+/**
+ * Model SellerListingDraft
+ * A seller's working copy of a listing.
+ * 
+ * The bulk of it is `attributesJson` rather than a column per field, and that
+ * is forced by the same thing that makes `CategoryAttributeDefinition` exist:
+ * the fields are configuration. What is NOT in the JSON is anything the
+ * database has to index, constrain or join on - category, brand, status, the
+ * seller's SKU - because those are queries, not content.
+ */
+export type SellerListingDraft = Prisma.SellerListingDraftModel
+/**
+ * Model SellerListingDraftMedia
+ * A file attached to a draft listing.
+ * 
+ * Uploaded straight to object storage with a presigned URL: the bytes never
+ * pass through this API, which is what keeps a 12 MB photograph from
+ * occupying a request worker. The row is written when the seller asks for the
+ * presigned URL and confirmed when the upload finishes, so an abandoned
+ * upload leaves a row marked incomplete rather than a file nobody can find.
+ */
+export type SellerListingDraftMedia = Prisma.SellerListingDraftMediaModel
+/**
+ * Model SellerListingIssue
+ * One thing wrong with a listing, tied to the field it is wrong in.
+ * 
+ * The tie to a field is the entire value of this table. "Your listing failed
+ * validation" is not a message anybody can act on; "Pack quantity must divide
+ * into units per box - Price, Stock and Shipping - Units per box" is, and it
+ * is what lets the wizard put the error beside the input and the submit
+ * button explain itself.
+ */
+export type SellerListingIssue = Prisma.SellerListingIssueModel
+/**
+ * Model SellerOffer
+ * One seller's terms for one catalogue product.
+ * 
+ * The `variantKey` trick is the one from the top of this file, and it is here
+ * for exactly the reason described there: a nullable `variantId` inside the
+ * unique key would let MariaDB accept two base-product offers from one seller,
+ * because it treats every NULL as distinct. `variantKey` is the variant ULID
+ * or '', never null, so the uniqueness actually holds.
+ */
+export type SellerOffer = Prisma.SellerOfferModel
+/**
+ * Model SellerPriceTier
+ * "Cheaper if you take more."
+ * 
+ * A band, not a step: `minQuantity` starts a band that runs until the next
+ * one begins. Overlapping bands are refused in the service, because a
+ * quantity matching two prices has no answer a buyer would accept.
+ */
+export type SellerPriceTier = Prisma.SellerPriceTierModel
+/**
+ * Model SellerInventory
+ * Stock of one offer at one of the seller's locations.
+ * 
+ * Separate from the operator's `InventoryBalance` rather than sharing it: the
+ * two are different ledgers with different owners, and a seller adjusting
+ * their own stock must never write a row the operator's warehouse team reads
+ * as theirs. The discipline is the same - movements are the truth, the
+ * balance is a running total, and both move inside one transaction.
+ */
+export type SellerInventory = Prisma.SellerInventoryModel
+/**
+ * Model SellerInventoryMovement
+ * Every change to seller stock, ever.
+ * 
+ * Append-only. The balance is derived from these and cached on
+ * `SellerInventory`; when the two disagree the movements win, which is only
+ * true if nothing ever edits a movement.
+ */
+export type SellerInventoryMovement = Prisma.SellerInventoryMovementModel
+/**
+ * Model SellerBulkImportJob
+ * A spreadsheet of listings, being processed.
+ * 
+ * The dry run is not optional decoration: a seller uploading 900 rows needs
+ * to be told which 12 are wrong BEFORE anything is created, because the
+ * alternative is 888 live listings and a cleanup job. `isDryRun` distinguishes
+ * the two passes over the same file.
+ */
+export type SellerBulkImportJob = Prisma.SellerBulkImportJobModel
+/**
+ * Model SellerBulkImportRowError
+ * One row of one upload that could not be accepted.
+ */
+export type SellerBulkImportRowError = Prisma.SellerBulkImportRowErrorModel
+/**
+ * Model SellerOrderGroup
+ * One seller's part of one buyer order.
+ */
+export type SellerOrderGroup = Prisma.SellerOrderGroupModel
+/**
+ * Model SellerOrderLine
+ * One line of a buyer order, attributed to one seller's offer.
+ * 
+ * A join row rather than a duplicate of `OrderItem`: quantity and price live
+ * on the order item, which is the record the buyer was charged against.
+ * What this adds is which offer fulfilled it and what the seller earns from
+ * it, both of which the buyer's line has no business knowing.
+ */
+export type SellerOrderLine = Prisma.SellerOrderLineModel
+/**
+ * Model SellerShipment
+ * A parcel a seller sent.
+ * 
+ * Separate from the operator's `Shipment` for the same reason seller stock is
+ * separate from operator stock: different owner, different ledger. The
+ * tracking number a seller types must not appear on an operator's dispatch
+ * screen as though the warehouse sent it.
+ */
+export type SellerShipment = Prisma.SellerShipmentModel
+/**
+ * Model SellerReturn
+ * A buyer sending something back to a seller.
+ * 
+ * Reuses `ReturnStatus`. What it adds over the operator's `ReturnRequest` is
+ * the seller's own response and the platform's decision when the two disagree,
+ * because a marketplace return is a three-party conversation and a two-party
+ * model loses the arbitration.
+ */
+export type SellerReturn = Prisma.SellerReturnModel
+/**
+ * Model SellerSettlement
+ * What a seller earned over one period.
+ */
+export type SellerSettlement = Prisma.SellerSettlementModel
+/**
+ * Model SellerSettlementLine
+ * One entry on a statement.
+ */
+export type SellerSettlementLine = Prisma.SellerSettlementLineModel
+/**
+ * Model SellerPayout
+ * One transfer to a seller.
+ */
+export type SellerPayout = Prisma.SellerPayoutModel
+/**
+ * Model SellerNotification
+ * An in-app notification for a seller organisation.
+ * 
+ * Addressed to the ORGANISATION, with an optional member, because most of
+ * these concern the business rather than a person: a low-stock warning is for
+ * whoever is looking. Read state is per member, in `readByJson`, rather than
+ * one row per member - a seller with twelve staff would otherwise get twelve
+ * rows per event.
+ */
+export type SellerNotification = Prisma.SellerNotificationModel
+/**
+ * Model SellerAuditLog
+ * Everything that happened to one seller account, and who did it.
+ * 
+ * Separate from the operator's `AuditLog` because a seller can read this one.
+ * An operator's audit trail contains internal notes, other sellers' ids and
+ * staff names, none of which belong on a seller's own screen; giving the
+ * seller a filtered view of it is the kind of filter that fails open once.
+ */
+export type SellerAuditLog = Prisma.SellerAuditLogModel

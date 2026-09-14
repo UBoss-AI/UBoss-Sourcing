@@ -689,6 +689,7 @@ export function ProductPage(): React.JSX.Element {
     });
   }, [product, chosen, quantity, piecesPerCarton]);
 
+
   const addToCart = useMutation({
     // The bulk route even for a single line. It takes the same shape either
     // way, and one code path is one thing that can be wrong — a second,

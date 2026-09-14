@@ -127,12 +127,127 @@ export function sniffImageType(buffer: Buffer): SniffedType {
   return { mimeType: match.mimeType, extension: match.extension };
 }
 
+/**
+ * Video signatures.
+ *
+ * Kept apart from `MAGIC_SIGNATURES` rather than folded into it, because
+ * everywhere that sniffs an IMAGE must keep rejecting a video: a product
+ * gallery that accepted an MP4 into an `<img>` slot would render a broken
+ * image, and the operator's own catalogue upload has no business taking one.
+ *
+ * The three containers a phone or a camera actually produces. Deliberately no
+ * AVI, no WMV, no MKV - each one is another decoder for a browser to refuse,
+ * and a seller whose upload is accepted and then will not play is worse off
+ * than one who is told to export an MP4.
+ */
+const VIDEO_SIGNATURES: readonly {
+  mimeType: string;
+  extension: string;
+  matches: (buffer: Buffer) => boolean;
+}[] = [
+  {
+    mimeType: 'video/mp4',
+    extension: 'mp4',
+    // ISO base media: a size field, then 'ftyp', then a brand. The brand is
+    // not checked - 'isom', 'mp42', 'M4V ' and a dozen others are all MP4 as
+    // far as a browser is concerned.
+    matches: (b) => b.length > 12 && b.subarray(4, 8).toString('ascii') === 'ftyp',
+  },
+  {
+    mimeType: 'video/webm',
+    extension: 'webm',
+    // EBML header, shared with Matroska. WebM is the subset browsers play.
+    matches: (b) =>
+      b.length > 4 && b[0] === 0x1a && b[1] === 0x45 && b[2] === 0xdf && b[3] === 0xa3,
+  },
+  {
+    mimeType: 'video/quicktime',
+    extension: 'mov',
+    // Also ISO base media, distinguished by the 'qt  ' brand that follows
+    // 'ftyp'. Checked after MP4 above would never match, so the brand is what
+    // separates them and it is checked here rather than there.
+    matches: (b) =>
+      b.length > 12 &&
+      b.subarray(4, 8).toString('ascii') === 'ftyp' &&
+      b.subarray(8, 12).toString('ascii') === 'qt  ',
+  },
+];
+
+export type MediaKind = 'IMAGE' | 'VIDEO';
+
+export interface SniffedMedia extends SniffedType {
+  kind: MediaKind;
+}
+
+/**
+ * Identify an upload that may be either a picture or a video.
+ *
+ * QuickTime is tested before MP4: both start with `ftyp` and the MP4 rule
+ * would swallow a `.mov` first, which would then be served as `video/mp4`.
+ * Some browsers cope and some do not, and "some do not" is the whole problem.
+ */
+export function sniffMediaType(buffer: Buffer): SniffedMedia {
+  const video = VIDEO_SIGNATURES.slice()
+    .sort((a, b) => (a.extension === 'mov' ? -1 : b.extension === 'mov' ? 1 : 0))
+    .find((signature) => signature.matches(buffer));
+
+  if (video !== undefined) {
+    return { mimeType: video.mimeType, extension: video.extension, kind: 'VIDEO' };
+  }
+
+  const image = MAGIC_SIGNATURES.find((signature) => signature.matches(buffer));
+
+  if (image === undefined) {
+    throw badRequest(
+      ErrorCode.MEDIA_TYPE_NOT_ALLOWED,
+      'Upload a JPEG, PNG, WebP or GIF image, or an MP4, WebM or MOV video.',
+      [{ field: 'file', code: 'UNSUPPORTED_MEDIA_TYPE' }],
+    );
+  }
+
+  return { mimeType: image.mimeType, extension: image.extension, kind: 'IMAGE' };
+}
+
 export function assertWithinSizeLimit(sizeBytes: number): void {
   if (sizeBytes > env.UPLOAD_MAX_BYTES) {
     const limitMb = (env.UPLOAD_MAX_BYTES / 1_048_576).toFixed(1);
     throw badRequest(ErrorCode.MEDIA_TOO_LARGE, `Images must be ${limitMb} MB or smaller.`, [
       { field: 'file', code: 'FILE_TOO_LARGE', meta: { maxBytes: env.UPLOAD_MAX_BYTES } },
     ]);
+  }
+
+  if (sizeBytes === 0) {
+    throw badRequest(ErrorCode.IMPORT_FILE_INVALID, 'The uploaded file is empty.');
+  }
+}
+
+/**
+ * The ceiling for a video, which is not the ceiling for a photograph.
+ *
+ * `UPLOAD_MAX_BYTES` defaults to 5 MB, which is generous for a product
+ * photograph and useless for thirty seconds of 1080p. So a video gets its own
+ * limit - `UPLOAD_VIDEO_MAX_BYTES`, defaulting to 64 MB - and the two are
+ * separate settings because an operator who wants bigger photographs and an
+ * operator who wants longer videos are answering different questions.
+ *
+ * A single shared limit would mean raising the photograph ceiling to 64 MB in
+ * order to accept one video, and the photograph ceiling is what stands between
+ * the catalogue and somebody uploading a RAW file per product.
+ */
+export function assertWithinMediaSizeLimit(sizeBytes: number, kind: MediaKind): void {
+  if (kind === 'IMAGE') {
+    assertWithinSizeLimit(sizeBytes);
+    return;
+  }
+
+  const limit = env.UPLOAD_VIDEO_MAX_BYTES;
+
+  if (sizeBytes > limit) {
+    throw badRequest(
+      ErrorCode.MEDIA_TOO_LARGE,
+      `Videos must be ${(limit / 1_048_576).toFixed(0)} MB or smaller. Trim it, or export at a lower resolution.`,
+      [{ field: 'file', code: 'FILE_TOO_LARGE', meta: { maxBytes: limit } }],
+    );
   }
 
   if (sizeBytes === 0) {

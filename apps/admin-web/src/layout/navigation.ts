@@ -11,6 +11,7 @@
  */
 import {
   AuditIcon,
+  BrandRequestIcon,
   CategoriesIcon,
   ChatIcon,
   CouponsIcon,
@@ -20,11 +21,13 @@ import {
   ManufacturerIcon,
   IntegrationsIcon,
   InventoryIcon,
+  ListingReviewIcon,
   OrdersIcon,
   PaymentsIcon,
   ProductsIcon,
   RecurringIcon,
   ReportsIcon,
+  SellerIcon,
   SettingsIcon,
   StaffIcon,
   WarehouseIcon,
@@ -115,6 +118,27 @@ export const NAVIGATION: NavGroup[] = [
         permissions: [Permission.PRODUCT_READ],
         matchPrefix: true,
       },
+      {
+        // In Catalogue, not beside Sellers. What arrives in this queue is a
+        // product somebody is offering the marketplace, and approving one puts
+        // it on the shelf — it is the same work as publishing, done for
+        // somebody else's goods.
+        labelKey: 'nav.listingReview',
+        to: '/listing-review',
+        icon: ListingReviewIcon,
+        permissions: [Permission.PRODUCT_READ],
+        matchPrefix: true,
+      },
+      {
+        // Directly under it, because the two are worked together: a listing is
+        // often sent back for the brand, and a brand is often approved because
+        // of the listing waiting on it.
+        labelKey: 'nav.brandRequests',
+        to: '/brand-requests',
+        icon: BrandRequestIcon,
+        permissions: [Permission.PRODUCT_READ],
+        matchPrefix: true,
+      },
     ],
   },
   {
@@ -145,6 +169,16 @@ export const NAVIGATION: NavGroup[] = [
         labelKey: 'nav.customers',
         to: '/customers',
         icon: CustomersIcon,
+        permissions: [Permission.CUSTOMER_READ],
+        matchPrefix: true,
+      },
+      {
+        // Directly under Customers, because the two are the same kind of work:
+        // both are businesses with accounts here, and the person who reviews
+        // one usually reviews the other.
+        labelKey: 'nav.sellers',
+        to: '/sellers',
+        icon: SellerIcon,
         permissions: [Permission.CUSTOMER_READ],
         matchPrefix: true,
       },

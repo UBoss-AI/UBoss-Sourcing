@@ -80,9 +80,17 @@ const DISPOSITION: Readonly<Record<string, string | null>> = Object.freeze({
   // membership is a fact about an individual, so it is disclosed.
   BuyerOrganizationMember: 'organisationMembership',
 
+  // The same fact about the other side of the marketplace: where this person
+  // sells and what authority they hold there. The seller BUSINESS's rows -
+  // its listings, stock, orders and settlements - are keyed on
+  // `sellerAccountId` rather than on a person, so the parser never finds them,
+  // which is correct: they belong to the company.
+  SellerMember: 'sellerMembership',
+
   // --- Withheld, with the reason on the manifest the subject receives ---
   AuditLog: 'auditTrail',
   AuthToken: 'credentials',
+  SellerAuditLog: 'sellerAuditTrail',
 
   // --- Out of scope, and why ---
   UserRole:

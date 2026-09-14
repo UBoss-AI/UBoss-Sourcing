@@ -865,3 +865,321 @@ export const CustomerErpApprovalState = {
 } as const
 
 export type CustomerErpApprovalState = (typeof CustomerErpApprovalState)[keyof typeof CustomerErpApprovalState]
+
+
+export const SellerApplicationStatus = {
+  DRAFT: 'DRAFT',
+  SUBMITTED: 'SUBMITTED',
+  UNDER_REVIEW: 'UNDER_REVIEW',
+  ACTION_REQUIRED: 'ACTION_REQUIRED',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  SUSPENDED: 'SUSPENDED'
+} as const
+
+export type SellerApplicationStatus = (typeof SellerApplicationStatus)[keyof typeof SellerApplicationStatus]
+
+
+export const SellerKind = {
+  MANUFACTURER: 'MANUFACTURER',
+  AUTHORISED_DISTRIBUTOR: 'AUTHORISED_DISTRIBUTOR',
+  WHOLESALER: 'WHOLESALER',
+  RESELLER: 'RESELLER'
+} as const
+
+export type SellerKind = (typeof SellerKind)[keyof typeof SellerKind]
+
+
+export const SellerMemberRole = {
+  OWNER: 'OWNER',
+  ADMIN: 'ADMIN',
+  CATALOGUE_MANAGER: 'CATALOGUE_MANAGER',
+  INVENTORY_MANAGER: 'INVENTORY_MANAGER',
+  ORDER_MANAGER: 'ORDER_MANAGER',
+  FINANCE_VIEWER: 'FINANCE_VIEWER',
+  SUPPORT_MEMBER: 'SUPPORT_MEMBER'
+} as const
+
+export type SellerMemberRole = (typeof SellerMemberRole)[keyof typeof SellerMemberRole]
+
+
+export const SellerVerificationKind = {
+  BUSINESS_REGISTRATION: 'BUSINESS_REGISTRATION',
+  REPRESENTATIVE_IDENTITY: 'REPRESENTATIVE_IDENTITY',
+  TAX_REGISTRATION: 'TAX_REGISTRATION',
+  BANK_ACCOUNT: 'BANK_ACCOUNT',
+  MEDICAL_COMPLIANCE: 'MEDICAL_COMPLIANCE',
+  BRAND_AUTHORISATION: 'BRAND_AUTHORISATION'
+} as const
+
+export type SellerVerificationKind = (typeof SellerVerificationKind)[keyof typeof SellerVerificationKind]
+
+
+export const SellerVerificationState = {
+  NOT_STARTED: 'NOT_STARTED',
+  AWAITING_INPUT: 'AWAITING_INPUT',
+  IN_PROGRESS: 'IN_PROGRESS',
+  VERIFIED: 'VERIFIED',
+  FAILED: 'FAILED',
+  PROVIDER_UNCONFIGURED: 'PROVIDER_UNCONFIGURED',
+  EXPIRED: 'EXPIRED'
+} as const
+
+export type SellerVerificationState = (typeof SellerVerificationState)[keyof typeof SellerVerificationState]
+
+
+export const SellerDocumentKind = {
+  BUSINESS_REGISTRATION: 'BUSINESS_REGISTRATION',
+  TAX_CERTIFICATE: 'TAX_CERTIFICATE',
+  IDENTITY_PROOF: 'IDENTITY_PROOF',
+  ADDRESS_PROOF: 'ADDRESS_PROOF',
+  ISO_13485: 'ISO_13485',
+  CE_CERTIFICATE: 'CE_CERTIFICATE',
+  DECLARATION_OF_CONFORMITY: 'DECLARATION_OF_CONFORMITY',
+  NOTIFIED_BODY_CERTIFICATE: 'NOTIFIED_BODY_CERTIFICATE',
+  REGULATORY_LICENCE: 'REGULATORY_LICENCE',
+  BRAND_AUTHORISATION: 'BRAND_AUTHORISATION',
+  TRADEMARK_EVIDENCE: 'TRADEMARK_EVIDENCE',
+  INSTRUCTIONS_FOR_USE: 'INSTRUCTIONS_FOR_USE',
+  STERILISATION_EVIDENCE: 'STERILISATION_EVIDENCE',
+  BANK_STATEMENT: 'BANK_STATEMENT',
+  OTHER: 'OTHER'
+} as const
+
+export type SellerDocumentKind = (typeof SellerDocumentKind)[keyof typeof SellerDocumentKind]
+
+
+export const SellerDocumentScanState = {
+  PENDING_SCAN: 'PENDING_SCAN',
+  CLEAN: 'CLEAN',
+  INFECTED: 'INFECTED',
+  SCAN_FAILED: 'SCAN_FAILED',
+  SCANNER_UNCONFIGURED: 'SCANNER_UNCONFIGURED'
+} as const
+
+export type SellerDocumentScanState = (typeof SellerDocumentScanState)[keyof typeof SellerDocumentScanState]
+
+
+export const SellerAgreementKind = {
+  MARKETPLACE_AGREEMENT: 'MARKETPLACE_AGREEMENT',
+  COMMISSION_SCHEDULE: 'COMMISSION_SCHEDULE',
+  RETURNS_POLICY: 'RETURNS_POLICY',
+  PRIVACY_POLICY: 'PRIVACY_POLICY',
+  INTELLECTUAL_PROPERTY_DECLARATION: 'INTELLECTUAL_PROPERTY_DECLARATION'
+} as const
+
+export type SellerAgreementKind = (typeof SellerAgreementKind)[keyof typeof SellerAgreementKind]
+
+
+export const SellerConsentMethod = {
+  CLICKWRAP: 'CLICKWRAP',
+  DRAWN_CONSENT: 'DRAWN_CONSENT',
+  QUALIFIED_ESIGNATURE: 'QUALIFIED_ESIGNATURE'
+} as const
+
+export type SellerConsentMethod = (typeof SellerConsentMethod)[keyof typeof SellerConsentMethod]
+
+
+export const SellerPayoutAccountState = {
+  NOT_STARTED: 'NOT_STARTED',
+  REQUIREMENTS_DUE: 'REQUIREMENTS_DUE',
+  PENDING_VERIFICATION: 'PENDING_VERIFICATION',
+  ENABLED: 'ENABLED',
+  RESTRICTED: 'RESTRICTED',
+  PROVIDER_UNCONFIGURED: 'PROVIDER_UNCONFIGURED'
+} as const
+
+export type SellerPayoutAccountState = (typeof SellerPayoutAccountState)[keyof typeof SellerPayoutAccountState]
+
+
+export const BrandStatus = {
+  APPROVED: 'APPROVED',
+  PENDING: 'PENDING',
+  REJECTED: 'REJECTED',
+  RETIRED: 'RETIRED'
+} as const
+
+export type BrandStatus = (typeof BrandStatus)[keyof typeof BrandStatus]
+
+
+export const BrandRequestStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  INFORMATION_REQUESTED: 'INFORMATION_REQUESTED'
+} as const
+
+export type BrandRequestStatus = (typeof BrandRequestStatus)[keyof typeof BrandRequestStatus]
+
+
+export const ListingAttributeType = {
+  TEXT: 'TEXT',
+  LONG_TEXT: 'LONG_TEXT',
+  RICH_TEXT: 'RICH_TEXT',
+  NUMBER: 'NUMBER',
+  DECIMAL: 'DECIMAL',
+  MEASUREMENT: 'MEASUREMENT',
+  DROPDOWN: 'DROPDOWN',
+  MULTI_SELECT: 'MULTI_SELECT',
+  BOOLEAN: 'BOOLEAN',
+  DATE: 'DATE',
+  KEY_VALUE_LIST: 'KEY_VALUE_LIST',
+  DOCUMENT: 'DOCUMENT'
+} as const
+
+export type ListingAttributeType = (typeof ListingAttributeType)[keyof typeof ListingAttributeType]
+
+
+export const ListingSection = {
+  PRODUCT_PHOTOS: 'PRODUCT_PHOTOS',
+  PRICE_STOCK_SHIPPING: 'PRICE_STOCK_SHIPPING',
+  PRODUCT_DESCRIPTION: 'PRODUCT_DESCRIPTION',
+  ADDITIONAL_INFORMATION: 'ADDITIONAL_INFORMATION',
+  MEDICAL_COMPLIANCE: 'MEDICAL_COMPLIANCE'
+} as const
+
+export type ListingSection = (typeof ListingSection)[keyof typeof ListingSection]
+
+
+export const ListingDraftStatus = {
+  DRAFT: 'DRAFT',
+  VALIDATION_FAILED: 'VALIDATION_FAILED',
+  READY_FOR_SUBMISSION: 'READY_FOR_SUBMISSION',
+  PENDING_REVIEW: 'PENDING_REVIEW',
+  ACTION_REQUIRED: 'ACTION_REQUIRED',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type ListingDraftStatus = (typeof ListingDraftStatus)[keyof typeof ListingDraftStatus]
+
+
+export const ListingMediaSlot = {
+  FRONT_VIEW: 'FRONT_VIEW',
+  BACK_VIEW: 'BACK_VIEW',
+  SIDE_VIEW: 'SIDE_VIEW',
+  PACKAGING: 'PACKAGING',
+  PRODUCT_LABEL: 'PRODUCT_LABEL',
+  UDI_LABEL: 'UDI_LABEL',
+  DIMENSIONS_REFERENCE: 'DIMENSIONS_REFERENCE',
+  CONNECTOR_VIEW: 'CONNECTOR_VIEW',
+  STERILE_SEAL: 'STERILE_SEAL',
+  INSTRUCTIONS_VIEW: 'INSTRUCTIONS_VIEW',
+  OTHER: 'OTHER',
+  DOCUMENT: 'DOCUMENT',
+  VIDEO: 'VIDEO'
+} as const
+
+export type ListingMediaSlot = (typeof ListingMediaSlot)[keyof typeof ListingMediaSlot]
+
+
+export const SellerMediaKind = {
+  IMAGE: 'IMAGE',
+  VIDEO: 'VIDEO'
+} as const
+
+export type SellerMediaKind = (typeof SellerMediaKind)[keyof typeof SellerMediaKind]
+
+
+export const ListingIssueSeverity = {
+  BLOCKER: 'BLOCKER',
+  WARNING: 'WARNING',
+  ADVISORY: 'ADVISORY'
+} as const
+
+export type ListingIssueSeverity = (typeof ListingIssueSeverity)[keyof typeof ListingIssueSeverity]
+
+
+export const SellerOfferStatus = {
+  INACTIVE: 'INACTIVE',
+  ACTIVE: 'ACTIVE',
+  PAUSED: 'PAUSED',
+  NEEDS_CHANGES: 'NEEDS_CHANGES',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type SellerOfferStatus = (typeof SellerOfferStatus)[keyof typeof SellerOfferStatus]
+
+
+export const SellerInventoryMovementType = {
+  RECEIPT: 'RECEIPT',
+  ADJUSTMENT: 'ADJUSTMENT',
+  RESERVATION: 'RESERVATION',
+  RESERVATION_RELEASE: 'RESERVATION_RELEASE',
+  DISPATCH: 'DISPATCH',
+  RETURN: 'RETURN',
+  QUARANTINE: 'QUARANTINE',
+  QUARANTINE_RELEASE: 'QUARANTINE_RELEASE',
+  ERP_RECONCILIATION: 'ERP_RECONCILIATION'
+} as const
+
+export type SellerInventoryMovementType = (typeof SellerInventoryMovementType)[keyof typeof SellerInventoryMovementType]
+
+
+export const SellerOrderGroupStatus = {
+  NEW: 'NEW',
+  ACCEPTED: 'ACCEPTED',
+  PROCESSING: 'PROCESSING',
+  READY_FOR_DISPATCH: 'READY_FOR_DISPATCH',
+  SHIPPED: 'SHIPPED',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED',
+  RETURN_REQUESTED: 'RETURN_REQUESTED',
+  RETURNED: 'RETURNED',
+  REFUNDED: 'REFUNDED',
+  DISPUTED: 'DISPUTED'
+} as const
+
+export type SellerOrderGroupStatus = (typeof SellerOrderGroupStatus)[keyof typeof SellerOrderGroupStatus]
+
+
+export const SellerSettlementStatus = {
+  OPEN: 'OPEN',
+  PENDING_PAYOUT: 'PENDING_PAYOUT',
+  PAID: 'PAID',
+  ON_HOLD: 'ON_HOLD'
+} as const
+
+export type SellerSettlementStatus = (typeof SellerSettlementStatus)[keyof typeof SellerSettlementStatus]
+
+
+export const SellerSettlementLineKind = {
+  SALE: 'SALE',
+  COMMISSION: 'COMMISSION',
+  PROCESSING_FEE: 'PROCESSING_FEE',
+  REFUND: 'REFUND',
+  RETURN_DEDUCTION: 'RETURN_DEDUCTION',
+  SHIPPING_CHARGE: 'SHIPPING_CHARGE',
+  MANUAL_ADJUSTMENT: 'MANUAL_ADJUSTMENT'
+} as const
+
+export type SellerSettlementLineKind = (typeof SellerSettlementLineKind)[keyof typeof SellerSettlementLineKind]
+
+
+export const SellerPayoutStatus = {
+  PENDING: 'PENDING',
+  IN_TRANSIT: 'IN_TRANSIT',
+  PAID: 'PAID',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type SellerPayoutStatus = (typeof SellerPayoutStatus)[keyof typeof SellerPayoutStatus]
+
+
+export const SellerNotificationKind = {
+  APPLICATION_STATUS: 'APPLICATION_STATUS',
+  LISTING_DECISION: 'LISTING_DECISION',
+  NEW_ORDER: 'NEW_ORDER',
+  DISPATCH_SLA_WARNING: 'DISPATCH_SLA_WARNING',
+  LOW_STOCK: 'LOW_STOCK',
+  ERP_SYNC_FAILURE: 'ERP_SYNC_FAILURE',
+  DOCUMENT_EXPIRING: 'DOCUMENT_EXPIRING',
+  PAYOUT_RESULT: 'PAYOUT_RESULT',
+  RETURN_OR_DISPUTE: 'RETURN_OR_DISPUTE',
+  SECURITY_EVENT: 'SECURITY_EVENT',
+  BRAND_REQUEST_DECISION: 'BRAND_REQUEST_DECISION'
+} as const
+
+export type SellerNotificationKind = (typeof SellerNotificationKind)[keyof typeof SellerNotificationKind]

@@ -149,6 +149,65 @@ export const router = createBrowserRouter([
           Permission.CUSTOMER_READ,
         ]),
       },
+      /*
+       * The marketplace's sellers.
+       *
+       * Guarded by CUSTOMER_READ and CUSTOMER_STATUS_WRITE rather than new
+       * keys of their own: reviewing a business that wants to sell here is the
+       * same kind of authority as activating or suspending an account, and the
+       * role matrix an operator has already configured stays meaningful.
+       */
+      {
+        path: 'sellers',
+        ...lazyRoute(() => import('@/pages/SellersPage').then((m) => m.SellersPage), [
+          Permission.CUSTOMER_READ,
+        ]),
+      },
+      {
+        path: 'sellers/:id',
+        ...lazyRoute(() => import('@/pages/SellerDetailPage').then((m) => m.SellerDetailPage), [
+          Permission.CUSTOMER_READ,
+        ]),
+      },
+      /*
+       * Brand requests.
+       *
+       * Catalogue work rather than seller work, and guarded as such: reading
+       * the queue is PRODUCT_READ, and deciding one is PRODUCT_PUBLISH —
+       * approving a name is what lets a product be sold under it, the same
+       * authority as publishing the operator's own. Deliberately not
+       * PRODUCT_WRITE, which a catalogue assistant may hold.
+       */
+      /*
+       * Quality review of what sellers submit.
+       *
+       * Reading is PRODUCT_READ; the decision route behind it is
+       * PRODUCT_PUBLISH, because approving a seller's listing is what puts it
+       * on sale — the same authority as publishing the operator's own product.
+       * The detail page is guarded at the same level as the queue: somebody who
+       * may triage may also read what they are triaging.
+       */
+      {
+        path: 'listing-review',
+        ...lazyRoute(
+          () => import('@/pages/ListingReviewQueuePage').then((m) => m.ListingReviewQueuePage),
+          [Permission.PRODUCT_READ],
+        ),
+      },
+      {
+        path: 'listing-review/:id',
+        ...lazyRoute(
+          () => import('@/pages/ListingReviewPage').then((m) => m.ListingReviewPage),
+          [Permission.PRODUCT_READ],
+        ),
+      },
+      {
+        path: 'brand-requests',
+        ...lazyRoute(
+          () => import('@/pages/BrandRequestsPage').then((m) => m.BrandRequestsPage),
+          [Permission.PRODUCT_READ],
+        ),
+      },
       {
         path: 'chat-enquiries',
         ...lazyRoute(() => import('@/pages/ChatEnquiriesPage').then((m) => m.ChatEnquiriesPage), [

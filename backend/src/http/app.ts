@@ -68,6 +68,15 @@ import { registerPublicCatalogRoutes } from './routes/catalog.public.js';
 import { registerPublicDeliveryRoutes } from './routes/delivery.public.js';
 import { registerCustomerFulfilmentRoutes } from './routes/fulfilment.customer.js';
 import { registerHealthRoutes } from './routes/health.js';
+import {
+  registerSellerAccountRoutes,
+  registerSellerEntryRoutes,
+} from './routes/seller.account.js';
+import { registerSellerListingRoutes } from './routes/seller.listings.js';
+import { registerSellerOperationsRoutes } from './routes/seller.operations.js';
+import { registerAdminSellerRoutes } from './routes/sellers.admin.js';
+import { resolveHost } from '../modules/seller/storefront.service.js';
+import type { SellerStorefront } from '../modules/seller/storefront.service.js';
 
 export const CORRELATION_HEADER = 'x-correlation-id';
 
@@ -104,6 +113,15 @@ declare module 'fastify' {
     correlationId: string;
     /** Populated only for webhook routes. */
     rawBody?: Buffer;
+    /**
+     * The seller whose shop front this request came to, or null for the
+     * operator's own.
+     *
+     * Set once per request from the HOST header, before any route runs — never
+     * from a parameter, a query string or a cookie, because a shopper can set
+     * all of those and this decides whose prices they are charged.
+     */
+    storefront: SellerStorefront | null;
   }
 }
 
@@ -140,6 +158,43 @@ export async function buildApp() {
     request.correlationId = String(request.id);
     reply.header(CORRELATION_HEADER, request.correlationId);
     done();
+  });
+
+  /*
+   * --- 1a. Which shop this request is for --------------------------------
+   *
+   * Resolved once, from the HOST and nothing else, before any route runs. Every
+   * public read that prices something asks `request.storefront` rather than
+   * working it out for itself, because two places deciding whose shop this is
+   * would eventually disagree — and the disagreement would be a shopper shown
+   * one seller's price and charged another's.
+   *
+   * A subdomain under the configured domain that matches no approved seller is
+   * refused here rather than falling through to the operator's catalogue. That
+   * fall-through is the dangerous one: a mistyped or stale link would quietly
+   * serve the operator's stock at the operator's prices under somebody else's
+   * name.
+   *
+   * With `SELLER_STOREFRONT_DOMAIN` unset — the default, and every existing
+   * deployment — this resolves to OPERATOR for everything and costs one string
+   * comparison.
+   */
+  app.addHook('onRequest', async (request, reply) => {
+    const resolution = await resolveHost(request.headers.host);
+
+    if (resolution.kind === 'UNKNOWN') {
+      await reply.status(404).send({
+        error: {
+          code: ErrorCode.NOT_FOUND,
+          message: 'There is no shop at this address.',
+          details: [],
+          correlationId: request.correlationId,
+        },
+      });
+      return;
+    }
+
+    request.storefront = resolution.kind === 'SELLER' ? resolution.seller : null;
   });
 
   // --- 1b. Request metrics -------------------------------------------------
@@ -489,6 +544,29 @@ export async function buildApp() {
   await app.register(registerAdminPrivacyRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminVatRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminGpsrRoutes, { prefix: `${API_PREFIX}/admin` });
+
+  /*
+   * The Seller Hub.
+   *
+   * Two prefixes rather than one, because they need different guards and a
+   * Fastify guard attaches per plugin scope. `/sellers` answers BEFORE a seller
+   * organisation exists - it is where one is created, and where the storefront
+   * header asks "does this account sell here?" - while everything under
+   * `/seller` requires one and resolves it from the SESSION.
+   *
+   * There is no seller id in any path. That is not an oversight to be tidied
+   * later: it is what makes cross-tenant access impossible to express rather
+   * than merely checked for.
+   */
+  await app.register(registerSellerEntryRoutes, { prefix: `${API_PREFIX}/sellers` });
+  await app.register(registerSellerAccountRoutes, { prefix: `${API_PREFIX}/seller` });
+  await app.register(registerSellerListingRoutes, { prefix: `${API_PREFIX}/seller` });
+  await app.register(registerSellerOperationsRoutes, { prefix: `${API_PREFIX}/seller` });
+
+  // The operator's side of the marketplace: applications, listing moderation
+  // and brand requests. Guarded by the ADMIN permission catalogue, never the
+  // seller one - see `domain/seller-permissions.ts`.
+  await app.register(registerAdminSellerRoutes, { prefix: `${API_PREFIX}/admin` });
 
   // Outside the admin tree: the hashed expiring token is the authorisation, so
   // a download link works from an email client without a session.

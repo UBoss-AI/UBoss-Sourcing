@@ -384,7 +384,144 @@ export const router = createBrowserRouter([
         ],
       },
 
+      /*
+       * The public front door to the marketplace programme.
+       *
+       * Inside `StoreLayout` and public, on the same reasoning as the
+       * catalogue: somebody deciding whether to bring their catalogue here
+       * should be able to read what is involved before opening an account.
+       * The Seller Hub itself is a sibling of this layout, below.
+       */
+      {
+        path: 'sell',
+        ...publicRoute(() => import('@/pages/seller/SellPage').then((m) => m.SellPage)),
+      },
+
       { path: '*', element: <NotFoundPage /> },
+    ],
+  },
+
+  /*
+   * The Seller Hub.
+   *
+   * A SIBLING of `StoreLayout`, not a child of it, and that is the whole point
+   * of where it sits: a seller packing forty orders is not shopping, and the
+   * storefront's header, market switcher, cart and footer are a hundred pixels
+   * of chrome around a workspace they spend the day in. `SellerLayout` draws
+   * its own frame.
+   *
+   * `RequireCustomer` on the layout rather than on each child: a seller is a
+   * customer account with a seller organisation attached, so the existing
+   * session guard is the right one, and `SellerLayout` then resolves the
+   * organisation and redirects somebody who has none to `/sell`.
+   */
+  {
+    path: '/seller',
+    lazy: async () => {
+      const { SellerLayout } = await import('@/pages/seller/SellerLayout');
+      return {
+        element: (
+          <RequireCustomer>
+            <Suspense fallback={<RouteFallback />}>
+              <SellerLayout />
+            </Suspense>
+          </RequireCustomer>
+        ),
+      };
+    },
+    children: [
+      { index: true, element: <Navigate to="/seller/dashboard" replace /> },
+      {
+        path: 'dashboard',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerDashboardPage').then((m) => m.SellerDashboardPage),
+        ),
+      },
+      {
+        path: 'onboarding',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerOnboardingPage').then((m) => m.SellerOnboardingPage),
+        ),
+      },
+      /*
+       * `listings/new` before `listings/:id`, and with different prefixes in
+       * mind: "new" is a word an offer id can never be - ids are 26-character
+       * ULIDs - but declaring it first means React Router never has to decide.
+       */
+      {
+        path: 'listings/new',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerListingWizardPage').then((m) => m.SellerListingWizardPage),
+        ),
+      },
+      {
+        path: 'listings',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerListingsPage').then((m) => m.SellerListingsPage),
+        ),
+      },
+      {
+        path: 'listings/:id',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerListingsPage').then((m) => m.SellerListingsPage),
+        ),
+      },
+      /*
+       * The names this seller has asked to list under.
+       *
+       * Its own route rather than a panel inside Listings: a seller opens it
+       * because a listing will not go on sale, which is a different errand from
+       * managing listings, and a queue of requests nobody can find is a queue
+       * that generates support tickets instead of answers.
+       */
+      {
+        path: 'brands',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerBrandsPage').then((m) => m.SellerBrandsPage),
+        ),
+      },
+      {
+        path: 'inventory',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerInventoryPage').then((m) => m.SellerInventoryPage),
+        ),
+      },
+      {
+        path: 'orders',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerOrdersPage').then((m) => m.SellerOrdersPage),
+        ),
+      },
+      {
+        path: 'orders/:id',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerOrderDetailPage').then((m) => m.SellerOrderDetailPage),
+        ),
+      },
+      {
+        path: 'payments',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerPaymentsPage').then((m) => m.SellerPaymentsPage),
+        ),
+      },
+      {
+        path: 'notifications',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerNotificationsPage').then((m) => m.SellerNotificationsPage),
+        ),
+      },
+      {
+        path: 'activity',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerActivityPage').then((m) => m.SellerActivityPage),
+        ),
+      },
+      {
+        path: 'profile',
+        ...accountPage(() =>
+          import('@/pages/seller/SellerProfilePage').then((m) => m.SellerProfilePage),
+        ),
+      },
     ],
   },
 ]);

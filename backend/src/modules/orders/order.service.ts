@@ -56,6 +56,7 @@ import {
   AdminNotificationKind,
   createAdminNotification,
 } from '../notifications/admin-notification.service.js';
+import { splitOrderToSellers } from '../seller/order-split.service.js';
 import {
   NotificationEvent,
   dispatchPendingNotifications,
@@ -428,6 +429,11 @@ export async function submitCheckout(input: CheckoutInput): Promise<CheckoutResu
         orderId,
         productId: line.productId,
         variantId: line.variantId,
+        // Whose offer was bought. Carried from the basket line by the same
+        // positional join as the ordering unit below, and the only thing that
+        // later tells `splitOrderToSellers` this line is somebody's work and
+        // somebody's money rather than the operator's own stock.
+        sellerOfferId: resolved.lines[index]?.sellerOfferId ?? null,
         nameSnapshot: line.nameSnapshot,
         skuSnapshot: line.skuSnapshot,
         variantNameSnapshot: line.variantNameSnapshot,
@@ -662,6 +668,21 @@ export async function transitionOrder(input: TransitionInput): Promise<{ status:
       data['confirmedAt'] = now;
       // Commit is idempotent: a duplicate confirmation finds nothing ACTIVE.
       await commitReservations(input.orderId, tx);
+
+      /*
+       * Each seller's share of the order, inside the same transaction.
+       *
+       * On confirmation rather than placement: an order nobody has paid for is
+       * not work a seller should start, and this is what puts it on their
+       * screen. Sharing the transaction is what stops an order being confirmed
+       * with its sellers unaware of it — and the split is itself idempotent, so
+       * a payment provider resending this webhook does not produce a second set
+       * of groups.
+       *
+       * An order made only of the operator's own stock splits into nothing,
+       * which is the correct answer and the common one.
+       */
+      await splitOrderToSellers(input.orderId, tx);
     }
 
     if (input.to === 'CANCELLED') {

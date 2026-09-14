@@ -17,6 +17,7 @@ have to read separately — this *is* the explanation.
 2. [The three programs](#2-the-three-programs)
 3. [How they talk to each other](#3-how-they-talk-to-each-other)
 4. [The customer storefront](#4-the-customer-storefront)
+4a. [The Seller Hub](#4a-the-seller-hub)
 5. [The admin panel](#5-the-admin-panel)
 6. [The backend](#6-the-backend)
 7. [The database](#7-the-database)
@@ -1996,6 +1997,725 @@ name, their currencies and their features appear.
 
 ---
 
+# 4a. The Seller Hub
+
+Until now there was one supplier: whoever runs the deployment. The Seller Hub
+turns the same storefront into a **marketplace** — other businesses apply, are
+checked, and list their own products alongside the operator's.
+
+It is a general marketplace. A seller here lists fasteners, cables, packaging,
+safety equipment or medical devices, and the questions they are asked change
+with the category rather than with the marketplace. That is not decoration: it
+is the difference between a product one company can use and a product any
+company can buy.
+
+## The one decision everything else follows from
+
+**A seller is a tenant, not a flag on a user.**
+
+`SellerAccount` is the business. `SellerMember` puts a person in it with a
+role. Every row a seller owns — every listing, offer, stock record, order
+group, settlement and document — carries a `sellerAccountId`.
+
+And the only way a request obtains that id is from the SESSION. There is no
+`?sellerAccountId=` in any route, no handler reads an owner out of a request
+body, and no service accepts a seller id from its caller without having been
+handed a membership first. That is what makes "one seller cannot read another
+seller's orders" a property of the shape of the code rather than a line in a
+review checklist.
+
+It is the same discipline the buyer-ERP feature already follows with
+`BuyerOrganization`, and it is deliberately recognisable from it.
+
+## The second decision: a product is not an offer
+
+A catalogue **product** is what the thing *is* — its name, its category, its
+specifications, its photographs. A seller **offer** is what one seller will
+sell it for — their price, their minimum order, their stock, their warehouses.
+
+Ten sellers offering the same infusion pump produce **one** product row and
+**ten** offer rows. Putting the price on the product would make "the same
+product" mean "the same price", which is the one thing a marketplace cannot
+say.
+
+This is why `Product` gained two columns and nothing else.
+`isMarketplaceProduct` says the price and stock come from the offers rather
+than from the product row, and `createdBySellerAccountId` records who first
+described it. Both default to the behaviour every product already had, so
+nothing that existed before behaves differently.
+
+## Becoming a seller
+
+`Become a seller` sits in the storefront header — in the top bar itself, not
+inside the account menu. Somebody who has never sold here has no reason to open
+a menu with their own name on it, and a supplier arriving to see whether they
+could list here should find the answer without hunting.
+
+The button says four different things because the next action is genuinely
+different in each case: *Become a seller* for a buyer, *Continue setup · 40%*
+for an unfinished application, *Application needs changes* in amber for one
+sent back, and *Seller Hub* for an approved seller.
+
+**Selling uses the same login as buying.** A buyer who applies becomes a seller
+under the account they already have. Nobody is asked to keep two passwords for
+one business.
+
+`/sell` is public, on the same reasoning as the catalogue: somebody deciding
+whether to bring their catalogue here should be able to read what is involved
+before opening an account.
+
+## The application
+
+Eight steps, each saving on its own, resumable for as long as it takes:
+
+1. **Contact verification** — the email and mobile the marketplace reaches them on.
+2. **Business identity** — registered name, country, registration number, tax details.
+3. **Identity and documents** — who represents the business, and the proof.
+4. **Store details** — the name buyers see, the description, the support desk.
+5. **Pickup and returns** — where orders ship from and where returns go back.
+6. **Payout account** — where the money goes.
+7. **Compliance** — any certificates the things they sell need.
+8. **Agreements** — the marketplace contract, commission schedule and policies.
+
+**What each step asks for is a database row, not code.** A German seller is
+asked for a VAT number matching `^DE[0-9]{9}$`; an Indian one for a GSTIN with
+its own fifteen-character format; a manufacturer for a Declaration of
+Conformity and a distributor for an authorisation from whoever does make it.
+None of that is in the application — it is `SellerOnboardingRequirement`, keyed
+by country and by seller kind, seeded with defaults and edited by the operator.
+
+That table is the whole reason this is a product rather than one company's
+marketplace. Hard-coding a GSTIN field would make a German deployment
+impossible.
+
+**Two steps are deliberately not required to submit.** Payout, because a seller
+must never be blocked on the operator not having configured a payment provider.
+And compliance, because a seller of cable ties has no quality certificate and
+never will — where a deployment does regulate a trade, it marks those
+requirements required and the step blocks submission on its own.
+
+Progress is a percentage **of the required steps**. A seller who has done
+everything they must do sees 100%, not 87% because of a step nobody asked them
+to finish.
+
+### The signature, and what it is not
+
+The application records a typed name, a tick, the policy version, the time, the
+IP address and the browser. It is a **record of consent** and it is described as
+one everywhere it appears.
+
+It is not an electronic signature bound to a verified identity, and nothing in
+this system claims it is. A signature drawn with a mouse proves that somebody at
+that session drew something. Calling it a verified signature is a claim that
+only matters once — in a dispute — at which point it turns out to be false. A
+real e-signature needs a provider that can bind the act to an identity, and that
+goes behind the same adapter the payout provider does.
+
+## The Seller Hub itself
+
+A workspace, not an account page: a permanent rail of destinations down the
+left, a working area filling the rest, and none of the storefront's header,
+market switcher, cart or footer. A seller packing forty orders is not shopping,
+and that chrome costs them a hundred pixels on every screen they spend the day
+in. Below `lg` the rail becomes a bottom bar, because a hamburger that hides the
+only navigation is how a seller loses the orders queue.
+
+Nine destinations: **Home**, **Listings**, **Brands**, **Inventory**,
+**Orders**, **Payments**, **Notifications**, **Activity**, **Profile**. The four
+that need an approved account are shown greyed rather than hidden, so a seller
+can see what finishing their application unlocks.
+
+**Notifications and Activity are reachable before approval**, deliberately. An
+applicant has things told to them and things recorded about them from the moment
+they apply, and a screen that refused them until approval would hide exactly the
+notices explaining the delay.
+
+### Home
+
+Every number is live and every number says what period it covers. "Sales:
+£8,600" is unanswerable without "today" beside it, and two tiles quietly
+computed over different windows is how a dashboard becomes untrustworthy
+without becoming visibly wrong.
+
+The layout follows the work rather than the data — what needs doing now at the
+top, money next, catalogue health below — because a seller opens this page to
+find out what to pack.
+
+**A tile that could not be computed says so.** Each one is an independent query
+and a failure comes back as a dash with an explanation rather than as a zero. A
+seller who reads "0 new orders" and goes home is worse off than one who reads
+"we could not work this out".
+
+### Listings
+
+Live offers and unfinished drafts under one set of tabs, because a seller
+thinks of them as one list. They are separate tables for a good reason — a
+draft is allowed to be invalid and an offer is not — and hiding that split is
+the right call, since "where is the listing I started yesterday" should not
+require knowing about it.
+
+Everything that filters or pages lives in the URL, so the view a seller found
+is the view they can send to a colleague, and the back button undoes a filter
+rather than leaving the page.
+
+The table becomes cards below `lg`. A fourteen-column table on a phone is a
+horizontal scroll nobody can use.
+
+Two actions live on the rows rather than on a screen of their own. **Take it
+back** appears only on a listing sitting in review: a seller who spots a mistake
+after submitting otherwise has one option, which is to wait for a moderator to
+read it, refuse it and hand it back — a wasted day at both ends. Nothing is
+lost by it; the draft returns exactly as it was sent. **Copy** duplicates a live
+listing into a new draft, which is how the next size of the same thing gets
+listed, and it insists on a new seller code because two listings under one SKU
+is an order nobody can pick.
+
+### Brands: what you asked for, and what happened
+
+`/seller/brands`. Requesting a brand is the one thing in the wizard a seller
+does and then cannot see again: the request is made at step two, the brand
+attaches to the draft immediately, and from then on the only signal is the
+listing refusing to go on sale. That is a dead end — the seller cannot tell
+whether anybody is looking at it, whether they were asked something, or whether
+it was refused three days ago.
+
+So every request is listed with its status and, whatever the decision, its
+reason: on a refusal that is why, on "we need more" it is the question. Both are
+written for the seller and neither is hidden behind a click.
+
+**Withdrawing is offered only while it is undecided.** A decided request stays
+on the list with its reason, because "we refused it, and here is why" is
+information to keep rather than a row to tidy away.
+
+### The listing wizard
+
+Three steps: **category**, **brand**, **product details**. That order is forced
+by the data — the fields a product needs depend on its category, and the brand
+decides whether the seller may list it at all, so both have to be settled before
+the form can be drawn.
+
+Four things the wizard gets from the server and never decides for itself:
+
+- **Which fields to draw**, from the category's schema.
+- **Which photographs are required**, from the same place.
+- **How complete each section is** — the "8/8" counters are rendered, not
+  counted.
+- **Whether it can be submitted, and what is stopping it** — every issue
+  carries the field it belongs to, which is what lets each refusal sit beside
+  the input that caused it rather than in one sentence at the top.
+
+The draft is created on the server the moment a category is chosen, so closing
+the tab loses nothing, and its id is in the URL — which makes "resume later" a
+link rather than a feature.
+
+### Photographs and videos
+
+Both upload for real, to the configured object store. The bytes never pass
+through the database: the row records a storage key, and the URL is built from
+it on read — so moving a deployment from local disk to S3 does not leave every
+listing pointing at nothing.
+
+**The magic bytes decide the type, never the Content-Type header and never the
+file extension.** A client can claim anything. An SVG renamed `product.png` and
+declared `image/png` is refused, because an SVG is a script-capable document
+rather than a picture and serving one inline is stored XSS.
+
+Photographs go into **named slots** — front view, packaging, UDI label, sterile
+seal. Which photograph is which is information a moderator and a buyer both
+use, and "add more photos" is not something anybody can act on. Which slots a
+category requires comes from the same schema as its fields.
+
+Videos are a separate strip, because a video has no equivalent of a front view:
+it is either there or it is not. For a buyer committing to a carton of five
+hundred, a video is often what answers the question a photograph cannot — how
+the clamp closes, how loud it is, whether the lid seals.
+
+Four rules the upload path enforces:
+
+- **A video has its own size ceiling.** `UPLOAD_MAX_BYTES` is sized for a
+  photograph; a clip gets `UPLOAD_VIDEO_MAX_BYTES`. One shared limit would mean
+  raising the photograph ceiling to 64 MB to accept a video, and the photograph
+  ceiling is what stops a RAW file per product.
+- **The same file twice is refused**, by content hash rather than by name. It is
+  almost always a seller pressing upload again after a slow response.
+- **Exactly one primary image, always** — and it can never be a video. It renders
+  in a search result and on an order confirmation, and neither can play one.
+  Deleting the primary promotes the next picture rather than leaving none.
+- **Nothing is claimed to have been scanned.** No malware scanner is configured,
+  so uploads are marked `SCANNER_UNCONFIGURED` rather than `CLEAN`.
+
+A video cannot carry a caption track — the file comes from a seller and nothing
+here can produce subtitles for it. So the seller is asked for a **written
+description** of what the video shows, rendered as visible text beside it and
+tied to the player with `aria-describedby`. That serves what captions are for
+without pointing a `<track>` at a file that does not exist.
+
+**Approval carries the photographs onto the catalogue product.** Without that
+step the whole flow ends in nothing visible: a seller uploads twelve angles, a
+moderator approves, and the product renders with no picture. The bytes are not
+copied — the draft's rows and the product's rows point at the same objects,
+because they are the same files.
+
+### The starter departments: what a seller can file a product under
+
+The picker in step one offers the categories this deployment actually has, and
+nothing else. That makes the shipped taxonomy the thing that decides whether
+"a seller can list anything" is true in practice: a deployment whose only
+department arrived on a supplier's spreadsheet offers exactly that department,
+and a seller with a box of cable ties to sell finds nowhere to put them.
+
+So a deployment is planted with **twenty-five departments** covering the trades
+a general marketplace serves — medical, laboratory, industrial supplies, tools,
+electrical, electronics, IT, phones, office, packaging, safety, cleaning,
+building, automotive, agriculture, catering, furniture, home, clothing, beauty,
+sports, toys, books, chemicals, energy — each with a handful of sub-categories
+underneath. `backend/src/seed/starter-categories.ts`, run from
+`seedReferenceData`, which means `npm run db:reference` installs them in
+production as well as `npm run db:seed` in development.
+
+Three rules, because the catalogue belongs to the operator:
+
+- **A department that already exists is left entirely alone**, children and all.
+  Matching is by slug, so a deployment that already has `medical-devices` with
+  twenty-six sub-categories of its own keeps them, and this does not add its own
+  eight alongside.
+- **Nothing is ever renamed, reactivated or deleted.** An operator who switched
+  a department off, renamed it or reordered it has made a decision, and
+  re-running the seed must not put the shipped guess back. Re-running reports
+  everything skipped and writes nothing.
+- **The names are a starting point, not a rule.** Every one can be renamed,
+  re-parented, archived or deleted in the admin panel, and a category the
+  operator added themselves is never touched.
+
+Two levels, deliberately. The detailed shelf a trade wants — "Closed IV
+Cannula", "M6 hex bolt" — is the operator's to add underneath, because only they
+know what they trade in.
+
+A planted department does not clutter the shop front. The storefront home and
+category pages show only categories with something published beneath them
+(`stockedCategories`), so a department nobody has listed in yet is visible to a
+seller choosing where to file a product and to nobody else.
+
+### The category schema: how one wizard serves every trade
+
+`CategoryAttributeDefinition` is the field list, in the database, attached to
+categories and inherited down the tree.
+
+A short **global** set applies everywhere: product name, model number, summary,
+description, material, size, colour, condition, what is in the box, country of
+origin, weight, dimensions, warranty, barcode, dangerous-goods status.
+
+Everything else belongs to the category that sells it. Fasteners ask for a
+thread size, a length, a tensile grade and a finish. Electrical goods ask for
+voltage, power rating, IP rating and whether a battery ships with it. Medical
+devices ask for a device class, a UDI, CE marking, a notified body and sterility.
+Packaging asks whether it is food-safe and recyclable.
+
+A seller listing a hex bolt is never asked for a device class, and a seller
+listing an infusion pump is never asked for a thread pitch.
+
+The same rule decides the photographs. Every listing needs a front view and a
+packaging shot; a category that asks for a UDI also demands a readable UDI-label
+photograph, and one that asks about sterility demands a sterile-seal shot. Those
+are derived from the fields rather than configured separately, so an operator
+adding the field gets the photograph requirement without knowing it exists.
+
+**Only category-scoped definitions count** for that. A barcode field defined
+globally must not make a box of washers a regulated device.
+
+### The product title
+
+Generated, from a fixed list of permitted fields, in a fixed order, on the
+server. The seller cannot type it unless the marketplace switches that on.
+
+The reason is not tidiness. A title is the string a buyer searches, compares and
+decides on, and when sellers write their own the result is "BEST QUALITY ⭐
+Surgical Gloves ⭐ FAST DELIVERY" competing against "Nitrile Examination Glove,
+Powder-Free, Medium, Box of 100". One of those is useful to a procurement team.
+
+`Preview title` lights up exactly when every title component is present and
+valid — a question only the server can answer, since the component list is a
+database row. When it is not ready, the fields that are missing are named,
+because a disabled button with no explanation is the most frustrating control
+on a form this size. When it is ready, the preview shows **which field produced
+each fragment**: a seller who cannot edit the title and cannot see why it says
+"Medium" has no way to change it.
+
+### Submission and review
+
+Submission creates `PENDING_REVIEW`, never a public listing. A `Product` row and
+a `SellerOffer` come into being only when a moderator approves — which is what
+guarantees nothing reaches a buyer's basket without having been looked at, and
+what stops an abandoned wizard leaving an unpublishable product in the catalogue
+forever.
+
+An approved offer is created **inactive**. The seller decides when it goes on
+sale, because a listing approved at 2am with no stock allocated should not go
+straight in front of a buyer.
+
+A refused submission comes back with one entry per blocking issue, each naming
+its section and its field. "Validation failed" is a dead end on a form with
+sixty inputs across five sections.
+
+### Stock
+
+Keyed by offer **and** location. A seller holding the same catheter in Antwerp
+and in Leeds has two numbers, two reorder levels and possibly two batch numbers,
+and collapsing them into "487 units" loses the only thing that decides which
+warehouse an order ships from.
+
+The movements are the truth; the balance is a running total kept for speed, and
+it is only trustworthy because every write to it happens in the same transaction
+as the movement that explains it.
+
+Concurrency uses a conditional UPDATE against a version column rather than a
+lock, because MariaDB 10.4 has no `SKIP LOCKED`. Two buyers reaching for the last
+unit produce one sale and one honest refusal.
+
+An adjustment demands a reason. An adjustment with no reason is how stock quietly
+disappears and nobody can say when.
+
+### Orders
+
+A buyer places **one** order. A seller sees a *group* over the lines that belong
+to them, with its own number and its own dispatch deadline.
+
+`Order` itself is untouched — it still belongs to the buyer, still carries one
+payment and one invoice, and still moves through `assertTransition`. The
+alternative, an order row per seller, would give the buyer three order numbers
+for one checkout, three payment intents and three invoices.
+
+What a seller is **not** shown matters as much: no buyer email, no phone number,
+no payment reference, and no other seller's lines. A marketplace that hands over
+the buyer's contact details has handed over its own customer relationship.
+
+The commission rate is frozen onto the group when the order is created, not
+looked up when the settlement runs. A seller's earnings must not move because
+somebody edited a rate in between, and a disputed settlement has to be
+recomputable from what was in force on the day.
+
+### Money
+
+Two tables, because they answer different questions and go wrong separately. A
+**settlement** is arithmetic over a period: this is what you sold, this is what
+we kept, this is what is left. A **payout** is a transfer that either happened or
+did not. Merging them means a failed transfer destroys the record of what was
+owed.
+
+The statement shows the arithmetic rather than asserting the bottom line — sales,
+minus commission, minus processing, minus refunds, plus adjustments, equals
+payable. A seller disputing a settlement needs to see which part they disagree
+with.
+
+Every figure is `BigInt` minor units, end to end, and crosses the API as a
+string. A wholesale price in paise exceeds JavaScript's safe integer range for
+figures sellers genuinely quote.
+
+A failed payout creates an **actionable state with a reason**, never a deletion.
+The settlement it covers stays exactly as it was and can be paid again.
+
+## Roles inside a seller
+
+Seven, and they are not interchangeable with the operator's admin roles. These
+grant authority over **one** seller's own data and nothing else; a Seller Owner
+is not an administrator of the marketplace and must never be able to become one.
+
+| Role | What it may do |
+|---|---|
+| Seller Owner | Everything, including the team and the agreements. |
+| Seller Admin | Runs the business day to day. Cannot sign for it. |
+| Catalogue Manager | Listings, brands, media, offer prices. |
+| Inventory Manager | Stock, warehouses, reorder levels. |
+| Order Manager | Orders, dispatch, shipments, returns. |
+| Finance Viewer | Settlements and payouts. Read-only. |
+| Support Member | Reads orders and returns to answer a buyer. Changes nothing. |
+
+Three restrictions look like omissions and are not. **Only the Owner accepts
+agreements** — signing binds the business, and running its day is not the same
+as signing for it. **Only Owner and Admin change membership** — that is the
+permission which grants permissions, and a Catalogue Manager holding it could
+invite themselves a second account with every other key. And **nobody may grant
+a role carrying more than their own**, which is what stops an Admin minting an
+Owner and so awarding themselves the one permission Admin deliberately lacks.
+
+## The operator's side
+
+Under the admin API: seller applications, business documents, listing
+moderation and brand requests.
+
+### Quality review: `/listing-review`
+
+Two screens. `ListingReviewQueuePage` is the queue — oldest submission first,
+and the sort is not configurable, because a moderator who can sort newest-first
+will, and Monday's seller is then still waiting on Friday. The columns triage:
+who sent it, what it is, which brand it claims, and how many issues it already
+carries. That last one is the useful one — a listing arriving with six
+unresolved issues is different work from one arriving clean.
+
+**Nothing is decided from the queue.** `ListingReviewPage` is where a decision
+is made, and it exists because approving a listing is what makes it buyable
+here: approving one from a queue row is approving a product nobody has looked
+at. It shows what the seller actually sent — every photograph against the slot
+the category asked for, every answer against its schema label, the price, the
+stock, the packing, and the issues already open. `GET /admin/seller-listings/:id`
+is the read behind it, and it exists for this reason: the queue row is not
+enough to decide on.
+
+**Per-field comments are the feature, not a nicety.** "Your listing is not
+acceptable" sends a seller to guess; a note attached to `PRODUCT_PHOTOS` /
+`UDI_LABEL` puts the sentence beside the slot in their own wizard. So every
+field and every photo slot carries a "Note" control, the notes collect into the
+decision panel so the whole reply is read before it is sent, and they are
+written as `MODERATOR_COMMENT` issues that the seller's next save will not
+clear.
+
+Three things it deliberately does not do. It does **not** let a moderator edit
+the listing — they say what is wrong and send it back, because correcting
+somebody else's description leaves the seller answering for words they did not
+write. It does **not** send field notes with an approval, since a listing that
+has just gone on sale has nothing to fix; if there is something to say, it goes
+in the comment. And a refusal or a send-back **requires** a comment, because
+both land on the seller's own screen.
+
+### One order, each seller's share of it
+
+A buyer places **one** order and pays once. That order is several pieces of work
+for several businesses, and `SellerOrderGroup` is a seller's view of it: its own
+number, its own status, its own money, cancellable without touching anybody
+else's part. `order-split.service.ts` is what creates them.
+
+**On confirmation, not on placement.** An order nobody has paid for is not work
+a seller should start, so the split is called from inside `transitionOrder`'s
+CONFIRMED branch and shares that transaction — an order cannot end up confirmed
+with its sellers unaware of it.
+
+**It is idempotent, and that is not optional.** A payment provider will resend a
+webhook. A second confirmation must not produce a second set of groups, or a
+second set of seller order numbers, which would be visible on paperwork the
+seller has already printed. `uq_seller_order_group` on `(orderId,
+sellerAccountId)` is the backstop; the service checks first so the common case
+is a cheap read.
+
+**A line with no `sellerOfferId` is the operator's own stock**, which is most
+lines on most deployments. Those produce no group, because nobody else is owed
+anything for them and nobody else has to pack them. An order made entirely of
+operator stock splits into nothing, silently and correctly.
+
+#### The money
+
+Computed once and stored, never recomputed on read — a seller's settlement must
+not move because they edited their price afterwards. The commission **rate** is
+stored beside the figure it produced (`commissionBasisPointsApplied`): without
+it a disputed settlement cannot even be recomputed to show it was right.
+
+- **Basis points, not a percentage.** 250 is 2.50%. A rate stored as `0.025`
+  comes back as `0.024999999` often enough that a settlement stops reconciling.
+- **Rounded half-up.** Integer division truncates, which is a silent systematic
+  bias in the seller's favour of up to one minor unit per line — invisible on
+  one order, and a month-end that is out by a few rupees nobody can account for.
+- **On the goods only.** Not on tax, which is money passing through the seller
+  to a tax authority and would make the marketplace's take move with the buyer's
+  VAT rate; not on shipping, which is recovery of a cost rather than margin.
+- **The seller's own rate beats the platform's.**
+  `SellerAccount.commissionBasisPoints` is nullable for exactly that reason: a
+  seller negotiated onto their own schedule keeps it when
+  `BusinessProfile.sellerCommissionBasisPoints` moves. Both default to zero,
+  which is the honest default — a deployment that has not decided what it
+  charges must not quietly start charging something.
+
+`dispatchDueAt` is deliberately null at this point. It is set when the seller
+accepts and says where it ships from; inventing one before there is a location
+to compute it against marks a seller late against a deadline nobody gave them.
+
+#### How a line gets a seller: one storefront per seller
+
+`northwind.uboss.example` is Northwind's shop. `uboss.example` is the
+operator's. **The HOST decides, and nothing else does** — not a query parameter,
+not a header, not a cookie, because a shopper can set all of those and the
+answer decides whose prices they are charged.
+
+`storefront.service.ts` resolves it, and an `onRequest` hook in `app.ts` puts
+the result on `request.storefront` before any route runs. Every public read that
+prices something asks that rather than working it out again; two places deciding
+whose shop this is would eventually disagree, and the disagreement would be a
+shopper shown one price and charged another.
+
+- **Off by default.** `SELLER_STOREFRONT_DOMAIN` empty means there are no seller
+  subdomains, which is every existing deployment. Then everything resolves to
+  the operator and the storefront behaves exactly as it did before this existed.
+- **An unknown subdomain is a 404, not the operator's shop.**
+  `nosuchseller.uboss.example` must not quietly serve the operator's catalogue
+  under somebody else's name — that is how a mistyped link becomes a shop that
+  looks like a seller's and sells the operator's stock at the operator's prices.
+- **Only an APPROVED seller has a shop.** Suspending a seller has to stop their
+  shop taking orders, not merely stop them signing in.
+- **`www` and the bare domain are the operator's**, so a seller who registers
+  the slug `www` cannot take the shop front the operator's own domain answers on.
+- **One label only.** `a.b.uboss.example` is not seller `a.b`; slugs have no
+  dots, and reading one would make any wildcard host a shop.
+
+On a seller's shop:
+
+- The **catalogue is theirs** — the product grid is rooted at `seller_offers`
+  rather than at `product_prices`, so the filter, the sort and every figure on a
+  card come from the same rows the shopper will be charged from. Restricting the
+  operator's grid and overwriting the prices afterwards would leave the sort
+  ordering a seller's shelf by somebody else's numbers.
+- A product they do not offer **404s**, the same answer an unpublished product
+  gets: a shopper must not be able to tell "this seller does not stock it" from
+  "no such product" by the status code.
+- **Category counts are theirs.** A sidebar reading "Medical Devices 239" beside
+  a grid of four is 235 links to a 404.
+- **The basket line gets their offer from the host**, in
+  `withStorefrontSeller`. A `sellerOfferId` in the body is ignored rather than
+  trusted — accepting one would let a shopper on one seller's domain post
+  another seller's offer id and buy at that seller's price out of their stock.
+- `/config` carries the seller, so the header, the page titles and the support
+  address are the seller's. It is `private` and `Vary: Host`, because a shared
+  cache ignoring the host would serve one seller's name on another's domain.
+- **"Become a seller" and the Seller Hub button are gone.** Inviting Northwind's
+  customers to join the marketplace off the back of Northwind's traffic is not
+  something their shop front should do.
+
+#### The seller's own mark
+
+`SellerAccount.logoStorageKey`, an object key like `SellerDocument.storageKey`
+and deliberately **not** a `MediaAsset` relation: that table is the operator's
+catalogue library — reachable from their media picker, counted in their reports,
+deletable by their staff — and a seller's brand mark is none of those things.
+
+Uploaded from the Seller Hub's profile page, guarded by `ACCOUNT_WRITE`:
+changing the mark above the shop name is the same authority as changing the
+name, so it gets no permission key of its own.
+
+- **The bytes decide the type**, never the filename and never the header. An SVG
+  is refused whatever it is called — it is a script-capable document, and
+  serving one inline under the seller's own subdomain is stored XSS against
+  their shoppers.
+- **Replacing deletes the old object.** A logo is replaced rather than
+  versioned, so leaving the old one is a file nobody can reach and nobody will
+  remove. The delete runs after the new key is safely recorded and is
+  best-effort: losing the old file while the new one is unsaved would leave a
+  shop with no logo at all.
+- **Null is a working state.** A seller who has uploaded none gets a shop front
+  rendering their initial. The operator's logo is never shown there — a
+  marketplace mark above a seller's name tells a buyer they are somewhere they
+  are not, which is the confusion a per-seller shop front exists to remove.
+
+The preview in the Hub is the file at 40px, exactly what the shop header
+renders, because a logo that reads at 200px and is illegible at 40 is the
+mistake worth catching before a buyer does.
+
+`cart_items` carries a companion `sellerOfferKey` (`''` for the operator)
+because MariaDB treats every NULL in a UNIQUE index as distinct: extending
+`uq_cart_item_sku` with the nullable column alone would stop re-adding the same
+SKU from bumping the quantity and start creating a second row every time. The
+same trick `variantKey` on that table already plays.
+
+### Telling the seller
+
+Every decision writes a `SellerNotification` as well as an audit entry —
+`notification.service.ts`, joined to the deciding transaction where there is
+one. A decision that wrote only an audit entry is a listing that silently stops
+working: the email may never be opened and the screen may never be visited, and
+the in-app feed is the one that is waiting for them.
+
+A notification is **not the record** — the audit log is, and notifications
+expire and are swept — and it is **not per person**: it is addressed to the
+organisation, with read state per member in `readByJson`, so a seller with
+twelve staff gets one row rather than twelve.
+
+**Brands are marketplace-wide, not seller-owned.** Three distributors selling
+the same manufacturer's catheters must attach to one brand row, or the buyer's
+brand filter shows the name three times and each one finds a third of the
+products. So a seller does not create a brand — they search, and where they find
+nothing they *request* one, which an operator approves once for everybody.
+
+A brand request is accepted even when the name looks wrong. Advice is shown
+beside the field — trademark symbols, marketing words, repeated characters — and
+the request still goes through, because a validation warning must not silently
+refuse a legitimate business name.
+
+### Deciding one: `/brand-requests`
+
+`BrandRequestsPage` in the admin panel, under Catalogue rather than beside
+Sellers — the question it asks is "may anything be sold under this name", which
+is a catalogue decision, and the person who curates brands is the person who
+should answer it. `PRODUCT_READ` to open it, `PRODUCT_PUBLISH` to decide one.
+
+Cards rather than a table: the justification a seller writes — why they are
+entitled to sell the brand — is a paragraph a reviewer has to read, and a table
+cell is the wrong shape for it. Oldest first, for the same reason the seller
+application queue is: newest-first starves whoever has waited longest.
+
+Four things beyond what the seller typed, each of which changes the decision:
+
+- **Whether we have already gone back to them**, and the sentence that was sent.
+  Without it a request somebody has already questioned reads identically to one
+  nobody has touched, and the seller is asked the same thing twice.
+- **How many listing drafts are held up behind the name.** Nothing on an
+  unapproved brand can go on sale, so this is what the request costs while it
+  sits here. It is also summed into the page description.
+- **Who else has asked for the same brand**, by name. This is the one the screen
+  exists to prevent somebody forgetting: a brand is one row, not one per seller,
+  so approving decides the name for everyone attached to it — and refusing does
+  *not* clear it, because the other requests are still open.
+- **The spelling it is approved under.** The approve dialog prefills the name the
+  seller typed and lets it be corrected, so a near miss — "Brawn" for "B. Braun"
+  — is fixed in a second instead of being refused and typed again. What the
+  seller originally asked for is kept on the record either way.
+
+A refusal and a question both require a reason, because both land on the
+seller's own screen; an approval does not, since the brand appearing is the
+message.
+
+**Seller-visible reasons and internal notes are separate columns**, and only the
+first is ever serialised to a seller route. An operator's private assessment
+reaching a seller's screen is a one-directional, silent failure.
+
+Sellers get their own audit log rather than a filtered view of the operator's,
+for the same reason. An operator action appears in it as a **role** —
+"Marketplace moderation" — never as a staff member's name.
+
+## What cannot be finished here, and is not faked
+
+The brief this was built from is explicit: *do not show a fake success state
+when third-party credentials are unavailable*. Four things therefore stop at an
+honest boundary.
+
+1. **Payouts.** No payment provider is configured. The adapter has exactly one
+   implementation, which refuses with `SELLER_PAYOUT_PROVIDER_UNCONFIGURED` and
+   names the missing environment variable. Every screen that would show a payout
+   shows a configuration-required panel instead. **No bank details are collected
+   anywhere** — they belong with a regulated provider, not in this database.
+2. **Bank verification.** There is no provider that could run the penny-transfer
+   check the reference workflow shows, so no verification is claimed.
+3. **E-signature.** Consent is recorded; a verified signature is not claimed.
+4. **Document and image upload.** These need encrypted object storage and a
+   malware scanner. The slots render, say what will be required, and explain why
+   they are not yet live rather than offering a control that fails silently.
+
+Each of those is a configuration away from working, and none of them lies in the
+meantime.
+
+## Where it lives
+
+| Concern | File |
+|---|---|
+| Tenancy and ownership | `backend/src/modules/seller/account.service.ts` |
+| The seller guard | `backend/src/http/plugins/seller.ts` |
+| Application and listing state machines | `backend/src/domain/seller-state.ts` |
+| Seller roles | `backend/src/domain/seller-permissions.ts` |
+| Section counters and validation | `backend/src/domain/listing-completeness.ts` |
+| Title generation | `backend/src/domain/listing-title.ts` |
+| The category field list | `backend/src/modules/seller/listing-schema.service.ts` |
+| Payout adapter boundary | `backend/src/modules/seller/payout.service.ts` |
+| Operator review | `backend/src/modules/seller/moderation.service.ts` |
+| The Hub's screens | `apps/customer-web/src/pages/seller/` |
+| Defaults for fields and country rules | `backend/src/seed/seller-hub.ts` |
+
+---
+
 # 5. The admin panel
 
 `apps/admin-web` — same technology, different job.
@@ -2020,6 +2740,11 @@ name, their currencies and their features appear.
 | `/reports` | Reports | Sales, stock and tax reports; exports |
 | `/data-requests` | Data requests | GDPR access and erasure requests |
 | `/manufacturers` | Manufacturers | Economic operators required by EU product law |
+| `/listing-review` | Listing review | Listings sellers have submitted for quality review, oldest first |
+| `/listing-review/:id` | One listing | Everything the seller sent, with a note control on every field, and the decision |
+| `/brand-requests` | Brand requests | Names sellers have asked to list under, and the decision on each |
+| `/sellers` | Sellers | Businesses applying to sell on the marketplace |
+| `/sellers/:id` | Seller detail | One application: the business, its documents, its people, the decision |
 | `/audit` | Audit log | Who changed what, and when |
 | `/integrations` | Integrations | Payment gateway credentials, connectors |
 | `/staff` | Staff | Staff accounts and their roles |

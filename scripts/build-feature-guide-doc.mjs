@@ -316,6 +316,142 @@ p('Setting up a live connection to monday.com needs the store to have registered
 p('Checking a connection never switches it off. A customer can press Test at any time, including on a connection that is switched on and carrying their orders, and it is left exactly as it was — switched on if it was switched on, paused if it was paused. Only the result changes: the screen shows whether the check succeeded, when it ran and what the customer’s system said. A connection is taken out of service by repeated real failures, never by a single check.');
 page();
 
+// 6a
+h1('6a. Seller Features — Selling on the Marketplace');
+p('Any business can apply to sell here. It is not limited to one kind of product: a seller may list fasteners, cables, packaging, safety equipment, electronics or medical devices, and the questions they are asked change with the product category rather than being the same for everyone.');
+note('Same account, two modes', 'A customer who already buys here becomes a seller using the same sign-in. Nobody is asked to keep a second password for the same business.', C.blue);
+
+h2('6a.1 Becoming a seller');
+table(['Step', 'What the person does', 'What the system does'], [
+  ['1', 'Presses "Become a seller" in the top bar of the shop.', 'Opens a public page that explains what selling here involves, before any account is needed.'],
+  ['2', 'Signs in, or creates an account.', 'Uses the ordinary customer sign-in. No separate seller login exists.'],
+  ['3', 'Gives the registered business name, the shop name buyers will see, the country of registration and the kind of seller.', 'Checks the shop name is free as it is typed, then creates the seller business and makes this person its owner.'],
+  ['4', 'Works through the application.', 'Saves each step on its own so the person can stop and come back, for as long as it takes to gather documents.'],
+  ['5', 'Sends the application for review.', 'Refuses to send it while a required step is unfinished, and names each one that is.'],
+], [700, 4400, 5000]);
+
+h2('6a.2 What the application asks for');
+p('There are eight steps. What each one demands depends on the country the business is registered in and on whether it manufactures, distributes, wholesales or resells — so a German seller is asked for a VAT number, an Indian seller for a GSTIN, and a distributor for written authorisation from the manufacturer instead of a declaration it cannot sign.');
+table(['Step', 'What it covers'], [
+  ['Contact verification', 'The email address and mobile number the marketplace will reach the business on.'],
+  ['Business identity', 'Registered name, country, company registration number and tax registration.'],
+  ['Identity and documents', 'Who is authorised to act for the business, and the documents that prove the business exists.'],
+  ['Store details', 'The name buyers see, a description of the business, and how buyers reach its support desk.'],
+  ['Pickup and returns', 'The addresses orders are sent from and returns come back to, with each one’s cut-off time and how long picking takes.'],
+  ['Payout account', 'Where money earned is sent.'],
+  ['Compliance', 'Any certificates or declarations the things being sold actually need.'],
+  ['Agreements', 'The marketplace agreement, commission schedule, returns policy, privacy policy and a declaration that the seller is entitled to sell what it lists.'],
+], [3000, 7000]);
+note('Two steps do not block the application', 'Payout and compliance are not required to send an application in. A seller is never held up because the marketplace has not finished setting up payments, and a seller of ordinary goods is not asked for certificates that do not exist for what they sell.', C.orange);
+note('About the signature', 'The application records a typed name, a tick, the version of each document, the time, the address and the browser. This is a record of consent. It is not an electronic signature tied to a verified identity, and the system never describes it as one.', C.orange);
+
+h2('6a.3 What the marketplace sees, and how a seller is approved');
+p('Everything the applicant supplies appears in the admin console so that staff can check it before allowing the business to sell. Nothing goes on sale on the strength of an application alone.');
+table(['What staff see', 'Why it is there'], [
+  ['A queue of applications, oldest first', 'So the business that has waited longest is dealt with first rather than last.'],
+  ['How far through the application each one is', 'Lets staff see at a glance which applications are ready to decide and which are still being filled in.'],
+  ['The registered and trading names, country and seller type', 'The basic question of who this business claims to be.'],
+  ['Company registration number, tax registration, and any country-specific identifiers', 'The numbers staff check against a public register.'],
+  ['The authorised representative, their role and contact details', 'Who signs for the business, and who to contact about a problem.'],
+  ['Every document uploaded, with its scan state and any expiry date', 'Evidence, and whether it has been checked for malware. An unchecked file is shown as unchecked rather than as safe.'],
+  ['Every address the seller would ship from or take returns at', 'A seller with no address that can dispatch cannot fulfil an order.'],
+  ['Every agreement accepted, with its version, the time and the address it came from', 'What exactly the business has agreed to, and when.'],
+  ['Step-by-step application progress', 'Which parts are finished, which need attention, and any note the system attached.'],
+  ['Payout account state', 'Whether money can actually be sent, and what the provider is still waiting for.'],
+  ['Private staff notes', 'Staff assessments that the seller must never see, kept in their own panel and clearly marked.'],
+], [4200, 5800]);
+
+h2('6a.4 The decision');
+table(['Decision', 'What happens'], [
+  ['Take it on', 'Marks the application as being reviewed, so two members of staff do not work on it at once.'],
+  ['Approve', 'The business may start creating listings immediately. Nothing it lists goes on sale until that listing has separately passed quality review.'],
+  ['Send back', 'Returns the application to the seller with a written reason they can act on. They fix it and send it again.'],
+  ['Reject', 'Refuses the application with a reason. Staff choose whether the business may apply again.'],
+  ['Suspend', 'Stops an already approved seller. New listings and new orders stop at once; orders they have already accepted still have to be fulfilled and money already owed is still owed.'],
+], [2200, 7800]);
+note('Reasons are written for the seller', 'Every refusal needs a reason, and that reason appears on the seller’s own screen. A separate box holds private staff notes, which are never sent to the seller. The two are kept apart on purpose.', C.blue);
+note('Two people, one application', 'A decision is recorded against the version of the application the reviewer was looking at. If somebody else decided it in the meantime, the second decision is refused rather than quietly overwriting the first.', C.purple);
+
+h2('6a.5 Listing a product');
+p('A seller adds one listing at a time through a three-step flow: choose the category, choose the brand, then fill in the product details. The order matters — which details a product needs depends on its category, and the brand decides whether the seller is allowed to list it at all.');
+table(['Step', 'What the seller does', 'What the system does'], [
+  ['Choose a category', 'Searches or browses to the right category.', 'Creates a saved draft straight away, so closing the tab loses nothing.'],
+  ['Choose a brand', 'Picks an approved brand, or asks for one that is missing.', 'Offers brands already used by this seller first. A requested brand can be used on a draft while it is decided, but not on anything on sale.'],
+  ['Add product details', 'Fills in five sections: photos, price and stock, description, extra information, and compliance.', 'Counts each section as it is filled in, shows what is missing, and puts every problem beside the field that caused it.'],
+], [1800, 4100, 4100]);
+note('There is a department for whatever they sell', 'A new business starts with twenty-five departments already in place — medical, laboratory, industrial supplies, tools, electrical, electronics, IT, phones, office, packaging, safety, cleaning, building, automotive, agriculture, catering, furniture, home, clothing, beauty, sports, toys, books, chemicals and energy — each with sections underneath. A seller therefore always has somewhere sensible to file a product, whatever it is, from the first day the shop opens.', C.teal);
+note('The questions fit the product', 'A seller listing a bolt is asked for a thread size, a length and a grade. A seller listing a power supply is asked for voltage and whether it ships with a battery. A seller listing a medical instrument is asked for a device class and a UDI. Nobody is asked for somebody else’s fields.', C.teal);
+note('Photographs', 'Every listing needs a front view and a picture of the packaging. A category that asks for a barcode or UDI also asks for a readable photograph of that label, and one that asks about sterility asks for a photograph of the seal.', C.blue);
+
+h2('6a.6 Photographs and videos');
+p('A seller uploads real photographs and real videos against a listing. Photographs go into named slots so that everybody knows which picture is which; videos are a separate strip, because a video either exists or it does not.');
+table(['What the seller can do', 'What the system does'], [
+  ['Drag a file onto a slot, or click to choose one', 'Accepts JPEG, PNG, WebP and GIF pictures, and MP4, WebM and MOV videos.'],
+  ['Upload a video of the product', 'Holds videos to their own, larger size limit — a photograph limit sized for a video would let anybody upload enormous pictures.'],
+  ['Choose which picture is the main one', 'Keeps exactly one main picture at all times, and never lets it be a video, because a search result and an order confirmation cannot play one.'],
+  ['Remove a picture or video', 'Promotes the next picture to main if the one removed was it, so a listing is never left with pictures and no main one.'],
+  ['Describe each picture, and each video', 'Uses the description for buyers using a screen reader. For a video it is shown as visible text beside the player.'],
+], [4200, 5800]);
+note('Why the file itself decides', 'The system reads the first few bytes of every upload rather than trusting what the browser says it is. A file renamed to look like a picture is refused — including drawings that can carry scripts, which are never accepted.', C.orange);
+note('Videos and captions', 'A video uploaded by a seller has no subtitle file and nothing here can create one. Instead the seller is asked to write what the video shows, and that description is displayed beside it — so somebody who cannot hear it still learns what it contains.', C.blue);
+note('What happens on approval', 'When staff approve a listing, its photographs are carried onto the catalogue product automatically. Without that step a seller could upload a dozen pictures and the product would still appear with none.', C.teal);
+
+h2('6a.6 The product title');
+p('Product titles are built automatically from the details the seller fills in, in a fixed order. Sellers cannot type their own unless the marketplace turns that on.');
+bullets([
+  'The title is what a buyer searches and compares, so it has to mean the same thing across every seller.',
+  'The "Preview title" button becomes available only once every detail the title needs is filled in and valid.',
+  'The preview shows which field produced each part of the title, so a seller who thinks the title is wrong knows which field to change.',
+  'Where sellers cannot edit the title, they can ask the marketplace to correct it.',
+]);
+
+h2('6a.7 Sending a listing for review');
+bullets([
+  'A listing can only be sent for review once every required section passes. The button says what is stopping it.',
+  'Sending it for review never puts it on sale. A listing becomes a real catalogue entry only when a member of staff approves it.',
+  'An approved listing is created switched off, so the seller chooses when it goes on sale rather than it appearing at an unexpected hour with no stock.',
+  'A listing sent back arrives with comments attached to the individual fields that need changing.',
+  'A listing still waiting to be checked can be taken back at any time, changed, and sent again. Nothing is lost by doing so — it only loses its place in the queue.',
+]);
+
+h2('6a.8 Running the shop');
+table(['Area', 'What the seller can do'], [
+  ['Home', 'See new orders, orders that need dispatching, anything past its dispatch time, sales and earnings for a chosen period, open returns, listings needing attention, and stock running low — all from live figures.'],
+  ['Listings', 'See everything on sale and everything still being written, filter by status and stock, pause or resume a listing, change a price, and duplicate one as the basis for another.'],
+  ['Inventory', 'See what is held at each address, set a reorder level, record stock received, and correct a count — with a reason, which is kept on the record.'],
+  ['Orders', 'Accept or reject an order, choose which address it ships from, and mark it picked, ready and shipped. Opening one shows what to pack, where to send it, what it earns after commission, and a form for recording a shipment with its carrier and tracking number — including a part shipment, where the quantities are itemised.'],
+  ['Payments', 'Read every statement line by line — sales, commission, processing, refunds and adjustments — and see the payouts made against them.'],
+  ['Brands', 'See every brand name asked for, whether it was approved, refused or is still being looked at, the reason given, and take back a request nobody has decided yet.'],
+  ['Notifications', 'Read every decision the marketplace has made about the business, and mark each one read. Read marks are per person, so one colleague reading something does not hide it from the rest.'],
+  ['Activity', 'A record of everything that has happened to the account, its listings and its orders. Marketplace actions appear as a role rather than as a named member of staff.'],
+  ['Profile', 'Review the business details, add and correct the addresses shipped from, close one that is no longer used, and manage who else can use the seller account — including removing somebody.'],
+], [1800, 8200]);
+note('One order, split by seller', 'A buyer places a single order. Each seller sees only their own part of it, with its own number and its own dispatch deadline. Sellers are not shown the buyer’s email address, phone number or payment details, and never see another seller’s lines.', C.teal);
+note('If a figure cannot be worked out', 'Each number on the seller’s home screen is worked out separately. If one of them fails, the screen says so instead of showing a zero — because a seller who reads "no new orders" and goes home is worse off than one who is told the figure is unavailable.', C.purple);
+
+h2('6a.9 Who can do what inside a seller business');
+table(['Role', 'What they can do'], [
+  ['Seller Owner', 'Everything, including accepting the marketplace agreements. The owner cannot be removed or have their role changed from inside the business.'],
+  ['Seller Admin', 'Runs the business day to day. Cannot accept agreements on its behalf.'],
+  ['Catalogue Manager', 'Listings, brands, product photographs and prices.'],
+  ['Inventory Manager', 'Stock, addresses and reorder levels.'],
+  ['Order Manager', 'Orders, dispatch, shipments and returns.'],
+  ['Finance Viewer', 'Statements and payouts. Read-only.'],
+  ['Support Member', 'Reads orders and returns to answer a buyer. Changes nothing.'],
+], [2600, 7400]);
+note('Nobody can promote themselves', 'A person can only give somebody else a role that carries no more than their own. Only the owner can accept agreements, and only the owner or an admin can change who is in the business. Removing somebody stops their access immediately and changes nothing about what they already did — that stays on the record with their name on it.', C.orange);
+
+h2('6a.10 Brands');
+bullets([
+  'Brands belong to the whole marketplace, not to one seller, so every seller of the same manufacturer’s goods attaches to the same brand.',
+  'A seller who cannot find a brand asks for it, and staff approve it once for everybody.',
+  'The seller is warned about names that will be corrected — trademark symbols, words like "original" or "best" — but the request is still accepted, because a warning must never silently refuse a real business name.',
+  'Staff can approve a request under a corrected spelling.',
+  'The seller has their own screen listing every name they have asked for, what was decided and why — because otherwise the only sign that anything happened is a listing quietly refusing to go on sale.',
+  'A request nobody has decided yet can be taken back by the seller. One that has been decided stays on the list with its reason, because that is something worth keeping rather than tidying away.',
+]);
+page();
+
 // 7
 h1('7. Admin Features — Secure Access, Roles and Dashboard');
 h2('7.1 Staff sign-in');
@@ -347,6 +483,13 @@ page();
 // 8
 h1('8. Admin Features — Catalogue, Product and Compliance Management');
 h2('8.1 Categories and products');
+p('A new business does not start with an empty product tree. Twenty-five departments are already in place, covering the trades a general marketplace serves, each with a set of sections underneath. That is what lets a seller file a product on the first day, and it is what a shop front is built on later.');
+bullets([
+  'The departments are a starting point, not a rule. Staff can rename, move, archive or delete any of them, and add as many of their own as they like.',
+  'A business that already has a department of its own with that name keeps it exactly as it is, together with everything filed inside it.',
+  'A department switched off, renamed or reordered by staff stays that way. Reinstalling the starting data never puts the original back.',
+  'A department nobody has listed anything in yet does not appear on the shop front. It is visible to a seller choosing where to file a product, and to staff, and to nobody else.',
+]);
 table(['Admin feature', 'What staff can do'], [
   ['Categories', 'Create and maintain the product tree used by the customer catalogue.'],
   ['Product list', 'Search, filter, sort and open products for management.'],
@@ -432,7 +575,52 @@ bullets([
   'Maintain product specifications and product documents where provided.',
   'Keep product media and product safety details available to appropriate customer-facing views.',
 ]);
-h2('8.8 Coupons and manufacturers');
+h2('8.8 Checking what sellers want to sell');
+p('Nothing a seller lists goes on sale until staff have looked at it. Submitted listings sit in a queue, oldest first, so whoever has waited longest is dealt with first. Each one shows who sent it, what it is, which brand it claims and how many problems it already has — enough to decide what to pick up next without opening anything.');
+p('The decision itself is made on the listing, never from the queue, because approving something from a list is approving a product nobody has looked at. The listing screen shows exactly what the seller sent: every photograph against the slot it was asked for, every answer they typed, the price, the stock, how it is packed, and anything already flagged.');
+table(['What staff can do', 'What the system does'], [
+  ['Leave a note beside a single field or photograph', 'Sends that note to the seller attached to that exact field, so it appears beside it on their own screen rather than as one vague paragraph.'],
+  ['Approve the listing', 'Creates the product and the seller’s offer. It does not put anything on sale — that stays the seller’s own decision, because somebody who has waited days for a check may not want it live overnight with no stock behind it.'],
+  ['Send it back for changes', 'Returns it to the seller with the comment and every field note. They can fix it and send it again.'],
+  ['Reject it', 'Records the reason on the seller’s screen. Nothing under that listing can be sold.'],
+], [3400, 6600]);
+note('Staff never edit a seller’s listing', 'They say what is wrong and send it back. Correcting somebody else’s description would leave the seller answering for words they did not write.', C.orange);
+note('A refusal always carries a reason', 'Rejecting a listing or sending it back both require staff to write something, because both land on the seller’s own screen. Approving does not — the listing appearing is the message.', C.teal);
+note('Nothing is decided in silence', 'Every decision — on an application, a listing or a brand — is also put in front of the seller inside their own account. An email can go unopened and a screen can go unvisited; the notice waiting for them when they next sign in does not.', C.blue);
+
+h2('8.9 Deciding brand requests');
+p('When a seller cannot find their brand while listing, the name they ask for comes to staff. It sits on its own screen, oldest request first, so whoever has waited longest is dealt with first. Nothing can be sold under a name until it is approved, so every request sitting here is at least one listing that cannot be bought.');
+table(['What staff can do', 'What the system does'], [
+  ['Read why the seller says they may sell the brand', 'Shows what they wrote in full, together with the manufacturer they named and a link to the website they gave.'],
+  ['Approve the name', 'Adds it to the catalogue at once. Every listing that was held up behind it can then be sent for quality review. Approving does not publish anything on its own.'],
+  ['Approve it under a corrected spelling', 'Adds the name as staff typed it, and keeps what the seller originally asked for on the record.'],
+  ['Ask the seller for more', 'Sends the question to the seller and marks the request as waiting on them, so nobody asks the same thing twice.'],
+  ['Refuse the name', 'Records the reason on the seller’s own screen. Their drafts carrying the name stay unpublishable.'],
+], [3200, 6800]);
+h2('6a.11 A seller’s own shop front');
+p('A seller can be given a web address of their own — their name in front of the marketplace’s, such as northwind.example.com. Opening it shows their shop and nobody else’s: their products, their prices, their name at the top and their support details at the bottom. Somebody buying there is buying from them.');
+table(['What a buyer sees there', 'How it differs from the marketplace’s own shop'], [
+  ['Only that seller’s products', 'Anything the seller does not sell is simply not in the shop, even if the marketplace sells it. Opening a link to one says the page cannot be found.'],
+  ['That seller’s prices', 'Every figure — in the list, on the product, in the basket — is the seller’s own. The marketplace’s price is never shown there.'],
+  ['That seller’s name and contact details', 'The shop is branded to them, and questions go to them rather than to the marketplace.'],
+  ['Category counts that match the shelf', 'A category saying four means four, not the number the marketplace as a whole has.'],
+], [3200, 6800]);
+note('Their own logo on it', 'A seller can upload their own mark from their profile page, and it appears at the top of their shop beside their name. Until they do, the shop shows the first letter of their name — never the marketplace’s own logo, which would tell a buyer they are somewhere they are not. Replacing one removes the old file; removing it puts the letter back.', C.blue);
+note('Only real pictures are accepted', 'What a file actually is decides whether it can be used, not what it is called. A drawing format that can carry instructions is refused however it is named, because the shop serves it on the seller’s own web address to their own buyers.', C.orange);
+
+note('The address decides the seller', 'Nothing a visitor can change decides whose shop they are in — only the web address they came to. That is what makes it impossible to be shown one seller’s price and charged another’s.', C.orange);
+note('An address that belongs to nobody', 'A made-up name in front of the domain shows “no shop here” rather than quietly showing the marketplace’s own shop under somebody else’s name. A seller who has been suspended has no shop either.', C.purple);
+note('Off unless it is set up', 'A business that sells everything itself never sees any of this. Seller addresses only exist once the business configures the domain they hang off.', C.teal);
+
+note('When a seller is paid', 'An order a seller is part of is split the moment it is paid for, not when it is placed — an unpaid order is not work anybody should start. Each seller then gets their own copy of it with its own number, its own status and its own money: what the goods came to, what the marketplace kept, and what is left for them. The rate used is stored with the figure, so a statement can always be checked afterwards.', C.blue);
+note('What the marketplace keeps', 'A percentage of the goods only. Never of the tax, which is money passing through the seller to a tax authority, and never of the delivery charge, which is recovery of a cost rather than earnings. A seller on an agreed rate of their own keeps it when the standard rate changes.', C.teal);
+note('Paid twice, split once', 'Payment providers routinely tell a shop about the same payment more than once. A second message never creates a second copy of the order for the seller, and never a second order number on paperwork they may already have printed.', C.purple);
+
+note('One brand, not one per seller', 'Several sellers of the same manufacturer’s goods share a single brand. The screen names the other sellers waiting on it, because approving decides the name for all of them — and refusing one seller does not clear it, since the others are still waiting.', C.orange);
+note('How much a request is costing', 'Each request shows how many of that seller’s listings are held up behind the name, and the page totals them. It is the figure that says which request to pick up first.', C.blue);
+note('A reason is required to refuse or to ask', 'Both land on the seller’s own screen. An approval needs none — the brand appearing is the message.', C.teal);
+
+h2('8.10 Coupons and manufacturers');
 bullets([
   'Create and manage coupons, code rules, validity periods and usage context.',
   'Maintain manufacturer/economic operator data used by catalogue and product compliance information.',
@@ -632,6 +820,8 @@ table(['Optional capability', 'When it appears / what is required'], [
   ['Warehouse map provider', 'Works with configured Google Maps, vector-map or raster-tile settings; the screen still works without a map background.'],
   ['AI assistant / image search', 'Requires assistant configuration; guest AI access is separately configurable.'],
   ['Admin location gate', 'Can be enabled for staff sign-in; production deployment needs HTTPS for browser location access.'],
+  ['Seller shop fronts', 'Each seller gets a web address of their own once the business configures the domain to hang them off. Without it every visitor is on the business’s own shop, exactly as before.'],
+  ['Marketplace commission', 'A standard percentage set once by the business, with an agreed rate per seller where one has been negotiated. Both start at nothing, so a business that has not decided what it charges charges nothing.'],
 ], [3500, 6500]);
 note('Configuration rule', 'A feature being in the code does not mean it is always enabled in every customer installation. This guide describes the capability and clearly identifies when setup controls visibility.', C.orange);
 page();

@@ -160,6 +160,57 @@ export function CustomersIcon(props: IconProps): React.JSX.Element {
   );
 }
 
+/**
+ * Businesses selling on the marketplace. A shopfront: an awning over a door.
+ *
+ * Deliberately not a second person-shape. It sits directly under Customers in
+ * the sidebar, and two similar silhouettes side by side is how a daily user
+ * stops being able to aim at either without reading.
+ */
+export function SellerIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M4 9.5 5.2 5.4A1.5 1.5 0 0 1 6.6 4.3h10.8a1.5 1.5 0 0 1 1.4 1.1L20 9.5" />
+      <path d="M4 9.5h16v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5v-9Z" />
+      <path d="M9.5 20v-5h5v5" />
+    </Icon>
+  );
+}
+
+/**
+ * Listings waiting for quality review. A page with a tick being cut into it.
+ *
+ * A document rather than a magnifying glass: the sidebar already reads "search"
+ * as the glass, and this queue is not a search — it is a stack of submissions
+ * somebody has to work through.
+ */
+export function ListingReviewIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M13.4 3.6H6.8a1.6 1.6 0 0 0-1.6 1.6v13.6a1.6 1.6 0 0 0 1.6 1.6h10.4a1.6 1.6 0 0 0 1.6-1.6V8.8Z" />
+      <path d="M13.4 3.6v5.2h5.4" />
+      <path d="m8.6 14.4 2 2 4-4.4" />
+    </Icon>
+  );
+}
+
+/**
+ * Brand requests awaiting a decision. A luggage tag with a hole punched in it.
+ *
+ * A tag rather than a star or a badge: both of those read as "featured" or
+ * "verified" in a sidebar, and this queue is neither — it is names waiting to
+ * be allowed. It sits under Manufacturers, which is a building, so there is no
+ * silhouette to confuse it with.
+ */
+export function BrandRequestIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M12.6 3.6H20v7.4l-8.6 8.6a1.6 1.6 0 0 1-2.3 0l-5.1-5.1a1.6 1.6 0 0 1 0-2.3Z" />
+      <path d="M16.4 7.2h.01" />
+    </Icon>
+  );
+}
+
 /** Chat enquiries from the storefront widget. A speech bubble, nothing more. */
 export function ChatIcon(props: IconProps): React.JSX.Element {
   return (

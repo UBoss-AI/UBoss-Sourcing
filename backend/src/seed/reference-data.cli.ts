@@ -14,6 +14,11 @@ async function main(): Promise<void> {
   console.log(`Countries installed:  ${String(result.countries)}`);
   console.log(`VAT rates installed:  ${String(result.vatRates)}`);
   console.log(`Prices backfilled:    ${String(result.backfilledPrices)}`);
+  console.log(
+    `Departments planted:  ${String(result.starterDepartments)} ` +
+      `(${String(result.starterSubCategories)} sub-categories) — ` +
+      `departments already present were left alone`,
+  );
 
   if (result.vatRates > 0) {
     // Loud, and on purpose. A member state changes its VAT rate with a few

@@ -25,8 +25,27 @@ export interface Pagination {
 // ---------------------------------------------------------------------------
 
 export interface StorefrontConfig {
+  /**
+   * The seller whose shop front this is, on a per-seller subdomain.
+   *
+   * Absent on the operator's own domain, and on every deployment that has no
+   * seller subdomains configured — which is most of them. When it is present
+   * the `business` block above already carries the seller's name and contact
+   * details, so nothing needs to choose between two sources; this is here for
+   * the few places that have to say something different because a seller is
+   * selling, rather than merely print a name.
+   */
+  seller?: {
+    id: string;
+    slug: string;
+    displayName: string;
+    legalName: string;
+    description: string | null;
+  };
   business: {
     displayName: string;
+    /** The registered name behind the trading name. Only on a seller's shop. */
+    legalName?: string;
     supportEmail: string | null;
     supportPhone: string | null;
     logo: { url: string; altText: string | null } | null;
