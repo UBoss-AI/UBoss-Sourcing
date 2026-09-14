@@ -464,10 +464,14 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
     },
   );
 
-  app.get('/payout-account', async (request, reply) => {
-    const account = await readPayoutAccount(currentSeller(request));
-    return reply.header('cache-control', 'no-store').status(200).send(account);
-  });
+  app.get(
+    '/payout-account',
+    { preHandler: requireSeller(SellerPermission.FINANCE_READ) },
+    async (request, reply) => {
+      const account = await readPayoutAccount(currentSeller(request));
+      return reply.header('cache-control', 'no-store').status(200).send(account);
+    },
+  );
 
   /**
    * Begin payout onboarding with the provider.

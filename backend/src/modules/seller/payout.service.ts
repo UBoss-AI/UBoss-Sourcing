@@ -192,7 +192,17 @@ export interface PayoutAccountView {
 export async function readPayoutAccount(
   membership: SellerMembership,
 ): Promise<PayoutAccountView> {
-  assertSellerPermission(membership, SellerPermission.ACCOUNT_READ);
+  /*
+   * FINANCE_READ, not ACCOUNT_READ.
+   *
+   * This answer carries the bank's name, the last four digits of the account
+   * and the provider's own identifier for it. ACCOUNT_READ is held by every
+   * role in the building - a support temp answering buyers, a warehouse
+   * manager counting stock - and none of them has any business reading where
+   * the money goes. The screen that renders this is already behind
+   * FINANCE_READ; the endpoint was not, which made the guard a decoration.
+   */
+  assertSellerPermission(membership, SellerPermission.FINANCE_READ);
 
   const adapter = payoutAdapter();
 

@@ -2810,6 +2810,21 @@ honest boundary.
    names the missing environment variable. Every screen that would show a payout
    shows a configuration-required panel instead. **No bank details are collected
    anywhere** — they belong with a regulated provider, not in this database.
+
+   Reading the payout account needs `FINANCE_READ`, not `ACCOUNT_READ`. The
+   answer carries the bank's name, the last four digits and the provider's own
+   identifier for the account, and `ACCOUNT_READ` is held by every role in the
+   building — a support member answering buyers, a warehouse manager counting
+   stock. The Payments screen was already behind the finance key; until the
+   endpoint was too, the guard was a decoration a single `fetch` walked past.
+
+   **Nothing produces a statement yet.** Commission is computed and frozen onto
+   each `SellerOrderGroup` at confirmation, and `createPayout` is written and
+   idempotent — but no job rolls delivered groups into a `SellerSettlement`, so
+   the Payments screen shows "No statements yet" however much a seller has
+   delivered. What a settlement period is, and when a delivered order becomes
+   payable, are the operator's commercial policy rather than something this
+   software should decide on their behalf.
 2. **Bank verification.** There is no provider that could run the penny-transfer
    check the reference workflow shows, so no verification is claimed.
 3. **E-signature.** Consent is recorded; a verified signature is not claimed.
