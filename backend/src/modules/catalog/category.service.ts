@@ -12,7 +12,7 @@ import { newId } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { sanitiseProductHtml, stripHtml } from '../../infra/sanitize.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
-import { publicCategoryWhere, slugify } from './catalog.visibility.js';
+import { publicCategoryWhere, publicProductWhere, slugify } from './catalog.visibility.js';
 
 export interface CategoryActor {
   userId: string;
@@ -346,7 +346,17 @@ export interface CategoryNode {
   depth: number;
   sortOrder: number;
   isActive: boolean;
+  /** Products filed directly under this category, and nothing else. */
   productCount: number;
+  /**
+   * Products in this category and in every category beneath it.
+   *
+   * This is the number the storefront shows, because it is the number the
+   * customer gets: opening a category filters on its whole subtree, so a
+   * department whose products all sit in its children would otherwise
+   * advertise nothing and then show several hundred.
+   */
+  totalProductCount: number;
   children: CategoryNode[];
 }
 
@@ -362,8 +372,21 @@ export async function listCategoryTree(
   // `language: ''` matches no stored row, so an unlocalised caller gets an
   // empty array rather than every language's copy.
   const language = options.language ?? '';
-  const where: Prisma.CategoryWhereInput =
-    options.includeInactive === true ? { archivedAt: null } : publicCategoryWhere();
+  const includeInactive = options.includeInactive === true;
+  const where: Prisma.CategoryWhereInput = includeInactive
+    ? { archivedAt: null }
+    : publicCategoryWhere();
+
+  /*
+   * What the count counts.
+   *
+   * The storefront counts what a customer can actually open: a draft or
+   * archived product is not on the category page, so promising it on the card
+   * in front of it is a number that never adds up. The admin tree counts
+   * everything, because there the figure answers "what is filed here" - the
+   * question asked before archiving a category, which drafts also block.
+   */
+  const productCount = includeInactive ? true : { where: publicProductWhere() };
 
   const rows = await prisma.category.findMany({
     where,
@@ -377,7 +400,7 @@ export async function listCategoryTree(
       sortOrder: true,
       isActive: true,
       translations: { where: { language }, select: { name: true }, take: 1 },
-      _count: { select: { products: true } },
+      _count: { select: { products: productCount } },
     },
   });
 
@@ -394,6 +417,7 @@ export async function listCategoryTree(
       sortOrder: row.sortOrder,
       isActive: row.isActive,
       productCount: row._count.products,
+      totalProductCount: row._count.products,
       children: [],
     });
   }
@@ -415,7 +439,23 @@ export async function listCategoryTree(
     }
   }
 
+  for (const root of roots) rollUpProductCounts(root);
+
   return roots;
+}
+
+/**
+ * Add every node's descendants into its total, depth-first.
+ *
+ * Done on the assembled tree rather than on the flat rows, so a branch whose
+ * parent was filtered out above - hidden by the admin, and therefore dropped -
+ * is not counted into a department the customer can actually open.
+ */
+function rollUpProductCounts(node: CategoryNode): number {
+  let total = node.productCount;
+  for (const child of node.children) total += rollUpProductCounts(child);
+  node.totalProductCount = total;
+  return total;
 }
 
 export async function findCategoryBySlug(

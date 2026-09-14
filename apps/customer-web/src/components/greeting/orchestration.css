@@ -903,3 +903,54 @@
     will-change: auto;
   }
 }
+
+/* ==========================================================================
+ * When the WebGL stage is live
+ *
+ * `HeroStage` renders a real core — actual geometry, actual lights, rings that
+ * genuinely pass behind it — anchored to `.orch-stage` so it lands exactly
+ * where the CSS sphere is. Both drawing the same object would be two spheres
+ * a pixel apart, so this half stands down.
+ *
+ * Only the SPHERE stands down. Everything that carries information stays
+ * exactly as it is: the word in the middle, the orbit guides the cards ride,
+ * the radial lines that join the middle to each card, and the four cards
+ * themselves. The scene is the object; this is still the diagram.
+ *
+ * Scoped to `[data-stage='on']`, which `HomePage` sets only after the stage
+ * has reported a rendered frame. A blocked driver, a device ruled out for
+ * being too small to render it well, or a chunk that never arrived all leave
+ * the attribute at `off` and this file drawing the sphere it has always drawn.
+ * ========================================================================== */
+
+[data-stage='on'] .orch-orb,
+[data-stage='on'] .orch-hub-glow,
+[data-stage='on'] .orch-hub-aura,
+[data-stage='on'] .orch-hub-rings,
+[data-stage='on'] .orch-hub-sweep {
+  opacity: 0;
+  /* Faded rather than removed. The stage fades in over more than a second,
+     and a sphere that vanished on the first frame would leave a hole in the
+     hero for the rest of it. */
+  transition: opacity 900ms ease-out;
+}
+
+/*
+ * The web steps back a long way.
+ *
+ * `.orch-web` is a flat SVG lattice drawn at full strength over the whole
+ * square — it was the depth cue when there was nothing behind it to be deep.
+ * Over a rendered core it is the opposite: a bright, perfectly flat grid
+ * sitting on top of real perspective, which flattens everything under it and
+ * is the single biggest reason a first attempt at this looked like a diagram
+ * with a photograph behind it rather than like one object.
+ *
+ * Kept rather than hidden, at a quarter strength, because the radial lines
+ * are what join the middle of the hub to each of the four cards. That is
+ * information — it says the cards belong to this thing — and losing it would
+ * leave four tiles floating for no stated reason.
+ */
+[data-stage='on'] .orch-web {
+  opacity: 0.26;
+  transition: opacity 900ms ease-out;
+}

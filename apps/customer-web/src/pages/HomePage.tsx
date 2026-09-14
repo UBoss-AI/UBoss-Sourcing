@@ -40,16 +40,19 @@
  *     and does no layout for the life of the page — see
  *     `components/greeting/orchestration.css`.
  */
+import { useCallback, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from '@/auth/session-context';
 import { useStorefront } from '@/app/storefront-context';
 import { HeroSearch } from '@/components/hero-search/HeroSearch';
 import { InlineProducts } from '@/components/home/InlineProducts';
+import { HeroStage } from '@/components/greeting/HeroStage';
 import { SourcingHub } from '@/components/greeting/SourcingHub';
 import { useAccountIdentity } from '@/pages/account/useAccountIdentity';
-import { ChevronRightIcon, ClockIcon, CurrencyIcon, RepeatIcon } from '@/components/icons';
-import { categoryMark } from '@/lib/category-mark';
+import { ClockIcon, CurrencyIcon, RepeatIcon } from '@/components/icons';
+import { CategoryCards } from '@/components/catalog/CategoryCards';
+import { stockedCategories } from '@/lib/category-tree';
 import { api } from '@/lib/api';
 import { useLocale } from '@/app/locale-context';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
@@ -134,15 +137,41 @@ function Greeting(): React.JSX.Element {
       : null,
   ].filter((entry): entry is { icon: typeof ClockIcon; label: string } => entry !== null);
 
-  const eyebrow = !isLoading && isCustomer
-    ? shortName === null
-      ? t('greeting.welcomeBack')
-      : t('greeting.welcomeBackNamed', { name: shortName })
-    : t('greeting.eyebrow');
+  const eyebrow =
+    !isLoading && isCustomer
+      ? shortName === null
+        ? t('greeting.welcomeBack')
+        : t('greeting.welcomeBackNamed', { name: shortName })
+      : t('greeting.eyebrow');
+
+  /*
+   * The WebGL stage, and the one thing it changes about the hub.
+   *
+   * `hubRef` is what the scene anchors its core to — the hub moves from the
+   * right-hand column to under the text below `lg`, and a core placed by
+   * breakpoint rather than by measurement would be correct at one window
+   * width. `stageActive` is the scene reporting that it genuinely rendered, at
+   * which point the hub gives up drawing its own glass sphere; see
+   * `HeroStage`'s `onActive` for why that is reported rather than assumed.
+   *
+   * Both are held here rather than inside the hub because the canvas is the
+   * whole card's backdrop, not the hub's — the depth field and the ground
+   * plane run behind the headline and the search bar too, which is what stops
+   * the effect looking like a widget bolted onto one corner.
+   */
+  const hubRef = useRef<HTMLDivElement | null>(null);
+  const [stageActive, setStageActive] = useState(false);
+  const onStageActive = useCallback((active: boolean) => {
+    setStageActive(active);
+  }, []);
 
   return (
-    <section className="relative mb-10 overflow-hidden rounded-2xl border border-border shadow-lift">
+    <section
+      data-stage={stageActive ? 'on' : 'off'}
+      className="relative mb-10 overflow-hidden rounded-2xl border border-border shadow-lift"
+    >
       <GreetingBackdrop />
+      <HeroStage anchorRef={hubRef} onActive={onStageActive} />
 
       {/*
        * `lg:items-stretch`, and a shorter band than it had.
@@ -167,51 +196,52 @@ function Greeting(): React.JSX.Element {
       <div className="relative grid grid-cols-1 gap-12 px-6 py-10 sm:px-10 sm:py-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:items-stretch lg:gap-10 lg:py-12">
         <div className="flex max-w-2xl flex-col lg:justify-between">
           <div>
-          <p className="text-xxs font-semibold uppercase tracking-[0.18em] text-brand">{eyebrow}</p>
+            <p className="text-xxs font-semibold uppercase tracking-[0.18em] text-brand">
+              {eyebrow}
+            </p>
 
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-ink sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
-            {t('greeting.headline')}
-          </h1>
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-ink sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
+              {t('greeting.headline')}
+            </h1>
 
-          <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-muted">
-            {isCustomer
-              ? t('greeting.leadCustomer')
-              : t('greeting.leadGuest', { store: business.displayName })}
-          </p>
+            <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-muted">
+              {isCustomer
+                ? t('greeting.leadCustomer')
+                : t('greeting.leadGuest', { store: business.displayName })}
+            </p>
 
-          {/*
-           * The search module, where two call-to-action buttons used to be.
-           *
-           * The buttons said "Browse the catalogue" and "Sign in", and the
-           * first of those asked somebody to go and look for a thing they
-           * could already name. A search bar lets them say it — which on a
-           * catalogue of several thousand consumables is the difference
-           * between a landing page and a front door.
-           *
-           * Nothing was lost with them. Submitting an empty box goes to the
-           * same browse-all page the orange button did, and the sign-in path
-           * is in the header on every screen and behind AI Mode for anybody who
-           * needs it. See `components/hero-search/HeroSearch.tsx`.
-           */}
-          <HeroSearch />
+            {/*
+             * The search module, where two call-to-action buttons used to be.
+             *
+             * The buttons said "Browse the catalogue" and "Sign in", and the
+             * first of those asked somebody to go and look for a thing they
+             * could already name. A search bar lets them say it — which on a
+             * catalogue of several thousand consumables is the difference
+             * between a landing page and a front door.
+             *
+             * Nothing was lost with them. Submitting an empty box goes to the
+             * same browse-all page the orange button did, and the sign-in path
+             * is in the header on every screen and behind AI Mode for anybody who
+             * needs it. See `components/hero-search/HeroSearch.tsx`.
+             */}
+            <HeroSearch />
 
-          {/* A guest still gets one plain way in, under the bar rather than
+            {/* A guest still gets one plain way in, under the bar rather than
               beside it: the search box is what this block is asking for, and a
               filled button next to it would compete with the thing it is
               asking for. Never rendered while the session is unknown — a Sign
               in link that flashes for a signed-in customer looks broken. */}
-          {!isLoading && !isCustomer && (
-            <p className="mt-4 text-sm text-ink-muted">
-              {t('home.orSignInPrompt')}{' '}
-              <Link
-                to="/login"
-                className="font-medium text-brand underline underline-offset-2 hover:text-brand-hover"
-              >
-                {t('home.signInToOrder')}
-              </Link>
-            </p>
-          )}
-
+            {!isLoading && !isCustomer && (
+              <p className="mt-4 text-sm text-ink-muted">
+                {t('home.orSignInPrompt')}{' '}
+                <Link
+                  to="/login"
+                  className="font-medium text-brand underline underline-offset-2 hover:text-brand-hover"
+                >
+                  {t('home.signInToOrder')}
+                </Link>
+              </p>
+            )}
           </div>
 
           {/* The second flex child, so the slack in a stretched column lands
@@ -232,7 +262,7 @@ function Greeting(): React.JSX.Element {
 
         {/* The hub is navigation as well as decoration, so it is not
             `aria-hidden` and it is not hidden on a phone — it rearranges. */}
-        <SourcingHub />
+        <SourcingHub stageRef={hubRef} />
       </div>
     </section>
   );
@@ -263,8 +293,7 @@ function CategoryStrip(): React.JSX.Element | null {
     staleTime: 5 * 60_000,
   });
 
-  // A category with nothing published in it is a dead end, so it is not shown.
-  const categories = (query.data?.categories ?? []).filter((node) => node.productCount > 0);
+  const categories = stockedCategories(query.data?.categories ?? []);
 
   if (categories.length === 0) return null;
 
@@ -280,55 +309,7 @@ function CategoryStrip(): React.JSX.Element | null {
         </p>
       </header>
 
-      {/* Three across from `md`, not `sm`. The card is a horizontal row — mark,
-          name, count, chevron — so a 200px column at `sm` would leave the
-          category name about 80px, and "Packaging & Consumables" would arrive
-          in four lines. */}
-      <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-        {categories.map((category) => {
-          const Mark = categoryMark(category.name, category.slug);
-
-          return (
-            <li key={category.id}>
-              <Link
-                to={`/category/${category.slug}`}
-                className="group flex h-full items-center gap-3.5 rounded-lg border border-border bg-surface p-3.5 shadow-card transition-[border-color,box-shadow] hover:border-border-hover hover:shadow-card-hover sm:gap-4 sm:p-4"
-              >
-                {/* The placeholder treatment. A tinted plate rather than a
-                    grey box: grey reads as a missing image, a brand-tinted
-                    plate reads as a chosen mark. */}
-                <span
-                  aria-hidden="true"
-                  className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md bg-brand-soft text-brand ring-1 ring-inset ring-brand/15 transition-colors group-hover:bg-brand-soft-hover sm:h-14 sm:w-14"
-                >
-                  <span
-                    className="absolute inset-0"
-                    style={{
-                      backgroundImage:
-                        'linear-gradient(to right, rgb(var(--brand) / 0.07) 1px, transparent 1px),' +
-                        'linear-gradient(to bottom, rgb(var(--brand) / 0.07) 1px, transparent 1px)',
-                      backgroundSize: '8px 8px',
-                    }}
-                  />
-                  <Mark className="relative h-6 w-6 sm:h-7 sm:w-7" />
-                </span>
-
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-medium leading-snug text-ink group-hover:text-brand">
-                    {category.name}
-                  </span>
-                  <span className="mt-1 block text-xs text-ink-muted">
-                    {category.productCount} product
-                    {category.productCount === 1 ? '' : 's'}
-                  </span>
-                </span>
-
-                <ChevronRightIcon className="h-4 w-4 shrink-0 text-ink-subtle transition-colors group-hover:text-brand" />
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+      <CategoryCards categories={categories} />
     </section>
   );
 }

@@ -85,12 +85,14 @@ async function attachImage(productId: string): Promise<string> {
   return mediaId;
 }
 
-async function makeProduct(overrides: { sku?: string; name?: string } = {}): Promise<string> {
+async function makeProduct(
+  overrides: { sku?: string; name?: string; categoryId?: string } = {},
+): Promise<string> {
   const created = await createProduct(
     {
       name: overrides.name ?? 'Hex Bolt M12',
       sku: overrides.sku ?? `HEX-${newId().slice(-8)}`,
-      categoryId,
+      categoryId: overrides.categoryId ?? categoryId,
       basePriceMinor: '4550',
       shortDescription: 'Grade 8.8 zinc-plated hex bolt.',
       minOrderQty: 10,
@@ -170,7 +172,9 @@ describe('categories', () => {
     const child = await createCategory({ name: 'Bolts', parentId: categoryId }, actor);
     const grandchild = await createCategory({ name: 'Hex Bolts', parentId: child.id }, actor);
 
-    const rows = await prisma.category.findMany({ where: { id: { in: [child.id, grandchild.id] } } });
+    const rows = await prisma.category.findMany({
+      where: { id: { in: [child.id, grandchild.id] } },
+    });
     const childRow = rows.find((r) => r.id === child.id);
     const grandchildRow = rows.find((r) => r.id === grandchild.id);
 
@@ -181,9 +185,11 @@ describe('categories', () => {
   });
 
   it('refuses to make a category its own parent', async () => {
-    await expect(updateCategory(categoryId, { parentId: categoryId }, actor)).rejects.toMatchObject({
-      code: 'CATEGORY_CYCLE_DETECTED',
-    });
+    await expect(updateCategory(categoryId, { parentId: categoryId }, actor)).rejects.toMatchObject(
+      {
+        code: 'CATEGORY_CYCLE_DETECTED',
+      },
+    );
   });
 
   /** The cycle that a naive parent check misses: attaching to a descendant. */
@@ -257,6 +263,59 @@ describe('categories', () => {
 
     const publicTree = await listCategoryTree();
     expect(publicTree.map((n) => n.name)).not.toContain('Visible Child');
+  });
+
+  /**
+   * The storefront shows the subtree total, because opening a department
+   * filters on its whole subtree. A department holding nothing of its own but
+   * everything in its children must not advertise itself as empty.
+   */
+  it('rolls descendants up into each category total', async () => {
+    const child = await createCategory(
+      { name: 'Bolts', parentId: categoryId, isActive: true },
+      actor,
+    );
+    const grandchild = await createCategory(
+      { name: 'Hex', parentId: child.id, isActive: true },
+      actor,
+    );
+
+    await makeProduct({ name: 'Bolt A', categoryId: child.id });
+    await makeProduct({ name: 'Bolt B', categoryId: grandchild.id });
+    await makeProduct({ name: 'Bolt C', categoryId: grandchild.id });
+
+    const [root] = await listCategoryTree({ includeInactive: true });
+
+    // Nothing is filed directly in the department itself.
+    expect(root?.productCount).toBe(0);
+    expect(root?.totalProductCount).toBe(3);
+    expect(root?.children[0]?.productCount).toBe(1);
+    expect(root?.children[0]?.totalProductCount).toBe(3);
+    expect(root?.children[0]?.children[0]?.totalProductCount).toBe(2);
+  });
+
+  /**
+   * The storefront card and the category page it opens have to agree. The page
+   * lists published products, so the card counts published products.
+   */
+  it('counts only published products in the public tree', async () => {
+    const child = await createCategory(
+      { name: 'Bolts', parentId: categoryId, isActive: true },
+      actor,
+    );
+
+    const draft = await makeProduct({ name: 'Draft Bolt', categoryId: child.id });
+    const live = await makeProduct({ name: 'Live Bolt', categoryId: child.id });
+    await attachImage(live);
+    await publishProduct(live, actor);
+
+    const [publicRoot] = await listCategoryTree();
+    const [adminRoot] = await listCategoryTree({ includeInactive: true });
+
+    expect(publicRoot?.totalProductCount).toBe(1);
+    // The admin tree still sees the draft: it is what blocks archiving.
+    expect(adminRoot?.totalProductCount).toBe(2);
+    expect(draft).not.toBe(live);
   });
 
   it('returns a whole subtree for filtering', async () => {
@@ -371,7 +430,12 @@ describe('specifications', () => {
 
     await updateProduct(
       productId,
-      { attributes: [{ name: 'Material', value: 'Mild steel' }, { name: 'Finish', value: 'Raw' }] },
+      {
+        attributes: [
+          { name: 'Material', value: 'Mild steel' },
+          { name: 'Finish', value: 'Raw' },
+        ],
+      },
       actor,
     );
 
@@ -627,7 +691,14 @@ describe('public visibility', () => {
     await attachImage(productId);
     await prisma.productVariant.createMany({
       data: [
-        { id: newId(), productId, sku: 'V-ACTIVE', name: 'Active', optionsJson: {}, isActive: true },
+        {
+          id: newId(),
+          productId,
+          sku: 'V-ACTIVE',
+          name: 'Active',
+          optionsJson: {},
+          isActive: true,
+        },
         { id: newId(), productId, sku: 'V-OFF', name: 'Off', optionsJson: {}, isActive: false },
       ],
     });

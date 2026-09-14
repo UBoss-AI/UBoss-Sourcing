@@ -484,7 +484,23 @@ function NodeTile({
 
 // ---------------------------------------------------------------------------
 
-export function SourcingHub(): React.JSX.Element {
+interface SourcingHubProps {
+  /**
+   * Handed the square the orb sits in, for the WebGL stage to aim at.
+   *
+   * The stage renders a real core in three dimensions where this drawing
+   * renders a CSS one, and the two have to occupy the same place to the pixel
+   * — the four cards orbit *that* point, and a core even slightly off it reads
+   * as a diagram that does not line up. The square moves a long way between
+   * breakpoints, so it is measured rather than calculated: see `HeroStage`.
+   *
+   * Optional, and the hub does not care whether anybody passes it. Nothing
+   * here changes when the stage is absent.
+   */
+  stageRef?: RefObject<HTMLDivElement | null>;
+}
+
+export function SourcingHub({ stageRef }: SourcingHubProps = {}): React.JSX.Element {
   const { t } = useI18n();
   const { features } = useStorefront();
   const { isCustomer, isLoading } = useSession();
@@ -529,7 +545,7 @@ export function SourcingHub(): React.JSX.Element {
   return (
     <div>
       <div ref={rootRef} className="orch">
-        <div className="orch-stage">
+        <div ref={stageRef} className="orch-stage">
           <HubWeb />
           <HubCore label={t('greeting.hub.sourcing')} />
         </div>
