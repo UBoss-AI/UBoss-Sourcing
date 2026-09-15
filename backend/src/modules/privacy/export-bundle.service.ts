@@ -82,6 +82,25 @@ export const SECTIONS = Object.freeze({
     // line `organisationMembership` draws. The seller BUSINESS's own data is not
     // theirs and does not come with it.
     'sellerMembership',
+    // Their place in a LOGISTICS organisation, where they work for a carrier
+    // that delivers for this marketplace. Same line again: the membership and
+    // the driver record are facts about the person; the carrier's consignments
+    // are the carrier's.
+    'logisticsMembership',
+    /*
+     * Where they drove, while on duty.
+     *
+     * The most sensitive personal data this installation collects about
+     * anybody: one employee's movements, minute by minute. Disclosed in full
+     * rather than summarised, because a subject asking what is held about them
+     * is entitled to the actual positions and not a count of them - and
+     * because the honest answer to "you track my location" is to show them
+     * exactly what that means.
+     *
+     * Bounded by the retention window, which is short for exactly this
+     * reason, and by a row cap on the section itself.
+     */
+    'logisticsLocationHistory',
   ]),
   withheld: Object.freeze([
     {
@@ -103,6 +122,14 @@ export const SECTIONS = Object.freeze({
         'Security and accountability log of administrative actions. Entries naming this ' +
         'subject are retained under Art. 17(3)(b) and are available on request; the log as a ' +
         'whole describes staff activity and is not the subject’s personal data.',
+    },
+    {
+      section: 'logisticsAuditTrail',
+      reason:
+        'Accountability log of actions taken inside a logistics company - shipments accepted, ' +
+        'status updates recorded, contact details revealed. It belongs to that COMPANY rather ' +
+        'than to any one member of it, and most entries describe colleagues. Entries naming ' +
+        'this subject are retained under Art. 17(3)(b) and are available on request.',
     },
     {
       section: 'sellerAuditTrail',
@@ -828,6 +855,128 @@ export async function buildCustomerBundle(subject: BundleSubject): Promise<Recor
         // person, and their identity is that person's data.
         joinedByInvitation: membership.invitedByProfileId !== null,
         removedAt: iso(membership.removedAt),
+      };
+    })(),
+
+    /**
+     * Where they work as a CARRIER, and what they drive.
+     *
+     * The same line as the two memberships above: what the company is called,
+     * what authority this person holds in it, and - where they are a driver -
+     * the certifications and consent recorded against them. Not the carrier's
+     * consignments, which are somebody else's goods going to a third party's
+     * address.
+     *
+     * Consent is disclosed as BOTH timestamps rather than as a boolean,
+     * because "never agreed" and "agreed and later withdrew" are different
+     * facts and a subject checking whether their employer switched it on for
+     * them needs to see which.
+     */
+    logisticsMembership: await (async () => {
+      const membership = await prisma.logisticsPartnerUser.findUnique({
+        where: { userId: subject.userId },
+        select: {
+          role: true,
+          status: true,
+          fullName: true,
+          jobTitle: true,
+          createdAt: true,
+          disabledAt: true,
+          partner: { select: { displayName: true, legalName: true } },
+          driverProfile: {
+            select: {
+              state: true,
+              employeeReference: true,
+              licenceExpiresAt: true,
+              canCarryDangerousGoods: true,
+              canCarryColdChain: true,
+              canCarrySterile: true,
+              locationConsentAt: true,
+              locationConsentWithdrawnAt: true,
+            },
+          },
+        },
+      });
+
+      if (membership === null) return null;
+
+      return {
+        carrierName: membership.partner.displayName,
+        registeredName: membership.partner.legalName,
+        nameOnRecord: membership.fullName,
+        jobTitle: membership.jobTitle,
+        role: membership.role,
+        status: membership.status,
+        joinedAt: iso(membership.createdAt),
+        accessRemovedAt: iso(membership.disabledAt),
+        driver:
+          membership.driverProfile === null
+            ? null
+            : {
+                state: membership.driverProfile.state,
+                employeeReference: membership.driverProfile.employeeReference,
+                licenceExpiresAt: iso(membership.driverProfile.licenceExpiresAt),
+                clearedForDangerousGoods: membership.driverProfile.canCarryDangerousGoods,
+                clearedForColdChain: membership.driverProfile.canCarryColdChain,
+                clearedForSterileHandling: membership.driverProfile.canCarrySterile,
+                locationSharingAgreedAt: iso(membership.driverProfile.locationConsentAt),
+                locationSharingWithdrawnAt: iso(
+                  membership.driverProfile.locationConsentWithdrawnAt,
+                ),
+              },
+      };
+    })(),
+
+    /**
+     * Every position recorded about this person, while they were on duty.
+     *
+     * Capped at the most recent 5,000, and the cap is stated in the row rather
+     * than applied silently - a subject who received a truncated file that
+     * looked complete would have been given a misleading answer to a legal
+     * question. Anything older has already been deleted by the retention
+     * sweep, which is why the cap is rarely reached.
+     */
+    logisticsLocationHistory: await (async () => {
+      const driver = await prisma.logisticsDriverProfile.findFirst({
+        where: { partnerUser: { userId: subject.userId } },
+        select: { id: true },
+      });
+
+      if (driver === null) return null;
+
+      const total = await prisma.logisticsLocationPing.count({
+        where: { driverProfileId: driver.id },
+      });
+
+      const pings = await prisma.logisticsLocationPing.findMany({
+        where: { driverProfileId: driver.id },
+        orderBy: { deviceTimestamp: 'desc' },
+        take: 5000,
+        select: {
+          latitude: true,
+          longitude: true,
+          accuracyM: true,
+          speedMps: true,
+          deviceTimestamp: true,
+          receivedAt: true,
+        },
+      });
+
+      return {
+        totalRecorded: total,
+        includedInThisCopy: pings.length,
+        note:
+          total > pings.length
+            ? 'The most recent 5,000 positions are included. Ask for the rest if you need them.'
+            : 'Every position held about you is included.',
+        positions: pings.map((ping) => ({
+          latitude: ping.latitude.toString(),
+          longitude: ping.longitude.toString(),
+          accuracyMetres: ping.accuracyM,
+          speedMetresPerSecond: ping.speedMps === null ? null : ping.speedMps.toString(),
+          recordedByDeviceAt: iso(ping.deviceTimestamp),
+          receivedAt: iso(ping.receivedAt),
+        })),
       };
     })(),
   });

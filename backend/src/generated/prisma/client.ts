@@ -1307,3 +1307,312 @@ export type SellerNotification = Prisma.SellerNotificationModel
  * seller a filtered view of it is the kind of filter that fails open once.
  */
 export type SellerAuditLog = Prisma.SellerAuditLogModel
+/**
+ * Model LogisticsPartner
+ * One logistics company.
+ * 
+ * Created by the MARKETPLACE and never by self-registration. There is no
+ * public sign-up route and no endpoint anywhere that creates one of these
+ * without an admin permission, which is the first of the portal's access
+ * rules and the easiest one to lose by accident.
+ */
+export type LogisticsPartner = Prisma.LogisticsPartnerModel
+/**
+ * Model LogisticsPartnerUser
+ * One person inside one logistics company.
+ * 
+ * `userId` is UNIQUE, not merely indexed. A person drives for one carrier at
+ * a time, and a second membership would make "which tenant is this request
+ * for?" a question with two answers - which is how a courier ends up reading
+ * a competitor's consignments.
+ */
+export type LogisticsPartnerUser = Prisma.LogisticsPartnerUserModel
+/**
+ * Model LogisticsPartnerInvitation
+ * An emailed invitation to join a carrier's portal account.
+ * 
+ * Short-lived, single-use, and it carries NO password. The token is 32 bytes
+ * of CSPRNG output stored as a SHA-256, redeemed once inside a transaction -
+ * the same machinery `AuthToken` uses, and this row is the invitation's
+ * business record beside it: who was asked, to what role, by whom.
+ * 
+ * A permanent password has never been emailed by this software and must not
+ * start being emailed by this feature.
+ */
+export type LogisticsPartnerInvitation = Prisma.LogisticsPartnerInvitationModel
+/**
+ * Model LogisticsServiceRegion
+ * Somewhere this carrier is approved to work.
+ * 
+ * Set by the OPERATOR, never by the partner. A carrier that could widen its
+ * own approved regions could assign itself work it is not licensed to carry,
+ * and this is medical freight.
+ */
+export type LogisticsServiceRegion = Prisma.LogisticsServiceRegionModel
+/**
+ * Model LogisticsCapability
+ * Something this carrier is approved to handle.
+ * 
+ * An approval with evidence behind it, not a claim. Only an APPROVED
+ * capability is matched against a consignment that needs it, and a carrier
+ * whose cold-chain approval was suspended stops being offered reagents that
+ * afternoon rather than at the next contract review.
+ */
+export type LogisticsCapability = Prisma.LogisticsCapabilityModel
+/**
+ * Model LogisticsSlaPolicy
+ * What this carrier promised, and what counts as proof that it delivered.
+ * 
+ * One policy may be the partner's default and others may be named per service
+ * type, which is why `serviceType` is part of the key and carries a NOT NULL
+ * surrogate: `STANDARD` is the default row rather than a nullable one, on the
+ * same NULL-in-a-UNIQUE reasoning as everywhere else in this schema.
+ */
+export type LogisticsSlaPolicy = Prisma.LogisticsSlaPolicyModel
+/**
+ * Model LogisticsShipment
+ * A consignment moving from a warehouse to a business.
+ * 
+ * The record a logistics partner works. It LINKS to an order, a seller's part
+ * of one, a warehouse and the operator's own dispatch note rather than
+ * replacing any of them - see the banner at the top of this section.
+ * 
+ * WHAT IS COPIED RATHER THAN JOINED, AND WHY
+ * 
+ * Company names, addresses, contacts and the category summary are snapshots,
+ * the same way `Order.shippingAddressJson` is. A carrier holding a parcel has
+ * to be able to read the address it is going to even if the buyer edits their
+ * address book that afternoon, and the record of where a consignment was
+ * actually sent must not change afterwards.
+ * 
+ * WHAT IS DELIBERATELY ABSENT
+ * 
+ * Prices, order lines, payment state, the buyer's purchasing history, the
+ * seller's margin. Not masked - ABSENT. A column that is never populated
+ * cannot be leaked by a query somebody forgets to narrow, which is a stronger
+ * control than redacting it on the way out. `declaredValueMinor` is the one
+ * exception and exists for customs and insurance; it is disclosed to a
+ * carrier only on a movement that crosses a border.
+ */
+export type LogisticsShipment = Prisma.LogisticsShipmentModel
+/**
+ * Model LogisticsShipmentPackage
+ * One box, pallet or carton inside a consignment.
+ * 
+ * Its own rows rather than JSON, unlike `SellerShipment.contentsJson`, and
+ * the difference is that these are SCANNED. A driver reads a barcode off a
+ * carton at a loading bay and the system has to find that carton; a JSON blob
+ * cannot be indexed by the thing a scanner emits.
+ */
+export type LogisticsShipmentPackage = Prisma.LogisticsShipmentPackageModel
+/**
+ * Model LogisticsShipmentAssignment
+ * The offer of one consignment to one carrier, and what they said.
+ * 
+ * A row per offer rather than a column on the shipment, because reassignment
+ * has to leave a trail: "who was asked, when, what they said and why" is the
+ * question a disputed delivery turns into, and a column that is overwritten
+ * answers none of it.
+ * 
+ * `state` is what authorises a partner. A COMPLETED or WITHDRAWN assignment
+ * leaves the shipment readable as history and refuses every write - a carrier
+ * that has finished a job must not keep the consignee's address live for ever.
+ */
+export type LogisticsShipmentAssignment = Prisma.LogisticsShipmentAssignmentModel
+/**
+ * Model LogisticsShipmentEvent
+ * One thing that happened to a consignment.
+ * 
+ * APPEND-ONLY. Nothing updates one of these rows, and
+ * `LogisticsShipment.status` is maintained from them inside the same
+ * transaction that writes them - so the timeline is the record and the column
+ * is the index over it.
+ * 
+ * DUPLICATE SUPPRESSION IS A CONSTRAINT, NOT A CODE PATH
+ * 
+ * Two UNIQUE indexes do the work, because a check-then-insert loses to a
+ * carrier that redelivers a webhook twice in the same second:
+ * 
+ * - `(shipmentId, idempotencyKey)` - a client that retries a status update
+ * under the same key writes at most one event.
+ * - `externalEventKey` - a carrier that sends the same event id twice
+ * writes at most one event.
+ * 
+ * Both columns are NOT NULL and carry the event's own ULID where nothing
+ * better exists, because MariaDB treats every NULL in a UNIQUE index as
+ * distinct and a nullable column here would enforce precisely nothing.
+ */
+export type LogisticsShipmentEvent = Prisma.LogisticsShipmentEventModel
+/**
+ * Model LogisticsShipmentException
+ * Something went wrong and somebody has to do something about it.
+ * 
+ * Distinct from an exception STATUS on the shipment. The status says where the
+ * parcel is; this says who owns the problem, by when, and what has been tried
+ * - which is a work item with a lifecycle of its own, and a consignment can
+ * carry two at once.
+ */
+export type LogisticsShipmentException = Prisma.LogisticsShipmentExceptionModel
+/**
+ * Model LogisticsShipmentDocument
+ * A file attached to a consignment.
+ * 
+ * The bytes live in object storage under the PRIVATE prefix and are read back
+ * only through a short-lived signed token - never a guessable URL, and never
+ * a public one. A delivery signature is a person's handwriting; a commercial
+ * invoice is a price list.
+ */
+export type LogisticsShipmentDocument = Prisma.LogisticsShipmentDocumentModel
+/**
+ * Model LogisticsProofOfDelivery
+ * Evidence that a consignment was handed over.
+ * 
+ * One per shipment, which is why `shipmentId` is UNIQUE: a parcel is
+ * delivered once, and a second POD is a correction rather than an addition -
+ * corrections go on the event timeline where they can be read as such.
+ * 
+ * WHAT IS NOT HERE
+ * 
+ * The signature and the photograph. Those are `LogisticsShipmentDocument`
+ * rows under the private storage prefix, and this row points at them. A
+ * signature image inline in an API response is a signature image in a browser
+ * cache.
+ */
+export type LogisticsProofOfDelivery = Prisma.LogisticsProofOfDeliveryModel
+/**
+ * Model LogisticsPickupRequest
+ * A request for a carrier to collect from a warehouse.
+ * 
+ * Separate from the shipment because one van call collects several
+ * consignments and one consignment can survive a failed collection and be
+ * collected the next day. A column on the shipment would model neither.
+ */
+export type LogisticsPickupRequest = Prisma.LogisticsPickupRequestModel
+/**
+ * Model LogisticsDispatchManifest
+ * The paperwork for one handover: a list of consignments leaving together.
+ */
+export type LogisticsDispatchManifest = Prisma.LogisticsDispatchManifestModel
+/**
+ * Model LogisticsDispatchManifestEntry
+ * 
+ */
+export type LogisticsDispatchManifestEntry = Prisma.LogisticsDispatchManifestEntryModel
+/**
+ * Model LogisticsDriverProfile
+ * Somebody who drives.
+ * 
+ * Hangs off `LogisticsPartnerUser` rather than off `User`, so a driver is by
+ * construction a member of exactly one carrier and cannot be looked up
+ * across tenants.
+ */
+export type LogisticsDriverProfile = Prisma.LogisticsDriverProfileModel
+/**
+ * Model LogisticsVehicle
+ * 
+ */
+export type LogisticsVehicle = Prisma.LogisticsVehicleModel
+/**
+ * Model LogisticsDriverAssignment
+ * This driver, on this consignment.
+ * 
+ * The row that makes `/logistics/driver/tasks` answer with one person's stops
+ * and nobody else's. A driver holds no permission that can list shipments, so
+ * this join is the ONLY path from a driver session to a consignment.
+ */
+export type LogisticsDriverAssignment = Prisma.LogisticsDriverAssignmentModel
+/**
+ * Model LogisticsActiveTrip
+ * A driver on the road with the app open.
+ * 
+ * The gate on location collection. A device may only send positions while a
+ * trip of its own is ACTIVE, the token it sends them with is scoped to this
+ * row, and ending the trip stops collection - which is what "no background
+ * tracking outside active duty" means in a schema rather than in a policy
+ * document.
+ */
+export type LogisticsActiveTrip = Prisma.LogisticsActiveTripModel
+/**
+ * Model LogisticsLocationPing
+ * One position report.
+ * 
+ * THE HIGHEST-VOLUME TABLE IN THIS SCHEMA, by a wide margin: a ping a minute
+ * per driver on duty. It is kept apart from every audit and event table on
+ * purpose - mixing a row-per-minute feed into a table an operator queries for
+ * evidence makes both of them slow, and it is the one table a deployment at
+ * scale will want to move to partitioned or dedicated storage. Nothing else
+ * joins to it, so moving it is a change to one service.
+ * 
+ * IT IS ALSO THE MOST SENSITIVE PERSONAL DATA THIS FEATURE COLLECTS. It is
+ * one employee's movements, minute by minute. It is collected only while a
+ * trip is ACTIVE and the driver has consented, it is readable only by roles
+ * holding `logistics.trip.location.read`, and it is deleted by the retention
+ * sweep on the deployment's own window.
+ */
+export type LogisticsLocationPing = Prisma.LogisticsLocationPingModel
+/**
+ * Model CarrierIntegration
+ * A connection to a carrier's API.
+ * 
+ * Credentials live in the ENVIRONMENT or in the encrypted column below, never
+ * in plaintext and never in a log. An integration with no credentials is
+ * UNCONFIGURED, and every call against it answers
+ * CARRIER_PROVIDER_UNCONFIGURED naming the variables it needs - it never
+ * returns a fabricated success, which is the whole reason this state exists.
+ */
+export type CarrierIntegration = Prisma.CarrierIntegrationModel
+/**
+ * Model CarrierStatusMapping
+ * An operator's override of what one carrier code means.
+ * 
+ * The built-in table in `domain/carrier-status-map.ts` is what a deployment
+ * gets for free and is versioned with the software. These rows win over it,
+ * because a carrier can change a code on a Tuesday and an operator has to be
+ * able to fix it that afternoon without waiting for a release.
+ * 
+ * `canonicalStatus` NULL means "deliberately ignore this code", which is a
+ * real answer and a common one: a label-created scan must not start the
+ * transit clock.
+ */
+export type CarrierStatusMapping = Prisma.CarrierStatusMappingModel
+/**
+ * Model CarrierWebhookEvent
+ * One inbound webhook, as it arrived.
+ * 
+ * Stored BEFORE it is understood and kept whether or not it could be. Two
+ * reasons, and the second is the important one:
+ * 
+ * 1. `providerEventId` is UNIQUE per integration, so a carrier that
+ * redelivers an event - which every carrier does - processes it once.
+ * The constraint is the deduplication; there is no check-then-insert to
+ * lose a race in.
+ * 2. An event this software could not map is EVIDENCE. The payload is kept
+ * verbatim, an `UNMAPPED_EXTERNAL_EVENT` exception is raised, and a
+ * person decides. Discarding it - or guessing at it - on a consignment
+ * of medical goods is not an acceptable failure mode.
+ */
+export type CarrierWebhookEvent = Prisma.CarrierWebhookEventModel
+/**
+ * Model LogisticsNotification
+ * Something the portal should tell somebody about.
+ * 
+ * The partner's own feed, and the row an email is sent from. Deduplicated on
+ * `(shipmentId, kind, dedupeKey)` so a carrier redelivering the same tracking
+ * event twice does not produce two emails - which is the whole of requirement
+ * 16 in the brief, expressed as a constraint rather than as a code path.
+ */
+export type LogisticsNotification = Prisma.LogisticsNotificationModel
+/**
+ * Model LogisticsAuditLog
+ * What was done inside one logistics organisation.
+ * 
+ * Its own table rather than rows in `AuditLog`, for exactly the reason
+ * `SellerAuditLog` is its own table: the operator's audit trail describes the
+ * whole marketplace and a tenant must not be able to read it. This one is
+ * scoped to a carrier and is readable by that carrier's OWNER and ADMIN.
+ * 
+ * The rows an OPERATOR writes about a carrier - suspending it, correcting a
+ * status, rotating a credential - go in `AuditLog` as well, so the operator's
+ * own trail is complete without the carrier reading it.
+ */
+export type LogisticsAuditLog = Prisma.LogisticsAuditLogModel

@@ -181,6 +181,27 @@ function Get-RootWrapper([int]$ProcessId) {
 # first.
 # ---------------------------------------------------------------------------
 
+<#
+    Is the logistics partner portal switched on for this deployment?
+
+    Read from backend/.env rather than assumed, because it is off by default
+    and most installations never turn it on. A missing file, a missing line or
+    anything other than a plain "true" all mean no.
+#>
+function Test-LogisticsPortalEnabled {
+    $envFile = Join-Path $RepoRoot 'backend\.env'
+    if (-not (Test-Path $envFile)) { return $false }
+    if (-not (Test-Path (Join-Path $RepoRoot 'apps\logistics-web\package.json'))) { return $false }
+
+    foreach ($line in Get-Content $envFile) {
+        if ($line -match '^\s*FEATURE_LOGISTICS_PORTAL\s*=\s*"?(?<value>[^"#\s]+)') {
+            return ($Matches['value'].ToLowerInvariant() -eq 'true')
+        }
+    }
+
+    return $false
+}
+
 function Get-Components {
     $viteScript = 'dev'
     if ($Tunnel) { $viteScript = 'dev:tunnel' }
@@ -227,6 +248,22 @@ function Get-Components {
         Kind = 'npm'; Exe = $null; Args = @('run', $viteScript)
         Cwd = (Join-Path $RepoRoot 'apps\customer-web'); Match = 'apps\customer-web'
         Url = 'http://localhost:5174'; Ready = $null
+    }
+
+    # The logistics portal, only where the deployment actually has it.
+    #
+    # Listed when FEATURE_LOGISTICS_PORTAL is on in backend/.env, and not
+    # otherwise: with the flag off there is nothing for it to sign in to, so
+    # starting it would hold a port and report DOWN forever on every machine
+    # that does not carry goods. It runs plain 'dev' even under -Tunnel -
+    # nothing proxies it, because a carrier reaches it on its own hostname.
+    if (Test-LogisticsPortalEnabled) {
+        $list += [pscustomobject]@{
+            Key = 'logistics'; Name = 'Logistics portal'; Port = 5175
+            Kind = 'npm'; Exe = $null; Args = @('run', 'dev')
+            Cwd = (Join-Path $RepoRoot 'apps\logistics-web'); Match = 'apps\logistics-web'
+            Url = 'http://localhost:5175'; Ready = $null
+        }
     }
 
     # Listed when asked for, and also whenever one is already running: a status
@@ -493,15 +530,17 @@ function Invoke-Stop {
     Write-State @{}
     Start-Sleep -Milliseconds 600
 
-    # Confirm by port, for the same reason everything else here does.
+    # Confirm by port, for the same reason everything else here does. 5175 is
+    # checked whether or not the portal was listed: a stale one from a run made
+    # before the flag was turned off is exactly the leftover worth naming.
     $stuck = @()
-    foreach ($port in @(4000, 5173, 5174)) {
+    foreach ($port in @(4000, 5173, 5174, 5175)) {
         if (Test-Port $port) { $stuck += $port }
     }
     if (@($stuck).Count -gt 0) {
         Write-Warn "Still listening: $($stuck -join ', '). Something outside this script is holding them."
     } else {
-        Write-Ok 'Ports 4000, 5173 and 5174 are free'
+        Write-Ok 'Ports 4000, 5173, 5174 and 5175 are free'
     }
 }
 
@@ -533,6 +572,9 @@ function Show-Endpoints {
     Write-Head 'Where things are'
     Write-Host '  Storefront    http://localhost:5174'
     Write-Host '  Admin panel   http://localhost:5173'
+    if (Test-LogisticsPortalEnabled) {
+        Write-Host '  Logistics     http://localhost:5175'
+    }
     Write-Host '  API           http://localhost:4000   (/health/ready)'
     if ($Tunnel) {
         Write-Host '  ngrok         http://localhost:4040   (inspector; public URL is printed there)'

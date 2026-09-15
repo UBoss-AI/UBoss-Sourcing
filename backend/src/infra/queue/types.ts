@@ -97,6 +97,27 @@ export const JobType = {
   /// decided, and sweep abandoned OAuth flows. One job rather than three,
   /// because all three are cheap indexed deletes on the same beat.
   CUSTOMER_ERP_MAINTENANCE: 'customer_erp.maintenance',
+
+  /// The logistics portal's heartbeat.
+  ///
+  /// Four cheap indexed passes on one beat, because all four are about a
+  /// consignment that has stopped moving and none of them is worth its own
+  /// tick:
+  ///
+  ///   - Assignment offers nobody answered. Without this an unanswered offer
+  ///     sits ACCEPTANCE_PENDING for ever and the consignment is in nobody's
+  ///     queue - which looks assigned on the operator's screen and appears in
+  ///     no carrier's work.
+  ///   - The SLA column every dashboard counter reads. The list and the detail
+  ///     page recompute live; this is what lets a COUNT not be a table scan.
+  ///   - Trips a driver started and never ended, and position pings past the
+  ///     retention window. A trip that stays ACTIVE is a device that keeps
+  ///     being allowed to report where somebody is.
+  ///   - Carrier webhook events that could not be applied, retried with
+  ///     backoff and dead-lettered at the ceiling.
+  ///
+  /// A pass with nothing to do is four indexed queries that match no rows.
+  LOGISTICS_MAINTENANCE: 'logistics.maintenance',
 } as const;
 
 export type JobTypeValue = (typeof JobType)[keyof typeof JobType];

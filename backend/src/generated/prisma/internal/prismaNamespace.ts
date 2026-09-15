@@ -540,7 +540,33 @@ export const ModelName = {
   SellerSettlementLine: 'SellerSettlementLine',
   SellerPayout: 'SellerPayout',
   SellerNotification: 'SellerNotification',
-  SellerAuditLog: 'SellerAuditLog'
+  SellerAuditLog: 'SellerAuditLog',
+  LogisticsPartner: 'LogisticsPartner',
+  LogisticsPartnerUser: 'LogisticsPartnerUser',
+  LogisticsPartnerInvitation: 'LogisticsPartnerInvitation',
+  LogisticsServiceRegion: 'LogisticsServiceRegion',
+  LogisticsCapability: 'LogisticsCapability',
+  LogisticsSlaPolicy: 'LogisticsSlaPolicy',
+  LogisticsShipment: 'LogisticsShipment',
+  LogisticsShipmentPackage: 'LogisticsShipmentPackage',
+  LogisticsShipmentAssignment: 'LogisticsShipmentAssignment',
+  LogisticsShipmentEvent: 'LogisticsShipmentEvent',
+  LogisticsShipmentException: 'LogisticsShipmentException',
+  LogisticsShipmentDocument: 'LogisticsShipmentDocument',
+  LogisticsProofOfDelivery: 'LogisticsProofOfDelivery',
+  LogisticsPickupRequest: 'LogisticsPickupRequest',
+  LogisticsDispatchManifest: 'LogisticsDispatchManifest',
+  LogisticsDispatchManifestEntry: 'LogisticsDispatchManifestEntry',
+  LogisticsDriverProfile: 'LogisticsDriverProfile',
+  LogisticsVehicle: 'LogisticsVehicle',
+  LogisticsDriverAssignment: 'LogisticsDriverAssignment',
+  LogisticsActiveTrip: 'LogisticsActiveTrip',
+  LogisticsLocationPing: 'LogisticsLocationPing',
+  CarrierIntegration: 'CarrierIntegration',
+  CarrierStatusMapping: 'CarrierStatusMapping',
+  CarrierWebhookEvent: 'CarrierWebhookEvent',
+  LogisticsNotification: 'LogisticsNotification',
+  LogisticsAuditLog: 'LogisticsAuditLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -556,7 +582,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productMedia" | "productAttribute" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "userRole" | "session" | "authToken" | "loginAttempt" | "businessProfile" | "taxClass" | "shippingMethod" | "currencyRateSync" | "catalogTranslationSync" | "featureFlag" | "notificationSetting" | "mediaAsset" | "category" | "product" | "productVariant" | "productMedia" | "productAttribute" | "productPackaging" | "productPackDimension" | "productImportRecord" | "inventoryLocation" | "warehouseCountryExclusion" | "warehouseDeliveryZone" | "inventoryBalance" | "inventoryMovement" | "stockReservation" | "customerProfile" | "address" | "cart" | "cartItem" | "order" | "orderItem" | "orderStatusHistory" | "orderApproval" | "idempotencyRecord" | "paymentProviderConnection" | "paymentTransaction" | "paymentEvent" | "paymentLink" | "refund" | "recurringSchedule" | "recurringScheduleItem" | "scheduleOccurrence" | "customerPaymentMethod" | "erpOrderPush" | "fulfilmentQuote" | "shipment" | "returnRequest" | "integrationConnection" | "syncRun" | "syncError" | "importJob" | "importRowError" | "exportJob" | "notificationOutbox" | "notificationDelivery" | "adminNotification" | "adminNotificationRead" | "jobQueue" | "rateLimitBucket" | "auditLog" | "numberSequence" | "currency" | "country" | "productPrice" | "coupon" | "couponCategory" | "couponMinimum" | "couponRedemption" | "customerLimit" | "assistantConversation" | "assistantMessage" | "productTranslation" | "categoryTranslation" | "dataRequest" | "vatRate" | "vatNumberCheck" | "invoice" | "economicOperator" | "productDeviceInfo" | "productCountryRestriction" | "erpConnection" | "erpInventorySyncRun" | "erpSyncRecordError" | "erpInventorySnapshot" | "integrationEvent" | "erpWebhookReceipt" | "customerAutoPaySetting" | "wishlistItem" | "buyerOrganization" | "buyerOrganizationMember" | "buyerOrganizationInvite" | "customerErpConnection" | "customerErpCredential" | "customerErpEndpoint" | "customerErpFieldMapping" | "customerErpWarehouseMap" | "customerErpSyncPolicy" | "customerErpSyncEvent" | "customerErpSyncJob" | "customerErpWebhookEvent" | "customerErpOrderLink" | "customerErpInvoiceLink" | "customerErpInventoryLink" | "customerErpProductCode" | "customerErpApproval" | "customerErpOAuthState" | "customerErpAuditLog" | "sellerAccount" | "sellerMember" | "sellerInvitation" | "sellerOnboardingProgress" | "sellerOnboardingRequirement" | "sellerBusinessProfile" | "sellerVerificationCase" | "sellerDocument" | "sellerAgreementAcceptance" | "sellerPayoutAccountReference" | "sellerLocation" | "brand" | "brandRequest" | "categoryAttributeDefinition" | "sellerListingDraft" | "sellerListingDraftMedia" | "sellerListingIssue" | "sellerOffer" | "sellerPriceTier" | "sellerInventory" | "sellerInventoryMovement" | "sellerBulkImportJob" | "sellerBulkImportRowError" | "sellerOrderGroup" | "sellerOrderLine" | "sellerShipment" | "sellerReturn" | "sellerSettlement" | "sellerSettlementLine" | "sellerPayout" | "sellerNotification" | "sellerAuditLog" | "logisticsPartner" | "logisticsPartnerUser" | "logisticsPartnerInvitation" | "logisticsServiceRegion" | "logisticsCapability" | "logisticsSlaPolicy" | "logisticsShipment" | "logisticsShipmentPackage" | "logisticsShipmentAssignment" | "logisticsShipmentEvent" | "logisticsShipmentException" | "logisticsShipmentDocument" | "logisticsProofOfDelivery" | "logisticsPickupRequest" | "logisticsDispatchManifest" | "logisticsDispatchManifestEntry" | "logisticsDriverProfile" | "logisticsVehicle" | "logisticsDriverAssignment" | "logisticsActiveTrip" | "logisticsLocationPing" | "carrierIntegration" | "carrierStatusMapping" | "carrierWebhookEvent" | "logisticsNotification" | "logisticsAuditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -10064,6 +10090,1722 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    LogisticsPartner: {
+      payload: Prisma.$LogisticsPartnerPayload<ExtArgs>
+      fields: Prisma.LogisticsPartnerFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsPartnerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsPartnerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerPayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsPartnerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsPartnerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerPayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsPartnerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerPayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsPartnerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerPayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsPartnerCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsPartnerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerPayload>
+        }
+        update: {
+          args: Prisma.LogisticsPartnerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerPayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsPartnerDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsPartnerUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsPartnerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerPayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsPartnerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsPartner>
+        }
+        groupBy: {
+          args: Prisma.LogisticsPartnerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsPartnerGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsPartnerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsPartnerCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsPartnerUser: {
+      payload: Prisma.$LogisticsPartnerUserPayload<ExtArgs>
+      fields: Prisma.LogisticsPartnerUserFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsPartnerUserFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerUserPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsPartnerUserFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerUserPayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsPartnerUserFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerUserPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsPartnerUserFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerUserPayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsPartnerUserFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerUserPayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsPartnerUserCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerUserPayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsPartnerUserCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsPartnerUserDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerUserPayload>
+        }
+        update: {
+          args: Prisma.LogisticsPartnerUserUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerUserPayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsPartnerUserDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsPartnerUserUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsPartnerUserUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerUserPayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsPartnerUserAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsPartnerUser>
+        }
+        groupBy: {
+          args: Prisma.LogisticsPartnerUserGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsPartnerUserGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsPartnerUserCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsPartnerUserCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsPartnerInvitation: {
+      payload: Prisma.$LogisticsPartnerInvitationPayload<ExtArgs>
+      fields: Prisma.LogisticsPartnerInvitationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsPartnerInvitationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerInvitationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsPartnerInvitationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerInvitationPayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsPartnerInvitationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerInvitationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsPartnerInvitationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerInvitationPayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsPartnerInvitationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerInvitationPayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsPartnerInvitationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerInvitationPayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsPartnerInvitationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsPartnerInvitationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerInvitationPayload>
+        }
+        update: {
+          args: Prisma.LogisticsPartnerInvitationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerInvitationPayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsPartnerInvitationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsPartnerInvitationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsPartnerInvitationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPartnerInvitationPayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsPartnerInvitationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsPartnerInvitation>
+        }
+        groupBy: {
+          args: Prisma.LogisticsPartnerInvitationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsPartnerInvitationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsPartnerInvitationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsPartnerInvitationCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsServiceRegion: {
+      payload: Prisma.$LogisticsServiceRegionPayload<ExtArgs>
+      fields: Prisma.LogisticsServiceRegionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsServiceRegionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsServiceRegionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsServiceRegionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsServiceRegionPayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsServiceRegionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsServiceRegionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsServiceRegionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsServiceRegionPayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsServiceRegionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsServiceRegionPayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsServiceRegionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsServiceRegionPayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsServiceRegionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsServiceRegionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsServiceRegionPayload>
+        }
+        update: {
+          args: Prisma.LogisticsServiceRegionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsServiceRegionPayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsServiceRegionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsServiceRegionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsServiceRegionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsServiceRegionPayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsServiceRegionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsServiceRegion>
+        }
+        groupBy: {
+          args: Prisma.LogisticsServiceRegionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsServiceRegionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsServiceRegionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsServiceRegionCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsCapability: {
+      payload: Prisma.$LogisticsCapabilityPayload<ExtArgs>
+      fields: Prisma.LogisticsCapabilityFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsCapabilityFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsCapabilityPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsCapabilityFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsCapabilityPayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsCapabilityFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsCapabilityPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsCapabilityFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsCapabilityPayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsCapabilityFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsCapabilityPayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsCapabilityCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsCapabilityPayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsCapabilityCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsCapabilityDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsCapabilityPayload>
+        }
+        update: {
+          args: Prisma.LogisticsCapabilityUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsCapabilityPayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsCapabilityDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsCapabilityUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsCapabilityUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsCapabilityPayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsCapabilityAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsCapability>
+        }
+        groupBy: {
+          args: Prisma.LogisticsCapabilityGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsCapabilityGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsCapabilityCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsCapabilityCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsSlaPolicy: {
+      payload: Prisma.$LogisticsSlaPolicyPayload<ExtArgs>
+      fields: Prisma.LogisticsSlaPolicyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsSlaPolicyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsSlaPolicyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsSlaPolicyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsSlaPolicyPayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsSlaPolicyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsSlaPolicyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsSlaPolicyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsSlaPolicyPayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsSlaPolicyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsSlaPolicyPayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsSlaPolicyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsSlaPolicyPayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsSlaPolicyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsSlaPolicyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsSlaPolicyPayload>
+        }
+        update: {
+          args: Prisma.LogisticsSlaPolicyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsSlaPolicyPayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsSlaPolicyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsSlaPolicyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsSlaPolicyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsSlaPolicyPayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsSlaPolicyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsSlaPolicy>
+        }
+        groupBy: {
+          args: Prisma.LogisticsSlaPolicyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsSlaPolicyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsSlaPolicyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsSlaPolicyCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsShipment: {
+      payload: Prisma.$LogisticsShipmentPayload<ExtArgs>
+      fields: Prisma.LogisticsShipmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsShipmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsShipmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsShipmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsShipmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsShipmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsShipmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsShipmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsShipmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPayload>
+        }
+        update: {
+          args: Prisma.LogisticsShipmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsShipmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsShipmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsShipmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsShipmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsShipment>
+        }
+        groupBy: {
+          args: Prisma.LogisticsShipmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsShipmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsShipmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsShipmentCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsShipmentPackage: {
+      payload: Prisma.$LogisticsShipmentPackagePayload<ExtArgs>
+      fields: Prisma.LogisticsShipmentPackageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsShipmentPackageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPackagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsShipmentPackageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPackagePayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsShipmentPackageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPackagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsShipmentPackageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPackagePayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsShipmentPackageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPackagePayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsShipmentPackageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPackagePayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsShipmentPackageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsShipmentPackageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPackagePayload>
+        }
+        update: {
+          args: Prisma.LogisticsShipmentPackageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPackagePayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsShipmentPackageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsShipmentPackageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsShipmentPackageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentPackagePayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsShipmentPackageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsShipmentPackage>
+        }
+        groupBy: {
+          args: Prisma.LogisticsShipmentPackageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsShipmentPackageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsShipmentPackageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsShipmentPackageCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsShipmentAssignment: {
+      payload: Prisma.$LogisticsShipmentAssignmentPayload<ExtArgs>
+      fields: Prisma.LogisticsShipmentAssignmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsShipmentAssignmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentAssignmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsShipmentAssignmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentAssignmentPayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsShipmentAssignmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentAssignmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsShipmentAssignmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentAssignmentPayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsShipmentAssignmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentAssignmentPayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsShipmentAssignmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentAssignmentPayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsShipmentAssignmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsShipmentAssignmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentAssignmentPayload>
+        }
+        update: {
+          args: Prisma.LogisticsShipmentAssignmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentAssignmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsShipmentAssignmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsShipmentAssignmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsShipmentAssignmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentAssignmentPayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsShipmentAssignmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsShipmentAssignment>
+        }
+        groupBy: {
+          args: Prisma.LogisticsShipmentAssignmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsShipmentAssignmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsShipmentAssignmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsShipmentAssignmentCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsShipmentEvent: {
+      payload: Prisma.$LogisticsShipmentEventPayload<ExtArgs>
+      fields: Prisma.LogisticsShipmentEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsShipmentEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsShipmentEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentEventPayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsShipmentEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsShipmentEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentEventPayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsShipmentEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentEventPayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsShipmentEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentEventPayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsShipmentEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsShipmentEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentEventPayload>
+        }
+        update: {
+          args: Prisma.LogisticsShipmentEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsShipmentEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsShipmentEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsShipmentEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentEventPayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsShipmentEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsShipmentEvent>
+        }
+        groupBy: {
+          args: Prisma.LogisticsShipmentEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsShipmentEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsShipmentEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsShipmentEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsShipmentException: {
+      payload: Prisma.$LogisticsShipmentExceptionPayload<ExtArgs>
+      fields: Prisma.LogisticsShipmentExceptionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsShipmentExceptionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentExceptionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsShipmentExceptionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentExceptionPayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsShipmentExceptionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentExceptionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsShipmentExceptionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentExceptionPayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsShipmentExceptionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentExceptionPayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsShipmentExceptionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentExceptionPayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsShipmentExceptionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsShipmentExceptionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentExceptionPayload>
+        }
+        update: {
+          args: Prisma.LogisticsShipmentExceptionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentExceptionPayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsShipmentExceptionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsShipmentExceptionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsShipmentExceptionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentExceptionPayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsShipmentExceptionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsShipmentException>
+        }
+        groupBy: {
+          args: Prisma.LogisticsShipmentExceptionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsShipmentExceptionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsShipmentExceptionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsShipmentExceptionCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsShipmentDocument: {
+      payload: Prisma.$LogisticsShipmentDocumentPayload<ExtArgs>
+      fields: Prisma.LogisticsShipmentDocumentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsShipmentDocumentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentDocumentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsShipmentDocumentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentDocumentPayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsShipmentDocumentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentDocumentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsShipmentDocumentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentDocumentPayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsShipmentDocumentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentDocumentPayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsShipmentDocumentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentDocumentPayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsShipmentDocumentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsShipmentDocumentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentDocumentPayload>
+        }
+        update: {
+          args: Prisma.LogisticsShipmentDocumentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentDocumentPayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsShipmentDocumentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsShipmentDocumentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsShipmentDocumentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsShipmentDocumentPayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsShipmentDocumentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsShipmentDocument>
+        }
+        groupBy: {
+          args: Prisma.LogisticsShipmentDocumentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsShipmentDocumentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsShipmentDocumentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsShipmentDocumentCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsProofOfDelivery: {
+      payload: Prisma.$LogisticsProofOfDeliveryPayload<ExtArgs>
+      fields: Prisma.LogisticsProofOfDeliveryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsProofOfDeliveryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsProofOfDeliveryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsProofOfDeliveryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsProofOfDeliveryPayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsProofOfDeliveryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsProofOfDeliveryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsProofOfDeliveryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsProofOfDeliveryPayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsProofOfDeliveryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsProofOfDeliveryPayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsProofOfDeliveryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsProofOfDeliveryPayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsProofOfDeliveryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsProofOfDeliveryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsProofOfDeliveryPayload>
+        }
+        update: {
+          args: Prisma.LogisticsProofOfDeliveryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsProofOfDeliveryPayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsProofOfDeliveryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsProofOfDeliveryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsProofOfDeliveryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsProofOfDeliveryPayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsProofOfDeliveryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsProofOfDelivery>
+        }
+        groupBy: {
+          args: Prisma.LogisticsProofOfDeliveryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsProofOfDeliveryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsProofOfDeliveryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsProofOfDeliveryCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsPickupRequest: {
+      payload: Prisma.$LogisticsPickupRequestPayload<ExtArgs>
+      fields: Prisma.LogisticsPickupRequestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsPickupRequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPickupRequestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsPickupRequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPickupRequestPayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsPickupRequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPickupRequestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsPickupRequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPickupRequestPayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsPickupRequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPickupRequestPayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsPickupRequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPickupRequestPayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsPickupRequestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsPickupRequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPickupRequestPayload>
+        }
+        update: {
+          args: Prisma.LogisticsPickupRequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPickupRequestPayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsPickupRequestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsPickupRequestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsPickupRequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsPickupRequestPayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsPickupRequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsPickupRequest>
+        }
+        groupBy: {
+          args: Prisma.LogisticsPickupRequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsPickupRequestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsPickupRequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsPickupRequestCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsDispatchManifest: {
+      payload: Prisma.$LogisticsDispatchManifestPayload<ExtArgs>
+      fields: Prisma.LogisticsDispatchManifestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsDispatchManifestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDispatchManifestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsDispatchManifestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDispatchManifestPayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsDispatchManifestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDispatchManifestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsDispatchManifestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDispatchManifestPayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsDispatchManifestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDispatchManifestPayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsDispatchManifestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDispatchManifestPayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsDispatchManifestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsDispatchManifestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDispatchManifestPayload>
+        }
+        update: {
+          args: Prisma.LogisticsDispatchManifestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDispatchManifestPayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsDispatchManifestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsDispatchManifestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsDispatchManifestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDispatchManifestPayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsDispatchManifestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsDispatchManifest>
+        }
+        groupBy: {
+          args: Prisma.LogisticsDispatchManifestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsDispatchManifestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsDispatchManifestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsDispatchManifestCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsDispatchManifestEntry: {
+      payload: Prisma.$LogisticsDispatchManifestEntryPayload<ExtArgs>
+      fields: Prisma.LogisticsDispatchManifestEntryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsDispatchManifestEntryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDispatchManifestEntryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsDispatchManifestEntryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDispatchManifestEntryPayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsDispatchManifestEntryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDispatchManifestEntryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsDispatchManifestEntryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDispatchManifestEntryPayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsDispatchManifestEntryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDispatchManifestEntryPayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsDispatchManifestEntryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDispatchManifestEntryPayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsDispatchManifestEntryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsDispatchManifestEntryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDispatchManifestEntryPayload>
+        }
+        update: {
+          args: Prisma.LogisticsDispatchManifestEntryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDispatchManifestEntryPayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsDispatchManifestEntryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsDispatchManifestEntryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsDispatchManifestEntryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDispatchManifestEntryPayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsDispatchManifestEntryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsDispatchManifestEntry>
+        }
+        groupBy: {
+          args: Prisma.LogisticsDispatchManifestEntryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsDispatchManifestEntryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsDispatchManifestEntryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsDispatchManifestEntryCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsDriverProfile: {
+      payload: Prisma.$LogisticsDriverProfilePayload<ExtArgs>
+      fields: Prisma.LogisticsDriverProfileFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsDriverProfileFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDriverProfilePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsDriverProfileFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDriverProfilePayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsDriverProfileFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDriverProfilePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsDriverProfileFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDriverProfilePayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsDriverProfileFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDriverProfilePayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsDriverProfileCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDriverProfilePayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsDriverProfileCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsDriverProfileDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDriverProfilePayload>
+        }
+        update: {
+          args: Prisma.LogisticsDriverProfileUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDriverProfilePayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsDriverProfileDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsDriverProfileUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsDriverProfileUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDriverProfilePayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsDriverProfileAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsDriverProfile>
+        }
+        groupBy: {
+          args: Prisma.LogisticsDriverProfileGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsDriverProfileGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsDriverProfileCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsDriverProfileCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsVehicle: {
+      payload: Prisma.$LogisticsVehiclePayload<ExtArgs>
+      fields: Prisma.LogisticsVehicleFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsVehicleFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsVehiclePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsVehicleFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsVehiclePayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsVehicleFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsVehiclePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsVehicleFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsVehiclePayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsVehicleFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsVehiclePayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsVehicleCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsVehiclePayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsVehicleCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsVehicleDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsVehiclePayload>
+        }
+        update: {
+          args: Prisma.LogisticsVehicleUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsVehiclePayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsVehicleDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsVehicleUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsVehicleUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsVehiclePayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsVehicleAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsVehicle>
+        }
+        groupBy: {
+          args: Prisma.LogisticsVehicleGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsVehicleGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsVehicleCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsVehicleCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsDriverAssignment: {
+      payload: Prisma.$LogisticsDriverAssignmentPayload<ExtArgs>
+      fields: Prisma.LogisticsDriverAssignmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsDriverAssignmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDriverAssignmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsDriverAssignmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDriverAssignmentPayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsDriverAssignmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDriverAssignmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsDriverAssignmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDriverAssignmentPayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsDriverAssignmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDriverAssignmentPayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsDriverAssignmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDriverAssignmentPayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsDriverAssignmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsDriverAssignmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDriverAssignmentPayload>
+        }
+        update: {
+          args: Prisma.LogisticsDriverAssignmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDriverAssignmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsDriverAssignmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsDriverAssignmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsDriverAssignmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsDriverAssignmentPayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsDriverAssignmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsDriverAssignment>
+        }
+        groupBy: {
+          args: Prisma.LogisticsDriverAssignmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsDriverAssignmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsDriverAssignmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsDriverAssignmentCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsActiveTrip: {
+      payload: Prisma.$LogisticsActiveTripPayload<ExtArgs>
+      fields: Prisma.LogisticsActiveTripFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsActiveTripFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsActiveTripPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsActiveTripFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsActiveTripPayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsActiveTripFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsActiveTripPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsActiveTripFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsActiveTripPayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsActiveTripFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsActiveTripPayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsActiveTripCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsActiveTripPayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsActiveTripCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsActiveTripDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsActiveTripPayload>
+        }
+        update: {
+          args: Prisma.LogisticsActiveTripUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsActiveTripPayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsActiveTripDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsActiveTripUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsActiveTripUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsActiveTripPayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsActiveTripAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsActiveTrip>
+        }
+        groupBy: {
+          args: Prisma.LogisticsActiveTripGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsActiveTripGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsActiveTripCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsActiveTripCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsLocationPing: {
+      payload: Prisma.$LogisticsLocationPingPayload<ExtArgs>
+      fields: Prisma.LogisticsLocationPingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsLocationPingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsLocationPingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsLocationPingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsLocationPingPayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsLocationPingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsLocationPingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsLocationPingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsLocationPingPayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsLocationPingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsLocationPingPayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsLocationPingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsLocationPingPayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsLocationPingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsLocationPingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsLocationPingPayload>
+        }
+        update: {
+          args: Prisma.LogisticsLocationPingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsLocationPingPayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsLocationPingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsLocationPingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsLocationPingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsLocationPingPayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsLocationPingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsLocationPing>
+        }
+        groupBy: {
+          args: Prisma.LogisticsLocationPingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsLocationPingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsLocationPingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsLocationPingCountAggregateOutputType> | number
+        }
+      }
+    }
+    CarrierIntegration: {
+      payload: Prisma.$CarrierIntegrationPayload<ExtArgs>
+      fields: Prisma.CarrierIntegrationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CarrierIntegrationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierIntegrationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CarrierIntegrationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierIntegrationPayload>
+        }
+        findFirst: {
+          args: Prisma.CarrierIntegrationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierIntegrationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CarrierIntegrationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierIntegrationPayload>
+        }
+        findMany: {
+          args: Prisma.CarrierIntegrationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierIntegrationPayload>[]
+        }
+        create: {
+          args: Prisma.CarrierIntegrationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierIntegrationPayload>
+        }
+        createMany: {
+          args: Prisma.CarrierIntegrationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CarrierIntegrationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierIntegrationPayload>
+        }
+        update: {
+          args: Prisma.CarrierIntegrationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierIntegrationPayload>
+        }
+        deleteMany: {
+          args: Prisma.CarrierIntegrationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CarrierIntegrationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CarrierIntegrationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierIntegrationPayload>
+        }
+        aggregate: {
+          args: Prisma.CarrierIntegrationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCarrierIntegration>
+        }
+        groupBy: {
+          args: Prisma.CarrierIntegrationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CarrierIntegrationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CarrierIntegrationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CarrierIntegrationCountAggregateOutputType> | number
+        }
+      }
+    }
+    CarrierStatusMapping: {
+      payload: Prisma.$CarrierStatusMappingPayload<ExtArgs>
+      fields: Prisma.CarrierStatusMappingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CarrierStatusMappingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierStatusMappingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CarrierStatusMappingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierStatusMappingPayload>
+        }
+        findFirst: {
+          args: Prisma.CarrierStatusMappingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierStatusMappingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CarrierStatusMappingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierStatusMappingPayload>
+        }
+        findMany: {
+          args: Prisma.CarrierStatusMappingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierStatusMappingPayload>[]
+        }
+        create: {
+          args: Prisma.CarrierStatusMappingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierStatusMappingPayload>
+        }
+        createMany: {
+          args: Prisma.CarrierStatusMappingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CarrierStatusMappingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierStatusMappingPayload>
+        }
+        update: {
+          args: Prisma.CarrierStatusMappingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierStatusMappingPayload>
+        }
+        deleteMany: {
+          args: Prisma.CarrierStatusMappingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CarrierStatusMappingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CarrierStatusMappingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierStatusMappingPayload>
+        }
+        aggregate: {
+          args: Prisma.CarrierStatusMappingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCarrierStatusMapping>
+        }
+        groupBy: {
+          args: Prisma.CarrierStatusMappingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CarrierStatusMappingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CarrierStatusMappingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CarrierStatusMappingCountAggregateOutputType> | number
+        }
+      }
+    }
+    CarrierWebhookEvent: {
+      payload: Prisma.$CarrierWebhookEventPayload<ExtArgs>
+      fields: Prisma.CarrierWebhookEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CarrierWebhookEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierWebhookEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CarrierWebhookEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierWebhookEventPayload>
+        }
+        findFirst: {
+          args: Prisma.CarrierWebhookEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierWebhookEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CarrierWebhookEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierWebhookEventPayload>
+        }
+        findMany: {
+          args: Prisma.CarrierWebhookEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierWebhookEventPayload>[]
+        }
+        create: {
+          args: Prisma.CarrierWebhookEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierWebhookEventPayload>
+        }
+        createMany: {
+          args: Prisma.CarrierWebhookEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CarrierWebhookEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierWebhookEventPayload>
+        }
+        update: {
+          args: Prisma.CarrierWebhookEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierWebhookEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.CarrierWebhookEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CarrierWebhookEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CarrierWebhookEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CarrierWebhookEventPayload>
+        }
+        aggregate: {
+          args: Prisma.CarrierWebhookEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCarrierWebhookEvent>
+        }
+        groupBy: {
+          args: Prisma.CarrierWebhookEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CarrierWebhookEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CarrierWebhookEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CarrierWebhookEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsNotification: {
+      payload: Prisma.$LogisticsNotificationPayload<ExtArgs>
+      fields: Prisma.LogisticsNotificationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsNotificationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsNotificationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsNotificationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsNotificationPayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsNotificationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsNotificationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsNotificationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsNotificationPayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsNotificationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsNotificationPayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsNotificationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsNotificationPayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsNotificationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsNotificationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsNotificationPayload>
+        }
+        update: {
+          args: Prisma.LogisticsNotificationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsNotificationPayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsNotificationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsNotificationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsNotificationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsNotificationPayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsNotificationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsNotification>
+        }
+        groupBy: {
+          args: Prisma.LogisticsNotificationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsNotificationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsNotificationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsNotificationCountAggregateOutputType> | number
+        }
+      }
+    }
+    LogisticsAuditLog: {
+      payload: Prisma.$LogisticsAuditLogPayload<ExtArgs>
+      fields: Prisma.LogisticsAuditLogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogisticsAuditLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsAuditLogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogisticsAuditLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsAuditLogPayload>
+        }
+        findFirst: {
+          args: Prisma.LogisticsAuditLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsAuditLogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogisticsAuditLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsAuditLogPayload>
+        }
+        findMany: {
+          args: Prisma.LogisticsAuditLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsAuditLogPayload>[]
+        }
+        create: {
+          args: Prisma.LogisticsAuditLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsAuditLogPayload>
+        }
+        createMany: {
+          args: Prisma.LogisticsAuditLogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LogisticsAuditLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsAuditLogPayload>
+        }
+        update: {
+          args: Prisma.LogisticsAuditLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsAuditLogPayload>
+        }
+        deleteMany: {
+          args: Prisma.LogisticsAuditLogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogisticsAuditLogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LogisticsAuditLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogisticsAuditLogPayload>
+        }
+        aggregate: {
+          args: Prisma.LogisticsAuditLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogisticsAuditLog>
+        }
+        groupBy: {
+          args: Prisma.LogisticsAuditLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsAuditLogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogisticsAuditLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogisticsAuditLogCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -10120,6 +11862,8 @@ export const UserScalarFieldEnum = {
   temporaryPasswordExpiresAt: 'temporaryPasswordExpiresAt',
   mfaSecretEnc: 'mfaSecretEnc',
   mfaEnabledAt: 'mfaEnabledAt',
+  mfaLastCounter: 'mfaLastCounter',
+  mfaRecoveryCodeHashesJson: 'mfaRecoveryCodeHashesJson',
   preferredLanguage: 'preferredLanguage',
   lastLoginAt: 'lastLoginAt',
   failedLoginCount: 'failedLoginCount',
@@ -10186,6 +11930,7 @@ export const SessionScalarFieldEnum = {
   locationLabel: 'locationLabel',
   locationCountry: 'locationCountry',
   locationCapturedAt: 'locationCapturedAt',
+  mfaVerifiedAt: 'mfaVerifiedAt',
   expiresAt: 'expiresAt',
   revokedAt: 'revokedAt',
   revokedReason: 'revokedReason',
@@ -13142,6 +14887,627 @@ export const SellerAuditLogScalarFieldEnum = {
 export type SellerAuditLogScalarFieldEnum = (typeof SellerAuditLogScalarFieldEnum)[keyof typeof SellerAuditLogScalarFieldEnum]
 
 
+export const LogisticsPartnerScalarFieldEnum = {
+  id: 'id',
+  partnerCode: 'partnerCode',
+  legalName: 'legalName',
+  displayName: 'displayName',
+  displayNameNormalized: 'displayNameNormalized',
+  registrationNumber: 'registrationNumber',
+  taxNumber: 'taxNumber',
+  licenceNumber: 'licenceNumber',
+  licenceExpiresAt: 'licenceExpiresAt',
+  registrationCountry: 'registrationCountry',
+  contactEmail: 'contactEmail',
+  contactPhone: 'contactPhone',
+  emergencyPhone: 'emergencyPhone',
+  websiteUrl: 'websiteUrl',
+  addressJson: 'addressJson',
+  status: 'status',
+  contractStatus: 'contractStatus',
+  contractReference: 'contractReference',
+  contractStartsAt: 'contractStartsAt',
+  contractEndsAt: 'contractEndsAt',
+  suspensionReason: 'suspensionReason',
+  suspendedAt: 'suspendedAt',
+  maxOpenShipments: 'maxOpenShipments',
+  maxDailyAssignments: 'maxDailyAssignments',
+  autoAssignEnabled: 'autoAssignEnabled',
+  carrierIntegrationId: 'carrierIntegrationId',
+  internalNotes: 'internalNotes',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  archivedAt: 'archivedAt'
+} as const
+
+export type LogisticsPartnerScalarFieldEnum = (typeof LogisticsPartnerScalarFieldEnum)[keyof typeof LogisticsPartnerScalarFieldEnum]
+
+
+export const LogisticsPartnerUserScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  userId: 'userId',
+  role: 'role',
+  status: 'status',
+  fullName: 'fullName',
+  jobTitle: 'jobTitle',
+  phone: 'phone',
+  regionScopeJson: 'regionScopeJson',
+  disabledAt: 'disabledAt',
+  disabledReason: 'disabledReason',
+  lastActiveAt: 'lastActiveAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsPartnerUserScalarFieldEnum = (typeof LogisticsPartnerUserScalarFieldEnum)[keyof typeof LogisticsPartnerUserScalarFieldEnum]
+
+
+export const LogisticsPartnerInvitationScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  email: 'email',
+  emailNormalized: 'emailNormalized',
+  fullName: 'fullName',
+  role: 'role',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  acceptedAt: 'acceptedAt',
+  revokedAt: 'revokedAt',
+  invitedByPartnerUserId: 'invitedByPartnerUserId',
+  invitedByAdminUserId: 'invitedByAdminUserId',
+  createdAt: 'createdAt'
+} as const
+
+export type LogisticsPartnerInvitationScalarFieldEnum = (typeof LogisticsPartnerInvitationScalarFieldEnum)[keyof typeof LogisticsPartnerInvitationScalarFieldEnum]
+
+
+export const LogisticsServiceRegionScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  scope: 'scope',
+  countryCode: 'countryCode',
+  regionValue: 'regionValue',
+  supportsPickup: 'supportsPickup',
+  supportsDelivery: 'supportsDelivery',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsServiceRegionScalarFieldEnum = (typeof LogisticsServiceRegionScalarFieldEnum)[keyof typeof LogisticsServiceRegionScalarFieldEnum]
+
+
+export const LogisticsCapabilityScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  kind: 'kind',
+  state: 'state',
+  evidenceReference: 'evidenceReference',
+  evidenceExpiresAt: 'evidenceExpiresAt',
+  temperatureMinC: 'temperatureMinC',
+  temperatureMaxC: 'temperatureMaxC',
+  decidedByUserId: 'decidedByUserId',
+  decidedAt: 'decidedAt',
+  decisionNote: 'decisionNote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsCapabilityScalarFieldEnum = (typeof LogisticsCapabilityScalarFieldEnum)[keyof typeof LogisticsCapabilityScalarFieldEnum]
+
+
+export const LogisticsSlaPolicyScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  name: 'name',
+  serviceType: 'serviceType',
+  pickupHours: 'pickupHours',
+  deliveryHours: 'deliveryHours',
+  riskWindowMinutes: 'riskWindowMinutes',
+  podRequiresRecipientName: 'podRequiresRecipientName',
+  podRequiresSignature: 'podRequiresSignature',
+  podRequiresPhoto: 'podRequiresPhoto',
+  podRequiresOtp: 'podRequiresOtp',
+  podRequiresDesignation: 'podRequiresDesignation',
+  maxDeliveryAttempts: 'maxDeliveryAttempts',
+  isDefault: 'isDefault',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsSlaPolicyScalarFieldEnum = (typeof LogisticsSlaPolicyScalarFieldEnum)[keyof typeof LogisticsSlaPolicyScalarFieldEnum]
+
+
+export const LogisticsShipmentScalarFieldEnum = {
+  id: 'id',
+  shipmentReference: 'shipmentReference',
+  orderId: 'orderId',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  operatorShipmentId: 'operatorShipmentId',
+  originLocationId: 'originLocationId',
+  assignedPartnerId: 'assignedPartnerId',
+  status: 'status',
+  serviceType: 'serviceType',
+  trackingNumber: 'trackingNumber',
+  carrierIntegrationId: 'carrierIntegrationId',
+  carrierTrackingNumber: 'carrierTrackingNumber',
+  carrierTrackingUrl: 'carrierTrackingUrl',
+  sellerAccountId: 'sellerAccountId',
+  sellerCompanyName: 'sellerCompanyName',
+  receivingCustomerProfileId: 'receivingCustomerProfileId',
+  receivingCompanyName: 'receivingCompanyName',
+  pickupAddressJson: 'pickupAddressJson',
+  deliveryAddressJson: 'deliveryAddressJson',
+  pickupContactName: 'pickupContactName',
+  pickupContactPhone: 'pickupContactPhone',
+  pickupContactEmail: 'pickupContactEmail',
+  deliveryContactName: 'deliveryContactName',
+  deliveryContactPhone: 'deliveryContactPhone',
+  deliveryContactEmail: 'deliveryContactEmail',
+  originCountry: 'originCountry',
+  destinationCountry: 'destinationCountry',
+  destinationCity: 'destinationCity',
+  destinationPostalCode: 'destinationPostalCode',
+  distanceKm: 'distanceKm',
+  packageCount: 'packageCount',
+  totalWeightGrams: 'totalWeightGrams',
+  totalVolumeCm3: 'totalVolumeCm3',
+  productCategorySummary: 'productCategorySummary',
+  requiresColdChain: 'requiresColdChain',
+  requiresTemperatureRange: 'requiresTemperatureRange',
+  temperatureMinC: 'temperatureMinC',
+  temperatureMaxC: 'temperatureMaxC',
+  requiresSterileHandling: 'requiresSterileHandling',
+  isFragile: 'isFragile',
+  isDangerousGoods: 'isDangerousGoods',
+  dangerousGoodsClass: 'dangerousGoodsClass',
+  handlingNotes: 'handlingNotes',
+  declaredValueMinor: 'declaredValueMinor',
+  currency: 'currency',
+  slaPolicyId: 'slaPolicyId',
+  expectedPickupAt: 'expectedPickupAt',
+  pickupDueAt: 'pickupDueAt',
+  estimatedDeliveryAt: 'estimatedDeliveryAt',
+  deliveryDueAt: 'deliveryDueAt',
+  slaState: 'slaState',
+  slaEvaluatedAt: 'slaEvaluatedAt',
+  acceptedAt: 'acceptedAt',
+  pickedUpAt: 'pickedUpAt',
+  dispatchedAt: 'dispatchedAt',
+  deliveredAt: 'deliveredAt',
+  closedAt: 'closedAt',
+  deliveryAttemptCount: 'deliveryAttemptCount',
+  lastEventAt: 'lastEventAt',
+  lastCarrierSyncAt: 'lastCarrierSyncAt',
+  version: 'version',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsShipmentScalarFieldEnum = (typeof LogisticsShipmentScalarFieldEnum)[keyof typeof LogisticsShipmentScalarFieldEnum]
+
+
+export const LogisticsShipmentPackageScalarFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  packageReference: 'packageReference',
+  sequence: 'sequence',
+  weightGrams: 'weightGrams',
+  lengthMm: 'lengthMm',
+  widthMm: 'widthMm',
+  heightMm: 'heightMm',
+  packagingType: 'packagingType',
+  isFragile: 'isFragile',
+  requiresColdChain: 'requiresColdChain',
+  batchReference: 'batchReference',
+  scannedOutAt: 'scannedOutAt',
+  scannedInAt: 'scannedInAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsShipmentPackageScalarFieldEnum = (typeof LogisticsShipmentPackageScalarFieldEnum)[keyof typeof LogisticsShipmentPackageScalarFieldEnum]
+
+
+export const LogisticsShipmentAssignmentScalarFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  logisticsPartnerId: 'logisticsPartnerId',
+  state: 'state',
+  assignedAutomatically: 'assignedAutomatically',
+  offeredAt: 'offeredAt',
+  respondBy: 'respondBy',
+  respondedAt: 'respondedAt',
+  responseReason: 'responseReason',
+  withdrawnAt: 'withdrawnAt',
+  withdrawnReason: 'withdrawnReason',
+  completedAt: 'completedAt',
+  offeredByUserId: 'offeredByUserId',
+  respondedByPartnerUserId: 'respondedByPartnerUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsShipmentAssignmentScalarFieldEnum = (typeof LogisticsShipmentAssignmentScalarFieldEnum)[keyof typeof LogisticsShipmentAssignmentScalarFieldEnum]
+
+
+export const LogisticsShipmentEventScalarFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  previousStatus: 'previousStatus',
+  status: 'status',
+  publicDescription: 'publicDescription',
+  internalNote: 'internalNote',
+  occurredAt: 'occurredAt',
+  recordedAt: 'recordedAt',
+  locationLabel: 'locationLabel',
+  locationCountry: 'locationCountry',
+  locationLatitude: 'locationLatitude',
+  locationLongitude: 'locationLongitude',
+  source: 'source',
+  actorUserId: 'actorUserId',
+  actorLogisticsPartnerId: 'actorLogisticsPartnerId',
+  externalEventId: 'externalEventId',
+  externalStatusCode: 'externalStatusCode',
+  carrierIntegrationId: 'carrierIntegrationId',
+  externalEventKey: 'externalEventKey',
+  idempotencyKey: 'idempotencyKey',
+  isCorrection: 'isCorrection',
+  reason: 'reason',
+  exceptionId: 'exceptionId',
+  documentId: 'documentId',
+  createdAt: 'createdAt'
+} as const
+
+export type LogisticsShipmentEventScalarFieldEnum = (typeof LogisticsShipmentEventScalarFieldEnum)[keyof typeof LogisticsShipmentEventScalarFieldEnum]
+
+
+export const LogisticsShipmentExceptionScalarFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  logisticsPartnerId: 'logisticsPartnerId',
+  type: 'type',
+  severity: 'severity',
+  state: 'state',
+  reason: 'reason',
+  detail: 'detail',
+  ownerPartnerUserId: 'ownerPartnerUserId',
+  ownerAdminUserId: 'ownerAdminUserId',
+  resolutionDueAt: 'resolutionDueAt',
+  resolvedAt: 'resolvedAt',
+  closedAt: 'closedAt',
+  resolutionNotes: 'resolutionNotes',
+  escalatedAt: 'escalatedAt',
+  escalationNote: 'escalationNote',
+  revisedEtaAt: 'revisedEtaAt',
+  customerNotifiedAt: 'customerNotifiedAt',
+  externalPayloadJson: 'externalPayloadJson',
+  raisedByUserId: 'raisedByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsShipmentExceptionScalarFieldEnum = (typeof LogisticsShipmentExceptionScalarFieldEnum)[keyof typeof LogisticsShipmentExceptionScalarFieldEnum]
+
+
+export const LogisticsShipmentDocumentScalarFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  kind: 'kind',
+  audience: 'audience',
+  fileName: 'fileName',
+  contentType: 'contentType',
+  sizeBytes: 'sizeBytes',
+  storageKey: 'storageKey',
+  contentHash: 'contentHash',
+  scanState: 'scanState',
+  scannedAt: 'scannedAt',
+  scanDetail: 'scanDetail',
+  uploadedByUserId: 'uploadedByUserId',
+  uploadedBySource: 'uploadedBySource',
+  createdAt: 'createdAt',
+  deletedAt: 'deletedAt'
+} as const
+
+export type LogisticsShipmentDocumentScalarFieldEnum = (typeof LogisticsShipmentDocumentScalarFieldEnum)[keyof typeof LogisticsShipmentDocumentScalarFieldEnum]
+
+
+export const LogisticsProofOfDeliveryScalarFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  recipientName: 'recipientName',
+  recipientDesignation: 'recipientDesignation',
+  deliveredAt: 'deliveredAt',
+  deliveryLatitude: 'deliveryLatitude',
+  deliveryLongitude: 'deliveryLongitude',
+  deliveryLocationLabel: 'deliveryLocationLabel',
+  hasSignature: 'hasSignature',
+  hasPhoto: 'hasPhoto',
+  otpVerified: 'otpVerified',
+  businessStamped: 'businessStamped',
+  signatureDocumentId: 'signatureDocumentId',
+  photoDocumentId: 'photoDocumentId',
+  exceptionNote: 'exceptionNote',
+  capturedByPartnerUserId: 'capturedByPartnerUserId',
+  capturedBySource: 'capturedBySource',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsProofOfDeliveryScalarFieldEnum = (typeof LogisticsProofOfDeliveryScalarFieldEnum)[keyof typeof LogisticsProofOfDeliveryScalarFieldEnum]
+
+
+export const LogisticsPickupRequestScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  shipmentId: 'shipmentId',
+  locationId: 'locationId',
+  state: 'state',
+  windowStartAt: 'windowStartAt',
+  windowEndAt: 'windowEndAt',
+  timezone: 'timezone',
+  warehouseInstructions: 'warehouseInstructions',
+  readinessConfirmedAt: 'readinessConfirmedAt',
+  driverProfileId: 'driverProfileId',
+  vehicleId: 'vehicleId',
+  scheduledAt: 'scheduledAt',
+  completedAt: 'completedAt',
+  failedAt: 'failedAt',
+  failureReason: 'failureReason',
+  packagesCollected: 'packagesCollected',
+  completionIdempotencyKey: 'completionIdempotencyKey',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsPickupRequestScalarFieldEnum = (typeof LogisticsPickupRequestScalarFieldEnum)[keyof typeof LogisticsPickupRequestScalarFieldEnum]
+
+
+export const LogisticsDispatchManifestScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  manifestNumber: 'manifestNumber',
+  state: 'state',
+  driverProfileId: 'driverProfileId',
+  vehicleId: 'vehicleId',
+  originLabel: 'originLabel',
+  destinationLabel: 'destinationLabel',
+  plannedDepartureAt: 'plannedDepartureAt',
+  closedAt: 'closedAt',
+  handedOverAt: 'handedOverAt',
+  handoverSignedBy: 'handoverSignedBy',
+  notes: 'notes',
+  createdByPartnerUserId: 'createdByPartnerUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsDispatchManifestScalarFieldEnum = (typeof LogisticsDispatchManifestScalarFieldEnum)[keyof typeof LogisticsDispatchManifestScalarFieldEnum]
+
+
+export const LogisticsDispatchManifestEntryScalarFieldEnum = {
+  id: 'id',
+  manifestId: 'manifestId',
+  shipmentId: 'shipmentId',
+  packageCount: 'packageCount',
+  addedAt: 'addedAt',
+  removedAt: 'removedAt'
+} as const
+
+export type LogisticsDispatchManifestEntryScalarFieldEnum = (typeof LogisticsDispatchManifestEntryScalarFieldEnum)[keyof typeof LogisticsDispatchManifestEntryScalarFieldEnum]
+
+
+export const LogisticsDriverProfileScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  partnerUserId: 'partnerUserId',
+  state: 'state',
+  employeeReference: 'employeeReference',
+  licenceNumber: 'licenceNumber',
+  licenceExpiresAt: 'licenceExpiresAt',
+  canCarryDangerousGoods: 'canCarryDangerousGoods',
+  canCarryColdChain: 'canCarryColdChain',
+  canCarrySterile: 'canCarrySterile',
+  regionScopeJson: 'regionScopeJson',
+  locationConsentAt: 'locationConsentAt',
+  locationConsentWithdrawnAt: 'locationConsentWithdrawnAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsDriverProfileScalarFieldEnum = (typeof LogisticsDriverProfileScalarFieldEnum)[keyof typeof LogisticsDriverProfileScalarFieldEnum]
+
+
+export const LogisticsVehicleScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  registration: 'registration',
+  kind: 'kind',
+  hasRefrigeration: 'hasRefrigeration',
+  hasTailLift: 'hasTailLift',
+  temperatureMinC: 'temperatureMinC',
+  temperatureMaxC: 'temperatureMaxC',
+  maxWeightGrams: 'maxWeightGrams',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsVehicleScalarFieldEnum = (typeof LogisticsVehicleScalarFieldEnum)[keyof typeof LogisticsVehicleScalarFieldEnum]
+
+
+export const LogisticsDriverAssignmentScalarFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  driverProfileId: 'driverProfileId',
+  vehicleId: 'vehicleId',
+  isPickupLeg: 'isPickupLeg',
+  isDeliveryLeg: 'isDeliveryLeg',
+  routeSequence: 'routeSequence',
+  assignedAt: 'assignedAt',
+  unassignedAt: 'unassignedAt',
+  completedAt: 'completedAt',
+  assignedByPartnerUserId: 'assignedByPartnerUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsDriverAssignmentScalarFieldEnum = (typeof LogisticsDriverAssignmentScalarFieldEnum)[keyof typeof LogisticsDriverAssignmentScalarFieldEnum]
+
+
+export const LogisticsActiveTripScalarFieldEnum = {
+  id: 'id',
+  driverProfileId: 'driverProfileId',
+  vehicleId: 'vehicleId',
+  shipmentId: 'shipmentId',
+  state: 'state',
+  startedAt: 'startedAt',
+  endedAt: 'endedAt',
+  deviceTokenHash: 'deviceTokenHash',
+  deviceTokenExpiresAt: 'deviceTokenExpiresAt',
+  pingIntervalSeconds: 'pingIntervalSeconds',
+  lastLatitude: 'lastLatitude',
+  lastLongitude: 'lastLongitude',
+  lastAccuracyM: 'lastAccuracyM',
+  lastPingAt: 'lastPingAt',
+  lastSequence: 'lastSequence',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsActiveTripScalarFieldEnum = (typeof LogisticsActiveTripScalarFieldEnum)[keyof typeof LogisticsActiveTripScalarFieldEnum]
+
+
+export const LogisticsLocationPingScalarFieldEnum = {
+  id: 'id',
+  tripId: 'tripId',
+  driverProfileId: 'driverProfileId',
+  driverUserId: 'driverUserId',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  accuracyM: 'accuracyM',
+  headingDeg: 'headingDeg',
+  speedMps: 'speedMps',
+  deviceTimestamp: 'deviceTimestamp',
+  receivedAt: 'receivedAt',
+  sequence: 'sequence',
+  idempotencyKey: 'idempotencyKey'
+} as const
+
+export type LogisticsLocationPingScalarFieldEnum = (typeof LogisticsLocationPingScalarFieldEnum)[keyof typeof LogisticsLocationPingScalarFieldEnum]
+
+
+export const CarrierIntegrationScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  name: 'name',
+  state: 'state',
+  baseUrl: 'baseUrl',
+  credentialsEnc: 'credentialsEnc',
+  webhookSecretEnc: 'webhookSecretEnc',
+  webhookSignatureHeader: 'webhookSignatureHeader',
+  webhookTimestampHeader: 'webhookTimestampHeader',
+  webhookAlgorithm: 'webhookAlgorithm',
+  webhookToleranceSeconds: 'webhookToleranceSeconds',
+  webhookPathToken: 'webhookPathToken',
+  pollingEnabled: 'pollingEnabled',
+  pollingIntervalMinutes: 'pollingIntervalMinutes',
+  nextPollAt: 'nextPollAt',
+  lastPollAt: 'lastPollAt',
+  rateLimitPerMinute: 'rateLimitPerMinute',
+  consecutiveFailures: 'consecutiveFailures',
+  lastSuccessAt: 'lastSuccessAt',
+  lastFailureAt: 'lastFailureAt',
+  lastFailureMessage: 'lastFailureMessage',
+  isActive: 'isActive',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CarrierIntegrationScalarFieldEnum = (typeof CarrierIntegrationScalarFieldEnum)[keyof typeof CarrierIntegrationScalarFieldEnum]
+
+
+export const CarrierStatusMappingScalarFieldEnum = {
+  id: 'id',
+  carrierIntegrationId: 'carrierIntegrationId',
+  providerCode: 'providerCode',
+  canonicalStatus: 'canonicalStatus',
+  raisesExceptionType: 'raisesExceptionType',
+  publicDescription: 'publicDescription',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CarrierStatusMappingScalarFieldEnum = (typeof CarrierStatusMappingScalarFieldEnum)[keyof typeof CarrierStatusMappingScalarFieldEnum]
+
+
+export const CarrierWebhookEventScalarFieldEnum = {
+  id: 'id',
+  carrierIntegrationId: 'carrierIntegrationId',
+  providerEventId: 'providerEventId',
+  state: 'state',
+  trackingNumber: 'trackingNumber',
+  shipmentId: 'shipmentId',
+  providerStatusCode: 'providerStatusCode',
+  resolvedStatus: 'resolvedStatus',
+  payloadJson: 'payloadJson',
+  signatureVerified: 'signatureVerified',
+  attempts: 'attempts',
+  nextRetryAt: 'nextRetryAt',
+  lastError: 'lastError',
+  processedAt: 'processedAt',
+  deadLetteredAt: 'deadLetteredAt',
+  receivedAt: 'receivedAt'
+} as const
+
+export type CarrierWebhookEventScalarFieldEnum = (typeof CarrierWebhookEventScalarFieldEnum)[keyof typeof CarrierWebhookEventScalarFieldEnum]
+
+
+export const LogisticsNotificationScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  partnerUserId: 'partnerUserId',
+  shipmentId: 'shipmentId',
+  kind: 'kind',
+  title: 'title',
+  body: 'body',
+  variablesJson: 'variablesJson',
+  dedupeKey: 'dedupeKey',
+  readAt: 'readAt',
+  emailedAt: 'emailedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type LogisticsNotificationScalarFieldEnum = (typeof LogisticsNotificationScalarFieldEnum)[keyof typeof LogisticsNotificationScalarFieldEnum]
+
+
+export const LogisticsAuditLogScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  actorUserId: 'actorUserId',
+  actorLabel: 'actorLabel',
+  action: 'action',
+  resourceType: 'resourceType',
+  resourceId: 'resourceId',
+  beforeJson: 'beforeJson',
+  afterJson: 'afterJson',
+  summary: 'summary',
+  isContactReveal: 'isContactReveal',
+  ipAddress: 'ipAddress',
+  correlationId: 'correlationId',
+  createdAt: 'createdAt'
+} as const
+
+export type LogisticsAuditLogScalarFieldEnum = (typeof LogisticsAuditLogScalarFieldEnum)[keyof typeof LogisticsAuditLogScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -13163,6 +15529,23 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+} as const
+
+export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
 export const NullsOrder = {
@@ -13259,23 +15642,6 @@ export const LoginAttemptOrderByRelevanceFieldEnum = {
 } as const
 
 export type LoginAttemptOrderByRelevanceFieldEnum = (typeof LoginAttemptOrderByRelevanceFieldEnum)[keyof typeof LoginAttemptOrderByRelevanceFieldEnum]
-
-
-export const JsonNullValueFilter = {
-  DbNull: DbNull,
-  JsonNull: JsonNull,
-  AnyNull: AnyNull
-} as const
-
-export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
-
-
-export const QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
-} as const
-
-export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
 export const BusinessProfileOrderByRelevanceFieldEnum = {
@@ -15189,6 +17555,380 @@ export const SellerAuditLogOrderByRelevanceFieldEnum = {
 export type SellerAuditLogOrderByRelevanceFieldEnum = (typeof SellerAuditLogOrderByRelevanceFieldEnum)[keyof typeof SellerAuditLogOrderByRelevanceFieldEnum]
 
 
+export const LogisticsPartnerOrderByRelevanceFieldEnum = {
+  id: 'id',
+  partnerCode: 'partnerCode',
+  legalName: 'legalName',
+  displayName: 'displayName',
+  displayNameNormalized: 'displayNameNormalized',
+  registrationNumber: 'registrationNumber',
+  taxNumber: 'taxNumber',
+  licenceNumber: 'licenceNumber',
+  registrationCountry: 'registrationCountry',
+  contactEmail: 'contactEmail',
+  contactPhone: 'contactPhone',
+  emergencyPhone: 'emergencyPhone',
+  websiteUrl: 'websiteUrl',
+  contractReference: 'contractReference',
+  suspensionReason: 'suspensionReason',
+  carrierIntegrationId: 'carrierIntegrationId',
+  internalNotes: 'internalNotes',
+  createdById: 'createdById'
+} as const
+
+export type LogisticsPartnerOrderByRelevanceFieldEnum = (typeof LogisticsPartnerOrderByRelevanceFieldEnum)[keyof typeof LogisticsPartnerOrderByRelevanceFieldEnum]
+
+
+export const LogisticsPartnerUserOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  userId: 'userId',
+  fullName: 'fullName',
+  jobTitle: 'jobTitle',
+  phone: 'phone',
+  disabledReason: 'disabledReason'
+} as const
+
+export type LogisticsPartnerUserOrderByRelevanceFieldEnum = (typeof LogisticsPartnerUserOrderByRelevanceFieldEnum)[keyof typeof LogisticsPartnerUserOrderByRelevanceFieldEnum]
+
+
+export const LogisticsPartnerInvitationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  email: 'email',
+  emailNormalized: 'emailNormalized',
+  fullName: 'fullName',
+  tokenHash: 'tokenHash',
+  invitedByPartnerUserId: 'invitedByPartnerUserId',
+  invitedByAdminUserId: 'invitedByAdminUserId'
+} as const
+
+export type LogisticsPartnerInvitationOrderByRelevanceFieldEnum = (typeof LogisticsPartnerInvitationOrderByRelevanceFieldEnum)[keyof typeof LogisticsPartnerInvitationOrderByRelevanceFieldEnum]
+
+
+export const LogisticsServiceRegionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  countryCode: 'countryCode',
+  regionValue: 'regionValue'
+} as const
+
+export type LogisticsServiceRegionOrderByRelevanceFieldEnum = (typeof LogisticsServiceRegionOrderByRelevanceFieldEnum)[keyof typeof LogisticsServiceRegionOrderByRelevanceFieldEnum]
+
+
+export const LogisticsCapabilityOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  evidenceReference: 'evidenceReference',
+  decidedByUserId: 'decidedByUserId',
+  decisionNote: 'decisionNote'
+} as const
+
+export type LogisticsCapabilityOrderByRelevanceFieldEnum = (typeof LogisticsCapabilityOrderByRelevanceFieldEnum)[keyof typeof LogisticsCapabilityOrderByRelevanceFieldEnum]
+
+
+export const LogisticsSlaPolicyOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  name: 'name'
+} as const
+
+export type LogisticsSlaPolicyOrderByRelevanceFieldEnum = (typeof LogisticsSlaPolicyOrderByRelevanceFieldEnum)[keyof typeof LogisticsSlaPolicyOrderByRelevanceFieldEnum]
+
+
+export const LogisticsShipmentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  shipmentReference: 'shipmentReference',
+  orderId: 'orderId',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  operatorShipmentId: 'operatorShipmentId',
+  originLocationId: 'originLocationId',
+  assignedPartnerId: 'assignedPartnerId',
+  trackingNumber: 'trackingNumber',
+  carrierIntegrationId: 'carrierIntegrationId',
+  carrierTrackingNumber: 'carrierTrackingNumber',
+  carrierTrackingUrl: 'carrierTrackingUrl',
+  sellerAccountId: 'sellerAccountId',
+  sellerCompanyName: 'sellerCompanyName',
+  receivingCustomerProfileId: 'receivingCustomerProfileId',
+  receivingCompanyName: 'receivingCompanyName',
+  pickupContactName: 'pickupContactName',
+  pickupContactPhone: 'pickupContactPhone',
+  pickupContactEmail: 'pickupContactEmail',
+  deliveryContactName: 'deliveryContactName',
+  deliveryContactPhone: 'deliveryContactPhone',
+  deliveryContactEmail: 'deliveryContactEmail',
+  originCountry: 'originCountry',
+  destinationCountry: 'destinationCountry',
+  destinationCity: 'destinationCity',
+  destinationPostalCode: 'destinationPostalCode',
+  productCategorySummary: 'productCategorySummary',
+  dangerousGoodsClass: 'dangerousGoodsClass',
+  handlingNotes: 'handlingNotes',
+  currency: 'currency',
+  slaPolicyId: 'slaPolicyId',
+  createdById: 'createdById'
+} as const
+
+export type LogisticsShipmentOrderByRelevanceFieldEnum = (typeof LogisticsShipmentOrderByRelevanceFieldEnum)[keyof typeof LogisticsShipmentOrderByRelevanceFieldEnum]
+
+
+export const LogisticsShipmentPackageOrderByRelevanceFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  packageReference: 'packageReference',
+  packagingType: 'packagingType',
+  batchReference: 'batchReference'
+} as const
+
+export type LogisticsShipmentPackageOrderByRelevanceFieldEnum = (typeof LogisticsShipmentPackageOrderByRelevanceFieldEnum)[keyof typeof LogisticsShipmentPackageOrderByRelevanceFieldEnum]
+
+
+export const LogisticsShipmentAssignmentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  logisticsPartnerId: 'logisticsPartnerId',
+  responseReason: 'responseReason',
+  withdrawnReason: 'withdrawnReason',
+  offeredByUserId: 'offeredByUserId',
+  respondedByPartnerUserId: 'respondedByPartnerUserId'
+} as const
+
+export type LogisticsShipmentAssignmentOrderByRelevanceFieldEnum = (typeof LogisticsShipmentAssignmentOrderByRelevanceFieldEnum)[keyof typeof LogisticsShipmentAssignmentOrderByRelevanceFieldEnum]
+
+
+export const LogisticsShipmentEventOrderByRelevanceFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  publicDescription: 'publicDescription',
+  internalNote: 'internalNote',
+  locationLabel: 'locationLabel',
+  locationCountry: 'locationCountry',
+  actorUserId: 'actorUserId',
+  actorLogisticsPartnerId: 'actorLogisticsPartnerId',
+  externalEventId: 'externalEventId',
+  externalStatusCode: 'externalStatusCode',
+  carrierIntegrationId: 'carrierIntegrationId',
+  externalEventKey: 'externalEventKey',
+  idempotencyKey: 'idempotencyKey',
+  reason: 'reason',
+  exceptionId: 'exceptionId',
+  documentId: 'documentId'
+} as const
+
+export type LogisticsShipmentEventOrderByRelevanceFieldEnum = (typeof LogisticsShipmentEventOrderByRelevanceFieldEnum)[keyof typeof LogisticsShipmentEventOrderByRelevanceFieldEnum]
+
+
+export const LogisticsShipmentExceptionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  logisticsPartnerId: 'logisticsPartnerId',
+  reason: 'reason',
+  detail: 'detail',
+  ownerPartnerUserId: 'ownerPartnerUserId',
+  ownerAdminUserId: 'ownerAdminUserId',
+  resolutionNotes: 'resolutionNotes',
+  escalationNote: 'escalationNote',
+  raisedByUserId: 'raisedByUserId'
+} as const
+
+export type LogisticsShipmentExceptionOrderByRelevanceFieldEnum = (typeof LogisticsShipmentExceptionOrderByRelevanceFieldEnum)[keyof typeof LogisticsShipmentExceptionOrderByRelevanceFieldEnum]
+
+
+export const LogisticsShipmentDocumentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  fileName: 'fileName',
+  contentType: 'contentType',
+  storageKey: 'storageKey',
+  contentHash: 'contentHash',
+  scanDetail: 'scanDetail',
+  uploadedByUserId: 'uploadedByUserId'
+} as const
+
+export type LogisticsShipmentDocumentOrderByRelevanceFieldEnum = (typeof LogisticsShipmentDocumentOrderByRelevanceFieldEnum)[keyof typeof LogisticsShipmentDocumentOrderByRelevanceFieldEnum]
+
+
+export const LogisticsProofOfDeliveryOrderByRelevanceFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  recipientName: 'recipientName',
+  recipientDesignation: 'recipientDesignation',
+  deliveryLocationLabel: 'deliveryLocationLabel',
+  signatureDocumentId: 'signatureDocumentId',
+  photoDocumentId: 'photoDocumentId',
+  exceptionNote: 'exceptionNote',
+  capturedByPartnerUserId: 'capturedByPartnerUserId'
+} as const
+
+export type LogisticsProofOfDeliveryOrderByRelevanceFieldEnum = (typeof LogisticsProofOfDeliveryOrderByRelevanceFieldEnum)[keyof typeof LogisticsProofOfDeliveryOrderByRelevanceFieldEnum]
+
+
+export const LogisticsPickupRequestOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  shipmentId: 'shipmentId',
+  locationId: 'locationId',
+  timezone: 'timezone',
+  warehouseInstructions: 'warehouseInstructions',
+  driverProfileId: 'driverProfileId',
+  vehicleId: 'vehicleId',
+  failureReason: 'failureReason',
+  completionIdempotencyKey: 'completionIdempotencyKey',
+  createdByUserId: 'createdByUserId'
+} as const
+
+export type LogisticsPickupRequestOrderByRelevanceFieldEnum = (typeof LogisticsPickupRequestOrderByRelevanceFieldEnum)[keyof typeof LogisticsPickupRequestOrderByRelevanceFieldEnum]
+
+
+export const LogisticsDispatchManifestOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  manifestNumber: 'manifestNumber',
+  driverProfileId: 'driverProfileId',
+  vehicleId: 'vehicleId',
+  originLabel: 'originLabel',
+  destinationLabel: 'destinationLabel',
+  handoverSignedBy: 'handoverSignedBy',
+  notes: 'notes',
+  createdByPartnerUserId: 'createdByPartnerUserId'
+} as const
+
+export type LogisticsDispatchManifestOrderByRelevanceFieldEnum = (typeof LogisticsDispatchManifestOrderByRelevanceFieldEnum)[keyof typeof LogisticsDispatchManifestOrderByRelevanceFieldEnum]
+
+
+export const LogisticsDispatchManifestEntryOrderByRelevanceFieldEnum = {
+  id: 'id',
+  manifestId: 'manifestId',
+  shipmentId: 'shipmentId'
+} as const
+
+export type LogisticsDispatchManifestEntryOrderByRelevanceFieldEnum = (typeof LogisticsDispatchManifestEntryOrderByRelevanceFieldEnum)[keyof typeof LogisticsDispatchManifestEntryOrderByRelevanceFieldEnum]
+
+
+export const LogisticsDriverProfileOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  partnerUserId: 'partnerUserId',
+  employeeReference: 'employeeReference',
+  licenceNumber: 'licenceNumber'
+} as const
+
+export type LogisticsDriverProfileOrderByRelevanceFieldEnum = (typeof LogisticsDriverProfileOrderByRelevanceFieldEnum)[keyof typeof LogisticsDriverProfileOrderByRelevanceFieldEnum]
+
+
+export const LogisticsVehicleOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  registration: 'registration'
+} as const
+
+export type LogisticsVehicleOrderByRelevanceFieldEnum = (typeof LogisticsVehicleOrderByRelevanceFieldEnum)[keyof typeof LogisticsVehicleOrderByRelevanceFieldEnum]
+
+
+export const LogisticsDriverAssignmentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  driverProfileId: 'driverProfileId',
+  vehicleId: 'vehicleId',
+  assignedByPartnerUserId: 'assignedByPartnerUserId'
+} as const
+
+export type LogisticsDriverAssignmentOrderByRelevanceFieldEnum = (typeof LogisticsDriverAssignmentOrderByRelevanceFieldEnum)[keyof typeof LogisticsDriverAssignmentOrderByRelevanceFieldEnum]
+
+
+export const LogisticsActiveTripOrderByRelevanceFieldEnum = {
+  id: 'id',
+  driverProfileId: 'driverProfileId',
+  vehicleId: 'vehicleId',
+  shipmentId: 'shipmentId',
+  deviceTokenHash: 'deviceTokenHash'
+} as const
+
+export type LogisticsActiveTripOrderByRelevanceFieldEnum = (typeof LogisticsActiveTripOrderByRelevanceFieldEnum)[keyof typeof LogisticsActiveTripOrderByRelevanceFieldEnum]
+
+
+export const LogisticsLocationPingOrderByRelevanceFieldEnum = {
+  id: 'id',
+  tripId: 'tripId',
+  driverProfileId: 'driverProfileId',
+  driverUserId: 'driverUserId',
+  idempotencyKey: 'idempotencyKey'
+} as const
+
+export type LogisticsLocationPingOrderByRelevanceFieldEnum = (typeof LogisticsLocationPingOrderByRelevanceFieldEnum)[keyof typeof LogisticsLocationPingOrderByRelevanceFieldEnum]
+
+
+export const CarrierIntegrationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name',
+  baseUrl: 'baseUrl',
+  credentialsEnc: 'credentialsEnc',
+  webhookSecretEnc: 'webhookSecretEnc',
+  webhookSignatureHeader: 'webhookSignatureHeader',
+  webhookTimestampHeader: 'webhookTimestampHeader',
+  webhookAlgorithm: 'webhookAlgorithm',
+  webhookPathToken: 'webhookPathToken',
+  lastFailureMessage: 'lastFailureMessage',
+  createdById: 'createdById'
+} as const
+
+export type CarrierIntegrationOrderByRelevanceFieldEnum = (typeof CarrierIntegrationOrderByRelevanceFieldEnum)[keyof typeof CarrierIntegrationOrderByRelevanceFieldEnum]
+
+
+export const CarrierStatusMappingOrderByRelevanceFieldEnum = {
+  id: 'id',
+  carrierIntegrationId: 'carrierIntegrationId',
+  providerCode: 'providerCode',
+  publicDescription: 'publicDescription',
+  note: 'note'
+} as const
+
+export type CarrierStatusMappingOrderByRelevanceFieldEnum = (typeof CarrierStatusMappingOrderByRelevanceFieldEnum)[keyof typeof CarrierStatusMappingOrderByRelevanceFieldEnum]
+
+
+export const CarrierWebhookEventOrderByRelevanceFieldEnum = {
+  id: 'id',
+  carrierIntegrationId: 'carrierIntegrationId',
+  providerEventId: 'providerEventId',
+  trackingNumber: 'trackingNumber',
+  shipmentId: 'shipmentId',
+  providerStatusCode: 'providerStatusCode',
+  lastError: 'lastError'
+} as const
+
+export type CarrierWebhookEventOrderByRelevanceFieldEnum = (typeof CarrierWebhookEventOrderByRelevanceFieldEnum)[keyof typeof CarrierWebhookEventOrderByRelevanceFieldEnum]
+
+
+export const LogisticsNotificationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  partnerUserId: 'partnerUserId',
+  shipmentId: 'shipmentId',
+  title: 'title',
+  body: 'body',
+  dedupeKey: 'dedupeKey'
+} as const
+
+export type LogisticsNotificationOrderByRelevanceFieldEnum = (typeof LogisticsNotificationOrderByRelevanceFieldEnum)[keyof typeof LogisticsNotificationOrderByRelevanceFieldEnum]
+
+
+export const LogisticsAuditLogOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  actorUserId: 'actorUserId',
+  actorLabel: 'actorLabel',
+  action: 'action',
+  resourceType: 'resourceType',
+  resourceId: 'resourceId',
+  summary: 'summary',
+  ipAddress: 'ipAddress',
+  correlationId: 'correlationId'
+} as const
+
+export type LogisticsAuditLogOrderByRelevanceFieldEnum = (typeof LogisticsAuditLogOrderByRelevanceFieldEnum)[keyof typeof LogisticsAuditLogOrderByRelevanceFieldEnum]
+
+
 
 /**
  * Field references
@@ -15231,6 +17971,27 @@ export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'BigInt'
+ */
+export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
  * Reference to a field of type 'Int'
  */
 export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -15252,30 +18013,9 @@ export type EnumAuthTokenTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
 
 
 /**
- * Reference to a field of type 'Json'
- */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
-    
-
-
-/**
  * Reference to a field of type 'VatCategory'
  */
 export type EnumVatCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'VatCategory'>
-    
-
-
-/**
- * Reference to a field of type 'BigInt'
- */
-export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt'>
     
 
 
@@ -16015,6 +18755,195 @@ export type EnumSellerNotificationKindFieldRefInput<$PrismaModel> = FieldRefInpu
 
 
 /**
+ * Reference to a field of type 'LogisticsPartnerStatus'
+ */
+export type EnumLogisticsPartnerStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsPartnerStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsContractStatus'
+ */
+export type EnumLogisticsContractStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsContractStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsPartnerRole'
+ */
+export type EnumLogisticsPartnerRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsPartnerRole'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsMemberStatus'
+ */
+export type EnumLogisticsMemberStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsMemberStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsRegionScope'
+ */
+export type EnumLogisticsRegionScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsRegionScope'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsCapabilityKind'
+ */
+export type EnumLogisticsCapabilityKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsCapabilityKind'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsCapabilityState'
+ */
+export type EnumLogisticsCapabilityStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsCapabilityState'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsServiceType'
+ */
+export type EnumLogisticsServiceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsServiceType'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsShipmentStatus'
+ */
+export type EnumLogisticsShipmentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsShipmentStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsSlaState'
+ */
+export type EnumLogisticsSlaStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsSlaState'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsAssignmentState'
+ */
+export type EnumLogisticsAssignmentStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsAssignmentState'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsEventSource'
+ */
+export type EnumLogisticsEventSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsEventSource'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsExceptionType'
+ */
+export type EnumLogisticsExceptionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsExceptionType'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsExceptionSeverity'
+ */
+export type EnumLogisticsExceptionSeverityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsExceptionSeverity'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsExceptionState'
+ */
+export type EnumLogisticsExceptionStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsExceptionState'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsDocumentKind'
+ */
+export type EnumLogisticsDocumentKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsDocumentKind'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsDocumentAudience'
+ */
+export type EnumLogisticsDocumentAudienceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsDocumentAudience'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsDocumentScanState'
+ */
+export type EnumLogisticsDocumentScanStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsDocumentScanState'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsPickupState'
+ */
+export type EnumLogisticsPickupStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsPickupState'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsManifestState'
+ */
+export type EnumLogisticsManifestStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsManifestState'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsDriverState'
+ */
+export type EnumLogisticsDriverStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsDriverState'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsVehicleKind'
+ */
+export type EnumLogisticsVehicleKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsVehicleKind'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsTripState'
+ */
+export type EnumLogisticsTripStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsTripState'>
+    
+
+
+/**
+ * Reference to a field of type 'CarrierProvider'
+ */
+export type EnumCarrierProviderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CarrierProvider'>
+    
+
+
+/**
+ * Reference to a field of type 'CarrierIntegrationState'
+ */
+export type EnumCarrierIntegrationStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CarrierIntegrationState'>
+    
+
+
+/**
+ * Reference to a field of type 'CarrierWebhookState'
+ */
+export type EnumCarrierWebhookStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CarrierWebhookState'>
+    
+
+
+/**
+ * Reference to a field of type 'LogisticsNotificationKind'
+ */
+export type EnumLogisticsNotificationKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogisticsNotificationKind'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -16315,6 +19244,32 @@ export type GlobalOmitConfig = {
   sellerPayout?: Prisma.SellerPayoutOmit
   sellerNotification?: Prisma.SellerNotificationOmit
   sellerAuditLog?: Prisma.SellerAuditLogOmit
+  logisticsPartner?: Prisma.LogisticsPartnerOmit
+  logisticsPartnerUser?: Prisma.LogisticsPartnerUserOmit
+  logisticsPartnerInvitation?: Prisma.LogisticsPartnerInvitationOmit
+  logisticsServiceRegion?: Prisma.LogisticsServiceRegionOmit
+  logisticsCapability?: Prisma.LogisticsCapabilityOmit
+  logisticsSlaPolicy?: Prisma.LogisticsSlaPolicyOmit
+  logisticsShipment?: Prisma.LogisticsShipmentOmit
+  logisticsShipmentPackage?: Prisma.LogisticsShipmentPackageOmit
+  logisticsShipmentAssignment?: Prisma.LogisticsShipmentAssignmentOmit
+  logisticsShipmentEvent?: Prisma.LogisticsShipmentEventOmit
+  logisticsShipmentException?: Prisma.LogisticsShipmentExceptionOmit
+  logisticsShipmentDocument?: Prisma.LogisticsShipmentDocumentOmit
+  logisticsProofOfDelivery?: Prisma.LogisticsProofOfDeliveryOmit
+  logisticsPickupRequest?: Prisma.LogisticsPickupRequestOmit
+  logisticsDispatchManifest?: Prisma.LogisticsDispatchManifestOmit
+  logisticsDispatchManifestEntry?: Prisma.LogisticsDispatchManifestEntryOmit
+  logisticsDriverProfile?: Prisma.LogisticsDriverProfileOmit
+  logisticsVehicle?: Prisma.LogisticsVehicleOmit
+  logisticsDriverAssignment?: Prisma.LogisticsDriverAssignmentOmit
+  logisticsActiveTrip?: Prisma.LogisticsActiveTripOmit
+  logisticsLocationPing?: Prisma.LogisticsLocationPingOmit
+  carrierIntegration?: Prisma.CarrierIntegrationOmit
+  carrierStatusMapping?: Prisma.CarrierStatusMappingOmit
+  carrierWebhookEvent?: Prisma.CarrierWebhookEventOmit
+  logisticsNotification?: Prisma.LogisticsNotificationOmit
+  logisticsAuditLog?: Prisma.LogisticsAuditLogOmit
 }
 
 /* Types for Logging */

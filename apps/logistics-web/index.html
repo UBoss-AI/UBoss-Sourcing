@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      A carrier portal must never be indexed, however it ends up exposed. The
+      same line the console carries, and for the same reason: everything behind
+      it is somebody else's delivery address.
+    -->
+    <meta name="robots" content="noindex, nofollow" />
+    <title>UBOSS Logistics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!--
+      The theme, before the first paint. Identical to the console's, and for
+      the same reason: React mounts after the document has been painted once,
+      so without this a dispatcher who has chosen dark gets a white flash on
+      every page load — at four in the morning, in a depot.
+
+      Nothing is written when the choice is "system": the absence of
+      `data-theme` is what hands the decision to the `prefers-color-scheme`
+      block in index.css.
+
+      `uboss.theme` and these three values are shared with
+      src/app/ThemeProvider.tsx. Change both or neither.
+    -->
+    <script>
+      try {
+        var t = localStorage.getItem('uboss.theme');
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        /* Storage refused. The operating system's setting still applies. */
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -45,7 +45,11 @@ export interface CookieNames {
 }
 
 export function cookieNamesFor(kind: UserKind): CookieNames {
-  const scope = kind === 'ADMIN' ? 'admin' : 'shop';
+  // Three scopes, so a dispatcher signing into the carrier portal on the same
+  // hostname does not sign a member of staff out of the console. The logistics
+  // scope is abbreviated rather than spelled out only because a cookie name is
+  // sent on every request; nothing depends on the spelling except this line.
+  const scope = kind === 'ADMIN' ? 'admin' : kind === 'LOGISTICS' ? 'logi' : 'shop';
 
   return {
     access: `uboss_${scope}_at`,
@@ -60,6 +64,14 @@ declare module 'fastify' {
     auth?: AuthenticatedUser & {
       sessionId: string;
       sessionHasLocation: boolean;
+      /**
+       * When this session passed its second-factor challenge, or null.
+       *
+       * Populated for every surface and acted on by exactly one: the logistics
+       * guard. It is here rather than in that guard's own type so that
+       * `currentUser` keeps one shape across all three audiences.
+       */
+      sessionMfaVerifiedAt: Date | null;
       /** Where this sign-in happened, ISO-3166-1 alpha-2. Null when unknown. */
       sessionCountry: string | null;
       /**
@@ -149,6 +161,7 @@ async function authenticate(
   AuthenticatedUser & {
     sessionId: string;
     sessionHasLocation: boolean;
+    sessionMfaVerifiedAt: Date | null;
     sessionCountry: string | null;
     sessionPlace: string | null;
   }
@@ -191,6 +204,7 @@ async function authenticate(
     ...user,
     sessionId: claims.sid,
     sessionHasLocation: session.hasLocation,
+    sessionMfaVerifiedAt: session.mfaVerifiedAt,
     sessionCountry: session.country,
     sessionPlace: session.place,
   };
@@ -334,6 +348,7 @@ export function currentUser(
 ): AuthenticatedUser & {
   sessionId: string;
   sessionHasLocation: boolean;
+  sessionMfaVerifiedAt: Date | null;
   sessionCountry: string | null;
   sessionPlace: string | null;
 } {

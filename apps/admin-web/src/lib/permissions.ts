@@ -60,6 +60,14 @@ export const Permission = {
   INTEGRATION_READ: 'integration.read',
   INTEGRATION_WRITE: 'integration.write',
 
+  // The marketplace's authority over third-party carriers. A carrier's own
+  // staff hold a different catalogue entirely, in apps/logistics-web - these
+  // four grant authority over EVERY carrier, which is why they live here.
+  LOGISTICS_READ: 'logistics.read',
+  LOGISTICS_WRITE: 'logistics.write',
+  LOGISTICS_ASSIGN: 'logistics.assign',
+  LOGISTICS_INTEGRATION_WRITE: 'logistics.integration.write',
+
   REPORT_READ: 'report.read',
   EXPORT_CREATE: 'export.create',
   AUDIT_READ: 'audit.read',

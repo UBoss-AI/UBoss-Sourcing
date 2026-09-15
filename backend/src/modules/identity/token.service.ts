@@ -19,6 +19,7 @@ import { newId } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { revokeAllUserSessions } from './session.service.js';
+import type { UserKind } from './auth.service.js';
 
 export type TokenPurpose =
   | 'INVITATION'
@@ -89,7 +90,15 @@ export async function issueToken(
 export interface ConsumedToken {
   userId: string;
   email: string;
-  userType: 'ADMIN' | 'CUSTOMER';
+  /**
+   * Which surface the account belongs to.
+   *
+   * Widened to every `UserType` rather than the two it used to name, because
+   * a logistics partner user activates their account through the same
+   * single-use token machinery. The caller decides what to do with it; this
+   * type's job is to stop a caller assuming there are only two answers.
+   */
+  userType: UserKind;
 }
 
 /**
@@ -340,7 +349,11 @@ export async function completePasswordReset(
 /** Absolute URL for an emailed link, built from configured public origins. */
 export function buildTokenUrl(purpose: TokenPurpose, token: string, audience: UserKindHint): string {
   const base =
-    audience === 'ADMIN' ? env.ADMIN_WEB_PUBLIC_URL : env.CUSTOMER_WEB_PUBLIC_URL;
+    audience === 'ADMIN'
+      ? env.ADMIN_WEB_PUBLIC_URL
+      : audience === 'LOGISTICS'
+        ? env.LOGISTICS_WEB_PUBLIC_URL
+        : env.CUSTOMER_WEB_PUBLIC_URL;
 
   /*
    * Where the link lands.
@@ -368,4 +381,12 @@ export function buildTokenUrl(purpose: TokenPurpose, token: string, audience: Us
   return `${base.replace(/\/$/, '')}${path}?${query.toString()}`;
 }
 
-export type UserKindHint = 'ADMIN' | 'CUSTOMER';
+/**
+ * Which application an emailed link should open.
+ *
+ * Deliberately a separate type from `UserKind` even though the members match
+ * today. This one answers "which public URL", and a deployment that served the
+ * carrier portal from the storefront's origin would change this mapping
+ * without changing who may sign in where.
+ */
+export type UserKindHint = 'ADMIN' | 'CUSTOMER' | 'LOGISTICS';

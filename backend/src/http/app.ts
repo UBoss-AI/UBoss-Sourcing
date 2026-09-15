@@ -75,6 +75,11 @@ import {
 import { registerSellerListingRoutes } from './routes/seller.listings.js';
 import { registerSellerOperationsRoutes } from './routes/seller.operations.js';
 import { registerAdminSellerRoutes } from './routes/sellers.admin.js';
+import { registerLogisticsPortalRoutes } from './routes/logistics.portal.js';
+import { registerLogisticsOperationsRoutes } from './routes/logistics.operations.js';
+import { registerLogisticsDriverRoutes } from './routes/logistics.driver.js';
+import { registerAdminLogisticsRoutes } from './routes/logistics.admin.js';
+import { registerCarrierWebhookRoutes } from './routes/carrier-webhooks.js';
 import { resolveHost } from '../modules/seller/storefront.service.js';
 import type { SellerStorefront } from '../modules/seller/storefront.service.js';
 
@@ -102,6 +107,10 @@ const RAW_BODY_ROUTES = [
   // it is a separate feature with a separate owner and a separate secret - see
   // `customer-erp-webhooks.ts`.
   `${API_PREFIX}/erp-inbound/`,
+  // A CARRIER signs the exact bytes it sent, like everybody else. Without this
+  // prefix the handler receives no `rawBody` and refuses outright rather than
+  // falling back to verifying a re-serialised object - see that route file.
+  `${API_PREFIX}/integrations/carriers/`,
 ];
 
 function shouldCaptureRawBody(url: string): boolean {
@@ -433,6 +442,10 @@ export async function buildApp() {
   // customer endpoint (or the reverse) fails before the password is compared.
   await app.register(authRoutes('ADMIN'), { prefix: `${API_PREFIX}/admin/auth` });
   await app.register(authRoutes('CUSTOMER'), { prefix: `${API_PREFIX}/auth` });
+  // The third audience. Same factory, same tokens, same rotation - a different
+  // cookie jar and a different `users.type`, which is what stops a credential
+  // minted here reaching the console or the storefront.
+  await app.register(authRoutes('LOGISTICS'), { prefix: `${API_PREFIX}/logistics/auth` });
 
   // Public catalog: no auth. Every read is filtered by publicProductWhere().
   // Unauthenticated: the storefront needs branding and capability flags
@@ -567,6 +580,41 @@ export async function buildApp() {
   // and brand requests. Guarded by the ADMIN permission catalogue, never the
   // seller one - see `domain/seller-permissions.ts`.
   await app.register(registerAdminSellerRoutes, { prefix: `${API_PREFIX}/admin` });
+
+  /*
+   * The Logistics Partner Portal.
+   *
+   * A THIRD audience, not a section of either existing one. A carrier's
+   * dispatcher is another company's employee: they must never reach a cart, an
+   * order total, a price or a payment method, and the cheapest way to
+   * guarantee that is for their credential not to be a customer credential at
+   * all. Hence `authRoutes('LOGISTICS')` above and `requireLogistics` here.
+   *
+   * There is no partner id in any path. That is not an oversight to be tidied
+   * later: it is what makes cross-carrier access impossible to express rather
+   * than merely checked for - the same rule the Seller Hub follows.
+   *
+   * Three prefixes under one tree because they need different guards and a
+   * Fastify guard attaches per plugin scope: the portal's own routes, the
+   * operations desk, and the driver's phone - whose location endpoint is
+   * authenticated by a device token rather than by a session.
+   */
+  await app.register(registerLogisticsPortalRoutes, { prefix: `${API_PREFIX}/logistics` });
+  await app.register(registerLogisticsOperationsRoutes, { prefix: `${API_PREFIX}/logistics` });
+  await app.register(registerLogisticsDriverRoutes, { prefix: `${API_PREFIX}/logistics` });
+
+  // The marketplace's own authority over carriers. Guarded by the ADMIN
+  // catalogue (`logistics.*`), never the logistics one - see
+  // `domain/logistics-permissions.ts` for why the two are kept apart.
+  await app.register(registerAdminLogisticsRoutes, { prefix: `${API_PREFIX}/admin` });
+
+  // Where a CARRIER pushes tracking to us. Unauthenticated by necessity and
+  // authenticated in substance by an HMAC over the raw body plus an
+  // unguessable per-integration path. Mounted outside every guarded tree for
+  // the same reason the ERP webhooks are: nothing here may sit behind the
+  // session guard, and mixing it in with routes that do is how one eventually
+  // loses it.
+  await app.register(registerCarrierWebhookRoutes, { prefix: `${API_PREFIX}/integrations` });
 
   // Outside the admin tree: the hashed expiring token is the authorisation, so
   // a download link works from an email client without a session.

@@ -21,8 +21,8 @@ cd C:\Users\HP\Desktop\UBoss-Software
 .\scripts\dev-stack.ps1
 ```
 
-That is the whole thing. This one command starts **all five parts**, in the
-right order, and waits until each one answers before it moves to the next:
+That is the whole thing. This one command starts **every part**, in the right
+order, and waits until each one answers before it moves to the next:
 
 | Part | Port | What it is |
 |---|---|---|
@@ -31,6 +31,7 @@ right order, and waits until each one answers before it moves to the next:
 | Worker | — | Emails, scheduled jobs, exports |
 | Admin Panel | 5173 | Staff use this |
 | Customer Storefront | 5174 | Customers use this |
+| Logistics Portal | 5175 | Carrier companies use this — **only started when `FEATURE_LOGISTICS_PORTAL=true` in `backend\.env`** |
 
 **You do not need to open XAMPP.** The script starts the database itself.
 
@@ -38,6 +39,7 @@ When it finishes, open:
 
 - Customer Storefront — http://localhost:5174
 - Admin Panel — http://localhost:5173
+- Logistics Portal — http://localhost:5175, if it is switched on
 
 ### No windows open? That is normal
 
@@ -115,7 +117,7 @@ database too.
 | Sign-in says network error, or `Failed to fetch` | The API or the database is stopped | Same as above |
 | `ECONNREFUSED`, or no MySQL connection | The database is not running | `.\scripts\dev-stack.ps1 -Restart` — it starts the database too |
 | A terminal shows the API running, but the site still fails | The API crashed at startup and its watcher stayed alive, so the terminal lies | `.\scripts\dev-stack.ps1 -Status` tells you the truth; then read the log below |
-| `Port 4000`, `5173` or `5174` is already in use | An old server is still holding the port | `.\scripts\dev-stack.ps1 -Restart` |
+| `Port 4000`, `5173`, `5174` or `5175` is already in use | An old server is still holding the port | `.\scripts\dev-stack.ps1 -Restart` |
 | `DATABASE_URL is not set` | `backend\.env` is missing | Copy `.env.example` to `.env` inside `backend` |
 | A Prisma table or column error | New migrations have not been applied | `cd backend`, then `npm run db:migrate:deploy` |
 | Sign-in says the credentials are wrong | Sample data is missing, or it is the wrong site | Run `npm run db:seed`. Admin logins only work on 5173, customer logins only on 5174 |
@@ -149,6 +151,22 @@ These accounts are created by `npm run db:seed`.
 | Admin Panel (5173) | `owner@uboss.local` | `OwnerDev!2026` |
 | Admin Panel — catalogue role | `catalog@uboss.local` | `CatalogDev!2026` |
 | Storefront (5174) | `buyer@acme.local` | `BuyerDev!2026` |
+
+The three below exist **only where the logistics portal is switched on**, and
+only in development — the seed refuses to create them in production, because
+their passwords are printed in a log.
+
+| Where | Email | Password | Note |
+|---|---|---|---|
+| Logistics Portal (5175) | `carrier.dispatch@uboss.local` | `DispatchDev!2026` | Goes straight to the dashboard |
+| Logistics Portal (5175) | `carrier.owner@uboss.local` | `CarrierDev!2026` | Has to set up a second factor first |
+| Logistics Portal (5175) | `carrier.driver@uboss.local` | `DriverDev!2026` | Sees only their own round |
+
+In production **nobody is seeded**. The portal has no public registration and
+no password is ever emailed: a carrier is created from **Logistics → Carriers**
+in the admin panel, which sends a one-time activation link, and the person who
+opens it chooses their own password. In development the email driver is
+`log`, so that link appears in the worker's log and nowhere else.
 
 On the Admin sign-in page, tick the Terms checkbox. The browser may ask for
 location permission after you sign in — allow it, or the admin session will not
@@ -267,13 +285,21 @@ npm run db:seed
 This builds every table and adds development users, roles, products, prices and
 warehouses.
 
-### 5. Install the two frontends
+### 5. Install the frontends
 
 ```powershell
 cd C:\Users\HP\Desktop\UBoss-Software\apps\admin-web
 npm install
 
 cd ..\customer-web
+npm install
+```
+
+The logistics portal is a third frontend, and is only needed if you are going
+to switch it on:
+
+```powershell
+cd C:\Users\HP\Desktop\UBoss-Software\apps\logistics-web
 npm install
 ```
 
@@ -293,8 +319,9 @@ npm run db:generate
 npm run db:seed
 ```
 
-If the frontends gained dependencies, run `npm install` inside both
-`apps\admin-web` and `apps\customer-web` as well. Then start as usual.
+If the frontends gained dependencies, run `npm install` inside
+`apps\admin-web` and `apps\customer-web` as well — and inside
+`apps\logistics-web` if you use the logistics portal. Then start as usual.
 
 ---
 
@@ -342,6 +369,12 @@ npm run dev
 ```powershell
 # Terminal 4 — Customer Storefront
 cd C:\Users\HP\Desktop\UBoss-Software\apps\customer-web
+npm run dev
+```
+
+```powershell
+# Terminal 5 — Logistics Portal, only where FEATURE_LOGISTICS_PORTAL=true
+cd C:\Users\HP\Desktop\UBoss-Software\apps\logistics-web
 npm run dev
 ```
 

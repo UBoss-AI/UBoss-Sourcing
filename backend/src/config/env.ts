@@ -37,6 +37,16 @@ const originList = z
     ),
   );
 
+/**
+ * The same list, for a surface a deployment may not serve at all.
+ *
+ * The default is on the INPUT side - an empty comma-separated list - rather
+ * than on the output array, because the transform runs after it. An unset
+ * variable therefore means "no origins", which is what an installation with no
+ * logistics portal wants and is a working state rather than a boot failure.
+ */
+const optionalOriginList = z.string().default('').pipe(originList);
+
 const envSchema = z
   .object({
     // --- Runtime ---
@@ -53,6 +63,22 @@ const envSchema = z
     CUSTOMER_WEB_ORIGIN: originList,
     CUSTOMER_WEB_PUBLIC_URL: z.string().url(),
     ADMIN_WEB_PUBLIC_URL: z.string().url(),
+
+    // The logistics partner portal.
+    //
+    // A third application with a third origin, because it is signed into by a
+    // different company's staff. It gets its own CORS entry rather than
+    // sharing the console's for the reason the cookie jar is separate: the two
+    // audiences must not be able to reach each other by accident.
+    //
+    // Both default to an empty allowlist and an unset URL, which is a working
+    // state: a deployment that has never created a logistics partner has
+    // nobody to serve the portal to, and an invitation cannot be sent because
+    // no partner exists to invite anybody into. `superRefine` below refuses
+    // to start with the feature ON and the URL unset, because an invitation
+    // email with no address in it is worse than no invitation.
+    LOGISTICS_WEB_ORIGIN: optionalOriginList,
+    LOGISTICS_WEB_PUBLIC_URL: z.string().default(''),
 
     // --- Database ---
     DATABASE_URL: z.string().min(1),
@@ -825,6 +851,113 @@ const envSchema = z
     /// fact the system holds about one person in one archive.
     DATA_REQUEST_DOWNLOAD_TTL_HOURS: intFromString(1, 720).default(72),
 
+    // --- Logistics partner portal -------------------------------------
+    //
+    // Third-party carriers who collect from a warehouse and deliver to the
+    // business that bought the goods.
+    //
+    // The master switch. OFF by default, and that default is the important
+    // part: turning it on means this deployment is prepared to hand a
+    // consignee's name, address and telephone number to another company, and
+    // that should be a decision somebody made rather than a behaviour they
+    // inherited by installing the software.
+    //
+    // Off means: the portal's routes answer FEATURE_DISABLED, no partner can
+    // be created, no invitation can be sent, no carrier webhook is mounted and
+    // no polling job is enqueued. Every existing order, seller and warehouse
+    // flow is untouched either way.
+    FEATURE_LOGISTICS_PORTAL: booleanFromString.default(false),
+
+    /// How long a partner has to accept or reject an assignment, in hours.
+    ///
+    /// After this the offer lapses back to the pool and the operator is told.
+    /// A commercial figure rather than a technical one - 4 hours is right for
+    /// a same-day courier network and absurd for a weekly groupage run - which
+    /// is exactly why it is a setting.
+    LOGISTICS_ASSIGNMENT_RESPONSE_HOURS: intFromString(1, 720).default(24),
+
+    /// How long an invitation to a partner user stays valid, in hours.
+    ///
+    /// Shorter than the 168 hours a customer invitation gets. A carrier being
+    /// onboarded is in an active conversation with the operator, and a link
+    /// that grants access to other companies' delivery addresses should not
+    /// sit live in a mailbox for a week.
+    LOGISTICS_INVITE_TTL_HOURS: intFromString(1, 720).default(48),
+
+    /// How long a driver's device token is good for, in hours.
+    ///
+    /// The credential a phone sends location pings with. Short, and scoped to
+    /// one trip: it authorises position ingestion for that trip and nothing
+    /// else, so a token lifted off a handset cannot read a shipment. A shift
+    /// is 12 hours in most fleets; the token is refreshed rather than
+    /// lengthened.
+    LOGISTICS_TRIP_TOKEN_TTL_HOURS: intFromString(1, 48).default(14),
+
+    /// How often a driver's device should report, in seconds.
+    ///
+    /// Sent TO the phone rather than decided by it, so an operator can slow
+    /// every device in the fleet at once and a battery-aware client can be
+    /// told to. 60 seconds is a compromise between a usable map and a handset
+    /// that lasts a shift.
+    LOGISTICS_PING_INTERVAL_SECONDS: intFromString(10, 3600).default(60),
+
+    /// How stale a device timestamp may be before a ping is refused, in
+    /// minutes.
+    ///
+    /// Generous, because the whole point of the offline queue is that a van in
+    /// a basement car park flushes an hour of positions when it surfaces.
+    /// Beyond this the position is history rather than tracking and is
+    /// refused, so a replayed batch cannot move a marker.
+    LOGISTICS_PING_MAX_AGE_MINUTES: intFromString(1, 1440).default(120),
+
+    /// The fastest a vehicle is believed to travel, in km/h.
+    ///
+    /// Two consecutive positions implying more than this are a bad fix, a
+    /// spoofed location or a mis-scaled coordinate, and the ping is refused
+    /// rather than drawn. 200 allows a motorway and a European high-speed
+    /// train, and refuses a jet - which is what a phone reports when its GPS
+    /// glitches.
+    LOGISTICS_PING_MAX_SPEED_KMH: intFromString(10, 1200).default(200),
+
+    /// How long raw driver positions are kept, in days.
+    ///
+    /// The single most sensitive personal data this feature collects: one
+    /// employee's movements, minute by minute. Storage limitation (Art.
+    /// 5(1)(e)) is a number rather than an intention, and 30 days is long
+    /// enough to investigate a disputed delivery and short enough not to be a
+    /// standing surveillance archive. 0 switches the sweep off for a
+    /// deployment whose own retention schedule says otherwise.
+    RETENTION_LOGISTICS_LOCATION_PING_DAYS: intFromString(0, 3650).default(30),
+
+    /// Attempts at one carrier webhook before it is dead-lettered.
+    ///
+    /// A dead-lettered tracking event is a parcel whose customer is being told
+    /// something out of date, so it is surfaced on the integrations screen
+    /// rather than dropped.
+    LOGISTICS_WEBHOOK_MAX_ATTEMPTS: intFromString(1, 20).default(6),
+
+    /// Consecutive failures before a carrier integration is taken out of
+    /// service, until a test passes. Without it, a carrier that has been down
+    /// for a fortnight is called every half hour for a fortnight.
+    LOGISTICS_CARRIER_FAILURE_THRESHOLD: intFromString(1, 100).default(5),
+
+    /// Whether a document with no malware scan may be served.
+    ///
+    /// FALSE, and the direction matters. This deployment has no scanner
+    /// configured out of the box, so every upload records SKIPPED rather than
+    /// CLEAN - marking an unscanned file clean is the outcome the scan-state
+    /// enum exists to make impossible. With this false a SKIPPED document is
+    /// stored and refused on download until somebody wires a scanner or turns
+    /// this on deliberately.
+    LOGISTICS_ALLOW_UNSCANNED_DOCUMENTS: booleanFromString.default(false),
+
+    /// How long a signed document link is good for, in seconds.
+    ///
+    /// Short. A Proof of Delivery is somebody's signature and a commercial
+    /// invoice is a price list; a link that outlives the page it was rendered
+    /// on is a link that ends up in a chat window.
+    LOGISTICS_DOCUMENT_URL_TTL_SECONDS: intFromString(30, 3600).default(300),
+
     // --- Rate limits ---
     RATE_LIMIT_GLOBAL_PER_MINUTE: intFromString(10, 100_000).default(300),
     RATE_LIMIT_LOGIN_PER_15MIN: intFromString(1, 1000).default(10),
@@ -840,6 +973,56 @@ const envSchema = z
         path: ['SECRETS_ENCRYPTION_KEY'],
         message: `must be exactly 32 bytes base64-encoded for AES-256-GCM (got ${keyBytes.length}). Generate with: node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`,
       });
+    }
+
+    /*
+     * The logistics portal, switched on with nowhere to send anybody.
+     *
+     * An invitation email carries an activation link, and the link is built
+     * from LOGISTICS_WEB_PUBLIC_URL. With the feature on and the URL unset,
+     * every carrier invited would receive a mail with a broken address in it -
+     * and nobody would find out until a partner said so. Refused at startup,
+     * where it is one line to fix.
+     */
+    if (value.FEATURE_LOGISTICS_PORTAL) {
+      if (value.LOGISTICS_WEB_PUBLIC_URL.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['LOGISTICS_WEB_PUBLIC_URL'],
+          message:
+            'required when FEATURE_LOGISTICS_PORTAL is on. It is where an invited partner user ' +
+            'activation link points; without it every invitation email is undeliverable.',
+        });
+      } else {
+        try {
+          const parsed = new URL(value.LOGISTICS_WEB_PUBLIC_URL);
+          if (parsed.protocol !== 'https:' && value.NODE_ENV === 'production') {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: ['LOGISTICS_WEB_PUBLIC_URL'],
+              message:
+                'must be an https address in production - an activation link delivered over ' +
+                'plain HTTP is readable by anybody on the path, and it sets a password.',
+            });
+          }
+        } catch {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['LOGISTICS_WEB_PUBLIC_URL'],
+            message: 'must be a full URL, including https://',
+          });
+        }
+      }
+
+      if (value.LOGISTICS_WEB_ORIGIN.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['LOGISTICS_WEB_ORIGIN'],
+          message:
+            'required when FEATURE_LOGISTICS_PORTAL is on. Without it the portal is not in the ' +
+            'CORS allowlist and every request it makes is refused by the browser.',
+        });
+      }
     }
 
     if (value.QUEUE_DRIVER === 'redis' && value.REDIS_URL.length === 0) {
@@ -1201,6 +1384,7 @@ export const isDevelopment = env.NODE_ENV === 'development';
 export const allowedOrigins: readonly string[] = Object.freeze([
   ...env.ADMIN_WEB_ORIGIN,
   ...env.CUSTOMER_WEB_ORIGIN,
+  ...env.LOGISTICS_WEB_ORIGIN,
 ]);
 
 /** Decoded AES-256-GCM key. Validated to 32 bytes above. */

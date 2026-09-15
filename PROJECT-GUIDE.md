@@ -14,11 +14,12 @@ have to read separately — this *is* the explanation.
 ## Table of contents
 
 1. [What this project is](#1-what-this-project-is)
-2. [The three programs](#2-the-three-programs)
+2. [The four programs](#2-the-four-programs)
 3. [How they talk to each other](#3-how-they-talk-to-each-other)
 4. [The customer storefront](#4-the-customer-storefront)
 4a. [The Seller Hub](#4a-the-seller-hub)
 5. [The admin panel](#5-the-admin-panel)
+5a. [The logistics partner portal](#5a-the-logistics-partner-portal)
 6. [The backend](#6-the-backend)
 7. [The database](#7-the-database)
 8. [The API](#8-the-api)
@@ -108,22 +109,25 @@ it" — every business detail is a setting, not a hard-coded value.
 
 ---
 
-# 2. The three programs
+# 2. The four programs
 
-Three separate programs run at the same time. Plus one helper.
+Four separate programs run at the same time. Plus one helper.
+
+The fourth is optional: the logistics portal only exists on a deployment where
+`FEATURE_LOGISTICS_PORTAL` is on. Section 5a is about it.
 
 ```
-┌─────────────────────────┐        ┌─────────────────────────┐
-│  CUSTOMER STOREFRONT    │        │      ADMIN PANEL        │
-│  apps/customer-web      │        │      apps/admin-web     │
-│  Port 5174              │        │      Port 5173          │
-│  React + Vite           │        │      React + Vite       │
-│  "the shop floor"       │        │      "the back office"  │
-└───────────┬─────────────┘        └───────────┬─────────────┘
-            │                                  │
-            │   both speak HTTP + JSON         │
-            └────────────────┬─────────────────┘
-                             ▼
+┌──────────────────────┐  ┌──────────────────────┐  ┌──────────────────────┐
+│ CUSTOMER STOREFRONT  │  │     ADMIN PANEL      │  │  LOGISTICS PORTAL    │
+│ apps/customer-web    │  │     apps/admin-web   │  │  apps/logistics-web  │
+│ Port 5174            │  │     Port 5173        │  │  Port 5175           │
+│ React + Vite         │  │     React + Vite     │  │  React + Vite        │
+│ "the shop floor"     │  │     "the back office"│  │  "the carrier's desk"│
+└──────────┬───────────┘  └──────────┬───────────┘  └──────────┬───────────┘
+           │                         │                         │
+           │        all three speak HTTP + JSON                │
+           └─────────────────────────┼─────────────────────────┘
+                                     ▼
                 ┌─────────────────────────┐
                 │        BACKEND API      │
                 │        backend/         │
@@ -137,26 +141,28 @@ Three separate programs run at the same time. Plus one helper.
    ┌────────────────────┐      ┌────────────────────┐
    │     DATABASE       │      │      WORKER        │
    │   MariaDB :3306    │      │  backend/src/worker│
-   │  76 tables         │      │  "the night staff" │
+   │ 170 tables         │      │  "the night staff" │
    │ "filing cabinet"   │      │                    │
    └────────────────────┘      └────────────────────┘
 ```
 
 ## Why the frontends are separate programs
 
-The storefront and the admin panel are two completely separate applications.
-They do not share code that runs in the browser, they run on different ports,
-and they name their login cookies differently (`uboss_shop_*` and
-`uboss_admin_*`).
+The storefront, the admin panel and the logistics portal are three completely
+separate applications. They do not share code that runs in the browser, they
+run on different ports, and they name their login cookies differently
+(`uboss_shop_*`, `uboss_admin_*` and `uboss_logi_*`).
 
 **Why bother?** Because a bug in the shop must never be able to touch the back
 office. If they were one program, a mistake on a public product page could
 expose an admin screen. Being separate makes that structurally impossible
-rather than merely unlikely.
+rather than merely unlikely. The same argument is why a third-party haulage
+company — a business that is not this company — signs in to an application of
+its own rather than to a section of one of the other two.
 
 It also means a member of staff can be logged into the admin panel *and*
-logged in as a test customer in the same browser at the same time — the two
-cookies do not collide.
+logged in as a test customer in the same browser at the same time — the three
+cookie jars do not collide.
 
 ## The look, and the one place it is defined
 
@@ -3571,6 +3577,354 @@ the language mid-shift for somebody who had not moved.
 
 ---
 
+# 5a. The logistics partner portal
+
+Until now, a parcel left the warehouse and the record of what happened to it
+next was whatever somebody typed into the order. The logistics partner portal
+gives the companies that actually carry the goods a place to work: their own
+application, their own accounts, and their own view of exactly the
+consignments they have been given and nothing else.
+
+It is off by default. `FEATURE_LOGISTICS_PORTAL` decides whether any of it
+exists on a deployment, and with the flag off nothing in this section is
+reachable, not even to sign in.
+
+## The one decision everything else follows from
+
+**A carrier is a third audience, not a kind of customer.**
+
+The product already had two: `ADMIN` and `CUSTOMER`, each with its own
+application, its own cookie jar and its own permission catalogue. A carrier is
+a third — `LOGISTICS` — and it is built the same way rather than bolted onto
+either of the others.
+
+```
+CUSTOMER          apps/customer-web   uboss_shop_*    the shop floor
+ADMIN             apps/admin-web      uboss_admin_*   the back office
+LOGISTICS         apps/logistics-web  uboss_logi_*    the carrier's desk
+```
+
+The audience is checked twice on every request: once from the token's own
+claim, and once from the `type` column on the user row. A token minted for one
+audience cannot be spent on another even if it is otherwise valid, because the
+two checks have to agree.
+
+This is not a new sign-in system. The same `auth.service.ts`, the same session
+rotation, the same refresh-token reuse detection, the same login throttling.
+What is new is a third catalogue of permissions (`logistics-permissions.ts`)
+and a second boundary on top of it.
+
+## The second decision: two boundaries, not one
+
+Being signed in as a carrier says which **company** you belong to. It does not
+say which **consignments** you may see. Both are enforced, separately, on every
+request:
+
+1. **Tenant.** Every row a carrier owns carries a `logisticsPartnerId`, and the
+   only way a request obtains that id is from the session. There is no
+   `?partnerId=` in any route, no handler reads it from a body, and no service
+   accepts one from its caller without a membership first. Exactly the
+   discipline `SellerAccount` already follows.
+
+2. **Assignment.** Inside a carrier, a consignment is reachable only through
+   the `LogisticsShipmentAssignment` row that put it there. `OFFERED` and
+   `ACCEPTED` are live; `COMPLETED`, `REJECTED`, `WITHDRAWN` and `EXPIRED` are
+   read-only history. A carrier that rejected a job yesterday can still read
+   what they were offered and can write nothing to it.
+
+A consignment belonging to another carrier answers **404, not 403**. A 403 says
+"this exists and is not yours", which tells a stranger that a reference is
+real; a 404 says nothing at all.
+
+Drivers are narrowed once more. A driver reaches the stops on their own round
+and no others, which is the same rule applied one level down.
+
+## Who can do what
+
+Six roles inside a carrier, and one on the marketplace's side.
+
+| Role | What it is for |
+|---|---|
+| `LOGISTICS_PARTNER_OWNER` | Runs the company. Invites people, accepts work, sees everything. |
+| `LOGISTICS_PARTNER_ADMIN` | Same, minus the ability to change the owner. |
+| `DISPATCHER` | Accepts offers, books collections, builds manifests, assigns drivers. |
+| `DRIVER` | Their own round. Status updates, proof of delivery, exceptions. |
+| `OPERATIONS_AGENT` | Works the exception queue and talks to the marketplace. |
+| `READ_ONLY_TRACKING_USER` | Can look. Cannot change anything. |
+
+The seventh is `UBOSS_LOGISTICS_ADMIN` — the marketplace's own authority over
+every carrier. It lives in the **admin** catalogue (`logistics.read`,
+`logistics.write`, `logistics.assign`, `logistics.integration.write`) and not
+in the carrier one, deliberately: that catalogue grants authority over one
+carrier's rows, this one grants authority over all of them, and a route that
+accepted either would eventually be reached by both.
+
+Owners and administrators must set up a second factor before they can do
+anything at all. That is not a setting.
+
+## Nobody signs themselves up
+
+There is no public registration. A carrier exists because somebody in the admin
+panel created it, and the first person at that carrier exists because that same
+operator invited them.
+
+**No password is ever emailed.** The invitation is a link carrying a random
+token that is stored only as its SHA-256, works once, and expires
+(`LOGISTICS_INVITE_TTL_HOURS`, 48 by default). Opening it lets the person
+choose their own password; before they can reach a single screen they are
+walked through setting up a second factor. The raw token is never written to
+the database, never returned to the admin panel that triggered it, and never
+logged.
+
+## The status model
+
+Twenty-seven statuses, and one state machine that is the only way any of them
+is written.
+
+**Fifteen forward:** `CREATED`, `AWAITING_ASSIGNMENT`, `ASSIGNED`,
+`ACCEPTANCE_PENDING`, `ACCEPTED`, `PICKUP_SCHEDULED`, `READY_FOR_PICKUP`,
+`PICKED_UP`, `DISPATCHED`, `AT_ORIGIN_HUB`, `IN_TRANSIT`,
+`AT_DESTINATION_HUB`, `OUT_FOR_DELIVERY`, `DELIVERY_ATTEMPTED`, `DELIVERED`.
+
+**Twelve exception or terminal:** `DELAYED`, `ON_HOLD`, `ADDRESS_ISSUE`,
+`CUSTOMS_HOLD`, `DAMAGED`, `TEMPERATURE_EXCEPTION`, `DELIVERY_FAILED`,
+`RETURN_REQUESTED`, `RETURN_IN_TRANSIT`, `RETURNED`, `LOST`, `CANCELLED`.
+
+The rules that matter:
+
+- `ASSIGNED` cannot become `DELIVERED`. Every step in between is a step.
+- A carrier cannot reverse `DELIVERED`, `RETURNED`, `LOST` or `CANCELLED`.
+- The marketplace can, through **one** door — a correction — which demands a
+  written reason of at least eight characters and writes an event flagged as a
+  correction. Months later a timeline that went backwards reads as corrected
+  rather than as a bug.
+- A cancelled consignment accepts no new tracking, with one exception: the
+  return workflow, which is the reason it is a separate branch rather than a
+  dead end.
+
+This is the same discipline as `assertTransition` for orders and
+`schedule-state.ts` for scheduled baskets, and for the same reason: a status
+that anything can write is a status nobody can explain.
+
+## The same event twice does not happen twice
+
+Every status change becomes one append-only `LogisticsShipmentEvent`. Two
+UNIQUE indexes make a duplicate impossible rather than unlikely:
+
+- `(shipmentId, idempotencyKey)` — the caller's own key. A dispatcher who
+  presses the button twice, or a client that retries a timed-out request,
+  writes one event.
+- `externalEventKey` — the carrier's own event id, namespaced by integration.
+  A provider that posts the same webhook five times writes one event.
+
+Both columns are `NOT NULL` with a computed surrogate when there is nothing to
+put in them, because **MariaDB treats every NULL in a UNIQUE index as
+distinct** — a nullable column there would enforce nothing at all.
+
+The insert is the check. There is no "look first, then write", which is a race
+by construction. When the database refuses the duplicate the loser reads back
+what the winner wrote. InnoDB reports that refusal two ways depending on
+timing — `P2002` for the duplicate key and `P2034` for a deadlock — so both are
+treated as "somebody else got there first", with a short bounded retry because
+the loser can return before the winner has committed.
+
+## What a carrier is shown, and what they are not
+
+A carrier sees what they need to move the goods: the reference, the tracking
+number, the status, both addresses, the package count and weight, what the
+boxes contain **in categories**, the handling requirements, the dates they have
+been promised, and their own documents.
+
+They do not see the order value, the prices, what the marketplace charges,
+what the seller is paid, any payment or seller credential, or the product names
+and quantities. A packing list is a document with its own audience.
+
+Contact details are **masked by role and by need**. A telephone number comes
+back as a prefix and its last two digits. It is revealed whole to exactly two
+people: the driver whose active round the stop is on, and the person handling
+an open exception on that consignment. Nobody else, at any level, at any time.
+
+## The carrier's own screens
+
+`apps/logistics-web`, port 5175.
+
+| Route | What it is |
+|---|---|
+| `/dashboard` | Fourteen counters, aggregated on the server, plus today's pickups, deliveries, exceptions and recent activity. |
+| `/shipments` | The list. Server-side paging, sorting, filtering, debounced search, saved filters, bulk actions and CSV export bound to the active filter and the reader's role. |
+| `/shipments/:id` | One consignment: route, timeline, packages, contacts, documents, and the status form. |
+| `/pickups` | Collections to book and to confirm, in each warehouse's own timezone. |
+| `/dispatch` | Manifests, and handing one over. |
+| `/exceptions` | What has gone wrong, and recording what was done about it. |
+| `/companies` | The sellers and receiving businesses this carrier works with. |
+| `/drivers` | People and vehicles. |
+| `/company` | The carrier's own profile, members and invitations. |
+| `/driver/tasks` | A driver's round, on a phone. |
+
+Two things about the detail page are worth stating because the opposite is the
+usual practice:
+
+**There is no fake moving marker.** When nothing has reported a position, the
+map says "Live location unavailable" or shows the last known checkpoint with
+the time it was recorded. A marker that animates along a plausible route is a
+lie that a customer will eventually catch.
+
+**The map is never the only tracking.** Beside it, always, is the same journey
+in words — a list of checkpoints with times and places. That is the accessible
+alternative, and it is the primary thing rather than an afterthought.
+
+The status form offers only the transitions the state machine allows from
+where the consignment is now, and the server checks again, because a form is a
+convenience and never a control.
+
+## The marketplace's own screens
+
+Inside the admin panel, under **Logistics**.
+
+| Route | What it is |
+|---|---|
+| `/logistics/shipments` | Every consignment, whoever is carrying it, with the column the carrier's own screen cannot have: who has it, and whether anybody does. |
+| `/logistics/shipments/:id` | One consignment. Offer it to a carrier, take it back, correct a status, read the full timeline. |
+| `/logistics/exceptions` | The queue, worst first and then oldest first. |
+| `/logistics/partners` | The carriers. Create one and invite its first owner. |
+| `/logistics/partners/:id` | Registration, contract, areas served, approved capabilities, delivery promises, people. |
+| `/logistics/integrations` | Carrier API connections, their health, and their status-code mapping. |
+
+Offering a consignment is scored on the server: does the carrier cover both
+ends of the journey, are they approved for what it needs carrying, do they have
+spare capacity, how often do they deliver on time. Each candidate carries the
+reasons it is or is not offerable, shown verbatim, and an ineligible carrier
+can still be chosen — an operations desk sometimes knows something the score
+does not — but the reason is on the screen while the choice is made.
+
+Suspending a carrier stops new offers reaching them. It optionally takes back
+the work they have not yet accepted so somebody else can be found; work they
+have already accepted stays theirs to finish. The dialog says which.
+
+## Carriers with an API, and carriers without
+
+The portal talks to a carrier through one interface, whoever the carrier is:
+`createShipment`, `cancelShipment`, `getRates`, `schedulePickup`, `cancelPickup`,
+`getTracking`, `getProofOfDelivery`, `generateLabel`, `validateAddress`.
+
+Five providers are recognised: `MANUAL`, `CUSTOM`, `DHL`, `FEDEX`, `UPS`.
+
+**`MANUAL` is the one that works out of the box**, and it is not an API at all —
+the carrier's own staff record every status in the portal. That is a complete,
+honest way to run this feature, and on a fresh installation it is the only one
+that is switched on.
+
+The other four **refuse until they are configured**, and the refusal names the
+exact variables the build wants:
+
+```
+DHL     DHL_API_KEY, DHL_API_SECRET, DHL_ACCOUNT_NUMBER
+FedEx   FEDEX_CLIENT_ID, FEDEX_CLIENT_SECRET, FEDEX_ACCOUNT_NUMBER
+UPS     UPS_CLIENT_ID, UPS_CLIENT_SECRET, UPS_ACCOUNT_NUMBER
+CUSTOM  the integration's base URL, its API credential, its status mapping
+```
+
+There is no state in which a green tick appears because nothing was attempted.
+The connections screen says "Not configured", lists the missing variables, and
+a connection test on an unconfigured provider is reported as a failure. A
+deployment that believes it is connected to DHL when it is not is worse than
+one that knows it is not.
+
+Credentials live in environment variables or an approved secrets manager, and
+what is stored on the row is encrypted with the row's own id as additional
+data, so a credential copied from one connection into another fails to decrypt
+rather than quietly working somewhere it was never meant to. Nothing in either
+application will show one back.
+
+## When a carrier posts to us
+
+A webhook is accepted only when all of this holds:
+
+- the HMAC signature over the **raw bytes** matches, compared in constant time
+- the timestamp inside the signed payload is inside the tolerance window
+- the provider's event id has not been seen before
+
+Then it is written once, idempotently. A failure is retried with exponential
+backoff up to `LOGISTICS_WEBHOOK_MAX_ATTEMPTS`, and what still will not
+process lands in a dead-letter queue that the connections screen counts.
+
+**An unknown carrier status never crashes anything.** The original code is kept
+whole, the event is queued as `UNMAPPED_EXTERNAL_EVENT`, and operations are
+told. The mapping screen is where somebody gives it a meaning. Dropping the
+code would leave nothing to map; guessing at it would put a wrong status in
+front of a customer.
+
+Every event that did map keeps the carrier's own code beside the status it was
+mapped to. That pairing is the only way a mis-mapped code is ever found.
+
+The signing secret is shown **once**, in the response to rotating it. There is
+no endpoint that reads it back.
+
+## What this does not touch
+
+**No inventory movement is written by any of this.** Not one. A consignment
+milestone moves the ORDER through `assertTransition`, which is the existing
+order state machine, and the existing inventory rules follow from that as they
+always did. There is no second path into stock, so a duplicate shipment event
+cannot produce a duplicate stock movement — not because it is guarded against,
+but because there is nothing there to duplicate.
+
+Shipments are created for an order idempotently: one per seller group and
+warehouse, and running it again returns what already exists.
+
+## Live GPS is prepared, not pretended
+
+Phase 1 does not track vehicles in real time, and nothing in the product
+suggests it does.
+
+What exists is the shape it will need: a `POST /api/v1/logistics/driver/location-pings`
+endpoint, a device-scoped short-lived token tied to one active trip, recorded
+consent, and a table that is kept apart from every audit record because it is
+high-volume and disposable.
+
+What it refuses: coordinates outside the legal range, a timestamp older than
+`LOGISTICS_PING_MAX_AGE_MINUTES`, an implied speed above
+`LOGISTICS_PING_MAX_SPEED_KMH`, a duplicate sequence number, and any ping at
+all outside an active duty period.
+
+Pings are deleted after `RETENTION_LOGISTICS_LOCATION_PING_DAYS` (30 by
+default). Raw coordinates are restricted to the roles that need them, and no
+coordinate is ever written to a normal log line.
+
+Nothing in the interface animates a vehicle. Nothing interpolates a position.
+When the last ping is old, the screen says how old.
+
+## Security, briefly
+
+Everything in section 12 applies, plus:
+
+- Second factor compulsory for owners and administrators, offered to everybody
+  else, with recovery codes. TOTP is implemented against RFC 6238 and the QR
+  code is drawn in the browser, so the shared secret never crosses a network or
+  sits in a cache.
+- Tenant isolation and assignment authorisation on every request, as above.
+- Idempotency by UNIQUE constraint, never check-then-insert.
+- Signed webhooks with replay prevention.
+- Documents reached through short-lived signed URLs
+  (`LOGISTICS_DOCUMENT_URL_TTL_SECONDS`, 300 by default), with a
+  malware-scanning hook in front of them.
+- **A raw signature image is never on a public URL.** Proof of delivery is
+  reached the same way as any other document and never by a guessable path.
+- No token, one-time code, password or coordinate is written to a normal log.
+- Every consequential action leaves an audit row naming who, what, when and
+  from where.
+
+## What is honestly not finished
+
+- Live GPS, as above: the shape is there and the tracking is not.
+- DHL, FedEx and UPS adapters refuse rather than call. The interface they will
+  implement is written and tested; the calls are not.
+- Malware scanning is a hook, not a scanner. With
+  `LOGISTICS_ALLOW_UNSCANNED_DOCUMENTS` off — which is the default — an
+  unscanned upload is refused rather than quietly accepted.
+
+---
+
 # 6. The backend
 
 `backend/` — Node.js, TypeScript, Fastify 5, Prisma 7, MariaDB.
@@ -3653,7 +4007,7 @@ captured before anything touches it.
 
 # 7. The database
 
-MariaDB 10.4, reached through Prisma. **76 tables, 42 enums, 18 migrations.**
+MariaDB 10.4, reached through Prisma. **170 tables, 136 enums, 45 migrations.**
 
 ## How schema changes work
 
@@ -7948,6 +8302,8 @@ Everything lives in `backend/.env`, validated at boot by `src/config/env.ts`.
 | `CUSTOMER_WEB_ORIGIN` | The storefront's exact origin (default `http://localhost:5174`) |
 | `CUSTOMER_WEB_PUBLIC_URL` | Where emailed customer links point |
 | `ADMIN_WEB_PUBLIC_URL` | Where emailed staff links point |
+| `LOGISTICS_WEB_ORIGIN` | The logistics portal's exact origin (default `http://localhost:5175`) |
+| `LOGISTICS_WEB_PUBLIC_URL` | Where an invited carrier's activation link points. **Required when `FEATURE_LOGISTICS_PORTAL` is on** — `env.ts` refuses to start without it, because an invitation email with no address in it is a person who cannot get in |
 | `apps/*/.env` → `VITE_API_BASE_URL` | The API's base URL |
 | `apps/*/.env.local` → `TUNNEL_HOST` | The hostname of the development tunnel, if one is in use |
 
@@ -7978,8 +8334,32 @@ hostname adds it to that check, in every mode, and nothing else with it. See
 | `FEATURE_CUSTOMER_AUTOPAY` | `false` | A customer's standing authority to be charged, with their own limits. Needs Stripe **and** `FEATURE_SUBSCRIPTION_AUTOPAY`, which is what lets them save a card at all |
 | `ALLOW_PRIVATE_ERP_TARGETS` | `false` | Lets a customer-supplied ERP address resolve to a private or loopback network. **Development only — `env.ts` refuses to start a production process with it on**, because it makes the cloud metadata endpoint reachable from a form field |
 | `FEATURE_ADMIN_LOGIN_LOCATION` | `true` | Ask staff's browser for its location at sign-in |
+| `FEATURE_LOGISTICS_PORTAL` | `false` | The whole of section 5a. Off means the third application has nothing to sign in to, every `/api/v1/logistics/*` route refuses, no carrier can be created, and the Logistics group is absent from the admin sidebar |
 | `ASSISTANT_ENABLED` | — | AI Mode and image search |
 | `ASSISTANT_ALLOW_GUESTS` | `true` | May somebody with no account use AI Mode? On, and a visitor may ask before signing up; off, and `/start` and `/chat` answer a guest 401. Understand what it costs before leaving it on — an anonymous caller spends the operator's AI provider budget, and a rate limit bounds that rather than removing it |
+
+## Carriage
+
+Only read when `FEATURE_LOGISTICS_PORTAL` is on.
+
+| Variable | Default | Effect |
+|---|---|---|
+| `LOGISTICS_INVITE_TTL_HOURS` | `48` | How long an activation link works. It is single-use whatever this says |
+| `LOGISTICS_ASSIGNMENT_RESPONSE_HOURS` | `24` | How long a carrier has to accept an offer before it expires and the work goes back in the queue |
+| `LOGISTICS_DOCUMENT_URL_TTL_SECONDS` | `300` | How long a signed document link lives. Proof-of-delivery images included |
+| `LOGISTICS_ALLOW_UNSCANNED_DOCUMENTS` | `false` | Accept an upload that no malware scanner has seen. On is a decision somebody has to make deliberately |
+| `LOGISTICS_WEBHOOK_MAX_ATTEMPTS` | `6` | Retries before a carrier's event is dead-lettered |
+| `LOGISTICS_CARRIER_FAILURE_THRESHOLD` | `5` | Consecutive failures before a connection is shown as degraded |
+| `LOGISTICS_TRIP_TOKEN_TTL_HOURS` | `14` | How long a driver's device token is good for. A shift, not a week |
+| `LOGISTICS_PING_INTERVAL_SECONDS` | `60` | How often a driver's device is asked to report, while on duty |
+| `LOGISTICS_PING_MAX_AGE_MINUTES` | `120` | A position older than this is refused rather than backdated |
+| `LOGISTICS_PING_MAX_SPEED_KMH` | `200` | An implied speed above this is refused as impossible |
+| `RETENTION_LOGISTICS_LOCATION_PING_DAYS` | `30` | How long positions are kept before the worker deletes them. `0` keeps them forever, which is almost certainly the wrong answer |
+
+Carrier API credentials are **not** in this table, because they are not
+configuration in the ordinary sense. `DHL_API_KEY`, `FEDEX_CLIENT_ID`,
+`UPS_CLIENT_SECRET` and the rest belong in a secrets manager, and with none of
+them set the affected provider says so on screen rather than pretending.
 
 ## The warehouse map
 
@@ -8199,8 +8579,8 @@ UBoss-Software/
 │
 ├── backend/
 │   ├── prisma/
-│   │   ├── schema.prisma           ← THE DATABASE SHAPE. 86 models.
-│   │   └── migrations/             29 numbered, committed SQL steps
+│   │   ├── schema.prisma           ← THE DATABASE SHAPE. 170 models.
+│   │   └── migrations/             45 numbered, committed SQL steps
 │   ├── src/
 │   │   ├── config/env.ts           ← Every setting, validated at boot
 │   │   ├── domain/                 Pure rules, no I/O
@@ -8209,7 +8589,12 @@ UBoss-Software/
 │   │   │   ├── permissions.ts      ← Roles and ~50 permissions
 │   │   │   ├── order-state-machine.ts  ← Legal order transitions
 │   │   │   ├── schedule-state.ts   ← Legal plan and occurrence transitions
-│   │   │   └── ordering-unit.ts    ← Packs to pieces, done on the server
+│   │   │   ├── ordering-unit.ts    ← Packs to pieces, done on the server
+│   │   │   ├── logistics-shipment-state.ts  ← The 27 statuses, and what may follow what
+│   │   │   ├── logistics-permissions.ts     ← The carrier's own six roles
+│   │   │   ├── logistics-masking.ts         ← Who may see a telephone number whole
+│   │   │   ├── logistics-sla.ts             ← On track, at risk, missed
+│   │   │   └── carrier-status-map.ts        ← One carrier's vocabulary into ours
 │   │   ├── infra/                  Database, crypto, ids, queue, email, storage
 │   │   ├── http/
 │   │   │   ├── app.ts              ← Plugin order, CORS, raw body, error envelope
@@ -8233,6 +8618,9 @@ UBoss-Software/
 │   │   │                           contact-change, account-closure, wishlist
 │   │   ├── worker/                 The background worker
 │   │   └── seed/                   Development data
+│   │       └── logistics.ts        ← A development carrier and four
+│   │                               consignments. Only where the portal is on,
+│   │                               and never in production
 │   ├── tests/                      Unit and integration tests
 │   └── docs/                       RUNBOOK, EU-VAT, DATA-PROTECTION, ...
 │
@@ -8276,7 +8664,18 @@ UBoss-Software/
 │   ├── i18n/locales/               Eight languages
 │   └── auth/                       Session context
 │
-└── apps/admin-web/src/             Same shape, different screens
+├── apps/admin-web/src/             Same shape, different screens
+│   ├── pages/logistics/            ← The marketplace's side of carriage
+│   └── lib/logistics.ts            Its types and its API calls
+│
+└── apps/logistics-web/src/         The carrier's own application (port 5175)
+    ├── app/router.tsx              ← Every portal page
+    ├── pages/                      Dashboard, shipments, pickups, dispatch,
+    │                               exceptions, companies, drivers, the round
+    ├── pages/QrCode.tsx            ← A QR code drawn in the browser, so the
+    │                               TOTP secret never crosses a network
+    ├── auth/session.tsx            Five stages, two of them about MFA
+    └── lib/logistics.ts            ← Everything the portal asks the API for
 ```
 
 ## "I want to change X — where do I look?"
@@ -8330,6 +8729,14 @@ UBoss-Software/
 | Change the shelf's tilt, depth, shadow or reduced-motion behaviour | the `.shelf-*` rules in `apps/admin-web/src/index.css`, and `TILT_DEGREES` in `pages/warehouse/WarehouseInventoryDialog.tsx`. Read the note at the top of that CSS block before adding a transform to a card - it explains which ones swallow a click, and why one rule there lives outside every `@layer` |
 | Change what a buyer is offered when two warehouses can serve them | `modules/inventory/delivery-options.service.ts`; the panel is `components/DeliveryOptionsPanel.tsx` in the storefront |
 | Change what happens in the background | `src/worker/handlers.ts` |
+| Add a consignment status, or change what may follow what | `domain/logistics-shipment-state.ts` — the enum, the adjacency list, the Prisma enum and a migration all move together |
+| Change what a carrier may do | `domain/logistics-permissions.ts`; the marketplace's own authority is the `LOGISTICS_*` keys in `domain/permissions.ts` |
+| Change who may see a recipient's telephone number | `domain/logistics-masking.ts` — one file, and every read path goes through it |
+| Teach the system one carrier's status codes | `domain/carrier-status-map.ts` for the ones this build ships with; **Logistics → Carrier connections** in the panel for a deployment's own |
+| Wire up a real DHL, FedEx or UPS connection | `modules/logistics/carrier/registry.ts` — the adapters are there and refuse; the interface they implement is `carrier/adapter.ts` |
+| Change how long a carrier has to accept an offer | `LOGISTICS_ASSIGNMENT_RESPONSE_HOURS` |
+| Change what a driver's device may report, or how long its token lasts | `modules/logistics/trip.service.ts` and the `LOGISTICS_PING_*` variables |
+| Change how long positions are kept | `RETENTION_LOGISTICS_LOCATION_PING_DAYS`; the worker does the deleting |
 | Change what a scheduled order costs | `modules/recurring/schedule-quote.service.ts` — the review screen, the estimate and the worker all use it |
 | Change what a schedule's estimate returns | `modules/recurring/schedule-estimate.service.ts` — it calls `quoteSchedule` and nothing else |
 | Change what the schedule editor can edit | `pages/schedule/ScheduleEditor.tsx`, and the `updateSchema` in `http/routes/schedules.ts` |

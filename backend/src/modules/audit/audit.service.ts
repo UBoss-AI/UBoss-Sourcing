@@ -274,7 +274,16 @@ export const AuditAction = {
 
 export type AuditActionKey = (typeof AuditAction)[keyof typeof AuditAction];
 
-export type AuditActorType = 'SYSTEM' | 'ADMIN' | 'CUSTOMER' | 'PROVIDER';
+/**
+ * Which side acted.
+ *
+ * Mirrors the `ActorType` enum in the schema. LOGISTICS is a third-party
+ * carrier's own staff acting inside the logistics portal, and it is a member
+ * of its own rather than being folded into SYSTEM: "the system moved this
+ * shipment" and "a named dispatcher at a named carrier moved it" are the two
+ * answers an operator most needs to tell apart after a bad delivery.
+ */
+export type AuditActorType = 'SYSTEM' | 'ADMIN' | 'CUSTOMER' | 'PROVIDER' | 'LOGISTICS';
 
 export interface AuditEntry {
   action: AuditActionKey;

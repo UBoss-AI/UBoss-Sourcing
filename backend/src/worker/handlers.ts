@@ -51,6 +51,10 @@ import {
   findDueRetries,
   releaseEvent,
 } from '../modules/integrations/integration-event.service.js';
+import { expireStaleAssignments } from '../modules/logistics/assignment.service.js';
+import { sweepTripsAndPings } from '../modules/logistics/trip.service.js';
+import { retryFailedWebhookEvents } from '../modules/logistics/carrier/webhook.service.js';
+import { refreshSlaStates } from '../modules/logistics/sla-sweep.service.js';
 
 /**
  * A failure that retrying cannot fix.
@@ -611,6 +615,57 @@ const fxRateRefresh: JobHandler = async () => {
 };
 
 /**
+ * The logistics portal's maintenance beat.
+ *
+ * Four passes, each independently guarded so one failing does not stop the
+ * others. That matters more here than in most sweeps: the SLA refresh feeds
+ * every dashboard counter a dispatcher looks at, and a webhook retry that
+ * throws must not stop it running for the rest of the day.
+ *
+ * Off entirely when the feature is off, and the check is first so an
+ * installation with no carriers pays nothing for this job.
+ */
+const logisticsMaintenance: JobHandler = async () => {
+  if (!env.FEATURE_LOGISTICS_PORTAL) return;
+
+  const outcomes: Record<string, number> = {};
+
+  try {
+    const expired = await expireStaleAssignments();
+    outcomes['expiredAssignments'] = expired.expired;
+  } catch (error) {
+    logger.error({ err: error }, 'logistics assignment expiry pass failed');
+  }
+
+  try {
+    const sla = await refreshSlaStates();
+    outcomes['slaUpdated'] = sla.updated;
+    outcomes['slaExceptionsRaised'] = sla.exceptionsRaised;
+  } catch (error) {
+    logger.error({ err: error }, 'logistics SLA refresh pass failed');
+  }
+
+  try {
+    const trips = await sweepTripsAndPings();
+    outcomes['abandonedTrips'] = trips.abandoned;
+    outcomes['deletedPings'] = trips.deleted;
+  } catch (error) {
+    logger.error({ err: error }, 'logistics trip and ping sweep failed');
+  }
+
+  try {
+    const webhooks = await retryFailedWebhookEvents();
+    outcomes['webhooksRetried'] = webhooks.retried;
+    outcomes['webhooksDeadLettered'] = webhooks.deadLettered;
+  } catch (error) {
+    logger.error({ err: error }, 'carrier webhook retry pass failed');
+  }
+
+  const touched = Object.values(outcomes).reduce((total, value) => total + value, 0);
+  if (touched > 0) logger.info(outcomes, 'logistics maintenance pass finished');
+};
+
+/**
  * The handler registry.
  *
  * A job type with no handler is marked dead rather than retried: retrying a
@@ -639,6 +694,7 @@ export const HANDLERS: Readonly<Record<string, JobHandler>> = Object.freeze({
   [JobType.CUSTOMER_ERP_DISPATCH]: customerErpDispatch,
   [JobType.CUSTOMER_ERP_POLL]: customerErpPoll,
   [JobType.CUSTOMER_ERP_MAINTENANCE]: customerErpMaintenance,
+  [JobType.LOGISTICS_MAINTENANCE]: logisticsMaintenance,
 });
 
 export function handlerFor(jobType: string): JobHandler | undefined {

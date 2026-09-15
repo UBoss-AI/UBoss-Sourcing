@@ -10,6 +10,7 @@
  * backend regardless of what the sidebar shows.
  */
 import {
+  AlertTriangleIcon,
   AuditIcon,
   BrandRequestIcon,
   CategoriesIcon,
@@ -22,6 +23,7 @@ import {
   IntegrationsIcon,
   InventoryIcon,
   ListingReviewIcon,
+  LogisticsIcon,
   OrdersIcon,
   PaymentsIcon,
   ProductsIcon,
@@ -187,6 +189,48 @@ export const NAVIGATION: NavGroup[] = [
         to: '/chat-enquiries',
         icon: ChatIcon,
         permissions: [Permission.ASSISTANT_CHAT_READ],
+        matchPrefix: true,
+      },
+    ],
+  },
+  {
+    /*
+     * Its own group rather than three more rows under Sales. Carriage is a
+     * separate operation with its own desk: the person chasing a stuck parcel
+     * is rarely the person chasing a payment, and burying the exception queue
+     * eleven rows down a "Sales" column is how it stops being looked at.
+     */
+    labelKey: 'nav.group.logistics',
+    items: [
+      {
+        labelKey: 'nav.logisticsShipments',
+        to: '/logistics/shipments',
+        icon: LogisticsIcon,
+        permissions: [Permission.LOGISTICS_READ],
+        matchPrefix: true,
+      },
+      {
+        labelKey: 'nav.logisticsExceptions',
+        to: '/logistics/exceptions',
+        icon: AlertTriangleIcon,
+        permissions: [Permission.LOGISTICS_READ],
+        matchPrefix: true,
+      },
+      {
+        labelKey: 'nav.logisticsPartners',
+        to: '/logistics/partners',
+        icon: SellerIcon,
+        permissions: [Permission.LOGISTICS_READ],
+        matchPrefix: true,
+      },
+      {
+        // Beside the carriers rather than under Administration: a connection
+        // here is one carrier's API, not a deployment-wide setting, and the
+        // person configuring it has the carrier's record open already.
+        labelKey: 'nav.logisticsIntegrations',
+        to: '/logistics/integrations',
+        icon: IntegrationsIcon,
+        permissions: [Permission.LOGISTICS_READ],
         matchPrefix: true,
       },
     ],

@@ -754,6 +754,101 @@ note('Two different ERP features', 'Admin ERP is the supplier’s warehouse/busi
 page();
 
 // 13
+h1('12a. Logistics Features — Carriers, Consignments and Delivery Tracking');
+p('This chapter is about the companies that actually carry the goods. It is an optional part of the product: a business that arranges its own delivery never switches it on, and then nothing in this chapter exists for them. A business that uses haulage companies switches it on, and each of those companies gets its own place to work.');
+note('Off unless it is turned on', 'Until the business enables the logistics portal there is no carrier sign-in, no carrier can be created, and the Logistics section is absent from the admin console.', C.orange);
+
+h2('12a.1 How a carrier gets an account');
+p('No haulage company can sign itself up. Every one of them exists because somebody at the business created it and invited the person who will run it.');
+table(['Step', 'What the person does', 'What the system does'], [
+  ['1', 'Opens Logistics, then Carriers, and adds a haulage company.', 'Records the registered name, trading name, country, company number, contract reference and contact details, and gives the company its own short code.'],
+  ['2', 'Types the name and email of the person who will run that company.', 'Emails them a link that works once and expires. No password is created, and none is sent.'],
+  ['3', 'That person opens the link.', 'Lets them choose their own password, then walks them through setting up a second factor before they can reach any screen.'],
+  ['4', 'They invite the rest of their own team.', 'Each person gets their own one-time link and their own role.'],
+], [700, 4400, 5000]);
+note('Nobody is ever emailed a password', 'Not a temporary one, not a first one. The only thing that goes out is a link that stops working once it has been used and again when it expires.', C.blue);
+
+h2('12a.2 What each person at a carrier may do');
+table(['Role', 'What it is for'], [
+  ['Owner', 'Runs the company. Invites people, accepts work, sees everything the carrier is allowed to see.'],
+  ['Administrator', 'The same, except changing the owner.'],
+  ['Dispatcher', 'Accepts offered work, books collections, builds loads and puts drivers on them.'],
+  ['Driver', 'Their own round for the day, on a phone. Status updates, proof of delivery, reporting a problem.'],
+  ['Operations agent', 'Works through problems and talks to the business about them.'],
+  ['Tracking only', 'Can look. Cannot change anything.'],
+], [2600, 7400]);
+note('Second factor is compulsory at the top', 'Owners and administrators must set up a second factor before they can do anything at all. It is offered to everybody else.', C.blue);
+
+h2('12a.3 What a carrier can see, and what it cannot');
+p('A carrier sees what it needs to move the goods and nothing beyond it.');
+table(['Shown to the carrier', 'Never shown to the carrier'], [
+  ['The reference, the tracking number and the current status', 'What the order was worth, and what anything in it cost'],
+  ['Both addresses, and the dates that were promised', 'What the business charges, and what the seller is paid'],
+  ['How many boxes, how heavy, and what kind of goods they are', 'The product names and how many of each'],
+  ['Handling requirements — refrigerated, sterile, fragile, dangerous', 'Any payment detail, and any other company’s credentials'],
+  ['Their own documents and their own proof of delivery', 'Anything at all belonging to a different haulage company'],
+], [5000, 5000]);
+note('Telephone numbers are hidden by default', 'A contact number is shown with most of it replaced. It is revealed in full to exactly two people: the driver whose round that stop is on today, and whoever is dealing with an open problem on that delivery.', C.blue);
+
+h2('12a.4 The carrier’s own screens');
+table(['Screen', 'What it is for'], [
+  ['Dashboard', 'What is waiting, what is moving, what has gone wrong, and how the company is doing against the times it promised.'],
+  ['Consignments', 'The full list, with filters, search, saved filters and a spreadsheet export of whatever is on screen.'],
+  ['One consignment', 'The route, everything that has happened to it, the boxes, the contacts and the documents — and where the status is changed.'],
+  ['Collections', 'What has to be picked up, and confirming that it was.'],
+  ['Dispatch', 'Building a load and handing it over.'],
+  ['Problems', 'What has gone wrong, and recording what was done about it.'],
+  ['Companies', 'The businesses this carrier collects from and delivers to.'],
+  ['Drivers and vehicles', 'Who and what is available.'],
+  ['My company', 'Their own details, their people and their invitations.'],
+  ['My round', 'A driver’s stops for the day, made for a phone.'],
+], [2600, 7400]);
+note('No pretend tracking', 'Where nothing has reported a position, the map says so plainly or shows the last place the parcel was actually seen and when. Nothing animates a van along a route it might be taking. Beside every map is the same journey written out as a list of places and times, so it can be read without seeing the map at all.', C.orange);
+
+h2('12a.5 What the business sees');
+table(['Screen', 'What it is for'], [
+  ['Consignments', 'Every delivery, whoever is carrying it — including the ones nobody is carrying yet.'],
+  ['One consignment', 'Offer it to a carrier, take it back, correct a status that was recorded wrongly, and read the whole history.'],
+  ['Delivery problems', 'The queue across every carrier, worst first and then oldest first.'],
+  ['Carriers', 'Add a haulage company, invite its first person, and see how much each one has on.'],
+  ['One carrier', 'Its registration and contract, where it operates, what it is approved to carry, the delivery times it has promised, and its people.'],
+  ['Carrier connections', 'Whether each haulage company’s computer system is actually connected, and what its status codes mean here.'],
+], [2600, 7400]);
+p('When a delivery is offered to a carrier, the system scores every candidate: does it cover both ends of the journey, is it approved for what has to be carried, does it have room, and how often does it deliver on time. The reasons are written out beside each company. A company the score rules out can still be chosen — the person arranging it sometimes knows something the score does not — but the reason is on the screen while they choose.');
+note('Suspending a carrier', 'Stops any new work reaching them. Work they have already accepted stays theirs to finish; work they have not answered yet can be taken back in the same action so somebody else can be found, and the system says how much that is before it does it.', C.orange);
+
+h2('12a.6 Approving what a carrier may carry');
+p('Refrigerated goods, sterile goods and dangerous goods are only ever offered to a haulage company the business has approved for them. Approval is a decision somebody makes on the carrier’s record, with the evidence they were shown recorded beside it.');
+table(['What gets approved', 'Why it matters'], [
+  ['Cold chain and temperature ranges', 'A delivery that must stay between two temperatures is never offered to a company that cannot hold them.'],
+  ['Sterile handling', 'Goods that must stay sterile are only offered to companies equipped for it.'],
+  ['Dangerous goods', 'Carrying these is regulated, and the approval records the evidence.'],
+  ['Same day, next day, international, customs clearance', 'Decides what kind of work a company is offered at all.'],
+], [3600, 6400]);
+
+h2('12a.7 The delivery promise, and what counts as proof');
+p('For each carrier the business sets how many hours they have to collect and how many to deliver, how early to start warning that a delivery is going to be late, and how many delivery attempts are allowed. Every delivery is then measured against the promise that applies to it and shows as on track, at risk or missed.');
+p('The same settings decide what a driver has to capture before a delivery can be marked as done: the recipient’s name, a signature, a photograph, a one-time code read out by the recipient, or the recipient’s job title. Until everything required has been captured, the driver cannot mark it delivered.');
+note('Signatures are not public', 'A signature or a delivery photograph is only reachable through a link that the system issues for the person asking and that stops working after a few minutes. There is no address anybody can guess.', C.blue);
+
+h2('12a.8 Working with a carrier’s own computer system');
+p('A haulage company can be used in one of two ways, and both are complete.');
+table(['Way', 'What it means'], [
+  ['Their staff record it', 'The company’s own people type every status into their portal. Nothing has to be connected, and this is how the system works out of the box.'],
+  ['Their system reports it', 'The haulage company’s computer system sends updates automatically, and the business only has to check they are arriving.'],
+], [2800, 7200]);
+note('It never claims to be connected when it is not', 'A connection with no credentials is shown as not configured, names exactly what is missing, and reports a connection test as a failure. There is no state in which a tick appears because nothing was tried.', C.orange);
+p('Every haulage company has its own words for what has happened to a parcel. The business maps each of their codes onto the status it means here, once, and the system remembers. A code nobody has mapped yet is never thrown away and never guessed at: it is kept exactly as it arrived, flagged for somebody to look at, and the original is always shown beside whatever it was mapped to.');
+note('The same update twice changes nothing twice', 'If a haulage company sends the same update five times, or somebody presses the same button twice, one thing is recorded. This is not a precaution bolted on afterwards; it is how the record is built.', C.blue);
+
+h2('12a.9 Putting a status right');
+p('A carrier can move a delivery forward through the stages it actually goes through, and cannot skip to the end. A carrier can never reverse a delivery that has been recorded as delivered, returned, lost or cancelled.');
+p('The business can, through one route: a correction, which demands a written explanation and records it. Anybody reading that delivery months later sees that it was corrected, by whom, and why — rather than seeing a parcel that appears to have gone backwards for no reason.');
+
+h2('12a.10 Where drivers and vehicles are');
+note('Live vehicle tracking is not part of this release', 'The system does not follow vehicles in real time, and nothing in it suggests otherwise. Where a driver’s device has reported a position, the last one is shown with the time it was recorded. Positions are kept for a limited period and then deleted, only the people who need them can see them, and nothing is ever recorded outside a driver’s working hours.', C.orange);
+page();
+
 h1('13. System Features — Automation, Notifications and Reliability');
 h2('13.1 Background worker');
 table(['Automatic job', 'What it does'], [
@@ -831,6 +926,7 @@ table(['Optional capability', 'When it appears / what is required'], [
   ['Admin location gate', 'Can be enabled for staff sign-in; production deployment needs HTTPS for browser location access.'],
   ['Seller shop fronts', 'Each seller gets a web address of their own once the business configures the domain to hang them off. Without it every visitor is on the business’s own shop, exactly as before.'],
   ['Marketplace commission', 'A standard percentage set once by the business, with an agreed rate per seller where one has been negotiated. Both start at nothing, so a business that has not decided what it charges charges nothing.'],
+  ['Logistics partner portal', 'Turned on by the logistics feature. Gives haulage companies their own place to work and the business its own view of every delivery. Off, and none of chapter 12a exists. On, it works straight away with carriers whose staff record each status themselves; connecting a haulage company’s computer system needs that company’s own credentials, and until they are in place the system says so rather than pretending.'],
 ], [3500, 6500]);
 note('Configuration rule', 'A feature being in the code does not mean it is always enabled in every customer installation. This guide describes the capability and clearly identifies when setup controls visibility.', C.orange);
 page();
@@ -857,7 +953,19 @@ table(['Step', 'Staff action', 'System response'], [
   ['5', 'Updates delivery/operational details when permitted.', 'Customer warehouse-choice information updates from configured warehouse data.'],
   ['6', 'Reviews low stock/dashboard alerts.', 'Helps staff decide what needs replenishment or operational follow-up.'],
 ], [800, 4300, 5000]);
-h2('Example C — Business owner supervises the platform');
+h2('Example C — A delivery is given to a haulage company');
+p('Only where the logistics portal is switched on.');
+table(['Step', 'Who does it', 'What happens'], [
+  ['1', 'The business', 'Opens the delivery and asks who could carry it. The system scores every carrier on where it operates, what it is approved to carry, how much it already has on, and how often it delivers on time.'],
+  ['2', 'The business', 'Offers it to one of them. The carrier is told, and has an agreed number of hours to answer.'],
+  ['3', 'The carrier', 'Accepts it. From that moment their staff can see the delivery, and nobody else’s can.'],
+  ['4', 'The carrier', 'Books the collection, loads it, and puts a driver on it.'],
+  ['5', 'The driver', 'Works through their round on a phone, recording each stop as it happens.'],
+  ['6', 'The driver', 'Captures whatever that delivery needs as proof — a name, a signature, a photograph — and marks it delivered. Without all of it, they cannot.'],
+  ['7', 'The system', 'Moves the order on, and tells the business straight away if anything went wrong instead.'],
+], [700, 2300, 7000]);
+
+h2('Example D — Business owner supervises the platform');
 bullets([
   'Reviews dashboard orders, payments, sales, low stock and upcoming recurring work.',
   'Checks reports and audit history for decisions and traceability.',

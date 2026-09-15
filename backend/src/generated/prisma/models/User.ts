@@ -27,10 +27,12 @@ export type AggregateUser = {
 }
 
 export type UserAvgAggregateOutputType = {
+  mfaLastCounter: number | null
   failedLoginCount: number | null
 }
 
 export type UserSumAggregateOutputType = {
+  mfaLastCounter: bigint | null
   failedLoginCount: number | null
 }
 
@@ -51,6 +53,7 @@ export type UserMinAggregateOutputType = {
   temporaryPasswordExpiresAt: Date | null
   mfaSecretEnc: string | null
   mfaEnabledAt: Date | null
+  mfaLastCounter: bigint | null
   preferredLanguage: string | null
   lastLoginAt: Date | null
   failedLoginCount: number | null
@@ -78,6 +81,7 @@ export type UserMaxAggregateOutputType = {
   temporaryPasswordExpiresAt: Date | null
   mfaSecretEnc: string | null
   mfaEnabledAt: Date | null
+  mfaLastCounter: bigint | null
   preferredLanguage: string | null
   lastLoginAt: Date | null
   failedLoginCount: number | null
@@ -105,6 +109,8 @@ export type UserCountAggregateOutputType = {
   temporaryPasswordExpiresAt: number
   mfaSecretEnc: number
   mfaEnabledAt: number
+  mfaLastCounter: number
+  mfaRecoveryCodeHashesJson: number
   preferredLanguage: number
   lastLoginAt: number
   failedLoginCount: number
@@ -118,10 +124,12 @@ export type UserCountAggregateOutputType = {
 
 
 export type UserAvgAggregateInputType = {
+  mfaLastCounter?: true
   failedLoginCount?: true
 }
 
 export type UserSumAggregateInputType = {
+  mfaLastCounter?: true
   failedLoginCount?: true
 }
 
@@ -142,6 +150,7 @@ export type UserMinAggregateInputType = {
   temporaryPasswordExpiresAt?: true
   mfaSecretEnc?: true
   mfaEnabledAt?: true
+  mfaLastCounter?: true
   preferredLanguage?: true
   lastLoginAt?: true
   failedLoginCount?: true
@@ -169,6 +178,7 @@ export type UserMaxAggregateInputType = {
   temporaryPasswordExpiresAt?: true
   mfaSecretEnc?: true
   mfaEnabledAt?: true
+  mfaLastCounter?: true
   preferredLanguage?: true
   lastLoginAt?: true
   failedLoginCount?: true
@@ -196,6 +206,8 @@ export type UserCountAggregateInputType = {
   temporaryPasswordExpiresAt?: true
   mfaSecretEnc?: true
   mfaEnabledAt?: true
+  mfaLastCounter?: true
+  mfaRecoveryCodeHashesJson?: true
   preferredLanguage?: true
   lastLoginAt?: true
   failedLoginCount?: true
@@ -310,6 +322,8 @@ export type UserGroupByOutputType = {
   temporaryPasswordExpiresAt: Date | null
   mfaSecretEnc: string | null
   mfaEnabledAt: Date | null
+  mfaLastCounter: bigint | null
+  mfaRecoveryCodeHashesJson: runtime.JsonValue | null
   preferredLanguage: string | null
   lastLoginAt: Date | null
   failedLoginCount: number
@@ -360,6 +374,8 @@ export type UserWhereInput = {
   temporaryPasswordExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   mfaSecretEnc?: Prisma.StringNullableFilter<"User"> | string | null
   mfaEnabledAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  mfaLastCounter?: Prisma.BigIntNullableFilter<"User"> | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.JsonNullableFilter<"User">
   preferredLanguage?: Prisma.StringNullableFilter<"User"> | string | null
   lastLoginAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   failedLoginCount?: Prisma.IntFilter<"User"> | number
@@ -374,6 +390,9 @@ export type UserWhereInput = {
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileNullableScalarRelationFilter, Prisma.CustomerProfileWhereInput> | null
   auditLogs?: Prisma.AuditLogListRelationFilter
   notificationReads?: Prisma.AdminNotificationReadListRelationFilter
+  logisticsMembership?: Prisma.XOR<Prisma.LogisticsPartnerUserNullableScalarRelationFilter, Prisma.LogisticsPartnerUserWhereInput> | null
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogListRelationFilter
+  logisticsPings?: Prisma.LogisticsLocationPingListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -393,6 +412,8 @@ export type UserOrderByWithRelationInput = {
   temporaryPasswordExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   mfaSecretEnc?: Prisma.SortOrderInput | Prisma.SortOrder
   mfaEnabledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  mfaLastCounter?: Prisma.SortOrderInput | Prisma.SortOrder
+  mfaRecoveryCodeHashesJson?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredLanguage?: Prisma.SortOrderInput | Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrderInput | Prisma.SortOrder
   failedLoginCount?: Prisma.SortOrder
@@ -407,6 +428,9 @@ export type UserOrderByWithRelationInput = {
   customerProfile?: Prisma.CustomerProfileOrderByWithRelationInput
   auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
   notificationReads?: Prisma.AdminNotificationReadOrderByRelationAggregateInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserOrderByWithRelationInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogOrderByRelationAggregateInput
+  logisticsPings?: Prisma.LogisticsLocationPingOrderByRelationAggregateInput
   _relevance?: Prisma.UserOrderByRelevanceInput
 }
 
@@ -430,6 +454,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   temporaryPasswordExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   mfaSecretEnc?: Prisma.StringNullableFilter<"User"> | string | null
   mfaEnabledAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  mfaLastCounter?: Prisma.BigIntNullableFilter<"User"> | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.JsonNullableFilter<"User">
   preferredLanguage?: Prisma.StringNullableFilter<"User"> | string | null
   lastLoginAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   failedLoginCount?: Prisma.IntFilter<"User"> | number
@@ -444,6 +470,9 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   customerProfile?: Prisma.XOR<Prisma.CustomerProfileNullableScalarRelationFilter, Prisma.CustomerProfileWhereInput> | null
   auditLogs?: Prisma.AuditLogListRelationFilter
   notificationReads?: Prisma.AdminNotificationReadListRelationFilter
+  logisticsMembership?: Prisma.XOR<Prisma.LogisticsPartnerUserNullableScalarRelationFilter, Prisma.LogisticsPartnerUserWhereInput> | null
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogListRelationFilter
+  logisticsPings?: Prisma.LogisticsLocationPingListRelationFilter
 }, "id" | "emailNormalized">
 
 export type UserOrderByWithAggregationInput = {
@@ -463,6 +492,8 @@ export type UserOrderByWithAggregationInput = {
   temporaryPasswordExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   mfaSecretEnc?: Prisma.SortOrderInput | Prisma.SortOrder
   mfaEnabledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  mfaLastCounter?: Prisma.SortOrderInput | Prisma.SortOrder
+  mfaRecoveryCodeHashesJson?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredLanguage?: Prisma.SortOrderInput | Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrderInput | Prisma.SortOrder
   failedLoginCount?: Prisma.SortOrder
@@ -498,6 +529,8 @@ export type UserScalarWhereWithAggregatesInput = {
   temporaryPasswordExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   mfaSecretEnc?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   mfaEnabledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  mfaLastCounter?: Prisma.BigIntNullableWithAggregatesFilter<"User"> | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.JsonNullableWithAggregatesFilter<"User">
   preferredLanguage?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   lastLoginAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   failedLoginCount?: Prisma.IntWithAggregatesFilter<"User"> | number
@@ -525,6 +558,8 @@ export type UserCreateInput = {
   temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: string | null
   lastLoginAt?: Date | string | null
   failedLoginCount?: number
@@ -539,6 +574,9 @@ export type UserCreateInput = {
   customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -558,6 +596,8 @@ export type UserUncheckedCreateInput = {
   temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: string | null
   lastLoginAt?: Date | string | null
   failedLoginCount?: number
@@ -572,6 +612,9 @@ export type UserUncheckedCreateInput = {
   customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -591,6 +634,8 @@ export type UserUpdateInput = {
   temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -605,6 +650,9 @@ export type UserUpdateInput = {
   customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -624,6 +672,8 @@ export type UserUncheckedUpdateInput = {
   temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -638,6 +688,9 @@ export type UserUncheckedUpdateInput = {
   customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -657,6 +710,8 @@ export type UserCreateManyInput = {
   temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: string | null
   lastLoginAt?: Date | string | null
   failedLoginCount?: number
@@ -684,6 +739,8 @@ export type UserUpdateManyMutationInput = {
   temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -711,6 +768,8 @@ export type UserUncheckedUpdateManyInput = {
   temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -744,6 +803,8 @@ export type UserCountOrderByAggregateInput = {
   temporaryPasswordExpiresAt?: Prisma.SortOrder
   mfaSecretEnc?: Prisma.SortOrder
   mfaEnabledAt?: Prisma.SortOrder
+  mfaLastCounter?: Prisma.SortOrder
+  mfaRecoveryCodeHashesJson?: Prisma.SortOrder
   preferredLanguage?: Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrder
   failedLoginCount?: Prisma.SortOrder
@@ -755,6 +816,7 @@ export type UserCountOrderByAggregateInput = {
 }
 
 export type UserAvgOrderByAggregateInput = {
+  mfaLastCounter?: Prisma.SortOrder
   failedLoginCount?: Prisma.SortOrder
 }
 
@@ -775,6 +837,7 @@ export type UserMaxOrderByAggregateInput = {
   temporaryPasswordExpiresAt?: Prisma.SortOrder
   mfaSecretEnc?: Prisma.SortOrder
   mfaEnabledAt?: Prisma.SortOrder
+  mfaLastCounter?: Prisma.SortOrder
   preferredLanguage?: Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrder
   failedLoginCount?: Prisma.SortOrder
@@ -802,6 +865,7 @@ export type UserMinOrderByAggregateInput = {
   temporaryPasswordExpiresAt?: Prisma.SortOrder
   mfaSecretEnc?: Prisma.SortOrder
   mfaEnabledAt?: Prisma.SortOrder
+  mfaLastCounter?: Prisma.SortOrder
   preferredLanguage?: Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrder
   failedLoginCount?: Prisma.SortOrder
@@ -813,6 +877,7 @@ export type UserMinOrderByAggregateInput = {
 }
 
 export type UserSumOrderByAggregateInput = {
+  mfaLastCounter?: Prisma.SortOrder
   failedLoginCount?: Prisma.SortOrder
 }
 
@@ -848,6 +913,14 @@ export type NullableDateTimeFieldUpdateOperationsInput = {
 
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
+}
+
+export type NullableBigIntFieldUpdateOperationsInput = {
+  set?: bigint | number | null
+  increment?: bigint | number
+  decrement?: bigint | number
+  multiply?: bigint | number
+  divide?: bigint | number
 }
 
 export type IntFieldUpdateOperationsInput = {
@@ -948,6 +1021,52 @@ export type UserUpdateOneWithoutAuditLogsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.UserUpdateWithoutAuditLogsInput>, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>
 }
 
+export type UserCreateNestedOneWithoutLogisticsMembershipInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLogisticsMembershipInput, Prisma.UserUncheckedCreateWithoutLogisticsMembershipInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLogisticsMembershipInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutLogisticsMembershipNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLogisticsMembershipInput, Prisma.UserUncheckedCreateWithoutLogisticsMembershipInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLogisticsMembershipInput
+  upsert?: Prisma.UserUpsertWithoutLogisticsMembershipInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLogisticsMembershipInput, Prisma.UserUpdateWithoutLogisticsMembershipInput>, Prisma.UserUncheckedUpdateWithoutLogisticsMembershipInput>
+}
+
+export type UserCreateNestedOneWithoutLogisticsPingsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLogisticsPingsInput, Prisma.UserUncheckedCreateWithoutLogisticsPingsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLogisticsPingsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutLogisticsPingsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLogisticsPingsInput, Prisma.UserUncheckedCreateWithoutLogisticsPingsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLogisticsPingsInput
+  upsert?: Prisma.UserUpsertWithoutLogisticsPingsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLogisticsPingsInput, Prisma.UserUpdateWithoutLogisticsPingsInput>, Prisma.UserUncheckedUpdateWithoutLogisticsPingsInput>
+}
+
+export type UserCreateNestedOneWithoutLogisticsAuditLogsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLogisticsAuditLogsInput, Prisma.UserUncheckedCreateWithoutLogisticsAuditLogsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLogisticsAuditLogsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutLogisticsAuditLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLogisticsAuditLogsInput, Prisma.UserUncheckedCreateWithoutLogisticsAuditLogsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLogisticsAuditLogsInput
+  upsert?: Prisma.UserUpsertWithoutLogisticsAuditLogsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLogisticsAuditLogsInput, Prisma.UserUpdateWithoutLogisticsAuditLogsInput>, Prisma.UserUncheckedUpdateWithoutLogisticsAuditLogsInput>
+}
+
 export type UserCreateWithoutRolesInput = {
   id: string
   type: $Enums.UserType
@@ -965,6 +1084,8 @@ export type UserCreateWithoutRolesInput = {
   temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: string | null
   lastLoginAt?: Date | string | null
   failedLoginCount?: number
@@ -978,6 +1099,9 @@ export type UserCreateWithoutRolesInput = {
   customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRolesInput = {
@@ -997,6 +1121,8 @@ export type UserUncheckedCreateWithoutRolesInput = {
   temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: string | null
   lastLoginAt?: Date | string | null
   failedLoginCount?: number
@@ -1010,6 +1136,9 @@ export type UserUncheckedCreateWithoutRolesInput = {
   customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRolesInput = {
@@ -1045,6 +1174,8 @@ export type UserUpdateWithoutRolesInput = {
   temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1058,6 +1189,9 @@ export type UserUpdateWithoutRolesInput = {
   customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRolesInput = {
@@ -1077,6 +1211,8 @@ export type UserUncheckedUpdateWithoutRolesInput = {
   temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1090,6 +1226,9 @@ export type UserUncheckedUpdateWithoutRolesInput = {
   customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -1109,6 +1248,8 @@ export type UserCreateWithoutSessionsInput = {
   temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: string | null
   lastLoginAt?: Date | string | null
   failedLoginCount?: number
@@ -1122,6 +1263,9 @@ export type UserCreateWithoutSessionsInput = {
   customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -1141,6 +1285,8 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: string | null
   lastLoginAt?: Date | string | null
   failedLoginCount?: number
@@ -1154,6 +1300,9 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -1189,6 +1338,8 @@ export type UserUpdateWithoutSessionsInput = {
   temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1202,6 +1353,9 @@ export type UserUpdateWithoutSessionsInput = {
   customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -1221,6 +1375,8 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1234,6 +1390,9 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAuthTokensInput = {
@@ -1253,6 +1412,8 @@ export type UserCreateWithoutAuthTokensInput = {
   temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: string | null
   lastLoginAt?: Date | string | null
   failedLoginCount?: number
@@ -1266,6 +1427,9 @@ export type UserCreateWithoutAuthTokensInput = {
   customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAuthTokensInput = {
@@ -1285,6 +1449,8 @@ export type UserUncheckedCreateWithoutAuthTokensInput = {
   temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: string | null
   lastLoginAt?: Date | string | null
   failedLoginCount?: number
@@ -1298,6 +1464,9 @@ export type UserUncheckedCreateWithoutAuthTokensInput = {
   customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAuthTokensInput = {
@@ -1333,6 +1502,8 @@ export type UserUpdateWithoutAuthTokensInput = {
   temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1346,6 +1517,9 @@ export type UserUpdateWithoutAuthTokensInput = {
   customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuthTokensInput = {
@@ -1365,6 +1539,8 @@ export type UserUncheckedUpdateWithoutAuthTokensInput = {
   temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1378,6 +1554,9 @@ export type UserUncheckedUpdateWithoutAuthTokensInput = {
   customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCustomerProfileInput = {
@@ -1397,6 +1576,8 @@ export type UserCreateWithoutCustomerProfileInput = {
   temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: string | null
   lastLoginAt?: Date | string | null
   failedLoginCount?: number
@@ -1410,6 +1591,9 @@ export type UserCreateWithoutCustomerProfileInput = {
   authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCustomerProfileInput = {
@@ -1429,6 +1613,8 @@ export type UserUncheckedCreateWithoutCustomerProfileInput = {
   temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: string | null
   lastLoginAt?: Date | string | null
   failedLoginCount?: number
@@ -1442,6 +1628,9 @@ export type UserUncheckedCreateWithoutCustomerProfileInput = {
   authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCustomerProfileInput = {
@@ -1477,6 +1666,8 @@ export type UserUpdateWithoutCustomerProfileInput = {
   temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1490,6 +1681,9 @@ export type UserUpdateWithoutCustomerProfileInput = {
   authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCustomerProfileInput = {
@@ -1509,6 +1703,8 @@ export type UserUncheckedUpdateWithoutCustomerProfileInput = {
   temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1522,6 +1718,9 @@ export type UserUncheckedUpdateWithoutCustomerProfileInput = {
   authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutNotificationReadsInput = {
@@ -1541,6 +1740,8 @@ export type UserCreateWithoutNotificationReadsInput = {
   temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: string | null
   lastLoginAt?: Date | string | null
   failedLoginCount?: number
@@ -1554,6 +1755,9 @@ export type UserCreateWithoutNotificationReadsInput = {
   authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
   customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutNotificationReadsInput = {
@@ -1573,6 +1777,8 @@ export type UserUncheckedCreateWithoutNotificationReadsInput = {
   temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: string | null
   lastLoginAt?: Date | string | null
   failedLoginCount?: number
@@ -1586,6 +1792,9 @@ export type UserUncheckedCreateWithoutNotificationReadsInput = {
   authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
   customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutNotificationReadsInput = {
@@ -1621,6 +1830,8 @@ export type UserUpdateWithoutNotificationReadsInput = {
   temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1634,6 +1845,9 @@ export type UserUpdateWithoutNotificationReadsInput = {
   authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationReadsInput = {
@@ -1653,6 +1867,8 @@ export type UserUncheckedUpdateWithoutNotificationReadsInput = {
   temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1666,6 +1882,9 @@ export type UserUncheckedUpdateWithoutNotificationReadsInput = {
   authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
   customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAuditLogsInput = {
@@ -1685,6 +1904,8 @@ export type UserCreateWithoutAuditLogsInput = {
   temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: string | null
   lastLoginAt?: Date | string | null
   failedLoginCount?: number
@@ -1698,6 +1919,9 @@ export type UserCreateWithoutAuditLogsInput = {
   authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
   customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
   notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -1717,6 +1941,8 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   temporaryPasswordExpiresAt?: Date | string | null
   mfaSecretEnc?: string | null
   mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: string | null
   lastLoginAt?: Date | string | null
   failedLoginCount?: number
@@ -1730,6 +1956,9 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
   customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -1765,6 +1994,8 @@ export type UserUpdateWithoutAuditLogsInput = {
   temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1778,6 +2009,9 @@ export type UserUpdateWithoutAuditLogsInput = {
   authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
   customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
   notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -1797,6 +2031,8 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1810,6 +2046,501 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
   customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
   notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutLogisticsMembershipInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutLogisticsMembershipInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutLogisticsMembershipInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutLogisticsMembershipInput, Prisma.UserUncheckedCreateWithoutLogisticsMembershipInput>
+}
+
+export type UserUpsertWithoutLogisticsMembershipInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutLogisticsMembershipInput, Prisma.UserUncheckedUpdateWithoutLogisticsMembershipInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutLogisticsMembershipInput, Prisma.UserUncheckedCreateWithoutLogisticsMembershipInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutLogisticsMembershipInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutLogisticsMembershipInput, Prisma.UserUncheckedUpdateWithoutLogisticsMembershipInput>
+}
+
+export type UserUpdateWithoutLogisticsMembershipInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutLogisticsMembershipInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutLogisticsPingsInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogCreateNestedManyWithoutActorInput
+}
+
+export type UserUncheckedCreateWithoutLogisticsPingsInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedCreateNestedManyWithoutActorInput
+}
+
+export type UserCreateOrConnectWithoutLogisticsPingsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutLogisticsPingsInput, Prisma.UserUncheckedCreateWithoutLogisticsPingsInput>
+}
+
+export type UserUpsertWithoutLogisticsPingsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutLogisticsPingsInput, Prisma.UserUncheckedUpdateWithoutLogisticsPingsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutLogisticsPingsInput, Prisma.UserUncheckedCreateWithoutLogisticsPingsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutLogisticsPingsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutLogisticsPingsInput, Prisma.UserUncheckedUpdateWithoutLogisticsPingsInput>
+}
+
+export type UserUpdateWithoutLogisticsPingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUpdateManyWithoutActorNestedInput
+}
+
+export type UserUncheckedUpdateWithoutLogisticsPingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
+  logisticsAuditLogs?: Prisma.LogisticsAuditLogUncheckedUpdateManyWithoutActorNestedInput
+}
+
+export type UserCreateWithoutLogisticsAuditLogsInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadCreateNestedManyWithoutUserInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserCreateNestedOneWithoutUserInput
+  logisticsPings?: Prisma.LogisticsLocationPingCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutLogisticsAuditLogsInput = {
+  id: string
+  type: $Enums.UserType
+  email: string
+  emailNormalized: string
+  phone?: string | null
+  passwordHash?: string | null
+  status?: $Enums.UserStatus
+  emailVerifiedAt?: Date | string | null
+  phoneVerifiedAt?: Date | string | null
+  pendingEmail?: string | null
+  pendingEmailNormalized?: string | null
+  pendingPhone?: string | null
+  mustChangePassword?: boolean
+  temporaryPasswordExpiresAt?: Date | string | null
+  mfaSecretEnc?: string | null
+  mfaEnabledAt?: Date | string | null
+  mfaLastCounter?: bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: string | null
+  lastLoginAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+  erasedAt?: Date | string | null
+  roles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedCreateNestedManyWithoutUserInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedCreateNestedOneWithoutUserInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutLogisticsAuditLogsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutLogisticsAuditLogsInput, Prisma.UserUncheckedCreateWithoutLogisticsAuditLogsInput>
+}
+
+export type UserUpsertWithoutLogisticsAuditLogsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutLogisticsAuditLogsInput, Prisma.UserUncheckedUpdateWithoutLogisticsAuditLogsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutLogisticsAuditLogsInput, Prisma.UserUncheckedCreateWithoutLogisticsAuditLogsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutLogisticsAuditLogsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutLogisticsAuditLogsInput, Prisma.UserUncheckedUpdateWithoutLogisticsAuditLogsInput>
+}
+
+export type UserUpdateWithoutLogisticsAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUpdateManyWithoutUserNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUpdateOneWithoutUserNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutLogisticsAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailNormalized?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  phoneVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingEmailNormalized?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temporaryPasswordExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaSecretEnc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaLastCounter?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mfaRecoveryCodeHashesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  preferredLanguage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  erasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  roles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
+  notificationReads?: Prisma.AdminNotificationReadUncheckedUpdateManyWithoutUserNestedInput
+  logisticsMembership?: Prisma.LogisticsPartnerUserUncheckedUpdateOneWithoutUserNestedInput
+  logisticsPings?: Prisma.LogisticsLocationPingUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1823,6 +2554,8 @@ export type UserCountOutputType = {
   authTokens: number
   auditLogs: number
   notificationReads: number
+  logisticsAuditLogs: number
+  logisticsPings: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1831,6 +2564,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   authTokens?: boolean | UserCountOutputTypeCountAuthTokensArgs
   auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
   notificationReads?: boolean | UserCountOutputTypeCountNotificationReadsArgs
+  logisticsAuditLogs?: boolean | UserCountOutputTypeCountLogisticsAuditLogsArgs
+  logisticsPings?: boolean | UserCountOutputTypeCountLogisticsPingsArgs
 }
 
 /**
@@ -1878,6 +2613,20 @@ export type UserCountOutputTypeCountNotificationReadsArgs<ExtArgs extends runtim
   where?: Prisma.AdminNotificationReadWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountLogisticsAuditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LogisticsAuditLogWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountLogisticsPingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LogisticsLocationPingWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1896,6 +2645,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   temporaryPasswordExpiresAt?: boolean
   mfaSecretEnc?: boolean
   mfaEnabledAt?: boolean
+  mfaLastCounter?: boolean
+  mfaRecoveryCodeHashesJson?: boolean
   preferredLanguage?: boolean
   lastLoginAt?: boolean
   failedLoginCount?: boolean
@@ -1910,6 +2661,9 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   customerProfile?: boolean | Prisma.User$customerProfileArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   notificationReads?: boolean | Prisma.User$notificationReadsArgs<ExtArgs>
+  logisticsMembership?: boolean | Prisma.User$logisticsMembershipArgs<ExtArgs>
+  logisticsAuditLogs?: boolean | Prisma.User$logisticsAuditLogsArgs<ExtArgs>
+  logisticsPings?: boolean | Prisma.User$logisticsPingsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1932,6 +2686,8 @@ export type UserSelectScalar = {
   temporaryPasswordExpiresAt?: boolean
   mfaSecretEnc?: boolean
   mfaEnabledAt?: boolean
+  mfaLastCounter?: boolean
+  mfaRecoveryCodeHashesJson?: boolean
   preferredLanguage?: boolean
   lastLoginAt?: boolean
   failedLoginCount?: boolean
@@ -1942,7 +2698,7 @@ export type UserSelectScalar = {
   erasedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "email" | "emailNormalized" | "phone" | "passwordHash" | "status" | "emailVerifiedAt" | "phoneVerifiedAt" | "pendingEmail" | "pendingEmailNormalized" | "pendingPhone" | "mustChangePassword" | "temporaryPasswordExpiresAt" | "mfaSecretEnc" | "mfaEnabledAt" | "preferredLanguage" | "lastLoginAt" | "failedLoginCount" | "lockedUntil" | "createdAt" | "updatedAt" | "archivedAt" | "erasedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "email" | "emailNormalized" | "phone" | "passwordHash" | "status" | "emailVerifiedAt" | "phoneVerifiedAt" | "pendingEmail" | "pendingEmailNormalized" | "pendingPhone" | "mustChangePassword" | "temporaryPasswordExpiresAt" | "mfaSecretEnc" | "mfaEnabledAt" | "mfaLastCounter" | "mfaRecoveryCodeHashesJson" | "preferredLanguage" | "lastLoginAt" | "failedLoginCount" | "lockedUntil" | "createdAt" | "updatedAt" | "archivedAt" | "erasedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   roles?: boolean | Prisma.User$rolesArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
@@ -1950,6 +2706,9 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   customerProfile?: boolean | Prisma.User$customerProfileArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   notificationReads?: boolean | Prisma.User$notificationReadsArgs<ExtArgs>
+  logisticsMembership?: boolean | Prisma.User$logisticsMembershipArgs<ExtArgs>
+  logisticsAuditLogs?: boolean | Prisma.User$logisticsAuditLogsArgs<ExtArgs>
+  logisticsPings?: boolean | Prisma.User$logisticsPingsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1965,6 +2724,20 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      * Which console notifications this member of staff has already opened.
      */
     notificationReads: Prisma.$AdminNotificationReadPayload<ExtArgs>[]
+    /**
+     * Their place in a logistics organisation, where they work for one. At most
+     * one: a person drives for one carrier at a time, and a second membership
+     * would make "which tenant is this request for?" a question with two
+     * answers.
+     */
+    logisticsMembership: Prisma.$LogisticsPartnerUserPayload<ExtArgs> | null
+    /**
+     * The audit rows they wrote, and the pings their phone sent. Both keep
+     * pointing at the account after it is archived - deleting somebody must not
+     * erase the record of what they did.
+     */
+    logisticsAuditLogs: Prisma.$LogisticsAuditLogPayload<ExtArgs>[]
+    logisticsPings: Prisma.$LogisticsLocationPingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2025,6 +2798,24 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      */
     mfaSecretEnc: string | null
     mfaEnabledAt: Date | null
+    /**
+     * The highest TOTP counter this account has already spent.
+     * 
+     * What stops a one-time password being a thirty-second password. Without
+     * it, a code read over somebody's shoulder - or read aloud to a caller
+     * claiming to be IT support - works again for the rest of its window.
+     * BigInt because it is a Unix-time division that outlives 2038.
+     */
+    mfaLastCounter: bigint | null
+    /**
+     * SHA-256 of each UNUSED recovery code, as a JSON array of strings.
+     * 
+     * Hashes rather than the codes, for the same reason a password is hashed:
+     * they are credentials. Each one is removed from the array as it is spent,
+     * so the length of the array is how many the account has left - which is
+     * the number the interface shows.
+     */
+    mfaRecoveryCodeHashesJson: runtime.JsonValue | null
     /**
      * The language the interface is rendered in for this account, as a BCP-47
      * primary subtag ("pl", "el", "nl"). Deliberately on `User` rather than on
@@ -2403,6 +3194,9 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   customerProfile<T extends Prisma.User$customerProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$customerProfileArgs<ExtArgs>>): Prisma.Prisma__CustomerProfileClient<runtime.Types.Result.GetResult<Prisma.$CustomerProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   auditLogs<T extends Prisma.User$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   notificationReads<T extends Prisma.User$notificationReadsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationReadsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdminNotificationReadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  logisticsMembership<T extends Prisma.User$logisticsMembershipArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$logisticsMembershipArgs<ExtArgs>>): Prisma.Prisma__LogisticsPartnerUserClient<runtime.Types.Result.GetResult<Prisma.$LogisticsPartnerUserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  logisticsAuditLogs<T extends Prisma.User$logisticsAuditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$logisticsAuditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogisticsAuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  logisticsPings<T extends Prisma.User$logisticsPingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$logisticsPingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogisticsLocationPingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2448,6 +3242,8 @@ export interface UserFieldRefs {
   readonly temporaryPasswordExpiresAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly mfaSecretEnc: Prisma.FieldRef<"User", 'String'>
   readonly mfaEnabledAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly mfaLastCounter: Prisma.FieldRef<"User", 'BigInt'>
+  readonly mfaRecoveryCodeHashesJson: Prisma.FieldRef<"User", 'Json'>
   readonly preferredLanguage: Prisma.FieldRef<"User", 'String'>
   readonly lastLoginAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly failedLoginCount: Prisma.FieldRef<"User", 'Int'>
@@ -2940,6 +3736,73 @@ export type User$notificationReadsArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.AdminNotificationReadScalarFieldEnum | Prisma.AdminNotificationReadScalarFieldEnum[]
+}
+
+/**
+ * User.logisticsMembership
+ */
+export type User$logisticsMembershipArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LogisticsPartnerUser
+   */
+  select?: Prisma.LogisticsPartnerUserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LogisticsPartnerUser
+   */
+  omit?: Prisma.LogisticsPartnerUserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LogisticsPartnerUserInclude<ExtArgs> | null
+  where?: Prisma.LogisticsPartnerUserWhereInput
+}
+
+/**
+ * User.logisticsAuditLogs
+ */
+export type User$logisticsAuditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LogisticsAuditLog
+   */
+  select?: Prisma.LogisticsAuditLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LogisticsAuditLog
+   */
+  omit?: Prisma.LogisticsAuditLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LogisticsAuditLogInclude<ExtArgs> | null
+  where?: Prisma.LogisticsAuditLogWhereInput
+  orderBy?: Prisma.LogisticsAuditLogOrderByWithRelationInput | Prisma.LogisticsAuditLogOrderByWithRelationInput[]
+  cursor?: Prisma.LogisticsAuditLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LogisticsAuditLogScalarFieldEnum | Prisma.LogisticsAuditLogScalarFieldEnum[]
+}
+
+/**
+ * User.logisticsPings
+ */
+export type User$logisticsPingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LogisticsLocationPing
+   */
+  select?: Prisma.LogisticsLocationPingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LogisticsLocationPing
+   */
+  omit?: Prisma.LogisticsLocationPingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LogisticsLocationPingInclude<ExtArgs> | null
+  where?: Prisma.LogisticsLocationPingWhereInput
+  orderBy?: Prisma.LogisticsLocationPingOrderByWithRelationInput | Prisma.LogisticsLocationPingOrderByWithRelationInput[]
+  cursor?: Prisma.LogisticsLocationPingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LogisticsLocationPingScalarFieldEnum | Prisma.LogisticsLocationPingScalarFieldEnum[]
 }
 
 /**

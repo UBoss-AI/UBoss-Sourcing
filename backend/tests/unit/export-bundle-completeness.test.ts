@@ -87,10 +87,16 @@ const DISPOSITION: Readonly<Record<string, string | null>> = Object.freeze({
   // which is correct: they belong to the company.
   SellerMember: 'sellerMembership',
 
+  // The third one. A person who drives for a carrier that delivers for this
+  // marketplace: their membership and driver record are theirs, and the
+  // carrier's consignments are the carrier's.
+  LogisticsPartnerUser: 'logisticsMembership',
+
   // --- Withheld, with the reason on the manifest the subject receives ---
   AuditLog: 'auditTrail',
   AuthToken: 'credentials',
   SellerAuditLog: 'sellerAuditTrail',
+  LogisticsAuditLog: 'logisticsAuditTrail',
 
   // --- Out of scope, and why ---
   UserRole:
@@ -106,6 +112,12 @@ const DISPOSITION: Readonly<Record<string, string | null>> = Object.freeze({
   OrderStatusHistory:
     'Who moved an order between statuses - staff activity against the order. The order itself ' +
     'is disclosed; who in the warehouse touched it is their data, not the customer’s.',
+  LogisticsShipmentEvent:
+    'Who moved a consignment between statuses - a carrier\u2019s staff acting against a parcel. ' +
+    'The events themselves belong to the shipment and are shown to the buyer on the tracking ' +
+    'page; `actorUserId` names an employee of a third-party logistics company, which is that ' +
+    'person\u2019s data rather than the buyer\u2019s. A logistics employee exercising this right ' +
+    'gets the account section and `logisticsMembership`.',
 });
 
 function modelsWithSubjectColumns(): string[] {

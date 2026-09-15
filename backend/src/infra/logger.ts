@@ -34,6 +34,27 @@ const REDACTED_PATHS = [
   'otp',
   'sessionId',
 
+  // The logistics portal.
+  //
+  // Coordinates are not a secret; they are personal data about a named
+  // employee, minute by minute, and a log retains them for as long as the log
+  // lives - which is far longer than the thirty days the ping table is swept
+  // on. A delivery OTP and a trip's device token are straightforwardly
+  // credentials.
+  'deviceToken',
+  'deviceTokenHash',
+  'deliveryOtp',
+  'latitude',
+  'longitude',
+  '*.latitude',
+  '*.longitude',
+  'lastLatitude',
+  'lastLongitude',
+  'deliveryLatitude',
+  'deliveryLongitude',
+  'webhookSecretEnc',
+  'credentialsEnc',
+
   // Headers that carry them
   'req.headers.authorization',
   'req.headers.cookie',

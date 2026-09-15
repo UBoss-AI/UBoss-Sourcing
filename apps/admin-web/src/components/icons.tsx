@@ -112,6 +112,26 @@ export function WarehouseIcon(props: IconProps): React.JSX.Element {
   );
 }
 
+/**
+ * A box van in profile: cargo body, cab, two wheels.
+ *
+ * Has to read against `WarehouseIcon` two groups above it - that one is a
+ * building, standing still. This one is on wheels, and the wheels are the
+ * whole difference at 20px, so they are drawn as closed circles rather than
+ * implied by the body line.
+ */
+export function LogisticsIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M2.8 6.6h10.4v9.2H2.8z" />
+      <path d="M13.2 9.8h3.6l2.8 3v3h-6.4z" />
+      <circle cx="7" cy="18" r="1.8" />
+      <circle cx="16.6" cy="18" r="1.8" />
+      <path d="M8.8 15.8h6" />
+    </Icon>
+  );
+}
+
 export function CouponsIcon(props: IconProps): React.JSX.Element {
   return (
     <Icon {...props}>

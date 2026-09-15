@@ -48,6 +48,18 @@ export const AdminNotificationKind = {
   /// its own piece of information, and not everyone who may look a customer up
   /// should be told it unprompted.
   DATA_REQUEST_RAISED: 'data_request.raised',
+  /// A carrier reported something serious about a consignment. The variables
+  /// are shipmentReference, receivingCompany, exceptionType and severity.
+  ///
+  /// Raised ONLY for CRITICAL severity - a temperature excursion or a lost
+  /// consignment - and never for the ordinary run of address corrections and
+  /// missed pickups, which the carrier works in its own portal. A bell that
+  /// rings for everything is a bell nobody reads, and the one that gets
+  /// ignored is the batch of reagents that went warm.
+  ///
+  /// Carries `logistics.read`, because it names a customer's company and what
+  /// went wrong with their delivery.
+  LOGISTICS_EXCEPTION_RAISED: 'logistics.exception.raised',
 } as const;
 
 export type AdminNotificationKindKey =

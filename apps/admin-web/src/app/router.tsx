@@ -243,6 +243,67 @@ export const router = createBrowserRouter([
           Permission.PAYMENT_GATEWAY_WRITE,
         ]),
       },
+
+      /*
+       * Logistics. Five screens, all behind LOGISTICS_READ at the least - the
+       * narrower permissions (assigning work, changing a contract, touching a
+       * carrier credential) are checked inside each page and again on every
+       * request the backend serves.
+       *
+       * Static before dynamic here as elsewhere: nothing below would read
+       * "partners" as an id, but keeping the order consistent is what stops
+       * the next addition doing so.
+       */
+      {
+        path: 'logistics/partners',
+        ...lazyRoute(
+          () => import('@/pages/logistics/PartnersPage').then((m) => m.LogisticsPartnersPage),
+          [Permission.LOGISTICS_READ],
+        ),
+      },
+      {
+        path: 'logistics/partners/:id',
+        ...lazyRoute(
+          () =>
+            import('@/pages/logistics/PartnerDetailPage').then(
+              (m) => m.LogisticsPartnerDetailPage,
+            ),
+          [Permission.LOGISTICS_READ],
+        ),
+      },
+      {
+        path: 'logistics/shipments',
+        ...lazyRoute(
+          () => import('@/pages/logistics/ShipmentsPage').then((m) => m.LogisticsShipmentsPage),
+          [Permission.LOGISTICS_READ],
+        ),
+      },
+      {
+        // Where the exception bell links to.
+        path: 'logistics/shipments/:id',
+        ...lazyRoute(
+          () =>
+            import('@/pages/logistics/ShipmentDetailPage').then(
+              (m) => m.LogisticsShipmentDetailPage,
+            ),
+          [Permission.LOGISTICS_READ],
+        ),
+      },
+      {
+        path: 'logistics/exceptions',
+        ...lazyRoute(
+          () => import('@/pages/logistics/ExceptionsPage').then((m) => m.LogisticsExceptionsPage),
+          [Permission.LOGISTICS_READ],
+        ),
+      },
+      {
+        path: 'logistics/integrations',
+        ...lazyRoute(
+          () =>
+            import('@/pages/logistics/IntegrationsPage').then((m) => m.LogisticsIntegrationsPage),
+          [Permission.LOGISTICS_READ],
+        ),
+      },
       {
         path: 'staff',
         ...lazyRoute(() => import('@/pages/StaffPage').then((m) => m.StaffPage), [Permission.STAFF_READ]),

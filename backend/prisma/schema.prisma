@@ -37,6 +37,15 @@ datasource db {
 enum UserType {
   ADMIN
   CUSTOMER
+  /// A person who works for a third-party logistics company.
+  ///
+  /// A THIRD audience rather than a flag on a customer, and the distinction is
+  /// the whole tenant story. A seller is a CUSTOMER because the same person
+  /// buys and sells; a courier's dispatcher is not a customer of this shop and
+  /// must never be able to reach a cart, a price or a payment method. The
+  /// guard checks this column and the token's own audience claim, so a
+  /// credential minted for one surface cannot reach another.
+  LOGISTICS
 }
 
 enum UserStatus {
@@ -99,6 +108,22 @@ model User {
   mfaSecretEnc String?   @db.Text
   mfaEnabledAt DateTime? @db.DateTime(3)
 
+  /// The highest TOTP counter this account has already spent.
+  ///
+  /// What stops a one-time password being a thirty-second password. Without
+  /// it, a code read over somebody's shoulder - or read aloud to a caller
+  /// claiming to be IT support - works again for the rest of its window.
+  /// BigInt because it is a Unix-time division that outlives 2038.
+  mfaLastCounter BigInt?
+
+  /// SHA-256 of each UNUSED recovery code, as a JSON array of strings.
+  ///
+  /// Hashes rather than the codes, for the same reason a password is hashed:
+  /// they are credentials. Each one is removed from the array as it is spent,
+  /// so the length of the array is how many the account has left - which is
+  /// the number the interface shows.
+  mfaRecoveryCodeHashesJson Json?
+
   /// The language the interface is rendered in for this account, as a BCP-47
   /// primary subtag ("pl", "el", "nl"). Deliberately on `User` rather than on
   /// `CustomerProfile`: staff need it too, and a staff account has no profile
@@ -136,6 +161,17 @@ model User {
   auditLogs         AuditLog[]
   /// Which console notifications this member of staff has already opened.
   notificationReads AdminNotificationRead[]
+
+  /// Their place in a logistics organisation, where they work for one. At most
+  /// one: a person drives for one carrier at a time, and a second membership
+  /// would make "which tenant is this request for?" a question with two
+  /// answers.
+  logisticsMembership LogisticsPartnerUser?
+  /// The audit rows they wrote, and the pings their phone sent. Both keep
+  /// pointing at the account after it is archived - deleting somebody must not
+  /// erase the record of what they did.
+  logisticsAuditLogs  LogisticsAuditLog[]
+  logisticsPings      LogisticsLocationPing[]
 
   @@index([type, status], map: "ix_user_type_status")
   @@index([createdAt], map: "ix_user_created_at")
@@ -231,6 +267,19 @@ model Session {
   /// shopper gets before they have given an address.
   locationCountry    String?   @db.Char(2)
   locationCapturedAt DateTime? @db.DateTime(3)
+
+  /// When THIS session passed its second-factor challenge.
+  ///
+  /// Per session rather than per account, deliberately. `users.mfaEnabledAt`
+  /// says the account HAS a second factor; this says the browser in front of
+  /// us has presented it. Without the distinction, enrolling once would leave
+  /// every future sign-in single-factor, which is not what a second factor is.
+  ///
+  /// Read by the logistics guard, which refuses every route but /auth/me,
+  /// /auth/mfa/* and /auth/logout while it is null and the caller's role
+  /// requires a challenge - the same shape as `mustChangePassword` and the
+  /// admin location gate.
+  mfaVerifiedAt DateTime? @db.DateTime(3)
 
   expiresAt           DateTime  @db.DateTime(3)
   revokedAt           DateTime? @db.DateTime(3)
@@ -1354,6 +1403,10 @@ model InventoryLocation {
   fulfilmentQuotes FulfilmentQuote[]
   fulfilledOrders  Order[]                     @relation("OrderFulfilmentLocation")
 
+  /// Consignments a logistics partner collects from this building.
+  logisticsShipments LogisticsShipment[]
+  logisticsPickups   LogisticsPickupRequest[]
+
   /// The map's own query: every active warehouse, ordered so the default
   /// comes first. Also serves the country filter on its leading column.
   @@index([isActive, countryCode], map: "ix_inventory_location_active_country")
@@ -1979,6 +2032,12 @@ enum ActorType {
   ADMIN
   CUSTOMER
   PROVIDER
+  /// A third-party carrier's own staff, acting inside the logistics portal.
+  ///
+  /// Added rather than folded into SYSTEM, because 'the system moved this
+  /// shipment' and 'a named dispatcher at a named carrier moved it' are the
+  /// two answers an operator most needs to tell apart after a bad delivery.
+  LOGISTICS
 }
 
 enum OrderStatus {
@@ -2134,6 +2193,14 @@ model Order {
 
   fulfilmentLocation InventoryLocation? @relation("OrderFulfilmentLocation", fields: [fulfilmentLocationId], references: [id], onDelete: Restrict)
   fulfilmentQuote    FulfilmentQuote?   @relation("OrderFulfilmentQuote", fields: [fulfilmentQuoteId], references: [id], onDelete: Restrict)
+
+  /// The carrier-grade shipments raised against this order.
+  ///
+  /// Distinct from `shipments` above, which is the OPERATOR's own dispatch
+  /// note. One order can produce several of these - one per seller, per
+  /// warehouse or per parcel group - and each is assigned to a logistics
+  /// partner independently.
+  logisticsShipments LogisticsShipment[]
 
   items          OrderItem[]
   statusHistory  OrderStatusHistory[]
@@ -8997,9 +9064,11 @@ model SellerOrderGroup {
   sellerAccount   SellerAccount          @relation(fields: [sellerAccountId], references: [id], onDelete: Cascade)
   order           Order                  @relation(fields: [orderId], references: [id], onDelete: Cascade)
   lines           SellerOrderLine[]
-  shipments       SellerShipment[]
-  returns         SellerReturn[]
-  settlementLines SellerSettlementLine[]
+  shipments          SellerShipment[]
+  returns            SellerReturn[]
+  settlementLines    SellerSettlementLine[]
+  /// The carrier-grade shipments raised for this seller's part of the order.
+  logisticsShipments LogisticsShipment[]
 
   @@unique([sellerAccountId, sellerOrderNumber], map: "uq_seller_order_number")
   @@unique([orderId, sellerAccountId], map: "uq_seller_order_group")
@@ -9400,4 +9469,2000 @@ model SellerAuditLog {
   @@index([sellerAccountId, createdAt], map: "ix_seller_audit_time")
   @@index([sellerAccountId, action], map: "ix_seller_audit_action")
   @@map("seller_audit_logs")
+}
+
+// ===========================================================================
+// LOGISTICS PARTNER PORTAL
+//
+// Third-party carriers who collect consignments from a warehouse and deliver
+// them to the business that bought them.
+//
+// THE TENANT BOUNDARY
+//
+// `LogisticsPartner` is the tenant. `LogisticsPartnerUser` joins a `User` of
+// type LOGISTICS to it with a role. Every row below carries the partner it
+// belongs to, and no route anywhere accepts a partner id: it is resolved from
+// the session by `resolveLogisticsMembership` and every query filters on it.
+// The same discipline `SellerAccount` and `BuyerOrganization` already follow,
+// and it is what makes cross-carrier access impossible to express rather than
+// merely checked for.
+//
+// There is a SECOND boundary on top of it, which the marketplace tenants do
+// not have: a partner may only reach a shipment an `LogisticsShipmentAssignment`
+// currently joins to it. Tenancy answers "whose rows"; assignment answers
+// "which parcel", and a carrier that has finished a job must not keep reading
+// the consignee's address for ever.
+//
+// WHY `LogisticsShipment` AND NOT `Shipment`
+//
+// `Shipment` already exists and is the OPERATOR's dispatch note against an
+// order; `SellerShipment` is a seller's. Both are read by the orders module,
+// the reports module and the customer's own order page. Widening either into a
+// carrier-grade record would change what those screens mean, so this is a new
+// table that LINKS to them. An order behaves exactly as it does today whether
+// or not a logistics partner ever touches it.
+//
+// WHAT MARIADB 10.4 FORCED
+//
+//   * No native UUID. Every id is a ULID in CHAR(26), like the rest of this
+//     schema.
+//   * A UNIQUE index treats every NULL as distinct. Two places would have been
+//     silently broken by that and each carries a NOT NULL surrogate:
+//     `logistics_shipment_events.externalEventKey` (the event's own ULID where
+//     no carrier supplied one) and `.idempotencyKey` (the same). Without them
+//     a redelivered webhook would write a second event and a hospital would be
+//     told twice that its consignment arrived.
+//   * No SKIP LOCKED. Nothing here claims work in a loop; the carrier poller
+//     leases through `JobQueue`, which already solves it.
+//
+// MONEY is BigInt minor units, as everywhere. COORDINATES are Decimal(9,6),
+// for the same reason money is not a float: a stored fact has to read back
+// exactly as it was written.
+// ===========================================================================
+
+enum LogisticsPartnerStatus {
+  /// Created by the marketplace, nobody has activated an account yet.
+  PENDING_ACTIVATION
+  ACTIVE
+  /// Suspended: no NEW assignment may be offered, and the shipments already in
+  /// its hands stay readable and workable so they can be finished or handed
+  /// over. Stopping a suspended carrier from updating a parcel it is holding
+  /// would leave that parcel untrackable.
+  SUSPENDED
+  DEACTIVATED
+}
+
+enum LogisticsContractStatus {
+  DRAFT
+  ACTIVE
+  EXPIRED
+  TERMINATED
+}
+
+/// Roles inside one carrier. Mirrors `domain/logistics-permissions.ts`; a
+/// member added here without a grant there holds nothing, which is the safe
+/// direction to fail.
+///
+/// `UBOSS_LOGISTICS_ADMIN` from the brief is deliberately NOT here: that is the
+/// OPERATOR's own role, held by a member of staff, and it lives in the admin
+/// permission catalogue as `logistics.*`. See that file's header.
+enum LogisticsPartnerRole {
+  LOGISTICS_PARTNER_OWNER
+  LOGISTICS_PARTNER_ADMIN
+  DISPATCHER
+  DRIVER
+  OPERATIONS_AGENT
+  READ_ONLY_TRACKING_USER
+}
+
+enum LogisticsMemberStatus {
+  INVITED
+  ACTIVE
+  DISABLED
+}
+
+/// How wide one approved service region is.
+///
+/// Four scopes rather than a polygon, because this is a CONTRACT rather than a
+/// geofence: what a carrier is licensed and insured to cover is written in
+/// words like "Belgium" or "postcodes beginning 1" and has to be readable by
+/// the person who negotiated it. Warehouse delivery radius, which genuinely is
+/// a geofence, is modelled elsewhere and with turf.
+enum LogisticsRegionScope {
+  COUNTRY
+  STATE
+  CITY
+  POSTCODE_PREFIX
+}
+
+/// What a carrier is approved to carry.
+///
+/// Medical freight is the reason this is an approval rather than a claim. A
+/// carrier declaring it can move reagents at 2-8C is a sales statement; a
+/// carrier APPROVED for it has shown the marketplace its equipment and its
+/// certification, and only an approved capability is matched against a
+/// consignment that needs it.
+enum LogisticsCapabilityKind {
+  TEMPERATURE_CONTROLLED
+  COLD_CHAIN_2_8
+  FROZEN
+  STERILE_HANDLING
+  DANGEROUS_GOODS
+  FRAGILE_HANDLING
+  OVERSIZED
+  PALLET
+  TAIL_LIFT
+  WHITE_GLOVE
+  SAME_DAY
+  NEXT_DAY
+  INTERNATIONAL
+  CUSTOMS_BROKERAGE
+  PROOF_OF_DELIVERY_PHOTO
+  PROOF_OF_DELIVERY_OTP
+}
+
+enum LogisticsCapabilityState {
+  REQUESTED
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+/// Every status a consignment can hold.
+///
+/// The canonical list. Carriers each have their own vocabulary and
+/// `domain/carrier-status-map.ts` translates every one of them into a member of
+/// this enum; a provider code nothing maps to is preserved verbatim and
+/// flagged, and never becomes a status.
+///
+/// Nothing writes this column except through `assertShipmentTransition`.
+enum LogisticsShipmentStatus {
+  CREATED
+  AWAITING_ASSIGNMENT
+  ASSIGNED
+  ACCEPTANCE_PENDING
+  ACCEPTED
+  PICKUP_SCHEDULED
+  READY_FOR_PICKUP
+  PICKED_UP
+  DISPATCHED
+  AT_ORIGIN_HUB
+  IN_TRANSIT
+  AT_DESTINATION_HUB
+  OUT_FOR_DELIVERY
+  DELIVERY_ATTEMPTED
+  DELIVERED
+  DELAYED
+  ON_HOLD
+  ADDRESS_ISSUE
+  CUSTOMS_HOLD
+  DAMAGED
+  TEMPERATURE_EXCEPTION
+  DELIVERY_FAILED
+  RETURN_REQUESTED
+  RETURN_IN_TRANSIT
+  RETURNED
+  LOST
+  CANCELLED
+}
+
+enum LogisticsServiceType {
+  STANDARD
+  EXPRESS
+  SAME_DAY
+  ECONOMY
+  FREIGHT
+  WHITE_GLOVE
+}
+
+enum LogisticsSlaState {
+  NOT_APPLICABLE
+  ON_TRACK
+  AT_RISK
+  BREACHED
+}
+
+enum LogisticsAssignmentState {
+  /// Put to the partner and waiting for an answer.
+  OFFERED
+  ACCEPTED
+  REJECTED
+  /// The marketplace took it back before it was answered.
+  WITHDRAWN
+  /// Nobody answered inside the window.
+  EXPIRED
+  /// The job is finished. Kept, rather than deleted, because a finished
+  /// assignment is the evidence of who carried what - and because it is what
+  /// makes the shipment readable as history while refusing every write.
+  COMPLETED
+}
+
+/// Where a tracking event came from.
+///
+/// Stored on every event and never inferred, because it is the first question
+/// asked when two events disagree: a driver's phone and a carrier's API can
+/// both report the same parcel, minutes apart, in different states.
+enum LogisticsEventSource {
+  LOGISTICS_PORTAL
+  DRIVER_APP
+  UBOSS_ADMIN
+  CARRIER_API
+  INBOUND_WEBHOOK
+  SYSTEM_AUTOMATION
+}
+
+enum LogisticsExceptionType {
+  PICKUP_MISSED
+  PACKAGE_NOT_READY
+  ADDRESS_INCORRECT
+  RECIPIENT_UNAVAILABLE
+  CUSTOMS_DELAY
+  WEATHER_DELAY
+  VEHICLE_BREAKDOWN
+  PRODUCT_DAMAGED
+  PACKAGE_LOST
+  TEMPERATURE_EXCURSION
+  DELIVERY_ATTEMPT_FAILED
+  DOCUMENTATION_MISSING
+  SLA_RISK
+  SLA_BREACH
+  /// A carrier sent a code this software does not recognise.
+  ///
+  /// An exception rather than a log line, deliberately. The original event is
+  /// stored verbatim, the shipment's status is left alone, and a person is
+  /// asked to decide what the code means - which is the only safe answer to
+  /// "the carrier said something we have never seen" on a consignment of
+  /// medical goods.
+  UNMAPPED_EXTERNAL_EVENT
+}
+
+enum LogisticsExceptionSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  /// Reaches the marketplace's operations desk immediately, whatever the hour.
+  /// Cold-chain excursions and lost consignments are always this.
+  CRITICAL
+}
+
+enum LogisticsExceptionState {
+  OPEN
+  ACKNOWLEDGED
+  IN_PROGRESS
+  ESCALATED
+  RESOLVED
+  CLOSED
+}
+
+enum LogisticsDocumentKind {
+  SHIPPING_LABEL
+  PACKING_LIST
+  COMMERCIAL_INVOICE
+  CUSTOMS_DOCUMENT
+  DELIVERY_INSTRUCTIONS
+  PROOF_OF_DELIVERY
+  DELIVERY_SIGNATURE
+  DELIVERY_PHOTO
+  DAMAGE_EVIDENCE
+  RETURN_DOCUMENT
+  MANIFEST
+  OTHER
+}
+
+/// What the malware scanner said.
+///
+/// `SKIPPED` is the important member and it is not a synonym for `CLEAN`. A
+/// deployment with no scanner configured records SKIPPED and the operator's
+/// own policy decides whether such a file may be served. Marking an unscanned
+/// file clean is the one outcome this enum exists to make impossible.
+enum LogisticsDocumentScanState {
+  PENDING
+  CLEAN
+  INFECTED
+  FAILED
+  SKIPPED
+}
+
+/// Who may read one document.
+///
+/// A commercial invoice carries prices, which a carrier has no business
+/// reading on a domestic movement and genuinely needs at a customs post. So
+/// visibility is per document rather than per kind, and the default for
+/// anything priced is OPERATOR.
+enum LogisticsDocumentAudience {
+  PARTNER
+  OPERATOR
+  BOTH
+}
+
+enum LogisticsPickupState {
+  REQUESTED
+  SCHEDULED
+  CONFIRMED
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum LogisticsManifestState {
+  OPEN
+  CLOSED
+  HANDED_OVER
+  CANCELLED
+}
+
+enum LogisticsDriverState {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum LogisticsVehicleKind {
+  VAN
+  TRUCK
+  BIKE
+  CAR
+  REFRIGERATED_VAN
+  REFRIGERATED_TRUCK
+}
+
+enum LogisticsTripState {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  /// Started and never ended. The sweep closes these, because a trip that
+  /// stays ACTIVE is a device that keeps being allowed to send positions.
+  ABANDONED
+}
+
+enum CarrierProvider {
+  /// A logistics company working entirely inside this portal, typing its own
+  /// events. Needs no credential and is the only provider fully working out of
+  /// the box.
+  MANUAL
+  /// A carrier with an API this operator wired up through the generic adapter
+  /// and the mapping table.
+  CUSTOM
+  DHL
+  FEDEX
+  UPS
+}
+
+enum CarrierIntegrationState {
+  /// Declared, and missing the credentials it needs. Every call answers
+  /// CARRIER_PROVIDER_UNCONFIGURED naming the environment variables - never a
+  /// fabricated success.
+  UNCONFIGURED
+  CONFIGURED
+  ACTIVE
+  /// Taken out of service after consecutive failures, until a test passes.
+  ERROR
+  DISABLED
+}
+
+enum CarrierWebhookState {
+  RECEIVED
+  PROCESSED
+  FAILED
+  /// Out of attempts. Kept for ever and surfaced on the integrations screen:
+  /// a dead-lettered tracking event is a parcel whose customer is being told
+  /// something out of date.
+  DEAD_LETTER
+  /// Verified, understood, and deliberately changing nothing.
+  IGNORED
+}
+
+enum LogisticsNotificationKind {
+  SHIPMENT_ASSIGNED
+  ASSIGNMENT_ACCEPTED
+  ASSIGNMENT_REJECTED
+  PICKUP_SCHEDULED
+  PICKUP_COMPLETED
+  SHIPMENT_DISPATCHED
+  SHIPMENT_IN_TRANSIT
+  OUT_FOR_DELIVERY
+  SHIPMENT_DELIVERED
+  DELIVERY_ATTEMPTED
+  SHIPMENT_DELAYED
+  EXCEPTION_RAISED
+  SLA_AT_RISK
+  SLA_BREACHED
+  POD_AVAILABLE
+  RETURN_INITIATED
+  INTEGRATION_FAILURE
+  USER_INVITED
+  SECURITY_EVENT
+}
+
+// ---------------------------------------------------------------------------
+// The tenant
+// ---------------------------------------------------------------------------
+
+/// One logistics company.
+///
+/// Created by the MARKETPLACE and never by self-registration. There is no
+/// public sign-up route and no endpoint anywhere that creates one of these
+/// without an admin permission, which is the first of the portal's access
+/// rules and the easiest one to lose by accident.
+model LogisticsPartner {
+  id String @id @db.Char(26)
+
+  /// Sequential-ish operator-facing reference, e.g. LP-000123.
+  partnerCode String @unique(map: "uq_logistics_partner_code") @db.VarChar(32)
+
+  legalName   String @db.VarChar(255)
+  displayName String @db.VarChar(160)
+  /// Lowercased, punctuation-stripped. The UNIQUE index is here rather than on
+  /// `displayName`, so "Swift Freight", "SwiftFreight" and "swift-freight." are
+  /// one carrier rather than three on the assignment dropdown.
+  displayNameNormalized String @unique(map: "uq_logistics_partner_name") @db.VarChar(160)
+
+  /// Company registration, as the carrier's own jurisdiction spells it. Free
+  /// text because twenty-seven member states disagree about its shape, and a
+  /// format this software invented would be wrong in most of them.
+  registrationNumber String? @db.VarChar(64)
+  taxNumber          String? @db.VarChar(64)
+  /// Transport licence, and when it lapses. The operator's own compliance
+  /// question; the portal shows it and nothing automatic depends on it,
+  /// because "stop this carrier at midnight" is a business decision.
+  licenceNumber   String?   @db.VarChar(64)
+  licenceExpiresAt DateTime? @db.Date
+
+  registrationCountry String @db.Char(2)
+
+  /// The operations desk, not a person. A named individual here becomes stale
+  /// the week they change jobs and the parcel still has to be chased.
+  contactEmail String  @db.VarChar(320)
+  contactPhone String? @db.VarChar(32)
+  /// A second line for out-of-hours, which is when cold-chain exceptions
+  /// actually happen.
+  emergencyPhone String? @db.VarChar(32)
+  websiteUrl     String? @db.VarChar(512)
+
+  addressJson Json?
+
+  status         LogisticsPartnerStatus  @default(PENDING_ACTIVATION)
+  contractStatus LogisticsContractStatus @default(DRAFT)
+  contractReference String? @db.VarChar(64)
+  contractStartsAt  DateTime? @db.Date
+  contractEndsAt    DateTime? @db.Date
+
+  /// Why the marketplace suspended them, in the operator's own words. Shown to
+  /// the partner, because a carrier told only "suspended" cannot fix anything.
+  suspensionReason String? @db.VarChar(512)
+  suspendedAt      DateTime? @db.DateTime(3)
+
+  /// How many consignments may be open with this carrier at once, and how many
+  /// may be offered in a day. Null means no ceiling.
+  ///
+  /// A setting rather than a rule, and per partner rather than per deployment:
+  /// a national carrier and a two-van courier are not the same risk, and the
+  /// operator is the only party who knows which one they are dealing with.
+  maxOpenShipments  Int?
+  maxDailyAssignments Int?
+
+  /// Whether new work may be offered automatically, or only by a person.
+  ///
+  /// False by default. Automatic assignment moves medical freight to a company
+  /// nobody looked at that morning, and an operator should choose that rather
+  /// than inherit it.
+  autoAssignEnabled Boolean @default(false)
+
+  /// Which carrier API this partner's shipments are tracked through, where
+  /// they are tracked through one at all. Null means the partner works
+  /// entirely inside this portal - which is the MANUAL provider and the
+  /// ordinary case.
+  carrierIntegrationId String? @db.Char(26)
+
+  /// Free-text, operator-only. Never shown to the partner: it routinely names
+  /// other people, exactly like `CustomerProfile.internalNotes`.
+  internalNotes String? @db.Text
+
+  createdById String?  @db.Char(26)
+  createdAt   DateTime @default(now()) @db.DateTime(3)
+  updatedAt   DateTime @updatedAt @db.DateTime(3)
+  /// Soft delete. Shipments keep referencing the row.
+  archivedAt  DateTime? @db.DateTime(3)
+
+  carrierIntegration CarrierIntegration? @relation(fields: [carrierIntegrationId], references: [id], onDelete: SetNull)
+
+  users        LogisticsPartnerUser[]
+  invitations  LogisticsPartnerInvitation[]
+  regions      LogisticsServiceRegion[]
+  capabilities LogisticsCapability[]
+  slaPolicies  LogisticsSlaPolicy[]
+  assignments  LogisticsShipmentAssignment[]
+  shipments    LogisticsShipment[]
+  pickups      LogisticsPickupRequest[]
+  manifests    LogisticsDispatchManifest[]
+  drivers      LogisticsDriverProfile[]
+  vehicles     LogisticsVehicle[]
+  exceptions   LogisticsShipmentException[]
+  notifications LogisticsNotification[]
+  auditLogs    LogisticsAuditLog[]
+
+  @@index([status, createdAt], map: "ix_logistics_partner_status")
+  @@index([registrationCountry], map: "ix_logistics_partner_country")
+  @@index([carrierIntegrationId], map: "ix_logistics_partner_integration")
+  @@map("logistics_partners")
+}
+
+/// One person inside one logistics company.
+///
+/// `userId` is UNIQUE, not merely indexed. A person drives for one carrier at
+/// a time, and a second membership would make "which tenant is this request
+/// for?" a question with two answers - which is how a courier ends up reading
+/// a competitor's consignments.
+model LogisticsPartnerUser {
+  id                 String @id @db.Char(26)
+  logisticsPartnerId String @db.Char(26)
+  userId             String @unique(map: "uq_logistics_partner_user_account") @db.Char(26)
+
+  role   LogisticsPartnerRole
+  status LogisticsMemberStatus @default(INVITED)
+
+  /// Display name inside the portal. Held here rather than read from `users`
+  /// because a carrier's dispatcher list is the carrier's own record of who
+  /// works there.
+  fullName String  @db.VarChar(160)
+  jobTitle String? @db.VarChar(120)
+  phone    String? @db.VarChar(32)
+
+  /// Which of the partner's approved regions this person may work. Empty means
+  /// all of them, which is the ordinary case for an office role.
+  ///
+  /// JSON rather than a join table: it is a short list of region ids read as a
+  /// whole on every request and never queried across rows.
+  regionScopeJson Json?
+
+  /// Why access was taken away, and when. A disabled member keeps their row so
+  /// past events still name a person.
+  disabledAt     DateTime? @db.DateTime(3)
+  disabledReason String?   @db.VarChar(255)
+
+  lastActiveAt DateTime? @db.DateTime(3)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  partner LogisticsPartner @relation(fields: [logisticsPartnerId], references: [id], onDelete: Cascade)
+  user    User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  driverProfile     LogisticsDriverProfile?
+  invitationsSent   LogisticsPartnerInvitation[] @relation("LogisticsInvitationInviter")
+  notifications     LogisticsNotification[]
+
+  @@index([logisticsPartnerId, status], map: "ix_logistics_partner_user_status")
+  @@index([logisticsPartnerId, role], map: "ix_logistics_partner_user_role")
+  @@map("logistics_partner_users")
+}
+
+/// An emailed invitation to join a carrier's portal account.
+///
+/// Short-lived, single-use, and it carries NO password. The token is 32 bytes
+/// of CSPRNG output stored as a SHA-256, redeemed once inside a transaction -
+/// the same machinery `AuthToken` uses, and this row is the invitation's
+/// business record beside it: who was asked, to what role, by whom.
+///
+/// A permanent password has never been emailed by this software and must not
+/// start being emailed by this feature.
+model LogisticsPartnerInvitation {
+  id                 String @id @db.Char(26)
+  logisticsPartnerId String @db.Char(26)
+
+  email           String @db.VarChar(320)
+  emailNormalized String @db.VarChar(320)
+  fullName        String @db.VarChar(160)
+  role            LogisticsPartnerRole
+
+  /// SHA-256 of the raw token. The raw value goes into exactly one email.
+  tokenHash String @unique(map: "uq_logistics_invitation_token") @db.Char(64)
+
+  expiresAt  DateTime  @db.DateTime(3)
+  acceptedAt DateTime? @db.DateTime(3)
+  revokedAt  DateTime? @db.DateTime(3)
+
+  /// Null when the marketplace itself sent it - which is how the first owner
+  /// of every carrier account is created.
+  invitedByPartnerUserId String? @db.Char(26)
+  invitedByAdminUserId   String? @db.Char(26)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  partner   LogisticsPartner      @relation(fields: [logisticsPartnerId], references: [id], onDelete: Cascade)
+  invitedBy LogisticsPartnerUser? @relation("LogisticsInvitationInviter", fields: [invitedByPartnerUserId], references: [id], onDelete: SetNull)
+
+  /// One live invitation per address per carrier. `acceptedAt`/`revokedAt` are
+  /// what retire an old one, and re-inviting supersedes rather than duplicates.
+  @@index([logisticsPartnerId, emailNormalized], map: "ix_logistics_invitation_email")
+  @@index([expiresAt], map: "ix_logistics_invitation_expiry")
+  @@map("logistics_partner_invitations")
+}
+
+/// Somewhere this carrier is approved to work.
+///
+/// Set by the OPERATOR, never by the partner. A carrier that could widen its
+/// own approved regions could assign itself work it is not licensed to carry,
+/// and this is medical freight.
+model LogisticsServiceRegion {
+  id                 String @id @db.Char(26)
+  logisticsPartnerId String @db.Char(26)
+
+  scope       LogisticsRegionScope
+  countryCode String               @db.Char(2)
+
+  /// The value the scope names: a state, a city, or a postcode prefix. Empty
+  /// string for COUNTRY, and empty rather than NULL because MariaDB treats
+  /// every NULL in a UNIQUE index as distinct - a nullable column here would
+  /// let one carrier hold two "the whole of Belgium" rows.
+  regionValue String @default("") @db.VarChar(120)
+
+  /// Whether this region can be a source, a destination, or both. A carrier
+  /// licensed to deliver into a country it may not collect from is ordinary.
+  supportsPickup   Boolean @default(true)
+  supportsDelivery Boolean @default(true)
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  partner LogisticsPartner @relation(fields: [logisticsPartnerId], references: [id], onDelete: Cascade)
+
+  @@unique([logisticsPartnerId, scope, countryCode, regionValue], map: "uq_logistics_region")
+  @@index([countryCode, isActive], map: "ix_logistics_region_country")
+  @@map("logistics_service_regions")
+}
+
+/// Something this carrier is approved to handle.
+///
+/// An approval with evidence behind it, not a claim. Only an APPROVED
+/// capability is matched against a consignment that needs it, and a carrier
+/// whose cold-chain approval was suspended stops being offered reagents that
+/// afternoon rather than at the next contract review.
+model LogisticsCapability {
+  id                 String @id @db.Char(26)
+  logisticsPartnerId String @db.Char(26)
+
+  kind  LogisticsCapabilityKind
+  state LogisticsCapabilityState @default(REQUESTED)
+
+  /// The certificate or accreditation behind it, and when it lapses.
+  evidenceReference String?   @db.VarChar(255)
+  evidenceExpiresAt DateTime? @db.Date
+
+  /// The band this carrier can actually hold, where the capability is a
+  /// temperature. Decimal rather than Float for the same reason coordinates
+  /// are: a stored fact has to read back as it was written.
+  temperatureMinC Decimal? @db.Decimal(5, 2)
+  temperatureMaxC Decimal? @db.Decimal(5, 2)
+
+  decidedByUserId String?   @db.Char(26)
+  decidedAt       DateTime? @db.DateTime(3)
+  decisionNote    String?   @db.VarChar(512)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  partner LogisticsPartner @relation(fields: [logisticsPartnerId], references: [id], onDelete: Cascade)
+
+  @@unique([logisticsPartnerId, kind], map: "uq_logistics_capability")
+  @@index([kind, state], map: "ix_logistics_capability_kind")
+  @@map("logistics_capabilities")
+}
+
+/// What this carrier promised, and what counts as proof that it delivered.
+///
+/// One policy may be the partner's default and others may be named per service
+/// type, which is why `serviceType` is part of the key and carries a NOT NULL
+/// surrogate: `STANDARD` is the default row rather than a nullable one, on the
+/// same NULL-in-a-UNIQUE reasoning as everywhere else in this schema.
+model LogisticsSlaPolicy {
+  id                 String @id @db.Char(26)
+  logisticsPartnerId String @db.Char(26)
+
+  name        String               @db.VarChar(120)
+  serviceType LogisticsServiceType @default(STANDARD)
+
+  /// Hours from acceptance to collection, and from collection to delivery.
+  ///
+  /// Hours rather than working days, deliberately. A working-day promise needs
+  /// a public-holiday calendar per country and this software is installed in
+  /// twenty-seven of them; being approximately right about a complicated
+  /// promise is worse than being exactly right about a simple one. A
+  /// deployment that contracts in working days sets the hours to match.
+  pickupHours   Int?
+  deliveryHours Int?
+
+  /// How long before a deadline a consignment starts counting as at risk.
+  /// Two hours is right for a city courier and useless for an air freight
+  /// movement, which is why it is a figure rather than a constant.
+  riskWindowMinutes Int @default(120)
+
+  /// What this deployment accepts as Proof of Delivery.
+  ///
+  /// Every one of these is a business decision rather than a technical one.
+  /// A pharmacy wants a signature and a named recipient; a hospital loading
+  /// bay wants a photograph; a controlled-drugs movement wants an OTP. The
+  /// software supports all of them and chooses none.
+  podRequiresRecipientName Boolean @default(true)
+  podRequiresSignature     Boolean @default(false)
+  podRequiresPhoto         Boolean @default(false)
+  podRequiresOtp           Boolean @default(false)
+  podRequiresDesignation   Boolean @default(false)
+
+  /// How many delivery attempts before the consignment goes back.
+  maxDeliveryAttempts Int @default(3)
+
+  isDefault Boolean @default(false)
+  isActive  Boolean @default(true)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  partner   LogisticsPartner    @relation(fields: [logisticsPartnerId], references: [id], onDelete: Cascade)
+  shipments LogisticsShipment[]
+
+  @@unique([logisticsPartnerId, serviceType, name], map: "uq_logistics_sla_policy")
+  @@index([logisticsPartnerId, isDefault], map: "ix_logistics_sla_default")
+  @@map("logistics_sla_policies")
+}
+
+// ---------------------------------------------------------------------------
+// The consignment
+// ---------------------------------------------------------------------------
+
+/// A consignment moving from a warehouse to a business.
+///
+/// The record a logistics partner works. It LINKS to an order, a seller's part
+/// of one, a warehouse and the operator's own dispatch note rather than
+/// replacing any of them - see the banner at the top of this section.
+///
+/// WHAT IS COPIED RATHER THAN JOINED, AND WHY
+///
+/// Company names, addresses, contacts and the category summary are snapshots,
+/// the same way `Order.shippingAddressJson` is. A carrier holding a parcel has
+/// to be able to read the address it is going to even if the buyer edits their
+/// address book that afternoon, and the record of where a consignment was
+/// actually sent must not change afterwards.
+///
+/// WHAT IS DELIBERATELY ABSENT
+///
+/// Prices, order lines, payment state, the buyer's purchasing history, the
+/// seller's margin. Not masked - ABSENT. A column that is never populated
+/// cannot be leaked by a query somebody forgets to narrow, which is a stronger
+/// control than redacting it on the way out. `declaredValueMinor` is the one
+/// exception and exists for customs and insurance; it is disclosed to a
+/// carrier only on a movement that crosses a border.
+model LogisticsShipment {
+  id String @id @db.Char(26)
+
+  /// Human-facing reference, e.g. LS-2026-000123. What a person quotes on the
+  /// telephone, and unique across the deployment.
+  shipmentReference String @unique(map: "uq_logistics_shipment_reference") @db.VarChar(32)
+
+  /// Where it came from in the commerce side of this system. All nullable:
+  /// a consignment can be raised for a movement that has no order behind it
+  /// at all - a warehouse transfer, a sample, a replacement.
+  orderId            String? @db.Char(26)
+  sellerOrderGroupId String? @db.Char(26)
+  /// The operator's own dispatch note, where one exists. This is the join that
+  /// keeps the two records from drifting into two versions of one parcel.
+  operatorShipmentId String? @db.Char(26)
+  originLocationId   String? @db.Char(26)
+
+  /// The carrier currently holding it, denormalised from the live assignment.
+  ///
+  /// Denormalised deliberately, and it is the one place in this feature where
+  /// that is done. The shipment list is the portal's busiest query and it
+  /// filters on exactly this column; resolving it through the assignment table
+  /// on every row would make the list a join nobody can index well. It is
+  /// written ONLY inside the same transaction that writes the assignment - see
+  /// `assignment.service.ts` - so the two cannot disagree.
+  ///
+  /// Null while the shipment is waiting to be assigned.
+  assignedPartnerId String? @db.Char(26)
+
+  status      LogisticsShipmentStatus @default(CREATED)
+  serviceType LogisticsServiceType    @default(STANDARD)
+
+  /// The tracking number a customer is given. Ours, not the carrier's: a
+  /// consignment re-assigned to a second carrier keeps this one, so a customer
+  /// who bookmarked a tracking page does not lose it.
+  trackingNumber String @unique(map: "uq_logistics_shipment_tracking") @db.VarChar(64)
+
+  /// The CARRIER's own number, where an integrated carrier issued one.
+  ///
+  /// Unique per integration and not globally: two carriers can and do issue
+  /// the same string, and a global UNIQUE here would reject the second one
+  /// months after nobody remembers this column exists.
+  carrierIntegrationId   String? @db.Char(26)
+  carrierTrackingNumber  String? @db.VarChar(128)
+  carrierTrackingUrl     String? @db.VarChar(1024)
+
+  // --- Who it is between -------------------------------------------------
+
+  /// The seller whose goods these are, where the movement came from a
+  /// marketplace order. Name copied; the id is kept so the operator can join
+  /// back, and is never disclosed to the carrier.
+  sellerAccountId   String? @db.Char(26)
+  sellerCompanyName String  @db.VarChar(255)
+
+  /// The business receiving it. Same treatment as the seller: the profile id
+  /// is the operator's link and the name is what the carrier sees.
+  receivingCustomerProfileId String? @db.Char(26)
+  receivingCompanyName       String  @db.VarChar(255)
+
+  // --- Where it goes -----------------------------------------------------
+
+  pickupAddressJson   Json
+  deliveryAddressJson Json
+
+  /// Contacts, stored whole and MASKED ON THE WAY OUT by
+  /// `domain/logistics-masking.ts`. Stored whole because a driver standing at
+  /// a locked loading bay needs the real number and the platform has to be
+  /// able to place that call; masked on the way out because nobody else does.
+  pickupContactName    String? @db.VarChar(160)
+  pickupContactPhone   String? @db.VarChar(32)
+  pickupContactEmail   String? @db.VarChar(320)
+  deliveryContactName  String? @db.VarChar(160)
+  deliveryContactPhone String? @db.VarChar(32)
+  deliveryContactEmail String? @db.VarChar(320)
+
+  /// Denormalised from the addresses so the list can filter and group on them
+  /// without opening JSON. Upper-case alpha-2.
+  originCountry         String  @db.Char(2)
+  destinationCountry    String  @db.Char(2)
+  destinationCity       String? @db.VarChar(120)
+  destinationPostalCode String? @db.VarChar(24)
+
+  /// Kilometres, where both ends could be located. Information, never a rule.
+  distanceKm Decimal? @db.Decimal(9, 2)
+
+  // --- What is in it -----------------------------------------------------
+
+  packageCount     Int    @default(1)
+  totalWeightGrams Int    @default(0)
+  /// Longest side, girth and volume, for a carrier deciding whether it fits on
+  /// a van. Grams and millimetres, integers, because a fractional millimetre
+  /// is not a fact anybody measured.
+  totalVolumeCm3   Int?
+
+  /// What is in the boxes, in words a carrier may read: "sterile consumables,
+  /// diagnostic reagents". Never the product names, never the quantities,
+  /// never the prices - a packing list is a document with its own audience.
+  productCategorySummary String? @db.VarChar(512)
+
+  /// Handling. These are what the assignment engine matches against a
+  /// carrier's APPROVED capabilities, and what the portal shows in red at the
+  /// top of the shipment.
+  requiresColdChain        Boolean @default(false)
+  requiresTemperatureRange Boolean @default(false)
+  temperatureMinC          Decimal? @db.Decimal(5, 2)
+  temperatureMaxC          Decimal? @db.Decimal(5, 2)
+  requiresSterileHandling  Boolean @default(false)
+  isFragile                Boolean @default(false)
+  isDangerousGoods         Boolean @default(false)
+  dangerousGoodsClass      String?  @db.VarChar(24)
+  handlingNotes            String?  @db.VarChar(1024)
+
+  /// Customs and insurance value. BigInt minor units with its own currency
+  /// column, like every other amount in this schema - never a float, and never
+  /// a JS number.
+  declaredValueMinor BigInt? @db.BigInt
+  currency           String? @db.Char(3)
+
+  // --- The promise -------------------------------------------------------
+
+  slaPolicyId String? @db.Char(26)
+
+  expectedPickupAt    DateTime? @db.DateTime(3)
+  pickupDueAt         DateTime? @db.DateTime(3)
+  estimatedDeliveryAt DateTime? @db.DateTime(3)
+  deliveryDueAt       DateTime? @db.DateTime(3)
+
+  /// Maintained by the SLA sweep from `domain/logistics-sla.ts`, so the
+  /// dashboard can count without recomputing a window over every open row.
+  /// The detail page recomputes live, and the two agree because they call the
+  /// same function.
+  slaState        LogisticsSlaState @default(NOT_APPLICABLE)
+  slaEvaluatedAt  DateTime?         @db.DateTime(3)
+
+  // --- What actually happened -------------------------------------------
+
+  acceptedAt   DateTime? @db.DateTime(3)
+  pickedUpAt   DateTime? @db.DateTime(3)
+  dispatchedAt DateTime? @db.DateTime(3)
+  deliveredAt  DateTime? @db.DateTime(3)
+  closedAt     DateTime? @db.DateTime(3)
+
+  deliveryAttemptCount Int @default(0)
+
+  /// When the last event of any kind landed, and when a carrier feed was last
+  /// read. Two columns because they answer different questions: the first is
+  /// "is this parcel moving", the second is "is our integration working", and
+  /// a shipment can be healthy on one and stale on the other.
+  lastEventAt       DateTime? @db.DateTime(3)
+  lastCarrierSyncAt DateTime? @db.DateTime(3)
+
+  /// Optimistic concurrency. A dispatcher and a webhook can touch one
+  /// consignment in the same second; the conditional UPDATE against this
+  /// column is what makes the loser retry instead of overwriting.
+  version Int @default(0)
+
+  createdById String?  @db.Char(26)
+  createdAt   DateTime @default(now()) @db.DateTime(3)
+  updatedAt   DateTime @updatedAt @db.DateTime(3)
+
+  order              Order?              @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  sellerOrderGroup   SellerOrderGroup?   @relation(fields: [sellerOrderGroupId], references: [id], onDelete: SetNull)
+  originLocation     InventoryLocation?  @relation(fields: [originLocationId], references: [id], onDelete: Restrict)
+  assignedPartner    LogisticsPartner?   @relation(fields: [assignedPartnerId], references: [id], onDelete: Restrict)
+  slaPolicy          LogisticsSlaPolicy? @relation(fields: [slaPolicyId], references: [id], onDelete: SetNull)
+  carrierIntegration CarrierIntegration? @relation(fields: [carrierIntegrationId], references: [id], onDelete: SetNull)
+
+  packages        LogisticsShipmentPackage[]
+  assignments     LogisticsShipmentAssignment[]
+  events          LogisticsShipmentEvent[]
+  exceptions      LogisticsShipmentException[]
+  documents       LogisticsShipmentDocument[]
+  proofOfDelivery LogisticsProofOfDelivery?
+  pickupRequests  LogisticsPickupRequest[]
+  manifestEntries LogisticsDispatchManifestEntry[]
+  driverAssignments LogisticsDriverAssignment[]
+  trips           LogisticsActiveTrip[]
+  notifications   LogisticsNotification[]
+
+  /// The portal's own list query: this carrier's shipments, newest first,
+  /// narrowed by status. Leading column is the tenant, always.
+  @@index([assignedPartnerId, status, createdAt], map: "ix_logistics_shipment_partner_status")
+  /// The SLA sweep and the dashboard's at-risk counter.
+  @@index([assignedPartnerId, slaState, deliveryDueAt], map: "ix_logistics_shipment_sla")
+  /// Deliveries due today, and the pickup board.
+  @@index([assignedPartnerId, expectedPickupAt], map: "ix_logistics_shipment_pickup_due")
+  @@index([assignedPartnerId, estimatedDeliveryAt], map: "ix_logistics_shipment_delivery_due")
+  /// The operator's own list, which is not filtered by carrier.
+  @@index([status, createdAt], map: "ix_logistics_shipment_status")
+  @@index([orderId], map: "ix_logistics_shipment_order")
+  @@index([sellerOrderGroupId], map: "ix_logistics_shipment_seller_group")
+  @@index([originLocationId], map: "ix_logistics_shipment_origin")
+  @@index([receivingCustomerProfileId], map: "ix_logistics_shipment_receiver")
+  @@index([sellerAccountId], map: "ix_logistics_shipment_seller")
+  @@index([destinationCountry, destinationCity], map: "ix_logistics_shipment_destination")
+  /// The carrier poller: everything still moving on one integration, oldest
+  /// sync first.
+  @@index([carrierIntegrationId, lastCarrierSyncAt], map: "ix_logistics_shipment_carrier_sync")
+  @@index([carrierIntegrationId, carrierTrackingNumber], map: "ix_logistics_shipment_carrier_tracking")
+  @@map("logistics_shipments")
+}
+
+/// One box, pallet or carton inside a consignment.
+///
+/// Its own rows rather than JSON, unlike `SellerShipment.contentsJson`, and
+/// the difference is that these are SCANNED. A driver reads a barcode off a
+/// carton at a loading bay and the system has to find that carton; a JSON blob
+/// cannot be indexed by the thing a scanner emits.
+model LogisticsShipmentPackage {
+  id         String @id @db.Char(26)
+  shipmentId String @db.Char(26)
+
+  /// What is printed on the label and what a scanner reads. Unique across the
+  /// deployment because a barcode that means two things is worse than no
+  /// barcode.
+  packageReference String @unique(map: "uq_logistics_package_reference") @db.VarChar(64)
+
+  sequence Int @default(1)
+
+  weightGrams Int  @default(0)
+  lengthMm    Int?
+  widthMm     Int?
+  heightMm    Int?
+
+  /// Pallet, carton, cool box - the operator's own vocabulary rather than an
+  /// enum, because packing formats differ by trade and this is a general
+  /// marketplace.
+  packagingType String? @db.VarChar(64)
+
+  isFragile           Boolean @default(false)
+  requiresColdChain   Boolean @default(false)
+
+  /// Batch or lot, where the goods carry one.
+  ///
+  /// Disclosed to a carrier ONLY where the shipment's handling requirements
+  /// make it operationally necessary - a recall, a cold-chain consignment -
+  /// because a lot number plus a category is enough to identify a product and
+  /// a product is commercially sensitive. The read path decides; the column
+  /// simply holds it.
+  batchReference String? @db.VarChar(64)
+
+  /// Set when a driver scans it at collection and again at delivery. Two
+  /// columns rather than a status, because a carton can be collected and never
+  /// arrive and the gap between the two timestamps is the whole story.
+  scannedOutAt DateTime? @db.DateTime(3)
+  scannedInAt  DateTime? @db.DateTime(3)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  shipment LogisticsShipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@unique([shipmentId, sequence], map: "uq_logistics_package_sequence")
+  @@index([shipmentId], map: "ix_logistics_package_shipment")
+  @@map("logistics_shipment_packages")
+}
+
+/// The offer of one consignment to one carrier, and what they said.
+///
+/// A row per offer rather than a column on the shipment, because reassignment
+/// has to leave a trail: "who was asked, when, what they said and why" is the
+/// question a disputed delivery turns into, and a column that is overwritten
+/// answers none of it.
+///
+/// `state` is what authorises a partner. A COMPLETED or WITHDRAWN assignment
+/// leaves the shipment readable as history and refuses every write - a carrier
+/// that has finished a job must not keep the consignee's address live for ever.
+model LogisticsShipmentAssignment {
+  id                 String @id @db.Char(26)
+  shipmentId         String @db.Char(26)
+  logisticsPartnerId String @db.Char(26)
+
+  state LogisticsAssignmentState @default(OFFERED)
+
+  /// Why this carrier. `AUTO` where the engine chose on coverage and
+  /// capability, `MANUAL` where a person did. Stored because an operator
+  /// reviewing a bad delivery needs to know whether anybody looked.
+  assignedAutomatically Boolean @default(false)
+
+  offeredAt   DateTime  @default(now()) @db.DateTime(3)
+  /// How long the carrier has to answer before it lapses back to the pool.
+  respondBy   DateTime? @db.DateTime(3)
+  respondedAt DateTime? @db.DateTime(3)
+
+  /// Mandatory on a rejection - enforced in the service, not merely here. A
+  /// refusal with no reason is a refusal the operator cannot act on, and it
+  /// counts against the carrier's record.
+  responseReason String? @db.VarChar(512)
+
+  withdrawnAt     DateTime? @db.DateTime(3)
+  withdrawnReason String?   @db.VarChar(512)
+  completedAt     DateTime? @db.DateTime(3)
+
+  /// Who did it, on each side.
+  offeredByUserId     String? @db.Char(26)
+  respondedByPartnerUserId String? @db.Char(26)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  shipment LogisticsShipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  partner  LogisticsPartner  @relation(fields: [logisticsPartnerId], references: [id], onDelete: Restrict)
+
+  /// The authorisation query: is this shipment live for this carrier right now.
+  @@index([logisticsPartnerId, state, shipmentId], map: "ix_logistics_assignment_authz")
+  @@index([shipmentId, state], map: "ix_logistics_assignment_shipment")
+  /// The sweep that expires unanswered offers.
+  @@index([state, respondBy], map: "ix_logistics_assignment_expiry")
+  @@map("logistics_shipment_assignments")
+}
+
+/// One thing that happened to a consignment.
+///
+/// APPEND-ONLY. Nothing updates one of these rows, and
+/// `LogisticsShipment.status` is maintained from them inside the same
+/// transaction that writes them - so the timeline is the record and the column
+/// is the index over it.
+///
+/// DUPLICATE SUPPRESSION IS A CONSTRAINT, NOT A CODE PATH
+///
+/// Two UNIQUE indexes do the work, because a check-then-insert loses to a
+/// carrier that redelivers a webhook twice in the same second:
+///
+///   - `(shipmentId, idempotencyKey)` - a client that retries a status update
+///     under the same key writes at most one event.
+///   - `externalEventKey` - a carrier that sends the same event id twice
+///     writes at most one event.
+///
+/// Both columns are NOT NULL and carry the event's own ULID where nothing
+/// better exists, because MariaDB treats every NULL in a UNIQUE index as
+/// distinct and a nullable column here would enforce precisely nothing.
+model LogisticsShipmentEvent {
+  id         String @id @db.Char(26)
+  shipmentId String @db.Char(26)
+
+  /// What it moved from and to. `previousStatus` is null only on the first
+  /// event of a consignment's life.
+  previousStatus LogisticsShipmentStatus?
+  status         LogisticsShipmentStatus
+
+  /// The sentence a customer reads on the tracking page. Deliberately separate
+  /// from the note below: one is published and one is not, and a single field
+  /// means an operations note about a difficult receptionist ends up on a
+  /// buyer's screen.
+  publicDescription String? @db.VarChar(512)
+  /// The carrier's and the operator's own words. Never leaves the portal.
+  internalNote      String? @db.Text
+
+  /// When it happened, and when we were told. Two instants because they differ
+  /// by hours on a polled integration, and a timeline sorted by the wrong one
+  /// reads as though the parcel went backwards.
+  occurredAt DateTime @db.DateTime(3)
+  recordedAt DateTime @default(now()) @db.DateTime(3)
+
+  /// Where it happened, as a place name and as coordinates where the source
+  /// gave them.
+  locationLabel     String?  @db.VarChar(255)
+  locationCountry   String?  @db.Char(2)
+  locationLatitude  Decimal? @db.Decimal(9, 6)
+  locationLongitude Decimal? @db.Decimal(9, 6)
+
+  source LogisticsEventSource
+
+  /// Who, where a person did it. Both nullable: a carrier feed has neither.
+  actorUserId            String? @db.Char(26)
+  actorLogisticsPartnerId String? @db.Char(26)
+
+  /// The carrier's own identifiers, kept verbatim for audit even after the
+  /// code has been mapped. An operator arguing with a carrier about a scan
+  /// needs their reference, not our translation of it.
+  externalEventId   String? @db.VarChar(128)
+  externalStatusCode String? @db.VarChar(64)
+  carrierIntegrationId String? @db.Char(26)
+
+  /// `"<provider>:<their id>"`, or this event's own ULID where no carrier
+  /// supplied one. NOT NULL - see the note in this model's header.
+  externalEventKey String @unique(map: "uq_logistics_event_external") @db.VarChar(200)
+
+  /// The caller's key, or this event's own ULID. NOT NULL, same reason.
+  idempotencyKey String @db.Char(64)
+
+  /// An operator correction rather than a movement. Rendered differently on
+  /// the timeline, because a corrected record that looks like an ordinary one
+  /// is a record nobody can audit.
+  isCorrection Boolean @default(false)
+
+  /// Set where the event names a reason - every transition the matrix marks
+  /// `requiresReason`.
+  reason String? @db.VarChar(512)
+
+  /// The exception this event raised or resolved, and the document it points
+  /// at. Both SetNull: deleting a document must not delete the fact that one
+  /// was attached.
+  exceptionId String? @db.Char(26)
+  documentId  String? @db.Char(26)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  shipment LogisticsShipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  /// The timeline itself: one shipment, in the order it happened.
+  @@unique([shipmentId, idempotencyKey], map: "uq_logistics_event_idempotency")
+  @@index([shipmentId, occurredAt], map: "ix_logistics_event_timeline")
+  @@index([shipmentId, recordedAt], map: "ix_logistics_event_recorded")
+  @@index([source, recordedAt], map: "ix_logistics_event_source")
+  @@index([carrierIntegrationId, recordedAt], map: "ix_logistics_event_carrier")
+  @@map("logistics_shipment_events")
+}
+
+/// Something went wrong and somebody has to do something about it.
+///
+/// Distinct from an exception STATUS on the shipment. The status says where the
+/// parcel is; this says who owns the problem, by when, and what has been tried
+/// - which is a work item with a lifecycle of its own, and a consignment can
+/// carry two at once.
+model LogisticsShipmentException {
+  id                 String  @id @db.Char(26)
+  shipmentId         String  @db.Char(26)
+  /// Null where the marketplace raised it before anybody was assigned.
+  logisticsPartnerId String? @db.Char(26)
+
+  type     LogisticsExceptionType
+  severity LogisticsExceptionSeverity @default(MEDIUM)
+  state    LogisticsExceptionState    @default(OPEN)
+
+  /// What happened, in the words of whoever raised it.
+  reason String @db.VarChar(512)
+  detail String? @db.Text
+
+  /// Who owns it. A partner user, or the marketplace's own desk once it is
+  /// escalated. Both nullable, and an exception with neither is an unassigned
+  /// one - which the queue shows first.
+  ownerPartnerUserId String? @db.Char(26)
+  ownerAdminUserId   String? @db.Char(26)
+
+  /// When it should be fixed by, and whether it was.
+  resolutionDueAt DateTime? @db.DateTime(3)
+  resolvedAt      DateTime? @db.DateTime(3)
+  closedAt        DateTime? @db.DateTime(3)
+  resolutionNotes String?   @db.Text
+
+  escalatedAt     DateTime? @db.DateTime(3)
+  escalationNote  String?   @db.VarChar(512)
+
+  /// The new promise, where the exception moved it.
+  revisedEtaAt DateTime? @db.DateTime(3)
+
+  /// Whether the buyer has been told. A separate fact from the exception being
+  /// open: most exceptions are resolved before anybody needs to know, and the
+  /// ones that are not are the ones that generate a complaint.
+  customerNotifiedAt DateTime? @db.DateTime(3)
+
+  /// The carrier's own payload, where this came from an UNMAPPED_EXTERNAL_EVENT.
+  /// Kept whole so a person can read what the carrier actually said.
+  externalPayloadJson Json?
+
+  raisedByUserId String?  @db.Char(26)
+  createdAt      DateTime @default(now()) @db.DateTime(3)
+  updatedAt      DateTime @updatedAt @db.DateTime(3)
+
+  shipment LogisticsShipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  partner  LogisticsPartner? @relation(fields: [logisticsPartnerId], references: [id], onDelete: SetNull)
+
+  /// The exception queue, as the portal renders it: this carrier's open ones,
+  /// worst first.
+  @@index([logisticsPartnerId, state, severity], map: "ix_logistics_exception_queue")
+  @@index([shipmentId, state], map: "ix_logistics_exception_shipment")
+  /// The operator's queue, which is not filtered by carrier, and the sweep
+  /// that chases overdue resolutions.
+  @@index([state, severity, createdAt], map: "ix_logistics_exception_operator")
+  @@index([state, resolutionDueAt], map: "ix_logistics_exception_due")
+  @@index([type, createdAt], map: "ix_logistics_exception_type")
+  @@map("logistics_shipment_exceptions")
+}
+
+/// A file attached to a consignment.
+///
+/// The bytes live in object storage under the PRIVATE prefix and are read back
+/// only through a short-lived signed token - never a guessable URL, and never
+/// a public one. A delivery signature is a person's handwriting; a commercial
+/// invoice is a price list.
+model LogisticsShipmentDocument {
+  id         String @id @db.Char(26)
+  shipmentId String @db.Char(26)
+
+  kind     LogisticsDocumentKind
+  audience LogisticsDocumentAudience @default(PARTNER)
+
+  fileName    String @db.VarChar(255)
+  contentType String @db.VarChar(128)
+  sizeBytes   Int
+
+  /// The object key, not a URL. A URL stored in a database is a URL that
+  /// outlives whatever made it temporary.
+  storageKey String @db.VarChar(512)
+
+  /// SHA-256 of the bytes, so a document can be shown to be the one that was
+  /// uploaded. A delivery photograph is evidence.
+  contentHash String? @db.Char(64)
+
+  scanState  LogisticsDocumentScanState @default(PENDING)
+  scannedAt  DateTime?                  @db.DateTime(3)
+  scanDetail String?                    @db.VarChar(255)
+
+  uploadedByUserId String?  @db.Char(26)
+  uploadedBySource LogisticsEventSource @default(LOGISTICS_PORTAL)
+
+  createdAt DateTime  @default(now()) @db.DateTime(3)
+  /// Soft delete: a document withdrawn from a consignment stays as evidence
+  /// that it once existed.
+  deletedAt DateTime? @db.DateTime(3)
+
+  shipment LogisticsShipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@index([shipmentId, kind], map: "ix_logistics_document_shipment")
+  @@index([scanState, createdAt], map: "ix_logistics_document_scan")
+  @@map("logistics_shipment_documents")
+}
+
+/// Evidence that a consignment was handed over.
+///
+/// One per shipment, which is why `shipmentId` is UNIQUE: a parcel is
+/// delivered once, and a second POD is a correction rather than an addition -
+/// corrections go on the event timeline where they can be read as such.
+///
+/// WHAT IS NOT HERE
+///
+/// The signature and the photograph. Those are `LogisticsShipmentDocument`
+/// rows under the private storage prefix, and this row points at them. A
+/// signature image inline in an API response is a signature image in a browser
+/// cache.
+model LogisticsProofOfDelivery {
+  id         String @id @db.Char(26)
+  shipmentId String @unique(map: "uq_logistics_pod_shipment") @db.Char(26)
+
+  /// Who took it. Masked on the way out for everybody except the driver who
+  /// captured it and the marketplace.
+  recipientName        String? @db.VarChar(160)
+  recipientDesignation String? @db.VarChar(120)
+
+  deliveredAt       DateTime @db.DateTime(3)
+  deliveryLatitude  Decimal? @db.Decimal(9, 6)
+  deliveryLongitude Decimal? @db.Decimal(9, 6)
+  deliveryLocationLabel String? @db.VarChar(255)
+
+  /// Whether each element of the deployment's POD policy was actually
+  /// satisfied. Stored as facts rather than inferred from the presence of a
+  /// document, so a policy tightened next year does not retroactively
+  /// invalidate last year's deliveries.
+  hasSignature     Boolean @default(false)
+  hasPhoto         Boolean @default(false)
+  otpVerified      Boolean @default(false)
+  businessStamped  Boolean @default(false)
+
+  signatureDocumentId String? @db.Char(26)
+  photoDocumentId     String? @db.Char(26)
+
+  /// Anything the driver had to write down: left with security, signed by a
+  /// colleague, one carton refused.
+  exceptionNote String? @db.VarChar(512)
+
+  capturedByPartnerUserId String?              @db.Char(26)
+  capturedBySource        LogisticsEventSource @default(DRIVER_APP)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  shipment LogisticsShipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@index([deliveredAt], map: "ix_logistics_pod_delivered")
+  @@map("logistics_proof_of_delivery")
+}
+
+// ---------------------------------------------------------------------------
+// Operations
+// ---------------------------------------------------------------------------
+
+/// A request for a carrier to collect from a warehouse.
+///
+/// Separate from the shipment because one van call collects several
+/// consignments and one consignment can survive a failed collection and be
+/// collected the next day. A column on the shipment would model neither.
+model LogisticsPickupRequest {
+  id                 String  @id @db.Char(26)
+  logisticsPartnerId String  @db.Char(26)
+  /// Null for a standing collection that is not about one parcel.
+  shipmentId         String? @db.Char(26)
+  locationId         String? @db.Char(26)
+
+  state LogisticsPickupState @default(REQUESTED)
+
+  /// The window, in the WAREHOUSE's own zone, which is carried beside it.
+  ///
+  /// A wall-clock fact carries its own zone - the same rule
+  /// `RecurringSchedule.timezone` follows. "Collect between 14:00 and 16:00"
+  /// means the clock on the wall of the building the van drives to, and a
+  /// deployment whose warehouses span Madrid and the Canaries needs the two to
+  /// disagree.
+  windowStartAt DateTime  @db.DateTime(3)
+  windowEndAt   DateTime  @db.DateTime(3)
+  timezone      String?   @db.VarChar(64)
+
+  /// What the warehouse needs the driver to know: which gate, which bell,
+  /// whether there is a tail lift.
+  warehouseInstructions String? @db.VarChar(1024)
+
+  /// Has the warehouse said the goods are actually ready? A carrier arriving
+  /// at an unready dock is the single most common pickup failure, and this is
+  /// the handshake that prevents it.
+  readinessConfirmedAt DateTime? @db.DateTime(3)
+
+  driverProfileId String? @db.Char(26)
+  vehicleId       String? @db.Char(26)
+
+  scheduledAt DateTime? @db.DateTime(3)
+  completedAt DateTime? @db.DateTime(3)
+  failedAt    DateTime? @db.DateTime(3)
+  failureReason String? @db.VarChar(512)
+
+  /// How many packages the driver actually took. Less than the consignment's
+  /// count is a partial collection and raises an exception.
+  packagesCollected Int?
+
+  /// The key the completion call was made under, so a driver's phone
+  /// retrying on a flaky connection completes one pickup rather than two.
+  completionIdempotencyKey String? @db.VarChar(64)
+
+  createdByUserId String?  @db.Char(26)
+  createdAt       DateTime @default(now()) @db.DateTime(3)
+  updatedAt       DateTime @updatedAt @db.DateTime(3)
+
+  partner  LogisticsPartner        @relation(fields: [logisticsPartnerId], references: [id], onDelete: Cascade)
+  shipment LogisticsShipment?      @relation(fields: [shipmentId], references: [id], onDelete: SetNull)
+  location InventoryLocation?      @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  driver   LogisticsDriverProfile? @relation(fields: [driverProfileId], references: [id], onDelete: SetNull)
+  vehicle  LogisticsVehicle?       @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+
+  @@unique([logisticsPartnerId, completionIdempotencyKey], map: "uq_logistics_pickup_idempotency")
+  @@index([logisticsPartnerId, state, windowStartAt], map: "ix_logistics_pickup_board")
+  @@index([shipmentId], map: "ix_logistics_pickup_shipment")
+  @@index([locationId, windowStartAt], map: "ix_logistics_pickup_location")
+  @@index([driverProfileId, windowStartAt], map: "ix_logistics_pickup_driver")
+  @@map("logistics_pickup_requests")
+}
+
+/// The paperwork for one handover: a list of consignments leaving together.
+model LogisticsDispatchManifest {
+  id                 String @id @db.Char(26)
+  logisticsPartnerId String @db.Char(26)
+
+  manifestNumber String @db.VarChar(32)
+
+  state LogisticsManifestState @default(OPEN)
+
+  driverProfileId String? @db.Char(26)
+  vehicleId       String? @db.Char(26)
+
+  /// Where it leaves from and where it is bound, as free text: a hub name is
+  /// not a warehouse this deployment knows about.
+  originLabel      String? @db.VarChar(160)
+  destinationLabel String? @db.VarChar(160)
+
+  plannedDepartureAt DateTime? @db.DateTime(3)
+  closedAt           DateTime? @db.DateTime(3)
+  handedOverAt       DateTime? @db.DateTime(3)
+  /// Who signed for the whole load at the far end.
+  handoverSignedBy   String?   @db.VarChar(160)
+
+  notes String? @db.VarChar(1024)
+
+  createdByPartnerUserId String?  @db.Char(26)
+  createdAt              DateTime @default(now()) @db.DateTime(3)
+  updatedAt              DateTime @updatedAt @db.DateTime(3)
+
+  partner LogisticsPartner        @relation(fields: [logisticsPartnerId], references: [id], onDelete: Cascade)
+  driver  LogisticsDriverProfile? @relation(fields: [driverProfileId], references: [id], onDelete: SetNull)
+  vehicle LogisticsVehicle?       @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+
+  entries LogisticsDispatchManifestEntry[]
+
+  /// Per carrier, so a manifest number is the carrier's own numbering and does
+  /// not leak how much work the marketplace as a whole is moving - the same
+  /// reasoning as `SellerOrderGroup.sellerOrderNumber`.
+  @@unique([logisticsPartnerId, manifestNumber], map: "uq_logistics_manifest_number")
+  @@index([logisticsPartnerId, state, plannedDepartureAt], map: "ix_logistics_manifest_board")
+  @@map("logistics_dispatch_manifests")
+}
+
+model LogisticsDispatchManifestEntry {
+  id         String @id @db.Char(26)
+  manifestId String @db.Char(26)
+  shipmentId String @db.Char(26)
+
+  /// How many of the consignment's packages went on this load. A consignment
+  /// split across two vans is unusual and real.
+  packageCount Int @default(0)
+
+  addedAt   DateTime  @default(now()) @db.DateTime(3)
+  removedAt DateTime? @db.DateTime(3)
+
+  manifest LogisticsDispatchManifest @relation(fields: [manifestId], references: [id], onDelete: Cascade)
+  shipment LogisticsShipment         @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  /// A consignment appears on a manifest once. Re-adding a removed one is an
+  /// update of this row, not a second one.
+  @@unique([manifestId, shipmentId], map: "uq_logistics_manifest_entry")
+  @@index([shipmentId], map: "ix_logistics_manifest_entry_shipment")
+  @@map("logistics_dispatch_manifest_entries")
+}
+
+/// Somebody who drives.
+///
+/// Hangs off `LogisticsPartnerUser` rather than off `User`, so a driver is by
+/// construction a member of exactly one carrier and cannot be looked up
+/// across tenants.
+model LogisticsDriverProfile {
+  id                   String @id @db.Char(26)
+  logisticsPartnerId   String @db.Char(26)
+  partnerUserId        String @unique(map: "uq_logistics_driver_user") @db.Char(26)
+
+  state LogisticsDriverState @default(ACTIVE)
+
+  /// The carrier's own reference for this person. Free text; every fleet
+  /// numbers its drivers its own way.
+  employeeReference String? @db.VarChar(64)
+
+  licenceNumber    String?   @db.VarChar(64)
+  licenceExpiresAt DateTime? @db.Date
+
+  /// What this driver is certified to carry. Checked against the shipment's
+  /// handling requirements before an assignment is accepted, which is why
+  /// dangerous goods and cold chain are columns rather than a note.
+  canCarryDangerousGoods Boolean @default(false)
+  canCarryColdChain      Boolean @default(false)
+  canCarrySterile        Boolean @default(false)
+
+  /// Where they usually work, as region ids. Same shape and reasoning as
+  /// `LogisticsPartnerUser.regionScopeJson`.
+  regionScopeJson Json?
+
+  /// Whether this driver's device may send positions at all.
+  ///
+  /// Consent, recorded. Off by default and set only when the person has agreed
+  /// in the app, because location data about an employee is the most sensitive
+  /// thing this feature collects and "the employer switched it on" is not
+  /// consent. Withdrawing it stops collection immediately and does not delete
+  /// what was already gathered - that is the retention sweep's job.
+  locationConsentAt        DateTime? @db.DateTime(3)
+  locationConsentWithdrawnAt DateTime? @db.DateTime(3)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  partner     LogisticsPartner     @relation(fields: [logisticsPartnerId], references: [id], onDelete: Cascade)
+  partnerUser LogisticsPartnerUser @relation(fields: [partnerUserId], references: [id], onDelete: Cascade)
+
+  assignments LogisticsDriverAssignment[]
+  pickups     LogisticsPickupRequest[]
+  manifests   LogisticsDispatchManifest[]
+  trips       LogisticsActiveTrip[]
+  pings       LogisticsLocationPing[]
+
+  @@index([logisticsPartnerId, state], map: "ix_logistics_driver_state")
+  @@map("logistics_driver_profiles")
+}
+
+model LogisticsVehicle {
+  id                 String @id @db.Char(26)
+  logisticsPartnerId String @db.Char(26)
+
+  registration String               @db.VarChar(32)
+  kind         LogisticsVehicleKind @default(VAN)
+
+  /// What it can take. Checked the same way a driver's certifications are.
+  hasRefrigeration  Boolean @default(false)
+  hasTailLift       Boolean @default(false)
+  temperatureMinC   Decimal? @db.Decimal(5, 2)
+  temperatureMaxC   Decimal? @db.Decimal(5, 2)
+  maxWeightGrams    Int?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  partner LogisticsPartner @relation(fields: [logisticsPartnerId], references: [id], onDelete: Cascade)
+
+  assignments LogisticsDriverAssignment[]
+  pickups     LogisticsPickupRequest[]
+  manifests   LogisticsDispatchManifest[]
+  trips       LogisticsActiveTrip[]
+
+  @@unique([logisticsPartnerId, registration], map: "uq_logistics_vehicle_registration")
+  @@index([logisticsPartnerId, isActive], map: "ix_logistics_vehicle_active")
+  @@map("logistics_vehicles")
+}
+
+/// This driver, on this consignment.
+///
+/// The row that makes `/logistics/driver/tasks` answer with one person's stops
+/// and nobody else's. A driver holds no permission that can list shipments, so
+/// this join is the ONLY path from a driver session to a consignment.
+model LogisticsDriverAssignment {
+  id              String @id @db.Char(26)
+  shipmentId      String @db.Char(26)
+  driverProfileId String @db.Char(26)
+  vehicleId       String? @db.Char(26)
+
+  /// What this driver is doing with it. A consignment can have two driver
+  /// assignments - one to collect and one to deliver - and the task list has
+  /// to be able to show the right stop to the right person.
+  isPickupLeg   Boolean @default(false)
+  isDeliveryLeg Boolean @default(true)
+
+  /// Where this stop sits on the day's run. Null until a round is sequenced.
+  routeSequence Int?
+
+  assignedAt   DateTime  @default(now()) @db.DateTime(3)
+  unassignedAt DateTime? @db.DateTime(3)
+  completedAt  DateTime? @db.DateTime(3)
+
+  assignedByPartnerUserId String? @db.Char(26)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  shipment LogisticsShipment      @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  driver   LogisticsDriverProfile @relation(fields: [driverProfileId], references: [id], onDelete: Cascade)
+  vehicle  LogisticsVehicle?      @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+
+  /// The task-list query: this driver's live stops, in route order.
+  @@index([driverProfileId, unassignedAt, routeSequence], map: "ix_logistics_driver_task")
+  @@index([shipmentId, unassignedAt], map: "ix_logistics_driver_assignment_shipment")
+  @@map("logistics_driver_assignments")
+}
+
+/// A driver on the road with the app open.
+///
+/// The gate on location collection. A device may only send positions while a
+/// trip of its own is ACTIVE, the token it sends them with is scoped to this
+/// row, and ending the trip stops collection - which is what "no background
+/// tracking outside active duty" means in a schema rather than in a policy
+/// document.
+model LogisticsActiveTrip {
+  id              String  @id @db.Char(26)
+  driverProfileId String  @db.Char(26)
+  vehicleId       String? @db.Char(26)
+  /// The consignment being worked, where the trip is about one. A multi-drop
+  /// round has none and its stops are the driver assignments.
+  shipmentId      String? @db.Char(26)
+
+  state LogisticsTripState @default(ACTIVE)
+
+  startedAt DateTime  @default(now()) @db.DateTime(3)
+  endedAt   DateTime? @db.DateTime(3)
+
+  /// SHA-256 of the device-scoped token this trip's pings must carry. Short
+  /// lived and single-purpose: it authorises location ingestion for this trip
+  /// and nothing else, so a token lifted off a phone cannot read a shipment.
+  deviceTokenHash String    @unique(map: "uq_logistics_trip_device_token") @db.Char(64)
+  deviceTokenExpiresAt DateTime @db.DateTime(3)
+
+  /// How often the device should report, in seconds. Sent to the phone rather
+  /// than decided by it, so an operator can slow every device down at once and
+  /// a battery-aware client can be told to.
+  pingIntervalSeconds Int @default(60)
+
+  /// The last accepted position, denormalised so the dispatcher's map is one
+  /// indexed read rather than a sort over a ping table that grows by a row a
+  /// minute per driver.
+  lastLatitude   Decimal?  @db.Decimal(9, 6)
+  lastLongitude  Decimal?  @db.Decimal(9, 6)
+  lastAccuracyM  Int?
+  lastPingAt     DateTime? @db.DateTime(3)
+  /// The highest sequence number accepted, so a replayed or reordered ping is
+  /// rejected by a comparison rather than by a scan.
+  lastSequence   Int       @default(0)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  driver   LogisticsDriverProfile @relation(fields: [driverProfileId], references: [id], onDelete: Cascade)
+  vehicle  LogisticsVehicle?      @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  shipment LogisticsShipment?     @relation(fields: [shipmentId], references: [id], onDelete: SetNull)
+
+  pings LogisticsLocationPing[]
+
+  @@index([driverProfileId, state], map: "ix_logistics_trip_driver")
+  @@index([state, startedAt], map: "ix_logistics_trip_sweep")
+  @@index([shipmentId], map: "ix_logistics_trip_shipment")
+  @@map("logistics_active_trips")
+}
+
+/// One position report.
+///
+/// THE HIGHEST-VOLUME TABLE IN THIS SCHEMA, by a wide margin: a ping a minute
+/// per driver on duty. It is kept apart from every audit and event table on
+/// purpose - mixing a row-per-minute feed into a table an operator queries for
+/// evidence makes both of them slow, and it is the one table a deployment at
+/// scale will want to move to partitioned or dedicated storage. Nothing else
+/// joins to it, so moving it is a change to one service.
+///
+/// IT IS ALSO THE MOST SENSITIVE PERSONAL DATA THIS FEATURE COLLECTS. It is
+/// one employee's movements, minute by minute. It is collected only while a
+/// trip is ACTIVE and the driver has consented, it is readable only by roles
+/// holding `logistics.trip.location.read`, and it is deleted by the retention
+/// sweep on the deployment's own window.
+model LogisticsLocationPing {
+  id     String @id @db.Char(26)
+  tripId String @db.Char(26)
+  /// Denormalised from the trip so the retention sweep and an Art. 15 export
+  /// can find one person's pings without a join across a table this size.
+  driverProfileId String @db.Char(26)
+  /// The account, for the same two reasons. Nullable only so an erasure can
+  /// sever the link without deleting the row's operational value.
+  driverUserId String? @db.Char(26)
+
+  latitude  Decimal @db.Decimal(9, 6)
+  longitude Decimal @db.Decimal(9, 6)
+  /// Metres. A wifi fix is a few hundred and a GPS fix single digits; shown
+  /// beside the position so a coarse fix is not read as a precise one.
+  accuracyM Int?
+  /// Degrees from north, and metres per second. Both optional - a stationary
+  /// device reports neither.
+  headingDeg Int?
+  speedMps   Decimal? @db.Decimal(6, 2)
+
+  /// When the DEVICE says it took the fix, and when we received it. Both,
+  /// because the gap is how a queued offline batch is recognised, and because
+  /// a device clock is not a fact about the world.
+  deviceTimestamp DateTime @db.DateTime(3)
+  receivedAt      DateTime @default(now()) @db.DateTime(3)
+
+  /// Monotonic per trip. What makes a duplicate or reordered ping cheap to
+  /// reject.
+  sequence Int
+
+  /// The caller's key. UNIQUE with the trip, so an offline queue flushing
+  /// twice writes each position once.
+  idempotencyKey String @db.VarChar(64)
+
+  trip   LogisticsActiveTrip    @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  driver LogisticsDriverProfile @relation(fields: [driverProfileId], references: [id], onDelete: Cascade)
+  user   User?                  @relation(fields: [driverUserId], references: [id], onDelete: SetNull)
+
+  @@unique([tripId, idempotencyKey], map: "uq_logistics_ping_idempotency")
+  @@unique([tripId, sequence], map: "uq_logistics_ping_sequence")
+  /// The map's read, and the retention sweep's delete.
+  @@index([tripId, deviceTimestamp], map: "ix_logistics_ping_trip_time")
+  @@index([driverProfileId, deviceTimestamp], map: "ix_logistics_ping_driver_time")
+  @@index([receivedAt], map: "ix_logistics_ping_retention")
+  @@map("logistics_location_pings")
+}
+
+// ---------------------------------------------------------------------------
+// Carrier integration
+// ---------------------------------------------------------------------------
+
+/// A connection to a carrier's API.
+///
+/// Credentials live in the ENVIRONMENT or in the encrypted column below, never
+/// in plaintext and never in a log. An integration with no credentials is
+/// UNCONFIGURED, and every call against it answers
+/// CARRIER_PROVIDER_UNCONFIGURED naming the variables it needs - it never
+/// returns a fabricated success, which is the whole reason this state exists.
+model CarrierIntegration {
+  id String @id @db.Char(26)
+
+  provider CarrierProvider
+  /// An operator's own name for it: "DHL Express - Benelux". Unique, because
+  /// it is what a person picks from a list.
+  name     String @unique(map: "uq_carrier_integration_name") @db.VarChar(120)
+
+  state CarrierIntegrationState @default(UNCONFIGURED)
+
+  /// Where to call. Empty for MANUAL, which calls nothing.
+  baseUrl String @default("") @db.VarChar(512)
+
+  /// AES-256-GCM envelopes, bound to this row's id as additional authenticated
+  /// data - so a credential copied into another integration fails to decrypt
+  /// rather than working somewhere it was never meant to.
+  ///
+  /// Never returned by any endpoint. The admin screen shows
+  /// `maskSecret(...)` and nothing more.
+  credentialsEnc String? @db.Text
+  /// The secret an inbound webhook's signature is verified against, same
+  /// treatment.
+  webhookSecretEnc String? @db.Text
+
+  /// How the carrier signs a webhook, and in which headers. Configuration
+  /// rather than code, because carriers disagree about this more than about
+  /// anything else and an operator must be able to correct it without a
+  /// release.
+  webhookSignatureHeader String @default("x-signature") @db.VarChar(64)
+  webhookTimestampHeader String @default("x-timestamp") @db.VarChar(64)
+  webhookAlgorithm       String @default("sha256") @db.VarChar(24)
+  /// How far a webhook's own timestamp may be from ours before it is refused
+  /// as a replay. Five minutes, the same window the payment webhooks use.
+  webhookToleranceSeconds Int @default(300)
+
+  /// The unguessable path segment this integration's webhook is mounted at, so
+  /// the endpoint is not merely signed but also not enumerable.
+  webhookPathToken String @unique(map: "uq_carrier_integration_webhook_path") @db.Char(32)
+
+  /// Polling, for carriers with no webhooks - which is most of them.
+  pollingEnabled         Boolean   @default(false)
+  pollingIntervalMinutes Int       @default(30)
+  nextPollAt             DateTime? @db.DateTime(3)
+  lastPollAt             DateTime? @db.DateTime(3)
+
+  /// Rate limiting the CARRIER imposes on us, respected by the poller.
+  rateLimitPerMinute Int @default(60)
+
+  /// Health. `consecutiveFailures` is what takes a connection out of service
+  /// at the threshold, so a carrier that has been down for a fortnight is not
+  /// called every half hour for a fortnight.
+  consecutiveFailures Int       @default(0)
+  lastSuccessAt       DateTime? @db.DateTime(3)
+  lastFailureAt       DateTime? @db.DateTime(3)
+  lastFailureMessage  String?   @db.VarChar(512)
+
+  isActive Boolean @default(true)
+
+  createdById String?  @db.Char(26)
+  createdAt   DateTime @default(now()) @db.DateTime(3)
+  updatedAt   DateTime @updatedAt @db.DateTime(3)
+
+  partners       LogisticsPartner[]
+  shipments      LogisticsShipment[]
+  statusMappings CarrierStatusMapping[]
+  webhookEvents  CarrierWebhookEvent[]
+
+  @@index([provider, state], map: "ix_carrier_integration_provider")
+  @@index([pollingEnabled, nextPollAt], map: "ix_carrier_integration_poll")
+  @@map("carrier_integrations")
+}
+
+/// An operator's override of what one carrier code means.
+///
+/// The built-in table in `domain/carrier-status-map.ts` is what a deployment
+/// gets for free and is versioned with the software. These rows win over it,
+/// because a carrier can change a code on a Tuesday and an operator has to be
+/// able to fix it that afternoon without waiting for a release.
+///
+/// `canonicalStatus` NULL means "deliberately ignore this code", which is a
+/// real answer and a common one: a label-created scan must not start the
+/// transit clock.
+model CarrierStatusMapping {
+  id                   String @id @db.Char(26)
+  carrierIntegrationId String @db.Char(26)
+
+  /// The carrier's own code, lower-cased on the way in so a feed that changes
+  /// case does not silently stop matching.
+  providerCode String @db.VarChar(64)
+
+  canonicalStatus LogisticsShipmentStatus?
+
+  /// Whether this code should raise an exception as well as move the status -
+  /// a customs hold and a temperature excursion both should.
+  raisesExceptionType LogisticsExceptionType?
+
+  /// What the customer is told when this code arrives. Null falls back to the
+  /// canonical status's own wording, which every locale already translates.
+  publicDescription String? @db.VarChar(255)
+
+  note String? @db.VarChar(255)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  integration CarrierIntegration @relation(fields: [carrierIntegrationId], references: [id], onDelete: Cascade)
+
+  @@unique([carrierIntegrationId, providerCode], map: "uq_carrier_status_mapping")
+  @@map("carrier_status_mappings")
+}
+
+/// One inbound webhook, as it arrived.
+///
+/// Stored BEFORE it is understood and kept whether or not it could be. Two
+/// reasons, and the second is the important one:
+///
+///   1. `providerEventId` is UNIQUE per integration, so a carrier that
+///      redelivers an event - which every carrier does - processes it once.
+///      The constraint is the deduplication; there is no check-then-insert to
+///      lose a race in.
+///   2. An event this software could not map is EVIDENCE. The payload is kept
+///      verbatim, an `UNMAPPED_EXTERNAL_EVENT` exception is raised, and a
+///      person decides. Discarding it - or guessing at it - on a consignment
+///      of medical goods is not an acceptable failure mode.
+model CarrierWebhookEvent {
+  id                   String @id @db.Char(26)
+  carrierIntegrationId String @db.Char(26)
+
+  /// The carrier's own id for this event. NOT NULL and carrying this row's own
+  /// ULID where the carrier sent none, for the usual MariaDB reason: a NULL in
+  /// a UNIQUE index is distinct from every other NULL, so a nullable column
+  /// would deduplicate nothing.
+  providerEventId String @db.VarChar(160)
+
+  state CarrierWebhookState @default(RECEIVED)
+
+  /// What it was about, where we could tell. Null on a payload we could not
+  /// parse, which is itself worth keeping.
+  trackingNumber String? @db.VarChar(128)
+  shipmentId     String? @db.Char(26)
+
+  providerStatusCode String? @db.VarChar(64)
+  /// What the code resolved to, or null where nothing did.
+  resolvedStatus     LogisticsShipmentStatus?
+
+  /// The bytes, as received. Never edited.
+  payloadJson Json
+
+  /// Whether the signature verified. Stored rather than inferred from the
+  /// state, because "we accepted an unsigned event" is a question somebody
+  /// will ask after an incident.
+  signatureVerified Boolean @default(false)
+
+  attempts       Int       @default(0)
+  nextRetryAt    DateTime? @db.DateTime(3)
+  lastError      String?   @db.VarChar(512)
+  processedAt    DateTime? @db.DateTime(3)
+  deadLetteredAt DateTime? @db.DateTime(3)
+
+  receivedAt DateTime @default(now()) @db.DateTime(3)
+
+  integration CarrierIntegration @relation(fields: [carrierIntegrationId], references: [id], onDelete: Cascade)
+
+  @@unique([carrierIntegrationId, providerEventId], map: "uq_carrier_webhook_event")
+  @@index([state, nextRetryAt], map: "ix_carrier_webhook_retry")
+  @@index([carrierIntegrationId, receivedAt], map: "ix_carrier_webhook_recent")
+  @@index([trackingNumber], map: "ix_carrier_webhook_tracking")
+  @@map("carrier_webhook_events")
+}
+
+// ---------------------------------------------------------------------------
+// Records
+// ---------------------------------------------------------------------------
+
+/// Something the portal should tell somebody about.
+///
+/// The partner's own feed, and the row an email is sent from. Deduplicated on
+/// `(shipmentId, kind, dedupeKey)` so a carrier redelivering the same tracking
+/// event twice does not produce two emails - which is the whole of requirement
+/// 16 in the brief, expressed as a constraint rather than as a code path.
+model LogisticsNotification {
+  id                 String  @id @db.Char(26)
+  logisticsPartnerId String  @db.Char(26)
+  /// Null for something the whole organisation should see.
+  partnerUserId      String? @db.Char(26)
+  shipmentId         String? @db.Char(26)
+
+  kind LogisticsNotificationKind
+
+  title String  @db.VarChar(200)
+  body  String? @db.VarChar(1000)
+
+  /// Variables for the translated template, so the same row renders in any of
+  /// the interface languages rather than freezing one.
+  variablesJson Json?
+
+  /// What makes two of these the same notification. The event id, the
+  /// assignment id, the exception id - whatever the caller considers the
+  /// identity of the thing being announced.
+  dedupeKey String @db.VarChar(120)
+
+  readAt      DateTime? @db.DateTime(3)
+  emailedAt   DateTime? @db.DateTime(3)
+  createdAt   DateTime  @default(now()) @db.DateTime(3)
+
+  partner     LogisticsPartner      @relation(fields: [logisticsPartnerId], references: [id], onDelete: Cascade)
+  partnerUser LogisticsPartnerUser? @relation(fields: [partnerUserId], references: [id], onDelete: Cascade)
+  shipment    LogisticsShipment?    @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@unique([logisticsPartnerId, kind, dedupeKey], map: "uq_logistics_notification_dedupe")
+  @@index([logisticsPartnerId, readAt, createdAt], map: "ix_logistics_notification_feed")
+  @@index([partnerUserId, readAt], map: "ix_logistics_notification_user")
+  @@map("logistics_notifications")
+}
+
+/// What was done inside one logistics organisation.
+///
+/// Its own table rather than rows in `AuditLog`, for exactly the reason
+/// `SellerAuditLog` is its own table: the operator's audit trail describes the
+/// whole marketplace and a tenant must not be able to read it. This one is
+/// scoped to a carrier and is readable by that carrier's OWNER and ADMIN.
+///
+/// The rows an OPERATOR writes about a carrier - suspending it, correcting a
+/// status, rotating a credential - go in `AuditLog` as well, so the operator's
+/// own trail is complete without the carrier reading it.
+model LogisticsAuditLog {
+  id                 String @id @db.Char(26)
+  logisticsPartnerId String @db.Char(26)
+
+  /// Who. Null for the system. `actorUserId` rather than a partner-user id, so
+  /// an action a member of the marketplace's staff took inside a carrier's
+  /// account still names a person.
+  actorUserId String? @db.Char(26)
+  actorLabel  String  @db.VarChar(160)
+
+  action       String  @db.VarChar(64)
+  resourceType String  @db.VarChar(48)
+  resourceId   String? @db.Char(26)
+
+  beforeJson Json?
+  afterJson  Json?
+
+  /// A sentence, written deliberately rather than derived from the JSON.
+  /// A diff is not a sentence, and this is the column a person reads.
+  summary String? @db.VarChar(512)
+
+  /// Whether this row records somebody unmasking a contact detail.
+  ///
+  /// Its own column rather than a value of `action`, because it is the one
+  /// thing a data-protection review looks for and a review should not have to
+  /// know which action strings mean "a person read a telephone number".
+  isContactReveal Boolean @default(false)
+
+  ipAddress     String? @db.VarChar(45)
+  correlationId String? @db.Char(26)
+
+  createdAt DateTime @default(now()) @db.DateTime(3)
+
+  partner LogisticsPartner @relation(fields: [logisticsPartnerId], references: [id], onDelete: Cascade)
+  actor   User?            @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([logisticsPartnerId, createdAt], map: "ix_logistics_audit_time")
+  @@index([logisticsPartnerId, action], map: "ix_logistics_audit_action")
+  @@index([logisticsPartnerId, isContactReveal, createdAt], map: "ix_logistics_audit_reveal")
+  @@index([resourceType, resourceId], map: "ix_logistics_audit_resource")
+  @@map("logistics_audit_logs")
 }

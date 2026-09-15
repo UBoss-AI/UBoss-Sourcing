@@ -91,6 +91,29 @@ export const Permission = {
   // --- Integrations, reports, audit ---
   INTEGRATION_READ: 'integration.read',
   INTEGRATION_WRITE: 'integration.write',
+
+  // --- Logistics ---
+  //
+  // The marketplace's own authority over third-party carriers. This is the
+  // role the brief calls UBOSS_LOGISTICS_ADMIN, and it lives HERE rather than
+  // in `logistics-permissions.ts` on purpose: that catalogue grants authority
+  // over ONE carrier's rows, this one grants authority over every carrier.
+  // A route that accepted either would eventually be reached by both.
+  /// Read partners, their shipments, their exceptions and their integrations.
+  LOGISTICS_READ: 'logistics.read',
+  /// Create a partner, approve its capabilities, set its regions and SLA,
+  /// invite its first owner, suspend it. Everything that decides who may carry
+  /// this marketplace's goods.
+  LOGISTICS_WRITE: 'logistics.write',
+  /// Put a consignment on a carrier, take it off one, and correct a status
+  /// that is wrong. Separate from LOGISTICS_WRITE because it is the operations
+  /// desk's daily work rather than a contract decision, and because a status
+  /// correction rewrites what a customer was told.
+  LOGISTICS_ASSIGN: 'logistics.assign',
+  /// Configure a carrier API connection and rotate its credentials. Its own
+  /// key, and the narrowest one here: it is the only permission in this block
+  /// that touches a secret.
+  LOGISTICS_INTEGRATION_WRITE: 'logistics.integration.write',
   REPORT_READ: 'report.read',
   EXPORT_CREATE: 'export.create',
   AUDIT_READ: 'audit.read',
@@ -200,6 +223,9 @@ export const ROLE_DEFINITIONS: readonly RoleDefinition[] = Object.freeze([
       // exists, and who is standing in it when they find out.
       Permission.INVENTORY_LOCATION_WRITE,
       Permission.ORDER_READ,
+      // Reads the consignments leaving their warehouse - a pickup window is a
+      // fact about their loading bay. Changes none of it.
+      Permission.LOGISTICS_READ,
       Permission.REPORT_READ,
       Permission.EXPORT_CREATE,
     ]),
@@ -223,6 +249,12 @@ export const ROLE_DEFINITIONS: readonly RoleDefinition[] = Object.freeze([
       Permission.ORDER_CANCEL,
       Permission.ORDER_RETURN,
       Permission.ORDER_NOTE_WRITE,
+      // Getting a parcel to a customer is this role's job, so it reads the
+      // carriers and puts consignments on them. It deliberately gets neither
+      // LOGISTICS_WRITE - contracting with a haulier is not an order clerk's
+      // decision - nor LOGISTICS_INTEGRATION_WRITE, which holds a credential.
+      Permission.LOGISTICS_READ,
+      Permission.LOGISTICS_ASSIGN,
       Permission.PAYMENT_READ,
       // Reads an invoice to answer a customer asking for a copy; does not
       // raise one, the same split the SOP draws between fulfilling an order

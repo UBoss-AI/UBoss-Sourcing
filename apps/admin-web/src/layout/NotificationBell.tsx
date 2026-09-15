@@ -30,7 +30,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BellIcon } from '@/components/icons';
 import { api } from '@/lib/api';
 import { cx } from '@/lib/cx';
-import { formatRelative } from '@/lib/format';
+import { formatRelative, humanise } from '@/lib/format';
 import type { ConsoleNotification, ConsoleNotificationFeed } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
 
@@ -59,6 +59,17 @@ const ADMIN_SIGNED_IN = 'admin.signed_in';
  * customer, where the Approve button is.
  */
 const CUSTOMER_REGISTERED = 'customer.registered';
+
+/**
+ * A consignment has gone wrong somewhere.
+ *
+ * Carries `logistics.read` on the backend, because the row names a customer's
+ * company and what happened to their delivery. The link goes to the
+ * consignment, which is where the timeline and the carrier are - there is no
+ * useful action on the bell itself, and a row that only says "something
+ * happened" is a row people learn to dismiss.
+ */
+const LOGISTICS_EXCEPTION_RAISED = 'logistics.exception.raised';
 
 /** One page of the feed. Deliberately short: this is a bell, not the audit log. */
 const FEED_LIMIT = 20;
@@ -166,6 +177,32 @@ function describe(
               latitude: textVariable(variables, 'latitude', '—'),
               longitude: textVariable(variables, 'longitude', '—'),
             }),
+    };
+  }
+
+  if (notification.kind === LOGISTICS_EXCEPTION_RAISED) {
+    const severity = textVariable(variables, 'severity', 'MEDIUM');
+
+    return {
+      /*
+       * The severity is in the sentence rather than only in a colour, because
+       * this row is read in a dropdown that has no room for a badge and by
+       * people who cannot see one. CRITICAL gets its own wording - a cold
+       * chain break is not "an exception", it is a consignment somebody has
+       * to deal with now.
+       */
+      title:
+        severity === 'CRITICAL'
+          ? t('notifications.logisticsException.critical', {
+              shipmentReference: textVariable(variables, 'shipmentReference', '—'),
+            })
+          : t('notifications.logisticsException.title', {
+              shipmentReference: textVariable(variables, 'shipmentReference', '—'),
+            }),
+      detail: t('notifications.logisticsException.detail', {
+        exceptionType: humanise(textVariable(variables, 'exceptionType', '—')),
+        receivingCompany: textVariable(variables, 'receivingCompany', '—'),
+      }),
     };
   }
 

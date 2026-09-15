@@ -20,7 +20,20 @@ import { prisma } from '../../infra/prisma.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { issueSession, revokeAllUserSessions, type IssuedSession } from './session.service.js';
 
-export type UserKind = 'ADMIN' | 'CUSTOMER';
+/**
+ * Which surface a credential belongs to.
+ *
+ * Three, not two. ADMIN is the operator's console, CUSTOMER the storefront
+ * (which a seller also signs into, because a seller IS a customer), and
+ * LOGISTICS the carrier portal - a different company's staff, who must never
+ * reach a cart, a price or a payment method.
+ *
+ * Every check in this file and in `plugins/auth.ts` compares the caller's
+ * surface against the route's, twice: once against the token's own audience
+ * claim and once against the `users.type` row. A token minted for one surface
+ * therefore cannot reach another even if the signing key were shared.
+ */
+export type UserKind = 'ADMIN' | 'CUSTOMER' | 'LOGISTICS';
 
 export interface LoginInput {
   email: string;

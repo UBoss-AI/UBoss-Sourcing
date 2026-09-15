@@ -110,4 +110,5 @@ true is worse than no guide, because people trust it and act on it.
 cd backend && npm run verify              # typecheck + lint + tests
 cd apps/customer-web && npm run verify
 cd apps/admin-web && npm run verify
+cd apps/logistics-web && npm run verify   # only if the logistics portal changed
 ```

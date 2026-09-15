@@ -676,6 +676,89 @@ export const ErrorCode = {
   SELLER_DOCUMENT_REJECTED: 'SELLER_DOCUMENT_REJECTED',
   /// A required agreement has not been accepted at its current version.
   SELLER_AGREEMENT_REQUIRED: 'SELLER_AGREEMENT_REQUIRED',
+
+  // --- Logistics partner portal -------------------------------------------
+  //
+  // A third tenant with a third vocabulary. None of the seller codes above is
+  // reused, for the same reason the permission catalogues are separate: a
+  // route that accepted either would eventually be reached by both.
+
+  /// The signed-in account is not a member of any logistics organisation. The
+  /// portal turns this into "this account has no carrier attached to it",
+  /// which is a support conversation rather than a screen with a button.
+  LOGISTICS_PARTNER_REQUIRED: 'LOGISTICS_PARTNER_REQUIRED',
+  /// The organisation exists but the marketplace has suspended or deactivated
+  /// it. Distinct from the code above because the remedy is different: there
+  /// is an account, and somebody has to reinstate it.
+  LOGISTICS_PARTNER_NOT_ACTIVE: 'LOGISTICS_PARTNER_NOT_ACTIVE',
+  /// The member's own access was disabled while the organisation stayed
+  /// active. Their colleagues can still sign in; they cannot.
+  LOGISTICS_MEMBER_DISABLED: 'LOGISTICS_MEMBER_DISABLED',
+  /// Signed in, but this session has not passed its TOTP challenge and the
+  /// caller's role requires one. The portal turns it into the challenge
+  /// screen. Deliberately NOT `MFA_REQUIRED`, which the other two surfaces
+  /// use to mean "supply a code with your password" at the login step.
+  LOGISTICS_MFA_SETUP_REQUIRED: 'LOGISTICS_MFA_SETUP_REQUIRED',
+  LOGISTICS_MFA_CHALLENGE_REQUIRED: 'LOGISTICS_MFA_CHALLENGE_REQUIRED',
+
+  /// The shipment cannot move the way it was asked to. Carries `from` and
+  /// `to` in the detail meta so the portal can say which move was refused.
+  SHIPMENT_TRANSITION_NOT_ALLOWED: 'SHIPMENT_TRANSITION_NOT_ALLOWED',
+  /// Delivered was asked for and the deployment's Proof of Delivery policy is
+  /// not satisfied. Its own code because the remedy is a form, not a retry.
+  SHIPMENT_POD_REQUIRED: 'SHIPMENT_POD_REQUIRED',
+  /// An operator status correction was refused - wrong actor, no reason, or
+  /// nothing to correct.
+  SHIPMENT_CORRECTION_NOT_ALLOWED: 'SHIPMENT_CORRECTION_NOT_ALLOWED',
+  /// The shipment is not assigned to the caller's organisation, or the
+  /// assignment has been withdrawn. Returned only where the caller already
+  /// knows the shipment exists - a bare lookup answers NOT_FOUND, on the same
+  /// reasoning as `assertOwnership`.
+  SHIPMENT_NOT_ASSIGNED: 'SHIPMENT_NOT_ASSIGNED',
+  /// The assignment has already been accepted or rejected. A second answer to
+  /// a question that was already answered.
+  SHIPMENT_ASSIGNMENT_SETTLED: 'SHIPMENT_ASSIGNMENT_SETTLED',
+  /// A delivery OTP did not match, or has expired.
+  SHIPMENT_OTP_INVALID: 'SHIPMENT_OTP_INVALID',
+
+  /// A pickup cannot be scheduled or completed in its current state.
+  LOGISTICS_PICKUP_NOT_ACTIONABLE: 'LOGISTICS_PICKUP_NOT_ACTIONABLE',
+  /// A manifest cannot take this shipment - wrong partner, wrong status, or
+  /// the manifest is already closed.
+  LOGISTICS_MANIFEST_NOT_ACTIONABLE: 'LOGISTICS_MANIFEST_NOT_ACTIONABLE',
+  /// The driver is not this organisation's, is not active, or lacks the
+  /// approval the shipment's handling requirements demand.
+  LOGISTICS_DRIVER_NOT_ELIGIBLE: 'LOGISTICS_DRIVER_NOT_ELIGIBLE',
+
+  /// A location ping was refused. One code with a detail rather than five
+  /// codes, because the caller is a phone in a van and its only sensible
+  /// response to any of them is to drop the ping and carry on: impossible
+  /// coordinates, a timestamp too far in the past or future, a speed no
+  /// vehicle achieves, a sequence number already seen, or no active trip.
+  LOGISTICS_LOCATION_PING_REJECTED: 'LOGISTICS_LOCATION_PING_REJECTED',
+  /// The caller asked for a driver's position and holds no authority to read
+  /// one, or the trip is not running. Separate from PERMISSION_DENIED because
+  /// the portal must not offer a retry: there is nothing to retry.
+  LOGISTICS_LOCATION_NOT_AVAILABLE: 'LOGISTICS_LOCATION_NOT_AVAILABLE',
+
+  /**
+   * The carrier this operation needs has no credentials configured.
+   *
+   * The most important code in this block, and the counterpart of
+   * `SELLER_PAYOUT_PROVIDER_UNCONFIGURED`. It exists so that "we cannot reach
+   * DHL from this installation" can never be rendered as "booked with DHL":
+   * the screen shows a configuration-required state naming the environment
+   * variables, and no shipment, label or pickup is recorded as created.
+   */
+  CARRIER_PROVIDER_UNCONFIGURED: 'CARRIER_PROVIDER_UNCONFIGURED',
+  /// The carrier answered, and answered with a refusal. The message carries
+  /// their own words where they are safe to repeat.
+  CARRIER_REQUEST_FAILED: 'CARRIER_REQUEST_FAILED',
+  /// A webhook's signature did not verify, its timestamp was outside the
+  /// accepted window, or its event id had already been processed. One code:
+  /// the sender is a machine, the response is a 4xx it will log, and telling
+  /// it which of the three would help an attacker tune the next attempt.
+  CARRIER_WEBHOOK_REJECTED: 'CARRIER_WEBHOOK_REJECTED',
 } as const;
 
 export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];

@@ -19,6 +19,7 @@ import { hashPassword } from '../infra/crypto.js';
 import { newId } from '../infra/ids.js';
 import { seedReferenceData } from './reference-data.js';
 import { seedSellerHub } from './seller-hub.js';
+import { LOGISTICS_SEED_ACCOUNTS, seedLogistics } from './logistics.js';
 import { prisma } from '../infra/prisma.js';
 
 /**
@@ -1196,6 +1197,21 @@ async function main(): Promise<void> {
     );
   }
 
+  /*
+   * Carriage last, and only where it is switched on. It seeds accounts with
+   * known passwords, so it refuses outside development on its own - see the
+   * note at the top of that file.
+   */
+  const logistics = await seedLogistics();
+  if (logistics.skipped) {
+    console.log(`\n  Logistics portal: not seeded (${logistics.reason ?? 'unknown reason'})`);
+  } else {
+    console.log(
+      `\n  Logistics portal: carrier ${logistics.partnerCode ?? '?'} with ` +
+        `${String(logistics.shipments ?? 0)} consignment(s)`,
+    );
+  }
+
   console.log('\nSeed complete. Development sign-in credentials:\n');
   console.log('  Admin Panel  POST /api/v1/admin/auth/login');
   for (const account of SEED_ACCOUNTS) {
@@ -1207,6 +1223,13 @@ async function main(): Promise<void> {
       `    ${customer.email.padEnd(24)} ${(customer.password ?? '(invitation pending)').padEnd(18)}`,
     );
   }
+  if (!logistics.skipped) {
+    console.log('\n  Logistics Portal  POST /api/v1/logistics/auth/login');
+    for (const account of LOGISTICS_SEED_ACCOUNTS) {
+      console.log(`    ${account.email.padEnd(30)} ${account.password.padEnd(18)} (${account.note})`);
+    }
+  }
+
   console.log('\nThese are development credentials. Never use them anywhere real.\n');
 }
 

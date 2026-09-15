@@ -11,7 +11,8 @@
 
 export const UserType = {
   ADMIN: 'ADMIN',
-  CUSTOMER: 'CUSTOMER'
+  CUSTOMER: 'CUSTOMER',
+  LOGISTICS: 'LOGISTICS'
 } as const
 
 export type UserType = (typeof UserType)[keyof typeof UserType]
@@ -158,7 +159,8 @@ export const ActorType = {
   SYSTEM: 'SYSTEM',
   ADMIN: 'ADMIN',
   CUSTOMER: 'CUSTOMER',
-  PROVIDER: 'PROVIDER'
+  PROVIDER: 'PROVIDER',
+  LOGISTICS: 'LOGISTICS'
 } as const
 
 export type ActorType = (typeof ActorType)[keyof typeof ActorType]
@@ -1183,3 +1185,357 @@ export const SellerNotificationKind = {
 } as const
 
 export type SellerNotificationKind = (typeof SellerNotificationKind)[keyof typeof SellerNotificationKind]
+
+
+export const LogisticsPartnerStatus = {
+  PENDING_ACTIVATION: 'PENDING_ACTIVATION',
+  ACTIVE: 'ACTIVE',
+  SUSPENDED: 'SUSPENDED',
+  DEACTIVATED: 'DEACTIVATED'
+} as const
+
+export type LogisticsPartnerStatus = (typeof LogisticsPartnerStatus)[keyof typeof LogisticsPartnerStatus]
+
+
+export const LogisticsContractStatus = {
+  DRAFT: 'DRAFT',
+  ACTIVE: 'ACTIVE',
+  EXPIRED: 'EXPIRED',
+  TERMINATED: 'TERMINATED'
+} as const
+
+export type LogisticsContractStatus = (typeof LogisticsContractStatus)[keyof typeof LogisticsContractStatus]
+
+
+export const LogisticsPartnerRole = {
+  LOGISTICS_PARTNER_OWNER: 'LOGISTICS_PARTNER_OWNER',
+  LOGISTICS_PARTNER_ADMIN: 'LOGISTICS_PARTNER_ADMIN',
+  DISPATCHER: 'DISPATCHER',
+  DRIVER: 'DRIVER',
+  OPERATIONS_AGENT: 'OPERATIONS_AGENT',
+  READ_ONLY_TRACKING_USER: 'READ_ONLY_TRACKING_USER'
+} as const
+
+export type LogisticsPartnerRole = (typeof LogisticsPartnerRole)[keyof typeof LogisticsPartnerRole]
+
+
+export const LogisticsMemberStatus = {
+  INVITED: 'INVITED',
+  ACTIVE: 'ACTIVE',
+  DISABLED: 'DISABLED'
+} as const
+
+export type LogisticsMemberStatus = (typeof LogisticsMemberStatus)[keyof typeof LogisticsMemberStatus]
+
+
+export const LogisticsRegionScope = {
+  COUNTRY: 'COUNTRY',
+  STATE: 'STATE',
+  CITY: 'CITY',
+  POSTCODE_PREFIX: 'POSTCODE_PREFIX'
+} as const
+
+export type LogisticsRegionScope = (typeof LogisticsRegionScope)[keyof typeof LogisticsRegionScope]
+
+
+export const LogisticsCapabilityKind = {
+  TEMPERATURE_CONTROLLED: 'TEMPERATURE_CONTROLLED',
+  COLD_CHAIN_2_8: 'COLD_CHAIN_2_8',
+  FROZEN: 'FROZEN',
+  STERILE_HANDLING: 'STERILE_HANDLING',
+  DANGEROUS_GOODS: 'DANGEROUS_GOODS',
+  FRAGILE_HANDLING: 'FRAGILE_HANDLING',
+  OVERSIZED: 'OVERSIZED',
+  PALLET: 'PALLET',
+  TAIL_LIFT: 'TAIL_LIFT',
+  WHITE_GLOVE: 'WHITE_GLOVE',
+  SAME_DAY: 'SAME_DAY',
+  NEXT_DAY: 'NEXT_DAY',
+  INTERNATIONAL: 'INTERNATIONAL',
+  CUSTOMS_BROKERAGE: 'CUSTOMS_BROKERAGE',
+  PROOF_OF_DELIVERY_PHOTO: 'PROOF_OF_DELIVERY_PHOTO',
+  PROOF_OF_DELIVERY_OTP: 'PROOF_OF_DELIVERY_OTP'
+} as const
+
+export type LogisticsCapabilityKind = (typeof LogisticsCapabilityKind)[keyof typeof LogisticsCapabilityKind]
+
+
+export const LogisticsCapabilityState = {
+  REQUESTED: 'REQUESTED',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  SUSPENDED: 'SUSPENDED'
+} as const
+
+export type LogisticsCapabilityState = (typeof LogisticsCapabilityState)[keyof typeof LogisticsCapabilityState]
+
+
+export const LogisticsShipmentStatus = {
+  CREATED: 'CREATED',
+  AWAITING_ASSIGNMENT: 'AWAITING_ASSIGNMENT',
+  ASSIGNED: 'ASSIGNED',
+  ACCEPTANCE_PENDING: 'ACCEPTANCE_PENDING',
+  ACCEPTED: 'ACCEPTED',
+  PICKUP_SCHEDULED: 'PICKUP_SCHEDULED',
+  READY_FOR_PICKUP: 'READY_FOR_PICKUP',
+  PICKED_UP: 'PICKED_UP',
+  DISPATCHED: 'DISPATCHED',
+  AT_ORIGIN_HUB: 'AT_ORIGIN_HUB',
+  IN_TRANSIT: 'IN_TRANSIT',
+  AT_DESTINATION_HUB: 'AT_DESTINATION_HUB',
+  OUT_FOR_DELIVERY: 'OUT_FOR_DELIVERY',
+  DELIVERY_ATTEMPTED: 'DELIVERY_ATTEMPTED',
+  DELIVERED: 'DELIVERED',
+  DELAYED: 'DELAYED',
+  ON_HOLD: 'ON_HOLD',
+  ADDRESS_ISSUE: 'ADDRESS_ISSUE',
+  CUSTOMS_HOLD: 'CUSTOMS_HOLD',
+  DAMAGED: 'DAMAGED',
+  TEMPERATURE_EXCEPTION: 'TEMPERATURE_EXCEPTION',
+  DELIVERY_FAILED: 'DELIVERY_FAILED',
+  RETURN_REQUESTED: 'RETURN_REQUESTED',
+  RETURN_IN_TRANSIT: 'RETURN_IN_TRANSIT',
+  RETURNED: 'RETURNED',
+  LOST: 'LOST',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type LogisticsShipmentStatus = (typeof LogisticsShipmentStatus)[keyof typeof LogisticsShipmentStatus]
+
+
+export const LogisticsServiceType = {
+  STANDARD: 'STANDARD',
+  EXPRESS: 'EXPRESS',
+  SAME_DAY: 'SAME_DAY',
+  ECONOMY: 'ECONOMY',
+  FREIGHT: 'FREIGHT',
+  WHITE_GLOVE: 'WHITE_GLOVE'
+} as const
+
+export type LogisticsServiceType = (typeof LogisticsServiceType)[keyof typeof LogisticsServiceType]
+
+
+export const LogisticsSlaState = {
+  NOT_APPLICABLE: 'NOT_APPLICABLE',
+  ON_TRACK: 'ON_TRACK',
+  AT_RISK: 'AT_RISK',
+  BREACHED: 'BREACHED'
+} as const
+
+export type LogisticsSlaState = (typeof LogisticsSlaState)[keyof typeof LogisticsSlaState]
+
+
+export const LogisticsAssignmentState = {
+  OFFERED: 'OFFERED',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED',
+  WITHDRAWN: 'WITHDRAWN',
+  EXPIRED: 'EXPIRED',
+  COMPLETED: 'COMPLETED'
+} as const
+
+export type LogisticsAssignmentState = (typeof LogisticsAssignmentState)[keyof typeof LogisticsAssignmentState]
+
+
+export const LogisticsEventSource = {
+  LOGISTICS_PORTAL: 'LOGISTICS_PORTAL',
+  DRIVER_APP: 'DRIVER_APP',
+  UBOSS_ADMIN: 'UBOSS_ADMIN',
+  CARRIER_API: 'CARRIER_API',
+  INBOUND_WEBHOOK: 'INBOUND_WEBHOOK',
+  SYSTEM_AUTOMATION: 'SYSTEM_AUTOMATION'
+} as const
+
+export type LogisticsEventSource = (typeof LogisticsEventSource)[keyof typeof LogisticsEventSource]
+
+
+export const LogisticsExceptionType = {
+  PICKUP_MISSED: 'PICKUP_MISSED',
+  PACKAGE_NOT_READY: 'PACKAGE_NOT_READY',
+  ADDRESS_INCORRECT: 'ADDRESS_INCORRECT',
+  RECIPIENT_UNAVAILABLE: 'RECIPIENT_UNAVAILABLE',
+  CUSTOMS_DELAY: 'CUSTOMS_DELAY',
+  WEATHER_DELAY: 'WEATHER_DELAY',
+  VEHICLE_BREAKDOWN: 'VEHICLE_BREAKDOWN',
+  PRODUCT_DAMAGED: 'PRODUCT_DAMAGED',
+  PACKAGE_LOST: 'PACKAGE_LOST',
+  TEMPERATURE_EXCURSION: 'TEMPERATURE_EXCURSION',
+  DELIVERY_ATTEMPT_FAILED: 'DELIVERY_ATTEMPT_FAILED',
+  DOCUMENTATION_MISSING: 'DOCUMENTATION_MISSING',
+  SLA_RISK: 'SLA_RISK',
+  SLA_BREACH: 'SLA_BREACH',
+  UNMAPPED_EXTERNAL_EVENT: 'UNMAPPED_EXTERNAL_EVENT'
+} as const
+
+export type LogisticsExceptionType = (typeof LogisticsExceptionType)[keyof typeof LogisticsExceptionType]
+
+
+export const LogisticsExceptionSeverity = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+  CRITICAL: 'CRITICAL'
+} as const
+
+export type LogisticsExceptionSeverity = (typeof LogisticsExceptionSeverity)[keyof typeof LogisticsExceptionSeverity]
+
+
+export const LogisticsExceptionState = {
+  OPEN: 'OPEN',
+  ACKNOWLEDGED: 'ACKNOWLEDGED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  ESCALATED: 'ESCALATED',
+  RESOLVED: 'RESOLVED',
+  CLOSED: 'CLOSED'
+} as const
+
+export type LogisticsExceptionState = (typeof LogisticsExceptionState)[keyof typeof LogisticsExceptionState]
+
+
+export const LogisticsDocumentKind = {
+  SHIPPING_LABEL: 'SHIPPING_LABEL',
+  PACKING_LIST: 'PACKING_LIST',
+  COMMERCIAL_INVOICE: 'COMMERCIAL_INVOICE',
+  CUSTOMS_DOCUMENT: 'CUSTOMS_DOCUMENT',
+  DELIVERY_INSTRUCTIONS: 'DELIVERY_INSTRUCTIONS',
+  PROOF_OF_DELIVERY: 'PROOF_OF_DELIVERY',
+  DELIVERY_SIGNATURE: 'DELIVERY_SIGNATURE',
+  DELIVERY_PHOTO: 'DELIVERY_PHOTO',
+  DAMAGE_EVIDENCE: 'DAMAGE_EVIDENCE',
+  RETURN_DOCUMENT: 'RETURN_DOCUMENT',
+  MANIFEST: 'MANIFEST',
+  OTHER: 'OTHER'
+} as const
+
+export type LogisticsDocumentKind = (typeof LogisticsDocumentKind)[keyof typeof LogisticsDocumentKind]
+
+
+export const LogisticsDocumentScanState = {
+  PENDING: 'PENDING',
+  CLEAN: 'CLEAN',
+  INFECTED: 'INFECTED',
+  FAILED: 'FAILED',
+  SKIPPED: 'SKIPPED'
+} as const
+
+export type LogisticsDocumentScanState = (typeof LogisticsDocumentScanState)[keyof typeof LogisticsDocumentScanState]
+
+
+export const LogisticsDocumentAudience = {
+  PARTNER: 'PARTNER',
+  OPERATOR: 'OPERATOR',
+  BOTH: 'BOTH'
+} as const
+
+export type LogisticsDocumentAudience = (typeof LogisticsDocumentAudience)[keyof typeof LogisticsDocumentAudience]
+
+
+export const LogisticsPickupState = {
+  REQUESTED: 'REQUESTED',
+  SCHEDULED: 'SCHEDULED',
+  CONFIRMED: 'CONFIRMED',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type LogisticsPickupState = (typeof LogisticsPickupState)[keyof typeof LogisticsPickupState]
+
+
+export const LogisticsManifestState = {
+  OPEN: 'OPEN',
+  CLOSED: 'CLOSED',
+  HANDED_OVER: 'HANDED_OVER',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type LogisticsManifestState = (typeof LogisticsManifestState)[keyof typeof LogisticsManifestState]
+
+
+export const LogisticsDriverState = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  SUSPENDED: 'SUSPENDED'
+} as const
+
+export type LogisticsDriverState = (typeof LogisticsDriverState)[keyof typeof LogisticsDriverState]
+
+
+export const LogisticsVehicleKind = {
+  VAN: 'VAN',
+  TRUCK: 'TRUCK',
+  BIKE: 'BIKE',
+  CAR: 'CAR',
+  REFRIGERATED_VAN: 'REFRIGERATED_VAN',
+  REFRIGERATED_TRUCK: 'REFRIGERATED_TRUCK'
+} as const
+
+export type LogisticsVehicleKind = (typeof LogisticsVehicleKind)[keyof typeof LogisticsVehicleKind]
+
+
+export const LogisticsTripState = {
+  ACTIVE: 'ACTIVE',
+  PAUSED: 'PAUSED',
+  COMPLETED: 'COMPLETED',
+  ABANDONED: 'ABANDONED'
+} as const
+
+export type LogisticsTripState = (typeof LogisticsTripState)[keyof typeof LogisticsTripState]
+
+
+export const CarrierProvider = {
+  MANUAL: 'MANUAL',
+  CUSTOM: 'CUSTOM',
+  DHL: 'DHL',
+  FEDEX: 'FEDEX',
+  UPS: 'UPS'
+} as const
+
+export type CarrierProvider = (typeof CarrierProvider)[keyof typeof CarrierProvider]
+
+
+export const CarrierIntegrationState = {
+  UNCONFIGURED: 'UNCONFIGURED',
+  CONFIGURED: 'CONFIGURED',
+  ACTIVE: 'ACTIVE',
+  ERROR: 'ERROR',
+  DISABLED: 'DISABLED'
+} as const
+
+export type CarrierIntegrationState = (typeof CarrierIntegrationState)[keyof typeof CarrierIntegrationState]
+
+
+export const CarrierWebhookState = {
+  RECEIVED: 'RECEIVED',
+  PROCESSED: 'PROCESSED',
+  FAILED: 'FAILED',
+  DEAD_LETTER: 'DEAD_LETTER',
+  IGNORED: 'IGNORED'
+} as const
+
+export type CarrierWebhookState = (typeof CarrierWebhookState)[keyof typeof CarrierWebhookState]
+
+
+export const LogisticsNotificationKind = {
+  SHIPMENT_ASSIGNED: 'SHIPMENT_ASSIGNED',
+  ASSIGNMENT_ACCEPTED: 'ASSIGNMENT_ACCEPTED',
+  ASSIGNMENT_REJECTED: 'ASSIGNMENT_REJECTED',
+  PICKUP_SCHEDULED: 'PICKUP_SCHEDULED',
+  PICKUP_COMPLETED: 'PICKUP_COMPLETED',
+  SHIPMENT_DISPATCHED: 'SHIPMENT_DISPATCHED',
+  SHIPMENT_IN_TRANSIT: 'SHIPMENT_IN_TRANSIT',
+  OUT_FOR_DELIVERY: 'OUT_FOR_DELIVERY',
+  SHIPMENT_DELIVERED: 'SHIPMENT_DELIVERED',
+  DELIVERY_ATTEMPTED: 'DELIVERY_ATTEMPTED',
+  SHIPMENT_DELAYED: 'SHIPMENT_DELAYED',
+  EXCEPTION_RAISED: 'EXCEPTION_RAISED',
+  SLA_AT_RISK: 'SLA_AT_RISK',
+  SLA_BREACHED: 'SLA_BREACHED',
+  POD_AVAILABLE: 'POD_AVAILABLE',
+  RETURN_INITIATED: 'RETURN_INITIATED',
+  INTEGRATION_FAILURE: 'INTEGRATION_FAILURE',
+  USER_INVITED: 'USER_INVITED',
+  SECURITY_EVENT: 'SECURITY_EVENT'
+} as const
+
+export type LogisticsNotificationKind = (typeof LogisticsNotificationKind)[keyof typeof LogisticsNotificationKind]

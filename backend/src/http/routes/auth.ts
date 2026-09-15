@@ -14,7 +14,7 @@ import { randomBytes } from 'node:crypto';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { env } from '../../config/env.js';
-import { ErrorCode, unauthorized } from '../../domain/errors.js';
+import { ErrorCode, badRequest, unauthorized } from '../../domain/errors.js';
 import { changePassword, login, type UserKind } from '../../modules/identity/auth.service.js';
 import {
   revokeAllUserSessions,
@@ -44,6 +44,7 @@ import {
   recordSessionLocation,
 } from '../../modules/identity/session-location.service.js';
 import { enqueueNotification } from '../../modules/notifications/notification.service.js';
+import { markInvitationAccepted } from '../../modules/logistics/partner.service.js';
 import {
   cookieNamesFor,
   authCookieOptions,
@@ -333,78 +334,95 @@ export function authRoutes(kind: UserKind) {
       return reply.status(200).send({ sessionsRevoked: revoked });
     });
 
-    app.get('/me', { preHandler: requireAuthenticated(kind) }, async (request, reply) => {
-      const auth = currentUser(request);
+    /*
+     * Who is signed in.
+     *
+     * NOT registered for the logistics surface, and the omission is
+     * deliberate rather than an oversight: the portal needs a richer answer
+     * than this one - the carrier the person belongs to, their role inside it,
+     * their logistics permissions and the state of their second factor - and
+     * it registers its own `/auth/me` in `logistics.portal.ts` to give it.
+     *
+     * Two handlers for one path is a Fastify boot failure ("Method 'GET'
+     * already declared"), which is how this was found. One handler per surface
+     * is also the right shape: a boot response that tried to serve all three
+     * audiences would carry fields two of them have no use for, and the first
+     * person to add a field would have to decide which surfaces see it.
+     */
+    if (kind !== 'LOGISTICS') {
+      app.get('/me', { preHandler: requireAuthenticated(kind) }, async (request, reply) => {
+        const auth = currentUser(request);
 
-      // Two extra reads, and only for an admin session that resolved a
-      // country. The alternative was carrying both on every guarded request,
-      // which would mean two joins on the hot path for facts the panel needs
-      // once per sign-in.
-      const [locationLanguage, locationCurrency] = await Promise.all([
-        languageForCountry(auth.sessionCountry),
-        currencyForCountry(auth.sessionCountry),
-      ]);
+        // Two extra reads, and only for an admin session that resolved a
+        // country. The alternative was carrying both on every guarded request,
+        // which would mean two joins on the hot path for facts the panel needs
+        // once per sign-in.
+        const [locationLanguage, locationCurrency] = await Promise.all([
+          languageForCountry(auth.sessionCountry),
+          currencyForCountry(auth.sessionCountry),
+        ]);
 
-      return reply.status(200).send({
-        id: auth.id,
-        email: auth.email,
-        type: auth.type,
-        roles: auth.roles,
-        permissions: auth.permissions,
-        customerProfileId: auth.customerProfileId,
-        mfaEnabled: auth.mfaEnabled,
-        mustChangePassword: auth.mustChangePassword,
-        locationRequired: locationRequiredFor(kind),
-        locationGranted: auth.sessionHasLocation,
-        /**
-         * Where this session signed in from, ISO-3166-1 alpha-2.
-         *
-         * The console prices its catalogue for it: a member of staff sees what
-         * a customer where they are sitting is charged, and there is no picker
-         * to say otherwise - the market is wherever the person actually is.
-         * Null when no geocoder answered, and the panel then quotes the
-         * seller's own country.
-         */
-        locationCountry: auth.sessionCountry,
-        /**
-         * Where this session signed in from, as a person reads it.
-         *
-         * The geocoded place, or the coordinates when no geocoder answered,
-         * and null when the browser has told us nothing. The panel puts it in
-         * the top bar beside the market: a console shared by several staff
-         * accounts should say out loud which sign-in is on screen, and the
-         * bell that announced it has scrolled away by the afternoon.
-         */
-        locationPlace: auth.sessionPlace,
-        /**
-         * The interface language that country's office works in, or null.
-         *
-         * Configured per country in `countries.languageCode`, so a member of
-         * staff signing in from Berlin reads a German panel without touching
-         * the picker. Null where the deployment has no answer for the country
-         * or the panel ships no catalogue for its language, and the panel then
-         * leaves whatever language the person was reading alone.
-         *
-         * A suggestion the panel applies once per sign-in country, never a
-         * lock: the picker outranks it and its choice is what gets saved.
-         */
-        locationLanguage,
-        /**
-         * The currency customers in that country are quoted in, or null.
-         *
-         * `countries.currencyCode`, the same row the storefront prices a
-         * shopper from - so the console quotes the market it is sitting in
-         * from that market's own price list rather than the seller's. Null
-         * where the country is not one this deployment sells in, or its
-         * currency has been retired; the catalogue screens then quote the base
-         * currency and say which one they are quoting.
-         *
-         * Unlike the language, this is never a suggestion and there is no
-         * picker to outrank it. A price is what it is.
-         */
-        locationCurrency,
+        return reply.status(200).send({
+          id: auth.id,
+          email: auth.email,
+          type: auth.type,
+          roles: auth.roles,
+          permissions: auth.permissions,
+          customerProfileId: auth.customerProfileId,
+          mfaEnabled: auth.mfaEnabled,
+          mustChangePassword: auth.mustChangePassword,
+          locationRequired: locationRequiredFor(kind),
+          locationGranted: auth.sessionHasLocation,
+          /**
+           * Where this session signed in from, ISO-3166-1 alpha-2.
+           *
+           * The console prices its catalogue for it: a member of staff sees what
+           * a customer where they are sitting is charged, and there is no picker
+           * to say otherwise - the market is wherever the person actually is.
+           * Null when no geocoder answered, and the panel then quotes the
+           * seller's own country.
+           */
+          locationCountry: auth.sessionCountry,
+          /**
+           * Where this session signed in from, as a person reads it.
+           *
+           * The geocoded place, or the coordinates when no geocoder answered,
+           * and null when the browser has told us nothing. The panel puts it in
+           * the top bar beside the market: a console shared by several staff
+           * accounts should say out loud which sign-in is on screen, and the
+           * bell that announced it has scrolled away by the afternoon.
+           */
+          locationPlace: auth.sessionPlace,
+          /**
+           * The interface language that country's office works in, or null.
+           *
+           * Configured per country in `countries.languageCode`, so a member of
+           * staff signing in from Berlin reads a German panel without touching
+           * the picker. Null where the deployment has no answer for the country
+           * or the panel ships no catalogue for its language, and the panel then
+           * leaves whatever language the person was reading alone.
+           *
+           * A suggestion the panel applies once per sign-in country, never a
+           * lock: the picker outranks it and its choice is what gets saved.
+           */
+          locationLanguage,
+          /**
+           * The currency customers in that country are quoted in, or null.
+           *
+           * `countries.currencyCode`, the same row the storefront prices a
+           * shopper from - so the console quotes the market it is sitting in
+           * from that market's own price list rather than the seller's. Null
+           * where the country is not one this deployment sells in, or its
+           * currency has been retired; the catalogue screens then quote the base
+           * currency and say which one they are quoting.
+           *
+           * Unlike the language, this is never a suggestion and there is no
+           * picker to outrank it. A price is what it is.
+           */
+          locationCurrency,
+        });
       });
-    });
+    }
 
     // --- Sign-in location (admin surface only) -----------------------------
     //
@@ -559,6 +577,65 @@ export function authRoutes(kind: UserKind) {
         return reply.status(200).send({ passwordReset: true });
       },
     );
+
+    /*
+     * --- Invitation activation (logistics surface) ------------------------
+     *
+     * The ONLY way a logistics partner user's account ever becomes usable.
+     * There is no self-registration here and there never will be: a carrier is
+     * created by the marketplace, its first owner is invited by the
+     * marketplace, and everybody else is invited by that owner.
+     *
+     * No password is emailed at any point. The link carries a 32-byte
+     * single-use token whose SHA-256 is all that is stored, it expires, and
+     * the person chooses their own password here - the same machinery every
+     * other invitation in this system uses.
+     *
+     * `acceptInvitation` sets the password and activates the USER;
+     * `markInvitationAccepted` then marks the carrier's own business record.
+     * In that order, and never the other way round: the credential is what
+     * proves the person holds the emailed link, and the business record only
+     * writes down that it happened.
+     */
+    if (kind === 'LOGISTICS') {
+      app.post(
+        '/invitations/accept',
+        { config: { rateLimit: { max: 10, timeWindow: '15 minutes' } } },
+        async (request, reply) => {
+          const body = acceptInvitationSchema.parse(request.body);
+          const context = requestContext(request);
+
+          const consumed = await acceptInvitation({
+            token: body.token,
+            password: body.password,
+            acceptedTerms: body.acceptedTerms,
+            consentVersion: body.consentVersion,
+            ipAddress: context.ipAddress,
+            correlationId: context.correlationId,
+          });
+
+          /*
+           * A token minted for a customer must not activate a carrier account,
+           * and vice versa. `acceptInvitation` reports which surface the
+           * account belongs to, and this refuses anything but its own - the
+           * same audience check the login path makes, at the one other place a
+           * credential is established.
+           */
+          if (consumed.userType !== 'LOGISTICS') {
+            throw badRequest(ErrorCode.TOKEN_INVALID, 'This link is not valid.');
+          }
+
+          await markInvitationAccepted(consumed.userId);
+
+          return reply.status(200).send({
+            activated: true,
+            email: consumed.email,
+            message:
+              'Your account is active. Sign in, and set up two-step sign-in if you are asked to.',
+          });
+        },
+      );
+    }
 
     // --- Invitation activation (customer surface only) ---------------------
     //

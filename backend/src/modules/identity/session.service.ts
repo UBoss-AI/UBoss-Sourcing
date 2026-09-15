@@ -26,6 +26,17 @@ import { AuditAction, recordAudit } from '../audit/audit.service.js';
 // The label a position is read as. Shared with the notification the sign-in
 // rings so the bell and the top bar cannot word the same place differently.
 import { formatCoordinates } from './session-location.service.js';
+import type { UserKind } from './auth.service.js';
+
+/**
+ * The audiences a token may be minted for, as a runtime set.
+ *
+ * `UserKind` is a type and disappears at compile time; `verifyAccessToken`
+ * needs to reject an unrecognised value in a token somebody supplied. Kept
+ * beside the type it mirrors so adding a fourth surface fails loudly here
+ * rather than quietly letting one through.
+ */
+const USER_KINDS: ReadonlySet<string> = new Set<UserKind>(['ADMIN', 'CUSTOMER', 'LOGISTICS']);
 
 export interface IssuedSession {
   sessionId: string;
@@ -40,8 +51,13 @@ export interface AccessTokenClaims {
   sub: string;
   /** Session id, so a revoked session invalidates its access tokens too. */
   sid: string;
-  /** 'ADMIN' or 'CUSTOMER'. Admin and customer contexts never interchange. */
-  typ: 'ADMIN' | 'CUSTOMER';
+  /**
+   * Which application this token was minted for. The three contexts never
+   * interchange: the guard compares this against the route's own audience AND
+   * against `users.type`, so a token cannot be replayed at another surface
+   * even though the signing key is shared.
+   */
+  typ: UserKind;
   iat: number;
   exp: number;
 }
@@ -98,7 +114,7 @@ export function verifyAccessToken(token: string): AccessTokenClaims | null {
     }
 
     const typed = claims as AccessTokenClaims;
-    if (typed.typ !== 'ADMIN' && typed.typ !== 'CUSTOMER') return null;
+    if (!USER_KINDS.has(typed.typ)) return null;
     if (typed.exp * 1000 <= Date.now()) return null;
 
     return typed;
@@ -113,7 +129,21 @@ export function verifyAccessToken(token: string): AccessTokenClaims | null {
  * The position an admin session was opened from, carried from one rotation to
  * the next. See `carriedLocation` on `createSessionRow`.
  */
-interface SessionLocationColumns {
+interface SessionCarriedColumns {
+  /**
+   * When this family passed its second-factor challenge.
+   *
+   * Carried across a rotation for exactly the reason the position below is: a
+   * browser in use refreshes every few minutes, and a replacement row that
+   * started empty would put a dispatcher back on the authenticator screen
+   * several times an hour. The factor belongs to the SIGN-IN, not to the
+   * token.
+   *
+   * What still ends it is what should: signing out, a password change, a
+   * reused refresh token, or the refresh token's own expiry - all four revoke
+   * the family, and a new family starts with this null.
+   */
+  mfaVerifiedAt: Date | null;
   locationLatitude: Prisma.Decimal | null;
   locationLongitude: Prisma.Decimal | null;
   locationAccuracyM: number | null;
@@ -133,7 +163,7 @@ interface SessionLocationColumns {
 /** Create a fresh session family after a successful sign-in. */
 export async function issueSession(
   userId: string,
-  userType: 'ADMIN' | 'CUSTOMER',
+  userType: UserKind,
   context: SessionContext = {},
 ): Promise<IssuedSession> {
   const sessionId = newId();
@@ -147,7 +177,7 @@ async function createSessionRow(
   sessionId: string,
   familyId: string,
   userId: string,
-  userType: 'ADMIN' | 'CUSTOMER',
+  userType: UserKind,
   context: SessionContext,
   /**
    * Copied from the session being replaced, and null for a brand-new one.
@@ -158,7 +188,7 @@ async function createSessionRow(
    * position belongs to the sign-in, not to the token, so it travels with the
    * family.
    */
-  carriedLocation: SessionLocationColumns | null,
+  carried: SessionCarriedColumns | null,
 ): Promise<IssuedSession> {
   const { token: refreshToken, tokenHash } = generateToken(32);
 
@@ -175,7 +205,7 @@ async function createSessionRow(
       userAgent: context.userAgent?.slice(0, 512) ?? null,
       ipAddress: context.ipAddress ?? null,
       expiresAt: refreshTokenExpiresAt,
-      ...(carriedLocation ?? {}),
+      ...(carried ?? {}),
     },
   });
 
@@ -245,15 +275,15 @@ export async function rotateSession(
   }
 
   const nextSessionId = newId();
-  const userType = session.user.type === 'ADMIN' ? 'ADMIN' : 'CUSTOMER';
 
   const issued = await createSessionRow(
     nextSessionId,
     session.familyId,
     session.userId,
-    userType,
+    session.user.type,
     context,
     {
+      mfaVerifiedAt: session.mfaVerifiedAt,
       locationLatitude: session.locationLatitude,
       locationLongitude: session.locationLongitude,
       locationAccuracyM: session.locationAccuracyM,
@@ -283,6 +313,15 @@ export interface SessionAuthState {
   isActive: boolean;
   /** The browser has told us where this sign-in happened. */
   hasLocation: boolean;
+  /**
+   * When THIS session passed its second-factor challenge, or null.
+   *
+   * Read by the logistics guard. Per session rather than per account: the
+   * account column says a second factor EXISTS, this says the browser in front
+   * of us has presented it, and without the distinction enrolling once would
+   * leave every later sign-in single-factor.
+   */
+  mfaVerifiedAt: Date | null;
   /**
    * The country it happened in, when a geocoder named one.
    *
@@ -317,6 +356,7 @@ export async function getSessionAuthState(sessionId: string): Promise<SessionAut
       expiresAt: true,
       locationCapturedAt: true,
       locationCountry: true,
+      mfaVerifiedAt: true,
       // For the top bar. The coordinates are the fallback label, which is why
       // they are read here and not only the name.
       locationLabel: true,
@@ -326,12 +366,19 @@ export async function getSessionAuthState(sessionId: string): Promise<SessionAut
   });
 
   if (session === null || session.revokedAt !== null || session.expiresAt.getTime() <= Date.now()) {
-    return { isActive: false, hasLocation: false, country: null, place: null };
+    return {
+      isActive: false,
+      hasLocation: false,
+      mfaVerifiedAt: null,
+      country: null,
+      place: null,
+    };
   }
 
   return {
     isActive: true,
     hasLocation: session.locationCapturedAt !== null,
+    mfaVerifiedAt: session.mfaVerifiedAt,
     country: session.locationCountry,
     place: sessionPlace(session),
   };

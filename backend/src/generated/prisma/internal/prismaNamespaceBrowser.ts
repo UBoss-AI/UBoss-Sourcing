@@ -194,7 +194,33 @@ export const ModelName = {
   SellerSettlementLine: 'SellerSettlementLine',
   SellerPayout: 'SellerPayout',
   SellerNotification: 'SellerNotification',
-  SellerAuditLog: 'SellerAuditLog'
+  SellerAuditLog: 'SellerAuditLog',
+  LogisticsPartner: 'LogisticsPartner',
+  LogisticsPartnerUser: 'LogisticsPartnerUser',
+  LogisticsPartnerInvitation: 'LogisticsPartnerInvitation',
+  LogisticsServiceRegion: 'LogisticsServiceRegion',
+  LogisticsCapability: 'LogisticsCapability',
+  LogisticsSlaPolicy: 'LogisticsSlaPolicy',
+  LogisticsShipment: 'LogisticsShipment',
+  LogisticsShipmentPackage: 'LogisticsShipmentPackage',
+  LogisticsShipmentAssignment: 'LogisticsShipmentAssignment',
+  LogisticsShipmentEvent: 'LogisticsShipmentEvent',
+  LogisticsShipmentException: 'LogisticsShipmentException',
+  LogisticsShipmentDocument: 'LogisticsShipmentDocument',
+  LogisticsProofOfDelivery: 'LogisticsProofOfDelivery',
+  LogisticsPickupRequest: 'LogisticsPickupRequest',
+  LogisticsDispatchManifest: 'LogisticsDispatchManifest',
+  LogisticsDispatchManifestEntry: 'LogisticsDispatchManifestEntry',
+  LogisticsDriverProfile: 'LogisticsDriverProfile',
+  LogisticsVehicle: 'LogisticsVehicle',
+  LogisticsDriverAssignment: 'LogisticsDriverAssignment',
+  LogisticsActiveTrip: 'LogisticsActiveTrip',
+  LogisticsLocationPing: 'LogisticsLocationPing',
+  CarrierIntegration: 'CarrierIntegration',
+  CarrierStatusMapping: 'CarrierStatusMapping',
+  CarrierWebhookEvent: 'CarrierWebhookEvent',
+  LogisticsNotification: 'LogisticsNotification',
+  LogisticsAuditLog: 'LogisticsAuditLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -230,6 +256,8 @@ export const UserScalarFieldEnum = {
   temporaryPasswordExpiresAt: 'temporaryPasswordExpiresAt',
   mfaSecretEnc: 'mfaSecretEnc',
   mfaEnabledAt: 'mfaEnabledAt',
+  mfaLastCounter: 'mfaLastCounter',
+  mfaRecoveryCodeHashesJson: 'mfaRecoveryCodeHashesJson',
   preferredLanguage: 'preferredLanguage',
   lastLoginAt: 'lastLoginAt',
   failedLoginCount: 'failedLoginCount',
@@ -296,6 +324,7 @@ export const SessionScalarFieldEnum = {
   locationLabel: 'locationLabel',
   locationCountry: 'locationCountry',
   locationCapturedAt: 'locationCapturedAt',
+  mfaVerifiedAt: 'mfaVerifiedAt',
   expiresAt: 'expiresAt',
   revokedAt: 'revokedAt',
   revokedReason: 'revokedReason',
@@ -3252,6 +3281,627 @@ export const SellerAuditLogScalarFieldEnum = {
 export type SellerAuditLogScalarFieldEnum = (typeof SellerAuditLogScalarFieldEnum)[keyof typeof SellerAuditLogScalarFieldEnum]
 
 
+export const LogisticsPartnerScalarFieldEnum = {
+  id: 'id',
+  partnerCode: 'partnerCode',
+  legalName: 'legalName',
+  displayName: 'displayName',
+  displayNameNormalized: 'displayNameNormalized',
+  registrationNumber: 'registrationNumber',
+  taxNumber: 'taxNumber',
+  licenceNumber: 'licenceNumber',
+  licenceExpiresAt: 'licenceExpiresAt',
+  registrationCountry: 'registrationCountry',
+  contactEmail: 'contactEmail',
+  contactPhone: 'contactPhone',
+  emergencyPhone: 'emergencyPhone',
+  websiteUrl: 'websiteUrl',
+  addressJson: 'addressJson',
+  status: 'status',
+  contractStatus: 'contractStatus',
+  contractReference: 'contractReference',
+  contractStartsAt: 'contractStartsAt',
+  contractEndsAt: 'contractEndsAt',
+  suspensionReason: 'suspensionReason',
+  suspendedAt: 'suspendedAt',
+  maxOpenShipments: 'maxOpenShipments',
+  maxDailyAssignments: 'maxDailyAssignments',
+  autoAssignEnabled: 'autoAssignEnabled',
+  carrierIntegrationId: 'carrierIntegrationId',
+  internalNotes: 'internalNotes',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  archivedAt: 'archivedAt'
+} as const
+
+export type LogisticsPartnerScalarFieldEnum = (typeof LogisticsPartnerScalarFieldEnum)[keyof typeof LogisticsPartnerScalarFieldEnum]
+
+
+export const LogisticsPartnerUserScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  userId: 'userId',
+  role: 'role',
+  status: 'status',
+  fullName: 'fullName',
+  jobTitle: 'jobTitle',
+  phone: 'phone',
+  regionScopeJson: 'regionScopeJson',
+  disabledAt: 'disabledAt',
+  disabledReason: 'disabledReason',
+  lastActiveAt: 'lastActiveAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsPartnerUserScalarFieldEnum = (typeof LogisticsPartnerUserScalarFieldEnum)[keyof typeof LogisticsPartnerUserScalarFieldEnum]
+
+
+export const LogisticsPartnerInvitationScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  email: 'email',
+  emailNormalized: 'emailNormalized',
+  fullName: 'fullName',
+  role: 'role',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  acceptedAt: 'acceptedAt',
+  revokedAt: 'revokedAt',
+  invitedByPartnerUserId: 'invitedByPartnerUserId',
+  invitedByAdminUserId: 'invitedByAdminUserId',
+  createdAt: 'createdAt'
+} as const
+
+export type LogisticsPartnerInvitationScalarFieldEnum = (typeof LogisticsPartnerInvitationScalarFieldEnum)[keyof typeof LogisticsPartnerInvitationScalarFieldEnum]
+
+
+export const LogisticsServiceRegionScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  scope: 'scope',
+  countryCode: 'countryCode',
+  regionValue: 'regionValue',
+  supportsPickup: 'supportsPickup',
+  supportsDelivery: 'supportsDelivery',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsServiceRegionScalarFieldEnum = (typeof LogisticsServiceRegionScalarFieldEnum)[keyof typeof LogisticsServiceRegionScalarFieldEnum]
+
+
+export const LogisticsCapabilityScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  kind: 'kind',
+  state: 'state',
+  evidenceReference: 'evidenceReference',
+  evidenceExpiresAt: 'evidenceExpiresAt',
+  temperatureMinC: 'temperatureMinC',
+  temperatureMaxC: 'temperatureMaxC',
+  decidedByUserId: 'decidedByUserId',
+  decidedAt: 'decidedAt',
+  decisionNote: 'decisionNote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsCapabilityScalarFieldEnum = (typeof LogisticsCapabilityScalarFieldEnum)[keyof typeof LogisticsCapabilityScalarFieldEnum]
+
+
+export const LogisticsSlaPolicyScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  name: 'name',
+  serviceType: 'serviceType',
+  pickupHours: 'pickupHours',
+  deliveryHours: 'deliveryHours',
+  riskWindowMinutes: 'riskWindowMinutes',
+  podRequiresRecipientName: 'podRequiresRecipientName',
+  podRequiresSignature: 'podRequiresSignature',
+  podRequiresPhoto: 'podRequiresPhoto',
+  podRequiresOtp: 'podRequiresOtp',
+  podRequiresDesignation: 'podRequiresDesignation',
+  maxDeliveryAttempts: 'maxDeliveryAttempts',
+  isDefault: 'isDefault',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsSlaPolicyScalarFieldEnum = (typeof LogisticsSlaPolicyScalarFieldEnum)[keyof typeof LogisticsSlaPolicyScalarFieldEnum]
+
+
+export const LogisticsShipmentScalarFieldEnum = {
+  id: 'id',
+  shipmentReference: 'shipmentReference',
+  orderId: 'orderId',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  operatorShipmentId: 'operatorShipmentId',
+  originLocationId: 'originLocationId',
+  assignedPartnerId: 'assignedPartnerId',
+  status: 'status',
+  serviceType: 'serviceType',
+  trackingNumber: 'trackingNumber',
+  carrierIntegrationId: 'carrierIntegrationId',
+  carrierTrackingNumber: 'carrierTrackingNumber',
+  carrierTrackingUrl: 'carrierTrackingUrl',
+  sellerAccountId: 'sellerAccountId',
+  sellerCompanyName: 'sellerCompanyName',
+  receivingCustomerProfileId: 'receivingCustomerProfileId',
+  receivingCompanyName: 'receivingCompanyName',
+  pickupAddressJson: 'pickupAddressJson',
+  deliveryAddressJson: 'deliveryAddressJson',
+  pickupContactName: 'pickupContactName',
+  pickupContactPhone: 'pickupContactPhone',
+  pickupContactEmail: 'pickupContactEmail',
+  deliveryContactName: 'deliveryContactName',
+  deliveryContactPhone: 'deliveryContactPhone',
+  deliveryContactEmail: 'deliveryContactEmail',
+  originCountry: 'originCountry',
+  destinationCountry: 'destinationCountry',
+  destinationCity: 'destinationCity',
+  destinationPostalCode: 'destinationPostalCode',
+  distanceKm: 'distanceKm',
+  packageCount: 'packageCount',
+  totalWeightGrams: 'totalWeightGrams',
+  totalVolumeCm3: 'totalVolumeCm3',
+  productCategorySummary: 'productCategorySummary',
+  requiresColdChain: 'requiresColdChain',
+  requiresTemperatureRange: 'requiresTemperatureRange',
+  temperatureMinC: 'temperatureMinC',
+  temperatureMaxC: 'temperatureMaxC',
+  requiresSterileHandling: 'requiresSterileHandling',
+  isFragile: 'isFragile',
+  isDangerousGoods: 'isDangerousGoods',
+  dangerousGoodsClass: 'dangerousGoodsClass',
+  handlingNotes: 'handlingNotes',
+  declaredValueMinor: 'declaredValueMinor',
+  currency: 'currency',
+  slaPolicyId: 'slaPolicyId',
+  expectedPickupAt: 'expectedPickupAt',
+  pickupDueAt: 'pickupDueAt',
+  estimatedDeliveryAt: 'estimatedDeliveryAt',
+  deliveryDueAt: 'deliveryDueAt',
+  slaState: 'slaState',
+  slaEvaluatedAt: 'slaEvaluatedAt',
+  acceptedAt: 'acceptedAt',
+  pickedUpAt: 'pickedUpAt',
+  dispatchedAt: 'dispatchedAt',
+  deliveredAt: 'deliveredAt',
+  closedAt: 'closedAt',
+  deliveryAttemptCount: 'deliveryAttemptCount',
+  lastEventAt: 'lastEventAt',
+  lastCarrierSyncAt: 'lastCarrierSyncAt',
+  version: 'version',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsShipmentScalarFieldEnum = (typeof LogisticsShipmentScalarFieldEnum)[keyof typeof LogisticsShipmentScalarFieldEnum]
+
+
+export const LogisticsShipmentPackageScalarFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  packageReference: 'packageReference',
+  sequence: 'sequence',
+  weightGrams: 'weightGrams',
+  lengthMm: 'lengthMm',
+  widthMm: 'widthMm',
+  heightMm: 'heightMm',
+  packagingType: 'packagingType',
+  isFragile: 'isFragile',
+  requiresColdChain: 'requiresColdChain',
+  batchReference: 'batchReference',
+  scannedOutAt: 'scannedOutAt',
+  scannedInAt: 'scannedInAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsShipmentPackageScalarFieldEnum = (typeof LogisticsShipmentPackageScalarFieldEnum)[keyof typeof LogisticsShipmentPackageScalarFieldEnum]
+
+
+export const LogisticsShipmentAssignmentScalarFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  logisticsPartnerId: 'logisticsPartnerId',
+  state: 'state',
+  assignedAutomatically: 'assignedAutomatically',
+  offeredAt: 'offeredAt',
+  respondBy: 'respondBy',
+  respondedAt: 'respondedAt',
+  responseReason: 'responseReason',
+  withdrawnAt: 'withdrawnAt',
+  withdrawnReason: 'withdrawnReason',
+  completedAt: 'completedAt',
+  offeredByUserId: 'offeredByUserId',
+  respondedByPartnerUserId: 'respondedByPartnerUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsShipmentAssignmentScalarFieldEnum = (typeof LogisticsShipmentAssignmentScalarFieldEnum)[keyof typeof LogisticsShipmentAssignmentScalarFieldEnum]
+
+
+export const LogisticsShipmentEventScalarFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  previousStatus: 'previousStatus',
+  status: 'status',
+  publicDescription: 'publicDescription',
+  internalNote: 'internalNote',
+  occurredAt: 'occurredAt',
+  recordedAt: 'recordedAt',
+  locationLabel: 'locationLabel',
+  locationCountry: 'locationCountry',
+  locationLatitude: 'locationLatitude',
+  locationLongitude: 'locationLongitude',
+  source: 'source',
+  actorUserId: 'actorUserId',
+  actorLogisticsPartnerId: 'actorLogisticsPartnerId',
+  externalEventId: 'externalEventId',
+  externalStatusCode: 'externalStatusCode',
+  carrierIntegrationId: 'carrierIntegrationId',
+  externalEventKey: 'externalEventKey',
+  idempotencyKey: 'idempotencyKey',
+  isCorrection: 'isCorrection',
+  reason: 'reason',
+  exceptionId: 'exceptionId',
+  documentId: 'documentId',
+  createdAt: 'createdAt'
+} as const
+
+export type LogisticsShipmentEventScalarFieldEnum = (typeof LogisticsShipmentEventScalarFieldEnum)[keyof typeof LogisticsShipmentEventScalarFieldEnum]
+
+
+export const LogisticsShipmentExceptionScalarFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  logisticsPartnerId: 'logisticsPartnerId',
+  type: 'type',
+  severity: 'severity',
+  state: 'state',
+  reason: 'reason',
+  detail: 'detail',
+  ownerPartnerUserId: 'ownerPartnerUserId',
+  ownerAdminUserId: 'ownerAdminUserId',
+  resolutionDueAt: 'resolutionDueAt',
+  resolvedAt: 'resolvedAt',
+  closedAt: 'closedAt',
+  resolutionNotes: 'resolutionNotes',
+  escalatedAt: 'escalatedAt',
+  escalationNote: 'escalationNote',
+  revisedEtaAt: 'revisedEtaAt',
+  customerNotifiedAt: 'customerNotifiedAt',
+  externalPayloadJson: 'externalPayloadJson',
+  raisedByUserId: 'raisedByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsShipmentExceptionScalarFieldEnum = (typeof LogisticsShipmentExceptionScalarFieldEnum)[keyof typeof LogisticsShipmentExceptionScalarFieldEnum]
+
+
+export const LogisticsShipmentDocumentScalarFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  kind: 'kind',
+  audience: 'audience',
+  fileName: 'fileName',
+  contentType: 'contentType',
+  sizeBytes: 'sizeBytes',
+  storageKey: 'storageKey',
+  contentHash: 'contentHash',
+  scanState: 'scanState',
+  scannedAt: 'scannedAt',
+  scanDetail: 'scanDetail',
+  uploadedByUserId: 'uploadedByUserId',
+  uploadedBySource: 'uploadedBySource',
+  createdAt: 'createdAt',
+  deletedAt: 'deletedAt'
+} as const
+
+export type LogisticsShipmentDocumentScalarFieldEnum = (typeof LogisticsShipmentDocumentScalarFieldEnum)[keyof typeof LogisticsShipmentDocumentScalarFieldEnum]
+
+
+export const LogisticsProofOfDeliveryScalarFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  recipientName: 'recipientName',
+  recipientDesignation: 'recipientDesignation',
+  deliveredAt: 'deliveredAt',
+  deliveryLatitude: 'deliveryLatitude',
+  deliveryLongitude: 'deliveryLongitude',
+  deliveryLocationLabel: 'deliveryLocationLabel',
+  hasSignature: 'hasSignature',
+  hasPhoto: 'hasPhoto',
+  otpVerified: 'otpVerified',
+  businessStamped: 'businessStamped',
+  signatureDocumentId: 'signatureDocumentId',
+  photoDocumentId: 'photoDocumentId',
+  exceptionNote: 'exceptionNote',
+  capturedByPartnerUserId: 'capturedByPartnerUserId',
+  capturedBySource: 'capturedBySource',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsProofOfDeliveryScalarFieldEnum = (typeof LogisticsProofOfDeliveryScalarFieldEnum)[keyof typeof LogisticsProofOfDeliveryScalarFieldEnum]
+
+
+export const LogisticsPickupRequestScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  shipmentId: 'shipmentId',
+  locationId: 'locationId',
+  state: 'state',
+  windowStartAt: 'windowStartAt',
+  windowEndAt: 'windowEndAt',
+  timezone: 'timezone',
+  warehouseInstructions: 'warehouseInstructions',
+  readinessConfirmedAt: 'readinessConfirmedAt',
+  driverProfileId: 'driverProfileId',
+  vehicleId: 'vehicleId',
+  scheduledAt: 'scheduledAt',
+  completedAt: 'completedAt',
+  failedAt: 'failedAt',
+  failureReason: 'failureReason',
+  packagesCollected: 'packagesCollected',
+  completionIdempotencyKey: 'completionIdempotencyKey',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsPickupRequestScalarFieldEnum = (typeof LogisticsPickupRequestScalarFieldEnum)[keyof typeof LogisticsPickupRequestScalarFieldEnum]
+
+
+export const LogisticsDispatchManifestScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  manifestNumber: 'manifestNumber',
+  state: 'state',
+  driverProfileId: 'driverProfileId',
+  vehicleId: 'vehicleId',
+  originLabel: 'originLabel',
+  destinationLabel: 'destinationLabel',
+  plannedDepartureAt: 'plannedDepartureAt',
+  closedAt: 'closedAt',
+  handedOverAt: 'handedOverAt',
+  handoverSignedBy: 'handoverSignedBy',
+  notes: 'notes',
+  createdByPartnerUserId: 'createdByPartnerUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsDispatchManifestScalarFieldEnum = (typeof LogisticsDispatchManifestScalarFieldEnum)[keyof typeof LogisticsDispatchManifestScalarFieldEnum]
+
+
+export const LogisticsDispatchManifestEntryScalarFieldEnum = {
+  id: 'id',
+  manifestId: 'manifestId',
+  shipmentId: 'shipmentId',
+  packageCount: 'packageCount',
+  addedAt: 'addedAt',
+  removedAt: 'removedAt'
+} as const
+
+export type LogisticsDispatchManifestEntryScalarFieldEnum = (typeof LogisticsDispatchManifestEntryScalarFieldEnum)[keyof typeof LogisticsDispatchManifestEntryScalarFieldEnum]
+
+
+export const LogisticsDriverProfileScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  partnerUserId: 'partnerUserId',
+  state: 'state',
+  employeeReference: 'employeeReference',
+  licenceNumber: 'licenceNumber',
+  licenceExpiresAt: 'licenceExpiresAt',
+  canCarryDangerousGoods: 'canCarryDangerousGoods',
+  canCarryColdChain: 'canCarryColdChain',
+  canCarrySterile: 'canCarrySterile',
+  regionScopeJson: 'regionScopeJson',
+  locationConsentAt: 'locationConsentAt',
+  locationConsentWithdrawnAt: 'locationConsentWithdrawnAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsDriverProfileScalarFieldEnum = (typeof LogisticsDriverProfileScalarFieldEnum)[keyof typeof LogisticsDriverProfileScalarFieldEnum]
+
+
+export const LogisticsVehicleScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  registration: 'registration',
+  kind: 'kind',
+  hasRefrigeration: 'hasRefrigeration',
+  hasTailLift: 'hasTailLift',
+  temperatureMinC: 'temperatureMinC',
+  temperatureMaxC: 'temperatureMaxC',
+  maxWeightGrams: 'maxWeightGrams',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsVehicleScalarFieldEnum = (typeof LogisticsVehicleScalarFieldEnum)[keyof typeof LogisticsVehicleScalarFieldEnum]
+
+
+export const LogisticsDriverAssignmentScalarFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  driverProfileId: 'driverProfileId',
+  vehicleId: 'vehicleId',
+  isPickupLeg: 'isPickupLeg',
+  isDeliveryLeg: 'isDeliveryLeg',
+  routeSequence: 'routeSequence',
+  assignedAt: 'assignedAt',
+  unassignedAt: 'unassignedAt',
+  completedAt: 'completedAt',
+  assignedByPartnerUserId: 'assignedByPartnerUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsDriverAssignmentScalarFieldEnum = (typeof LogisticsDriverAssignmentScalarFieldEnum)[keyof typeof LogisticsDriverAssignmentScalarFieldEnum]
+
+
+export const LogisticsActiveTripScalarFieldEnum = {
+  id: 'id',
+  driverProfileId: 'driverProfileId',
+  vehicleId: 'vehicleId',
+  shipmentId: 'shipmentId',
+  state: 'state',
+  startedAt: 'startedAt',
+  endedAt: 'endedAt',
+  deviceTokenHash: 'deviceTokenHash',
+  deviceTokenExpiresAt: 'deviceTokenExpiresAt',
+  pingIntervalSeconds: 'pingIntervalSeconds',
+  lastLatitude: 'lastLatitude',
+  lastLongitude: 'lastLongitude',
+  lastAccuracyM: 'lastAccuracyM',
+  lastPingAt: 'lastPingAt',
+  lastSequence: 'lastSequence',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LogisticsActiveTripScalarFieldEnum = (typeof LogisticsActiveTripScalarFieldEnum)[keyof typeof LogisticsActiveTripScalarFieldEnum]
+
+
+export const LogisticsLocationPingScalarFieldEnum = {
+  id: 'id',
+  tripId: 'tripId',
+  driverProfileId: 'driverProfileId',
+  driverUserId: 'driverUserId',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  accuracyM: 'accuracyM',
+  headingDeg: 'headingDeg',
+  speedMps: 'speedMps',
+  deviceTimestamp: 'deviceTimestamp',
+  receivedAt: 'receivedAt',
+  sequence: 'sequence',
+  idempotencyKey: 'idempotencyKey'
+} as const
+
+export type LogisticsLocationPingScalarFieldEnum = (typeof LogisticsLocationPingScalarFieldEnum)[keyof typeof LogisticsLocationPingScalarFieldEnum]
+
+
+export const CarrierIntegrationScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  name: 'name',
+  state: 'state',
+  baseUrl: 'baseUrl',
+  credentialsEnc: 'credentialsEnc',
+  webhookSecretEnc: 'webhookSecretEnc',
+  webhookSignatureHeader: 'webhookSignatureHeader',
+  webhookTimestampHeader: 'webhookTimestampHeader',
+  webhookAlgorithm: 'webhookAlgorithm',
+  webhookToleranceSeconds: 'webhookToleranceSeconds',
+  webhookPathToken: 'webhookPathToken',
+  pollingEnabled: 'pollingEnabled',
+  pollingIntervalMinutes: 'pollingIntervalMinutes',
+  nextPollAt: 'nextPollAt',
+  lastPollAt: 'lastPollAt',
+  rateLimitPerMinute: 'rateLimitPerMinute',
+  consecutiveFailures: 'consecutiveFailures',
+  lastSuccessAt: 'lastSuccessAt',
+  lastFailureAt: 'lastFailureAt',
+  lastFailureMessage: 'lastFailureMessage',
+  isActive: 'isActive',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CarrierIntegrationScalarFieldEnum = (typeof CarrierIntegrationScalarFieldEnum)[keyof typeof CarrierIntegrationScalarFieldEnum]
+
+
+export const CarrierStatusMappingScalarFieldEnum = {
+  id: 'id',
+  carrierIntegrationId: 'carrierIntegrationId',
+  providerCode: 'providerCode',
+  canonicalStatus: 'canonicalStatus',
+  raisesExceptionType: 'raisesExceptionType',
+  publicDescription: 'publicDescription',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CarrierStatusMappingScalarFieldEnum = (typeof CarrierStatusMappingScalarFieldEnum)[keyof typeof CarrierStatusMappingScalarFieldEnum]
+
+
+export const CarrierWebhookEventScalarFieldEnum = {
+  id: 'id',
+  carrierIntegrationId: 'carrierIntegrationId',
+  providerEventId: 'providerEventId',
+  state: 'state',
+  trackingNumber: 'trackingNumber',
+  shipmentId: 'shipmentId',
+  providerStatusCode: 'providerStatusCode',
+  resolvedStatus: 'resolvedStatus',
+  payloadJson: 'payloadJson',
+  signatureVerified: 'signatureVerified',
+  attempts: 'attempts',
+  nextRetryAt: 'nextRetryAt',
+  lastError: 'lastError',
+  processedAt: 'processedAt',
+  deadLetteredAt: 'deadLetteredAt',
+  receivedAt: 'receivedAt'
+} as const
+
+export type CarrierWebhookEventScalarFieldEnum = (typeof CarrierWebhookEventScalarFieldEnum)[keyof typeof CarrierWebhookEventScalarFieldEnum]
+
+
+export const LogisticsNotificationScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  partnerUserId: 'partnerUserId',
+  shipmentId: 'shipmentId',
+  kind: 'kind',
+  title: 'title',
+  body: 'body',
+  variablesJson: 'variablesJson',
+  dedupeKey: 'dedupeKey',
+  readAt: 'readAt',
+  emailedAt: 'emailedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type LogisticsNotificationScalarFieldEnum = (typeof LogisticsNotificationScalarFieldEnum)[keyof typeof LogisticsNotificationScalarFieldEnum]
+
+
+export const LogisticsAuditLogScalarFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  actorUserId: 'actorUserId',
+  actorLabel: 'actorLabel',
+  action: 'action',
+  resourceType: 'resourceType',
+  resourceId: 'resourceId',
+  beforeJson: 'beforeJson',
+  afterJson: 'afterJson',
+  summary: 'summary',
+  isContactReveal: 'isContactReveal',
+  ipAddress: 'ipAddress',
+  correlationId: 'correlationId',
+  createdAt: 'createdAt'
+} as const
+
+export type LogisticsAuditLogScalarFieldEnum = (typeof LogisticsAuditLogScalarFieldEnum)[keyof typeof LogisticsAuditLogScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -3273,6 +3923,23 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+} as const
+
+export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
 export const NullsOrder = {
@@ -3369,23 +4036,6 @@ export const LoginAttemptOrderByRelevanceFieldEnum = {
 } as const
 
 export type LoginAttemptOrderByRelevanceFieldEnum = (typeof LoginAttemptOrderByRelevanceFieldEnum)[keyof typeof LoginAttemptOrderByRelevanceFieldEnum]
-
-
-export const JsonNullValueFilter = {
-  DbNull: DbNull,
-  JsonNull: JsonNull,
-  AnyNull: AnyNull
-} as const
-
-export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
-
-
-export const QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
-} as const
-
-export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
 export const BusinessProfileOrderByRelevanceFieldEnum = {
@@ -5297,4 +5947,378 @@ export const SellerAuditLogOrderByRelevanceFieldEnum = {
 } as const
 
 export type SellerAuditLogOrderByRelevanceFieldEnum = (typeof SellerAuditLogOrderByRelevanceFieldEnum)[keyof typeof SellerAuditLogOrderByRelevanceFieldEnum]
+
+
+export const LogisticsPartnerOrderByRelevanceFieldEnum = {
+  id: 'id',
+  partnerCode: 'partnerCode',
+  legalName: 'legalName',
+  displayName: 'displayName',
+  displayNameNormalized: 'displayNameNormalized',
+  registrationNumber: 'registrationNumber',
+  taxNumber: 'taxNumber',
+  licenceNumber: 'licenceNumber',
+  registrationCountry: 'registrationCountry',
+  contactEmail: 'contactEmail',
+  contactPhone: 'contactPhone',
+  emergencyPhone: 'emergencyPhone',
+  websiteUrl: 'websiteUrl',
+  contractReference: 'contractReference',
+  suspensionReason: 'suspensionReason',
+  carrierIntegrationId: 'carrierIntegrationId',
+  internalNotes: 'internalNotes',
+  createdById: 'createdById'
+} as const
+
+export type LogisticsPartnerOrderByRelevanceFieldEnum = (typeof LogisticsPartnerOrderByRelevanceFieldEnum)[keyof typeof LogisticsPartnerOrderByRelevanceFieldEnum]
+
+
+export const LogisticsPartnerUserOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  userId: 'userId',
+  fullName: 'fullName',
+  jobTitle: 'jobTitle',
+  phone: 'phone',
+  disabledReason: 'disabledReason'
+} as const
+
+export type LogisticsPartnerUserOrderByRelevanceFieldEnum = (typeof LogisticsPartnerUserOrderByRelevanceFieldEnum)[keyof typeof LogisticsPartnerUserOrderByRelevanceFieldEnum]
+
+
+export const LogisticsPartnerInvitationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  email: 'email',
+  emailNormalized: 'emailNormalized',
+  fullName: 'fullName',
+  tokenHash: 'tokenHash',
+  invitedByPartnerUserId: 'invitedByPartnerUserId',
+  invitedByAdminUserId: 'invitedByAdminUserId'
+} as const
+
+export type LogisticsPartnerInvitationOrderByRelevanceFieldEnum = (typeof LogisticsPartnerInvitationOrderByRelevanceFieldEnum)[keyof typeof LogisticsPartnerInvitationOrderByRelevanceFieldEnum]
+
+
+export const LogisticsServiceRegionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  countryCode: 'countryCode',
+  regionValue: 'regionValue'
+} as const
+
+export type LogisticsServiceRegionOrderByRelevanceFieldEnum = (typeof LogisticsServiceRegionOrderByRelevanceFieldEnum)[keyof typeof LogisticsServiceRegionOrderByRelevanceFieldEnum]
+
+
+export const LogisticsCapabilityOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  evidenceReference: 'evidenceReference',
+  decidedByUserId: 'decidedByUserId',
+  decisionNote: 'decisionNote'
+} as const
+
+export type LogisticsCapabilityOrderByRelevanceFieldEnum = (typeof LogisticsCapabilityOrderByRelevanceFieldEnum)[keyof typeof LogisticsCapabilityOrderByRelevanceFieldEnum]
+
+
+export const LogisticsSlaPolicyOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  name: 'name'
+} as const
+
+export type LogisticsSlaPolicyOrderByRelevanceFieldEnum = (typeof LogisticsSlaPolicyOrderByRelevanceFieldEnum)[keyof typeof LogisticsSlaPolicyOrderByRelevanceFieldEnum]
+
+
+export const LogisticsShipmentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  shipmentReference: 'shipmentReference',
+  orderId: 'orderId',
+  sellerOrderGroupId: 'sellerOrderGroupId',
+  operatorShipmentId: 'operatorShipmentId',
+  originLocationId: 'originLocationId',
+  assignedPartnerId: 'assignedPartnerId',
+  trackingNumber: 'trackingNumber',
+  carrierIntegrationId: 'carrierIntegrationId',
+  carrierTrackingNumber: 'carrierTrackingNumber',
+  carrierTrackingUrl: 'carrierTrackingUrl',
+  sellerAccountId: 'sellerAccountId',
+  sellerCompanyName: 'sellerCompanyName',
+  receivingCustomerProfileId: 'receivingCustomerProfileId',
+  receivingCompanyName: 'receivingCompanyName',
+  pickupContactName: 'pickupContactName',
+  pickupContactPhone: 'pickupContactPhone',
+  pickupContactEmail: 'pickupContactEmail',
+  deliveryContactName: 'deliveryContactName',
+  deliveryContactPhone: 'deliveryContactPhone',
+  deliveryContactEmail: 'deliveryContactEmail',
+  originCountry: 'originCountry',
+  destinationCountry: 'destinationCountry',
+  destinationCity: 'destinationCity',
+  destinationPostalCode: 'destinationPostalCode',
+  productCategorySummary: 'productCategorySummary',
+  dangerousGoodsClass: 'dangerousGoodsClass',
+  handlingNotes: 'handlingNotes',
+  currency: 'currency',
+  slaPolicyId: 'slaPolicyId',
+  createdById: 'createdById'
+} as const
+
+export type LogisticsShipmentOrderByRelevanceFieldEnum = (typeof LogisticsShipmentOrderByRelevanceFieldEnum)[keyof typeof LogisticsShipmentOrderByRelevanceFieldEnum]
+
+
+export const LogisticsShipmentPackageOrderByRelevanceFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  packageReference: 'packageReference',
+  packagingType: 'packagingType',
+  batchReference: 'batchReference'
+} as const
+
+export type LogisticsShipmentPackageOrderByRelevanceFieldEnum = (typeof LogisticsShipmentPackageOrderByRelevanceFieldEnum)[keyof typeof LogisticsShipmentPackageOrderByRelevanceFieldEnum]
+
+
+export const LogisticsShipmentAssignmentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  logisticsPartnerId: 'logisticsPartnerId',
+  responseReason: 'responseReason',
+  withdrawnReason: 'withdrawnReason',
+  offeredByUserId: 'offeredByUserId',
+  respondedByPartnerUserId: 'respondedByPartnerUserId'
+} as const
+
+export type LogisticsShipmentAssignmentOrderByRelevanceFieldEnum = (typeof LogisticsShipmentAssignmentOrderByRelevanceFieldEnum)[keyof typeof LogisticsShipmentAssignmentOrderByRelevanceFieldEnum]
+
+
+export const LogisticsShipmentEventOrderByRelevanceFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  publicDescription: 'publicDescription',
+  internalNote: 'internalNote',
+  locationLabel: 'locationLabel',
+  locationCountry: 'locationCountry',
+  actorUserId: 'actorUserId',
+  actorLogisticsPartnerId: 'actorLogisticsPartnerId',
+  externalEventId: 'externalEventId',
+  externalStatusCode: 'externalStatusCode',
+  carrierIntegrationId: 'carrierIntegrationId',
+  externalEventKey: 'externalEventKey',
+  idempotencyKey: 'idempotencyKey',
+  reason: 'reason',
+  exceptionId: 'exceptionId',
+  documentId: 'documentId'
+} as const
+
+export type LogisticsShipmentEventOrderByRelevanceFieldEnum = (typeof LogisticsShipmentEventOrderByRelevanceFieldEnum)[keyof typeof LogisticsShipmentEventOrderByRelevanceFieldEnum]
+
+
+export const LogisticsShipmentExceptionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  logisticsPartnerId: 'logisticsPartnerId',
+  reason: 'reason',
+  detail: 'detail',
+  ownerPartnerUserId: 'ownerPartnerUserId',
+  ownerAdminUserId: 'ownerAdminUserId',
+  resolutionNotes: 'resolutionNotes',
+  escalationNote: 'escalationNote',
+  raisedByUserId: 'raisedByUserId'
+} as const
+
+export type LogisticsShipmentExceptionOrderByRelevanceFieldEnum = (typeof LogisticsShipmentExceptionOrderByRelevanceFieldEnum)[keyof typeof LogisticsShipmentExceptionOrderByRelevanceFieldEnum]
+
+
+export const LogisticsShipmentDocumentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  fileName: 'fileName',
+  contentType: 'contentType',
+  storageKey: 'storageKey',
+  contentHash: 'contentHash',
+  scanDetail: 'scanDetail',
+  uploadedByUserId: 'uploadedByUserId'
+} as const
+
+export type LogisticsShipmentDocumentOrderByRelevanceFieldEnum = (typeof LogisticsShipmentDocumentOrderByRelevanceFieldEnum)[keyof typeof LogisticsShipmentDocumentOrderByRelevanceFieldEnum]
+
+
+export const LogisticsProofOfDeliveryOrderByRelevanceFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  recipientName: 'recipientName',
+  recipientDesignation: 'recipientDesignation',
+  deliveryLocationLabel: 'deliveryLocationLabel',
+  signatureDocumentId: 'signatureDocumentId',
+  photoDocumentId: 'photoDocumentId',
+  exceptionNote: 'exceptionNote',
+  capturedByPartnerUserId: 'capturedByPartnerUserId'
+} as const
+
+export type LogisticsProofOfDeliveryOrderByRelevanceFieldEnum = (typeof LogisticsProofOfDeliveryOrderByRelevanceFieldEnum)[keyof typeof LogisticsProofOfDeliveryOrderByRelevanceFieldEnum]
+
+
+export const LogisticsPickupRequestOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  shipmentId: 'shipmentId',
+  locationId: 'locationId',
+  timezone: 'timezone',
+  warehouseInstructions: 'warehouseInstructions',
+  driverProfileId: 'driverProfileId',
+  vehicleId: 'vehicleId',
+  failureReason: 'failureReason',
+  completionIdempotencyKey: 'completionIdempotencyKey',
+  createdByUserId: 'createdByUserId'
+} as const
+
+export type LogisticsPickupRequestOrderByRelevanceFieldEnum = (typeof LogisticsPickupRequestOrderByRelevanceFieldEnum)[keyof typeof LogisticsPickupRequestOrderByRelevanceFieldEnum]
+
+
+export const LogisticsDispatchManifestOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  manifestNumber: 'manifestNumber',
+  driverProfileId: 'driverProfileId',
+  vehicleId: 'vehicleId',
+  originLabel: 'originLabel',
+  destinationLabel: 'destinationLabel',
+  handoverSignedBy: 'handoverSignedBy',
+  notes: 'notes',
+  createdByPartnerUserId: 'createdByPartnerUserId'
+} as const
+
+export type LogisticsDispatchManifestOrderByRelevanceFieldEnum = (typeof LogisticsDispatchManifestOrderByRelevanceFieldEnum)[keyof typeof LogisticsDispatchManifestOrderByRelevanceFieldEnum]
+
+
+export const LogisticsDispatchManifestEntryOrderByRelevanceFieldEnum = {
+  id: 'id',
+  manifestId: 'manifestId',
+  shipmentId: 'shipmentId'
+} as const
+
+export type LogisticsDispatchManifestEntryOrderByRelevanceFieldEnum = (typeof LogisticsDispatchManifestEntryOrderByRelevanceFieldEnum)[keyof typeof LogisticsDispatchManifestEntryOrderByRelevanceFieldEnum]
+
+
+export const LogisticsDriverProfileOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  partnerUserId: 'partnerUserId',
+  employeeReference: 'employeeReference',
+  licenceNumber: 'licenceNumber'
+} as const
+
+export type LogisticsDriverProfileOrderByRelevanceFieldEnum = (typeof LogisticsDriverProfileOrderByRelevanceFieldEnum)[keyof typeof LogisticsDriverProfileOrderByRelevanceFieldEnum]
+
+
+export const LogisticsVehicleOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  registration: 'registration'
+} as const
+
+export type LogisticsVehicleOrderByRelevanceFieldEnum = (typeof LogisticsVehicleOrderByRelevanceFieldEnum)[keyof typeof LogisticsVehicleOrderByRelevanceFieldEnum]
+
+
+export const LogisticsDriverAssignmentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  driverProfileId: 'driverProfileId',
+  vehicleId: 'vehicleId',
+  assignedByPartnerUserId: 'assignedByPartnerUserId'
+} as const
+
+export type LogisticsDriverAssignmentOrderByRelevanceFieldEnum = (typeof LogisticsDriverAssignmentOrderByRelevanceFieldEnum)[keyof typeof LogisticsDriverAssignmentOrderByRelevanceFieldEnum]
+
+
+export const LogisticsActiveTripOrderByRelevanceFieldEnum = {
+  id: 'id',
+  driverProfileId: 'driverProfileId',
+  vehicleId: 'vehicleId',
+  shipmentId: 'shipmentId',
+  deviceTokenHash: 'deviceTokenHash'
+} as const
+
+export type LogisticsActiveTripOrderByRelevanceFieldEnum = (typeof LogisticsActiveTripOrderByRelevanceFieldEnum)[keyof typeof LogisticsActiveTripOrderByRelevanceFieldEnum]
+
+
+export const LogisticsLocationPingOrderByRelevanceFieldEnum = {
+  id: 'id',
+  tripId: 'tripId',
+  driverProfileId: 'driverProfileId',
+  driverUserId: 'driverUserId',
+  idempotencyKey: 'idempotencyKey'
+} as const
+
+export type LogisticsLocationPingOrderByRelevanceFieldEnum = (typeof LogisticsLocationPingOrderByRelevanceFieldEnum)[keyof typeof LogisticsLocationPingOrderByRelevanceFieldEnum]
+
+
+export const CarrierIntegrationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name',
+  baseUrl: 'baseUrl',
+  credentialsEnc: 'credentialsEnc',
+  webhookSecretEnc: 'webhookSecretEnc',
+  webhookSignatureHeader: 'webhookSignatureHeader',
+  webhookTimestampHeader: 'webhookTimestampHeader',
+  webhookAlgorithm: 'webhookAlgorithm',
+  webhookPathToken: 'webhookPathToken',
+  lastFailureMessage: 'lastFailureMessage',
+  createdById: 'createdById'
+} as const
+
+export type CarrierIntegrationOrderByRelevanceFieldEnum = (typeof CarrierIntegrationOrderByRelevanceFieldEnum)[keyof typeof CarrierIntegrationOrderByRelevanceFieldEnum]
+
+
+export const CarrierStatusMappingOrderByRelevanceFieldEnum = {
+  id: 'id',
+  carrierIntegrationId: 'carrierIntegrationId',
+  providerCode: 'providerCode',
+  publicDescription: 'publicDescription',
+  note: 'note'
+} as const
+
+export type CarrierStatusMappingOrderByRelevanceFieldEnum = (typeof CarrierStatusMappingOrderByRelevanceFieldEnum)[keyof typeof CarrierStatusMappingOrderByRelevanceFieldEnum]
+
+
+export const CarrierWebhookEventOrderByRelevanceFieldEnum = {
+  id: 'id',
+  carrierIntegrationId: 'carrierIntegrationId',
+  providerEventId: 'providerEventId',
+  trackingNumber: 'trackingNumber',
+  shipmentId: 'shipmentId',
+  providerStatusCode: 'providerStatusCode',
+  lastError: 'lastError'
+} as const
+
+export type CarrierWebhookEventOrderByRelevanceFieldEnum = (typeof CarrierWebhookEventOrderByRelevanceFieldEnum)[keyof typeof CarrierWebhookEventOrderByRelevanceFieldEnum]
+
+
+export const LogisticsNotificationOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  partnerUserId: 'partnerUserId',
+  shipmentId: 'shipmentId',
+  title: 'title',
+  body: 'body',
+  dedupeKey: 'dedupeKey'
+} as const
+
+export type LogisticsNotificationOrderByRelevanceFieldEnum = (typeof LogisticsNotificationOrderByRelevanceFieldEnum)[keyof typeof LogisticsNotificationOrderByRelevanceFieldEnum]
+
+
+export const LogisticsAuditLogOrderByRelevanceFieldEnum = {
+  id: 'id',
+  logisticsPartnerId: 'logisticsPartnerId',
+  actorUserId: 'actorUserId',
+  actorLabel: 'actorLabel',
+  action: 'action',
+  resourceType: 'resourceType',
+  resourceId: 'resourceId',
+  summary: 'summary',
+  ipAddress: 'ipAddress',
+  correlationId: 'correlationId'
+} as const
+
+export type LogisticsAuditLogOrderByRelevanceFieldEnum = (typeof LogisticsAuditLogOrderByRelevanceFieldEnum)[keyof typeof LogisticsAuditLogOrderByRelevanceFieldEnum]
 

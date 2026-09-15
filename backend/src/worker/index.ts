@@ -285,6 +285,17 @@ async function maintenance(): Promise<void> {
     // over hours instead of locking every table in one statement. A pass with
     // nothing expired costs four indexed queries and writes nothing.
     await queue.enqueue(JobType.RETENTION_SWEEP, {}, { dedupeKey: `retention_sweep:${slot}` });
+
+    // The logistics portal's heartbeat: unanswered assignment offers, the SLA
+    // column the dashboard counts, abandoned driver trips, position pings past
+    // their retention window, and carrier webhooks that need another go. The
+    // handler returns immediately when the feature is off, so an installation
+    // with no carriers pays one branch for this.
+    await queue.enqueue(
+      JobType.LOGISTICS_MAINTENANCE,
+      {},
+      { dedupeKey: `logistics_maintenance:${slot}` },
+    );
   } catch (error) {
     // Maintenance must never take the loop down; the next tick retries it.
     logger.error({ err: error }, 'maintenance pass failed');
