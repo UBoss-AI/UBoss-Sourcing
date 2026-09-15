@@ -48,6 +48,7 @@ function membershipFor(role: keyof typeof SellerRole): SellerMembership {
     isTrading: true,
     isApplicationEditable: false,
     registrationCountry: 'IN',
+    logoStorageKey: null,
   };
 }
 

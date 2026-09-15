@@ -13,8 +13,10 @@ import {
   AlertTriangleIcon,
   AuditIcon,
   BrandRequestIcon,
+  CarrierIcon,
   CategoriesIcon,
   ChatIcon,
+  CompaniesIcon,
   CouponsIcon,
   CustomersIcon,
   DashboardIcon,
@@ -168,6 +170,19 @@ export const NAVIGATION: NavGroup[] = [
         matchPrefix: true,
       },
       {
+        /*
+         * Above Customers and Sellers rather than beside them, because it is
+         * the way into both: an operator asking "who is this business" starts
+         * here and opens the buying account, the seller application or the
+         * carrier from inside the company it belongs to.
+         */
+        labelKey: 'nav.companies',
+        to: '/companies',
+        icon: CompaniesIcon,
+        permissions: [Permission.CUSTOMER_READ, Permission.LOGISTICS_READ],
+        matchPrefix: true,
+      },
+      {
         labelKey: 'nav.customers',
         to: '/customers',
         icon: CustomersIcon,
@@ -219,7 +234,7 @@ export const NAVIGATION: NavGroup[] = [
       {
         labelKey: 'nav.logisticsPartners',
         to: '/logistics/partners',
-        icon: SellerIcon,
+        icon: CarrierIcon,
         permissions: [Permission.LOGISTICS_READ],
         matchPrefix: true,
       },

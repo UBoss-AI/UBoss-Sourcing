@@ -70,6 +70,7 @@ beforeAll(async () => {
     isTrading: true,
     isApplicationEditable: false,
     registrationCountry: 'IN',
+    logoStorageKey: null,
   };
 });
 

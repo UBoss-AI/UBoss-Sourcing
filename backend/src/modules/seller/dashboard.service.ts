@@ -84,6 +84,18 @@ export interface SellerDashboard {
   /** Null when nothing has been sold yet - which is not a score of zero. */
   qualityScore: number | null;
 
+  /**
+   * This seller has not put anything here yet: no listing, no draft, no order.
+   *
+   * Computed here rather than inferred in the screen from a row of zeroes,
+   * because those two things are not the same. A seller whose listings tile
+   * failed to load also sees zeroes, and a screen that read them as "you have
+   * nothing" would tell a seller with four hundred products that they have
+   * none. This is false unless the counts it rests on were actually read - see
+   * where it is set.
+   */
+  hasNothingYet: boolean;
+
   documentsExpiringSoon: { id: string; kind: string; expiresOn: string }[];
   closedLocations: { id: string; name: string; reason: string | null }[];
 
@@ -296,6 +308,27 @@ export async function readDashboard(
   const offerCount = (status: string): number => countOf(offerCounts, status);
   const draftCount = (status: string): number => countOf(draftCounts, status);
 
+  /*
+   * Has this seller ever put anything here?
+   *
+   * Every count that could say otherwise has to have been READ, not merely
+   * come back zero: `countOf` cannot tell a seller with no listings from a
+   * listings query that failed, and the difference decides whether the Hub
+   * greets them with "here is how to start" or hides their catalogue behind
+   * it.
+   */
+  const failed = new Set(unavailable.map((entry) => entry.tile));
+  const countsAreKnown = !failed.has('orders') && !failed.has('listings') && !failed.has('drafts');
+
+  const totalOf = (rows: StatusCount[]): number =>
+    rows.reduce((sum, entry) => sum + entry.count, 0);
+
+  const hasNothingYet =
+    countsAreKnown &&
+    totalOf(orderCounts) === 0 &&
+    totalOf(offerCounts) === 0 &&
+    totalOf(draftCounts) === 0;
+
   // The seller's own currency, taken from the biggest slice of their sales
   // rather than from a setting. A seller trading in two currencies gets the one
   // they mostly trade in, and the settlements page shows both.
@@ -353,6 +386,8 @@ export async function readDashboard(
     outOfStockSkus: stockCounts.out,
 
     qualityScore: account?.qualityScore === null || account === null ? null : Number(account.qualityScore),
+
+    hasNothingYet,
 
     documentsExpiringSoon: expiringDocuments
       .filter((document) => document.expiresOn !== null)

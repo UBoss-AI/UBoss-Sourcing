@@ -2162,6 +2162,7 @@
   "productDetail.unavailabilityReason": "Por qué no se puede pedir",
   "productDetail.unavailabilityReasonHint": "Se muestra al cliente junto al aviso. Déjelo en blanco para mostrar solo el aviso.",
   "productDetail.provisionalPrice": "Este precio es provisional, fijado cuando se importó el catálogo sin precios. Un cliente puede pedir a ese precio. Guarde arriba un precio real para confirmarlo: al hacerlo desaparece este aviso.",
+  "nav.companies": "Empresas",
   "nav.sellers": "Vendedores",
   "nav.brandRequests": "Solicitudes de marca",
   "nav.listingReview": "Revisión de fichas",

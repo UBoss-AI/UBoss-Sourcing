@@ -2138,6 +2138,7 @@
   "productDetail.unavailabilityReason": "Why it cannot be ordered",
   "productDetail.unavailabilityReasonHint": "Shown to the customer beside the notice. Leave it blank for the notice on its own.",
   "productDetail.provisionalPrice": "This price is a placeholder, set when the catalogue was imported without prices. A customer can order at it. Save a real price above to confirm it — doing so clears this notice.",
+  "nav.companies": "Companies",
   "nav.sellers": "Sellers",
   "nav.brandRequests": "Brand requests",
   "nav.listingReview": "Listing review",

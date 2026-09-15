@@ -2162,6 +2162,7 @@
   "productDetail.unavailabilityReason": "Perché non è ordinabile",
   "productDetail.unavailabilityReasonHint": "Mostrato al cliente accanto all'avviso. Lo lasci vuoto per mostrare solo l'avviso.",
   "productDetail.provisionalPrice": "Questo prezzo è provvisorio, impostato quando il catalogo è stato importato senza prezzi. Un cliente può ordinare a questa cifra. Salvi un prezzo reale qui sopra per confermarlo: così l'avviso sparisce.",
+  "nav.companies": "Aziende",
   "nav.sellers": "Venditori",
   "nav.brandRequests": "Richieste di marca",
   "nav.listingReview": "Controllo delle schede",

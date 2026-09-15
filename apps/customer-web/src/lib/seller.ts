@@ -40,6 +40,8 @@ export interface SellerIdentity {
   role: string;
   isTrading: boolean;
   isApplicationEditable: boolean;
+  /** The seller's own mark, for the Hub's frame. Null until they upload one. */
+  logoUrl: string | null;
   permissions: string[];
 }
 
@@ -242,6 +244,8 @@ export interface SellerDashboard {
   lowStockSkus: number;
   outOfStockSkus: number;
   qualityScore: number | null;
+  /** Nothing listed, nothing drafted, nothing ordered - a brand-new seller. */
+  hasNothingYet: boolean;
   documentsExpiringSoon: { id: string; kind: string; expiresOn: string }[];
   closedLocations: { id: string; name: string; reason: string | null }[];
   onboarding: {

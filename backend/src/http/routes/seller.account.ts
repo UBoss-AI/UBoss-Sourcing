@@ -130,6 +130,16 @@ export function registerSellerEntryRoutes(app: FastifyInstance): Promise<void> {
         role: membership.role,
         isTrading: membership.isTrading,
         isApplicationEditable: membership.isApplicationEditable,
+        /*
+         * The seller's own mark, so the Hub can put it above their name.
+         *
+         * Here rather than only on the profile screen because the Hub's frame
+         * is on every page a seller works in, and a workspace headed by the
+         * marketplace's branding and a line of text is a workspace that never
+         * quite feels like the seller's own. Null is a working state - the
+         * frame draws their initial instead of the operator's logo.
+         */
+        logoUrl: logoUrlFor(membership.logoStorageKey),
         permissions: [...membership.permissions],
       },
     });

@@ -248,6 +248,61 @@ function RailLink({
 }
 
 // ---------------------------------------------------------------------------
+// The company's own mark
+// ---------------------------------------------------------------------------
+
+/**
+ * The seller's logo, or their initial.
+ *
+ * A seller's workspace is headed by the seller's own company, not by the
+ * marketplace's: they are running their business through this screen, and a
+ * frame branded entirely by somebody else is one they never quite recognise as
+ * theirs. The operator's name stays as the small caption above it, because
+ * whose marketplace this is remains a fact worth stating.
+ *
+ * A seller who has not uploaded anything gets their initial on a tinted square
+ * rather than a placeholder image — never the operator's logo, which would put
+ * the marketplace's mark over a seller's name.
+ */
+function CompanyMark({
+  name,
+  logoUrl,
+  className,
+}: {
+  name: string;
+  logoUrl: string | null;
+  className?: string;
+}): React.JSX.Element {
+  const initial = name.trim().charAt(0).toUpperCase();
+
+  if (logoUrl === null) {
+    return (
+      <span
+        aria-hidden="true"
+        className={cx(
+          'flex shrink-0 items-center justify-center rounded-md bg-brand-soft',
+          'font-semibold text-brand',
+          className,
+        )}
+      >
+        {initial.length === 0 ? '?' : initial}
+      </span>
+    );
+  }
+
+  return (
+    <img
+      src={logoUrl}
+      alt=""
+      // Decorative: the company's name is rendered beside it in text, so a
+      // screen reader announcing the logo as well would say it twice.
+      aria-hidden="true"
+      className={cx('shrink-0 rounded-md border border-border-subtle bg-surface object-contain', className)}
+    />
+  );
+}
+
+// ---------------------------------------------------------------------------
 // The application banner
 // ---------------------------------------------------------------------------
 
@@ -368,10 +423,19 @@ export function SellerLayout(): React.JSX.Element {
         )}
       >
         <div className="hidden px-5 py-5 lg:block">
-          <p className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-            UBOSS
-          </p>
-          <p className="mt-0.5 text-title-sm text-ink">Seller Hub</p>
+          <div className="flex items-center gap-3">
+            <CompanyMark
+              name={seller.displayName}
+              logoUrl={seller.logoUrl}
+              className="h-10 w-10 text-base"
+            />
+            <div className="min-w-0">
+              <p className="truncate text-title-sm leading-tight text-ink">{seller.displayName}</p>
+              <p className="truncate text-xxs uppercase tracking-wider text-ink-subtle">
+                Seller Hub
+              </p>
+            </div>
+          </div>
         </div>
 
         <nav
@@ -403,6 +467,14 @@ export function SellerLayout(): React.JSX.Element {
         <header className="sticky top-0 z-10 border-b border-border bg-surface/95 backdrop-blur">
           <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
             <div className="flex min-w-0 items-center gap-3">
+              {/* Repeated from the rail on purpose: below `lg` the rail's head
+                  is hidden and this is the only place the seller's own company
+                  appears on the screen they are working in. */}
+              <CompanyMark
+                name={seller.displayName}
+                logoUrl={seller.logoUrl}
+                className="h-9 w-9 text-sm lg:hidden"
+              />
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-ink">{seller.displayName}</p>
                 <p className="truncate text-xxs text-ink-subtle">{seller.legalName}</p>

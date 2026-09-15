@@ -188,6 +188,7 @@ beforeAll(async () => {
     isTrading: true,
     isApplicationEditable: false,
     registrationCountry: 'DE',
+    logoStorageKey: null,
   };
 
   // The shelf itself. A movement moves an existing row - the row is created

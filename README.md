@@ -275,6 +275,15 @@ customers and their credit terms, coupons, sellers and their applications,
 carriers and consignments, settings, integrations, and an append-only audit
 log.
 
+**Companies** is the way into all three audiences at once. A business can buy,
+sell and carry here at the same time, and those are three accounts in three
+tables under three slightly different names; that screen groups them by the
+company they belong to and nests what it finds — company, then its accounts,
+then the people inside them, each person badged with every account they belong
+to. It is read-only: every decision still happens on the screen that owns it.
+Sellers and buyers need `customer.read`, carriers `logistics.read`, and
+somebody holding one of the two sees only that half.
+
 The dashboard opens on a reporting window and carries, for each headline
 figure, the change against the window of equal length before it and the shape
 of the days behind it — so a month's total that arrived in one afternoon does

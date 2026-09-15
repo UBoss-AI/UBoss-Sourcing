@@ -46,6 +46,7 @@ import { registerAdminCatalogRoutes } from './routes/catalog.admin.js';
 import { registerAdminTranslationRoutes } from './routes/translations.admin.js';
 import { registerCartRoutes } from './routes/cart.customer.js';
 import { registerAdminCustomerRoutes } from './routes/customers.admin.js';
+import { registerAdminDirectoryRoutes } from './routes/directory.admin.js';
 import { registerAdminInventoryRoutes } from './routes/inventory.admin.js';
 import { registerAdminSettingsRoutes } from './routes/settings.admin.js';
 import { registerAdminOrderRoutes, registerCustomerOrderRoutes } from './routes/orders.js';
@@ -471,6 +472,13 @@ export async function buildApp() {
   await app.register(registerAdminCatalogRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminTranslationRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminCustomerRoutes, { prefix: `${API_PREFIX}/admin` });
+  /*
+   * Every company that reaches this marketplace, in one tree: who buys, who
+   * sells, who carries, and which accounts belong to the same business. Read
+   * only - see the route file. Registered beside customers because that is
+   * where an operator looks for it.
+   */
+  await app.register(registerAdminDirectoryRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminInventoryRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminSettingsRoutes, { prefix: `${API_PREFIX}/admin` });
   await app.register(registerAdminCouponRoutes, { prefix: `${API_PREFIX}/admin` });

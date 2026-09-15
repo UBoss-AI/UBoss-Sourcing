@@ -2162,6 +2162,7 @@
   "productDetail.unavailabilityReason": "Pourquoi il ne peut pas être commandé",
   "productDetail.unavailabilityReasonHint": "Affiché au client à côté de l'avis. Laissez vide pour n'afficher que l'avis.",
   "productDetail.provisionalPrice": "Ce prix est provisoire, fixé lorsque le catalogue a été importé sans prix. Un client peut commander à ce prix. Enregistrez un vrai prix ci-dessus pour le confirmer : cela fait disparaître cet avis.",
+  "nav.companies": "Entreprises",
   "nav.sellers": "Vendeurs",
   "nav.brandRequests": "Demandes de marque",
   "nav.listingReview": "Contrôle des fiches",

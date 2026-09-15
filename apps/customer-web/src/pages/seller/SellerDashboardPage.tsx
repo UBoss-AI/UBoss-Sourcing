@@ -217,22 +217,196 @@ export function SellerDashboardPage(): React.JSX.Element {
           />
       )}
 
-      {query.data !== undefined && <DashboardBody data={query.data} comparison={comparison} />}
+      {query.data !== undefined && (
+        <DashboardBody data={query.data} comparison={comparison} isTrading={seller.isTrading} />
+      )}
     </div>
+  );
+}
+
+/**
+ * A seller who has not listed anything yet.
+ *
+ * Shown INSTEAD of the tiles, not above them, and that is the whole point.
+ * Twenty figures all reading zero is not an empty state: it is a full screen
+ * that says nothing, it takes a moment to work out that none of it applies
+ * yet, and a "£0.00 in sales" tile is a discouraging thing to hand somebody on
+ * the day they joined. What a new seller needs is the next three things to do.
+ *
+ * Their setup progress stays visible below this, because for most sellers
+ * arriving here the answer to "why can I not add a listing" is in it.
+ */
+function FirstSteps({ isTrading }: { isTrading: boolean }): React.JSX.Element {
+  const steps: readonly { title: string; body: string }[] = Object.freeze([
+    {
+      title: 'Finish your account',
+      body: 'Your business details, your documents and where you ship from. The marketplace reviews these before you can sell.',
+    },
+    {
+      title: 'Add your first product',
+      body: 'Describe what you sell, set your price and say how many you have. It goes to the marketplace for a look before it appears to buyers.',
+    },
+    {
+      title: 'Get ready for orders',
+      body: 'Set your dispatch times and check your stock. Orders arrive here, and the clock starts when you accept one.',
+    },
+  ]);
+
+  return (
+    <Card
+      title="Nothing here yet"
+      description="You have not listed anything, so there is nothing to report on. Here is how to start."
+    >
+      <div className="px-6 py-5">
+        <ol className="space-y-5">
+          {steps.map((step, index) => (
+            <li key={step.title} className="flex gap-4">
+              <span
+                aria-hidden="true"
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xs font-semibold text-brand"
+              >
+                {index + 1}
+              </span>
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-ink">{step.title}</p>
+                <p className="mt-0.5 text-sm leading-relaxed text-ink-muted">{step.body}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+
+        <div className="mt-6 flex flex-wrap gap-3">
+          {/*
+            Only an approved seller is offered the listing form. Before that the
+            honest next step is their application, and a button that opens a
+            form the server will refuse is worse than no button.
+          */}
+          {isTrading ? (
+            <Link to="/seller/listings/new">
+              <Button variant="primary">Add your first listing</Button>
+            </Link>
+          ) : (
+            <Link to="/seller/onboarding">
+              <Button variant="primary">Continue your application</Button>
+            </Link>
+          )}
+          <Link to="/seller/profile">
+            <Button variant="secondary">Your company profile</Button>
+          </Link>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+/**
+ * How far through setup this account is.
+ *
+ * Its own component because it is rendered in two places: beside the work
+ * queue on an established seller's dashboard, and directly under the first
+ * steps on a brand-new one. Duplicating it would be how the two quietly start
+ * disagreeing about what is still outstanding.
+ */
+function SetupCard({ data }: { data: SellerDashboard }): React.JSX.Element {
+  return (
+      <Card
+        title="Setup"
+        description="What is left before your account is fully open."
+        actions={
+          data.onboarding.percentComplete < 100 ? (
+            <Link to="/seller/onboarding">
+              <Button size="sm" variant="primary">
+                Continue
+              </Button>
+            </Link>
+          ) : undefined
+        }
+      >
+        <div className="px-6 py-5">
+          <div className="flex items-center gap-3">
+            <div
+              className="h-2 flex-1 overflow-hidden rounded-full bg-surface-sunken"
+              role="progressbar"
+              aria-valuenow={data.onboarding.percentComplete}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="Setup completed"
+            >
+              <div
+                className="h-full rounded-full bg-brand-fill transition-[width]"
+                style={{ width: `${String(data.onboarding.percentComplete)}%` }}
+              />
+            </div>
+            <span className="tabular shrink-0 text-sm font-semibold text-ink">
+              {data.onboarding.percentComplete}%
+            </span>
+          </div>
+
+          {data.onboarding.blockingSteps.length === 0 ? (
+            <p className="mt-4 text-sm text-ink-muted">
+              Every required step is finished.
+            </p>
+          ) : (
+            <ul className="mt-4 space-y-2">
+              {data.onboarding.blockingSteps.map((step) => (
+                <li key={step.key} className="flex items-center gap-2 text-sm text-ink-muted">
+                  <span
+                    aria-hidden="true"
+                    className="h-1.5 w-1.5 shrink-0 rounded-full bg-warning"
+                  />
+                  {step.title}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {data.qualityScore !== null && (
+            <div className="mt-6 border-t border-border-subtle pt-4">
+              <p className="text-xxs font-medium uppercase tracking-wider text-ink-subtle">
+                Seller quality score
+              </p>
+              <p className="tabular mt-1 text-title-md font-semibold text-ink">
+                {data.qualityScore.toFixed(1)}
+              </p>
+              <p className="mt-1 text-xxs text-ink-subtle">
+                From on-time dispatch, cancellations, returns and listing quality.
+              </p>
+            </div>
+          )}
+        </div>
+      </Card>
   );
 }
 
 function DashboardBody({
   data,
   comparison,
+  isTrading,
 }: {
   data: SellerDashboard;
   comparison: string;
+  isTrading: boolean;
 }): React.JSX.Element {
   const unavailable = new Set(data.unavailable.map((entry) => entry.tile));
 
   const actionsOutstanding =
     data.newOrders + data.overdueOrders + data.listingsNeedingChanges + data.outOfStockSkus;
+
+  /*
+   * Nothing listed, nothing ordered: the tiles are not drawn at all.
+   *
+   * The flag comes from the server rather than being inferred from the zeroes
+   * on this page, for the reason given where it is computed - a failed tile
+   * also reads zero, and this branch hides the seller's whole catalogue.
+   */
+  if (data.hasNothingYet) {
+    return (
+      <div className="space-y-6">
+        <FirstSteps isTrading={isTrading} />
+        <SetupCard data={data} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -286,8 +460,17 @@ function DashboardBody({
       {/* ---- Money --------------------------------------------------------- */}
       <section className="grid gap-4 lg:grid-cols-3">
         <Card title="Sales" description={`Between ${formatDay(data.periodFrom)} and ${formatDay(data.periodTo)}`}>
-          <div className="grid gap-6 px-6 py-5 sm:grid-cols-2">
-            <div>
+          {/*
+            Stacked, never two columns.
+
+            These were side by side, and a figure like ₹400,000.00 does not fit
+            in half of a card that is itself a third of the row: the two amounts
+            ran into each other, and `sm:` could not help because it measures the
+            viewport while the card is a third of it. One under the other always
+            fits, in every currency and every window width.
+          */}
+          <div className="space-y-5 px-6 py-5">
+            <div className="min-w-0">
               <p className="text-xxs font-medium uppercase tracking-wider text-ink-subtle">
                 Gross sales
               </p>
@@ -308,7 +491,7 @@ function DashboardBody({
               )}
             </div>
 
-            <div>
+            <div className="min-w-0">
               <p className="text-xxs font-medium uppercase tracking-wider text-ink-subtle">
                 Your earnings
               </p>
@@ -474,72 +657,7 @@ function DashboardBody({
           )}
         </Card>
 
-        <Card
-          title="Setup"
-          description="What is left before your account is fully open."
-          actions={
-            data.onboarding.percentComplete < 100 ? (
-              <Link to="/seller/onboarding">
-                <Button size="sm" variant="primary">
-                  Continue
-                </Button>
-              </Link>
-            ) : undefined
-          }
-        >
-          <div className="px-6 py-5">
-            <div className="flex items-center gap-3">
-              <div
-                className="h-2 flex-1 overflow-hidden rounded-full bg-surface-sunken"
-                role="progressbar"
-                aria-valuenow={data.onboarding.percentComplete}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-label="Setup completed"
-              >
-                <div
-                  className="h-full rounded-full bg-brand-fill transition-[width]"
-                  style={{ width: `${String(data.onboarding.percentComplete)}%` }}
-                />
-              </div>
-              <span className="tabular shrink-0 text-sm font-semibold text-ink">
-                {data.onboarding.percentComplete}%
-              </span>
-            </div>
-
-            {data.onboarding.blockingSteps.length === 0 ? (
-              <p className="mt-4 text-sm text-ink-muted">
-                Every required step is finished.
-              </p>
-            ) : (
-              <ul className="mt-4 space-y-2">
-                {data.onboarding.blockingSteps.map((step) => (
-                  <li key={step.key} className="flex items-center gap-2 text-sm text-ink-muted">
-                    <span
-                      aria-hidden="true"
-                      className="h-1.5 w-1.5 shrink-0 rounded-full bg-warning"
-                    />
-                    {step.title}
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            {data.qualityScore !== null && (
-              <div className="mt-6 border-t border-border-subtle pt-4">
-                <p className="text-xxs font-medium uppercase tracking-wider text-ink-subtle">
-                  Seller quality score
-                </p>
-                <p className="tabular mt-1 text-title-md font-semibold text-ink">
-                  {data.qualityScore.toFixed(1)}
-                </p>
-                <p className="mt-1 text-xxs text-ink-subtle">
-                  From on-time dispatch, cancellations, returns and listing quality.
-                </p>
-              </div>
-            )}
-          </div>
-        </Card>
+        <SetupCard data={data} />
       </section>
     </div>
   );

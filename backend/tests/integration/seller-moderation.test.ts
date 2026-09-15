@@ -160,6 +160,7 @@ beforeAll(async () => {
     isTrading: true,
     isApplicationEditable: false,
     registrationCountry: 'IN',
+    logoStorageKey: null,
   };
   otherSellerId = await makeSeller('mod-rival', 'Rival Supplies');
 });

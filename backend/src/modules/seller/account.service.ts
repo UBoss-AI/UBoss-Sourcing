@@ -92,6 +92,17 @@ export interface SellerMembership {
   /** Whether the seller may still edit their own application. */
   isApplicationEditable: boolean;
   registrationCountry: string;
+  /**
+   * The object key of the seller's own mark, or null where they have not put
+   * one up.
+   *
+   * The KEY rather than a URL, deliberately: turning a key into a URL is the
+   * storage layer's job and `logo.service.ts` already does it, and importing
+   * that here would close a cycle - it imports this file for the membership it
+   * checks permissions on. The routes that serialise a membership call
+   * `logoUrlFor` themselves.
+   */
+  logoStorageKey: string | null;
 }
 
 function toMembership(row: {
@@ -105,6 +116,7 @@ function toMembership(row: {
     slug: string;
     status: SellerApplicationStatus;
     registrationCountry: string;
+    logoStorageKey: string | null;
   };
 }): SellerMembership {
   const status = row.sellerAccount.status;
@@ -122,6 +134,7 @@ function toMembership(row: {
     isTrading: SELLER_TRADING_STATUSES.includes(status),
     isApplicationEditable: SELLER_EDITABLE_STATUSES.includes(status),
     registrationCountry: row.sellerAccount.registrationCountry,
+    logoStorageKey: row.sellerAccount.logoStorageKey,
   };
 }
 
@@ -152,6 +165,7 @@ export async function findSellerMembership(
           slug: true,
           status: true,
           registrationCountry: true,
+          logoStorageKey: true,
         },
       },
     },

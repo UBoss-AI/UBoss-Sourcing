@@ -2136,6 +2136,15 @@ applicant has things told to them and things recorded about them from the moment
 they apply, and a screen that refused them until approval would hide exactly the
 notices explaining the delay.
 
+**The frame is headed by the seller's own company, not by the marketplace's.**
+Their logo and their trading name sit at the top of the rail, with "Seller Hub"
+as the caption under it, and the logo appears again in the working area's header
+on a phone, where the rail's head is not drawn. A seller who has not uploaded a
+logo gets their initial on a tinted square — never the operator's mark over a
+seller's name. The logo comes from `GET /sellers/me` along with everything else
+the frame needs, so it costs no extra request; the seller uploads and replaces it
+on **Profile**.
+
 ### Home
 
 Every number is live and every number says what period it covers. "Sales:
@@ -2151,6 +2160,19 @@ find out what to pack.
 and a failure comes back as a dash with an explanation rather than as a zero. A
 seller who reads "0 new orders" and goes home is worse off than one who reads
 "we could not work this out".
+
+**A seller who has listed nothing sees none of it.** No listing, no draft and no
+order means the tiles are not drawn at all: the page shows the three things to do
+first — finish the account, add the first product, get ready for orders — with
+their setup progress under it. Twenty figures all reading zero is not an empty
+state. It is a full screen that says nothing, it takes a moment to work out that
+none of it applies yet, and "£0.00 in sales" is a discouraging thing to hand
+somebody on the day they joined.
+
+That "nothing yet" is decided by the server (`hasNothingYet`) rather than by the
+screen adding up its own zeroes, and the distinction is not pedantic: a listings
+query that failed also reads zero, and a screen that treated the two the same
+would tell a seller with four hundred products that they have none.
 
 ### Listings
 
@@ -2877,6 +2899,7 @@ meantime.
 | `/orders/:id` | Order detail | Items, payments, shipments, status actions |
 | `/payments` | Payments | Transactions, refunds, payment links |
 | `/recurring` | Recurring | Customers' repeating-order schedules |
+| `/companies` | Companies | Every business here as one card: its seller account, its buying accounts, its carrier account, and the people inside them |
 | `/customers` | Customers | Accounts, including "awaiting approval" |
 | `/customers/:id` | Customer detail | Their prices, limits, addresses, orders |
 | `/chat-enquiries` | Chat enquiries | Transcripts from AI Mode, and whose account each one belongs to |
@@ -2893,6 +2916,58 @@ meantime.
 | `/staff` | Staff | Staff accounts and their roles |
 | `/settings` | Settings | Business profile, policy links, tax, shipping, currencies, notifications |
 | `/settings/erp` | Settings → ERP | The ERP connection: address, credentials, endpoints, field mapping, test, sync, activity |
+
+## Companies: one business, all of its accounts
+
+A business can reach this marketplace through three doors at once. It buys —
+a customer account. It sells — a seller organisation. It carries — a logistics
+partner. Each of those lives in its own table, on its own screen, with its own
+idea of what the business is called, and nothing on any of those three screens
+says that they are the same company.
+
+`/companies` is that missing view. It is not a fourth list of accounts: it is
+the three, grouped by the business they belong to and nested three levels deep.
+
+- **A company** is a card. Its badges say what it does here: *Sells*, *Buys*,
+  *Carries* — one, two or all three.
+- **An account** is a panel inside the card, with the figures that matter for
+  that kind of account. A seller shows live listings, listings in review,
+  drafts and orders received. A carrier shows open consignments, its people and
+  its contract. The buying side shows how many accounts and how many orders.
+  Each panel is a link to the screen that can change something.
+- **A person** is a row below them, carrying a badge for every account they
+  belong to. That last part is the point of the screen: one row reading
+  *Sells · Owner* **and** *Buys · Buyer* is how an operator sees that the seller
+  they just approved and the buyer who placed Tuesday's order are the same human
+  being with one login.
+
+The grouping key is the company name, normalised — case, punctuation, accents
+and the trailing legal form are ignored, so "Northwind Medical Ltd",
+"northwind-medical" and "Northwind Medical B.V." land on one card. A buyer's
+typed employer is also matched against a seller's **legal** name, not only its
+trading name.
+
+It is deliberately a hint rather than a claim. There is no company table in
+this database and inventing one would mean reconciling every existing account
+into it before anybody could sign in; a buyer types their employer into a free
+text box and is never asked for a registration number. So every account inside
+a card keeps its own legal name, country and status on screen, and an operator
+can see at a glance when two unrelated businesses have collided under one name.
+
+Two things it deliberately does not do:
+
+- **It never writes.** Approving a seller, suspending a carrier and changing a
+  customer each already have a screen that enforces its own permission and
+  writes its own audit row. This one links to them.
+- **It does not invent companies for people who never named one.** A buyer with
+  no employer on their profile is the ordinary case on a marketplace — anybody
+  can open an account and buy. They are counted together at the bottom of the
+  page, with the most recent few and a link to Customers, rather than appearing
+  as a hundred thousand one-person "companies" that bury the real ones.
+
+What it shows depends on who is asking. Sellers and buyers need `customer.read`;
+carriers need `logistics.read`. Somebody holding only one of the two sees only
+that part of the tree — absent, not greyed out.
 
 ## Warehouses, and the map
 
@@ -4320,6 +4395,26 @@ Two of these are worth restating because they are easy to get backwards:
   Saving something already saved is the customer getting what they wanted, and
   a `201` would be a claim that a row was created.
 
+## One admin endpoint that reads across three audiences
+
+`GET /api/v1/admin/directory` is what the Companies screen reads. It is the
+only route in the panel that answers from the seller, customer and logistics
+tables at once, so it is also the only one whose guard is "either of these two
+permissions" rather than "all of these":
+
+- `customer.read` returns sellers, buying companies and the people in them.
+- `logistics.read` returns carriers and their people.
+- Holding one and not the other returns only that half — absent from the
+  answer, not disabled in the screen, and not counted in a total the caller
+  cannot see.
+- Holding neither is a `403`, decided in the handler rather than the guard.
+
+It takes `search`, `kind` (`SELLER` / `BUYER` / `LOGISTICS`), `page` and
+`pageSize`, and it writes nothing. Companies are grouped in memory because the
+grouping cannot be done a page at a time across three tables; when more match
+than the index will hold, the answer says so with `isTruncated` and the screen
+asks the operator to narrow the search rather than quietly showing the first
+few hundred as though they were all of them.
 ## The AI assistant
 
 Six endpoints. **The first two answer anybody; the other four need an account.**

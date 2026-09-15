@@ -2138,6 +2138,7 @@
   "productDetail.unavailabilityReason": "Warum es nicht bestellt werden kann",
   "productDetail.unavailabilityReasonHint": "Wird dem Kunden neben dem Hinweis angezeigt. Lassen Sie es leer, um nur den Hinweis zu zeigen.",
   "productDetail.provisionalPrice": "Dieser Preis ist ein Platzhalter, gesetzt, als der Katalog ohne Preise importiert wurde. Ein Kunde kann zu diesem Preis bestellen. Speichern Sie oben einen echten Preis, um ihn zu bestätigen – damit verschwindet dieser Hinweis.",
+  "nav.companies": "Unternehmen",
   "nav.sellers": "Verkäufer",
   "nav.brandRequests": "Markenanträge",
   "nav.listingReview": "Anzeigenprüfung",

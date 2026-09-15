@@ -2138,6 +2138,7 @@
   "productDetail.unavailabilityReason": "Waarom het niet besteld kan worden",
   "productDetail.unavailabilityReasonHint": "Wordt naast de melding aan de klant getoond. Laat het leeg voor alleen de melding.",
   "productDetail.provisionalPrice": "Deze prijs is een tijdelijke waarde, gezet toen de catalogus zonder prijzen werd geïmporteerd. Een klant kan er tegen bestellen. Sla hierboven een echte prijs op om die te bevestigen: daarmee verdwijnt deze melding.",
+  "nav.companies": "Bedrijven",
   "nav.sellers": "Verkopers",
   "nav.brandRequests": "Merkaanvragen",
   "nav.listingReview": "Beoordeling van vermeldingen",

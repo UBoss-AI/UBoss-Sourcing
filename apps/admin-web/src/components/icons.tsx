@@ -132,6 +132,27 @@ export function LogisticsIcon(props: IconProps): React.JSX.Element {
   );
 }
 
+/**
+ * A carrier company, as distinct from its lorries.
+ *
+ * The Carriers row used to borrow the seller shopfront, which put the same
+ * silhouette against two different audiences in one sidebar. This is a
+ * building with a vehicle in front of it: a haulage company rather than a
+ * consignment, which is what `LogisticsIcon` above says.
+ */
+export function CarrierIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M4.2 13.5V5.4a1 1 0 0 1 1-1h7.6a1 1 0 0 1 1 1v8.1" />
+      <path d="M7.2 7.6h3.6M7.2 10.6h3.6" />
+      <path d="M3 17.4h11.2v-3.9H3z" />
+      <path d="M14.2 15h2.9l2.1 2.1v0.3h-5z" />
+      <circle cx="7" cy="19.2" r="1.5" />
+      <circle cx="16.4" cy="19.2" r="1.5" />
+    </Icon>
+  );
+}
+
 export function CouponsIcon(props: IconProps): React.JSX.Element {
   return (
     <Icon {...props}>
@@ -176,6 +197,25 @@ export function CustomersIcon(props: IconProps): React.JSX.Element {
       <circle cx="9.2" cy="8.4" r="3.4" />
       <path d="M3.4 19.6a5.8 5.8 0 0 1 11.6 0" />
       <path d="M16.4 5.6a3.2 3.2 0 0 1 0 5.8M17.8 14.6a5.8 5.8 0 0 1 2.8 5" />
+    </Icon>
+  );
+}
+
+/**
+ * Companies. An office block beside a smaller building - one business, more
+ * than one door into this marketplace.
+ *
+ * Deliberately not a person and not a shopfront: the two rows below it in the
+ * sidebar already carry those, and this one is the group the other two sit
+ * inside rather than a third audience.
+ */
+export function CompaniesIcon(props: IconProps): React.JSX.Element {
+  return (
+    <Icon {...props}>
+      <path d="M4 20.5V6.2a1 1 0 0 1 1-1h6.4a1 1 0 0 1 1 1v14.3" />
+      <path d="M12.4 20.5V10.4a1 1 0 0 1 1-1H19a1 1 0 0 1 1 1v10.1" />
+      <path d="M3 20.5h18" />
+      <path d="M6.8 8.6h2.6M6.8 12.2h2.6M6.8 15.8h2.6M15.2 13h2M15.2 16.6h2" />
     </Icon>
   );
 }

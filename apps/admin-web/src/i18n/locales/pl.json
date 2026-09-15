@@ -2186,6 +2186,7 @@
   "productDetail.unavailabilityReason": "Dlaczego nie można go zamówić",
   "productDetail.unavailabilityReasonHint": "Pokazywane klientowi obok komunikatu. Zostaw puste, aby pokazać sam komunikat.",
   "productDetail.provisionalPrice": "Ta cena jest tymczasowa, ustawiona przy imporcie katalogu bez cen. Klient może po niej zamówić. Zapisz powyżej prawdziwą cenę, aby ją potwierdzić – wtedy ten komunikat zniknie.",
+  "nav.companies": "Firmy",
   "nav.sellers": "Sprzedawcy",
   "nav.brandRequests": "Wnioski o marki",
   "nav.listingReview": "Weryfikacja ofert",

@@ -137,6 +137,22 @@ export const router = createBrowserRouter([
           Permission.SCHEDULE_READ,
         ]),
       },
+      /*
+       * Companies - the three audiences grouped by the business they belong to.
+       *
+       * Declared before Customers because it is the way in: an operator asking
+       * "who is this company" starts here and opens the customer, the seller or
+       * the carrier from inside it. Guarded by CUSTOMER_READ or LOGISTICS_READ -
+       * either one is enough to be shown the part of the tree it covers, and the
+       * server decides which part that is.
+       */
+      {
+        path: 'companies',
+        ...lazyRoute(() => import('@/pages/CompaniesPage').then((m) => m.CompaniesPage), [
+          Permission.CUSTOMER_READ,
+          Permission.LOGISTICS_READ,
+        ]),
+      },
       {
         path: 'customers',
         ...lazyRoute(() => import('@/pages/CustomersPage').then((m) => m.CustomersPage), [

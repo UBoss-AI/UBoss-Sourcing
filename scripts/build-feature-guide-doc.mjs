@@ -433,6 +433,8 @@ note('Accepting puts the stock aside', 'When a seller accepts an order they say 
 note('The dispatch deadline comes from the address', 'It is worked out from that address’s own working days, its daily cut-off time and how long it takes to pack — on the local clock there, not the buyer’s. An order accepted after the cut-off starts counting from the next working day, so nobody is marked late for a van that had already gone.', C.blue);
 note('A shipment can be recorded at any point', 'Marking an order as being picked and then ready to go is there for sellers who want it. A seller who accepts, packs and hands the parcel to a courier can record the shipment straight away — what makes an order shipped is a carrier and a tracking number, not a box being ticked first.', C.purple);
 note('If a figure cannot be worked out', 'Each number on the seller’s home screen is worked out separately. If one of them fails, the screen says so instead of showing a zero — because a seller who reads "no new orders" and goes home is worse off than one who is told the figure is unavailable.', C.purple);
+note('The seller’s own name over their own shop', 'The seller’s workspace is headed by their company logo and trading name, not by the marketplace’s. A business that has not uploaded a logo yet sees its own initial instead — never somebody else’s mark over its name. The logo is uploaded and replaced on the Profile screen.', C.blue);
+note('A brand new seller is not shown a screen of zeroes', 'Until a business has listed something, its home screen does not draw the figures at all. It shows the three things to do first — finish the account, add the first product, get ready for orders — with how far through setting up it is underneath. Twenty numbers all reading nought say nothing, and no sales on the day somebody joined is not news.', C.teal);
 
 h2('6a.9 Who can do what inside a seller business');
 table(['Role', 'What they can do'], [
@@ -711,15 +713,28 @@ table(['Admin area', 'What staff can do'], [
   ['Customer limit management', 'Apply purchasing/credit limits according to business policy.'],
   ['Customer support context', 'Use order and account history to help the customer without asking them to repeat information.'],
 ], [2900, 7100]);
-h2('11.2 Chat enquiries');
+h2('11.2 Companies — one business, all of its accounts');
+p('The same business can reach the marketplace in three ways at once. It can buy from the shop, it can sell its own products here, and it can carry parcels for the marketplace. Each of those is a separate account, and until now nothing told staff that the three belonged together.');
+p('The Companies screen groups them. Each business is one card, marked with what it does here — buys, sells, carries, or more than one of those. Opening a card shows each of its accounts with the figures that matter for it, and below them the people who work for that business. A person carries a mark for every account they belong to, so staff can see at a glance that the owner of a selling business is the same person who placed last week’s order from the buying side.');
+table(['On the Companies screen', 'What staff see'], [
+  ['One card per business', 'The business name, and marks saying whether it buys, sells, carries, or does more than one of those.'],
+  ['Its selling account', 'How many products are on sale, how many are waiting to be checked, how many are unfinished, and how many orders it has received.'],
+  ['Its buying accounts', 'How many accounts its staff hold, and how many orders they have placed between them.'],
+  ['Its carrier account', 'How many parcels it is holding now, how many people it has, and the state of its contract.'],
+  ['Its people', 'Each person once, with every role they hold across the business’s accounts, and whether their sign-in is active.'],
+  ['Buyers with no business named', 'Counted together at the foot of the page. Anybody may open an account and buy, so most of these are individuals rather than companies.'],
+], [3200, 6800]);
+note('Nothing is changed from this screen', 'Companies is for looking. Approving a seller, pausing a carrier or editing a customer each happens on that account’s own screen, where the decision is recorded. Every panel on a company card is a link to the right place.', C.teal);
+note('Businesses are matched by name', 'Accounts are grouped by the business name, ignoring capital letters, punctuation and the usual company endings such as Ltd, GmbH or B.V. It is a helpful suggestion rather than a legal statement: a buyer types their employer’s name themselves and is never asked for a registration number, so every account keeps its own registered name and country on screen where two similarly named businesses could be confused.', C.orange);
+h2('11.3 Chat enquiries');
 p('Staff can open AI/chat enquiries to understand questions that originated from the customer assistant. This creates a better support hand-off from product discovery to human help.');
-h2('11.3 Reports');
+h2('11.4 Reports');
 bullets([
   'Run sales, stock, tax and operational reports.',
   'Export report information where the user has permission.',
   'Use dashboard and report views to spot payment, stock, schedule and order issues.',
 ]);
-h2('11.4 Audit log and data requests');
+h2('11.5 Audit log and data requests');
 bullets([
   'Audit log records who changed what, when, from which IP and the before/after state where applicable.',
   'Data requests area supports governed privacy work such as access and erasure requests.',
@@ -970,7 +985,15 @@ table(['Step', 'Who does it', 'What happens'], [
   ['7', 'The system', 'Moves the order on, and tells the business straight away if anything went wrong instead.'],
 ], [700, 2300, 7000]);
 
-h2('Example D — Business owner supervises the platform');
+h2('Example D — Staff work out who a business is');
+table(['Step', 'Staff action', 'System response'], [
+  ['1', 'Opens Companies and types part of the business’s name.', 'Lists every business whose name matches, whether it buys, sells, carries, or does more than one of those.'],
+  ['2', 'Opens the card.', 'Shows each of that business’s accounts side by side — what it has on sale, how many of its staff buy here, how many parcels it is carrying — and the people who work for it.'],
+  ['3', 'Reads the list of people.', 'Each person appears once, marked with every role they hold. The same name can be the owner of the selling side and a buyer on the buying side, and the screen says so.'],
+  ['4', 'Clicks the account they need.', 'Opens that account’s own screen, where the decision can be made and recorded — the application, the carrier’s contract, or the customer’s record.'],
+], [800, 4100, 5200]);
+
+h2('Example E — Business owner supervises the platform');
 bullets([
   'Reviews dashboard orders, payments, sales, low stock and upcoming recurring work.',
   'Checks reports and audit history for decisions and traceability.',
