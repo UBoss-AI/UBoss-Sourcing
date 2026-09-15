@@ -30,6 +30,37 @@ added to the other. They are one document, not two.
 `SETUP.md` (how to install and run) follows the same rule when the way the
 project is started changes.
 
+## `README.md` must stay true too
+
+`README.md` is the repository's front door and its reference for **features,
+configuration, markets, payments, languages and going live**. It is read by
+somebody deciding whether to run this software at all, so a stale statement
+there is the most expensive kind.
+
+**Update it in the same piece of work** whenever a change alters any of:
+
+- A feature, or which surface a feature lives on
+- A program, a port, or a URL somebody opens
+- An environment variable or feature flag named in it
+- A command in it — a script, a `verify`, a migration or seed step
+- A development sign-in
+- A business rule stated under "The rules this system is built on"
+- A going-live step
+- Anything in the documentation map at the end
+
+Two things to hold on to, because both have gone wrong here before:
+
+- **Write PowerShell, not bash.** `VAR=value command` is a parse error in this
+  environment. An environment variable is set on its own line
+  (`$env:NAME = 'value'`), and commands are chained with `;`.
+- **Never redirect into it with `>` or `Out-File` from Windows PowerShell.**
+  That wrote a UTF-16 fragment onto the end of this file once, which left 36
+  NUL bytes in it, made git treat it as binary and put a stray heading at the
+  bottom of the rendered page. Edit it as a file.
+
+Do not re-document setup in it. `SETUP.md` owns installation, and two copies
+of those steps means one of them is wrong.
+
 ## The feature guide must stay true too
 
 `output/UBOSS_Sourcing_Feature_Guide.docx` explains, in **plain language for

@@ -1,7 +1,9 @@
 # UBOSS Sourcing — Backend
 
 Node.js + TypeScript API and worker for the UBOSS Sourcing deployment, serving
-two separate React frontends (Admin Panel, Customer Website) from one backend.
+three separate React frontends from one backend: the admin console, the
+customer storefront, and the logistics portal where
+`FEATURE_LOGISTICS_PORTAL` is on.
 
 Implements Prompt 1 of `UBOSS_Claude_Implementation_Prompts.docx`.
 
