@@ -24,52 +24,67 @@ import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { applyToSell, checkDisplayName, fetchSellerIdentity } from '@/lib/seller';
 import { useToast } from '@/components/toast-context';
 
-/** What a seller gets, in the order a seller cares about it. */
-const BENEFITS: readonly { title: string; body: string }[] = Object.freeze([
-  {
-    title: 'Buyers who order by the carton',
-    body: 'Businesses, distributors, hospitals and procurement teams buying in quantity — not consumers buying one.',
-  },
-  {
-    title: 'Your catalogue, structured properly',
-    body: 'The questions are per category — thread size for a fastener, voltage for a power supply, device class for an instrument — so buyers can filter on them and find you.',
-  },
-  {
-    title: 'Stock across your own warehouses',
-    body: 'Hold stock in as many places as you ship from, with dispatch cut-offs and handling times per place.',
-  },
-  {
-    title: 'One order, split by seller',
-    body: 'A buyer places one order. You see only your part of it, with its own number and its own dispatch deadline.',
-  },
-  {
-    title: 'Connect your own systems',
-    body: 'Push stock and orders to and from your SAP, your monday.com boards or your own API.',
-  },
-  {
-    title: 'Statements that add up',
-    body: 'Every sale, commission, fee and refund as a line you can trace back to the order it came from.',
-  },
-]);
+type BenefitKey = (typeof BENEFITS)[number]['key'];
+type StepKey = (typeof STEPS)[number]['key'];
 
-const STEPS: readonly { title: string; body: string }[] = Object.freeze([
+function benefitTitleKey(key: BenefitKey): `seller.sell.benefit.${BenefitKey}.title` {
+  return `seller.sell.benefit.${key}.title`;
+}
+
+function benefitBodyKey(key: BenefitKey): `seller.sell.benefit.${BenefitKey}.body` {
+  return `seller.sell.benefit.${key}.body`;
+}
+
+function stepTitleKey(key: StepKey): `seller.sell.step.${StepKey}.title` {
+  return `seller.sell.step.${key}.title`;
+}
+
+function stepBodyKey(key: StepKey): `seller.sell.step.${StepKey}.body` {
+  return `seller.sell.step.${key}.body`;
+}
+
+/**
+ * What a seller gets, in the order a seller cares about it.
+ *
+ * Keys rather than sentences: the words live in the catalogue with the rest of
+ * the storefront, so this page reads in the language the visitor chose. The
+ * order is the only thing the array still decides.
+ */
+const BENEFITS = [
   {
-    title: 'Tell us who you are',
-    body: 'Your registered business name, where it is registered, and the name buyers will see.',
+    key: 'bulkBuyers',
   },
   {
-    title: 'Prove it',
-    body: 'Registration documents, the authorised representative, and any certificates your trade needs.',
+    key: 'structured',
   },
   {
-    title: 'Set up where you ship from',
-    body: 'One address at minimum, with its dispatch cut-off and how long you need to pick an order.',
+    key: 'warehouses',
   },
   {
-    title: 'List your first product',
-    body: 'Our questions are per category, so you are only asked what actually applies.',
+    key: 'splitOrders',
   },
-]);
+  {
+    key: 'integrations',
+  },
+  {
+    key: 'statements',
+  },
+] as const;
+
+const STEPS = [
+  {
+    key: 'who',
+  },
+  {
+    key: 'prove',
+  },
+  {
+    key: 'shipFrom',
+  },
+  {
+    key: 'firstProduct',
+  },
+] as const;
 
 export function SellPage(): React.JSX.Element {
   const { t } = useI18n();
@@ -77,10 +92,8 @@ export function SellPage(): React.JSX.Element {
 
   useDocumentMeta(
     {
-      title: 'Sell on UBOSS',
-      description:
-        'Bring your catalogue to a B2B marketplace built for procurement teams, ' +
-        'distributors and businesses that buy in quantity.',
+      title: t('seller.sell.metaTitle'),
+      description: t('seller.sell.metaDescription'),
     },
     business.displayName,
   );
@@ -102,34 +115,32 @@ export function SellPage(): React.JSX.Element {
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-16">
       <section className="text-center">
         <p className="text-xxs font-semibold uppercase tracking-[0.2em] text-brand">
-          UBOSS Marketplace
+          {t('seller.sell.eyebrow')}
         </p>
-        <h1 className="mt-3 text-title-2xl text-ink">Sell to businesses that buy in bulk</h1>
+        <h1 className="mt-3 text-title-2xl text-ink">{t('seller.sell.heading')}</h1>
         <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-ink-muted">
-          Whatever you supply — components, packaging, equipment, consumables — list it alongside
-          other approved sellers, keep your own stock and your own prices, and reach buyers who are
-          already ordering here.
+          {t('seller.sell.lede')}
         </p>
 
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           {seller !== null ? (
             <ButtonLink to="/seller/dashboard" variant="primary" size="lg">
-              Open your Seller Hub
+              {t('seller.sell.openHub')}
             </ButtonLink>
           ) : isSignedIn ? (
             <a
               href="#apply"
               className="inline-flex h-12 items-center rounded-md bg-brand-fill px-6 text-base font-medium text-white hover:bg-brand-fill-hover"
             >
-              Start your application
+              {t('seller.sell.startApplication')}
             </a>
           ) : (
             <>
               <ButtonLink to="/login?next=/sell" variant="primary" size="lg">
-                Sign in to apply
+                {t('seller.sell.signInToApply')}
               </ButtonLink>
               <ButtonLink to="/register" size="lg">
-                Create an account
+                {t('seller.sell.createAccount')}
               </ButtonLink>
             </>
           )}
@@ -137,31 +148,33 @@ export function SellPage(): React.JSX.Element {
 
         {seller === null && isSignedIn && (
           <p className="mt-3 text-xs text-ink-subtle">
-            You already have an account here — selling uses the same sign-in.
+            {t('seller.sell.sameSignIn')}
           </p>
         )}
       </section>
 
       <section className="mt-14">
-        <h2 className="text-title-lg text-ink">What you get</h2>
+        <h2 className="text-title-lg text-ink">{t('seller.sell.whatYouGet')}</h2>
         <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {BENEFITS.map((benefit) => (
             <li
-              key={benefit.title}
+              key={benefit.key}
               className="rounded-lg border border-border bg-surface px-5 py-4 shadow-card"
             >
-              <h3 className="text-sm font-semibold text-ink">{benefit.title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">{benefit.body}</p>
+              <h3 className="text-sm font-semibold text-ink">{t(benefitTitleKey(benefit.key))}</h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">
+                {t(benefitBodyKey(benefit.key))}
+              </p>
             </li>
           ))}
         </ul>
       </section>
 
       <section className="mt-14">
-        <h2 className="text-title-lg text-ink">How it works</h2>
+        <h2 className="text-title-lg text-ink">{t('seller.sell.howItWorks')}</h2>
         <ol className="mt-6 space-y-4">
           {STEPS.map((step, index) => (
-            <li key={step.title} className="flex gap-4">
+            <li key={step.key} className="flex gap-4">
               <span
                 aria-hidden="true"
                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-soft text-sm font-semibold text-brand"
@@ -169,8 +182,10 @@ export function SellPage(): React.JSX.Element {
                 {index + 1}
               </span>
               <div className="min-w-0">
-                <h3 className="text-sm font-semibold text-ink">{step.title}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-ink-muted">{step.body}</p>
+                <h3 className="text-sm font-semibold text-ink">{t(stepTitleKey(step.key))}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-ink-muted">
+                  {t(stepBodyKey(step.key))}
+                </p>
               </div>
             </li>
           ))}
@@ -182,10 +197,7 @@ export function SellPage(): React.JSX.Element {
           an ISO certificate will not come back.
         */}
         <p className="mt-6 rounded-lg border border-border bg-surface-sunken px-4 py-3 text-sm leading-relaxed text-ink-muted">
-          Every seller is checked before they can list anything. What we ask for depends on the
-          country your business is registered in, on whether you manufacture, distribute or resell,
-          and on what you intend to sell — a seller of packaging is not asked for the paperwork a
-          seller of medical devices is. Applications are usually decided within a few working days.
+          {t('seller.sell.checkedNote')}
         </p>
       </section>
 
@@ -197,16 +209,15 @@ export function SellPage(): React.JSX.Element {
 
       {!isSignedIn && (
         <section className="mt-14 rounded-lg border border-border bg-surface px-6 py-8 text-center shadow-card">
-          <h2 className="text-title-md text-ink">Ready to apply?</h2>
+          <h2 className="text-title-md text-ink">{t('seller.sell.readyTitle')}</h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-ink-muted">
-            Sign in with your UBOSS account, or create one. Selling uses the same account you buy
-            with — there is no separate seller login.
+            {t('seller.sell.readyBody')}
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <ButtonLink to="/login?next=/sell" variant="primary">
               {t('header.signIn')}
             </ButtonLink>
-            <ButtonLink to="/register">Create an account</ButtonLink>
+            <ButtonLink to="/register">{t('seller.sell.createAccount')}</ButtonLink>
           </div>
         </section>
       )}
@@ -263,7 +274,7 @@ function ApplicationForm(): React.JSX.Element {
       void navigate('/seller/onboarding');
     },
     onError: (error: unknown) => {
-      toast.error(errorMessage(t, error, 'Your application could not be started.'));
+      toast.error(errorMessage(t, error, t('seller.sell.applyFailed')));
     },
   });
 
@@ -297,8 +308,8 @@ function ApplicationForm(): React.JSX.Element {
 
   return (
     <Card
-      title="Start your seller application"
-      description="Four answers to begin. You can save and come back to the rest."
+      title={t('seller.sell.formTitle')}
+      description={t('seller.sell.formIntro')}
     >
       <form
         className="space-y-5 px-6 py-5"
@@ -308,8 +319,8 @@ function ApplicationForm(): React.JSX.Element {
         }}
       >
         <Field
-          label="Registered business name"
-          hint="Exactly as it appears on your registration document."
+          label={t('seller.sell.legalName')}
+          hint={t('seller.sell.legalNameHint')}
           required
         >
           {({ inputId, describedBy }) => (
@@ -326,15 +337,11 @@ function ApplicationForm(): React.JSX.Element {
         </Field>
 
         <Field
-          label="Shop name buyers will see"
+          label={t('seller.sell.shopName')}
           hint={
-            nameState === 'free'
-              ? 'That name is available.'
-              : 'This appears on every listing and every order you take.'
+            nameState === 'free' ? t('seller.sell.shopNameFree') : t('seller.sell.shopNameHint')
           }
-          {...(nameState === 'taken'
-            ? { error: 'Another seller already trades under that name.' }
-            : {})}
+          {...(nameState === 'taken' ? { error: t('seller.sell.shopNameTaken') } : {})}
           required
         >
           {({ inputId, describedBy }) => (
@@ -350,8 +357,8 @@ function ApplicationForm(): React.JSX.Element {
         </Field>
 
         <Field
-          label="Country the business is registered in"
-          hint="This decides which documents and tax details we ask you for."
+          label={t('seller.sell.country')}
+          hint={t('seller.sell.countryHint')}
           required
         >
           {({ inputId, describedBy }) => (
@@ -363,7 +370,7 @@ function ApplicationForm(): React.JSX.Element {
                 setCountry(event.currentTarget.value);
               }}
             >
-              <option value="">Choose a country</option>
+              <option value="">{t('seller.sell.chooseCountry')}</option>
               {localisation.countries.map((entry) => (
                 <option key={entry.code} value={entry.code}>
                   {entry.name}
@@ -373,7 +380,7 @@ function ApplicationForm(): React.JSX.Element {
           )}
         </Field>
 
-        <Field label="What kind of seller are you?" required>
+        <Field label={t('seller.sell.kind')} required>
           {({ inputId }) => (
             <Select
               id={inputId}
@@ -382,22 +389,22 @@ function ApplicationForm(): React.JSX.Element {
                 setKind(event.currentTarget.value);
               }}
             >
-              <option value="MANUFACTURER">We manufacture what we sell</option>
+              <option value="MANUFACTURER">{t('seller.kind.MANUFACTURER')}</option>
               <option value="AUTHORISED_DISTRIBUTOR">
-                We are an authorised distributor for a manufacturer
+                {t('seller.kind.AUTHORISED_DISTRIBUTOR')}
               </option>
-              <option value="WHOLESALER">We are a wholesaler</option>
-              <option value="RESELLER">We resell</option>
+              <option value="WHOLESALER">{t('seller.kind.WHOLESALER')}</option>
+              <option value="RESELLER">{t('seller.kind.RESELLER')}</option>
             </Select>
           )}
         </Field>
 
         <div className="flex flex-wrap items-center gap-3 pt-1">
           <Button type="submit" variant="primary" isLoading={mutation.isPending} disabled={!canSubmit}>
-            Start application
+            {t('seller.sell.startButton')}
           </Button>
           <p className="text-xxs text-ink-subtle">
-            Nothing is published until we have approved your account.
+            {t('seller.sell.nothingPublished')}
           </p>
         </div>
       </form>

@@ -13,6 +13,7 @@
  * them to a browser by default is how a redaction bug becomes a disclosure.
  */
 import { useQuery } from '@tanstack/react-query';
+import { useI18n } from '@/i18n/i18n-context';
 import {
   Card,
   EmptyState,
@@ -23,6 +24,8 @@ import {
 import { fetchSellerAudit, type SellerAuditRow } from '@/lib/seller';
 
 export function SellerActivityPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const query = useQuery({
     queryKey: ['seller', 'audit'],
     queryFn: () => fetchSellerAudit(200),
@@ -33,11 +36,11 @@ export function SellerActivityPage(): React.JSX.Element {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Activity"
-        description="Everything that has happened to your account, your listings and your orders."
+        title={t('seller.activity.title')}
+        description={t('seller.activity.intro')}
       />
 
-      {query.isPending && <LoadingState label="Loading your activity" />}
+      {query.isPending && <LoadingState label={t('seller.activity.loading')} />}
 
       {query.isError && (
         <ErrorState
@@ -50,13 +53,13 @@ export function SellerActivityPage(): React.JSX.Element {
 
       {query.isSuccess && entries.length === 0 && (
         <EmptyState
-          title="Nothing recorded yet"
-          description="Decisions, changes and submissions all leave an entry here."
+          title={t('seller.activity.emptyTitle')}
+          description={t('seller.activity.emptyBody')}
         />
       )}
 
       {entries.length > 0 && (
-        <Card title="What has happened">
+        <Card title={t('seller.activity.card')}>
           <ol className="divide-y divide-border-subtle">
             {entries.map((entry) => (
               <ActivityRow key={entry.id} entry={entry} />

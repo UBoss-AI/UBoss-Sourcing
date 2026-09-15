@@ -36,13 +36,14 @@ import { fetchInventory, recordStockMovement, type InventoryRow } from '@/lib/se
 import { ApprovalRequiredNotice, type SellerOutletContext } from './SellerLayout';
 
 export function SellerInventoryPage(): React.JSX.Element {
+  const { t } = useI18n();
   const seller = useOutletContext<SellerOutletContext>();
 
   // The gate before any hook — see the note in SellerListingsPage.
   if (!seller.isTrading) {
     return (
       <>
-        <PageHeader title="Inventory" />
+        <PageHeader title={t('seller.inventory.title')} />
         <ApprovalRequiredNotice seller={seller} />
       </>
     );
@@ -52,6 +53,7 @@ export function SellerInventoryPage(): React.JSX.Element {
 }
 
 function InventoryBody(): React.JSX.Element {
+  const { t } = useI18n();
   const [params, setParams] = useSearchParams();
   const [adjusting, setAdjusting] = useState<InventoryRow | null>(null);
 
@@ -78,19 +80,19 @@ function InventoryBody(): React.JSX.Element {
   return (
     <div className="space-y-5">
       <PageHeader
-        title="Inventory"
-        description="What you hold, where you hold it, and what is running out."
+        title={t('seller.inventory.title')}
+        description={t('seller.inventory.intro')}
       />
 
       <div className="flex flex-wrap items-center gap-2">
         <label className="sr-only" htmlFor="inventory-search">
-          Search stock
+          {t('seller.inventory.searchLabel')}
         </label>
         <input
           id="inventory-search"
           type="search"
           defaultValue={search}
-          placeholder="Search by product or your own code"
+          placeholder={t('seller.inventory.searchPlaceholder')}
           onChange={(event) => {
             const value = event.currentTarget.value;
             window.clearTimeout(timer);
@@ -114,11 +116,11 @@ function InventoryBody(): React.JSX.Element {
               : 'border-border-strong bg-surface text-ink-muted hover:bg-surface-hover',
           )}
         >
-          Running low only
+          {t('seller.inventory.lowOnly')}
         </button>
       </div>
 
-      {query.isPending && <LoadingState label="Loading your stock" />}
+      {query.isPending && <LoadingState label={t('seller.inventory.loading')} />}
 
       {query.isError && (
         <ErrorState
@@ -132,11 +134,15 @@ function InventoryBody(): React.JSX.Element {
       {query.data !== undefined && query.data.rows.length === 0 && (
         <Card>
           <EmptyState
-            title={lowOnly ? 'Nothing is running low' : 'No stock recorded yet'}
+            title={
+              lowOnly
+                ? t('seller.inventory.emptyLowTitle')
+                : t('seller.inventory.emptyTitle')
+            }
             description={
               lowOnly
-                ? 'Every product is above the reorder level you set for it.'
-                : 'Stock appears here once a listing has been approved and you have received some.'
+                ? t('seller.inventory.emptyLowBody')
+                : t('seller.inventory.emptyBody')
             }
           />
         </Card>
@@ -149,22 +155,22 @@ function InventoryBody(): React.JSX.Element {
               <thead>
                 <tr className="border-b border-border-subtle bg-surface-sunken text-left">
                   <th scope="col" className="px-4 py-2.5 text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                    Product
+                    {t('seller.inventory.column.product')}
                   </th>
                   <th scope="col" className="px-4 py-2.5 text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                    Location
+                    {t('seller.inventory.column.location')}
                   </th>
                   <th scope="col" className="px-4 py-2.5 text-right text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                    Available
+                    {t('seller.inventory.column.available')}
                   </th>
                   <th scope="col" className="px-4 py-2.5 text-right text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                    Held
+                    {t('seller.inventory.column.held')}
                   </th>
                   <th scope="col" className="px-4 py-2.5 text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                    Batch
+                    {t('seller.inventory.column.batch')}
                   </th>
                   <th scope="col" className="px-4 py-2.5 text-right text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                    Adjust
+                    {t('seller.inventory.column.adjust')}
                   </th>
                 </tr>
               </thead>
@@ -196,10 +202,12 @@ function InventoryBody(): React.JSX.Element {
                         {row.availableQuantity}
                       </p>
                       {row.isLow && row.availableQuantity > 0 && (
-                        <Badge tone="warning">Low</Badge>
+                        <Badge tone="warning">{t('seller.inventory.low')}</Badge>
                       )}
                       {row.reorderThreshold > 0 && (
-                        <p className="text-xxs text-ink-subtle">Reorder at {row.reorderThreshold}</p>
+                        <p className="text-xxs text-ink-subtle">
+                          {t('seller.inventory.reorderAt', { count: row.reorderThreshold })}
+                        </p>
                       )}
                     </td>
                     <td className="tabular px-4 py-3 text-right text-ink-muted">
@@ -212,7 +220,9 @@ function InventoryBody(): React.JSX.Element {
                         <>
                           <p className="text-xxs text-ink">{row.batchNumber}</p>
                           {row.expiresOn !== null && (
-                            <p className="text-xxs text-ink-subtle">Expires {row.expiresOn}</p>
+                            <p className="text-xxs text-ink-subtle">
+                              {t('seller.inventory.expires', { date: row.expiresOn })}
+                            </p>
                           )}
                         </>
                       )}
@@ -224,7 +234,7 @@ function InventoryBody(): React.JSX.Element {
                           setAdjusting(row);
                         }}
                       >
-                        Adjust
+                        {t('seller.inventory.adjust')}
                       </Button>
                     </td>
                   </tr>
@@ -283,11 +293,13 @@ function AdjustDialog({
       }),
     onSuccess: async (result) => {
       await client.invalidateQueries({ queryKey: ['seller', 'inventory'] });
-      toast.success(`Stock updated. ${result.balance} left at ${row.locationName}.`);
+      toast.success(
+        t('seller.inventory.updated', { count: result.balance, place: row.locationName }),
+      );
       onClose();
     },
     onError: (error: unknown) => {
-      toast.error(errorMessage(t, error, 'The stock could not be changed.'));
+      toast.error(errorMessage(t, error, t('seller.inventory.updateFailed')));
     },
   });
 
@@ -299,15 +311,26 @@ function AdjustDialog({
     (type !== 'ADJUSTMENT' || reason.trim().length > 0);
 
   return (
-    <Modal isOpen title={`Adjust stock — ${row.productName}`} onClose={onClose}>
+    <Modal
+      isOpen
+      title={t('seller.inventory.adjustTitle', { product: row.productName })}
+      onClose={onClose}
+    >
       <div className="space-y-4">
         <p className="text-sm text-ink-muted">
-          {row.locationName} currently holds{' '}
-          <span className="tabular font-medium text-ink">{row.availableQuantity}</span>
-          {row.reservedQuantity > 0 && `, with ${row.reservedQuantity} held for open orders`}.
+          {row.reservedQuantity > 0
+            ? t('seller.inventory.holdsWithReserved', {
+                place: row.locationName,
+                count: row.availableQuantity,
+                reserved: row.reservedQuantity,
+              })
+            : t('seller.inventory.holds', {
+                place: row.locationName,
+                count: row.availableQuantity,
+              })}
         </p>
 
-        <Field label="What happened?">
+        <Field label={t('seller.inventory.whatHappened')}>
           {({ inputId }) => (
             <Select
               id={inputId}
@@ -316,19 +339,19 @@ function AdjustDialog({
                 setType(event.currentTarget.value as 'RECEIPT' | 'ADJUSTMENT');
               }}
             >
-              <option value="RECEIPT">Stock received</option>
-              <option value="ADJUSTMENT">Correction to the count</option>
+              <option value="RECEIPT">{t('seller.inventory.received')}</option>
+              <option value="ADJUSTMENT">{t('seller.inventory.correction')}</option>
             </Select>
           )}
         </Field>
 
         <Field
-          label={type === 'RECEIPT' ? 'How many arrived?' : 'Change by'}
-          {...(type === 'RECEIPT'
-            ? {}
-            : {
-                hint: 'A negative number takes stock away — for example -3 for three found damaged.',
-              })}
+          label={
+            type === 'RECEIPT'
+              ? t('seller.inventory.howManyArrived')
+              : t('seller.inventory.changeBy')
+          }
+          {...(type === 'RECEIPT' ? {} : { hint: t('seller.inventory.changeByHint') })}
           required
         >
           {({ inputId, describedBy }) => (
@@ -347,8 +370,8 @@ function AdjustDialog({
 
         {type === 'ADJUSTMENT' && (
           <Field
-            label="Why?"
-            hint="This goes on the stock record permanently."
+            label={t('seller.inventory.why')}
+            hint={t('seller.inventory.whyHint')}
             required
           >
             {({ inputId, describedBy }) => (
@@ -356,7 +379,7 @@ function AdjustDialog({
                 id={inputId}
                 aria-describedby={describedBy}
                 value={reason}
-                placeholder="Damaged in transit, stock count correction…"
+                placeholder={t('seller.inventory.whyPlaceholder')}
                 onChange={(event) => {
                   setReason(event.currentTarget.value);
                 }}
@@ -366,7 +389,7 @@ function AdjustDialog({
         )}
 
         <div className="flex justify-end gap-2 pt-1">
-          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={onClose}>{t('common.cancel')}</Button>
           <Button
             variant="primary"
             isLoading={mutation.isPending}
@@ -375,7 +398,7 @@ function AdjustDialog({
               mutation.mutate();
             }}
           >
-            Save
+            {t('common.save')}
           </Button>
         </div>
       </div>

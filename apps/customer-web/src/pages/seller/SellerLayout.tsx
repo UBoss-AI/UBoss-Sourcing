@@ -31,7 +31,7 @@ import { Badge, Button, ErrorState, Field, Input, LoadingState } from '@/compone
 import { errorMessage } from '@/lib/errors';
 import { cx } from '@/lib/cx';
 import {
-  applicationStatusLabel,
+  applicationStatusKey,
   applicationStatusTone,
   closeSellerLock,
   fetchSellerIdentity,
@@ -712,7 +712,7 @@ export function SellerLayout(): React.JSX.Element {
                 <p className="truncate text-xxs text-ink-subtle">{seller.legalName}</p>
               </div>
               <Badge tone={applicationStatusTone(seller.status)}>
-                {applicationStatusLabel(seller.status)}
+                {t(applicationStatusKey(seller.status))}
               </Badge>
             </div>
 

@@ -38,13 +38,12 @@ import {
   type BrandRequestRow,
 } from '@/lib/seller';
 
-const STATUS_LABELS: Record<BrandRequestRow['status'], string> = {
-  PENDING: 'Being reviewed',
-  INFORMATION_REQUESTED: 'We need more from you',
-  APPROVED: 'Approved',
-  REJECTED: 'Refused',
-  WITHDRAWN: 'Withdrawn',
-};
+type BrandStatusKey = `seller.brands.status.${BrandRequestRow['status']}`;
+
+/** What each decision is called, as a key rather than a word. */
+function statusKey(status: BrandRequestRow['status']): BrandStatusKey {
+  return `seller.brands.status.${status}`;
+}
 
 const STATUS_TONES: Record<
   BrandRequestRow['status'],
@@ -58,6 +57,8 @@ const STATUS_TONES: Record<
 };
 
 export function SellerBrandsPage(): React.JSX.Element {
+  const { t } = useI18n();
+
   const query = useQuery({ queryKey: ['seller', 'brand-requests'], queryFn: fetchBrandRequests });
   const [withdrawing, setWithdrawing] = useState<BrandRequestRow | null>(null);
 
@@ -69,16 +70,18 @@ export function SellerBrandsPage(): React.JSX.Element {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Brands you have asked for"
+        title={t('seller.brands.title')}
         description={
           open.length === 0
-            ? 'Every name you have asked to list under, and what was decided.'
-            : `${String(open.length)} still waiting on us.`
+            ? t('seller.brands.intro')
+            : t('seller.brands.waiting', { count: open.length })
         }
-        actions={<ButtonLink to="/seller/listings/new">Start a listing</ButtonLink>}
+        actions={
+          <ButtonLink to="/seller/listings/new">{t('seller.brands.startListing')}</ButtonLink>
+        }
       />
 
-      {query.isPending && <LoadingState label="Loading your brand requests" />}
+      {query.isPending && <LoadingState label={t('seller.brands.loading')} />}
 
       {query.isError && (
         <ErrorState
@@ -91,13 +94,13 @@ export function SellerBrandsPage(): React.JSX.Element {
 
       {query.isSuccess && requests.length === 0 && (
         <EmptyState
-          title="You have not asked for any"
-          description="If you cannot find your brand while making a listing, ask for it there and it will appear here."
+          title={t('seller.brands.emptyTitle')}
+          description={t('seller.brands.emptyBody')}
         />
       )}
 
       {requests.length > 0 && (
-        <Card title="Your requests">
+        <Card title={t('seller.brands.card')}>
           <ul className="divide-y divide-border-subtle">
             {requests.map((row) => (
               <li key={row.id} className="px-6 py-4">
@@ -105,12 +108,14 @@ export function SellerBrandsPage(): React.JSX.Element {
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-ink">{row.requestedName}</p>
                     <p className="mt-0.5 text-xxs text-ink-subtle">
-                      Asked on {new Date(row.createdAt).toLocaleDateString()}
+                      {t('seller.brands.askedOn', {
+                        date: new Date(row.createdAt).toLocaleDateString(),
+                      })}
                     </p>
                   </div>
 
                   <div className="flex shrink-0 items-center gap-2">
-                    <Badge tone={STATUS_TONES[row.status]}>{STATUS_LABELS[row.status]}</Badge>
+                    <Badge tone={STATUS_TONES[row.status]}>{t(statusKey(row.status))}</Badge>
 
                     {(row.status === 'PENDING' || row.status === 'INFORMATION_REQUESTED') && (
                       <Button
@@ -118,7 +123,7 @@ export function SellerBrandsPage(): React.JSX.Element {
                           setWithdrawing(row);
                         }}
                       >
-                        Withdraw
+                        {t('seller.brands.withdraw')}
                       </Button>
                     )}
                   </div>
@@ -144,7 +149,7 @@ export function SellerBrandsPage(): React.JSX.Element {
 
                 {row.status === 'APPROVED' && (
                   <p className="mt-2 text-xs text-ink-muted">
-                    You can choose it in the listing wizard now.
+                    {t('seller.brands.approvedNote')}
                   </p>
                 )}
               </li>
@@ -180,27 +185,25 @@ function WithdrawDialog({
     mutationFn: () => withdrawBrandRequest(request.id),
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: ['seller', 'brand-requests'] });
-      toast.success(`Your request for ${request.requestedName} was withdrawn.`);
+      toast.success(t('seller.brands.withdrawn', { name: request.requestedName }));
       onClose();
     },
     onError: (error: unknown) => {
       // A request somebody has just decided cannot be withdrawn, and the server
       // says so. Its sentence is better than ours.
-      toast.error(errorMessage(t, error, 'That request could not be withdrawn.'));
+      toast.error(errorMessage(t, error, t('seller.brands.withdrawFailed')));
     },
   });
 
   return (
-    <Modal isOpen title="Withdraw this request?" onClose={onClose}>
+    <Modal isOpen title={t('seller.brands.withdrawTitle')} onClose={onClose}>
       <div className="space-y-4">
         <p className="text-sm text-ink-muted">
-          We will stop reviewing <strong className="text-ink">{request.requestedName}</strong>. Any
-          listing you attached it to keeps the name but still cannot go on sale, so you will need to
-          choose a different brand or ask for this one again.
+          {t('seller.brands.withdrawBody', { name: request.requestedName })}
         </p>
 
         <div className="flex justify-end gap-2">
-          <Button onClick={onClose}>Keep it</Button>
+          <Button onClick={onClose}>{t('seller.brands.keepIt')}</Button>
           <Button
             variant="danger"
             isLoading={mutation.isPending}
@@ -208,7 +211,7 @@ function WithdrawDialog({
               mutation.mutate();
             }}
           >
-            Withdraw
+            {t('seller.brands.withdraw')}
           </Button>
         </div>
       </div>

@@ -35,33 +35,42 @@ import {
   fetchSellerOrders,
   formatMinor,
   nextActions,
-  orderLabel,
+  orderLabelKey,
   transitionOrder,
   type SellerOrderRow,
   type SellerOrderStatus,
 } from '@/lib/seller';
 import { ApprovalRequiredNotice, type SellerOutletContext } from './SellerLayout';
 
-const TABS: readonly { key: string; label: string }[] = Object.freeze([
-  { key: '', label: 'All' },
-  { key: 'NEW', label: 'New' },
-  { key: 'ACCEPTED', label: 'Accepted' },
-  { key: 'PROCESSING', label: 'Picking' },
-  { key: 'READY_FOR_DISPATCH', label: 'Ready to go' },
-  { key: 'SHIPPED', label: 'Shipped' },
-  { key: 'DELIVERED', label: 'Delivered' },
-  { key: 'RETURN_REQUESTED', label: 'Returns' },
-  { key: 'CANCELLED', label: 'Cancelled' },
-]);
+/**
+ * The status tabs, in the order a seller works through them.
+ *
+ * `''` is every order and has a label of its own; the rest reuse the status
+ * spellings from the catalogue, so a tab and the badge on the row beneath it
+ * can never disagree about what "READY_FOR_DISPATCH" is called. "Returns" is
+ * the exception: the tab holds a queue, the badge describes one order.
+ */
+const TABS = [
+  { key: '', labelKey: 'seller.orders.tab.all' },
+  { key: 'NEW', labelKey: 'seller.orderStatus.NEW' },
+  { key: 'ACCEPTED', labelKey: 'seller.orderStatus.ACCEPTED' },
+  { key: 'PROCESSING', labelKey: 'seller.orderStatus.PROCESSING' },
+  { key: 'READY_FOR_DISPATCH', labelKey: 'seller.orderStatus.READY_FOR_DISPATCH' },
+  { key: 'SHIPPED', labelKey: 'seller.orderStatus.SHIPPED' },
+  { key: 'DELIVERED', labelKey: 'seller.orderStatus.DELIVERED' },
+  { key: 'RETURN_REQUESTED', labelKey: 'seller.orders.tab.returns' },
+  { key: 'CANCELLED', labelKey: 'seller.orderStatus.CANCELLED' },
+] as const;
 
 export function SellerOrdersPage(): React.JSX.Element {
+  const { t } = useI18n();
   const seller = useOutletContext<SellerOutletContext>();
 
   // The gate before any hook — see the note in SellerListingsPage.
   if (!seller.isTrading) {
     return (
       <>
-        <PageHeader title="Orders" />
+        <PageHeader title={t('seller.orders.title')} />
         <ApprovalRequiredNotice seller={seller} />
       </>
     );
@@ -71,6 +80,7 @@ export function SellerOrdersPage(): React.JSX.Element {
 }
 
 function OrdersBody(): React.JSX.Element {
+  const { t } = useI18n();
   const [params, setParams] = useSearchParams();
   const [acting, setActing] = useState<{ row: SellerOrderRow; to: SellerOrderStatus } | null>(null);
 
@@ -99,10 +109,14 @@ function OrdersBody(): React.JSX.Element {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Orders" description="Your part of every order buyers have placed." />
+      <PageHeader title={t('seller.orders.title')} description={t('seller.orders.intro')} />
 
       <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-        <div role="tablist" aria-label="Order status" className="flex min-w-max gap-1 border-b border-border">
+        <div
+          role="tablist"
+          aria-label={t('seller.orders.tablist')}
+          className="flex min-w-max gap-1 border-b border-border"
+        >
           {TABS.map((tab) => {
             const isActive = tab.key === status;
             const count = tab.key === '' ? null : (query.data?.counts[tab.key] ?? 0);
@@ -123,7 +137,7 @@ function OrdersBody(): React.JSX.Element {
                     : 'border-transparent text-ink-muted hover:border-border-strong hover:text-ink',
                 )}
               >
-                {tab.label}
+                {t(tab.labelKey)}
                 {count !== null && count > 0 && (
                   <span
                     className={cx(
@@ -153,10 +167,10 @@ function OrdersBody(): React.JSX.Element {
             : 'border-border-strong bg-surface text-ink-muted hover:bg-surface-hover',
         )}
       >
-        Past dispatch time only
+        {t('seller.orders.overdueOnly')}
       </button>
 
-      {query.isPending && <LoadingState label="Loading your orders" />}
+      {query.isPending && <LoadingState label={t('seller.orders.loading')} />}
 
       {query.isError && (
         <ErrorState
@@ -170,11 +184,11 @@ function OrdersBody(): React.JSX.Element {
       {query.data !== undefined && query.data.rows.length === 0 && (
         <Card>
           <EmptyState
-            title={overdueOnly ? 'Nothing is late' : 'No orders here'}
+            title={
+              overdueOnly ? t('seller.orders.emptyLateTitle') : t('seller.orders.emptyTitle')
+            }
             description={
-              overdueOnly
-                ? 'Every order is within its dispatch window.'
-                : 'Orders appear here the moment a buyer pays for something you sell.'
+              overdueOnly ? t('seller.orders.emptyLateBody') : t('seller.orders.emptyBody')
             }
           />
         </Card>
@@ -200,15 +214,20 @@ function OrdersBody(): React.JSX.Element {
                       >
                         {row.sellerOrderNumber}
                       </Link>
-                      <Badge tone={orderTone(row.status)}>{orderLabel(row.status)}</Badge>
-                      {row.isOverdue && <Badge tone="danger">Past dispatch time</Badge>}
+                      <Badge tone={orderTone(row.status)}>{t(orderLabelKey(row.status))}</Badge>
+                      {row.isOverdue && (
+                        <Badge tone="danger">{t('seller.orders.pastDispatch')}</Badge>
+                      )}
                     </div>
                     <p className="mt-1 text-xxs text-ink-subtle">
-                      {row.itemCount} {row.itemCount === 1 ? 'item' : 'items'} across{' '}
-                      {row.lineCount} {row.lineCount === 1 ? 'line' : 'lines'}
-                      {row.locationName !== null && ` · from ${row.locationName}`}
+                      {t('seller.orders.itemCount', { count: row.itemCount })}{' '}
+                      {t('seller.orders.acrossLines', { count: row.lineCount })}
+                      {row.locationName !== null &&
+                        ` · ${t('seller.orders.fromPlace', { place: row.locationName })}`}
                       {row.placedAt !== null &&
-                        ` · placed ${new Date(row.placedAt).toLocaleDateString()}`}
+                        ` · ${t('seller.orders.placedOn', {
+                          date: new Date(row.placedAt).toLocaleDateString(),
+                        })}`}
                     </p>
                     {row.dispatchDueAt !== null && (
                       <p
@@ -217,7 +236,9 @@ function OrdersBody(): React.JSX.Element {
                           row.isOverdue ? 'font-medium text-danger' : 'text-ink-muted',
                         )}
                       >
-                        Dispatch by {new Date(row.dispatchDueAt).toLocaleString()}
+                        {t('seller.orders.dispatchBy', {
+                          when: new Date(row.dispatchDueAt).toLocaleString(),
+                        })}
                       </p>
                     )}
                   </div>
@@ -228,7 +249,9 @@ function OrdersBody(): React.JSX.Element {
                         {formatMinor(row.sellerNetMinor, row.currency)}
                       </p>
                       <p className="text-xxs text-ink-subtle">
-                        your share of {formatMinor(row.goodsTotalMinor, row.currency)}
+                        {t('seller.orders.yourShareOf', {
+                          total: formatMinor(row.goodsTotalMinor, row.currency),
+                        })}
                       </p>
                     </div>
 
@@ -242,7 +265,7 @@ function OrdersBody(): React.JSX.Element {
                             setActing({ row, to: action.to });
                           }}
                         >
-                          {action.label}
+                          {t(action.labelKey)}
                         </Button>
                       ))}
                     </div>
@@ -305,11 +328,11 @@ function TransitionDialog({
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: ['seller', 'orders'] });
       await client.invalidateQueries({ queryKey: ['seller', 'dashboard'] });
-      toast.success(`${row.sellerOrderNumber} updated.`);
+      toast.success(t('seller.orders.updated', { order: row.sellerOrderNumber }));
       onClose();
     },
     onError: (error: unknown) => {
-      toast.error(errorMessage(t, error, 'That order could not be updated.'));
+      toast.error(errorMessage(t, error, t('seller.orders.updateFailed')));
     },
   });
 
@@ -321,12 +344,16 @@ function TransitionDialog({
     (!needsReason || reason.trim().length > 0) && (!needsLocation || locationId.length > 0);
 
   return (
-    <Modal isOpen title={`${orderLabel(to)} — ${row.sellerOrderNumber}`} onClose={onClose}>
+    <Modal
+      isOpen
+      title={`${t(orderLabelKey(to))} — ${row.sellerOrderNumber}`}
+      onClose={onClose}
+    >
       <div className="space-y-4">
         {needsLocation && (
           <Field
-            label="Which of your locations ships this?"
-            hint="This sets the dispatch deadline from that location's cut-off and handling time."
+            label={t('seller.orders.whichLocation')}
+            hint={t('seller.orders.whichLocationHint')}
             required
           >
             {({ inputId, describedBy }) => (
@@ -338,7 +365,7 @@ function TransitionDialog({
                   setLocationId(event.currentTarget.value);
                 }}
               >
-                <option value="">Choose a location</option>
+                <option value="">{t('seller.orders.chooseLocation')}</option>
                 {operational.map((location) => (
                   <option key={location.id} value={location.id}>
                     {location.name} ({location.code})
@@ -351,15 +378,14 @@ function TransitionDialog({
 
         {needsLocation && operational.length === 0 && !locations.isPending && (
           <p className="rounded-lg border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-ink">
-            You have no open location that can dispatch orders. Add or reopen one in your profile
-            before accepting this.
+            {t('seller.orders.noDispatchLocation')}
           </p>
         )}
 
         {needsReason && (
           <Field
-            label="Why?"
-            hint="The buyer and the marketplace both see this."
+            label={t('seller.orders.why')}
+            hint={t('seller.orders.whyHint')}
             required
           >
             {({ inputId, describedBy }) => (
@@ -377,13 +403,12 @@ function TransitionDialog({
 
         {to === 'CANCELLED' && (
           <p className="text-xxs leading-relaxed text-ink-muted">
-            Rejecting an order releases the stock it was holding and counts against your
-            cancellation rate.
+            {t('seller.orders.rejectNote')}
           </p>
         )}
 
         <div className="flex justify-end gap-2 pt-1">
-          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={onClose}>{t('common.cancel')}</Button>
           <Button
             variant={to === 'CANCELLED' ? 'danger' : 'primary'}
             isLoading={mutation.isPending}
@@ -392,7 +417,7 @@ function TransitionDialog({
               mutation.mutate();
             }}
           >
-            Confirm
+            {t('seller.orders.confirm')}
           </Button>
         </div>
       </div>

@@ -1130,51 +1130,17 @@ export function formatMinor(amountMinor: string, currency: string, locale = 'en'
  * it and two spellings of "READY_FOR_DISPATCH" is how a seller ends up asking
  * support whether "Ready to go" and "Ready for dispatch" are the same thing.
  */
-export function orderLabel(status: SellerOrderStatus): string {
-  switch (status) {
-    case 'NEW':
-      return 'New';
-    case 'ACCEPTED':
-      return 'Accepted';
-    case 'PROCESSING':
-      return 'Picking';
-    case 'READY_FOR_DISPATCH':
-      return 'Ready to go';
-    case 'SHIPPED':
-      return 'Shipped';
-    case 'DELIVERED':
-      return 'Delivered';
-    case 'CANCELLED':
-      return 'Cancelled';
-    case 'RETURN_REQUESTED':
-      return 'Return requested';
-    case 'RETURNED':
-      return 'Returned';
-    case 'REFUNDED':
-      return 'Refunded';
-    case 'DISPUTED':
-      return 'Disputed';
-  }
+export function orderLabelKey(
+  status: SellerOrderStatus,
+): `seller.orderStatus.${SellerOrderStatus}` {
+  return `seller.orderStatus.${status}`;
 }
 
-/** A label for an application status, for a badge. */
-export function applicationStatusLabel(status: SellerApplicationStatus): string {
-  switch (status) {
-    case 'DRAFT':
-      return 'Not submitted';
-    case 'SUBMITTED':
-      return 'Submitted';
-    case 'UNDER_REVIEW':
-      return 'Being reviewed';
-    case 'ACTION_REQUIRED':
-      return 'Needs changes';
-    case 'APPROVED':
-      return 'Approved';
-    case 'REJECTED':
-      return 'Not approved';
-    case 'SUSPENDED':
-      return 'Paused';
-  }
+/** A key for an application status, for a badge. */
+export function applicationStatusKey(
+  status: SellerApplicationStatus,
+): `seller.applicationStatus.${SellerApplicationStatus}` {
+  return `seller.applicationStatus.${status}`;
 }
 
 export function applicationStatusTone(
@@ -1240,27 +1206,50 @@ export function sectionLabel(section: ListingSection): string {
  * NEW to SHIPPED is legal in two hops and is not a button, because skipping
  * "accepted" loses the dispatch clock the SLA is measured against.
  */
-export function nextActions(
-  status: SellerOrderStatus,
-): { to: SellerOrderStatus; label: string; isPrimary: boolean }[] {
+export type OrderActionKey =
+  | 'accept'
+  | 'reject'
+  | 'startPicking'
+  | 'readyToGo'
+  | 'markShipped'
+  | 'markDelivered'
+  | 'acceptReturn'
+  | 'dispute';
+
+export interface OrderAction {
+  to: SellerOrderStatus;
+  /**
+   * What the button says, as a key.
+   *
+   * Its own name rather than the destination status: "Accept" and "Accepted"
+   * are different words, and a button labelled with the state it produces
+   * reads as a description of where you already are.
+   */
+  labelKey: `seller.orderAction.${OrderActionKey}`;
+  isPrimary: boolean;
+}
+
+export function nextActions(status: SellerOrderStatus): OrderAction[] {
   switch (status) {
     case 'NEW':
       return [
-        { to: 'ACCEPTED', label: 'Accept', isPrimary: true },
-        { to: 'CANCELLED', label: 'Reject', isPrimary: false },
+        { to: 'ACCEPTED', labelKey: 'seller.orderAction.accept', isPrimary: true },
+        { to: 'CANCELLED', labelKey: 'seller.orderAction.reject', isPrimary: false },
       ];
     case 'ACCEPTED':
-      return [{ to: 'PROCESSING', label: 'Start picking', isPrimary: true }];
+      return [{ to: 'PROCESSING', labelKey: 'seller.orderAction.startPicking', isPrimary: true }];
     case 'PROCESSING':
-      return [{ to: 'READY_FOR_DISPATCH', label: 'Ready to go', isPrimary: true }];
+      return [
+        { to: 'READY_FOR_DISPATCH', labelKey: 'seller.orderAction.readyToGo', isPrimary: true },
+      ];
     case 'READY_FOR_DISPATCH':
-      return [{ to: 'SHIPPED', label: 'Mark as shipped', isPrimary: true }];
+      return [{ to: 'SHIPPED', labelKey: 'seller.orderAction.markShipped', isPrimary: true }];
     case 'SHIPPED':
-      return [{ to: 'DELIVERED', label: 'Mark delivered', isPrimary: false }];
+      return [{ to: 'DELIVERED', labelKey: 'seller.orderAction.markDelivered', isPrimary: false }];
     case 'RETURN_REQUESTED':
       return [
-        { to: 'RETURNED', label: 'Accept the return', isPrimary: true },
-        { to: 'DISPUTED', label: 'Dispute it', isPrimary: false },
+        { to: 'RETURNED', labelKey: 'seller.orderAction.acceptReturn', isPrimary: true },
+        { to: 'DISPUTED', labelKey: 'seller.orderAction.dispute', isPrimary: false },
       ];
     default:
       return [];

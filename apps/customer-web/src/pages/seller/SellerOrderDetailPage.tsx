@@ -34,13 +34,14 @@ import {
   Select,
 } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n-context';
+import type { TranslationKey } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
 import {
   fetchLocations,
   fetchSellerOrder,
   formatMinor,
   nextActions,
-  orderLabel,
+  orderLabelKey,
   recordShipment,
   transitionOrder,
   type SellerOrderDetail,
@@ -48,6 +49,7 @@ import {
 } from '@/lib/seller';
 
 export function SellerOrderDetailPage(): React.JSX.Element {
+  const { t } = useI18n();
   const { id = '' } = useParams<{ id: string }>();
 
   const query = useQuery({
@@ -78,29 +80,38 @@ export function SellerOrderDetailPage(): React.JSX.Element {
     <div className="space-y-6">
       <PageHeader
         title={order.sellerOrderNumber}
-        description={`Buyer's order ${order.orderNumber} · placed ${
-          order.placedAt === null ? 'date unknown' : new Date(order.placedAt).toLocaleString()
-        }`}
+        description={t('seller.orderDetail.buyerOrder', {
+          order: order.orderNumber,
+          when:
+            order.placedAt === null
+              ? t('seller.orderDetail.dateUnknown')
+              : new Date(order.placedAt).toLocaleString(),
+        })}
         actions={
           <Link to="/seller/orders" className="text-sm text-brand hover:underline">
-            ← All orders
+            {t('seller.orderDetail.allOrders')}
           </Link>
         }
       />
 
       <div className="flex flex-wrap items-center gap-2">
-        <Badge tone="brand">{orderLabel(order.status)}</Badge>
+        <Badge tone="brand">{t(orderLabelKey(order.status))}</Badge>
         {order.dispatchDueAt !== null && (
           <Badge tone={new Date(order.dispatchDueAt) < new Date() ? 'danger' : 'neutral'}>
-            {new Date(order.dispatchDueAt) < new Date() ? 'Overdue since ' : 'Dispatch by '}
-            {new Date(order.dispatchDueAt).toLocaleString()}
+            {new Date(order.dispatchDueAt) < new Date()
+              ? t('seller.orderDetail.overdueSince', {
+                  when: new Date(order.dispatchDueAt).toLocaleString(),
+                })
+              : t('seller.orders.dispatchBy', {
+                  when: new Date(order.dispatchDueAt).toLocaleString(),
+                })}
           </Badge>
         )}
       </div>
 
       {order.cancellationReason !== null && (
         <p className="rounded-lg border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-ink">
-          Cancelled: {order.cancellationReason}
+          {t('seller.orderDetail.cancelledWith', { reason: order.cancellationReason })}
         </p>
       )}
 
@@ -149,8 +160,13 @@ export function SellerOrderDetailPage(): React.JSX.Element {
 }
 
 function Lines({ order }: { order: SellerOrderDetail }): React.JSX.Element {
+  const { t } = useI18n();
+
   return (
-    <Card title="What to send" description="Quantities already sent and already returned are shown beside each line.">
+    <Card
+      title={t('seller.orderDetail.whatToSend')}
+      description={t('seller.orderDetail.whatToSendIntro')}
+    >
       <ul className="divide-y divide-border-subtle">
         {order.lines.map((line) => {
           const outstanding = line.quantity - line.fulfilledQuantity;
@@ -164,11 +180,13 @@ function Lines({ order }: { order: SellerOrderDetail }): React.JSX.Element {
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-medium text-ink">
-                    {line.quantity} ordered
+                    {t('seller.orderDetail.ordered', { count: line.quantity })}
                   </p>
                   <p className="text-xxs text-ink-subtle">
-                    {line.fulfilledQuantity} sent
-                    {line.returnedQuantity > 0 ? ` · ${String(line.returnedQuantity)} returned` : ''}
+                    {t('seller.orderDetail.sent', { count: line.fulfilledQuantity })}
+                    {line.returnedQuantity > 0
+                      ? ` · ${t('seller.orderDetail.returned', { count: line.returnedQuantity })}`
+                      : ''}
                   </p>
                 </div>
               </div>
@@ -182,15 +200,21 @@ function Lines({ order }: { order: SellerOrderDetail }): React.JSX.Element {
                   tax is a line of its own.
                 */}
                 <span>
-                  {formatMinor(line.unitPriceMinor, order.currency)} each ·{' '}
-                  {formatMinor(line.lineTotalMinor, order.currency)} line with tax
+                  {t('seller.orderDetail.eachAndLine', {
+                    unit: formatMinor(line.unitPriceMinor, order.currency),
+                    line: formatMinor(line.lineTotalMinor, order.currency),
+                  })}
                 </span>
                 {/*
                   Outstanding, not "remaining": a seller reading this is deciding
                   what to put in the next box, and a line already sent in full
                   should say nothing rather than "0 left" beside every other one.
                 */}
-                {outstanding > 0 && <Badge tone="warning">{outstanding} still to send</Badge>}
+                {outstanding > 0 && (
+                  <Badge tone="warning">
+                    {t('seller.orderDetail.stillToSend', { count: outstanding })}
+                  </Badge>
+                )}
               </div>
             </li>
           );
@@ -201,10 +225,12 @@ function Lines({ order }: { order: SellerOrderDetail }): React.JSX.Element {
 }
 
 function Shipments({ order }: { order: SellerOrderDetail }): React.JSX.Element | null {
+  const { t } = useI18n();
+
   if (order.shipments.length === 0) return null;
 
   return (
-    <Card title="Shipments">
+    <Card title={t('seller.orderDetail.shipments')}>
       <ul className="divide-y divide-border-subtle">
         {order.shipments.map((shipment) => (
           <li key={shipment.id} className="px-6 py-4">
@@ -231,11 +257,15 @@ function Shipments({ order }: { order: SellerOrderDetail }): React.JSX.Element |
 
             <p className="mt-2 text-xxs text-ink-subtle">
               {shipment.dispatchedAt === null
-                ? 'Not dispatched yet'
-                : `Dispatched ${new Date(shipment.dispatchedAt).toLocaleString()}`}
+                ? t('seller.orderDetail.notDispatched')
+                : t('seller.orderDetail.dispatchedAt', {
+                    when: new Date(shipment.dispatchedAt).toLocaleString(),
+                  })}
               {shipment.deliveredAt === null
                 ? ''
-                : ` · delivered ${new Date(shipment.deliveredAt).toLocaleString()}`}
+                : ` · ${t('seller.orderDetail.deliveredAt', {
+                    when: new Date(shipment.deliveredAt).toLocaleString(),
+                  })}`}
             </p>
           </li>
         ))}
@@ -245,10 +275,12 @@ function Shipments({ order }: { order: SellerOrderDetail }): React.JSX.Element |
 }
 
 function Returns({ order }: { order: SellerOrderDetail }): React.JSX.Element | null {
+  const { t } = useI18n();
+
   if (order.returns.length === 0) return null;
 
   return (
-    <Card title="Returns">
+    <Card title={t('seller.orderDetail.returns')}>
       <ul className="divide-y divide-border-subtle">
         {order.returns.map((entry) => (
           <li key={entry.id} className="px-6 py-4">
@@ -262,7 +294,9 @@ function Returns({ order }: { order: SellerOrderDetail }): React.JSX.Element | n
               <p className="mt-1 text-xs text-ink-muted">{entry.reasonText}</p>
             )}
             {entry.sellerResponse !== null && (
-              <p className="mt-1 text-xs text-ink-muted">You said: {entry.sellerResponse}</p>
+              <p className="mt-1 text-xs text-ink-muted">
+                {t('seller.orderDetail.youSaid', { text: entry.sellerResponse })}
+              </p>
             )}
           </li>
         ))}
@@ -279,23 +313,36 @@ function Returns({ order }: { order: SellerOrderDetail }): React.JSX.Element | n
  * last one gives them nothing to point at.
  */
 function Money({ order }: { order: SellerOrderDetail }): React.JSX.Element {
+  const { t } = useI18n();
+
   return (
-    <Card title="What this earns">
+    <Card title={t('seller.orderDetail.whatThisEarns')}>
       <dl className="space-y-2 px-6 py-5 text-sm">
-        <Row label="Goods" value={formatMinor(order.goodsTotalMinor, order.currency)} />
-        <Row label="Shipping" value={formatMinor(order.shippingTotalMinor, order.currency)} />
-        <Row label="Tax" value={formatMinor(order.taxTotalMinor, order.currency)} />
+        <Row
+          label={t('seller.orderDetail.goods')}
+          value={formatMinor(order.goodsTotalMinor, order.currency)}
+        />
+        <Row
+          label={t('seller.orderDetail.shipping')}
+          value={formatMinor(order.shippingTotalMinor, order.currency)}
+        />
+        <Row
+          label={t('seller.orderDetail.tax')}
+          value={formatMinor(order.taxTotalMinor, order.currency)}
+        />
         <Row
           label={
             order.commissionBasisPointsApplied === null
-              ? 'Marketplace commission'
-              : `Marketplace commission (${(order.commissionBasisPointsApplied / 100).toFixed(2)}%)`
+              ? t('seller.orderDetail.commission')
+              : t('seller.orderDetail.commissionAt', {
+                  rate: (order.commissionBasisPointsApplied / 100).toFixed(2),
+                })
           }
           value={`− ${formatMinor(order.commissionMinor, order.currency)}`}
         />
         <div className="border-t border-border-subtle pt-2">
           <Row
-            label="Yours"
+            label={t('seller.orderDetail.yours')}
             value={formatMinor(order.sellerNetMinor, order.currency)}
             isStrong
           />
@@ -323,6 +370,8 @@ function Row({
 }
 
 function DeliveryAddress({ order }: { order: SellerOrderDetail }): React.JSX.Element | null {
+  const { t } = useI18n();
+
   const address = order.deliveryAddress as {
     fullName?: string;
     line1?: string;
@@ -345,7 +394,7 @@ function DeliveryAddress({ order }: { order: SellerOrderDetail }): React.JSX.Ele
   ].filter((line): line is string => typeof line === 'string' && line.length > 0);
 
   return (
-    <Card title="Deliver to">
+    <Card title={t('seller.orderDetail.deliverTo')}>
       <address className="space-y-0.5 px-6 py-5 text-sm not-italic text-ink">
         {lines.map((line, index) => (
           <p key={index}>{line}</p>
@@ -371,6 +420,8 @@ function WhatNext({
   onTransition: (to: SellerOrderStatus) => void;
   onShip: () => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const canShip =
     order.status === 'PROCESSING' ||
     order.status === 'READY_FOR_DISPATCH' ||
@@ -390,7 +441,7 @@ function WhatNext({
   const actions = nextActions(order.status).filter((action) => permitted.has(action.to));
 
   return (
-    <Card title="What happens next">
+    <Card title={t('seller.orderDetail.whatNext')}>
       <div className="space-y-2 px-6 py-5">
         {canShip && (
           <Button
@@ -400,7 +451,7 @@ function WhatNext({
               onShip();
             }}
           >
-            Record a shipment
+            {t('seller.orderDetail.recordShipment')}
           </Button>
         )}
 
@@ -413,13 +464,13 @@ function WhatNext({
               onTransition(action.to);
             }}
           >
-            {action.label}
+            {t(action.labelKey)}
           </Button>
         ))}
 
         {actions.length === 0 && !canShip && (
           <p className="text-sm text-ink-muted">
-            Nothing to do here. This order has reached a state you cannot move it out of.
+            {t('seller.orderDetail.nothingToDo')}
           </p>
         )}
       </div>
@@ -463,11 +514,11 @@ function TransitionDialog({
       await client.invalidateQueries({ queryKey: ['seller', 'order', order.id] });
       await client.invalidateQueries({ queryKey: ['seller', 'orders'] });
       await client.invalidateQueries({ queryKey: ['seller', 'dashboard'] });
-      toast.success(`${order.sellerOrderNumber} updated.`);
+      toast.success(t('seller.orders.updated', { order: order.sellerOrderNumber }));
       onClose();
     },
     onError: (error: unknown) => {
-      toast.error(errorMessage(t, error, 'That order could not be updated.'));
+      toast.error(errorMessage(t, error, t('seller.orders.updateFailed')));
     },
   });
 
@@ -479,12 +530,12 @@ function TransitionDialog({
     (!needsReason || reason.trim().length > 0) && (!needsLocation || locationId.length > 0);
 
   return (
-    <Modal isOpen title={`${actionLabel(to)} — ${order.sellerOrderNumber}`} onClose={onClose}>
+    <Modal isOpen title={`${t(actionLabelKey(to))} — ${order.sellerOrderNumber}`} onClose={onClose}>
       <div className="space-y-4">
         {needsLocation && (
           <Field
-            label="Which of your locations ships this?"
-            hint="This sets the dispatch deadline from that location's cut-off and handling time."
+            label={t('seller.orders.whichLocation')}
+            hint={t('seller.orders.whichLocationHint')}
             required
           >
             {({ inputId, describedBy }) => (
@@ -496,7 +547,7 @@ function TransitionDialog({
                   setLocationId(event.currentTarget.value);
                 }}
               >
-                <option value="">Choose a location</option>
+                <option value="">{t('seller.orders.chooseLocation')}</option>
                 {operational.map((location) => (
                   <option key={location.id} value={location.id}>
                     {location.name} ({location.code})
@@ -508,7 +559,7 @@ function TransitionDialog({
         )}
 
         {needsReason && (
-          <Field label="Why?" hint="The buyer and the marketplace both see this." required>
+          <Field label={t('seller.orders.why')} hint={t('seller.orders.whyHint')} required>
             {({ inputId, describedBy }) => (
               <Input
                 id={inputId}
@@ -523,7 +574,7 @@ function TransitionDialog({
         )}
 
         <div className="flex justify-end gap-2">
-          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={onClose}>{t('common.cancel')}</Button>
           <Button
             variant={to === 'CANCELLED' ? 'danger' : 'primary'}
             isLoading={mutation.isPending}
@@ -532,7 +583,7 @@ function TransitionDialog({
               mutation.mutate();
             }}
           >
-            {actionLabel(to)}
+            {t(actionLabelKey(to))}
           </Button>
         </div>
       </div>
@@ -547,26 +598,26 @@ function TransitionDialog({
  * list of buttons needs; a dialog only knows where it is going. Same words,
  * so the button and the dialog it opens agree.
  */
-function actionLabel(to: SellerOrderStatus): string {
+function actionLabelKey(to: SellerOrderStatus): TranslationKey {
   switch (to) {
     case 'ACCEPTED':
-      return 'Accept';
+      return 'seller.orderAction.accept';
     case 'PROCESSING':
-      return 'Start picking';
+      return 'seller.orderAction.startPicking';
     case 'READY_FOR_DISPATCH':
-      return 'Mark ready to go';
+      return 'seller.orderAction.markReadyToGo';
     case 'SHIPPED':
-      return 'Mark as shipped';
+      return 'seller.orderAction.markShipped';
     case 'DELIVERED':
-      return 'Mark delivered';
+      return 'seller.orderAction.markDelivered';
     case 'CANCELLED':
-      return 'Reject';
+      return 'seller.orderAction.reject';
     case 'RETURNED':
-      return 'Accept the return';
+      return 'seller.orderAction.acceptReturn';
     case 'DISPUTED':
-      return 'Dispute it';
+      return 'seller.orderAction.dispute';
     default:
-      return orderLabel(to);
+      return orderLabelKey(to);
   }
 }
 
@@ -617,11 +668,11 @@ function ShipmentDialog({
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: ['seller', 'order', order.id] });
       await client.invalidateQueries({ queryKey: ['seller', 'orders'] });
-      toast.success('Shipment recorded. The buyer can track it now.');
+      toast.success(t('seller.orderDetail.shipmentRecorded'));
       onClose();
     },
     onError: (error: unknown) => {
-      toast.error(errorMessage(t, error, 'That shipment could not be recorded.'));
+      toast.error(errorMessage(t, error, t('seller.orderDetail.shipmentFailed')));
     },
   });
 
@@ -629,9 +680,17 @@ function ShipmentDialog({
     carrierName.trim().length > 0 && trackingNumber.trim().length > 0 && contents.length > 0;
 
   return (
-    <Modal isOpen title={`Record a shipment — ${order.sellerOrderNumber}`} onClose={onClose}>
+    <Modal
+      isOpen
+      title={`${t('seller.orderDetail.recordShipment')} — ${order.sellerOrderNumber}`}
+      onClose={onClose}
+    >
       <div className="space-y-4">
-        <Field label="Carrier" hint="Whoever is carrying it — DHL, Blue Dart, your own van." required>
+        <Field
+          label={t('seller.orderDetail.carrier')}
+          hint={t('seller.orderDetail.carrierHint')}
+          required
+        >
           {({ inputId, describedBy }) => (
             <Input
               id={inputId}
@@ -644,7 +703,7 @@ function ShipmentDialog({
           )}
         </Field>
 
-        <Field label="Tracking number" required>
+        <Field label={t('seller.orderDetail.trackingNumber')} required>
           {({ inputId, describedBy }) => (
             <Input
               id={inputId}
@@ -658,8 +717,8 @@ function ShipmentDialog({
         </Field>
 
         <Field
-          label="Tracking link"
-          hint="Optional. Without it the buyer has a number and nowhere to type it."
+          label={t('seller.orderDetail.trackingLink')}
+          hint={t('seller.orderDetail.trackingLinkHint')}
         >
           {({ inputId, describedBy }) => (
             <Input
@@ -676,11 +735,10 @@ function ShipmentDialog({
         </Field>
 
         <fieldset className="space-y-2">
-          <legend className="text-sm font-medium text-ink">What is in this box?</legend>
-          <p className="text-xs text-ink-muted">
-            Filled in with everything still outstanding. Change a figure if you are sending part of
-            the order.
-          </p>
+          <legend className="text-sm font-medium text-ink">
+            {t('seller.orderDetail.whatIsInBox')}
+          </legend>
+          <p className="text-xs text-ink-muted">{t('seller.orderDetail.whatIsInBoxHint')}</p>
 
           <ul className="space-y-2">
             {order.lines.map((line) => {
@@ -690,14 +748,18 @@ function ShipmentDialog({
                 <li key={line.id} className="flex items-center gap-3">
                   <span className="min-w-0 flex-1 truncate text-sm text-ink">
                     {line.productName}
-                    <span className="ml-2 text-xxs text-ink-subtle">{outstanding} left</span>
+                    <span className="ml-2 text-xxs text-ink-subtle">
+                      {t('seller.orderDetail.left', { count: outstanding })}
+                    </span>
                   </span>
                   <Input
                     type="number"
                     min={0}
                     max={outstanding}
                     className="w-24"
-                    aria-label={`Quantity of ${line.productName} in this shipment`}
+                    aria-label={t('seller.orderDetail.quantityOf', {
+                      product: line.productName,
+                    })}
                     value={quantities[line.id] ?? '0'}
                     onChange={(event) => {
                       const next = event.currentTarget.value;
@@ -711,7 +773,7 @@ function ShipmentDialog({
         </fieldset>
 
         <div className="flex justify-end gap-2">
-          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={onClose}>{t('common.cancel')}</Button>
           <Button
             variant="primary"
             isLoading={mutation.isPending}
@@ -720,7 +782,7 @@ function ShipmentDialog({
               mutation.mutate();
             }}
           >
-            Record it
+            {t('seller.orderDetail.recordIt')}
           </Button>
         </div>
       </div>

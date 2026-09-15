@@ -58,7 +58,7 @@ export function SellerNotificationsPage(): React.JSX.Element {
       await client.invalidateQueries({ queryKey: ['seller', 'notifications'] });
     },
     onError: (error: unknown) => {
-      toast.error(errorMessage(t, error, 'That could not be marked as read.'));
+      toast.error(errorMessage(t, error, t('seller.notifications.markFailed')));
     },
   });
 
@@ -68,15 +68,15 @@ export function SellerNotificationsPage(): React.JSX.Element {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Notifications"
+        title={t('seller.notifications.title')}
         description={
           unread.length === 0
-            ? 'Everything the marketplace has told you.'
-            : `${String(unread.length)} you have not read.`
+            ? t('seller.notifications.allRead')
+            : t('seller.notifications.unread', { count: unread.length })
         }
       />
 
-      {query.isPending && <LoadingState label="Loading your notifications" />}
+      {query.isPending && <LoadingState label={t('seller.notifications.loading')} />}
 
       {query.isError && (
         <ErrorState
@@ -89,13 +89,13 @@ export function SellerNotificationsPage(): React.JSX.Element {
 
       {query.isSuccess && notifications.length === 0 && (
         <EmptyState
-          title="Nothing yet"
-          description="Decisions on your application, your listings and the brands you ask for all appear here."
+          title={t('seller.notifications.emptyTitle')}
+          description={t('seller.notifications.emptyBody')}
         />
       )}
 
       {notifications.length > 0 && (
-        <Card title="Recent">
+        <Card title={t('seller.notifications.recent')}>
           <ul className="divide-y divide-border-subtle">
             {notifications.map((row) => (
               <NotificationRow
@@ -123,6 +123,8 @@ function NotificationRow({
   onRead: () => void;
   isBusy: boolean;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   return (
     <li
       className={cx(
@@ -136,7 +138,7 @@ function NotificationRow({
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-sm font-medium text-ink">{notification.title}</p>
-            {!notification.isRead && <Badge tone="brand">New</Badge>}
+            {!notification.isRead && <Badge tone="brand">{t('seller.notifications.new')}</Badge>}
             <Badge tone={SEVERITY_TONES[notification.severity] ?? 'neutral'}>
               {notification.severity.toLowerCase()}
             </Badge>
@@ -161,13 +163,13 @@ function NotificationRow({
           */}
           {notification.linkPath !== null && notification.linkPath.startsWith('/') && (
             <Link to={notification.linkPath} className="text-xs text-brand hover:underline">
-              Open →
+              {t('seller.notifications.open')}
             </Link>
           )}
 
           {!notification.isRead && (
             <Button disabled={isBusy} onClick={onRead}>
-              Mark read
+              {t('seller.notifications.markRead')}
             </Button>
           )}
         </div>
