@@ -43,6 +43,38 @@ export interface SellerIdentity {
   /** The seller's own mark, for the Hub's frame. Null until they upload one. */
   logoUrl: string | null;
   permissions: string[];
+  /**
+   * The Hub's own password, as this browser finds it.
+   *
+   * Selling shares the account somebody buys with and puts a second password in
+   * front of the Hub. `isSet` is whether they have chosen one; `isOpen` is
+   * whether THIS browser has entered it. Two flags rather than one because the
+   * Hub draws a different screen for each, and learning which from a refusal
+   * would flash the workspace first.
+   */
+  lock: { isSet: boolean; isOpen: boolean };
+}
+
+/** Choose the Seller Hub password, or change it. */
+export function setSellerLock(input: {
+  currentPassword?: string | null;
+  newPassword: string;
+}): Promise<{ lock: { isSet: boolean; isOpen: boolean } }> {
+  return api.post<{ lock: { isSet: boolean; isOpen: boolean } }>('/sellers/lock', input);
+}
+
+/** Open the Hub for this browser. */
+export function openSellerLock(
+  password: string,
+): Promise<{ lock: { isSet: boolean; isOpen: boolean } }> {
+  return api.post<{ lock: { isSet: boolean; isOpen: boolean } }>('/sellers/lock/open', {
+    password,
+  });
+}
+
+/** Shut the Hub without signing out of the shop. */
+export function closeSellerLock(): Promise<{ lock: { isSet: boolean; isOpen: boolean } }> {
+  return api.post<{ lock: { isSet: boolean; isOpen: boolean } }>('/sellers/lock/close', {});
 }
 
 /**
@@ -700,6 +732,26 @@ export function fetchLocations(): Promise<{ locations: SellerLocation[] }> {
 
 export function createLocation(input: Record<string, unknown>): Promise<SellerLocation> {
   return api.post<SellerLocation>('/seller/locations', input);
+}
+
+export interface GeocodedAddress {
+  latitude: number;
+  longitude: number;
+  /** What the geocoder thinks it was asked about, so a person can check it. */
+  label: string | null;
+}
+
+/**
+ * An address to coordinates.
+ *
+ * `result` is null for every way this can fail to answer — no geocoder
+ * configured on the deployment, one that timed out, one that found nothing —
+ * and the caller treats all of them the same way: the address still saves, it
+ * simply has no pin. A dispatch place is a real place whether or not a third
+ * party could find it on a map.
+ */
+export function geocodeLocation(query: string): Promise<{ result: GeocodedAddress | null }> {
+  return api.post<{ result: GeocodedAddress | null }>('/seller/locations/geocode', { query });
 }
 
 export interface InventoryRow {

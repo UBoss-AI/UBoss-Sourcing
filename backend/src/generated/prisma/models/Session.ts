@@ -52,6 +52,8 @@ export type SessionMinAggregateOutputType = {
   locationCountry: string | null
   locationCapturedAt: Date | null
   mfaVerifiedAt: Date | null
+  sellerUnlockedAt: Date | null
+  sellerUnlockedForId: string | null
   expiresAt: Date | null
   revokedAt: Date | null
   revokedReason: string | null
@@ -74,6 +76,8 @@ export type SessionMaxAggregateOutputType = {
   locationCountry: string | null
   locationCapturedAt: Date | null
   mfaVerifiedAt: Date | null
+  sellerUnlockedAt: Date | null
+  sellerUnlockedForId: string | null
   expiresAt: Date | null
   revokedAt: Date | null
   revokedReason: string | null
@@ -96,6 +100,8 @@ export type SessionCountAggregateOutputType = {
   locationCountry: number
   locationCapturedAt: number
   mfaVerifiedAt: number
+  sellerUnlockedAt: number
+  sellerUnlockedForId: number
   expiresAt: number
   revokedAt: number
   revokedReason: number
@@ -132,6 +138,8 @@ export type SessionMinAggregateInputType = {
   locationCountry?: true
   locationCapturedAt?: true
   mfaVerifiedAt?: true
+  sellerUnlockedAt?: true
+  sellerUnlockedForId?: true
   expiresAt?: true
   revokedAt?: true
   revokedReason?: true
@@ -154,6 +162,8 @@ export type SessionMaxAggregateInputType = {
   locationCountry?: true
   locationCapturedAt?: true
   mfaVerifiedAt?: true
+  sellerUnlockedAt?: true
+  sellerUnlockedForId?: true
   expiresAt?: true
   revokedAt?: true
   revokedReason?: true
@@ -176,6 +186,8 @@ export type SessionCountAggregateInputType = {
   locationCountry?: true
   locationCapturedAt?: true
   mfaVerifiedAt?: true
+  sellerUnlockedAt?: true
+  sellerUnlockedForId?: true
   expiresAt?: true
   revokedAt?: true
   revokedReason?: true
@@ -285,6 +297,8 @@ export type SessionGroupByOutputType = {
   locationCountry: string | null
   locationCapturedAt: Date | null
   mfaVerifiedAt: Date | null
+  sellerUnlockedAt: Date | null
+  sellerUnlockedForId: string | null
   expiresAt: Date
   revokedAt: Date | null
   revokedReason: string | null
@@ -330,6 +344,8 @@ export type SessionWhereInput = {
   locationCountry?: Prisma.StringNullableFilter<"Session"> | string | null
   locationCapturedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   mfaVerifiedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
+  sellerUnlockedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
+  sellerUnlockedForId?: Prisma.StringNullableFilter<"Session"> | string | null
   expiresAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   revokedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   revokedReason?: Prisma.StringNullableFilter<"Session"> | string | null
@@ -353,6 +369,8 @@ export type SessionOrderByWithRelationInput = {
   locationCountry?: Prisma.SortOrderInput | Prisma.SortOrder
   locationCapturedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   mfaVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerUnlockedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerUnlockedForId?: Prisma.SortOrderInput | Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   revokedReason?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -380,6 +398,8 @@ export type SessionWhereUniqueInput = Prisma.AtLeast<{
   locationCountry?: Prisma.StringNullableFilter<"Session"> | string | null
   locationCapturedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   mfaVerifiedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
+  sellerUnlockedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
+  sellerUnlockedForId?: Prisma.StringNullableFilter<"Session"> | string | null
   expiresAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   revokedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   revokedReason?: Prisma.StringNullableFilter<"Session"> | string | null
@@ -403,6 +423,8 @@ export type SessionOrderByWithAggregationInput = {
   locationCountry?: Prisma.SortOrderInput | Prisma.SortOrder
   locationCapturedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   mfaVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerUnlockedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  sellerUnlockedForId?: Prisma.SortOrderInput | Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   revokedReason?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -433,6 +455,8 @@ export type SessionScalarWhereWithAggregatesInput = {
   locationCountry?: Prisma.StringNullableWithAggregatesFilter<"Session"> | string | null
   locationCapturedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Session"> | Date | string | null
   mfaVerifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Session"> | Date | string | null
+  sellerUnlockedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Session"> | Date | string | null
+  sellerUnlockedForId?: Prisma.StringNullableWithAggregatesFilter<"Session"> | string | null
   expiresAt?: Prisma.DateTimeWithAggregatesFilter<"Session"> | Date | string
   revokedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Session"> | Date | string | null
   revokedReason?: Prisma.StringNullableWithAggregatesFilter<"Session"> | string | null
@@ -454,6 +478,8 @@ export type SessionCreateInput = {
   locationCountry?: string | null
   locationCapturedAt?: Date | string | null
   mfaVerifiedAt?: Date | string | null
+  sellerUnlockedAt?: Date | string | null
+  sellerUnlockedForId?: string | null
   expiresAt: Date | string
   revokedAt?: Date | string | null
   revokedReason?: string | null
@@ -477,6 +503,8 @@ export type SessionUncheckedCreateInput = {
   locationCountry?: string | null
   locationCapturedAt?: Date | string | null
   mfaVerifiedAt?: Date | string | null
+  sellerUnlockedAt?: Date | string | null
+  sellerUnlockedForId?: string | null
   expiresAt: Date | string
   revokedAt?: Date | string | null
   revokedReason?: string | null
@@ -498,6 +526,8 @@ export type SessionUpdateInput = {
   locationCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locationCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerUnlockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerUnlockedForId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -521,6 +551,8 @@ export type SessionUncheckedUpdateInput = {
   locationCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locationCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerUnlockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerUnlockedForId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -543,6 +575,8 @@ export type SessionCreateManyInput = {
   locationCountry?: string | null
   locationCapturedAt?: Date | string | null
   mfaVerifiedAt?: Date | string | null
+  sellerUnlockedAt?: Date | string | null
+  sellerUnlockedForId?: string | null
   expiresAt: Date | string
   revokedAt?: Date | string | null
   revokedReason?: string | null
@@ -564,6 +598,8 @@ export type SessionUpdateManyMutationInput = {
   locationCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locationCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerUnlockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerUnlockedForId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -586,6 +622,8 @@ export type SessionUncheckedUpdateManyInput = {
   locationCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locationCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerUnlockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerUnlockedForId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -624,6 +662,8 @@ export type SessionCountOrderByAggregateInput = {
   locationCountry?: Prisma.SortOrder
   locationCapturedAt?: Prisma.SortOrder
   mfaVerifiedAt?: Prisma.SortOrder
+  sellerUnlockedAt?: Prisma.SortOrder
+  sellerUnlockedForId?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
   revokedReason?: Prisma.SortOrder
@@ -652,6 +692,8 @@ export type SessionMaxOrderByAggregateInput = {
   locationCountry?: Prisma.SortOrder
   locationCapturedAt?: Prisma.SortOrder
   mfaVerifiedAt?: Prisma.SortOrder
+  sellerUnlockedAt?: Prisma.SortOrder
+  sellerUnlockedForId?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
   revokedReason?: Prisma.SortOrder
@@ -674,6 +716,8 @@ export type SessionMinOrderByAggregateInput = {
   locationCountry?: Prisma.SortOrder
   locationCapturedAt?: Prisma.SortOrder
   mfaVerifiedAt?: Prisma.SortOrder
+  sellerUnlockedAt?: Prisma.SortOrder
+  sellerUnlockedForId?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
   revokedReason?: Prisma.SortOrder
@@ -759,6 +803,8 @@ export type SessionCreateWithoutUserInput = {
   locationCountry?: string | null
   locationCapturedAt?: Date | string | null
   mfaVerifiedAt?: Date | string | null
+  sellerUnlockedAt?: Date | string | null
+  sellerUnlockedForId?: string | null
   expiresAt: Date | string
   revokedAt?: Date | string | null
   revokedReason?: string | null
@@ -780,6 +826,8 @@ export type SessionUncheckedCreateWithoutUserInput = {
   locationCountry?: string | null
   locationCapturedAt?: Date | string | null
   mfaVerifiedAt?: Date | string | null
+  sellerUnlockedAt?: Date | string | null
+  sellerUnlockedForId?: string | null
   expiresAt: Date | string
   revokedAt?: Date | string | null
   revokedReason?: string | null
@@ -831,6 +879,8 @@ export type SessionScalarWhereInput = {
   locationCountry?: Prisma.StringNullableFilter<"Session"> | string | null
   locationCapturedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   mfaVerifiedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
+  sellerUnlockedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
+  sellerUnlockedForId?: Prisma.StringNullableFilter<"Session"> | string | null
   expiresAt?: Prisma.DateTimeFilter<"Session"> | Date | string
   revokedAt?: Prisma.DateTimeNullableFilter<"Session"> | Date | string | null
   revokedReason?: Prisma.StringNullableFilter<"Session"> | string | null
@@ -852,6 +902,8 @@ export type SessionCreateManyUserInput = {
   locationCountry?: string | null
   locationCapturedAt?: Date | string | null
   mfaVerifiedAt?: Date | string | null
+  sellerUnlockedAt?: Date | string | null
+  sellerUnlockedForId?: string | null
   expiresAt: Date | string
   revokedAt?: Date | string | null
   revokedReason?: string | null
@@ -873,6 +925,8 @@ export type SessionUpdateWithoutUserInput = {
   locationCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locationCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerUnlockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerUnlockedForId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -894,6 +948,8 @@ export type SessionUncheckedUpdateWithoutUserInput = {
   locationCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locationCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerUnlockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerUnlockedForId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -915,6 +971,8 @@ export type SessionUncheckedUpdateManyWithoutUserInput = {
   locationCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locationCapturedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   mfaVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerUnlockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sellerUnlockedForId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -939,6 +997,8 @@ export type SessionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   locationCountry?: boolean
   locationCapturedAt?: boolean
   mfaVerifiedAt?: boolean
+  sellerUnlockedAt?: boolean
+  sellerUnlockedForId?: boolean
   expiresAt?: boolean
   revokedAt?: boolean
   revokedReason?: boolean
@@ -964,6 +1024,8 @@ export type SessionSelectScalar = {
   locationCountry?: boolean
   locationCapturedAt?: boolean
   mfaVerifiedAt?: boolean
+  sellerUnlockedAt?: boolean
+  sellerUnlockedForId?: boolean
   expiresAt?: boolean
   revokedAt?: boolean
   revokedReason?: boolean
@@ -972,7 +1034,7 @@ export type SessionSelectScalar = {
   lastUsedAt?: boolean
 }
 
-export type SessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "refreshTokenHash" | "familyId" | "userAgent" | "ipAddress" | "locationLatitude" | "locationLongitude" | "locationAccuracyM" | "locationLabel" | "locationCountry" | "locationCapturedAt" | "mfaVerifiedAt" | "expiresAt" | "revokedAt" | "revokedReason" | "replacedBySessionId" | "createdAt" | "lastUsedAt", ExtArgs["result"]["session"]>
+export type SessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "refreshTokenHash" | "familyId" | "userAgent" | "ipAddress" | "locationLatitude" | "locationLongitude" | "locationAccuracyM" | "locationLabel" | "locationCountry" | "locationCapturedAt" | "mfaVerifiedAt" | "sellerUnlockedAt" | "sellerUnlockedForId" | "expiresAt" | "revokedAt" | "revokedReason" | "replacedBySessionId" | "createdAt" | "lastUsedAt", ExtArgs["result"]["session"]>
 export type SessionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -1040,6 +1102,21 @@ export type $SessionPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
      * admin location gate.
      */
     mfaVerifiedAt: Date | null
+    /**
+     * When THIS session last presented the seller password, and for whom.
+     * 
+     * Exactly the same shape as `mfaVerifiedAt` above and for the same reason:
+     * `seller_members.passwordHash` says the lock EXISTS, this says the browser
+     * in front of us has opened it. Without the distinction, choosing a seller
+     * password once would leave every future sign-in walking straight into the
+     * Hub, which is not what a second lock is.
+     * 
+     * The id is carried as well as the time because a person can sell for more
+     * than one business: unlocking one must not unlock the other, so the guard
+     * checks that this is the seller account the session was opened for.
+     */
+    sellerUnlockedAt: Date | null
+    sellerUnlockedForId: string | null
     expiresAt: Date
     revokedAt: Date | null
     revokedReason: string | null
@@ -1429,6 +1506,8 @@ export interface SessionFieldRefs {
   readonly locationCountry: Prisma.FieldRef<"Session", 'String'>
   readonly locationCapturedAt: Prisma.FieldRef<"Session", 'DateTime'>
   readonly mfaVerifiedAt: Prisma.FieldRef<"Session", 'DateTime'>
+  readonly sellerUnlockedAt: Prisma.FieldRef<"Session", 'DateTime'>
+  readonly sellerUnlockedForId: Prisma.FieldRef<"Session", 'String'>
   readonly expiresAt: Prisma.FieldRef<"Session", 'DateTime'>
   readonly revokedAt: Prisma.FieldRef<"Session", 'DateTime'>
   readonly revokedReason: Prisma.FieldRef<"Session", 'String'>

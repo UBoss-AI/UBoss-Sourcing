@@ -48,6 +48,7 @@ import { CheckIcon, ChevronDownIcon, CloseIcon, SearchIcon } from '@/components/
 import { Button } from '@/components/ui';
 import { useToast } from '@/components/toast-context';
 import { cx } from '@/lib/cx';
+import { useDropdownMaxHeight } from '@/lib/dropdown-height';
 import { useI18n } from '@/i18n/i18n-context';
 import { isLanguageCode } from '@/i18n/config';
 import { LANGUAGES } from '@/i18n/languages';
@@ -101,6 +102,9 @@ export function MarketMenu({ className }: { className?: string }): React.JSX.Ele
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+  // The flat cap above is right on a tall window and wrong on a short one,
+  // where it took the Apply button off the bottom of the screen with it.
+  const panelRef = useDropdownMaxHeight<HTMLDivElement>(isOpen);
   const panelId = useId();
 
   /*
@@ -347,8 +351,10 @@ export function MarketMenu({ className }: { className?: string }): React.JSX.Ele
           className={cx(
             'z-50 flex flex-col overflow-hidden border border-border bg-surface shadow-popover',
             'fixed inset-x-0 bottom-0 max-h-[85vh] rounded-t-2xl',
-            'lg:absolute lg:inset-x-auto lg:bottom-auto lg:right-0 lg:top-full lg:mt-2 lg:max-h-[32rem] lg:w-[22rem] lg:rounded-lg',
+            'lg:absolute lg:inset-x-auto lg:bottom-auto lg:right-0 lg:top-full lg:mt-2 lg:w-[22rem] lg:rounded-lg',
+            'lg:max-h-[min(32rem,var(--dropdown-max-h,32rem))]',
           )}
+          ref={panelRef}
         >
           <div className="flex items-start justify-between gap-3 border-b border-border px-4 py-3">
             <div className="min-w-0">

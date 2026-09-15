@@ -18,10 +18,17 @@ import { logoUrlFor, removeSellerLogo, uploadSellerLogo } from '../../modules/se
 import {
   changeMemberRole,
   findSellerMembership,
+  resolveSellerMembership,
   isDisplayNameAvailable,
   removeMember,
   startSellerApplication,
 } from '../../modules/seller/account.service.js';
+import {
+  lockSeller,
+  sellerLockState,
+  setSellerLock,
+  unlockSeller,
+} from '../../modules/seller/lock.service.js';
 import {
   acceptAgreement,
   readOnboarding,
@@ -141,8 +148,85 @@ export function registerSellerEntryRoutes(app: FastifyInstance): Promise<void> {
          */
         logoUrl: logoUrlFor(membership.logoStorageKey),
         permissions: [...membership.permissions],
+        /*
+         * The Hub's second lock, as this browser finds it.
+         *
+         * Carried on the identity query rather than discovered by a 403,
+         * because the Hub has to know before it draws: a seller with no
+         * password yet gets a "choose one" screen and a seller with one gets a
+         * "enter it" screen, and a frontend that learned the difference from a
+         * refusal would flash the workspace first.
+         */
+        lock: sellerLockState(membership, {
+          sellerUnlockedAt: auth.sessionSellerUnlockedAt,
+          sellerUnlockedForId: auth.sessionSellerUnlockedForId,
+        }),
       },
     });
+  });
+
+  /**
+   * Choose the Seller Hub password, or change it.
+   *
+   * On the entry routes rather than behind `requireSeller`, because a seller
+   * who has not chosen one yet cannot pass that guard — it is the guard that
+   * sends them here.
+   */
+  app.post('/lock', async (request, reply) => {
+    const auth = currentUser(request);
+    const membership = await resolveSellerMembership(auth.customerProfileId ?? '');
+
+    const body = z
+      .object({
+        currentPassword: z.string().min(1).max(128).nullable().optional(),
+        newPassword: z
+          .string()
+          .min(12, 'Your Seller Hub password must be at least 12 characters.')
+          .max(128, 'Your Seller Hub password must be at most 128 characters.'),
+      })
+      .parse(request.body);
+
+    const state = await setSellerLock(
+      membership,
+      auth.sessionId,
+      auth.id,
+      body,
+      request.correlationId,
+    );
+
+    return reply.status(200).send({ lock: state });
+  });
+
+  /** Open the Hub for this session. */
+  app.post('/lock/open', async (request, reply) => {
+    const auth = currentUser(request);
+    const membership = await resolveSellerMembership(auth.customerProfileId ?? '');
+
+    const body = z.object({ password: z.string().min(1).max(128) }).parse(request.body);
+
+    const state = await unlockSeller(
+      membership,
+      auth.sessionId,
+      auth.id,
+      body.password,
+      request.correlationId,
+    );
+
+    return reply.status(200).send({ lock: state });
+  });
+
+  /**
+   * Shut it again, without signing out of the shop.
+   *
+   * The Hub and the storefront share a browser, so somebody handing the
+   * machine over needs a way to close the Hub that does not cost them their
+   * basket.
+   */
+  app.post('/lock/close', async (request, reply) => {
+    const auth = currentUser(request);
+    const state = await lockSeller(auth.sessionId);
+
+    return reply.status(200).send({ lock: state });
   });
 
   /** Is this public shop name free? Called as the seller types it. */

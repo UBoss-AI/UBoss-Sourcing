@@ -324,11 +324,13 @@ note('Same account, two modes', 'A customer who already buys here becomes a sell
 h2('6a.1 Becoming a seller');
 table(['Step', 'What the person does', 'What the system does'], [
   ['1', 'Presses "Become a seller" in the top bar of the shop.', 'Opens a public page that explains what selling here involves, before any account is needed.'],
-  ['2', 'Signs in, or creates an account.', 'Uses the ordinary customer sign-in. No separate seller login exists.'],
+  ['2', 'Signs in, or creates an account.', 'Uses the ordinary customer sign-in. Selling does not need a second account or a second email address.'],
   ['3', 'Gives the registered business name, the shop name buyers will see, the country of registration and the kind of seller.', 'Checks the shop name is free as it is typed, then creates the seller business and makes this person its owner.'],
   ['4', 'Works through the application.', 'Saves each step on its own so the person can stop and come back, for as long as it takes to gather documents.'],
   ['5', 'Sends the application for review.', 'Refuses to send it while a required step is unfinished, and names each one that is.'],
 ], [700, 4400, 5000]);
+
+note('The Seller Hub has its own password', 'Buying and selling share one account, and the selling side has a second password of its own, chosen the first time the Hub is opened. It has to be different from the shop password. Entering it is remembered for that browser only, so signing in on a new machine asks again, and changing it closes the Hub on every other machine while leaving the shop signed in. A button in the Hub closes it without signing out of the shop, for anybody handing their computer to somebody else.', C.blue);
 
 h2('6a.2 What the application asks for');
 p('There are eight steps. What each one demands depends on the country the business is registered in and on whether it manufactures, distributes, wholesales or resells — so a German seller is asked for a VAT number, an Indian seller for a GSTIN, and a distributor for written authorisation from the manufacturer instead of a declaration it cannot sign.');
@@ -722,8 +724,12 @@ table(['On the Companies screen', 'What staff see'], [
   ['Its buying accounts', 'How many accounts its staff hold, and how many orders they have placed between them.'],
   ['Its carrier account', 'How many parcels it is holding now, how many people it has, and the state of its contract.'],
   ['Its people', 'Each person once, with every role they hold across the business’s accounts, and whether their sign-in is active.'],
+  ['How a selling business is doing', 'Products on sale, waiting to be checked, unfinished and needing changes; orders all time and over the last thirty days; how many units of stock it holds and how many products have run out; what it has sold and what is left after the marketplace’s commission.'],
+  ['Where it ships from', 'Every address it sends orders from, drawn on a map and listed beside it in words, with what each one is used for.'],
   ['Buyers with no business named', 'Counted together at the foot of the page. Anybody may open an account and buy, so most of these are individuals rather than companies.'],
 ], [3200, 6800]);
+note('Money is never added across currencies', 'A business trading in two currencies is shown two figures, not one total. Adding rupees to euros produces a number that is wrong in both.', C.blue);
+note('An address nobody has placed is said so', 'A seller puts an address on the map from their own profile, with a button that looks it up. It is optional: where no map service is set up, where it does not answer in time, or where it simply finds nothing, the address is still saved and the marketplace shows it as not placed. It is never guessed at, because a guessed position is a van sent to the wrong town.', C.orange);
 note('Nothing is changed from this screen', 'Companies is for looking. Approving a seller, pausing a carrier or editing a customer each happens on that account’s own screen, where the decision is recorded. Every panel on a company card is a link to the right place.', C.teal);
 note('Businesses are matched by name', 'Accounts are grouped by the business name, ignoring capital letters, punctuation and the usual company endings such as Ltd, GmbH or B.V. It is a helpful suggestion rather than a legal statement: a buyer types their employer’s name themselves and is never asked for a registration number, so every account keeps its own registered name and country on screen where two similarly named businesses could be confused.', C.orange);
 h2('11.3 Chat enquiries');
@@ -836,7 +842,7 @@ p('When a delivery is offered to a carrier, the system scores every candidate: d
 note('Suspending a carrier', 'Stops any new work reaching them. Work they have already accepted stays theirs to finish; work they have not answered yet can be taken back in the same action so somebody else can be found, and the system says how much that is before it does it.', C.orange);
 
 h2('12a.6 Approving what a carrier may carry');
-p('Refrigerated goods, sterile goods and dangerous goods are only ever offered to a haulage company the business has approved for them. Approval is a decision somebody makes on the carrier’s record, with the evidence they were shown recorded beside it.');
+p('Refrigerated goods, sterile goods and dangerous goods are only ever offered to a haulage company the business has approved for them. Approval is a decision somebody makes on the carrier’s record, with the certificate or licence number they checked and the date it runs out recorded beside it. A decision can be left as asked for, or later suspended or refused, and the haulage company reads the result in their own portal without being able to change it.');
 table(['What gets approved', 'Why it matters'], [
   ['Cold chain and temperature ranges', 'A delivery that must stay between two temperatures is never offered to a company that cannot hold them.'],
   ['Sterile handling', 'Goods that must stay sterile are only offered to companies equipped for it.'],

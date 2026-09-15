@@ -41,13 +41,20 @@
  * from tokens and do follow the theme, so the frame is right even where the
  * picture inside it is somebody else's.
  */
-import type { MapConfig, Warehouse } from '@/lib/warehouses';
+import type { MapConfig, MappablePlace } from '@/lib/warehouses';
+import { PLAIN_LOOK } from './warehouse-marker';
+import type { MarkerLook } from './warehouse-marker';
 import type { DeliveryCoverage } from '@/lib/delivery-coverage';
 import { WarehouseMapGoogle } from './WarehouseMapGoogle';
 import { WarehouseMapLibre } from './WarehouseMapLibre';
 
-interface WarehouseMapProps {
-  warehouses: Warehouse[];
+interface WarehouseMapProps<T extends MappablePlace> {
+  warehouses: T[];
+  /**
+   * How each place is drawn. Defaults to plain, which is what a place with no
+   * operational state of its own looks like.
+   */
+  look?: (place: T) => MarkerLook;
   /** What the operator configured, straight from the warehouses response. */
   map: MapConfig;
   /** The row the table has selected, drawn larger and in front. */
@@ -77,8 +84,9 @@ interface WarehouseMapProps {
  * keep its state across a Fast Refresh edit.
  */
 
-export function WarehouseMap({
+export function WarehouseMap<T extends MappablePlace>({
   warehouses,
+  look = () => PLAIN_LOOK,
   map,
   selectedId,
   onSelect,
@@ -86,11 +94,12 @@ export function WarehouseMap({
   coverage = null,
   onPointAt,
   overlay,
-}: WarehouseMapProps): React.JSX.Element {
+}: WarehouseMapProps<T>): React.JSX.Element {
   if (map.provider === 'GOOGLE') {
     return (
       <WarehouseMapGoogle
         warehouses={warehouses}
+        look={look}
         apiKey={map.apiKey}
         mapId={map.mapId}
         selectedId={selectedId}
@@ -102,6 +111,7 @@ export function WarehouseMap({
   return (
     <WarehouseMapLibre
       warehouses={warehouses}
+      look={look}
       // MapLibre covers the other three: a vector style, raster tiles, and the
       // plain ground that is what a map with no background configured looks
       // like. The narrowed union is handed straight over - `map` is everything

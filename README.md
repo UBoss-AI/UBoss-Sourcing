@@ -250,6 +250,14 @@ Off unless enabled. A business applies, is reviewed and approved, and then has
 its own console inside the storefront: listings, offers, stock, orders to pack,
 shipments, returns and settlements.
 
+**Selling shares the account somebody buys with, and the Hub has its own
+password.** One email, one identity, one order history — and a second secret in
+front of the Hub, chosen the first time it is opened and required to differ from
+the shop password. Entering it is remembered per browser rather than per
+account, so a new machine is asked again; changing it shuts the Hub everywhere
+else and leaves those shop sign-ins alone. It is not a second factor and nothing
+calls it one.
+
 A **product** is the thing itself — its name, specifications, photographs. An
 **offer** is what one seller will supply it for. Ten sellers offering the same
 item produce one product row and ten offers, because "the same product" must

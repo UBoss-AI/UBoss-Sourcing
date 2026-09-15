@@ -581,6 +581,21 @@ export const ErrorCode = {
   /// route layer for the same reason `assertOwnership` does: confirming that
   /// somebody else's listing exists is itself a leak.
   SELLER_RESOURCE_DENIED: 'SELLER_RESOURCE_DENIED',
+
+  /// This person has not chosen a Seller Hub password yet.
+  ///
+  /// Selling shares the account somebody buys with and puts a second password
+  /// in front of the Hub. Three codes rather than one, because the three want
+  /// three different screens and a single "locked" would leave the frontend
+  /// guessing which: this one offers a "choose it" form, LOCKED offers an
+  /// "enter it" form, and INVALID is what the second form shows when the answer
+  /// was wrong.
+  SELLER_LOCK_NOT_SET: 'SELLER_LOCK_NOT_SET',
+  /// The lock exists and this session has not opened it.
+  SELLER_LOCK_REQUIRED: 'SELLER_LOCK_REQUIRED',
+  /// The seller password given was wrong.
+  SELLER_LOCK_INVALID: 'SELLER_LOCK_INVALID',
+
   /// The public display name is taken.
   SELLER_DISPLAY_NAME_TAKEN: 'SELLER_DISPLAY_NAME_TAKEN',
   /// The application cannot move the way it was asked to. Same shape as

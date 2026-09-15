@@ -45,6 +45,7 @@ import { Modal } from '@/components/Modal';
 import { Button } from '@/components/ui';
 import { ChevronDownIcon, CloseIcon, SignOutIcon, UserIcon } from '@/components/icons';
 import { cx } from '@/lib/cx';
+import { useDropdownMaxHeight } from '@/lib/dropdown-height';
 import { useI18n } from '@/i18n/i18n-context';
 import { accountMenuGroups } from '@/pages/account/account-nav';
 import { useAccountIdentity } from '@/pages/account/useAccountIdentity';
@@ -60,6 +61,9 @@ export function AccountMenu(): React.JSX.Element {
 
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  // Caps the dropdown at the room left below the header, so the pinned
+  // Sign out row cannot end up under the bottom of the window.
+  const panelRef = useDropdownMaxHeight<HTMLElement>(isOpen);
   // Generated rather than a literal: the header renders once, but a literal id
   // is the kind that survives into a second instance and quietly makes
   // `aria-controls` point at whichever one the browser found first.
@@ -186,8 +190,10 @@ export function AccountMenu(): React.JSX.Element {
           className={cx(
             'z-50 flex flex-col overflow-hidden border border-border bg-surface shadow-popover',
             'fixed inset-x-0 bottom-0 max-h-[85vh] rounded-t-2xl',
-            'sm:absolute sm:inset-x-auto sm:bottom-auto sm:right-0 sm:top-full sm:mt-2 sm:max-h-[34rem] sm:w-64 sm:rounded-lg',
+            'sm:absolute sm:inset-x-auto sm:bottom-auto sm:right-0 sm:top-full sm:mt-2 sm:w-64 sm:rounded-lg',
+            'sm:max-h-[min(34rem,var(--dropdown-max-h,34rem))]',
           )}
+          ref={panelRef}
         >
           {/* --- Who this is ---------------------------------------------- */}
           <div className="flex items-start gap-3 border-b border-border px-4 py-3">

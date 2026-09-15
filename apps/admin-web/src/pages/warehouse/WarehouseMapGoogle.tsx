@@ -40,11 +40,17 @@ import { Spinner } from '@/components/ui';
 import { cx } from '@/lib/cx';
 import { useI18n } from '@/i18n/i18n-context';
 import { isPlaced } from '@/lib/warehouses';
-import type { Warehouse } from '@/lib/warehouses';
-import { markerElement } from './warehouse-marker';
+import type { MappablePlace } from '@/lib/warehouses';
+import { PLAIN_LOOK, markerElement } from './warehouse-marker';
+import type { MarkerLook } from './warehouse-marker';
 
-interface WarehouseMapGoogleProps {
-  warehouses: Warehouse[];
+interface WarehouseMapGoogleProps<T extends MappablePlace> {
+  warehouses: T[];
+  /**
+   * How each place is drawn. Defaults to plain, which is what a place with no
+   * operational state of its own looks like.
+   */
+  look?: (place: T) => MarkerLook;
   apiKey: string;
   mapId: string;
   /** The row the table has selected, drawn larger and in front. */
@@ -94,13 +100,14 @@ const MAX_FIT_ZOOM = 13;
 /** What one warehouse gets, since a single point has no extent to fit. */
 const SINGLE_WAREHOUSE_ZOOM = 11;
 
-export function WarehouseMapGoogle({
+export function WarehouseMapGoogle<T extends MappablePlace>({
   warehouses,
+  look = () => PLAIN_LOOK,
   apiKey,
   mapId,
   selectedId,
   onSelect,
-}: WarehouseMapGoogleProps): React.JSX.Element {
+}: WarehouseMapGoogleProps<T>): React.JSX.Element {
   const { t } = useI18n();
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -269,7 +276,7 @@ export function WarehouseMapGoogle({
       // to put its middle where the anchor is.
       const content = document.createElement('div');
       content.style.transform = 'translateY(50%)';
-      content.appendChild(markerElement(warehouse, warehouse.id === selectedId));
+      content.appendChild(markerElement(warehouse, look(warehouse), warehouse.id === selectedId));
 
       const marker = new AdvancedMarkerElement({
         map,

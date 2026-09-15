@@ -49,7 +49,9 @@ import { useI18n } from '@/i18n/i18n-context';
 import type { Translate } from '@/i18n/i18n-context';
 import { formatDate, formatDateTime, formatNumber, humanise } from '@/lib/format';
 import {
+  CAPABILITY_KINDS,
   capabilityKey,
+  capabilityKindKey,
   contractKey,
   decideCapability,
   fetchPartner,
@@ -61,6 +63,7 @@ import {
   setPartnerRegions,
   setPartnerStatus,
   statusKey,
+  type CapabilityKind,
   type CapabilityState,
   type LogisticsRole,
   type PartnerCapability,
@@ -415,6 +418,22 @@ function CapabilitiesCard({ partner }: { partner: PartnerDetail }): React.JSX.El
   const toast = useToast();
   const queryClient = useQueryClient();
 
+  const [isAdding, setIsAdding] = useState(false);
+  const [kind, setKind] = useState<CapabilityKind | ''>('');
+  const [decision, setDecision] = useState<CapabilityState>('APPROVED');
+  const [evidenceReference, setEvidenceReference] = useState('');
+  const [evidenceExpiresAt, setEvidenceExpiresAt] = useState('');
+  const [note, setNote] = useState('');
+
+  const closeDialog = (): void => {
+    setIsAdding(false);
+    setKind('');
+    setDecision('APPROVED');
+    setEvidenceReference('');
+    setEvidenceExpiresAt('');
+    setNote('');
+  };
+
   const decide = useMutation({
     mutationFn: (input: { capability: PartnerCapability; state: CapabilityState }) =>
       decideCapability(partner.id, { kind: input.capability.kind, state: input.state }),
@@ -427,12 +446,75 @@ function CapabilitiesCard({ partner }: { partner: PartnerDetail }): React.JSX.El
     },
   });
 
+  /*
+   * The same endpoint the row buttons use.
+   *
+   * There is no separate "create" call, because a capability IS a decision:
+   * recording the first one and changing it later are the same act, and the
+   * evidence travels with it. Until this dialog existed the only rows that
+   * could come into being were ones a carrier had asked for from their own
+   * portal - which no screen there offers - so `MISSING_CAPABILITY` could
+   * never be cleared, and nothing needing cold chain, sterile handling or
+   * dangerous goods could be offered to a new carrier at all.
+   */
+  const record = useMutation({
+    mutationFn: (input: {
+      kind: CapabilityKind;
+      state: CapabilityState;
+      evidenceReference: string;
+      evidenceExpiresAt: string;
+      note: string;
+    }) =>
+      decideCapability(partner.id, {
+        kind: input.kind,
+        state: input.state,
+        ...(input.evidenceReference.length === 0
+          ? {}
+          : { evidenceReference: input.evidenceReference }),
+        ...(input.evidenceExpiresAt.length === 0
+          ? {}
+          : { evidenceExpiresAt: input.evidenceExpiresAt }),
+        ...(input.note.length === 0 ? {} : { note: input.note }),
+      }),
+    onSuccess: () => {
+      toast.success(t('common.saved'));
+      closeDialog();
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'logistics', 'partner'] });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+
   const mayDecide = can(Permission.LOGISTICS_WRITE);
+
+  /*
+   * One row per kind: the endpoint decides on (partner, kind), so offering a
+   * kind already on the record would overwrite that decision and its evidence
+   * rather than add anything.
+   */
+  const remaining = CAPABILITY_KINDS.filter(
+    (value) => !partner.capabilities.some((capability) => capability.kind === value),
+  );
 
   return (
     <Card
       title={t('logistics.partner.capabilities')}
       description={t('logistics.partner.capabilitiesIntro')}
+      actions={
+        mayDecide && remaining.length > 0 ? (
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              setKind(remaining[0] ?? '');
+              setIsAdding(true);
+            }}
+          >
+            {t('logistics.partner.addCapability')}
+          </Button>
+        ) : undefined
+      }
     >
       {partner.capabilities.length === 0 ? (
         <EmptyState
@@ -448,7 +530,7 @@ function CapabilitiesCard({ partner }: { partner: PartnerDetail }): React.JSX.El
             >
               <div className="min-w-0">
                 <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-ink">
-                  {humanise(capability.kind)}
+                  {t(capabilityKindKey(capability.kind))}
                   <Badge tone={capabilityTone(capability.state)}>
                     {t(capabilityKey(capability.state))}
                   </Badge>
@@ -513,6 +595,132 @@ function CapabilitiesCard({ partner }: { partner: PartnerDetail }): React.JSX.El
           ))}
         </ul>
       )}
+
+      <Modal
+        isOpen={isAdding}
+        onClose={closeDialog}
+        title={t('logistics.partner.addCapability')}
+        description={t('logistics.partner.addCapabilityIntro')}
+        footer={
+          <>
+            <Button variant="secondary" onClick={closeDialog}>
+              {t('common.cancel')}
+            </Button>
+            <Button
+              disabled={kind === '' || record.isPending}
+              onClick={() => {
+                if (kind === '') return;
+                record.mutate({
+                  kind,
+                  state: decision,
+                  evidenceReference: evidenceReference.trim(),
+                  evidenceExpiresAt,
+                  note: note.trim(),
+                });
+              }}
+            >
+              {t('common.add')}
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <Field label={t('logistics.partner.field.capabilityKind')}>
+            {({ inputId, describedBy }) => (
+              <Select
+                id={inputId}
+                aria-describedby={describedBy}
+                value={kind}
+                onChange={(event) => {
+                  setKind(event.currentTarget.value as CapabilityKind);
+                }}
+              >
+                {remaining.map((value) => (
+                  <option key={value} value={value}>
+                    {t(capabilityKindKey(value))}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+
+          <Field
+            label={t('logistics.partner.field.capabilityDecision')}
+            hint={t('logistics.partner.field.capabilityDecisionHint')}
+          >
+            {({ inputId, describedBy }) => (
+              <Select
+                id={inputId}
+                aria-describedby={describedBy}
+                value={decision}
+                onChange={(event) => {
+                  setDecision(event.currentTarget.value as CapabilityState);
+                }}
+              >
+                {(['APPROVED', 'REQUESTED'] as const).map((value) => (
+                  <option key={value} value={value}>
+                    {t(capabilityKey(value))}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field
+              label={t('logistics.partner.field.evidenceReference')}
+              hint={t('logistics.partner.field.evidenceReferenceHint')}
+            >
+              {({ inputId, describedBy }) => (
+                <Input
+                  id={inputId}
+                  aria-describedby={describedBy}
+                  maxLength={255}
+                  value={evidenceReference}
+                  onChange={(event) => {
+                    setEvidenceReference(event.currentTarget.value);
+                  }}
+                />
+              )}
+            </Field>
+
+            <Field
+              label={t('logistics.partner.field.evidenceExpiresAt')}
+              hint={t('logistics.partner.field.evidenceExpiresAtHint')}
+            >
+              {({ inputId, describedBy }) => (
+                <Input
+                  id={inputId}
+                  type="date"
+                  aria-describedby={describedBy}
+                  value={evidenceExpiresAt}
+                  onChange={(event) => {
+                    setEvidenceExpiresAt(event.currentTarget.value);
+                  }}
+                />
+              )}
+            </Field>
+          </div>
+
+          <Field
+            label={t('logistics.partner.field.capabilityNote')}
+            hint={t('logistics.partner.field.capabilityNoteHint')}
+          >
+            {({ inputId, describedBy }) => (
+              <Textarea
+                id={inputId}
+                aria-describedby={describedBy}
+                rows={3}
+                maxLength={512}
+                value={note}
+                onChange={(event) => {
+                  setNote(event.currentTarget.value);
+                }}
+              />
+            )}
+          </Field>
+        </div>
+      </Modal>
     </Card>
   );
 }

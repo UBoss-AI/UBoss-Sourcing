@@ -90,14 +90,20 @@ import { Spinner } from '@/components/ui';
 import { cx } from '@/lib/cx';
 import { useI18n } from '@/i18n/i18n-context';
 import { isPlaced } from '@/lib/warehouses';
-import type { MapConfig, Warehouse } from '@/lib/warehouses';
+import type { MapConfig, MappablePlace } from '@/lib/warehouses';
 import type { DeliveryCoverage } from '@/lib/delivery-coverage';
-import { markerElement, setMarkerPulse, setMarkerSelected } from './warehouse-marker';
+import { PLAIN_LOOK, markerElement, setMarkerPulse, setMarkerSelected } from './warehouse-marker';
+import type { MarkerLook } from './warehouse-marker';
 import { coverageVisual } from './coverage-visual';
 import type { CoverageVisual } from './coverage-visual';
 
-interface WarehouseMapLibreProps {
-  warehouses: Warehouse[];
+interface WarehouseMapLibreProps<T extends MappablePlace> {
+  warehouses: T[];
+  /**
+   * How each place is drawn. Defaults to plain, which is what a place with no
+   * operational state of its own looks like.
+   */
+  look?: (place: T) => MarkerLook;
   /**
    * Everything except Google, which has an implementation of its own.
    *
@@ -269,7 +275,7 @@ async function vectorStyle(url: string): Promise<StyleSpecification> {
  * state rather than a special case threaded through the rest of this file.
  */
 async function styleFor(
-  background: WarehouseMapLibreProps['background'],
+  background: WarehouseMapLibreProps<MappablePlace>['background'],
 ): Promise<StyleSpecification> {
   if (background.provider === 'VECTOR') return vectorStyle(background.style.url);
 
@@ -366,8 +372,9 @@ function scheduleClose(
   }, HOVER_LEAVE_MS);
 }
 
-export function WarehouseMapLibre({
+export function WarehouseMapLibre<T extends MappablePlace>({
   warehouses,
+  look = () => PLAIN_LOOK,
   background,
   selectedId,
   onSelect,
@@ -375,7 +382,7 @@ export function WarehouseMapLibre({
   coverage = null,
   onPointAt,
   overlay,
-}: WarehouseMapLibreProps): React.JSX.Element {
+}: WarehouseMapLibreProps<T>): React.JSX.Element {
   const { t } = useI18n();
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -676,6 +683,7 @@ export function WarehouseMapLibre({
     for (const warehouse of placed) {
       const element = markerElement(
         warehouse,
+        look(warehouse),
         warehouse.id === selectedId,
         warehouse.id === coverageId,
       );

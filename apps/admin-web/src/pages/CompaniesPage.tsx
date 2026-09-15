@@ -48,8 +48,12 @@ import {
   ToolbarField,
 } from '@/components/ui';
 import { cx } from '@/lib/cx';
+import { currencySymbol, formatDate, formatNumber, minorToMajor } from '@/lib/format';
+import { isPlaced } from '@/lib/warehouses';
+import { WarehouseMap } from './warehouse/WarehouseMap';
 import {
   fetchDirectory,
+  fetchSellerInsight,
   humanise,
   kindLabel,
   kindTone,
@@ -104,6 +108,184 @@ function CompanyMark({
       aria-hidden="true"
       className="h-10 w-10 shrink-0 rounded-md border border-border object-contain"
     />
+  );
+}
+
+/**
+ * How this seller is doing, and where its goods are.
+ *
+ * Only for a card somebody has opened — `enabled` below is what keeps a page
+ * of forty companies to one request rather than forty. React Query keeps the
+ * answer, so opening the same card again is instant and closing it costs
+ * nothing.
+ *
+ * TWO RULES THIS PANEL FOLLOWS
+ *
+ * **The map is never the only place a warehouse appears.** Every address is in
+ * the list beside it with its town and what it is used for, so the panel works
+ * for somebody who cannot see the map at all — the same rule the carrier
+ * portal's tracking follows.
+ *
+ * **An address with no coordinates is said, not hidden.** A seller with four
+ * warehouses and one pin has three unplaced addresses, and a panel that showed
+ * one marker with no explanation would read as a seller with one warehouse.
+ */
+function SellerInsightPanel({ sellerAccountId }: { sellerAccountId: string }): React.JSX.Element {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const query = useQuery({
+    queryKey: ['admin', 'seller-insight', sellerAccountId],
+    queryFn: () => fetchSellerInsight(sellerAccountId),
+  });
+
+  if (query.isPending) {
+    return (
+      <div className="overflow-hidden rounded-lg border border-border">
+        <LoadingState label="Loading this seller's figures" />
+      </div>
+    );
+  }
+
+  if (query.isError) {
+    return (
+      <div className="overflow-hidden rounded-lg border border-border px-4 py-4">
+        <ErrorState
+          error={query.error}
+          onRetry={() => {
+            void query.refetch();
+          }}
+        />
+      </div>
+    );
+  }
+
+  const insight = query.data;
+  const placed = insight.locations.filter(isPlaced);
+
+  return (
+    <div className="space-y-3 overflow-hidden rounded-lg border border-border">
+      <p className="border-b border-border bg-surface-sunken px-4 py-2 text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
+        How they are doing
+      </p>
+
+      <div className="px-4">
+        <SummaryTiles
+          items={[
+            { label: 'Live listings', value: formatNumber(insight.catalogue.live) },
+            { label: 'In review', value: formatNumber(insight.catalogue.inReview) },
+            { label: 'Drafts', value: formatNumber(insight.catalogue.drafts) },
+            { label: 'Needs changes', value: formatNumber(insight.catalogue.needsChanges) },
+            { label: 'Orders, all time', value: formatNumber(insight.trade.ordersTotal) },
+            { label: 'Orders, 30 days', value: formatNumber(insight.trade.ordersLast30Days) },
+            { label: 'Units in stock', value: formatNumber(insight.stock.unitsAvailable) },
+            { label: 'Out of stock', value: formatNumber(insight.stock.outOfStockOffers) },
+          ]}
+        />
+      </div>
+
+      <div className="grid gap-3 px-4 sm:grid-cols-2">
+        <div className="rounded-lg border border-border-subtle px-3 py-2.5">
+          <p className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
+            Sold through the marketplace
+          </p>
+          {/*
+            One row per currency, never a total. Adding rupees to euros
+            produces a number that is wrong in both — see the service.
+          */}
+          {insight.trade.grossSales.length === 0 ? (
+            <p className="mt-1 text-sm text-ink-muted">Nothing sold yet.</p>
+          ) : (
+            <ul className="mt-1 space-y-0.5">
+              {insight.trade.grossSales.map((row) => (
+                <li key={row.currency} className="text-sm font-semibold text-ink">
+                  {currencySymbol(row.currency)}
+                  {minorToMajor(row.amountMinor)}
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className="mt-1 text-xxs text-ink-subtle">
+            {insight.trade.lastOrderAt === null
+              ? 'No orders yet'
+              : `Last order ${formatDate(insight.trade.lastOrderAt)}`}
+          </p>
+        </div>
+
+        <div className="rounded-lg border border-border-subtle px-3 py-2.5">
+          <p className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
+            Theirs after commission
+          </p>
+          {insight.trade.sellerNet.length === 0 ? (
+            <p className="mt-1 text-sm text-ink-muted">Nothing yet.</p>
+          ) : (
+            <ul className="mt-1 space-y-0.5">
+              {insight.trade.sellerNet.map((row) => (
+                <li key={row.currency} className="text-sm font-semibold text-ink">
+                  {currencySymbol(row.currency)}
+                  {minorToMajor(row.amountMinor)}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+
+      <p className="border-y border-border bg-surface-sunken px-4 py-2 text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
+        Where they ship from
+      </p>
+
+      {insight.locations.length === 0 ? (
+        <p className="px-4 pb-4 text-sm text-ink-muted">
+          This seller has not added a dispatch address yet.
+        </p>
+      ) : (
+        <div className="grid gap-3 px-4 pb-4 lg:grid-cols-2">
+          <div className="min-h-[18rem] overflow-hidden rounded-lg border border-border">
+            {placed.length > 0 ? (
+              <WarehouseMap
+                warehouses={placed}
+                map={insight.map}
+                selectedId={selectedId}
+                onSelect={setSelectedId}
+              />
+            ) : (
+              <div className="flex h-full min-h-[18rem] items-center justify-center px-6 text-center text-sm text-ink-muted">
+                None of this seller&rsquo;s addresses has been placed on a map yet, so there is
+                nothing to draw. They are all listed beside this.
+              </div>
+            )}
+          </div>
+
+          <ul className="divide-y divide-border-subtle rounded-lg border border-border">
+            {insight.locations.map((location) => (
+              <li
+                key={location.id}
+                className={cx(
+                  'px-3 py-2.5',
+                  location.id === selectedId && 'bg-surface-hover',
+                )}
+              >
+                <p className="text-sm font-medium text-ink">
+                  {location.name}{' '}
+                  <span className="font-normal text-ink-subtle">({location.code})</span>
+                </p>
+                <p className="mt-0.5 text-xxs text-ink-muted">
+                  {location.addressLine1}, {location.city} {location.postcode},{' '}
+                  {location.countryCode}
+                </p>
+                <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                  {location.isPickupLocation && <Badge tone="success">Dispatches</Badge>}
+                  {location.isReturnLocation && <Badge tone="brand">Takes returns</Badge>}
+                  {location.hasColdChain && <Badge tone="operational">Cold chain</Badge>}
+                  {!location.isOperational && <Badge tone="danger">Closed</Badge>}
+                  {!isPlaced(location) && <Badge tone="warning">Not on the map</Badge>}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -312,6 +494,8 @@ function CompanyCard({ company }: { company: DirectoryCompany }): React.JSX.Elem
               />
             )}
           </div>
+
+          {company.seller !== null && <SellerInsightPanel sellerAccountId={company.seller.id} />}
 
           <div className="overflow-hidden rounded-lg border border-border">
             <p className="border-b border-border bg-surface-sunken px-4 py-2 text-xxs font-semibold uppercase tracking-wider text-ink-subtle">

@@ -281,6 +281,20 @@ model Session {
   /// admin location gate.
   mfaVerifiedAt DateTime? @db.DateTime(3)
 
+  /// When THIS session last presented the seller password, and for whom.
+  ///
+  /// Exactly the same shape as `mfaVerifiedAt` above and for the same reason:
+  /// `seller_members.passwordHash` says the lock EXISTS, this says the browser
+  /// in front of us has opened it. Without the distinction, choosing a seller
+  /// password once would leave every future sign-in walking straight into the
+  /// Hub, which is not what a second lock is.
+  ///
+  /// The id is carried as well as the time because a person can sell for more
+  /// than one business: unlocking one must not unlock the other, so the guard
+  /// checks that this is the seller account the session was opened for.
+  sellerUnlockedAt    DateTime? @db.DateTime(3)
+  sellerUnlockedForId String?   @db.Char(26)
+
   expiresAt           DateTime  @db.DateTime(3)
   revokedAt           DateTime? @db.DateTime(3)
   revokedReason       String?   @db.VarChar(128)
@@ -7501,6 +7515,25 @@ model SellerMember {
   customerProfileId String @unique(map: "uq_seller_member_profile") @db.Char(26)
 
   role SellerMemberRole @default(SUPPORT_MEMBER)
+
+  /// The second lock: this person's password for the Seller Hub.
+  ///
+  /// Selling uses the same ACCOUNT as buying - one email, one identity, one
+  /// order history - and a separate password in front of the Hub. The two are
+  /// different questions and the product now answers them separately: "is this
+  /// their account" is the sign-in, "are they here to sell" is this. Changing
+  /// one never changes the other.
+  ///
+  /// Argon2, the same as `users.passwordHash`, and never returned by any
+  /// endpoint. Null means this person has not chosen one yet, which is not the
+  /// same as having no lock: the Hub asks them to choose before it opens, the
+  /// way the carrier portal asks for a second factor.
+  ///
+  /// On the member rather than the user, because standing inside a seller
+  /// organisation is what it guards. A person who sells for two businesses
+  /// holds two of these, and neither opens the other.
+  passwordHash  String?   @db.VarChar(255)
+  passwordSetAt DateTime? @db.DateTime(3)
 
   invitedByProfileId String? @db.Char(26)
 

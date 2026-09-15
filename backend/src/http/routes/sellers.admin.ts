@@ -15,6 +15,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { Permission } from '../../domain/permissions.js';
+import { readSellerInsight } from '../../modules/seller/insight.service.js';
 import {
   decideApplication,
   decideBrandRequest,
@@ -68,6 +69,26 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
       const params = idParam.parse(request.params);
       const application = await readApplication(params.id);
       return reply.header('cache-control', 'no-store').status(200).send(application);
+    },
+  );
+
+  /**
+   * How this seller is doing, and where its goods are.
+   *
+   * Fed by the Companies screen, which loads it only for a company somebody has
+   * actually opened — a directory page holding forty companies must not run
+   * forty of these.
+   *
+   * No cache header for the same reason the seller's own dashboard has none:
+   * every figure on it is the reason somebody opened the panel.
+   */
+  app.get(
+    '/sellers/:id/insight',
+    { preHandler: requireAdmin(Permission.CUSTOMER_READ) },
+    async (request, reply) => {
+      const params = idParam.parse(request.params);
+      const insight = await readSellerInsight(params.id);
+      return reply.header('cache-control', 'no-store').status(200).send(insight);
     },
   );
 

@@ -2062,9 +2062,35 @@ different in each case: *Become a seller* for a buyer, *Continue setup · 40%*
 for an unfinished application, *Application needs changes* in amber for one
 sent back, and *Seller Hub* for an approved seller.
 
-**Selling uses the same login as buying.** A buyer who applies becomes a seller
-under the account they already have. Nobody is asked to keep two passwords for
-one business.
+**Selling uses the same account as buying, and its own password.** A buyer who
+applies becomes a seller under the account they already have — one email, one
+identity, one order history, and nobody is asked for a second address or a
+second verification. In front of the Hub itself there is a **second password**,
+chosen the first time they open it.
+
+Two questions, answered separately: the sign-in asks whether this is their
+account, the Hub asks whether they are here to sell. Buying and selling are two
+jobs with very different amounts of damage available, and without the second
+lock a browser left open on the shop is a browser left open on the catalogue,
+the stock and the payouts.
+
+What that means exactly:
+
+- The Hub password must differ from the shop one. Two identical secrets are one
+  secret with two prompts.
+- Changing either never touches the other.
+- Opening it is remembered **per browser**, not per account — the same
+  distinction the carrier portal's second factor draws. Choosing it once must
+  not leave every later sign-in walking straight in.
+- Changing it shuts every other browser's Hub, and leaves their shop sign-in
+  alone. Somebody who thinks the password is known keeps their basket.
+- The hash lives on the membership, so a person selling for two businesses
+  holds two locks and neither opens the other.
+- **Close the Hub** in the rail shuts it without signing out of the shop.
+
+It is not a second factor and nothing in the product calls it one. A second
+factor is something you *have*; this is a second secret of the same kind,
+guarding a different set of routes.
 
 `/sell` is public, on the same reasoning as the catalogue: somebody deciding
 whether to bring their catalogue here should be able to read what is involved
@@ -2940,6 +2966,38 @@ the three, grouped by the business they belong to and nested three levels deep.
   *Sells · Owner* **and** *Buys · Buyer* is how an operator sees that the seller
   they just approved and the buyer who placed Tuesday's order are the same human
   being with one login.
+
+**Opening a card with a seller in it loads that seller in depth**, and only
+then: a directory page holds forty companies and most cards stay shut, so
+running this for all of them would be forty requests for a screen nobody asked
+that much of.
+
+What it adds is the two questions an operator used to leave the console to
+answer — *how are these people doing* and *where are their goods*:
+
+- Live listings, listings in review, drafts and listings needing changes;
+  orders all time and over thirty days; units in stock and offers that have run
+  out.
+- What they have sold and what is theirs after commission, **one row per
+  currency and never a total**. Adding rupees to euros produces a number that is
+  wrong in both.
+- Every dispatch address on a map, with the same addresses written out beside
+  it. The map is never the only place a warehouse appears — the rule the
+  carrier portal's tracking follows — and an address nobody has placed carries a
+  *Not on the map* badge rather than being quietly missing. A seller with four
+  warehouses and one pin has three unplaced addresses, not three warehouses that
+  do not exist.
+
+A seller places an address from their own profile, with **Find it on the map**
+beside it. It is optional and best-effort: no geocoder configured, one that
+timed out and one that found nothing all leave the address saved with no
+coordinates, because a dispatch place is a real place whether or not a third
+party could find it.
+
+The map is the warehouse screen's own, reading the operator's configured
+provider — MapLibre over a vector style, raster tiles, no background at all, or
+Google. It draws a seller's places plainly; colouring a marker by whether it can
+ship today is the warehouse panel's meaning and stays there.
 
 The grouping key is the company name, normalised — case, punctuation, accents
 and the trailing legal form are ignored, so "Northwind Medical Ltd",
@@ -3886,6 +3944,19 @@ spare capacity, how often do they deliver on time. Each candidate carries the
 reasons it is or is not offerable, shown verbatim, and an ineligible carrier
 can still be chosen — an operations desk sometimes knows something the score
 does not — but the reason is on the screen while the choice is made.
+
+**What a carrier may carry is granted by the marketplace, on the carrier's own
+screen.** "What they can carry" on `/logistics/partners/:id` records a kind of
+handling against a decision — approved, asked for, refused, suspended — with the
+certificate or licence number that was checked and when it expires. The carrier
+reads the result in their portal and cannot change it, which is the same shape
+as their service areas and their delivery promises.
+
+That panel used to be able to show decisions but never make one, on the belief
+that a carrier asked for a capability from their own portal. No screen there
+offers it. So a new carrier's `MISSING_CAPABILITY` could never be cleared by
+anybody, and nothing needing cold chain, sterile handling or dangerous goods
+could be offered to them at all.
 
 Suspending a carrier stops new offers reaching them. It optionally takes back
 the work they have not yet accepted so somebody else can be found; work they

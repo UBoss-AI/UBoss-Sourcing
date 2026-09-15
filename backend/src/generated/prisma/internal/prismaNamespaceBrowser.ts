@@ -325,6 +325,8 @@ export const SessionScalarFieldEnum = {
   locationCountry: 'locationCountry',
   locationCapturedAt: 'locationCapturedAt',
   mfaVerifiedAt: 'mfaVerifiedAt',
+  sellerUnlockedAt: 'sellerUnlockedAt',
+  sellerUnlockedForId: 'sellerUnlockedForId',
   expiresAt: 'expiresAt',
   revokedAt: 'revokedAt',
   revokedReason: 'revokedReason',
@@ -2595,6 +2597,8 @@ export const SellerMemberScalarFieldEnum = {
   sellerAccountId: 'sellerAccountId',
   customerProfileId: 'customerProfileId',
   role: 'role',
+  passwordHash: 'passwordHash',
+  passwordSetAt: 'passwordSetAt',
   invitedByProfileId: 'invitedByProfileId',
   joinedAt: 'joinedAt',
   updatedAt: 'updatedAt',
@@ -4011,6 +4015,7 @@ export const SessionOrderByRelevanceFieldEnum = {
   ipAddress: 'ipAddress',
   locationLabel: 'locationLabel',
   locationCountry: 'locationCountry',
+  sellerUnlockedForId: 'sellerUnlockedForId',
   revokedReason: 'revokedReason',
   replacedBySessionId: 'replacedBySessionId'
 } as const
@@ -5502,6 +5507,7 @@ export const SellerMemberOrderByRelevanceFieldEnum = {
   id: 'id',
   sellerAccountId: 'sellerAccountId',
   customerProfileId: 'customerProfileId',
+  passwordHash: 'passwordHash',
   invitedByProfileId: 'invitedByProfileId'
 } as const
 

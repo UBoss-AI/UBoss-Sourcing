@@ -7,6 +7,7 @@
  * row in one of three tables.
  */
 import { api } from './api';
+import type { MapConfig } from './warehouses';
 
 export type DirectoryAccountKind = 'SELLER' | 'BUYER' | 'LOGISTICS';
 
@@ -141,4 +142,60 @@ export function humanise(value: string): string {
     .replace(/_/g, ' ')
     .toLowerCase()
     .replace(/^./, (character) => character.toUpperCase());
+}
+
+// ---------------------------------------------------------------------------
+// One seller, in depth
+// ---------------------------------------------------------------------------
+
+export interface SellerInsightMoney {
+  currency: string;
+  /** Minor units, as a string. Money is never a `number` in this codebase. */
+  amountMinor: string;
+}
+
+export interface SellerInsightLocation {
+  id: string;
+  code: string;
+  name: string;
+  addressLine1: string;
+  city: string;
+  postcode: string;
+  countryCode: string;
+  /** Null when nobody has placed it. Never 0,0 — the API refuses those. */
+  latitude: number | null;
+  longitude: number | null;
+  timezone: string;
+  isPickupLocation: boolean;
+  isReturnLocation: boolean;
+  hasColdChain: boolean;
+  isOperational: boolean;
+}
+
+export interface SellerInsight {
+  sellerAccountId: string;
+  displayName: string;
+  legalName: string;
+  catalogue: { live: number; paused: number; needsChanges: number; inReview: number; drafts: number };
+  trade: {
+    ordersTotal: number;
+    ordersLast30Days: number;
+    lastOrderAt: string | null;
+    grossSales: SellerInsightMoney[];
+    sellerNet: SellerInsightMoney[];
+  };
+  stock: { unitsAvailable: number; outOfStockOffers: number; closedLocations: number };
+  locations: SellerInsightLocation[];
+  map: MapConfig;
+  placedLocations: number;
+}
+
+/**
+ * Loaded only for a company somebody has actually opened.
+ *
+ * The directory lists forty companies a page; running this for every one of
+ * them would be forty round trips for a screen where most cards stay shut.
+ */
+export function fetchSellerInsight(sellerAccountId: string): Promise<SellerInsight> {
+  return api.get<SellerInsight>(`/admin/sellers/${sellerAccountId}/insight`);
 }

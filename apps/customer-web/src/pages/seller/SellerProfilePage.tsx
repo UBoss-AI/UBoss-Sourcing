@@ -37,6 +37,7 @@ import {
   fetchBusinessProfile,
   fetchLocations,
   fetchMembers,
+  geocodeLocation,
   removeMember,
   removeSellerLogo,
   updateLocation,
@@ -339,6 +340,43 @@ function EditLocationDialog({
     isReturnLocation: location.isReturnLocation,
   });
 
+  /*
+   * The pin, as it stands and as this dialog might change it.
+   *
+   * This screen does not edit the address itself — the street an address is at
+   * appears on stock movements and orders — so the lookup here is about placing
+   * an address that already exists. That is the path every address created
+   * before this existed has to come through.
+   */
+  const [placed, setPlaced] = useState<{ latitude: number; longitude: number } | null>(
+    location.latitude === null || location.longitude === null
+      ? null
+      : { latitude: location.latitude, longitude: location.longitude },
+  );
+  const [placeLabel, setPlaceLabel] = useState<string | null>(null);
+  const [placeSearched, setPlaceSearched] = useState(false);
+
+  const locate = useMutation({
+    mutationFn: () =>
+      geocodeLocation(
+        [location.addressLine1, location.city, location.postcode, location.countryCode]
+          .map((part) => part.trim())
+          .filter((part) => part.length > 0)
+          .join(', '),
+      ),
+    onSuccess: (response) => {
+      setPlaceSearched(true);
+
+      if (response.result === null) return;
+
+      setPlaced({ latitude: response.result.latitude, longitude: response.result.longitude });
+      setPlaceLabel(response.result.label);
+    },
+    onError: () => {
+      setPlaceSearched(true);
+    },
+  });
+
   const mutation = useMutation({
     mutationFn: () =>
       updateLocation(location.id, {
@@ -347,6 +385,9 @@ function EditLocationDialog({
         handlingTimeDays: Number(form.handlingTimeDays),
         isPickupLocation: form.isPickupLocation,
         isReturnLocation: form.isReturnLocation,
+        ...(placed === null
+          ? {}
+          : { latitude: placed.latitude, longitude: placed.longitude }),
       }),
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: ['seller', 'locations'] });
@@ -445,6 +486,47 @@ function EditLocationDialog({
             Returns come back here
           </label>
         </fieldset>
+
+        <div className="rounded-lg border border-border bg-surface-sunken px-4 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-ink">Where this is on the map</p>
+              <p className="mt-0.5 text-xs text-ink-muted">
+                {location.addressLine1}, {location.city} {location.postcode},{' '}
+                {location.countryCode}
+              </p>
+            </div>
+
+            <Button
+              variant="secondary"
+              isLoading={locate.isPending}
+              onClick={() => {
+                locate.mutate();
+              }}
+            >
+              Find it on the map
+            </Button>
+          </div>
+
+          {placed !== null && (
+            <p className="mt-2 text-xs text-ink-muted">
+              {placeLabel === null ? 'On the map at' : `${placeLabel} ·`}{' '}
+              {placed.latitude.toFixed(5)}, {placed.longitude.toFixed(5)}
+              {locate.isSuccess && ' — Save to keep it.'}
+            </p>
+          )}
+
+          {placeSearched && placed === null && (
+            <p className="mt-2 text-xs text-ink-muted">
+              Nothing was found for that address. It stays as it is — the marketplace shows it as
+              not placed rather than guess.
+            </p>
+          )}
+
+          {!placeSearched && placed === null && (
+            <p className="mt-2 text-xs text-ink-muted">Not on the map yet.</p>
+          )}
+        </div>
 
         <div className="flex justify-end gap-2">
           <Button onClick={onClose}>Cancel</Button>
@@ -768,6 +850,12 @@ function LocationRow({
           {location.handlingTimeDays === 0
             ? 'same-day handling'
             : `${location.handlingTimeDays} working ${location.handlingTimeDays === 1 ? 'day' : 'days'} to pick`}
+          {' · '}
+          {/* Said plainly rather than hidden, because an unplaced address is
+              what stops it appearing on the marketplace's map. */}
+          {location.latitude === null || location.longitude === null
+            ? 'not on the map yet'
+            : `on the map at ${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`}
         </p>
       </div>
 
@@ -847,9 +935,58 @@ function AddLocationDialog({ onClose }: { onClose: () => void }): React.JSX.Elem
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   });
 
+  /*
+   * Where this place is, once somebody has looked it up.
+   *
+   * `null` is "nobody has placed it", which is not the same as 0,0 — a point in
+   * the Gulf of Guinea that several systems have shipped to, and which the API
+   * refuses for exactly that reason. An unplaced address saves perfectly well;
+   * it just carries no pin, and the marketplace's own screen says so rather
+   * than putting it in the Atlantic.
+   */
+  const [placed, setPlaced] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [placeLabel, setPlaceLabel] = useState<string | null>(null);
+  const [placeSearched, setPlaceSearched] = useState(false);
+
   const set = (key: keyof typeof form, value: string): void => {
     setForm((previous) => ({ ...previous, [key]: value }));
+
+    // Any edit to the address invalidates the pin that was found for the
+    // previous one. Keeping it would attach the old coordinates to the new
+    // address, which is worse than having none.
+    setPlaced(null);
+    setPlaceLabel(null);
+    setPlaceSearched(false);
   };
+
+  const locate = useMutation({
+    mutationFn: () =>
+      geocodeLocation(
+        [form.addressLine1, form.city, form.postcode, form.countryCode]
+          .map((part) => part.trim())
+          .filter((part) => part.length > 0)
+          .join(', '),
+      ),
+    onSuccess: (response) => {
+      setPlaceSearched(true);
+
+      if (response.result === null) {
+        setPlaced(null);
+        setPlaceLabel(null);
+        return;
+      }
+
+      setPlaced({ latitude: response.result.latitude, longitude: response.result.longitude });
+      setPlaceLabel(response.result.label);
+    },
+    onError: () => {
+      // Never a toast. A geocoder that did not answer must not read as
+      // something the seller did wrong, and the address still saves.
+      setPlaceSearched(true);
+      setPlaced(null);
+      setPlaceLabel(null);
+    },
+  });
 
   const mutation = useMutation({
     mutationFn: () =>
@@ -865,6 +1002,9 @@ function AddLocationDialog({ onClose }: { onClose: () => void }): React.JSX.Elem
         timezone: form.timezone,
         isPickupLocation: true,
         isReturnLocation: true,
+        ...(placed === null
+          ? {}
+          : { latitude: placed.latitude, longitude: placed.longitude }),
       }),
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: ['seller', 'locations'] });
@@ -883,6 +1023,13 @@ function AddLocationDialog({ onClose }: { onClose: () => void }): React.JSX.Elem
     form.addressLine1.trim().length > 0 &&
     form.city.trim().length > 0 &&
     form.postcode.trim().length > 0 &&
+    form.countryCode.length === 2;
+
+  // Enough of an address to be worth sending to a geocoder. The street alone
+  // matches half the country; the country alone matches all of it.
+  const canLocate =
+    form.addressLine1.trim().length > 0 &&
+    form.city.trim().length > 0 &&
     form.countryCode.length === 2;
 
   return (
@@ -976,6 +1123,46 @@ function AddLocationDialog({ onClose }: { onClose: () => void }): React.JSX.Elem
               </Select>
             )}
           </Field>
+        </div>
+
+        {/* Placing it on the map. Optional on purpose: the marketplace draws a
+            pin for a place that has one and says "not placed yet" for a place
+            that does not, which is honest in a way that a guessed pin is not. */}
+        <div className="rounded-lg border border-border bg-surface-sunken px-4 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-ink">Where this is on the map</p>
+              <p className="mt-0.5 text-xs text-ink-muted">
+                Optional. It lets the marketplace show this address on a map when it plans a
+                collection.
+              </p>
+            </div>
+
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={!canLocate || locate.isPending}
+              onClick={() => {
+                locate.mutate();
+              }}
+            >
+              {locate.isPending ? 'Looking…' : 'Find it on the map'}
+            </Button>
+          </div>
+
+          {placed !== null && (
+            <p className="mt-2 text-xs text-ink-muted">
+              Found{placeLabel === null ? '' : `: ${placeLabel}`} ·{' '}
+              {placed.latitude.toFixed(5)}, {placed.longitude.toFixed(5)}
+            </p>
+          )}
+
+          {placeSearched && placed === null && (
+            <p className="mt-2 text-xs text-ink-muted">
+              Nothing was found for that address. It saves either way — the marketplace will show
+              it as not placed rather than guess.
+            </p>
+          )}
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">

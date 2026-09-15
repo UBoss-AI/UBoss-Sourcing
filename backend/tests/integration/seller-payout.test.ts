@@ -45,6 +45,7 @@ function membershipFor(role: keyof typeof SellerRole): SellerMembership {
     status: 'APPROVED',
     role: SellerRole[role],
     permissions: permissionsForSellerRole(SellerRole[role]),
+    hasLock: false,
     isTrading: true,
     isApplicationEditable: false,
     registrationCountry: 'IN',

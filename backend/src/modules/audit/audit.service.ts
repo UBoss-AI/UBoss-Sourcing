@@ -255,6 +255,18 @@ export const AuditAction = {
   /// that did.
   AUTOPAY_CHARGE_WITHHELD: 'autopay.charge_withheld',
 
+  // The Seller Hub's own password
+  //
+  // Recorded because it is a credential, and the questions asked after an
+  // incident are the same three asked about any credential: when was it
+  // chosen, when was it changed, and was anybody trying to guess it. The
+  // password itself is never in any of these rows — `REDACTED_FIELDS` below
+  // covers the values, and nothing here puts one in a field anyway.
+  SELLER_LOCK_SET: 'seller.lock.set',
+  SELLER_LOCK_CHANGED: 'seller.lock.changed',
+  /// A wrong Seller Hub password. One is a typo; a run of them is not.
+  SELLER_LOCK_REFUSED: 'seller.lock.refused',
+
   // Data protection
   //
   // These rows are the Art. 5(2) accountability record. "We honour erasure

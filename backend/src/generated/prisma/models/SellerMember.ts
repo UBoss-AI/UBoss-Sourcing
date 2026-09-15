@@ -35,6 +35,8 @@ export type SellerMemberMinAggregateOutputType = {
   sellerAccountId: string | null
   customerProfileId: string | null
   role: $Enums.SellerMemberRole | null
+  passwordHash: string | null
+  passwordSetAt: Date | null
   invitedByProfileId: string | null
   joinedAt: Date | null
   updatedAt: Date | null
@@ -46,6 +48,8 @@ export type SellerMemberMaxAggregateOutputType = {
   sellerAccountId: string | null
   customerProfileId: string | null
   role: $Enums.SellerMemberRole | null
+  passwordHash: string | null
+  passwordSetAt: Date | null
   invitedByProfileId: string | null
   joinedAt: Date | null
   updatedAt: Date | null
@@ -57,6 +61,8 @@ export type SellerMemberCountAggregateOutputType = {
   sellerAccountId: number
   customerProfileId: number
   role: number
+  passwordHash: number
+  passwordSetAt: number
   invitedByProfileId: number
   joinedAt: number
   updatedAt: number
@@ -70,6 +76,8 @@ export type SellerMemberMinAggregateInputType = {
   sellerAccountId?: true
   customerProfileId?: true
   role?: true
+  passwordHash?: true
+  passwordSetAt?: true
   invitedByProfileId?: true
   joinedAt?: true
   updatedAt?: true
@@ -81,6 +89,8 @@ export type SellerMemberMaxAggregateInputType = {
   sellerAccountId?: true
   customerProfileId?: true
   role?: true
+  passwordHash?: true
+  passwordSetAt?: true
   invitedByProfileId?: true
   joinedAt?: true
   updatedAt?: true
@@ -92,6 +102,8 @@ export type SellerMemberCountAggregateInputType = {
   sellerAccountId?: true
   customerProfileId?: true
   role?: true
+  passwordHash?: true
+  passwordSetAt?: true
   invitedByProfileId?: true
   joinedAt?: true
   updatedAt?: true
@@ -176,6 +188,8 @@ export type SellerMemberGroupByOutputType = {
   sellerAccountId: string
   customerProfileId: string
   role: $Enums.SellerMemberRole
+  passwordHash: string | null
+  passwordSetAt: Date | null
   invitedByProfileId: string | null
   joinedAt: Date
   updatedAt: Date
@@ -208,6 +222,8 @@ export type SellerMemberWhereInput = {
   sellerAccountId?: Prisma.StringFilter<"SellerMember"> | string
   customerProfileId?: Prisma.StringFilter<"SellerMember"> | string
   role?: Prisma.EnumSellerMemberRoleFilter<"SellerMember"> | $Enums.SellerMemberRole
+  passwordHash?: Prisma.StringNullableFilter<"SellerMember"> | string | null
+  passwordSetAt?: Prisma.DateTimeNullableFilter<"SellerMember"> | Date | string | null
   invitedByProfileId?: Prisma.StringNullableFilter<"SellerMember"> | string | null
   joinedAt?: Prisma.DateTimeFilter<"SellerMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerMember"> | Date | string
@@ -221,6 +237,8 @@ export type SellerMemberOrderByWithRelationInput = {
   sellerAccountId?: Prisma.SortOrder
   customerProfileId?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  passwordSetAt?: Prisma.SortOrderInput | Prisma.SortOrder
   invitedByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   joinedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -238,6 +256,8 @@ export type SellerMemberWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.SellerMemberWhereInput | Prisma.SellerMemberWhereInput[]
   sellerAccountId?: Prisma.StringFilter<"SellerMember"> | string
   role?: Prisma.EnumSellerMemberRoleFilter<"SellerMember"> | $Enums.SellerMemberRole
+  passwordHash?: Prisma.StringNullableFilter<"SellerMember"> | string | null
+  passwordSetAt?: Prisma.DateTimeNullableFilter<"SellerMember"> | Date | string | null
   invitedByProfileId?: Prisma.StringNullableFilter<"SellerMember"> | string | null
   joinedAt?: Prisma.DateTimeFilter<"SellerMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerMember"> | Date | string
@@ -251,6 +271,8 @@ export type SellerMemberOrderByWithAggregationInput = {
   sellerAccountId?: Prisma.SortOrder
   customerProfileId?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  passwordSetAt?: Prisma.SortOrderInput | Prisma.SortOrder
   invitedByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   joinedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -268,6 +290,8 @@ export type SellerMemberScalarWhereWithAggregatesInput = {
   sellerAccountId?: Prisma.StringWithAggregatesFilter<"SellerMember"> | string
   customerProfileId?: Prisma.StringWithAggregatesFilter<"SellerMember"> | string
   role?: Prisma.EnumSellerMemberRoleWithAggregatesFilter<"SellerMember"> | $Enums.SellerMemberRole
+  passwordHash?: Prisma.StringNullableWithAggregatesFilter<"SellerMember"> | string | null
+  passwordSetAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerMember"> | Date | string | null
   invitedByProfileId?: Prisma.StringNullableWithAggregatesFilter<"SellerMember"> | string | null
   joinedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerMember"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerMember"> | Date | string
@@ -277,6 +301,8 @@ export type SellerMemberScalarWhereWithAggregatesInput = {
 export type SellerMemberCreateInput = {
   id: string
   role?: $Enums.SellerMemberRole
+  passwordHash?: string | null
+  passwordSetAt?: Date | string | null
   invitedByProfileId?: string | null
   joinedAt?: Date | string
   updatedAt?: Date | string
@@ -290,6 +316,8 @@ export type SellerMemberUncheckedCreateInput = {
   sellerAccountId: string
   customerProfileId: string
   role?: $Enums.SellerMemberRole
+  passwordHash?: string | null
+  passwordSetAt?: Date | string | null
   invitedByProfileId?: string | null
   joinedAt?: Date | string
   updatedAt?: Date | string
@@ -299,6 +327,8 @@ export type SellerMemberUncheckedCreateInput = {
 export type SellerMemberUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumSellerMemberRoleFieldUpdateOperationsInput | $Enums.SellerMemberRole
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -312,6 +342,8 @@ export type SellerMemberUncheckedUpdateInput = {
   sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
   customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumSellerMemberRoleFieldUpdateOperationsInput | $Enums.SellerMemberRole
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -323,6 +355,8 @@ export type SellerMemberCreateManyInput = {
   sellerAccountId: string
   customerProfileId: string
   role?: $Enums.SellerMemberRole
+  passwordHash?: string | null
+  passwordSetAt?: Date | string | null
   invitedByProfileId?: string | null
   joinedAt?: Date | string
   updatedAt?: Date | string
@@ -332,6 +366,8 @@ export type SellerMemberCreateManyInput = {
 export type SellerMemberUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumSellerMemberRoleFieldUpdateOperationsInput | $Enums.SellerMemberRole
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -343,6 +379,8 @@ export type SellerMemberUncheckedUpdateManyInput = {
   sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
   customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumSellerMemberRoleFieldUpdateOperationsInput | $Enums.SellerMemberRole
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -375,6 +413,8 @@ export type SellerMemberCountOrderByAggregateInput = {
   sellerAccountId?: Prisma.SortOrder
   customerProfileId?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrder
+  passwordSetAt?: Prisma.SortOrder
   invitedByProfileId?: Prisma.SortOrder
   joinedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -386,6 +426,8 @@ export type SellerMemberMaxOrderByAggregateInput = {
   sellerAccountId?: Prisma.SortOrder
   customerProfileId?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrder
+  passwordSetAt?: Prisma.SortOrder
   invitedByProfileId?: Prisma.SortOrder
   joinedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -397,6 +439,8 @@ export type SellerMemberMinOrderByAggregateInput = {
   sellerAccountId?: Prisma.SortOrder
   customerProfileId?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrder
+  passwordSetAt?: Prisma.SortOrder
   invitedByProfileId?: Prisma.SortOrder
   joinedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -484,6 +528,8 @@ export type EnumSellerMemberRoleFieldUpdateOperationsInput = {
 export type SellerMemberCreateWithoutCustomerProfileInput = {
   id: string
   role?: $Enums.SellerMemberRole
+  passwordHash?: string | null
+  passwordSetAt?: Date | string | null
   invitedByProfileId?: string | null
   joinedAt?: Date | string
   updatedAt?: Date | string
@@ -495,6 +541,8 @@ export type SellerMemberUncheckedCreateWithoutCustomerProfileInput = {
   id: string
   sellerAccountId: string
   role?: $Enums.SellerMemberRole
+  passwordHash?: string | null
+  passwordSetAt?: Date | string | null
   invitedByProfileId?: string | null
   joinedAt?: Date | string
   updatedAt?: Date | string
@@ -520,6 +568,8 @@ export type SellerMemberUpdateToOneWithWhereWithoutCustomerProfileInput = {
 export type SellerMemberUpdateWithoutCustomerProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumSellerMemberRoleFieldUpdateOperationsInput | $Enums.SellerMemberRole
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -531,6 +581,8 @@ export type SellerMemberUncheckedUpdateWithoutCustomerProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   sellerAccountId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumSellerMemberRoleFieldUpdateOperationsInput | $Enums.SellerMemberRole
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -540,6 +592,8 @@ export type SellerMemberUncheckedUpdateWithoutCustomerProfileInput = {
 export type SellerMemberCreateWithoutSellerAccountInput = {
   id: string
   role?: $Enums.SellerMemberRole
+  passwordHash?: string | null
+  passwordSetAt?: Date | string | null
   invitedByProfileId?: string | null
   joinedAt?: Date | string
   updatedAt?: Date | string
@@ -551,6 +605,8 @@ export type SellerMemberUncheckedCreateWithoutSellerAccountInput = {
   id: string
   customerProfileId: string
   role?: $Enums.SellerMemberRole
+  passwordHash?: string | null
+  passwordSetAt?: Date | string | null
   invitedByProfileId?: string | null
   joinedAt?: Date | string
   updatedAt?: Date | string
@@ -591,6 +647,8 @@ export type SellerMemberScalarWhereInput = {
   sellerAccountId?: Prisma.StringFilter<"SellerMember"> | string
   customerProfileId?: Prisma.StringFilter<"SellerMember"> | string
   role?: Prisma.EnumSellerMemberRoleFilter<"SellerMember"> | $Enums.SellerMemberRole
+  passwordHash?: Prisma.StringNullableFilter<"SellerMember"> | string | null
+  passwordSetAt?: Prisma.DateTimeNullableFilter<"SellerMember"> | Date | string | null
   invitedByProfileId?: Prisma.StringNullableFilter<"SellerMember"> | string | null
   joinedAt?: Prisma.DateTimeFilter<"SellerMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerMember"> | Date | string
@@ -601,6 +659,8 @@ export type SellerMemberCreateManySellerAccountInput = {
   id: string
   customerProfileId: string
   role?: $Enums.SellerMemberRole
+  passwordHash?: string | null
+  passwordSetAt?: Date | string | null
   invitedByProfileId?: string | null
   joinedAt?: Date | string
   updatedAt?: Date | string
@@ -610,6 +670,8 @@ export type SellerMemberCreateManySellerAccountInput = {
 export type SellerMemberUpdateWithoutSellerAccountInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumSellerMemberRoleFieldUpdateOperationsInput | $Enums.SellerMemberRole
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -621,6 +683,8 @@ export type SellerMemberUncheckedUpdateWithoutSellerAccountInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumSellerMemberRoleFieldUpdateOperationsInput | $Enums.SellerMemberRole
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -631,6 +695,8 @@ export type SellerMemberUncheckedUpdateManyWithoutSellerAccountInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customerProfileId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumSellerMemberRoleFieldUpdateOperationsInput | $Enums.SellerMemberRole
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordSetAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitedByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -644,6 +710,8 @@ export type SellerMemberSelect<ExtArgs extends runtime.Types.Extensions.Internal
   sellerAccountId?: boolean
   customerProfileId?: boolean
   role?: boolean
+  passwordHash?: boolean
+  passwordSetAt?: boolean
   invitedByProfileId?: boolean
   joinedAt?: boolean
   updatedAt?: boolean
@@ -659,13 +727,15 @@ export type SellerMemberSelectScalar = {
   sellerAccountId?: boolean
   customerProfileId?: boolean
   role?: boolean
+  passwordHash?: boolean
+  passwordSetAt?: boolean
   invitedByProfileId?: boolean
   joinedAt?: boolean
   updatedAt?: boolean
   removedAt?: boolean
 }
 
-export type SellerMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "customerProfileId" | "role" | "invitedByProfileId" | "joinedAt" | "updatedAt" | "removedAt", ExtArgs["result"]["sellerMember"]>
+export type SellerMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "customerProfileId" | "role" | "passwordHash" | "passwordSetAt" | "invitedByProfileId" | "joinedAt" | "updatedAt" | "removedAt", ExtArgs["result"]["sellerMember"]>
 export type SellerMemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   customerProfile?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
@@ -682,6 +752,26 @@ export type $SellerMemberPayload<ExtArgs extends runtime.Types.Extensions.Intern
     sellerAccountId: string
     customerProfileId: string
     role: $Enums.SellerMemberRole
+    /**
+     * The second lock: this person's password for the Seller Hub.
+     * 
+     * Selling uses the same ACCOUNT as buying - one email, one identity, one
+     * order history - and a separate password in front of the Hub. The two are
+     * different questions and the product now answers them separately: "is this
+     * their account" is the sign-in, "are they here to sell" is this. Changing
+     * one never changes the other.
+     * 
+     * Argon2, the same as `users.passwordHash`, and never returned by any
+     * endpoint. Null means this person has not chosen one yet, which is not the
+     * same as having no lock: the Hub asks them to choose before it opens, the
+     * way the carrier portal asks for a second factor.
+     * 
+     * On the member rather than the user, because standing inside a seller
+     * organisation is what it guards. A person who sells for two businesses
+     * holds two of these, and neither opens the other.
+     */
+    passwordHash: string | null
+    passwordSetAt: Date | null
     invitedByProfileId: string | null
     joinedAt: Date
     updatedAt: Date
@@ -1065,6 +1155,8 @@ export interface SellerMemberFieldRefs {
   readonly sellerAccountId: Prisma.FieldRef<"SellerMember", 'String'>
   readonly customerProfileId: Prisma.FieldRef<"SellerMember", 'String'>
   readonly role: Prisma.FieldRef<"SellerMember", 'SellerMemberRole'>
+  readonly passwordHash: Prisma.FieldRef<"SellerMember", 'String'>
+  readonly passwordSetAt: Prisma.FieldRef<"SellerMember", 'DateTime'>
   readonly invitedByProfileId: Prisma.FieldRef<"SellerMember", 'String'>
   readonly joinedAt: Prisma.FieldRef<"SellerMember", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"SellerMember", 'DateTime'>

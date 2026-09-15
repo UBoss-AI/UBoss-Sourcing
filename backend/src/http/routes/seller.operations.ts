@@ -17,6 +17,7 @@ import {
   recordStockMovement,
   updateStockSettings,
 } from '../../modules/seller/inventory.service.js';
+import { forwardGeocode } from '../../modules/inventory/location.service.js';
 import {
   archiveLocation,
   createLocation,
@@ -100,6 +101,34 @@ export function registerSellerOperationsRoutes(app: FastifyInstance): Promise<vo
       const body = locationSchema.parse(request.body);
       const location = await createLocation(currentSeller(request), body, request.correlationId);
       return reply.status(201).send(location);
+    },
+  );
+
+  /**
+   * An address to coordinates, for the seller's own dispatch places.
+   *
+   * The same `forwardGeocode` the warehouse screen uses, behind the seller's
+   * own permission. It exists because without it nothing ever filled
+   * `SellerLocation.latitude`: the API has taken coordinates since the table
+   * was written, the seller's screen had no way to produce any, and so every
+   * seller place stayed unplaced and could not be drawn on a map.
+   *
+   * A POST so the address stays out of this server's access log and out of any
+   * proxy in front of it, and 200 with `{ result: null }` for every way a
+   * geocoder can fail to answer - unconfigured, slow, no match. The button it
+   * feeds is a convenience beside two fields a seller can always leave empty,
+   * and a warehouse must never fail to save because a third party had a bad
+   * afternoon.
+   */
+  app.post(
+    '/locations/geocode',
+    { preHandler: requireSeller(SellerPermission.LOCATION_WRITE) },
+    async (request, reply) => {
+      const body = z.object({ query: z.string().trim().min(1).max(512) }).parse(request.body);
+
+      const result = await forwardGeocode(body.query);
+
+      return reply.status(200).send({ result });
     },
   );
 

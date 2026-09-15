@@ -21,6 +21,7 @@
  * Money is a string in minor units here as everywhere else in this console.
  */
 import { api } from './api';
+import type { Translate } from '@/i18n/i18n-context';
 
 // ---------------------------------------------------------------------------
 // Shared vocabulary
@@ -65,23 +66,39 @@ export type ExceptionSeverity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
 export type CarrierProvider = 'MANUAL' | 'CUSTOM' | 'DHL' | 'FEDEX' | 'UPS';
 
-export type CapabilityKind =
-  | 'TEMPERATURE_CONTROLLED'
-  | 'COLD_CHAIN_2_8'
-  | 'FROZEN'
-  | 'STERILE_HANDLING'
-  | 'DANGEROUS_GOODS'
-  | 'FRAGILE_HANDLING'
-  | 'OVERSIZED'
-  | 'PALLET'
-  | 'TAIL_LIFT'
-  | 'WHITE_GLOVE'
-  | 'SAME_DAY'
-  | 'NEXT_DAY'
-  | 'INTERNATIONAL'
-  | 'CUSTOMS_BROKERAGE'
-  | 'PROOF_OF_DELIVERY_PHOTO'
-  | 'PROOF_OF_DELIVERY_OTP';
+/**
+ * Every kind of handling the assignment engine knows about, in the order the
+ * server lists them.
+ *
+ * An array rather than a union alone, because two screens need to iterate it —
+ * the dropdown that adds one to a carrier, and the check that decides whether a
+ * `MISSING_CAPABILITY:` code names a kind this build has a name for. The union
+ * is derived from it, so the two can never drift apart.
+ */
+export const CAPABILITY_KINDS = [
+  'TEMPERATURE_CONTROLLED',
+  'COLD_CHAIN_2_8',
+  'FROZEN',
+  'STERILE_HANDLING',
+  'DANGEROUS_GOODS',
+  'FRAGILE_HANDLING',
+  'OVERSIZED',
+  'PALLET',
+  'TAIL_LIFT',
+  'WHITE_GLOVE',
+  'SAME_DAY',
+  'NEXT_DAY',
+  'INTERNATIONAL',
+  'CUSTOMS_BROKERAGE',
+  'PROOF_OF_DELIVERY_PHOTO',
+  'PROOF_OF_DELIVERY_OTP',
+] as const;
+
+export type CapabilityKind = (typeof CAPABILITY_KINDS)[number];
+
+export function isCapabilityKind(value: string): value is CapabilityKind {
+  return (CAPABILITY_KINDS as readonly string[]).includes(value);
+}
 
 export type CapabilityState = 'REQUESTED' | 'APPROVED' | 'REJECTED' | 'SUSPENDED';
 
@@ -786,6 +803,57 @@ export type CapabilityKey = `logistics.capabilityState.${CapabilityState}`;
 
 export function capabilityKey(state: CapabilityState): CapabilityKey {
   return `logistics.capabilityState.${state}`;
+}
+
+export type CapabilityKindKey = `logistics.capabilityKind.${CapabilityKind}`;
+
+/**
+ * The name a person uses for a kind of handling.
+ *
+ * These used to go through `humanise()`, which turns a SCREAMING_SNAKE enum
+ * into title case and has no idea what the words mean — so the dropdown an
+ * operator approves cold chain from read "Cold Chain 2 8", and the proof of
+ * delivery options read "Proof Of Delivery Otp". Approving what a haulier may
+ * carry is a safety decision; the words on that screen are worth translating.
+ */
+export function capabilityKindKey(kind: CapabilityKind): CapabilityKindKey {
+  return `logistics.capabilityKind.${kind}`;
+}
+
+/**
+ * Why the server ruled a carrier in or out of a consignment.
+ *
+ * `scoreCarriers` emits codes — `NO_COVERAGE_ORIGIN`, `AT_CAPACITY`,
+ * `MISSING_CAPABILITY:COLD_CHAIN_2_8` — and they were printed to the operations
+ * desk exactly as they arrived. They are a wire format, not a sentence, and
+ * this turns each one into the sentence it means.
+ *
+ * A code this build has never heard of is returned **unchanged** rather than
+ * dropped or replaced with "Unknown". The reason is on screen while somebody
+ * decides who carries a consignment, so a newer server's new reason has to
+ * survive an older panel in a form the reader can at least repeat down a phone.
+ */
+export function offerReasonLabel(reason: string, t: Translate): string {
+  if (reason.startsWith('MISSING_CAPABILITY:')) {
+    const kind = reason.slice('MISSING_CAPABILITY:'.length);
+
+    return isCapabilityKind(kind)
+      ? t('logistics.offerReason.MISSING_CAPABILITY', { kind: t(capabilityKindKey(kind)) })
+      : reason;
+  }
+
+  switch (reason) {
+    case 'SUSPENDED':
+      return t('logistics.offerReason.SUSPENDED');
+    case 'NO_COVERAGE_ORIGIN':
+      return t('logistics.offerReason.NO_COVERAGE_ORIGIN');
+    case 'NO_COVERAGE_DESTINATION':
+      return t('logistics.offerReason.NO_COVERAGE_DESTINATION');
+    case 'AT_CAPACITY':
+      return t('logistics.offerReason.AT_CAPACITY');
+    default:
+      return reason;
+  }
 }
 
 export type ScopeKey = `logistics.regionScope.${PartnerRegion['scope']}`;

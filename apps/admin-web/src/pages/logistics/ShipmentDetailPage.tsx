@@ -51,6 +51,7 @@ import {
   correctShipmentStatus,
   fetchAdminShipment,
   fetchEligiblePartners,
+  offerReasonLabel,
   severityKey,
   severityTone,
   shipmentStatusTone,
@@ -699,11 +700,14 @@ function AssignDialog({
                         })}
                   </span>
 
-                  {/* The server's own reasons, verbatim. They are written to be
-                      read by the person making this decision. */}
+                  {/* The server's reasons, said in words. The codes themselves
+                      are a wire format — `MISSING_CAPABILITY:COLD_CHAIN_2_8`
+                      was being printed to an operations desk choosing who
+                      carries a consignment. A code this build has no sentence
+                      for still shows as it arrived; see `offerReasonLabel`. */}
                   {partner.reasons.length > 0 && (
                     <span className="mt-1 block text-xxs leading-relaxed text-ink-subtle">
-                      {partner.reasons.join(' · ')}
+                      {partner.reasons.map((reason) => offerReasonLabel(reason, t)).join(' · ')}
                     </span>
                   )}
                 </span>

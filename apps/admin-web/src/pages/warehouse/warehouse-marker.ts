@@ -13,7 +13,31 @@
  * running anything, so there is no escaping here that has to stay correct -
  * and a warehouse called `Pune <b>2</b>` reads as its own name on both maps.
  */
-import type { PlacedWarehouse, Warehouse } from '@/lib/warehouses';
+import type { MappablePlace, Placed, Warehouse } from '@/lib/warehouses';
+
+/**
+ * Everything the builder needs to know that is not the place itself.
+ *
+ * Split out because the map now draws two different kinds of place. A
+ * warehouse's colour comes from whether it can ship today; a seller's dispatch
+ * address has no such state and is drawn plainly. Rather than the builder
+ * knowing about both — and growing a third branch the next time — the caller
+ * says how this one looks, and the builder stays "how a marker is drawn".
+ */
+export interface MarkerLook {
+  /** The circle's colours, as classes. */
+  tone: string;
+  /** A dot in the corner: something about this place wants attention. */
+  flagged: boolean;
+}
+
+/** The look of a place with nothing to say about itself. */
+export const PLAIN_LOOK: MarkerLook = { tone: 'border-brand bg-brand-fill text-white', flagged: false };
+
+/** The look of a warehouse: its operational status, and its stock. */
+export function warehouseLook(warehouse: Warehouse): MarkerLook {
+  return { tone: markerTone(warehouse), flagged: warehouse.stock.lowStockCount > 0 };
+}
 
 /**
  * A marker's colour.
@@ -88,7 +112,8 @@ const UNSELECTED_CLASSES = ['h-6', 'w-6', 'text-xxs'];
  * edge without either of them knowing the circle's size.
  */
 export function markerElement(
-  warehouse: PlacedWarehouse,
+  warehouse: Placed<MappablePlace>,
+  look: MarkerLook,
   isSelected: boolean,
   /**
    * Is this the warehouse whose delivery coverage is being shown?
@@ -137,7 +162,7 @@ export function markerElement(
     // that happened on its own. Transform only, so it is composited and costs
     // no layout, and `motion-reduce` drops it.
     'transition-transform duration-150 ease-out hover:scale-110 motion-reduce:transition-none',
-    markerTone(warehouse),
+    look.tone,
     ...(isSelected ? SELECTED_CLASSES : UNSELECTED_CLASSES),
   ]
     .filter((part) => part.length > 0)
@@ -147,7 +172,7 @@ export function markerElement(
   // all whitespace. `textContent`, so a name with markup in it is a name.
   circle.textContent = warehouse.code.trim().charAt(0).toUpperCase() || '?';
 
-  if (warehouse.stock.lowStockCount > 0) {
+  if (look.flagged) {
     const dot = document.createElement('span');
     dot.className =
       'absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border border-surface bg-danger';

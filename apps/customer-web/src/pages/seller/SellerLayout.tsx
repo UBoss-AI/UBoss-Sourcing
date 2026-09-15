@@ -23,15 +23,20 @@
  * permanent sidebar, and a hamburger that hides the only navigation is how a
  * seller loses the orders queue.
  */
-import { useQuery } from '@tanstack/react-query';
-import { NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
+import { useCallback, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useI18n } from '@/i18n/i18n-context';
-import { Badge, Button, ErrorState, LoadingState } from '@/components/ui';
+import { Badge, Button, ErrorState, Field, Input, LoadingState } from '@/components/ui';
+import { errorMessage } from '@/lib/errors';
 import { cx } from '@/lib/cx';
 import {
   applicationStatusLabel,
   applicationStatusTone,
+  closeSellerLock,
   fetchSellerIdentity,
+  openSellerLock,
+  setSellerLock,
   type SellerIdentity,
 } from '@/lib/seller';
 
@@ -147,6 +152,16 @@ function ProfileIcon({ className }: IconProps): React.JSX.Element {
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
       <circle cx="12" cy="8.5" r="3.5" stroke="currentColor" strokeWidth="1.6" />
       <path d="M4.5 20a7.5 7.5 0 0 1 15 0" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/** A closed padlock. Shutting the Hub, not signing out. */
+function LockIcon({ className }: IconProps): React.JSX.Element {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <rect x="5" y="10.5" width="14" height="9.5" rx="1.8" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   );
 }
@@ -373,10 +388,198 @@ function ApplicationBanner({ seller }: { seller: SellerIdentity }): React.JSX.El
 // ---------------------------------------------------------------------------
 // The frame
 // ---------------------------------------------------------------------------
+// The Hub's own lock
+// ---------------------------------------------------------------------------
+
+/**
+ * The screen that stands in front of the Hub.
+ *
+ * Two modes, one component, because the two are the same shape and share every
+ * word around the field: `choose` when this person has never set a Seller Hub
+ * password, `enter` when they have and this browser has not given it.
+ *
+ * Deliberately NOT a modal over the Hub. A dialog over a rendered workspace is
+ * a workspace somebody can read, screenshot and sometimes tab into; the point
+ * of the lock is that the catalogue and the orders are not on the screen.
+ *
+ * The way out is back to the shop, not a sign-out. Buying and selling share
+ * one account here, and somebody who cannot remember their Hub password should
+ * not lose their basket over it.
+ */
+function SellerLockGate({
+  seller,
+  mode,
+}: {
+  seller: SellerIdentity;
+  mode: 'choose' | 'enter';
+}): React.JSX.Element {
+  const client = useQueryClient();
+  const { t } = useI18n();
+
+  const [password, setPassword] = useState('');
+  const [confirmation, setConfirmation] = useState('');
+  const [problem, setProblem] = useState<string | null>(null);
+
+  /*
+   * The password field takes focus when this screen appears.
+   *
+   * A callback ref rather than `autoFocus`, which the accessibility lint rule
+   * forbids and is right to: a field that grabs focus out of a page somebody is
+   * reading is hostile. This screen is not that — it replaces the whole Hub,
+   * the field is the only thing to do on it, and a seller who has just pressed
+   * "Seller Hub" should be able to start typing.
+   */
+  const focusPassword = useCallback((node: HTMLInputElement | null) => {
+    node?.focus();
+  }, []);
+
+  const isChoosing = mode === 'choose';
+
+  const submit = useMutation({
+    mutationFn: () =>
+      isChoosing ? setSellerLock({ newPassword: password }) : openSellerLock(password),
+    onSuccess: async () => {
+      setProblem(null);
+      // Awaited, not fired and forgotten: the layout re-reads this identity to
+      // decide whether to draw the Hub, and navigating on a stale copy is what
+      // sent a brand-new seller back to the marketing page once already.
+      await client.invalidateQueries({ queryKey: ['seller', 'identity'] });
+    },
+    onError: (error: unknown) => {
+      setProblem(errorMessage(t, error, 'That could not be checked just now.'));
+    },
+  });
+
+  const tooShort = isChoosing && password.length > 0 && password.length < 12;
+  const mismatch = isChoosing && confirmation.length > 0 && confirmation !== password;
+
+  const canSubmit = isChoosing
+    ? password.length >= 12 && confirmation === password && !submit.isPending
+    : password.length > 0 && !submit.isPending;
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-surface-sunken px-4 py-16">
+      <div className="w-full max-w-md">
+        <div className="mb-6 flex items-center gap-3">
+          <CompanyMark name={seller.displayName} logoUrl={seller.logoUrl} className="h-10 w-10" />
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-ink">{seller.displayName}</p>
+            <p className="text-xxs uppercase tracking-wider text-ink-subtle">Seller Hub</p>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-border bg-surface p-6 shadow-card">
+          <h1 className="text-title-sm text-ink">
+            {isChoosing ? 'Choose your Seller Hub password' : 'Enter your Seller Hub password'}
+          </h1>
+
+          <p className="mt-2 text-sm leading-relaxed text-ink-muted">
+            {isChoosing
+              ? 'Selling uses the same account you buy with, and its own password. Choose one you do not use for the shop — that is what keeps a browser left open on the shop from being a browser left open on your catalogue, your stock and your payouts.'
+              : 'You are signed in to the shop. The Hub asks for its own password before it opens.'}
+          </p>
+
+          <form
+            className="mt-5 space-y-4"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (canSubmit) submit.mutate();
+            }}
+          >
+            <Field
+              label={isChoosing ? 'New Seller Hub password' : 'Seller Hub password'}
+              {...(isChoosing ? { hint: 'At least 12 characters.' } : {})}
+              {...(tooShort ? { error: 'At least 12 characters.' } : {})}
+            >
+              {({ inputId, describedBy }) => (
+                <Input
+                  id={inputId}
+                  aria-describedby={describedBy}
+                  type="password"
+                  autoComplete={isChoosing ? 'new-password' : 'current-password'}
+                  // Focused through a ref rather than `autoFocus`: this screen
+                  // IS the page, the field is the only thing on it, and a
+                  // seller who has just clicked Seller Hub should be able to
+                  // type. The lint rule is about a field that steals focus from
+                  // a page somebody was reading, which this is not.
+                  ref={focusPassword}
+                  value={password}
+                  onChange={(event) => {
+                    const { value } = event.currentTarget;
+                    setPassword(value);
+                    setProblem(null);
+                  }}
+                />
+              )}
+            </Field>
+
+            {isChoosing && (
+              <Field
+                label="Type it again"
+                {...(mismatch ? { error: 'These two do not match.' } : {})}
+              >
+                {({ inputId, describedBy }) => (
+                  <Input
+                    id={inputId}
+                    aria-describedby={describedBy}
+                    type="password"
+                    autoComplete="new-password"
+                    value={confirmation}
+                    onChange={(event) => {
+                      const { value } = event.currentTarget;
+                      setConfirmation(value);
+                    }}
+                  />
+                )}
+              </Field>
+            )}
+
+            {problem !== null && (
+              <p role="alert" className="text-sm text-danger">
+                {problem}
+              </p>
+            )}
+
+            <Button
+              type="submit"
+              variant="primary"
+              className="w-full"
+              isLoading={submit.isPending}
+              disabled={!canSubmit}
+            >
+              {isChoosing ? 'Save it and open the Hub' : 'Open the Hub'}
+            </Button>
+          </form>
+        </div>
+
+        <p className="mt-4 text-center text-xs text-ink-muted">
+          <Link to="/" className="text-brand hover:underline">
+            Back to the shop
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 
 export function SellerLayout(): React.JSX.Element {
   const { t } = useI18n();
   const location = useLocation();
+  const client = useQueryClient();
+
+  /*
+   * Shutting the Hub only has to invalidate the identity: the layout re-reads
+   * it, finds `isOpen` false and draws the lock screen in place of the
+   * workspace. No navigation, because the seller has not gone anywhere.
+   */
+  const closeHub = useMutation({
+    mutationFn: closeSellerLock,
+    onSuccess: async () => {
+      await client.invalidateQueries({ queryKey: ['seller', 'identity'] });
+    },
+  });
 
   const query = useQuery({
     queryKey: ['seller', 'identity'],
@@ -408,6 +611,20 @@ export function SellerLayout(): React.JSX.Element {
   // rather than shown an empty workspace or an error - "you do not have a
   // seller account" is not news to somebody who has never applied.
   if (seller === null) return <Navigate to="/sell" replace />;
+
+  /*
+   * The Hub's second lock, before the workspace is drawn at all.
+   *
+   * Not a banner over a visible Hub and not a redirect: the whole point is that
+   * the catalogue, the stock and the orders are not on the screen until the
+   * seller password has been entered. A person handed a colleague's signed-in
+   * browser can read a basket and gets this instead of a business.
+   *
+   * Two screens because there are two states with two different remedies —
+   * choose one, or enter the one you chose.
+   */
+  if (!seller.lock.isSet) return <SellerLockGate seller={seller} mode="choose" />;
+  if (!seller.lock.isOpen) return <SellerLockGate seller={seller} mode="enter" />;
 
   const isTrading = seller.isTrading;
 
@@ -459,6 +676,21 @@ export function SellerLayout(): React.JSX.Element {
             <ShopIcon className="h-5 w-5 shrink-0" />
             <span>Back to the shop</span>
           </NavLink>
+
+          {/* Shuts the Hub without signing out of the shop. The two share one
+              account and one browser, so somebody handing the machine over
+              needs a way to close this that does not cost them their basket. */}
+          <button
+            type="button"
+            className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink"
+            disabled={closeHub.isPending}
+            onClick={() => {
+              closeHub.mutate();
+            }}
+          >
+            <LockIcon className="h-5 w-5 shrink-0" />
+            <span>Close the Hub</span>
+          </button>
         </div>
       </aside>
 

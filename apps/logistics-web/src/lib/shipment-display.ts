@@ -12,6 +12,7 @@
  * this file exists to make easy to keep.
  */
 import type { BadgeTone } from '@/components/ui';
+import type { Translate } from '@/i18n/i18n-context';
 import type { ExceptionSeverity, ShipmentStatus, SlaState } from './types';
 
 /**
@@ -196,4 +197,48 @@ export function formatDuration(minutes: number): string {
 export function formatWeight(grams: number): string {
   if (grams < 1000) return `${String(grams)} g`;
   return `${(grams / 1000).toFixed(grams % 1000 === 0 ? 0 : 1)} kg`;
+}
+
+/**
+ * Every kind of handling the marketplace can approve a carrier for.
+ *
+ * The portal only ever reads these — approving one is the marketplace's
+ * decision, made on the carrier's record in the admin console — so this is a
+ * lookup and nothing more.
+ */
+const CAPABILITY_KINDS = [
+  'TEMPERATURE_CONTROLLED',
+  'COLD_CHAIN_2_8',
+  'FROZEN',
+  'STERILE_HANDLING',
+  'DANGEROUS_GOODS',
+  'FRAGILE_HANDLING',
+  'OVERSIZED',
+  'PALLET',
+  'TAIL_LIFT',
+  'WHITE_GLOVE',
+  'SAME_DAY',
+  'NEXT_DAY',
+  'INTERNATIONAL',
+  'CUSTOMS_BROKERAGE',
+  'PROOF_OF_DELIVERY_PHOTO',
+  'PROOF_OF_DELIVERY_OTP',
+] as const;
+
+type CapabilityKind = (typeof CAPABILITY_KINDS)[number];
+
+function isCapabilityKind(value: string): value is CapabilityKind {
+  return (CAPABILITY_KINDS as readonly string[]).includes(value);
+}
+
+/**
+ * What a carrier is approved to carry, said in words.
+ *
+ * `COLD_CHAIN_2_8` was going onto their own company page exactly like that.
+ * A kind this build has no name for is shown as it arrived rather than hidden:
+ * a carrier reading their approvals needs to see that something is there even
+ * when an older portal cannot name it.
+ */
+export function capabilityKindLabel(kind: string, t: Translate): string {
+  return isCapabilityKind(kind) ? t(`logistics.capabilityKind.${kind}`) : kind;
 }

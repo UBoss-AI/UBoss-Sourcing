@@ -104,6 +104,7 @@ import { WarehouseDetailPanel } from './warehouse/WarehouseDetailPanel';
 import { WarehouseFormDialog } from './warehouse/WarehouseFormDialog';
 import { WarehouseInventoryDialog } from './warehouse/WarehouseInventoryDialog';
 import { WarehouseMap } from './warehouse/WarehouseMap';
+import { warehouseLook } from './warehouse/warehouse-marker';
 import { DeliveryCoveragePanel } from './warehouse/DeliveryCoveragePanel';
 
 /**
@@ -747,6 +748,11 @@ export function WarehousesPage(): React.JSX.Element {
                   {placed.length > 0 ? (
                     <WarehouseMap
                       warehouses={placed}
+                      // A warehouse's marker is coloured by whether it can ship
+                      // today and dotted when its stock is low. The map itself
+                      // draws places plainly unless it is told otherwise, so
+                      // that this panel's meaning stays in this panel.
+                      look={warehouseLook}
                       // Which map library the browser loads is decided here,
                       // from the operator's settings. Until the first response
                       // lands there is nothing to draw anyway - `placed` is

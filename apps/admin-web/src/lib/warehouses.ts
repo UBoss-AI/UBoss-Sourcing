@@ -109,6 +109,27 @@ export interface WarehouseDelivery {
   excludedCountries: ExcludedCountry[];
 }
 
+/**
+ * The least a place needs to be drawn on the map.
+ *
+ * Both map implementations read exactly these five fields and nothing else, so
+ * this is what they take. It is not an abstraction invented in advance: the
+ * Companies screen draws a seller's dispatch places on the same map, and those
+ * are `SellerLocation` rows with no ERP link, no delivery geofence and no
+ * stock figures. Narrowing the prop to what is actually used is what lets one
+ * map serve both, instead of a second copy of it that drifts.
+ *
+ * `Warehouse` satisfies it structurally, so nothing at the warehouse end had to
+ * change.
+ */
+export interface MappablePlace {
+  id: string;
+  code: string;
+  name: string;
+  latitude: number | null;
+  longitude: number | null;
+}
+
 export interface Warehouse {
   id: string;
   code: string;
@@ -272,11 +293,13 @@ export interface GeocodeResponse {
   result: { latitude: number; longitude: number; label: string | null } | null;
 }
 
-/** A warehouse with both coordinates, narrowed so the map can rely on them. */
-export type PlacedWarehouse = Warehouse & { latitude: number; longitude: number };
+/** A place with both coordinates, narrowed so the map can rely on them. */
+export type Placed<T extends MappablePlace> = T & { latitude: number; longitude: number };
 
-export function isPlaced(warehouse: Warehouse): warehouse is PlacedWarehouse {
-  return warehouse.latitude !== null && warehouse.longitude !== null;
+export type PlacedWarehouse = Placed<Warehouse>;
+
+export function isPlaced<T extends MappablePlace>(place: T): place is Placed<T> {
+  return place.latitude !== null && place.longitude !== null;
 }
 
 /**

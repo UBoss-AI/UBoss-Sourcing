@@ -9,10 +9,22 @@
  * except the session.
  *
  * A seller is a CUSTOMER, not a third user type. That is deliberate and it is
- * what makes "become a seller" reuse the login somebody already has: the same
- * account buys and sells, the same cookies carry it, and nobody is asked to
- * keep two passwords for one business. The Seller Hub is a different set of
- * ROUTES over the same identity, not a different identity.
+ * what makes "become a seller" reuse the account somebody already has: the same
+ * identity buys and sells, the same cookies carry it, and nobody is asked for a
+ * second email address or a second verification. The Seller Hub is a different
+ * set of ROUTES over the same identity, not a different identity.
+ *
+ * THE SECOND LOCK
+ *
+ * One identity, two passwords. The sign-in asks whether this is their account;
+ * the Hub asks whether they are here to sell, and `assertSellerUnlocked` below
+ * is where that second question is put. Buying and selling are two different
+ * jobs with two different amounts of damage available, and sharing one password
+ * between them means a browser left open on the shop is a browser left open on
+ * the catalogue, the stock and the payouts.
+ *
+ * It is not a second factor and nothing here calls it one. It is a second
+ * secret of the same kind, guarding a different set of routes.
  */
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { ErrorCode, forbidden } from '../../domain/errors.js';
@@ -23,6 +35,7 @@ import {
   resolveSellerMembership,
   type SellerMembership,
 } from '../../modules/seller/account.service.js';
+import { assertSellerUnlocked } from '../../modules/seller/lock.service.js';
 import { currentUser, requireCustomer } from './auth.js';
 
 declare module 'fastify' {
@@ -44,6 +57,54 @@ declare module 'fastify' {
  */
 export function requireSeller(...permissions: SellerPermissionKey[]) {
   return async function sellerGuard(
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ): Promise<void> {
+    await requireCustomer(request, reply);
+
+    const auth = currentUser(request);
+
+    if (auth.customerProfileId === null) {
+      throw forbidden(ErrorCode.ACCOUNT_NOT_ACTIVATED, 'This account is not fully set up.');
+    }
+
+    const membership = await resolveSellerMembership(auth.customerProfileId);
+
+    /*
+     * The second lock, before any permission is considered.
+     *
+     * Ordered that way deliberately: a locked session must be told to enter the
+     * Hub password, not told that its role does not carry an action. The
+     * remedies are different and a role refusal on a locked session sends
+     * somebody to the wrong screen entirely.
+     */
+    assertSellerUnlocked(membership, {
+      sellerUnlockedAt: auth.sessionSellerUnlockedAt,
+      sellerUnlockedForId: auth.sessionSellerUnlockedForId,
+    });
+
+    for (const permission of permissions) {
+      assertSellerPermission(membership, permission);
+    }
+
+    request.seller = membership;
+  };
+}
+
+/**
+ * The same guard, without the lock.
+ *
+ * For the handful of routes that have to work while the Hub is shut, and there
+ * are exactly three kinds: the one that says what state the lock is in, the one
+ * that chooses a password, and the one that enters it. A locked session that
+ * could not reach those would have no way to become an unlocked one.
+ *
+ * Kept as its own export rather than an option on `requireSeller`, so that
+ * every route which skips the lock says so in its own registration and can be
+ * found with one search.
+ */
+export function requireSellerBeforeLock(...permissions: SellerPermissionKey[]) {
+  return async function sellerLockGuard(
     request: FastifyRequest,
     reply: FastifyReply,
   ): Promise<void> {

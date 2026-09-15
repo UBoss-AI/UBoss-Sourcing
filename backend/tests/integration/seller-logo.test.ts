@@ -67,6 +67,7 @@ beforeAll(async () => {
     status: 'APPROVED',
     role: 'OWNER',
     permissions: permissionsForSellerRole('OWNER'),
+    hasLock: false,
     isTrading: true,
     isApplicationEditable: false,
     registrationCountry: 'IN',

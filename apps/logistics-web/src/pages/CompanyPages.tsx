@@ -42,6 +42,7 @@ import {
 } from '@/lib/logistics';
 import { Permission } from '@/lib/permissions';
 import { useFocusOnMount } from '@/lib/use-focus-on-mount';
+import { capabilityKindLabel } from '@/lib/shipment-display';
 import { useSession } from '@/auth/session-context';
 import type { DriverRow, MemberRow, VehicleRow } from '@/lib/types';
 
@@ -266,7 +267,7 @@ export function CompanyPage(): React.JSX.Element {
                     }
                     dot
                   >
-                    {capability.kind}
+                    {capabilityKindLabel(capability.kind, t)}
                     {capability.evidenceExpiresAt === null
                       ? ''
                       : ` · ${formatDate(capability.evidenceExpiresAt)}`}

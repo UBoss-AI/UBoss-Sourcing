@@ -80,6 +80,15 @@ declare module 'fastify' {
        * nothing. The panel shows it in the top bar.
        */
       sessionPlace: string | null;
+      /**
+       * When this session entered the Seller Hub's password, and for whom.
+       *
+       * Acted on by exactly one guard, the same way `sessionMfaVerifiedAt` is:
+       * the seller guard refuses every Hub route while the member has a lock
+       * this session has not opened.
+       */
+      sessionSellerUnlockedAt: Date | null;
+      sessionSellerUnlockedForId: string | null;
     };
   }
 }
@@ -164,6 +173,8 @@ async function authenticate(
     sessionMfaVerifiedAt: Date | null;
     sessionCountry: string | null;
     sessionPlace: string | null;
+    sessionSellerUnlockedAt: Date | null;
+    sessionSellerUnlockedForId: string | null;
   }
 > {
   const token = extractAccessToken(request, expectedKind);
@@ -207,6 +218,8 @@ async function authenticate(
     sessionMfaVerifiedAt: session.mfaVerifiedAt,
     sessionCountry: session.country,
     sessionPlace: session.place,
+    sessionSellerUnlockedAt: session.sellerUnlockedAt,
+    sessionSellerUnlockedForId: session.sellerUnlockedForId,
   };
 }
 
@@ -351,6 +364,8 @@ export function currentUser(
   sessionMfaVerifiedAt: Date | null;
   sessionCountry: string | null;
   sessionPlace: string | null;
+  sessionSellerUnlockedAt: Date | null;
+  sessionSellerUnlockedForId: string | null;
 } {
   if (request.auth === undefined) {
     // A programming error - a handler read auth without declaring a guard.

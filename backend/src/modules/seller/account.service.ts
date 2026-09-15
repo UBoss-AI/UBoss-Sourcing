@@ -87,6 +87,15 @@ export interface SellerMembership {
   customerProfileId: string;
   role: SellerMemberRole;
   permissions: ReadonlySet<SellerPermissionKey>;
+  /**
+   * Whether this person has chosen a Seller Hub password.
+   *
+   * Carried on the membership so the guard costs no second query: it runs on
+   * every route under /seller, and reading the member row twice per request is
+   * a cost a self-hosted box pays for nothing. The hash itself never leaves
+   * the service that checks it.
+   */
+  hasLock: boolean;
   /** Whether the account may list and trade right now. */
   isTrading: boolean;
   /** Whether the seller may still edit their own application. */
@@ -109,6 +118,7 @@ function toMembership(row: {
   id: string;
   role: SellerMemberRole;
   customerProfileId: string;
+  passwordHash: string | null;
   sellerAccount: {
     id: string;
     displayName: string;
@@ -131,6 +141,7 @@ function toMembership(row: {
     customerProfileId: row.customerProfileId,
     role: row.role,
     permissions: permissionsForSellerRole(row.role),
+    hasLock: row.passwordHash !== null,
     isTrading: SELLER_TRADING_STATUSES.includes(status),
     isApplicationEditable: SELLER_EDITABLE_STATUSES.includes(status),
     registrationCountry: row.sellerAccount.registrationCountry,
@@ -157,6 +168,7 @@ export async function findSellerMembership(
       id: true,
       role: true,
       customerProfileId: true,
+      passwordHash: true,
       sellerAccount: {
         select: {
           id: true,

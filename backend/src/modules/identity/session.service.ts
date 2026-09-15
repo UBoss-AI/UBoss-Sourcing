@@ -339,6 +339,16 @@ export interface SessionAuthState {
    * laptop, can see which sign-in they are looking at.
    */
   place: string | null;
+  /**
+   * When THIS session opened the Seller Hub's lock, and for which seller.
+   *
+   * The same distinction `mfaVerifiedAt` draws, one layer along: the member row
+   * says the seller password EXISTS, this says the browser in front of us has
+   * entered it. The id is carried because a person can sell for two businesses,
+   * and opening one must not open the other.
+   */
+  sellerUnlockedAt: Date | null;
+  sellerUnlockedForId: string | null;
 }
 
 /**
@@ -357,6 +367,8 @@ export async function getSessionAuthState(sessionId: string): Promise<SessionAut
       locationCapturedAt: true,
       locationCountry: true,
       mfaVerifiedAt: true,
+      sellerUnlockedAt: true,
+      sellerUnlockedForId: true,
       // For the top bar. The coordinates are the fallback label, which is why
       // they are read here and not only the name.
       locationLabel: true,
@@ -372,6 +384,8 @@ export async function getSessionAuthState(sessionId: string): Promise<SessionAut
       mfaVerifiedAt: null,
       country: null,
       place: null,
+      sellerUnlockedAt: null,
+      sellerUnlockedForId: null,
     };
   }
 
@@ -381,6 +395,8 @@ export async function getSessionAuthState(sessionId: string): Promise<SessionAut
     mfaVerifiedAt: session.mfaVerifiedAt,
     country: session.locationCountry,
     place: sessionPlace(session),
+    sellerUnlockedAt: session.sellerUnlockedAt,
+    sellerUnlockedForId: session.sellerUnlockedForId,
   };
 }
 
