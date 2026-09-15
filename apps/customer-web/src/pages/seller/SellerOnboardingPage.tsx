@@ -20,7 +20,7 @@
  *     explanation is the single most common way an application is abandoned.
  */
 import { useState } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/toast-context';
 import {
@@ -449,9 +449,22 @@ function RequirementForm({
                   disabled={!isEditable}
                   value={values[requirement.fieldKey] ?? storedValue(requirement.fieldKey)}
                   onChange={(event) => {
+                    /*
+                     * Read out of the event BEFORE the updater.
+                     *
+                     * React calls a functional updater during the next render,
+                     * by which time it has cleared `currentTarget` on the
+                     * synthetic event - so reading it in there throws "Cannot
+                     * read properties of null", and the whole Seller Hub goes
+                     * to the error screen on the first keystroke of an
+                     * application. It has to be captured here, while the
+                     * handler is still running.
+                     */
+                    const { value } = event.currentTarget;
+
                     setValues((previous) => ({
                       ...previous,
-                      [requirement.fieldKey]: event.currentTarget.value,
+                      [requirement.fieldKey]: value,
                     }));
                     setIsDirty(true);
                   }}
@@ -637,9 +650,19 @@ function LocationsSummary({ step }: { step: OnboardingStep }): React.JSX.Element
 
         {query.data !== undefined && query.data.locations.length === 0 && (
           <p className="text-sm text-ink-muted">
-            You have not added an address yet. Add one in your seller profile — you need at least
-            one that can dispatch orders and one that can receive returns, which is usually the
-            same place.
+            You have not added an address yet. Add one on{' '}
+            {/*
+              A link, not the name of a screen.
+              
+              This step cannot be finished from here - the addresses live on the
+              profile - so telling somebody where to go and making them find it
+              is a step that reads as a dead end.
+            */}
+            <Link to="/seller/profile" className="font-medium text-brand hover:text-brand-hover">
+              your seller profile
+            </Link>{' '}
+            — you need at least one that can dispatch orders and one that can receive returns,
+            which is usually the same place.
           </p>
         )}
 
@@ -806,9 +829,13 @@ function AgreementsStep({
                   disabled={!isEditable}
                   checked={accepted.has(agreement.kind)}
                   onChange={(event) => {
+                    // Captured here rather than inside the updater - see the
+                    // note on the requirement fields above.
+                    const { checked } = event.currentTarget;
+
                     setAccepted((previous) => {
                       const next = new Set(previous);
-                      if (event.currentTarget.checked) next.add(agreement.kind);
+                      if (checked) next.add(agreement.kind);
                       else next.delete(agreement.kind);
                       return next;
                     });
@@ -896,8 +923,12 @@ function GenericStep({ step }: { step: OnboardingStep }): React.JSX.Element {
 
         {step.key === 'account_verification' && (
           <p className="text-sm leading-relaxed text-ink-muted">
-            Your email address and mobile number are confirmed through your UBOSS account. If
-            either needs changing, do it in your account settings and this step will update.
+            Your email address and mobile number are confirmed through your UBOSS account. Confirm
+            or change either in{' '}
+            <Link to="/account/profile" className="font-medium text-brand hover:text-brand-hover">
+              your account details
+            </Link>
+            , and this step will update.
           </p>
         )}
 

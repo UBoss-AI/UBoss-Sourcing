@@ -28,7 +28,7 @@ type FormValues = z.infer<typeof schema>;
 
 export function LoginPage(): React.JSX.Element {
   const { t } = useI18n();
-  const { stage, signIn } = useSession();
+  const { stage, notice, signIn } = useSession();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -84,9 +84,15 @@ export function LoginPage(): React.JSX.Element {
   return (
     <AuthLayout heading={t('auth.heading')} subheading={t('auth.subheading')}>
       <form onSubmit={onSubmit} noValidate className="space-y-4">
-        {failure === null ? null : (
+        {/*
+          The failure from THIS attempt, or the reason the portal refused the
+          last session it was handed. A carrier whose company the marketplace
+          has not activated yet signs in successfully and is bounced straight
+          back here; `notice` is the only thing that tells them why.
+        */}
+        {(failure ?? notice) === null ? null : (
           <Callout tone="danger" role="alert">
-            {failure}
+            {failure ?? notice}
           </Callout>
         )}
 

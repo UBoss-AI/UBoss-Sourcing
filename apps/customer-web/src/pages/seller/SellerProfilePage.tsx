@@ -368,7 +368,16 @@ function EditLocationDialog({
               aria-describedby={describedBy}
               value={form.name}
               onChange={(event) => {
-                setForm((previous) => ({ ...previous, name: event.currentTarget.value }));
+                /*
+                 * Out of the event first, then into the updater.
+                 *
+                 * React clears `currentTarget` as soon as the handler returns,
+                 * and it runs a functional updater during the NEXT render - so
+                 * reading it in there throws, and editing an address takes the
+                 * whole Hub to the error screen on the first keystroke.
+                 */
+                const { value } = event.currentTarget;
+                setForm((previous) => ({ ...previous, name: value }));
               }}
             />
           )}
@@ -386,10 +395,8 @@ function EditLocationDialog({
                 type="time"
                 value={form.dispatchCutoff}
                 onChange={(event) => {
-                  setForm((previous) => ({
-                    ...previous,
-                    dispatchCutoff: event.currentTarget.value,
-                  }));
+                  const { value } = event.currentTarget;
+                  setForm((previous) => ({ ...previous, dispatchCutoff: value }));
                 }}
               />
             )}
@@ -405,10 +412,8 @@ function EditLocationDialog({
                 max={30}
                 value={form.handlingTimeDays}
                 onChange={(event) => {
-                  setForm((previous) => ({
-                    ...previous,
-                    handlingTimeDays: event.currentTarget.value,
-                  }));
+                  const { value } = event.currentTarget;
+                  setForm((previous) => ({ ...previous, handlingTimeDays: value }));
                 }}
               />
             )}
@@ -422,10 +427,8 @@ function EditLocationDialog({
               type="checkbox"
               checked={form.isPickupLocation}
               onChange={(event) => {
-                setForm((previous) => ({
-                  ...previous,
-                  isPickupLocation: event.currentTarget.checked,
-                }));
+                const { checked } = event.currentTarget;
+                setForm((previous) => ({ ...previous, isPickupLocation: checked }));
               }}
             />
             Orders are dispatched from here
@@ -435,10 +438,8 @@ function EditLocationDialog({
               type="checkbox"
               checked={form.isReturnLocation}
               onChange={(event) => {
-                setForm((previous) => ({
-                  ...previous,
-                  isReturnLocation: event.currentTarget.checked,
-                }));
+                const { checked } = event.currentTarget;
+                setForm((previous) => ({ ...previous, isReturnLocation: checked }));
               }}
             />
             Returns come back here

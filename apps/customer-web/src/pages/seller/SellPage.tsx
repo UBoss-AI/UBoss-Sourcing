@@ -15,7 +15,7 @@
  */
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useI18n } from '@/i18n/i18n-context';
 import { useStorefront } from '@/app/storefront-context';
 import { Button, ButtonLink, Card, Field, Input, Select } from '@/components/ui';
@@ -226,6 +226,7 @@ function ApplicationForm(): React.JSX.Element {
   const { t } = useI18n();
   const toast = useToast();
   const navigate = useNavigate();
+  const client = useQueryClient();
   const { localisation } = useStorefront();
 
   const [legalName, setLegalName] = useState('');
@@ -242,7 +243,21 @@ function ApplicationForm(): React.JSX.Element {
         registrationCountry: country,
         kind: kind as 'MANUFACTURER' | 'AUTHORISED_DISTRIBUTOR' | 'WHOLESALER' | 'RESELLER',
       }),
-    onSuccess: () => {
+    onSuccess: async () => {
+      /*
+       * Refresh who this account is BEFORE moving, and wait for it.
+       *
+       * `/sellers/me` is cached for a minute and was answered "not a seller"
+       * a moment ago - by the header, on this very page. Navigating without
+       * refreshing it sends the new seller into `SellerLayout`, which reads
+       * that cached null and redirects them straight back here. The
+       * application exists, the screen says it does not, and pressing the
+       * button again answers "this account already sells as ..." with nowhere
+       * to go. Awaiting the refetch is what makes the Hub open on the
+       * application instead.
+       */
+      await client.invalidateQueries({ queryKey: ['seller'] });
+
       // Straight to onboarding rather than to a confirmation page. The
       // application exists now; what the seller needs is the next question.
       void navigate('/seller/onboarding');

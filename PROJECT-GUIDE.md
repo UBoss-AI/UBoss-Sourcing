@@ -3751,6 +3751,21 @@ walked through setting up a second factor. The raw token is never written to
 the database, never returned to the admin panel that triggered it, and never
 logged.
 
+It is **one** token. The link that goes out in the email and the credential the
+activation endpoint redeems are the same string, hashed into two rows: the
+`AuthToken` that is the credential, and the `LogisticsPartnerInvitation` that is
+the business record of who was asked, to what role, by whom. They were once two
+different tokens, which meant every carrier invitation this product sent was a
+dead link — a first, unused click answered "This link is not valid" and the
+account stayed unactivated. `tests/integration/logistics-invitation.test.ts`
+redeems a real invitation end to end so it cannot come apart again.
+
+**A carrier whose company is not active yet is told so.** Their password is
+accepted, the portal still refuses them, and the sign-in screen carries the
+server's own sentence — "This logistics account has not been activated by the
+marketplace yet." An empty form after a correct password is how somebody
+concludes their password is wrong and rings the operator.
+
 ## The status model
 
 Twenty-seven statuses, and one state machine that is the only way any of them

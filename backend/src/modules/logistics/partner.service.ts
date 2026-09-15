@@ -41,7 +41,7 @@ import {
   permissionsForLogisticsRole,
   type LogisticsPermissionKey,
 } from '../../domain/logistics-permissions.js';
-import { generateToken, sha256Hex } from '../../infra/crypto.js';
+import { sha256Hex } from '../../infra/crypto.js';
 import { newId } from '../../infra/ids.js';
 import { prisma, type PrismaTransaction } from '../../infra/prisma.js';
 import { normaliseEmail } from '../identity/auth.service.js';
@@ -398,8 +398,19 @@ export async function inviteLogisticsUser(
   const userId = newId();
   const partnerUserId = newId();
   const invitationId = newId();
-  const { token: invitationToken, tokenHash } = generateToken(32);
-  const expiresAt = new Date(Date.now() + env.LOGISTICS_INVITE_TTL_HOURS * 3_600_000);
+
+  /*
+   * Filled in inside the transaction, from the token `issueToken` mints.
+   *
+   * They were generated HERE once, separately from the credential, and that was
+   * the bug: the link that went out in the email hashed to the invitation's
+   * business record, while the row the activation endpoint actually reads -
+   * `AuthToken` - held the hash of a different token nobody had ever seen. Every
+   * carrier invitation was therefore a dead link, answering "This link is not
+   * valid" on a first, unused click. One token now, hashed into both rows.
+   */
+  let invitationToken = '';
+  let expiresAt = new Date();
 
   await prisma.$transaction(async (tx) => {
     await tx.user.create({
@@ -429,6 +440,19 @@ export async function inviteLogisticsUser(
       },
     });
 
+    /*
+     * The credential, minted first so the business record beside it can be
+     * written from the same token.
+     *
+     * `issueToken` also supersedes any outstanding invitation this person
+     * already holds, which is why it is called rather than an `AuthToken` row
+     * being written here by hand.
+     */
+    const issued = await issueToken(userId, 'INVITATION', input.invitedByAdminUserId, tx);
+
+    invitationToken = issued.token;
+    expiresAt = issued.expiresAt;
+
     await tx.logisticsPartnerInvitation.create({
       data: {
         id: invitationId,
@@ -437,7 +461,7 @@ export async function inviteLogisticsUser(
         emailNormalized,
         fullName: input.fullName.trim(),
         role: input.role,
-        tokenHash,
+        tokenHash: sha256Hex(issued.token),
         expiresAt,
         invitedByPartnerUserId: input.invitedByPartnerUserId,
         invitedByAdminUserId: input.invitedByAdminUserId,
@@ -445,18 +469,14 @@ export async function inviteLogisticsUser(
     });
 
     /*
-     * The AuthToken the activation endpoint actually redeems.
-     *
-     * Two token rows for one invitation, and they are not redundant. This one
-     * is the CREDENTIAL, redeemed by the shared `acceptInvitation` machinery
-     * that every other invitation in this system goes through - single use,
-     * enforced inside a transaction, superseding any earlier one. The
+     * Two rows for one invitation, and they are not redundant. `AuthToken` is
+     * the CREDENTIAL, redeemed by the shared `acceptInvitation` machinery every
+     * other invitation in this system goes through. The
      * `LogisticsPartnerInvitation` row above is the BUSINESS RECORD: who was
-     * asked, to what role, by whom, and whether they ever answered. Collapsing
-     * them would mean either a credential table growing business columns or a
-     * second, subtly different redemption path.
+     * asked, to what role, by whom, and whether they ever answered. They now
+     * carry the hash of the same token, which is what makes the emailed link
+     * redeemable at all.
      */
-    await issueToken(userId, 'INVITATION', input.invitedByAdminUserId, tx);
 
     await recordLogisticsAudit(
       {

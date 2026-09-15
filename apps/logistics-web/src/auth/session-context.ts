@@ -34,6 +34,18 @@ export interface SessionState {
   stage: SessionStage;
   session: PortalSession | null;
 
+  /**
+   * Why the portal could not be opened, where the server gave a reason.
+   *
+   * Null for the ordinary "not signed in". Set when the credentials were
+   * accepted and the portal still refused — a carrier the marketplace has not
+   * activated yet, a member whose access was withdrawn, a closed company. That
+   * person types the right password, lands back on the sign-in screen and, with
+   * nothing on it, concludes the password is wrong. The server already writes a
+   * sentence they can act on; this is what carries it to them.
+   */
+  notice: string | null;
+
   /** Sign in, then re-read the boot response. Throws on a bad password. */
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
