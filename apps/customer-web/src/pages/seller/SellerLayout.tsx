@@ -27,6 +27,7 @@ import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useI18n } from '@/i18n/i18n-context';
+import type { TranslationKey } from '@/i18n/i18n-context';
 import { Badge, Button, ErrorState, Field, Input, LoadingState } from '@/components/ui';
 import { errorMessage } from '@/lib/errors';
 import { cx } from '@/lib/cx';
@@ -186,27 +187,52 @@ function ShopIcon({ className }: IconProps): React.JSX.Element {
 
 interface NavItem {
   to: string;
-  label: string;
+  labelKey: TranslationKey;
   icon: (props: IconProps) => React.JSX.Element;
   /** Whether the destination is usable before the account is approved. */
   needsApproval: boolean;
 }
 
 const NAV_ITEMS: readonly NavItem[] = Object.freeze([
-  { to: '/seller/dashboard', label: 'Home', icon: HomeIcon, needsApproval: false },
-  { to: '/seller/listings', label: 'Listings', icon: ListingsIcon, needsApproval: true },
+  { to: '/seller/dashboard', labelKey: 'seller.nav.home', icon: HomeIcon, needsApproval: false },
+  {
+    to: '/seller/listings',
+    labelKey: 'seller.nav.listings',
+    icon: ListingsIcon,
+    needsApproval: true,
+  },
   // Directly under Listings, because that is where a request is made and this
   // is the only place its answer can be read.
-  { to: '/seller/brands', label: 'Brands', icon: BrandsIcon, needsApproval: true },
-  { to: '/seller/inventory', label: 'Inventory', icon: InventoryIcon, needsApproval: true },
-  { to: '/seller/orders', label: 'Orders', icon: OrdersIcon, needsApproval: true },
-  { to: '/seller/payments', label: 'Payments', icon: PaymentsIcon, needsApproval: false },
+  { to: '/seller/brands', labelKey: 'seller.nav.brands', icon: BrandsIcon, needsApproval: true },
+  {
+    to: '/seller/inventory',
+    labelKey: 'seller.nav.inventory',
+    icon: InventoryIcon,
+    needsApproval: true,
+  },
+  { to: '/seller/orders', labelKey: 'seller.nav.orders', icon: OrdersIcon, needsApproval: true },
+  {
+    to: '/seller/payments',
+    labelKey: 'seller.nav.payments',
+    icon: PaymentsIcon,
+    needsApproval: false,
+  },
   // Both reachable before approval: an applicant is told things and has things
   // recorded about them from the moment they apply, and a screen that refused
   // them until approval would hide exactly the notices explaining the delay.
-  { to: '/seller/notifications', label: 'Notifications', icon: BellIcon, needsApproval: false },
-  { to: '/seller/activity', label: 'Activity', icon: ActivityIcon, needsApproval: false },
-  { to: '/seller/profile', label: 'Profile', icon: ProfileIcon, needsApproval: false },
+  {
+    to: '/seller/notifications',
+    labelKey: 'seller.nav.notifications',
+    icon: BellIcon,
+    needsApproval: false,
+  },
+  {
+    to: '/seller/activity',
+    labelKey: 'seller.nav.activity',
+    icon: ActivityIcon,
+    needsApproval: false,
+  },
+  { to: '/seller/profile', labelKey: 'seller.nav.profile', icon: ProfileIcon, needsApproval: false },
 ]);
 
 function RailLink({
@@ -216,6 +242,7 @@ function RailLink({
   item: NavItem;
   isDisabled: boolean;
 }): React.JSX.Element {
+  const { t } = useI18n();
   const Icon = item.icon;
 
   if (isDisabled) {
@@ -226,7 +253,7 @@ function RailLink({
     return (
       <span
         aria-disabled="true"
-        title="Available once your application is approved"
+        title={t('seller.nav.lockedHint')}
         className={cx(
           'flex flex-col items-center gap-1 rounded-lg px-3 py-2.5 text-xxs font-medium',
           'cursor-not-allowed text-ink-subtle opacity-60',
@@ -234,7 +261,7 @@ function RailLink({
         )}
       >
         <Icon className="h-5 w-5 shrink-0" />
-        <span className="truncate">{item.label}</span>
+        <span className="truncate">{t(item.labelKey)}</span>
       </span>
     );
   }
@@ -255,7 +282,7 @@ function RailLink({
       {({ isActive }) => (
         <>
           <Icon className={cx('h-5 w-5 shrink-0', isActive && 'text-brand')} />
-          <span className="truncate">{item.label}</span>
+          <span className="truncate">{t(item.labelKey)}</span>
         </>
       )}
     </NavLink>
@@ -330,54 +357,61 @@ function CompanyMark({
  * three of them.
  */
 function ApplicationBanner({ seller }: { seller: SellerIdentity }): React.JSX.Element | null {
+  const { t } = useI18n();
+
   if (seller.status === 'APPROVED') return null;
 
-  const content: { tone: string; title: string; body: string; cta?: string } =
+  const content: {
+    tone: string;
+    titleKey: TranslationKey;
+    bodyKey: TranslationKey;
+    ctaKey?: TranslationKey;
+  } =
     seller.status === 'DRAFT'
       ? {
           tone: 'border-brand/30 bg-brand-soft text-ink',
-          title: 'Your seller application is not finished',
-          body: 'Complete the remaining steps to start listing products.',
-          cta: 'Continue setup',
+          titleKey: 'seller.banner.draftTitle',
+          bodyKey: 'seller.banner.draftBody',
+          ctaKey: 'seller.banner.continueSetup',
         }
       : seller.status === 'ACTION_REQUIRED'
         ? {
             tone: 'border-warning/30 bg-warning-soft text-ink',
-            title: 'Your application needs some changes',
-            body: 'We have written to you with what needs correcting. Make the changes and send it back.',
-            cta: 'Open your application',
+            titleKey: 'seller.banner.changesTitle',
+            bodyKey: 'seller.banner.changesBody',
+            ctaKey: 'seller.banner.openApplication',
           }
         : seller.status === 'SUSPENDED'
           ? {
               tone: 'border-danger/30 bg-danger-soft text-ink',
-              title: 'Selling is paused on this account',
-              body: 'Existing orders still need fulfilling. New listings and new orders are stopped until this is resolved.',
+              titleKey: 'seller.banner.pausedTitle',
+              bodyKey: 'seller.banner.pausedBody',
             }
           : seller.status === 'REJECTED'
             ? {
                 tone: 'border-danger/30 bg-danger-soft text-ink',
-                title: 'This application was not approved',
-                body: 'Contact the marketplace if you would like to discuss it.',
+                titleKey: 'seller.banner.rejectedTitle',
+                bodyKey: 'seller.banner.rejectedBody',
               }
             : {
                 tone: 'border-brand/30 bg-brand-soft text-ink',
-                title: 'Your application is with the marketplace',
-                body: 'We will let you know as soon as it has been reviewed. You can look at your answers but not change them while it is being reviewed.',
+                titleKey: 'seller.banner.reviewTitle',
+                bodyKey: 'seller.banner.reviewBody',
               };
 
   return (
     <div className={cx('rounded-lg border px-4 py-3', content.tone)} role="status">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-sm font-semibold">{content.title}</p>
-          <p className="mt-0.5 text-sm text-ink-muted">{content.body}</p>
+          <p className="text-sm font-semibold">{t(content.titleKey)}</p>
+          <p className="mt-0.5 text-sm text-ink-muted">{t(content.bodyKey)}</p>
         </div>
-        {content.cta !== undefined && (
+        {content.ctaKey !== undefined && (
           <NavLink
             to="/seller/onboarding"
             className="shrink-0 rounded-md bg-brand-fill px-3.5 py-2 text-sm font-medium text-white hover:bg-brand-fill-hover"
           >
-            {content.cta}
+            {t(content.ctaKey)}
           </NavLink>
         )}
       </div>
@@ -446,7 +480,7 @@ function SellerLockGate({
       await client.invalidateQueries({ queryKey: ['seller', 'identity'] });
     },
     onError: (error: unknown) => {
-      setProblem(errorMessage(t, error, 'That could not be checked just now.'));
+      setProblem(errorMessage(t, error, t('seller.lock.checkFailed')));
     },
   });
 
@@ -470,13 +504,11 @@ function SellerLockGate({
 
         <div className="rounded-xl border border-border bg-surface p-6 shadow-card">
           <h1 className="text-title-sm text-ink">
-            {isChoosing ? 'Choose your Seller Hub password' : 'Enter your Seller Hub password'}
+            {isChoosing ? t('seller.lock.chooseTitle') : t('seller.lock.enterTitle')}
           </h1>
 
           <p className="mt-2 text-sm leading-relaxed text-ink-muted">
-            {isChoosing
-              ? 'Selling uses the same account you buy with, and its own password. Choose one you do not use for the shop — that is what keeps a browser left open on the shop from being a browser left open on your catalogue, your stock and your payouts.'
-              : 'You are signed in to the shop. The Hub asks for its own password before it opens.'}
+            {isChoosing ? t('seller.lock.chooseBody') : t('seller.lock.enterBody')}
           </p>
 
           <form
@@ -487,9 +519,9 @@ function SellerLockGate({
             }}
           >
             <Field
-              label={isChoosing ? 'New Seller Hub password' : 'Seller Hub password'}
-              {...(isChoosing ? { hint: 'At least 12 characters.' } : {})}
-              {...(tooShort ? { error: 'At least 12 characters.' } : {})}
+              label={isChoosing ? t('seller.lock.newPassword') : t('seller.lock.password')}
+              {...(isChoosing ? { hint: t('seller.lock.minLength') } : {})}
+              {...(tooShort ? { error: t('seller.lock.minLength') } : {})}
             >
               {({ inputId, describedBy }) => (
                 <Input
@@ -515,8 +547,8 @@ function SellerLockGate({
 
             {isChoosing && (
               <Field
-                label="Type it again"
-                {...(mismatch ? { error: 'These two do not match.' } : {})}
+                label={t('seller.lock.typeAgain')}
+                {...(mismatch ? { error: t('seller.lock.mismatch') } : {})}
               >
                 {({ inputId, describedBy }) => (
                   <Input
@@ -547,14 +579,14 @@ function SellerLockGate({
               isLoading={submit.isPending}
               disabled={!canSubmit}
             >
-              {isChoosing ? 'Save it and open the Hub' : 'Open the Hub'}
+              {isChoosing ? t('seller.lock.saveAndOpen') : t('seller.lock.open')}
             </Button>
           </form>
         </div>
 
         <p className="mt-4 text-center text-xs text-ink-muted">
           <Link to="/" className="text-brand hover:underline">
-            Back to the shop
+            {t('seller.nav.backToShop')}
           </Link>
         </p>
       </div>
@@ -656,7 +688,7 @@ export function SellerLayout(): React.JSX.Element {
         </div>
 
         <nav
-          aria-label="Seller Hub"
+          aria-label={t('seller.nav.sellerHub')}
           className="flex items-stretch justify-around gap-1 px-2 py-2 lg:flex-col lg:justify-start lg:gap-0.5 lg:px-3 lg:py-0"
         >
           {NAV_ITEMS.map((item) => (
@@ -674,7 +706,7 @@ export function SellerLayout(): React.JSX.Element {
             className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink"
           >
             <ShopIcon className="h-5 w-5 shrink-0" />
-            <span>Back to the shop</span>
+            <span>{t('seller.nav.backToShop')}</span>
           </NavLink>
 
           {/* Shuts the Hub without signing out of the shop. The two share one
@@ -689,7 +721,7 @@ export function SellerLayout(): React.JSX.Element {
             }}
           >
             <LockIcon className="h-5 w-5 shrink-0" />
-            <span>Close the Hub</span>
+            <span>{t('seller.nav.closeHub')}</span>
           </button>
         </div>
       </aside>
@@ -722,7 +754,7 @@ export function SellerLayout(): React.JSX.Element {
                 className="inline-flex h-9 items-center gap-2 rounded-md border border-border-strong bg-surface px-3 text-sm font-medium text-ink hover:bg-surface-hover lg:hidden"
               >
                 <ShopIcon className="h-4 w-4" />
-                Shop
+                {t('seller.nav.shop')}
               </NavLink>
               <NavLink
                 to="/seller/listings/new"
@@ -734,7 +766,7 @@ export function SellerLayout(): React.JSX.Element {
                 )}
                 aria-disabled={!isTrading}
               >
-                Add listing
+                {t('seller.nav.addListing')}
               </NavLink>
             </div>
           </div>
@@ -763,15 +795,17 @@ export type SellerOutletContext = SellerIdentity;
  * out" must have one answer and one sentence.
  */
 export function ApprovalRequiredNotice({ seller }: { seller: SellerIdentity }): React.JSX.Element {
+  const { t } = useI18n();
+
   return (
     <div className="rounded-lg border border-border bg-surface px-6 py-12 text-center">
-      <p className="text-title-sm text-ink">This opens once you are approved</p>
+      <p className="text-title-sm text-ink">{t('seller.locked.title')}</p>
       <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-ink-muted">
         {seller.status === 'DRAFT'
-          ? 'Finish your seller application and we will review it. Most applications are decided within a few working days.'
+          ? t('seller.locked.draft')
           : seller.status === 'ACTION_REQUIRED'
-            ? 'Your application needs a few changes before we can approve it.'
-            : 'Your application is with the marketplace. We will email you as soon as it is decided.'}
+            ? t('seller.locked.changes')
+            : t('seller.locked.review')}
       </p>
       <div className="mt-6">
         <Button
@@ -780,7 +814,7 @@ export function ApprovalRequiredNotice({ seller }: { seller: SellerIdentity }): 
             window.location.assign('/seller/onboarding');
           }}
         >
-          Open your application
+          {t('seller.banner.openApplication')}
         </Button>
       </div>
     </div>

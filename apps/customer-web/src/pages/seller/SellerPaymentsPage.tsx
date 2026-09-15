@@ -16,6 +16,7 @@ import { useOutletContext } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/toast-context';
 import { useI18n } from '@/i18n/i18n-context';
+import type { TranslationKey } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
 import {
   Badge,
@@ -42,6 +43,8 @@ export function SellerPaymentsPage(): React.JSX.Element {
   const seller = useOutletContext<SellerOutletContext>();
 
   const settlements = useQuery({ queryKey: ['seller', 'settlements'], queryFn: fetchSettlements });
+  const { t } = useI18n();
+
   const payoutAccount = useQuery({
     queryKey: ['seller', 'payout-account'],
     queryFn: fetchPayoutAccount,
@@ -50,19 +53,19 @@ export function SellerPaymentsPage(): React.JSX.Element {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Payments"
-        description="Your statements, what the marketplace kept, and where the money goes."
+        title={t('seller.payments.title')}
+        description={t('seller.payments.intro')}
       />
 
       {/* ---- The payout account ------------------------------------------- */}
       <Card
-        title="Payout account"
+        title={t('seller.payments.payoutAccount')}
         actions={
           payoutAccount.data?.isProviderConfigured === true ? <RefreshPayoutButton /> : undefined
         }
       >
         <div className="px-6 py-5">
-          {payoutAccount.isPending && <LoadingState label="Checking your payout setup" />}
+          {payoutAccount.isPending && <LoadingState label={t('seller.payments.checkingPayout')} />}
 
           {payoutAccount.isError && (
             <ErrorState
@@ -83,20 +86,15 @@ export function SellerPaymentsPage(): React.JSX.Element {
               own money. Nothing is collected here and nothing is claimed.
             */
             <div className="space-y-3 rounded-lg border border-warning/30 bg-warning-soft px-4 py-4">
-              <Badge tone="warning">Not set up yet</Badge>
-              <p className="text-sm leading-relaxed text-ink">
-                The marketplace has not finished setting up payouts, so nothing can be sent yet.
-                Everything you earn is still being recorded in full and will be paid once this is
-                in place.
-              </p>
+              <Badge tone="warning">{t('seller.payments.notSetUp')}</Badge>
+              <p className="text-sm leading-relaxed text-ink">{t('seller.payments.noProvider')}</p>
               {payoutAccount.data.missingConfigurationKey !== null && (
                 <p className="text-xxs leading-relaxed text-ink-muted">
-                  For whoever runs this marketplace: set{' '}
+                  {t('seller.payments.operatorNoteBefore')}{' '}
                   <code className="rounded bg-surface px-1 py-0.5 font-mono">
                     {payoutAccount.data.missingConfigurationKey}
                   </code>{' '}
-                  and the provider return URLs. We deliberately do not collect bank details here —
-                  they belong with the payment provider, not in this database.
+                  {t('seller.payments.operatorNoteAfter')}
                 </p>
               )}
             </div>
@@ -106,27 +104,29 @@ export function SellerPaymentsPage(): React.JSX.Element {
             <dl className="grid gap-4 sm:grid-cols-3">
               <div>
                 <dt className="text-xxs font-medium uppercase tracking-wider text-ink-subtle">
-                  Status
+                  {t('seller.payments.status')}
                 </dt>
                 <dd className="mt-1">
                   <Badge tone={payoutAccount.data.payoutsEnabled ? 'success' : 'warning'}>
-                    {payoutAccount.data.payoutsEnabled ? 'Payouts enabled' : 'Not yet enabled'}
+                    {payoutAccount.data.payoutsEnabled
+                      ? t('seller.payments.payoutsEnabled')
+                      : t('seller.payments.notYetEnabled')}
                   </Badge>
                 </dd>
               </div>
               <div>
                 <dt className="text-xxs font-medium uppercase tracking-wider text-ink-subtle">
-                  Account
+                  {t('seller.payments.account')}
                 </dt>
                 <dd className="mt-1 text-sm text-ink">
-                  {payoutAccount.data.bankName ?? 'Not connected'}
+                  {payoutAccount.data.bankName ?? t('seller.payments.notConnected')}
                   {payoutAccount.data.accountLast4 !== null &&
                     ` ···· ${payoutAccount.data.accountLast4}`}
                 </dd>
               </div>
               <div>
                 <dt className="text-xxs font-medium uppercase tracking-wider text-ink-subtle">
-                  Currency
+                  {t('seller.payments.currency')}
                 </dt>
                 <dd className="mt-1 text-sm text-ink">
                   {payoutAccount.data.payoutCurrency ?? '—'}
@@ -136,10 +136,11 @@ export function SellerPaymentsPage(): React.JSX.Element {
               {payoutAccount.data.payoutsHeldByOperator && (
                 <div className="sm:col-span-3">
                   <div className="rounded-lg border border-danger/30 bg-danger-soft px-4 py-3">
-                    <p className="text-sm font-medium text-ink">Payouts are on hold</p>
+                    <p className="text-sm font-medium text-ink">
+                      {t('seller.payments.payoutsOnHold')}
+                    </p>
                     <p className="mt-0.5 text-sm text-ink-muted">
-                      {payoutAccount.data.payoutHoldReason ??
-                        'The marketplace has paused payouts to this account.'}
+                      {payoutAccount.data.payoutHoldReason ?? t('seller.payments.holdDefault')}
                     </p>
                   </div>
                 </div>
@@ -151,10 +152,10 @@ export function SellerPaymentsPage(): React.JSX.Element {
 
       {/* ---- Statements ---------------------------------------------------- */}
       <Card
-        title="Statements"
-        description="One per settlement period, with every line that made it up."
+        title={t('seller.payments.statements')}
+        description={t('seller.payments.statementsIntro')}
       >
-        {settlements.isPending && <LoadingState label="Loading your statements" />}
+        {settlements.isPending && <LoadingState label={t('seller.payments.loadingStatements')} />}
 
         {settlements.isError && (
           <ErrorState
@@ -167,11 +168,11 @@ export function SellerPaymentsPage(): React.JSX.Element {
 
         {settlements.data !== undefined && settlements.data.settlements.length === 0 && (
           <EmptyState
-            title="No statements yet"
+            title={t('seller.payments.noStatementsTitle')}
             description={
               seller.isTrading
-                ? 'Your first statement appears once you have delivered an order.'
-                : 'Statements start once your account is approved and you have sold something.'
+                ? t('seller.payments.noStatementsTrading')
+                : t('seller.payments.noStatementsPending')
             }
           />
         )}
@@ -213,12 +214,12 @@ function RefreshPayoutButton(): React.JSX.Element {
       await client.invalidateQueries({ queryKey: ['seller', 'dashboard'] });
       toast.success(
         account.payoutsEnabled
-          ? 'Your payout account is ready.'
-          : 'Checked. Nothing has changed on the provider yet.',
+          ? t('seller.payments.payoutReady')
+          : t('seller.payments.payoutUnchanged'),
       );
     },
     onError: (error: unknown) => {
-      toast.error(errorMessage(t, error, 'We could not check with the provider.'));
+      toast.error(errorMessage(t, error, t('seller.payments.checkFailed')));
     },
   });
 
@@ -229,7 +230,7 @@ function RefreshPayoutButton(): React.JSX.Element {
         mutation.mutate();
       }}
     >
-      Check again
+      {t('seller.payments.checkAgain')}
     </Button>
   );
 }
@@ -246,13 +247,14 @@ function RefreshPayoutButton(): React.JSX.Element {
  * a support address.
  */
 function PayoutsCard({ isTrading }: { isTrading: boolean }): React.JSX.Element {
+  const { t } = useI18n();
   const payouts = useQuery({ queryKey: ['seller', 'payouts'], queryFn: fetchPayouts });
 
   const rows = payouts.data?.payouts ?? [];
 
   return (
-    <Card title="Payouts" description="Money on its way to your bank, and what happened to it.">
-      {payouts.isPending && <LoadingState label="Loading your payouts" />}
+    <Card title={t('seller.payments.payouts')} description={t('seller.payments.payoutsIntro')}>
+      {payouts.isPending && <LoadingState label={t('seller.payments.loadingPayouts')} />}
 
       {payouts.isError && (
         <ErrorState
@@ -265,11 +267,11 @@ function PayoutsCard({ isTrading }: { isTrading: boolean }): React.JSX.Element {
 
       {payouts.isSuccess && rows.length === 0 && (
         <EmptyState
-          title="No payouts yet"
+          title={t('seller.payments.noPayoutsTitle')}
           description={
             isTrading
-              ? 'A payout is created once a statement is settled and your payout account is ready.'
-              : 'Payouts start once your account is approved and you have been paid for something.'
+              ? t('seller.payments.noPayoutsTrading')
+              : t('seller.payments.noPayoutsPending')
           }
         />
       )}
@@ -283,10 +285,14 @@ function PayoutsCard({ isTrading }: { isTrading: boolean }): React.JSX.Element {
                   <p className="text-sm font-medium text-ink">{payout.reference}</p>
                   <p className="mt-0.5 text-xxs text-ink-subtle">
                     {payout.paidAt !== null
-                      ? `Paid ${new Date(payout.paidAt).toLocaleDateString()}`
+                      ? t('seller.payments.paidOn', {
+                          date: new Date(payout.paidAt).toLocaleDateString(),
+                        })
                       : payout.scheduledFor !== null
-                        ? `Due ${new Date(payout.scheduledFor).toLocaleDateString()}`
-                        : 'Not scheduled yet'}
+                        ? t('seller.payments.dueOn', {
+                            date: new Date(payout.scheduledFor).toLocaleDateString(),
+                          })
+                        : t('seller.payments.notScheduled')}
                   </p>
                 </div>
 
@@ -294,7 +300,7 @@ function PayoutsCard({ isTrading }: { isTrading: boolean }): React.JSX.Element {
                   <span className="tabular text-sm font-semibold text-ink">
                     {formatMinor(payout.amountMinor, payout.currency)}
                   </span>
-                  <Badge tone={payoutTone(payout.status)}>{payoutLabel(payout.status)}</Badge>
+                  <Badge tone={payoutTone(payout.status)}>{t(payoutLabelKey(payout.status))}</Badge>
                 </div>
               </div>
 
@@ -314,20 +320,28 @@ function PayoutsCard({ isTrading }: { isTrading: boolean }): React.JSX.Element {
   );
 }
 
-function payoutLabel(status: string): string {
+/**
+ * What a payout's state is called.
+ *
+ * A status this build has never heard of falls back to `unknown` rather than to
+ * the raw enum: a seller reading about their own money should not be shown
+ * `IN_TRANSIT_TO_BANK`, and the amount and the date beside it still say what
+ * matters.
+ */
+function payoutLabelKey(status: string): TranslationKey {
   switch (status) {
     case 'PENDING':
-      return 'Being prepared';
+      return 'seller.payments.payoutStatus.PENDING';
     case 'IN_TRANSIT':
-      return 'On its way';
+      return 'seller.payments.payoutStatus.IN_TRANSIT';
     case 'PAID':
-      return 'Paid';
+      return 'seller.payments.payoutStatus.PAID';
     case 'FAILED':
-      return 'Failed';
+      return 'seller.payments.payoutStatus.FAILED';
     case 'CANCELLED':
-      return 'Cancelled';
+      return 'seller.payments.payoutStatus.CANCELLED';
     default:
-      return status.toLowerCase().replace(/_/g, ' ');
+      return 'seller.payments.payoutStatus.unknown';
   }
 }
 
@@ -355,12 +369,34 @@ function payoutTone(status: string): 'neutral' | 'brand' | 'success' | 'warning'
  * without asking anybody.
  */
 function SettlementPanel({ settlement }: { settlement: SettlementRow }): React.JSX.Element {
-  const rows: { label: string; amountMinor: string; isDeduction: boolean }[] = [
-    { label: 'Sales', amountMinor: settlement.grossMinor, isDeduction: false },
-    { label: 'Marketplace commission', amountMinor: settlement.commissionMinor, isDeduction: true },
-    { label: 'Payment processing', amountMinor: settlement.processingFeeMinor, isDeduction: true },
-    { label: 'Refunds', amountMinor: settlement.refundsMinor, isDeduction: true },
-    { label: 'Adjustments', amountMinor: settlement.adjustmentsMinor, isDeduction: false },
+  const { t } = useI18n();
+
+  const rows: { labelKey: TranslationKey; amountMinor: string; isDeduction: boolean }[] = [
+    {
+      labelKey: 'seller.payments.line.sales',
+      amountMinor: settlement.grossMinor,
+      isDeduction: false,
+    },
+    {
+      labelKey: 'seller.payments.line.commission',
+      amountMinor: settlement.commissionMinor,
+      isDeduction: true,
+    },
+    {
+      labelKey: 'seller.payments.line.processing',
+      amountMinor: settlement.processingFeeMinor,
+      isDeduction: true,
+    },
+    {
+      labelKey: 'seller.payments.line.refunds',
+      amountMinor: settlement.refundsMinor,
+      isDeduction: true,
+    },
+    {
+      labelKey: 'seller.payments.line.adjustments',
+      amountMinor: settlement.adjustmentsMinor,
+      isDeduction: false,
+    },
   ];
 
   return (
@@ -369,11 +405,15 @@ function SettlementPanel({ settlement }: { settlement: SettlementRow }): React.J
         <div className="min-w-0">
           <p className="text-sm font-semibold text-ink">{settlement.reference}</p>
           <p className="mt-0.5 text-xxs text-ink-subtle">
-            {new Date(settlement.periodStart).toLocaleDateString()} to{' '}
-            {new Date(settlement.periodEnd).toLocaleDateString()}
+            {t('seller.payments.period', {
+              from: new Date(settlement.periodStart).toLocaleDateString(),
+              to: new Date(settlement.periodEnd).toLocaleDateString(),
+            })}
           </p>
         </div>
-        <Badge tone={settlementTone(settlement.status)}>{settlementLabel(settlement.status)}</Badge>
+        <Badge tone={settlementTone(settlement.status)}>
+          {t(settlementLabelKey(settlement.status))}
+        </Badge>
       </div>
 
       {settlement.holdReason !== null && (
@@ -389,8 +429,8 @@ function SettlementPanel({ settlement }: { settlement: SettlementRow }): React.J
           if (BigInt(row.amountMinor) === 0n) return null;
 
           return (
-            <div key={row.label} className="flex items-baseline justify-between gap-4">
-              <dt className="text-sm text-ink-muted">{row.label}</dt>
+            <div key={row.labelKey} className="flex items-baseline justify-between gap-4">
+              <dt className="text-sm text-ink-muted">{t(row.labelKey)}</dt>
               <dd
                 className={cx(
                   'tabular text-sm',
@@ -405,7 +445,7 @@ function SettlementPanel({ settlement }: { settlement: SettlementRow }): React.J
         })}
 
         <div className="flex items-baseline justify-between gap-4 border-t border-border-subtle pt-2">
-          <dt className="text-sm font-semibold text-ink">Payable to you</dt>
+          <dt className="text-sm font-semibold text-ink">{t('seller.payments.payableToYou')}</dt>
           <dd className="tabular text-sm font-semibold text-ink">
             {formatMinor(settlement.netPayableMinor, settlement.currency)}
           </dd>
@@ -429,6 +469,7 @@ function SettlementPanel({ settlement }: { settlement: SettlementRow }): React.J
  * £412.90" is not disputable; "commission on order SO-1043, £18.20" is.
  */
 function SettlementLines({ settlement }: { settlement: SettlementRow }): React.JSX.Element {
+  const { t } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
 
   const lines = useQuery({
@@ -449,12 +490,12 @@ function SettlementLines({ settlement }: { settlement: SettlementRow }): React.J
         }}
         className="text-xs font-medium text-brand hover:underline"
       >
-        {isOpen ? 'Hide the lines' : 'Show every line'}
+        {isOpen ? t('seller.payments.hideLines') : t('seller.payments.showLines')}
       </button>
 
       {isOpen && (
         <div className="mt-2">
-          {lines.isPending && <LoadingState label="Loading the lines" />}
+          {lines.isPending && <LoadingState label={t('seller.payments.loadingLines')} />}
 
           {lines.isError && (
             <ErrorState
@@ -467,7 +508,7 @@ function SettlementLines({ settlement }: { settlement: SettlementRow }): React.J
 
           {lines.isSuccess && rows.length === 0 && (
             <p className="text-xs text-ink-subtle">
-              No individual lines were recorded for this period.
+              {t('seller.payments.noLines')}
             </p>
           )}
 
@@ -502,18 +543,18 @@ function SettlementLines({ settlement }: { settlement: SettlementRow }): React.J
   );
 }
 
-function settlementLabel(status: string): string {
+function settlementLabelKey(status: string): TranslationKey {
   switch (status) {
     case 'OPEN':
-      return 'Still open';
+      return 'seller.payments.settlementStatus.OPEN';
     case 'PENDING_PAYOUT':
-      return 'Awaiting payout';
+      return 'seller.payments.settlementStatus.PENDING_PAYOUT';
     case 'PAID':
-      return 'Paid';
+      return 'seller.payments.settlementStatus.PAID';
     case 'ON_HOLD':
-      return 'On hold';
+      return 'seller.payments.settlementStatus.ON_HOLD';
     default:
-      return status;
+      return 'seller.payments.settlementStatus.unknown';
   }
 }
 
