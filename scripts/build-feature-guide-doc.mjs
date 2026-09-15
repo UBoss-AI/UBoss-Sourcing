@@ -901,7 +901,9 @@ bullets([
   'The account sidebar becomes an accessible disclosure on smaller screens rather than disappearing.',
   'Controls, status indicators and forms use labelled accessible patterns.',
   'The system includes light/dark theme support and contrast checking.',
-  'The storefront and admin panel are translated into eight languages.',
+  'The shop, the admin panel and the carrier portal are each translated into eight languages, and every page of all three changes when the reader picks a language.',
+  'The language picker is on every page, including the sign-in and password pages, so somebody who cannot read the interface does not have to navigate to a settings page first.',
+  'Each of the three keeps its own language choice, so choosing Greek in one does not change the other two for the same person.',
 ]);
 h2('14.3 Data accuracy');
 bullets([

@@ -8158,6 +8158,33 @@ English (default and fallback), Dutch, French, German, Greek, Italian, Polish
 and Spanish. Built on **i18next / react-i18next**, one instance per frontend,
 with translations in `src/i18n/locales/*.json`.
 
+**All three frontends, in all eight.** Storefront, admin console and carrier
+portal each carry a complete catalogue per language, so picking a language
+changes every page of that app — not the chrome with English screens behind it.
+The carrier portal was the last to get there: it shipped with the seven
+non-English files present but empty, which looks like a working app right up
+until a Polish dispatcher switches to Polish and nothing moves. An empty
+catalogue is not a neutral placeholder; it is a language picker that lies.
+
+Three things are scoped per app rather than shared, and all three are
+deliberate:
+
+- **The catalogue.** The apps share an engine, not a vocabulary. A "shipment"
+  is a consignment the carrier is holding in the portal, a dispatch note in the
+  console and a parcel on its way in the shop — identical in English, and three
+  different words once translated.
+- **The localStorage key** — `uboss.language`, `uboss.admin.language`,
+  `uboss.logistics.language`. A cookie and a localStorage entry are identified
+  by origin, and all three apps share one whenever they sit on the same
+  hostname, which is every local setup. One shared key would mean switching the
+  portal to Greek also switched the console and the shop.
+- **Whether the account has a say.** The storefront and console reconcile
+  against the signed-in account's `preferredLanguage`, because a member of
+  staff signs in from several machines. The portal does not: a dispatcher signs
+  in from the depot desk and a driver from the handset in their pocket, so the
+  browser's own memory is the right scope, and an extra request per sign-in to
+  store what localStorage already knows would buy nothing.
+
 ## Where a key goes
 
 The catalogue is one flat file per language, and the key prefix says who owns

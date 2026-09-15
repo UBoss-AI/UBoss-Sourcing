@@ -581,6 +581,16 @@ buyer on a Polish storefront before they have touched anything, and
 to Dutch and French without either needing a locale of its own. A choice made
 in the picker is written to localStorage and outranks the browser permanently.
 
+The **logistics portal is the exception, deliberately**: it has no account step,
+so the order there is the browser choice, then `navigator.languages`, then
+English. A member of staff signs in from several machines and expects the
+console to follow them; a dispatcher signs in from the one desk in the depot
+and a driver from the handset in their pocket, and the browser's own memory is
+the right scope for both. Each app also keeps its own localStorage key
+(`uboss.language`, `uboss.admin.language`, `uboss.logistics.language`), so
+switching one to Greek on a host where all three are served does not switch the
+other two.
+
 The picker sits on every sign-in, activation and password screen in all three
 apps, and in the header once inside. Putting it only behind a settings page
 would hide it from the one person who needs it most: somebody who cannot read

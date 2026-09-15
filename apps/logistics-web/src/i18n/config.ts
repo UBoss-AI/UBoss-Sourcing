@@ -27,9 +27,10 @@
  * is holding here, a dispatch note in the console and a parcel on its way in
  * the shop, and words identical in English diverge once translated.
  *
- * Only English is written. The other seven catalogues ship empty and every key
- * falls back to it, which is a working state rather than a broken one - see
- * SETUP.md for the script that fills them.
+ * English is the source catalogue and the only one written by hand. The other
+ * seven are complete translations of it, and every key a translation has not
+ * covered still falls back to English rather than rendering raw - see SETUP.md
+ * for the script that fills a newly added key in the other seven.
  */
 import i18next, { type i18n as I18n } from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
