@@ -19,7 +19,9 @@ import {
   ErrorState,
   LoadingState,
   PageHeader,
-  ToolbarToggle,
+  Select,
+  Toolbar,
+  ToolbarField,
 } from '@/components/ui';
 import { DataTable, type Column } from '@/components/DataTable';
 import { useI18n } from '@/i18n/i18n-context';
@@ -39,7 +41,7 @@ export function CompaniesPage(): React.JSX.Element {
   const columns: Column<CompanyRow>[] = [
     {
       key: 'name',
-      header: t('companies.heading'),
+      header: t('companies.company'),
       render: (row) => (
         <Link
           // The company name is the filter. There is no company id in this
@@ -100,20 +102,30 @@ export function CompaniesPage(): React.JSX.Element {
 
   return (
     <>
-      <PageHeader
-        title={t('companies.heading')}
-        actions={
-          <ToolbarToggle
-            label={t('companies.sellers')}
-            checked={type === 'SELLER'}
-            onChange={(checked) => {
-              setType(checked ? 'SELLER' : 'RECEIVER');
-            }}
-          />
-        }
-      />
+      <PageHeader title={t('companies.heading')} />
 
       <Card>
+        {/*
+          Sellers or receivers, as a named choice on the list itself.
+          This was a lone checkbox chip in the page header, which is a
+          toolbar control standing on the page background: it read as an
+          empty box beside the title, and with it unticked nothing said the
+          table was showing receiving companies rather than sellers.
+        */}
+        <Toolbar>
+          <ToolbarField label={t('companies.showing')}>
+            <Select
+              value={type}
+              onChange={(event) => {
+                setType(event.target.value === 'SELLER' ? 'SELLER' : 'RECEIVER');
+              }}
+            >
+              <option value="RECEIVER">{t('companies.receivers')}</option>
+              <option value="SELLER">{t('companies.sellers')}</option>
+            </Select>
+          </ToolbarField>
+        </Toolbar>
+
         {companies.isLoading ? (
           <LoadingState />
         ) : companies.isError ? (

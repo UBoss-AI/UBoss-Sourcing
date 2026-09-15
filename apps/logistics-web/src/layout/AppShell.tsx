@@ -147,7 +147,7 @@ export function AppShell(): React.JSX.Element {
 
             <div className="flex items-center gap-1">
               <NotificationBell />
-              <LanguageSwitcher />
+              <LanguageSwitcher placement="header" />
               <ThemeToggle />
               <Button
                 variant="ghost"

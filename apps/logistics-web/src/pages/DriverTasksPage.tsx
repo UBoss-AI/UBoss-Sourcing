@@ -101,7 +101,7 @@ export function DriverTasksPage(): React.JSX.Element {
     <>
       <PageHeader title={t('tasks.heading')} description={t('tasks.today')} />
 
-      <Card className="mb-4">
+      <Card className="mb-4" bodyClassName="px-5 py-4">
         <p className="text-sm text-ink-muted">{t('tasks.shareLocationBody')}</p>
 
         <div className="mt-4 flex flex-wrap gap-2">
@@ -205,7 +205,7 @@ function TaskCard({ task }: { task: DriverTask }): React.JSX.Element {
         )}`;
 
   return (
-    <article className="rounded-xl border border-border bg-surface p-4 shadow-card">
+    <article className="rounded-lg border border-border bg-surface px-5 py-4 shadow-card">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="flex flex-wrap items-center gap-2 text-xs">

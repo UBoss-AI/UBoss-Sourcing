@@ -155,7 +155,7 @@ export function LogisticsShipmentDetailPage(): React.JSX.Element {
       />
 
       <div className="grid gap-5 lg:grid-cols-2">
-        <Card title={t('logistics.shipment.route')}>
+        <Card title={t('logistics.shipment.route')} bodyClassName="px-5 py-4">
           <DescriptionList
             items={[
               {
@@ -201,7 +201,7 @@ export function LogisticsShipmentDetailPage(): React.JSX.Element {
           />
         </Card>
 
-        <Card title={t('logistics.shipment.promise')}>
+        <Card title={t('logistics.shipment.promise')} bodyClassName="px-5 py-4">
           <DescriptionList
             items={[
               {
@@ -321,7 +321,7 @@ function CarrierConnection({
     Date.now() - new Date(shipment.lastCarrierSyncAt).getTime() > 24 * 60 * 60 * 1000;
 
   return (
-    <Card title={t('logistics.shipment.carrierFeed')}>
+    <Card title={t('logistics.shipment.carrierFeed')} bodyClassName="px-5 py-4">
       {isStale && (
         <Callout tone="warning" role="status" className="mb-3">
           {t('logistics.shipment.staleFeed', {
@@ -384,7 +384,7 @@ function Exceptions({ shipment }: { shipment: AdminShipmentDetail }): React.JSX.
     <Card title={t('logistics.shipment.exceptions')}>
       <ul className="divide-y divide-border-subtle">
         {shipment.exceptions.map((exception) => (
-          <li key={exception.id} className="py-3 first:pt-0 last:pb-0">
+          <li key={exception.id} className="px-5 py-3">
             <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-ink">
               {humanise(exception.type)}
               <Badge tone={severityTone(exception.severity)} dot>
@@ -424,7 +424,7 @@ function Assignments({ shipment }: { shipment: AdminShipmentDetail }): React.JSX
       ) : (
         <ul className="divide-y divide-border-subtle">
           {shipment.assignments.map((assignment) => (
-            <li key={assignment.id} className="py-3 first:pt-0 last:pb-0">
+            <li key={assignment.id} className="px-5 py-3">
               <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-ink">
                 {assignment.partner.displayName}
                 <Badge tone={assignmentTone(assignment.state)}>{humanise(assignment.state)}</Badge>
@@ -460,7 +460,7 @@ function Timeline({ events }: { events: ShipmentTimelineEvent[] }): React.JSX.El
   const { t } = useI18n();
 
   return (
-    <Card title={t('logistics.shipment.timeline')}>
+    <Card title={t('logistics.shipment.timeline')} bodyClassName="px-5 py-4">
       {events.length === 0 ? (
         <EmptyState
           title={t('logistics.shipment.noEventsTitle')}

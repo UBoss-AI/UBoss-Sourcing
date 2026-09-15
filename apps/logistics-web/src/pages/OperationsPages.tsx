@@ -22,6 +22,9 @@ import {
   PageHeader,
   Select,
   Textarea,
+  Toolbar,
+  ToolbarField,
+  ToolbarToggle,
 } from '@/components/ui';
 import { useToast } from '@/components/toast-context';
 import { useI18n } from '@/i18n/i18n-context';
@@ -99,21 +102,18 @@ export function PickupsPage(): React.JSX.Element {
 
   return (
     <>
-      <PageHeader
-        title={t('pickups.heading')}
-        actions={
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setOpenOnly((value) => !value);
-            }}
-          >
-            {openOnly ? t('common.none') : t('exceptions.openOnly')}
-          </Button>
-        }
-      />
+      <PageHeader title={t('pickups.heading')} />
 
       <Card>
+        {/*
+          The filter belongs to the list, so it sits on the list. In the page
+          header it was a ghost button whose label read "None" while the
+          filter was on, which says nothing about what is being hidden.
+        */}
+        <Toolbar>
+          <ToolbarToggle label={t('common.openOnly')} checked={openOnly} onChange={setOpenOnly} />
+        </Toolbar>
+
         {pickups.isLoading ? (
           <LoadingState />
         ) : pickups.isError ? (
@@ -130,7 +130,7 @@ export function PickupsPage(): React.JSX.Element {
             {pickups.data?.pickups.map((entry) => (
               <li
                 key={entry.id}
-                className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div className="min-w-0">
                   <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-ink">
@@ -348,7 +348,7 @@ export function DispatchPage(): React.JSX.Element {
             {manifests.data?.manifests.map((entry) => (
               <li
                 key={entry.id}
-                className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
                   <p className="flex items-center gap-2 text-sm font-medium text-ink">
@@ -469,38 +469,35 @@ export function ExceptionsPage(): React.JSX.Element {
 
   return (
     <>
-      <PageHeader
-        title={t('exceptions.heading')}
-        actions={
-          <>
+      <PageHeader title={t('exceptions.heading')} />
+
+      <Card>
+        {/*
+          Both filters on the list they filter. In the page header the select
+          took the whole row - every control here is `w-full` by default - so
+          the toggle beside it wrapped onto a second line and sat under the
+          title as a stray button labelled "None".
+        */}
+        <Toolbar>
+          <ToolbarField label={t('exceptions.severity')}>
             <Select
               value={severity}
-              aria-label={t('exceptions.severity')}
               onChange={(event) => {
                 setSeverity(event.target.value as ExceptionSeverity | '');
               }}
             >
-              <option value="">{t('common.none')}</option>
+              <option value="">{t('exceptions.anySeverity')}</option>
               {(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'] as const).map((entry) => (
                 <option key={entry} value={entry}>
                   {t(`severity.${entry}` as never)}
                 </option>
               ))}
             </Select>
+          </ToolbarField>
 
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setOpenOnly((value) => !value);
-              }}
-            >
-              {openOnly ? t('common.none') : t('exceptions.openOnly')}
-            </Button>
-          </>
-        }
-      />
+          <ToolbarToggle label={t('common.openOnly')} checked={openOnly} onChange={setOpenOnly} />
+        </Toolbar>
 
-      <Card>
         {exceptions.isLoading ? (
           <LoadingState />
         ) : exceptions.isError ? (
@@ -515,7 +512,7 @@ export function ExceptionsPage(): React.JSX.Element {
         ) : (
           <ul className="divide-y divide-border">
             {exceptions.data?.rows.map((entry) => (
-              <li key={entry.id} className="py-4 first:pt-0 last:pb-0">
+              <li key={entry.id} className="px-5 py-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge tone={severityTone(entry.severity)} dot>
                     {t(`severity.${entry.severity}` as never)}

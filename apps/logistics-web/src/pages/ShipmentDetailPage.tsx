@@ -176,7 +176,7 @@ function AssignmentPrompt({ shipment }: { shipment: ShipmentDetail }): React.JSX
   if (!canAny(Permission.SHIPMENT_ACCEPT)) return null;
 
   return (
-    <Card className="mb-4" tone="default">
+    <Card className="mb-4" tone="default" bodyClassName="px-5 py-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-medium text-ink">{t('dashboard.acceptancePending')}</p>
@@ -272,7 +272,7 @@ function RouteCard({ shipment }: { shipment: ShipmentDetail }): React.JSX.Elemen
     position.ageSeconds > live.data.staleAfterSeconds;
 
   return (
-    <Card title={t('shipment.route')}>
+    <Card title={t('shipment.route')} bodyClassName="px-5 py-4">
       <DescriptionList
         columns={2}
         items={[
@@ -398,7 +398,7 @@ function TimelineCard({ shipmentId }: { shipmentId: string }): React.JSX.Element
   });
 
   return (
-    <Card title={t('shipment.timeline')}>
+    <Card title={t('shipment.timeline')} bodyClassName="px-5 py-4">
       {timeline.isLoading ? (
         <LoadingState />
       ) : timeline.isError ? (
@@ -505,7 +505,7 @@ function StatusCard({ shipment }: { shipment: ShipmentDetail }): React.JSX.Eleme
   if (shipment.isReadOnly || shipment.allowedTransitions.length === 0) return null;
 
   return (
-    <Card title={t('shipment.updateStatus')}>
+    <Card title={t('shipment.updateStatus')} bodyClassName="px-5 py-4">
       <Field label={t('shipment.newStatus')}>
         {({ inputId, describedBy }) => (
           <Select
@@ -593,7 +593,7 @@ function FactsCard({ shipment }: { shipment: ShipmentDetail }): React.JSX.Elemen
   if (shipment.handling.isDangerousGoods) handling.push(t('shipment.dangerousGoods'));
 
   return (
-    <Card title={t('shipment.handling')}>
+    <Card title={t('shipment.handling')} bodyClassName="px-5 py-4">
       <DescriptionList
         columns={1}
         items={[
@@ -696,7 +696,7 @@ function ContactsCard({ shipment }: { shipment: ShipmentDetail }): React.JSX.Ele
   }
 
   return (
-    <Card title={t('shipment.contacts')}>
+    <Card title={t('shipment.contacts')} bodyClassName="px-5 py-4">
       <DescriptionList columns={1} items={rows} />
     </Card>
   );
@@ -711,7 +711,7 @@ function PackagesCard({ shipment }: { shipment: ShipmentDetail }): React.JSX.Ele
         {shipment.packages.map((entry) => (
           <li
             key={entry.id}
-            className="flex flex-wrap items-center justify-between gap-2 py-2.5 first:pt-0 last:pb-0"
+            className="flex flex-wrap items-center justify-between gap-2 px-5 py-3"
           >
             <span className="font-mono text-xs text-ink">{entry.packageReference}</span>
 
@@ -749,7 +749,7 @@ function DocumentsCard({ shipmentId }: { shipmentId: string }): React.JSX.Elemen
   if (!canAny(Permission.DOCUMENT_READ)) return null;
 
   return (
-    <Card title={t('shipment.documents')}>
+    <Card title={t('shipment.documents')} bodyClassName="px-5 py-4">
       {(documents.data?.documents.length ?? 0) === 0 ? (
         <p className="text-sm text-ink-subtle">{t('common.nothingHereYet')}</p>
       ) : (

@@ -63,7 +63,7 @@ export function AuthLayout({
         </span>
 
         <span className="flex items-center gap-1">
-          <LanguageSwitcher />
+          <LanguageSwitcher placement="header" />
           <ThemeToggle />
         </span>
       </header>

@@ -134,7 +134,7 @@ export function LogisticsIntegrationsPage(): React.JSX.Element {
       <Card title={t('logistics.integrations.whatEachNeeds')}>
         <ul className="divide-y divide-border-subtle">
           {providers.map((provider) => (
-            <li key={provider.provider} className="py-3 first:pt-0 last:pb-0">
+            <li key={provider.provider} className="px-5 py-3">
               <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-ink">
                 {provider.provider}
                 {provider.worksOutOfTheBox && (
@@ -216,6 +216,7 @@ function IntegrationCard({
     <Card
       title={integration.name}
       description={t('logistics.integrations.provider', { provider: integration.provider })}
+      bodyClassName="px-5 py-4"
       actions={
         <div className="flex flex-wrap gap-2">
           {mayWrite && (

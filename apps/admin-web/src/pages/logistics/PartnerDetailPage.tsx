@@ -163,7 +163,7 @@ export function LogisticsPartnerDetailPage(): React.JSX.Element {
       />
 
       <div className="grid gap-5 lg:grid-cols-2">
-        <Card title={t('logistics.partner.registration')}>
+        <Card title={t('logistics.partner.registration')} bodyClassName="px-5 py-4">
           <DescriptionList
             items={[
               { label: t('logistics.partner.field.legalName'), value: partner.legalName },
@@ -204,7 +204,7 @@ export function LogisticsPartnerDetailPage(): React.JSX.Element {
           />
         </Card>
 
-        <Card title={t('logistics.partner.contactsAndLimits')}>
+        <Card title={t('logistics.partner.contactsAndLimits')} bodyClassName="px-5 py-4">
           <DescriptionList
             items={[
               { label: t('logistics.partner.field.contactEmail'), value: partner.contactEmail },
@@ -248,7 +248,7 @@ export function LogisticsPartnerDetailPage(): React.JSX.Element {
       </div>
 
       {partner.internalNotes !== null && partner.internalNotes.length > 0 && (
-        <Card title={t('logistics.partner.internalNotes')} tone="danger">
+        <Card title={t('logistics.partner.internalNotes')} tone="danger" bodyClassName="px-5 py-4">
           <p className="mb-2 text-xs font-medium uppercase tracking-wider text-danger">
             {t('logistics.partner.internalOnly')}
           </p>
@@ -444,7 +444,7 @@ function CapabilitiesCard({ partner }: { partner: PartnerDetail }): React.JSX.El
           {partner.capabilities.map((capability) => (
             <li
               key={capability.id}
-              className="flex flex-col gap-3 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-3 px-5 py-3 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="min-w-0">
                 <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-ink">
@@ -570,6 +570,7 @@ function RegionsCard({ partner }: { partner: PartnerDetail }): React.JSX.Element
     <Card
       title={t('logistics.partner.regions')}
       description={t('logistics.partner.regionsIntro')}
+      bodyClassName="px-5 py-4"
       actions={
         mayEdit ? (
           <Button
@@ -835,7 +836,7 @@ function SlaPoliciesCard({ partner }: { partner: PartnerDetail }): React.JSX.Ele
           {partner.slaPolicies.map((policy) => (
             <li
               key={policy.id}
-              className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-2 px-5 py-3 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="min-w-0">
                 <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-ink">
@@ -1146,10 +1147,7 @@ function MembersCard({ partner }: { partner: PartnerDetail }): React.JSX.Element
       ) : (
         <ul className="divide-y divide-border-subtle">
           {partner.users.map((member) => (
-            <li
-              key={member.id}
-              className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0"
-            >
+            <li key={member.id} className="flex flex-wrap items-center gap-3 px-5 py-3">
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-ink">{member.fullName}</p>
                 <p className="truncate text-xs text-ink-muted">{member.user.email}</p>

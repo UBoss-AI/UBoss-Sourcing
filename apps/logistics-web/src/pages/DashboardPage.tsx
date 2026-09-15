@@ -96,7 +96,12 @@ export function DashboardPage(): React.JSX.Element {
         />
       </section>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+      {/*
+        `items-start`, so each card is the height of what it holds. Stretched,
+        the short one beside the activity feed became a tall empty box with a
+        single line of text adrift in the middle of it.
+      */}
+      <div className="mt-6 grid items-start gap-4 lg:grid-cols-2">
         <UrgentExceptions data={data} />
         <DueToday data={data} />
         <UpcomingPickups data={data} />
@@ -111,6 +116,27 @@ export function DashboardPage(): React.JSX.Element {
     </>
   );
 }
+
+/*
+ * How many columns a band of tiles gets on a wide screen.
+ *
+ * One column per tile, so every band ends on the same right edge as the band
+ * above it. A shared six-column lattice looks tidier in the abstract and is
+ * worse on the screen: the bands hold three, five and six tiles, so two of
+ * them stopped mid-row and the page had three different ragged edges down its
+ * right-hand side, which reads as something having failed to load.
+ *
+ * Every class is written out because Tailwind reads these files as text - a
+ * computed `lg:grid-cols-${n}` compiles to no CSS at all.
+ */
+const BAND_COLUMNS: Record<number, string> = {
+  1: 'lg:grid-cols-1',
+  2: 'lg:grid-cols-2',
+  3: 'lg:grid-cols-3',
+  4: 'lg:grid-cols-4',
+  5: 'lg:grid-cols-5',
+  6: 'lg:grid-cols-6',
+};
 
 /**
  * The fourteen counters.
@@ -194,7 +220,9 @@ function TodayCounts({ counts }: { counts: Dashboard['counts'] }): React.JSX.Ele
             {group.label}
           </h2>
 
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <div
+            className={`grid grid-cols-2 gap-3 sm:grid-cols-3 ${BAND_COLUMNS[group.tiles.length]}`}
+          >
             {group.tiles.map((tile) => {
               const body = (
                 <>
@@ -243,11 +271,13 @@ function UrgentExceptions({ data }: { data: Dashboard }): React.JSX.Element {
   return (
     <Card title={t('dashboard.urgentExceptions')}>
       {data.urgentExceptions.length === 0 ? (
-        <p className="py-6 text-center text-sm text-ink-subtle">{t('exceptions.emptyTitle')}</p>
+        <p className="px-5 py-6 text-center text-sm text-ink-subtle">
+          {t('exceptions.emptyTitle')}
+        </p>
       ) : (
         <ul className="divide-y divide-border">
           {data.urgentExceptions.map((entry) => (
-            <li key={entry.id} className="py-3 first:pt-0 last:pb-0">
+            <li key={entry.id} className="px-5 py-3">
               <Link to={`/shipments/${entry.shipmentId}`} className="group block">
                 <div className="flex items-center gap-2">
                   <Badge tone={severityTone(entry.severity)} dot>
@@ -273,11 +303,13 @@ function DueToday({ data }: { data: Dashboard }): React.JSX.Element {
   return (
     <Card title={t('dashboard.deliveriesDueToday')}>
       {data.deliveriesDueToday.length === 0 ? (
-        <p className="py-6 text-center text-sm text-ink-subtle">{t('common.nothingHereYet')}</p>
+        <p className="px-5 py-6 text-center text-sm text-ink-subtle">
+          {t('common.nothingHereYet')}
+        </p>
       ) : (
         <ul className="divide-y divide-border">
           {data.deliveriesDueToday.map((entry) => (
-            <li key={entry.shipmentId} className="py-3 first:pt-0 last:pb-0">
+            <li key={entry.shipmentId} className="px-5 py-3">
               <Link
                 to={`/shipments/${entry.shipmentId}`}
                 className="flex items-baseline justify-between gap-3 text-sm hover:text-brand"
@@ -306,13 +338,13 @@ function UpcomingPickups({ data }: { data: Dashboard }): React.JSX.Element {
   return (
     <Card title={t('dashboard.upcomingPickups')}>
       {data.upcomingPickups.length === 0 ? (
-        <p className="py-6 text-center text-sm text-ink-subtle">{t('pickups.emptyTitle')}</p>
+        <p className="px-5 py-6 text-center text-sm text-ink-subtle">{t('pickups.emptyTitle')}</p>
       ) : (
         <ul className="divide-y divide-border">
           {data.upcomingPickups.map((entry) => (
             <li
               key={entry.id}
-              className="flex items-baseline justify-between gap-3 py-3 text-sm first:pt-0 last:pb-0"
+              className="flex items-baseline justify-between gap-3 px-5 py-3 text-sm"
             >
               <span className="min-w-0 truncate">
                 <span className="font-medium text-ink">{entry.warehouseName ?? '—'}</span>
@@ -337,11 +369,18 @@ function RecentActivity({ data }: { data: Dashboard }): React.JSX.Element {
   return (
     <Card title={t('dashboard.recentActivity')}>
       {data.recentActivity.length === 0 ? (
-        <p className="py-6 text-center text-sm text-ink-subtle">{t('common.nothingHereYet')}</p>
+        <p className="px-5 py-6 text-center text-sm text-ink-subtle">
+          {t('common.nothingHereYet')}
+        </p>
       ) : (
-        <ul className="divide-y divide-border">
+        /*
+          A feed, so it scrolls in its own box rather than setting the height
+          of the dashboard. Every entry for one busy shipment made this card
+          three times the height of the other three put together.
+        */
+        <ul className="max-h-80 divide-y divide-border overflow-y-auto">
           {data.recentActivity.map((entry, index) => (
-            <li key={`${entry.shipmentId}-${String(index)}`} className="py-3 first:pt-0 last:pb-0">
+            <li key={`${entry.shipmentId}-${String(index)}`} className="px-5 py-3">
               <Link to={`/shipments/${entry.shipmentId}`} className="group block">
                 <div className="flex items-center justify-between gap-3">
                   <Badge tone={statusTone(entry.status)} dot>
@@ -376,7 +415,7 @@ function IntegrationHealth({ data }: { data: Dashboard }): React.JSX.Element {
 
   if (integration.provider === null || integration.provider === 'MANUAL') {
     return (
-      <Card title={t('dashboard.integrationHealth')}>
+      <Card title={t('dashboard.integrationHealth')} bodyClassName="px-5 py-4">
         <p className="text-sm text-ink-muted">{t('dashboard.noCarrierApi')}</p>
       </Card>
     );
@@ -385,7 +424,7 @@ function IntegrationHealth({ data }: { data: Dashboard }): React.JSX.Element {
   const unhealthy = integration.consecutiveFailures > 0 || integration.deadLetteredEvents > 0;
 
   return (
-    <Card title={t('dashboard.integrationHealth')}>
+    <Card title={t('dashboard.integrationHealth')} bodyClassName="px-5 py-4">
       <div className="flex flex-wrap items-center gap-3">
         <Badge tone={unhealthy ? 'warning' : 'success'} dot>
           {integration.provider} · {integration.state ?? '—'}

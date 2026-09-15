@@ -658,7 +658,16 @@ export function Metric({
         className,
       )}
     >
-      <p className="text-xxs font-semibold uppercase tracking-[0.12em] text-ink-subtle">{label}</p>
+      {/*
+        Two lines' worth of height whether the caption needs them or not.
+        These sit four-up, and "Average time on the road" wraps where "On
+        time" does not — without the reservation the figure in one card lands
+        a line below the figure beside it, and a row of KPIs whose numbers do
+        not share a baseline reads as broken before it reads as anything.
+      */}
+      <p className="min-h-8 text-xxs font-semibold uppercase tracking-[0.12em] text-ink-subtle">
+        {label}
+      </p>
       <p
         className={cx(
           'mt-2 tabular text-ink',
@@ -980,6 +989,14 @@ export function Toolbar({
     <div
       className={cx(
         'flex flex-wrap items-end gap-x-3 gap-y-3 border-b border-border bg-surface-sunken px-4 py-3',
+        /*
+          Where the bar is the first thing in the card, its sunken ground has
+          to follow the card's corner. Square, it filled the rounded corner
+          and showed as a grey nub outside the border - obvious in the light
+          theme, where the ground and the card are different colours. 11px is
+          this project's `rounded-lg` (12px) less the card's 1px border.
+        */
+        'first:rounded-t-[11px]',
         className,
       )}
     >

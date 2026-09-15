@@ -26,6 +26,7 @@ import { useToast } from '@/components/toast-context';
 import {
   Badge,
   Button,
+  Card,
   Callout,
   Field,
   Input,
@@ -177,68 +178,70 @@ export function LogisticsPartnersPage(): React.JSX.Element {
         }
       />
 
-      <Toolbar>
-        <ToolbarField label={t('logistics.partners.filter.status')}>
-          <Select
-            value={status}
-            onChange={(event) => {
-              update('status', event.currentTarget.value);
-            }}
-          >
-            <option value="">{t('logistics.partners.filter.everyStatus')}</option>
-            {STATUSES.map((value) => (
-              <option key={value} value={value}>
-                {t(statusKey(value))}
-              </option>
-            ))}
-          </Select>
-        </ToolbarField>
+      <Card>
+        <Toolbar>
+          <ToolbarField label={t('logistics.partners.filter.status')} className="w-48">
+            <Select
+              value={status}
+              onChange={(event) => {
+                update('status', event.currentTarget.value);
+              }}
+            >
+              <option value="">{t('logistics.partners.filter.everyStatus')}</option>
+              {STATUSES.map((value) => (
+                <option key={value} value={value}>
+                  {t(statusKey(value))}
+                </option>
+              ))}
+            </Select>
+          </ToolbarField>
 
-        <ToolbarField label={t('common.search')} grow>
-          <Input
-            type="search"
-            defaultValue={search}
-            placeholder={t('logistics.partners.searchPlaceholder')}
-            onChange={(event) => {
-              const value = event.currentTarget.value;
-              window.clearTimeout(searchTimer);
-              searchTimer = window.setTimeout(() => {
-                update('search', value.trim());
-              }, 350);
-            }}
-          />
-        </ToolbarField>
+          <ToolbarField label={t('common.search')} grow>
+            <Input
+              type="search"
+              defaultValue={search}
+              placeholder={t('logistics.partners.searchPlaceholder')}
+              onChange={(event) => {
+                const value = event.currentTarget.value;
+                window.clearTimeout(searchTimer);
+                searchTimer = window.setTimeout(() => {
+                  update('search', value.trim());
+                }, 350);
+              }}
+            />
+          </ToolbarField>
 
-        <ToolbarActions>
-          <Button
-            variant="secondary"
-            onClick={() => {
-              void query.refetch();
-            }}
-          >
-            {t('common.refresh')}
-          </Button>
-        </ToolbarActions>
-      </Toolbar>
+          <ToolbarActions>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                void query.refetch();
+              }}
+            >
+              {t('common.refresh')}
+            </Button>
+          </ToolbarActions>
+        </Toolbar>
 
-      <DataTable
-        caption={t('logistics.partners.heading')}
-        columns={columns}
-        rows={query.data?.partners ?? []}
-        rowKey={(row) => row.id}
-        isLoading={query.isPending}
-        isRefreshing={query.isFetching && !query.isPending}
-        error={query.error}
-        onRetry={() => {
-          void query.refetch();
-        }}
-        minWidth="56rem"
-        emptyTitle={t('logistics.partners.emptyTitle')}
-        emptyDescription={t('logistics.partners.emptyBody')}
-        onRowClick={(row) => {
-          void navigate(`/logistics/partners/${row.id}`);
-        }}
-      />
+        <DataTable
+          caption={t('logistics.partners.heading')}
+          columns={columns}
+          rows={query.data?.partners ?? []}
+          rowKey={(row) => row.id}
+          isLoading={query.isPending}
+          isRefreshing={query.isFetching && !query.isPending}
+          error={query.error}
+          onRetry={() => {
+            void query.refetch();
+          }}
+          minWidth="56rem"
+          emptyTitle={t('logistics.partners.emptyTitle')}
+          emptyDescription={t('logistics.partners.emptyBody')}
+          onRowClick={(row) => {
+            void navigate(`/logistics/partners/${row.id}`);
+          }}
+        />
+      </Card>
 
       <CreatePartnerDialog
         isOpen={isCreating}

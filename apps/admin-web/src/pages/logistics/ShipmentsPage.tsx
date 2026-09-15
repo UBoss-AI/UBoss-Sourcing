@@ -21,6 +21,7 @@ import type { Column } from '@/components/DataTable';
 import {
   Badge,
   Button,
+  Card,
   Input,
   PageHeader,
   Select,
@@ -239,100 +240,102 @@ export function LogisticsShipmentsPage(): React.JSX.Element {
         description={t('logistics.shipments.intro')}
       />
 
-      <Toolbar>
-        <ToolbarField label={t('logistics.shipments.filter.status')}>
-          <Select
-            value={status}
-            onChange={(event) => {
-              update('status', event.currentTarget.value);
-            }}
-          >
-            <option value="">{t('logistics.shipments.filter.everyStatus')}</option>
-            {STATUS_GROUPS.map((group) => (
-              <optgroup key={group.labelKey} label={t(group.labelKey)}>
-                {group.statuses.map((value) => (
-                  <option key={value} value={value}>
-                    {t(statusLabelKey(value))}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </Select>
-        </ToolbarField>
+      <Card>
+        <Toolbar>
+          <ToolbarField label={t('logistics.shipments.filter.status')} className="w-52">
+            <Select
+              value={status}
+              onChange={(event) => {
+                update('status', event.currentTarget.value);
+              }}
+            >
+              <option value="">{t('logistics.shipments.filter.everyStatus')}</option>
+              {STATUS_GROUPS.map((group) => (
+                <optgroup key={group.labelKey} label={t(group.labelKey)}>
+                  {group.statuses.map((value) => (
+                    <option key={value} value={value}>
+                      {t(statusLabelKey(value))}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </Select>
+          </ToolbarField>
 
-        <ToolbarField label={t('logistics.shipments.filter.carrier')}>
-          <Select
-            value={partnerId}
-            onChange={(event) => {
-              update('partnerId', event.currentTarget.value);
-            }}
-          >
-            <option value="">{t('logistics.shipments.filter.everyCarrier')}</option>
-            {(partners.data?.partners ?? []).map((partner) => (
-              <option key={partner.id} value={partner.id}>
-                {partner.displayName}
-              </option>
-            ))}
-          </Select>
-        </ToolbarField>
+          <ToolbarField label={t('logistics.shipments.filter.carrier')} className="w-44">
+            <Select
+              value={partnerId}
+              onChange={(event) => {
+                update('partnerId', event.currentTarget.value);
+              }}
+            >
+              <option value="">{t('logistics.shipments.filter.everyCarrier')}</option>
+              {(partners.data?.partners ?? []).map((partner) => (
+                <option key={partner.id} value={partner.id}>
+                  {partner.displayName}
+                </option>
+              ))}
+            </Select>
+          </ToolbarField>
 
-        <ToolbarField label={t('common.search')} grow>
-          <Input
-            type="search"
-            defaultValue={search}
-            placeholder={t('logistics.shipments.searchPlaceholder')}
-            onChange={(event) => {
-              const value = event.currentTarget.value;
-              window.clearTimeout(searchTimer);
-              searchTimer = window.setTimeout(() => {
-                update('search', value.trim());
-              }, 350);
+          <ToolbarField label={t('common.search')} grow>
+            <Input
+              type="search"
+              defaultValue={search}
+              placeholder={t('logistics.shipments.searchPlaceholder')}
+              onChange={(event) => {
+                const value = event.currentTarget.value;
+                window.clearTimeout(searchTimer);
+                searchTimer = window.setTimeout(() => {
+                  update('search', value.trim());
+                }, 350);
+              }}
+            />
+          </ToolbarField>
+
+          <ToolbarToggle
+            label={t('logistics.shipments.filter.unassignedOnly')}
+            checked={unassignedOnly}
+            onChange={(checked) => {
+              update('unassignedOnly', checked ? '1' : '');
             }}
           />
-        </ToolbarField>
 
-        <ToolbarToggle
-          label={t('logistics.shipments.filter.unassignedOnly')}
-          checked={unassignedOnly}
-          onChange={(checked) => {
-            update('unassignedOnly', checked ? '1' : '');
+          <ToolbarActions>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                void query.refetch();
+              }}
+            >
+              {t('common.refresh')}
+            </Button>
+          </ToolbarActions>
+        </Toolbar>
+
+        <DataTable
+          caption={t('logistics.shipments.heading')}
+          columns={columns}
+          rows={query.data?.shipments ?? []}
+          rowKey={(row) => row.id}
+          isLoading={query.isPending}
+          isRefreshing={query.isFetching && !query.isPending}
+          error={query.error}
+          onRetry={() => {
+            void query.refetch();
+          }}
+          minWidth="64rem"
+          emptyTitle={t('logistics.shipments.emptyTitle')}
+          emptyDescription={
+            unassignedOnly
+              ? t('logistics.shipments.emptyUnassigned')
+              : t('logistics.shipments.emptyBody')
+          }
+          onRowClick={(row) => {
+            void navigate(`/logistics/shipments/${row.id}`);
           }}
         />
-
-        <ToolbarActions>
-          <Button
-            variant="secondary"
-            onClick={() => {
-              void query.refetch();
-            }}
-          >
-            {t('common.refresh')}
-          </Button>
-        </ToolbarActions>
-      </Toolbar>
-
-      <DataTable
-        caption={t('logistics.shipments.heading')}
-        columns={columns}
-        rows={query.data?.shipments ?? []}
-        rowKey={(row) => row.id}
-        isLoading={query.isPending}
-        isRefreshing={query.isFetching && !query.isPending}
-        error={query.error}
-        onRetry={() => {
-          void query.refetch();
-        }}
-        minWidth="64rem"
-        emptyTitle={t('logistics.shipments.emptyTitle')}
-        emptyDescription={
-          unassignedOnly
-            ? t('logistics.shipments.emptyUnassigned')
-            : t('logistics.shipments.emptyBody')
-        }
-        onRowClick={(row) => {
-          void navigate(`/logistics/shipments/${row.id}`);
-        }}
-      />
+      </Card>
 
       {query.data !== undefined && query.data.total > PAGE_SIZE && (
         <Pager

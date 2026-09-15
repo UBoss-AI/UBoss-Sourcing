@@ -16,6 +16,7 @@ import type { Column } from '@/components/DataTable';
 import {
   Badge,
   Button,
+  Card,
   PageHeader,
   Select,
   Toolbar,
@@ -148,65 +149,67 @@ export function LogisticsExceptionsPage(): React.JSX.Element {
         description={t('logistics.exceptions.intro')}
       />
 
-      <Toolbar>
-        <ToolbarField label={t('logistics.exceptions.filter.severity')}>
-          <Select
-            value={severity}
-            onChange={(event) => {
-              update('severity', event.currentTarget.value);
-            }}
-          >
-            <option value="">{t('logistics.exceptions.filter.everySeverity')}</option>
-            {SEVERITIES.map((value) => (
-              <option key={value} value={value}>
-                {t(severityKey(value))}
-              </option>
-            ))}
-          </Select>
-        </ToolbarField>
+      <Card>
+        <Toolbar>
+          <ToolbarField label={t('logistics.exceptions.filter.severity')} className="w-48">
+            <Select
+              value={severity}
+              onChange={(event) => {
+                update('severity', event.currentTarget.value);
+              }}
+            >
+              <option value="">{t('logistics.exceptions.filter.everySeverity')}</option>
+              {SEVERITIES.map((value) => (
+                <option key={value} value={value}>
+                  {t(severityKey(value))}
+                </option>
+              ))}
+            </Select>
+          </ToolbarField>
 
-        <ToolbarToggle
-          label={t('logistics.exceptions.filter.includeResolved')}
-          checked={includeResolved}
-          onChange={(checked) => {
-            update('includeResolved', checked ? '1' : '');
+          <ToolbarToggle
+            label={t('logistics.exceptions.filter.includeResolved')}
+            checked={includeResolved}
+            onChange={(checked) => {
+              update('includeResolved', checked ? '1' : '');
+            }}
+          />
+
+          <ToolbarActions>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                void query.refetch();
+              }}
+            >
+              {t('common.refresh')}
+            </Button>
+          </ToolbarActions>
+        </Toolbar>
+
+        <DataTable
+          caption={t('logistics.exceptions.heading')}
+          columns={columns}
+          rows={query.data?.exceptions ?? []}
+          rowKey={(row) => row.id}
+          isLoading={query.isPending}
+          isRefreshing={query.isFetching && !query.isPending}
+          error={query.error}
+          onRetry={() => {
+            void query.refetch();
+          }}
+          minWidth="60rem"
+          emptyTitle={t('logistics.exceptions.emptyTitle')}
+          emptyDescription={
+            includeResolved
+              ? t('logistics.exceptions.emptyBody')
+              : t('logistics.exceptions.emptyOpen')
+          }
+          onRowClick={(row) => {
+            void navigate(`/logistics/shipments/${row.shipmentId}`);
           }}
         />
-
-        <ToolbarActions>
-          <Button
-            variant="secondary"
-            onClick={() => {
-              void query.refetch();
-            }}
-          >
-            {t('common.refresh')}
-          </Button>
-        </ToolbarActions>
-      </Toolbar>
-
-      <DataTable
-        caption={t('logistics.exceptions.heading')}
-        columns={columns}
-        rows={query.data?.exceptions ?? []}
-        rowKey={(row) => row.id}
-        isLoading={query.isPending}
-        isRefreshing={query.isFetching && !query.isPending}
-        error={query.error}
-        onRetry={() => {
-          void query.refetch();
-        }}
-        minWidth="60rem"
-        emptyTitle={t('logistics.exceptions.emptyTitle')}
-        emptyDescription={
-          includeResolved
-            ? t('logistics.exceptions.emptyBody')
-            : t('logistics.exceptions.emptyOpen')
-        }
-        onRowClick={(row) => {
-          void navigate(`/logistics/shipments/${row.shipmentId}`);
-        }}
-      />
+      </Card>
 
       {query.data !== undefined && query.data.total > PAGE_SIZE && (
         <Pager

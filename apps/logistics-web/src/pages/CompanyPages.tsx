@@ -156,6 +156,7 @@ export function CompanyPage(): React.JSX.Element {
 
       <div className="grid gap-4 xl:grid-cols-2">
         <Card
+          bodyClassName="px-5 py-4"
           title={t('company.contact')}
           actions={
             canAny(Permission.ORGANISATION_WRITE) && contactEmail === null ? (
@@ -166,7 +167,7 @@ export function CompanyPage(): React.JSX.Element {
                   setContactEmail(data.contactEmail);
                 }}
               >
-                {t('common.saved')}
+                {t('company.editContact')}
               </Button>
             ) : undefined
           }
@@ -175,11 +176,11 @@ export function CompanyPage(): React.JSX.Element {
             <DescriptionList
               items={[
                 { label: t('auth.email'), value: data.contactEmail },
-                { label: 'Telephone', value: data.contactPhone ?? '—' },
-                { label: 'Out of hours', value: data.emergencyPhone ?? '—' },
-                { label: 'Website', value: data.websiteUrl ?? '—' },
-                { label: 'Country', value: data.registrationCountry },
-                { label: 'Reference', value: data.partnerCode },
+                { label: t('company.telephone'), value: data.contactPhone ?? '—' },
+                { label: t('company.outOfHours'), value: data.emergencyPhone ?? '—' },
+                { label: t('company.website'), value: data.websiteUrl ?? '—' },
+                { label: t('company.country'), value: data.registrationCountry },
+                { label: t('company.reference'), value: data.partnerCode },
               ]}
             />
           ) : (
@@ -207,7 +208,7 @@ export function CompanyPage(): React.JSX.Element {
                     save.mutate(contactEmail);
                   }}
                 >
-                  {t('common.saved')}
+                  {t('company.saveContact')}
                 </Button>
                 <Button
                   size="sm"
@@ -223,7 +224,11 @@ export function CompanyPage(): React.JSX.Element {
           )}
         </Card>
 
-        <Card title={t('company.regions')} description={t('company.setByUboss')}>
+        <Card
+          title={t('company.regions')}
+          description={t('company.setByUboss')}
+          bodyClassName="px-5 py-4"
+        >
           {data.regions.length === 0 ? (
             <p className="text-sm text-ink-subtle">{t('common.nothingHereYet')}</p>
           ) : (
@@ -240,7 +245,11 @@ export function CompanyPage(): React.JSX.Element {
           )}
         </Card>
 
-        <Card title={t('company.capabilities')} description={t('company.setByUboss')}>
+        <Card
+          title={t('company.capabilities')}
+          description={t('company.setByUboss')}
+          bodyClassName="px-5 py-4"
+        >
           {data.capabilities.length === 0 ? (
             <p className="text-sm text-ink-subtle">{t('common.nothingHereYet')}</p>
           ) : (
@@ -268,14 +277,20 @@ export function CompanyPage(): React.JSX.Element {
           )}
         </Card>
 
-        <Card title={t('company.sla')} description={t('company.setByUboss')}>
+        <Card
+          title={t('company.sla')}
+          description={t('company.setByUboss')}
+          bodyClassName="px-5 py-4"
+        >
           {data.slaPolicies.length === 0 ? (
             <p className="text-sm text-ink-subtle">{t('common.nothingHereYet')}</p>
           ) : (
             <ul className="space-y-3 text-sm">
               {data.slaPolicies.map((policy) => (
                 <li key={policy.id}>
-                  <p className="font-medium text-ink">
+                  {/* The badge is inline-flex, so without the gap it sat
+                      hard against the last letter of the policy name. */}
+                  <p className="flex flex-wrap items-center gap-2 font-medium text-ink">
                     {policy.name}
                     {policy.isDefault ? <Badge tone="accent">{policy.serviceType}</Badge> : null}
                   </p>
@@ -346,7 +361,7 @@ export function DriversPage(): React.JSX.Element {
   });
 
   const driverColumns: Column<DriverRow>[] = [
-    { key: 'name', header: t('drivers.heading'), render: (row) => row.fullName },
+    { key: 'name', header: t('drivers.driverName'), render: (row) => row.fullName },
     {
       key: 'state',
       header: t('shipments.column.status'),
@@ -395,8 +410,8 @@ export function DriversPage(): React.JSX.Element {
   ];
 
   const vehicleColumns: Column<VehicleRow>[] = [
-    { key: 'registration', header: 'Registration', render: (row) => row.registration },
-    { key: 'kind', header: 'Type', render: (row) => row.kind },
+    { key: 'registration', header: t('drivers.registration'), render: (row) => row.registration },
+    { key: 'kind', header: t('drivers.vehicleType'), render: (row) => row.kind },
     {
       key: 'refrigeration',
       header: t('shipment.coldChain'),
@@ -420,12 +435,12 @@ export function DriversPage(): React.JSX.Element {
 
       <div className="space-y-4">
         {canAny(Permission.DRIVER_READ) ? (
-          <Card title={t('drivers.heading')}>
+          <Card title={t('drivers.driversCard')}>
             {(drivers.data?.drivers.length ?? 0) === 0 && !drivers.isLoading ? (
               <EmptyState title={t('drivers.emptyTitle')} description={t('drivers.emptyBody')} />
             ) : (
               <DataTable
-                caption={t('drivers.heading')}
+                caption={t('drivers.driversCard')}
                 columns={driverColumns}
                 rows={drivers.data?.drivers}
                 rowKey={(row) => row.id}
@@ -437,9 +452,9 @@ export function DriversPage(): React.JSX.Element {
         ) : null}
 
         {canAny(Permission.VEHICLE_READ) ? (
-          <Card title={t('drivers.addVehicle')}>
+          <Card title={t('drivers.vehicles')}>
             <DataTable
-              caption={t('drivers.addVehicle')}
+              caption={t('drivers.vehicles')}
               columns={vehicleColumns}
               rows={vehicles.data?.vehicles}
               rowKey={(row) => row.id}

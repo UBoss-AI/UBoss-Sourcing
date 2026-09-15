@@ -980,6 +980,14 @@ export function Toolbar({
     <div
       className={cx(
         'flex flex-wrap items-end gap-x-3 gap-y-3 border-b border-border bg-surface-sunken px-4 py-3',
+        /*
+          Where the bar is the first thing in the card, its sunken ground has
+          to follow the card's corner. Square, it filled the rounded corner
+          and showed as a grey nub outside the border - obvious in the light
+          theme, where the ground and the card are different colours. 11px is
+          this project's `rounded-lg` (12px) less the card's 1px border.
+        */
+        'first:rounded-t-[11px]',
         className,
       )}
     >
