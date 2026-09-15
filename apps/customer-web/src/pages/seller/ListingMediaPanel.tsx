@@ -72,12 +72,16 @@ export function ListingMediaPanel({
       uploadListingMedia(draft.id, file, { slot }),
     onSuccess: async (uploaded) => {
       await refresh();
-      toast.success(uploaded.kind === 'VIDEO' ? 'Video added.' : 'Photograph added.');
+      toast.success(
+        uploaded.kind === 'VIDEO'
+          ? t('seller.media.videoAdded')
+          : t('seller.media.photoAdded'),
+      );
     },
     onError: (error: unknown) => {
       // The server's own sentence: it knows whether the refusal was the type,
       // the size, a duplicate or the count, and each has a different fix.
-      toast.error(errorMessage(t, error, 'That file could not be uploaded.'));
+      toast.error(errorMessage(t, error, t('seller.media.uploadFailed')));
     },
     onSettled: () => {
       setUploadingSlot(null);
@@ -91,7 +95,7 @@ export function ListingMediaPanel({
       toast.success('Removed.');
     },
     onError: (error: unknown) => {
-      toast.error(errorMessage(t, error, 'That file could not be removed.'));
+      toast.error(errorMessage(t, error, t('seller.media.removeFailed')));
     },
   });
 
@@ -100,7 +104,7 @@ export function ListingMediaPanel({
       updateListingMedia(draft.id, id, patch),
     onSuccess: refresh,
     onError: (error: unknown) => {
-      toast.error(errorMessage(t, error, 'That could not be changed.'));
+      toast.error(errorMessage(t, error, t('seller.media.changeFailed')));
     },
   });
 
@@ -119,8 +123,8 @@ export function ListingMediaPanel({
   return (
     <div className="space-y-5">
       <Card
-        title="Product photos"
-        description="Clear, well lit, on a plain background. No watermarks or contact details."
+        title={t('seller.media.photos')}
+        description={t('seller.media.photosIntro')}
         actions={summary === null ? undefined : <SectionCount summary={summary} />}
       >
         <div className="px-6 py-5">
@@ -162,11 +166,10 @@ export function ListingMediaPanel({
           {rows.some((row) => row.kind === 'IMAGE') && (
             <div className="mt-5 space-y-3 border-t border-border-subtle pt-4">
               <h3 className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-                Describe each photograph
+                {t('seller.media.describeEach')}
               </h3>
               <p className="text-xxs leading-relaxed text-ink-muted">
-                A short description of what is in the picture. Buyers using a screen reader rely on
-                it, and it is what search engines read.
+                {t('seller.media.describeEachHint')}
               </p>
 
               {rows
@@ -175,7 +178,10 @@ export function ListingMediaPanel({
                   <AltTextField
                     key={row.id}
                     media={row}
-                    label={slots.find((slot) => slot.slot === row.slot)?.label ?? 'Photograph'}
+                    label={
+                      slots.find((slot) => slot.slot === row.slot)?.label ??
+                      t('seller.media.photograph')
+                    }
                     onSave={(altText) => {
                       update.mutate({ id: row.id, patch: { altText } });
                     }}
@@ -188,8 +194,8 @@ export function ListingMediaPanel({
 
       {/* ---- Videos -------------------------------------------------------- */}
       <Card
-        title="Product video"
-        description="How it opens, how it fits, how it sounds — the questions a photograph cannot answer."
+        title={t('seller.media.video')}
+        description={t('seller.media.videoIntro')}
         actions={videos.length > 0 ? <Badge tone="brand">{videos.length}</Badge> : undefined}
       >
         <div className="space-y-3 px-6 py-5">
@@ -213,14 +219,14 @@ export function ListingMediaPanel({
                 className="aspect-video w-full bg-surface-sunken"
               >
                 {/* A browser that cannot play it still offers the file. */}
-                <a href={video.url}>Download the video</a>
+                <a href={video.url}>{t('seller.media.downloadVideo')}</a>
               </video>
 
               <figcaption className="space-y-2 px-3 py-2">
                 <p id={`video-note-${video.id}`} className="text-xs text-ink">
                   {video.altText === null || video.altText.length === 0 ? (
                     <span className="text-warning">
-                      Describe what this video shows — buyers who cannot hear it rely on this.
+                      {t('seller.media.describeVideo')}
                     </span>
                   ) : (
                     video.altText
@@ -229,7 +235,7 @@ export function ListingMediaPanel({
 
                 <AltTextField
                   media={video}
-                  label="What the video shows"
+                  label={t('seller.media.whatVideoShows')}
                   onSave={(altText) => {
                     update.mutate({ id: video.id, patch: { altText } });
                   }}
@@ -247,7 +253,7 @@ export function ListingMediaPanel({
                       remove.mutate(video.id);
                     }}
                   >
-                    Remove
+                    {t('seller.media.remove')}
                   </Button>
                 </div>
               </figcaption>
@@ -255,8 +261,10 @@ export function ListingMediaPanel({
           ))}
 
           <DropZone
-            label={videos.length === 0 ? 'Add a video' : 'Add another video'}
-            hint="MP4, WebM or MOV, up to 64 MB."
+            label={
+              videos.length === 0 ? t('seller.media.addVideo') : t('seller.media.addAnotherVideo')
+            }
+            hint={t('seller.media.videoFormats')}
             isBusy={upload.isPending && uploadingSlot === 'VIDEO'}
             isDropTarget={dropTarget === 'VIDEO'}
             onPick={(file) => {
@@ -320,6 +328,7 @@ function SlotTile({
   onMakePrimary: () => void;
   onRemove: () => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
   const inputRef = useRef<HTMLInputElement>(null);
 
   if (media !== null) {
@@ -339,7 +348,7 @@ function SlotTile({
 
         {media.isPrimary && (
           <span className="absolute left-1.5 top-1.5 rounded-full bg-brand-fill px-2 py-0.5 text-xxs font-semibold text-white">
-            Main
+            {t('seller.media.main')}
           </span>
         )}
 
@@ -352,7 +361,7 @@ function SlotTile({
               onClick={onMakePrimary}
               className="rounded px-1.5 py-0.5 text-xxs font-medium text-white hover:bg-white/20"
             >
-              Make main
+              {t('seller.media.makeMain')}
             </button>
           )}
           <button
@@ -360,7 +369,7 @@ function SlotTile({
             onClick={onRemove}
             className="ml-auto rounded px-1.5 py-0.5 text-xxs font-medium text-white hover:bg-white/20"
           >
-            Remove
+            {t('seller.media.remove')}
           </button>
         </div>
 
@@ -403,7 +412,9 @@ function SlotTile({
           {isBusy ? '…' : '+'}
         </span>
         <span className="text-xxs font-medium leading-tight text-ink-muted">{label}</span>
-        {isRequired && <span className="text-xxs font-semibold text-danger">Required</span>}
+        {isRequired && (
+          <span className="text-xxs font-semibold text-danger">{t('seller.media.required')}</span>
+        )}
       </button>
 
       <input
@@ -438,6 +449,7 @@ function DropZone({
   onPick: (file: File | undefined) => void;
   onDragStateChange: (active: boolean) => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
@@ -468,7 +480,9 @@ function DropZone({
           isBusy && 'opacity-60',
         )}
       >
-        <span className="text-sm font-medium text-ink">{isBusy ? 'Uploading…' : label}</span>
+        <span className="text-sm font-medium text-ink">
+          {isBusy ? t('seller.media.uploading') : label}
+        </span>
         <span className="text-xxs text-ink-subtle">{hint}</span>
       </button>
 
@@ -501,6 +515,7 @@ function AltTextField({
   label: string;
   onSave: (altText: string) => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
   const [value, setValue] = useState(media.altText ?? '');
 
   return (
@@ -509,7 +524,7 @@ function AltTextField({
         <Input
           id={inputId}
           value={value}
-          placeholder="Zinc-plated hex bolt, viewed from the front"
+          placeholder={t('seller.media.altPlaceholder')}
           onChange={(event) => {
             setValue(event.currentTarget.value);
           }}

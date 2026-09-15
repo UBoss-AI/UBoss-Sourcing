@@ -21,17 +21,18 @@ import { Link, useOutletContext } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Badge, Button, Card, ErrorState, LoadingState, PageHeader } from '@/components/ui';
 import { cx } from '@/lib/cx';
+import { useI18n } from '@/i18n/i18n-context';
 import { formatMinor, fetchDashboard, type SellerDashboard } from '@/lib/seller';
 import type { SellerOutletContext } from './SellerLayout';
 
 type Range = 'today' | 'week' | 'month' | 'quarter';
 
-const RANGES: readonly { value: Range; label: string; comparison: string }[] = Object.freeze([
-  { value: 'today', label: 'Today', comparison: 'yesterday' },
-  { value: 'week', label: '7 days', comparison: 'the 7 days before' },
-  { value: 'month', label: '30 days', comparison: 'the 30 days before' },
-  { value: 'quarter', label: '90 days', comparison: 'the 90 days before' },
-]);
+const RANGES = Object.freeze([
+  { value: 'today', labelKey: 'seller.dashboard.range.today', comparisonKey: 'seller.dashboard.against.today' },
+  { value: 'week', labelKey: 'seller.dashboard.range.week', comparisonKey: 'seller.dashboard.against.week' },
+  { value: 'month', labelKey: 'seller.dashboard.range.month', comparisonKey: 'seller.dashboard.against.month' },
+  { value: 'quarter', labelKey: 'seller.dashboard.range.quarter', comparisonKey: 'seller.dashboard.against.quarter' },
+] as const);
 
 /**
  * One headline figure.
@@ -111,20 +112,31 @@ function Comparison({
   currency: string;
   periodLabel: string;
 }): React.JSX.Element | null {
+  const { t } = useI18n();
+
   const current = BigInt(currentMinor);
   const previous = BigInt(previousMinor);
 
   if (previous === 0n) return null;
 
   const difference = current - previous;
-  if (difference === 0n) return <span className="text-ink-subtle">Level with {periodLabel}</span>;
+  if (difference === 0n)
+    return (
+      <span className="text-ink-subtle">
+        {t('seller.dashboard.levelWith', { period: periodLabel })}
+      </span>
+    );
 
   const isUp = difference > 0n;
   const magnitude = (isUp ? difference : -difference).toString();
 
   return (
     <span className={isUp ? 'text-success' : 'text-danger'}>
-      {isUp ? '↑' : '↓'} {formatMinor(magnitude, currency)} on {periodLabel}
+      {isUp ? '↑' : '↓'}{' '}
+      {t('seller.dashboard.onPeriod', {
+        amount: formatMinor(magnitude, currency),
+        period: periodLabel,
+      })}
     </span>
   );
 }
@@ -160,6 +172,7 @@ function ActionRow({
 }
 
 export function SellerDashboardPage(): React.JSX.Element {
+  const { t } = useI18n();
   const seller = useOutletContext<SellerOutletContext>();
   const [range, setRange] = useState<Range>('today');
 
@@ -171,17 +184,18 @@ export function SellerDashboardPage(): React.JSX.Element {
     staleTime: 30_000,
   });
 
-  const comparison = RANGES.find((entry) => entry.value === range)?.comparison ?? 'the period before';
+  const found = RANGES.find((entry) => entry.value === range);
+  const comparison = t(found?.comparisonKey ?? 'seller.dashboard.against.generic');
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`Good day, ${seller.displayName}`}
-        description="Everything that needs your attention, and how the last period went."
+        title={t('seller.dashboard.greeting', { name: seller.displayName })}
+        description={t('seller.dashboard.intro')}
         actions={
           <div
             role="group"
-            aria-label="Time range"
+            aria-label={t('seller.dashboard.timeRange')}
             className="inline-flex rounded-md border border-border-strong bg-surface p-0.5"
           >
             {RANGES.map((entry) => (
@@ -199,14 +213,14 @@ export function SellerDashboardPage(): React.JSX.Element {
                     : 'text-ink-muted hover:text-ink',
                 )}
               >
-                {entry.label}
+                {t(entry.labelKey)}
               </button>
             ))}
           </div>
         }
       />
 
-      {query.isPending && <LoadingState label="Working out your figures" />}
+      {query.isPending && <LoadingState label={t('seller.dashboard.loading')} />}
 
       {query.isError && (
         <ErrorState
@@ -237,30 +251,19 @@ export function SellerDashboardPage(): React.JSX.Element {
  * arriving here the answer to "why can I not add a listing" is in it.
  */
 function FirstSteps({ isTrading }: { isTrading: boolean }): React.JSX.Element {
-  const steps: readonly { title: string; body: string }[] = Object.freeze([
-    {
-      title: 'Finish your account',
-      body: 'Your business details, your documents and where you ship from. The marketplace reviews these before you can sell.',
-    },
-    {
-      title: 'Add your first product',
-      body: 'Describe what you sell, set your price and say how many you have. It goes to the marketplace for a look before it appears to buyers.',
-    },
-    {
-      title: 'Get ready for orders',
-      body: 'Set your dispatch times and check your stock. Orders arrive here, and the clock starts when you accept one.',
-    },
-  ]);
+  const { t } = useI18n();
+
+  const steps = ['account', 'product', 'orders'] as const;
 
   return (
     <Card
-      title="Nothing here yet"
-      description="You have not listed anything, so there is nothing to report on. Here is how to start."
+      title={t('seller.dashboard.nothingYet')}
+      description={t('seller.dashboard.nothingYetBody')}
     >
       <div className="px-6 py-5">
         <ol className="space-y-5">
           {steps.map((step, index) => (
-            <li key={step.title} className="flex gap-4">
+            <li key={step} className="flex gap-4">
               <span
                 aria-hidden="true"
                 className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xs font-semibold text-brand"
@@ -268,8 +271,10 @@ function FirstSteps({ isTrading }: { isTrading: boolean }): React.JSX.Element {
                 {index + 1}
               </span>
               <div className="min-w-0">
-                <p className="text-sm font-medium text-ink">{step.title}</p>
-                <p className="mt-0.5 text-sm leading-relaxed text-ink-muted">{step.body}</p>
+                <p className="text-sm font-medium text-ink">{t(firstStepTitleKey(step))}</p>
+                <p className="mt-0.5 text-sm leading-relaxed text-ink-muted">
+                  {t(firstStepBodyKey(step))}
+                </p>
               </div>
             </li>
           ))}
@@ -283,15 +288,15 @@ function FirstSteps({ isTrading }: { isTrading: boolean }): React.JSX.Element {
           */}
           {isTrading ? (
             <Link to="/seller/listings/new">
-              <Button variant="primary">Add your first listing</Button>
+              <Button variant="primary">{t('seller.dashboard.addFirstListing')}</Button>
             </Link>
           ) : (
             <Link to="/seller/onboarding">
-              <Button variant="primary">Continue your application</Button>
+              <Button variant="primary">{t('seller.dashboard.continueApplication')}</Button>
             </Link>
           )}
           <Link to="/seller/profile">
-            <Button variant="secondary">Your company profile</Button>
+            <Button variant="secondary">{t('seller.dashboard.companyProfile')}</Button>
           </Link>
         </div>
       </div>
@@ -308,15 +313,17 @@ function FirstSteps({ isTrading }: { isTrading: boolean }): React.JSX.Element {
  * disagreeing about what is still outstanding.
  */
 function SetupCard({ data }: { data: SellerDashboard }): React.JSX.Element {
+  const { t } = useI18n();
+
   return (
       <Card
-        title="Setup"
-        description="What is left before your account is fully open."
+        title={t('seller.dashboard.setup')}
+        description={t('seller.dashboard.setupIntro')}
         actions={
           data.onboarding.percentComplete < 100 ? (
             <Link to="/seller/onboarding">
               <Button size="sm" variant="primary">
-                Continue
+                {t('seller.dashboard.continue')}
               </Button>
             </Link>
           ) : undefined
@@ -330,7 +337,7 @@ function SetupCard({ data }: { data: SellerDashboard }): React.JSX.Element {
               aria-valuenow={data.onboarding.percentComplete}
               aria-valuemin={0}
               aria-valuemax={100}
-              aria-label="Setup completed"
+              aria-label={t('seller.dashboard.setupProgress')}
             >
               <div
                 className="h-full rounded-full bg-brand-fill transition-[width]"
@@ -344,7 +351,7 @@ function SetupCard({ data }: { data: SellerDashboard }): React.JSX.Element {
 
           {data.onboarding.blockingSteps.length === 0 ? (
             <p className="mt-4 text-sm text-ink-muted">
-              Every required step is finished.
+              {t('seller.dashboard.setupDone')}
             </p>
           ) : (
             <ul className="mt-4 space-y-2">
@@ -363,13 +370,13 @@ function SetupCard({ data }: { data: SellerDashboard }): React.JSX.Element {
           {data.qualityScore !== null && (
             <div className="mt-6 border-t border-border-subtle pt-4">
               <p className="text-xxs font-medium uppercase tracking-wider text-ink-subtle">
-                Seller quality score
+                {t('seller.dashboard.qualityScore')}
               </p>
               <p className="tabular mt-1 text-title-md font-semibold text-ink">
                 {data.qualityScore.toFixed(1)}
               </p>
               <p className="mt-1 text-xxs text-ink-subtle">
-                From on-time dispatch, cancellations, returns and listing quality.
+                {t('seller.dashboard.qualityScoreHint')}
               </p>
             </div>
           )}
@@ -387,6 +394,8 @@ function DashboardBody({
   comparison: string;
   isTrading: boolean;
 }): React.JSX.Element {
+  const { t } = useI18n();
+
   const unavailable = new Set(data.unavailable.map((entry) => entry.tile));
 
   const actionsOutstanding =
@@ -417,41 +426,41 @@ function DashboardBody({
           role="status"
           className="rounded-lg border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-ink"
         >
-          Some figures could not be worked out just now
-          {data.unavailable.length === 1 ? '' : ` (${String(data.unavailable.length)} of them)`}. The
-          rest of this page is up to date.
+          {data.unavailable.length === 1
+            ? t('seller.dashboard.someMissingOne')
+            : t('seller.dashboard.someMissing', { count: data.unavailable.length })}
         </div>
       )}
 
       {/* ---- Work queue ---------------------------------------------------- */}
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Metric
-          label="New orders"
+          label={t('seller.dashboard.newOrders')}
           value={String(data.newOrders)}
-          hint="Waiting for you to accept"
+          hint={t('seller.dashboard.newOrdersHint')}
           tone={data.newOrders > 0 ? 'warning' : 'default'}
           to="/seller/orders?status=NEW"
           isUnavailable={unavailable.has('orders')}
         />
         <Metric
-          label="To dispatch"
+          label={t('seller.dashboard.toDispatch')}
           value={String(data.ordersToDispatch)}
-          hint="Accepted and not yet shipped"
+          hint={t('seller.dashboard.toDispatchHint')}
           to="/seller/orders"
           isUnavailable={unavailable.has('orders')}
         />
         <Metric
-          label="Past dispatch time"
+          label={t('seller.dashboard.pastDispatch')}
           value={String(data.overdueOrders)}
-          hint="These are late"
+          hint={t('seller.dashboard.pastDispatchHint')}
           tone={data.overdueOrders > 0 ? 'danger' : 'default'}
           to="/seller/orders?overdueOnly=true"
           isUnavailable={unavailable.has('overdue')}
         />
         <Metric
-          label="Open returns"
+          label={t('seller.dashboard.openReturns')}
           value={String(data.returnsOpen)}
-          hint={`${String(data.refundsInPeriod)} refunded in this period`}
+          hint={t('seller.dashboard.refundedInPeriod', { count: data.refundsInPeriod })}
           to="/seller/orders?status=RETURN_REQUESTED"
           isUnavailable={unavailable.has('returns')}
         />
@@ -459,7 +468,13 @@ function DashboardBody({
 
       {/* ---- Money --------------------------------------------------------- */}
       <section className="grid gap-4 lg:grid-cols-3">
-        <Card title="Sales" description={`Between ${formatDay(data.periodFrom)} and ${formatDay(data.periodTo)}`}>
+        <Card
+          title={t('seller.dashboard.sales')}
+          description={t('seller.dashboard.between', {
+            from: formatDay(data.periodFrom),
+            to: formatDay(data.periodTo),
+          })}
+        >
           {/*
             Stacked, never two columns.
 
@@ -472,7 +487,7 @@ function DashboardBody({
           <div className="space-y-5 px-6 py-5">
             <div className="min-w-0">
               <p className="text-xxs font-medium uppercase tracking-wider text-ink-subtle">
-                Gross sales
+                {t('seller.dashboard.grossSales')}
               </p>
               <p className="tabular mt-2 text-title-lg font-semibold text-ink">
                 {data.grossSales === null
@@ -493,19 +508,21 @@ function DashboardBody({
 
             <div className="min-w-0">
               <p className="text-xxs font-medium uppercase tracking-wider text-ink-subtle">
-                Your earnings
+                {t('seller.dashboard.yourEarnings')}
               </p>
               <p className="tabular mt-2 text-title-lg font-semibold text-ink">
                 {data.netEarnings === null
                   ? '—'
                   : formatMinor(data.netEarnings.amountMinor, data.netEarnings.currency)}
               </p>
-              <p className="mt-1 text-xxs text-ink-subtle">After marketplace commission</p>
+              <p className="mt-1 text-xxs text-ink-subtle">
+                {t('seller.dashboard.afterCommission')}
+              </p>
             </div>
           </div>
         </Card>
 
-        <Card title="Next payout">
+        <Card title={t('seller.dashboard.nextPayout')}>
           <div className="px-6 py-5">
             {/*
               The configuration-required state. Rendered INSTEAD of a figure
@@ -515,14 +532,13 @@ function DashboardBody({
             */}
             {!data.payout.isProviderConfigured ? (
               <div className="space-y-2">
-                <Badge tone="warning">Not set up yet</Badge>
+                <Badge tone="warning">{t('seller.payments.notSetUp')}</Badge>
                 <p className="text-sm leading-relaxed text-ink-muted">
-                  The marketplace has not finished setting up payouts, so nothing can be paid out
-                  yet. Your earnings are still being recorded in full.
+                  {t('seller.dashboard.noPayoutProvider')}
                 </p>
                 {data.payout.missingConfigurationKey !== null && (
                   <p className="text-xxs text-ink-subtle">
-                    Operator: set{' '}
+                    {t('seller.dashboard.operatorSet')}{' '}
                     <code className="rounded bg-surface-sunken px-1 py-0.5 font-mono">
                       {data.payout.missingConfigurationKey}
                     </code>
@@ -533,7 +549,7 @@ function DashboardBody({
             ) : data.upcomingPayout === null ? (
               <div className="space-y-2">
                 <p className="tabular text-title-lg font-semibold text-ink-subtle">—</p>
-                <p className="text-sm text-ink-muted">Nothing is scheduled at the moment.</p>
+                <p className="text-sm text-ink-muted">{t('seller.dashboard.nothingScheduled')}</p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -542,8 +558,10 @@ function DashboardBody({
                 </p>
                 <p className="text-sm text-ink-muted">
                   {data.upcomingPayout.scheduledFor === null
-                    ? 'Date not set yet'
-                    : `Due ${formatDay(data.upcomingPayout.scheduledFor)}`}
+                    ? t('seller.dashboard.dateNotSet')
+                    : t('seller.payments.dueOn', {
+                        date: formatDay(data.upcomingPayout.scheduledFor),
+                      })}
                 </p>
               </div>
             )}
@@ -553,32 +571,32 @@ function DashboardBody({
                 to="/seller/payments"
                 className="text-sm font-medium text-brand hover:text-brand-hover"
               >
-                Payments and statements →
+                {t('seller.dashboard.paymentsLink')}
               </Link>
             </div>
           </div>
         </Card>
 
-        <Card title="Catalogue health">
+        <Card title={t('seller.dashboard.catalogueHealth')}>
           <dl className="divide-y divide-border-subtle">
             <HealthRow
-              label="Live listings"
+              label={t('seller.dashboard.liveListings')}
               value={String(data.activeListings)}
               to="/seller/listings?status=ACTIVE"
             />
             <HealthRow
-              label="Being reviewed"
+              label={t('seller.dashboard.beingReviewed')}
               value={String(data.listingsInReview)}
               to="/seller/listings?tab=PENDING_REVIEW"
             />
             <HealthRow
-              label="Need changes"
+              label={t('seller.dashboard.needChanges')}
               value={String(data.listingsNeedingChanges)}
               {...(data.listingsNeedingChanges > 0 ? { tone: 'warning' as const } : {})}
               to="/seller/listings?status=NEEDS_CHANGES"
             />
             <HealthRow
-              label="Drafts"
+              label={t('seller.dashboard.drafts')}
               value={String(data.draftListings)}
               to="/seller/listings?tab=DRAFT"
             />
@@ -589,66 +607,66 @@ function DashboardBody({
       {/* ---- What needs doing ---------------------------------------------- */}
       <section className="grid gap-4 lg:grid-cols-2">
         <Card
-          title="What needs doing"
+          title={t('seller.dashboard.whatNeedsDoing')}
           description={
             actionsOutstanding === 0
-              ? 'Nothing is waiting on you right now.'
-              : 'In the order it matters.'
+              ? t('seller.dashboard.nothingWaiting')
+              : t('seller.dashboard.inOrderItMatters')
           }
         >
           {actionsOutstanding === 0 &&
           data.documentsExpiringSoon.length === 0 &&
           data.closedLocations.length === 0 ? (
             <p className="px-6 py-8 text-center text-sm text-ink-muted">
-              You are up to date. New orders will appear here as they arrive.
+              {t('seller.dashboard.upToDate')}
             </p>
           ) : (
             <div>
               <ActionRow
-                title="Orders past their dispatch time"
-                detail="These count against your dispatch record"
+                title={t('seller.dashboard.action.overdueTitle')}
+                detail={t('seller.dashboard.action.overdueDetail')}
                 count={data.overdueOrders}
                 to="/seller/orders?overdueOnly=true"
                 tone="danger"
               />
               <ActionRow
-                title="Orders waiting to be accepted"
-                detail="Accept them to start the clock on picking"
+                title={t('seller.dashboard.action.newTitle')}
+                detail={t('seller.dashboard.action.newDetail')}
                 count={data.newOrders}
                 to="/seller/orders?status=NEW"
                 tone="warning"
               />
               <ActionRow
-                title="Listings that need changes"
-                detail="They are not on sale until these are fixed"
+                title={t('seller.dashboard.action.changesTitle')}
+                detail={t('seller.dashboard.action.changesDetail')}
                 count={data.listingsNeedingChanges}
                 to="/seller/listings?status=NEEDS_CHANGES"
                 tone="warning"
               />
               <ActionRow
-                title="Products out of stock"
-                detail="Live listings with nothing left to sell"
+                title={t('seller.dashboard.action.outOfStockTitle')}
+                detail={t('seller.dashboard.action.outOfStockDetail')}
                 count={data.outOfStockSkus}
                 to="/seller/inventory?lowOnly=true"
                 tone="warning"
               />
               <ActionRow
-                title="Products running low"
-                detail="At or below the level you set"
+                title={t('seller.dashboard.action.lowStockTitle')}
+                detail={t('seller.dashboard.action.lowStockDetail')}
                 count={data.lowStockSkus}
                 to="/seller/inventory?lowOnly=true"
                 tone="brand"
               />
               <ActionRow
-                title="Documents expiring soon"
-                detail="A lapsed certificate pauses the listings that rely on it"
+                title={t('seller.dashboard.action.documentsTitle')}
+                detail={t('seller.dashboard.action.documentsDetail')}
                 count={data.documentsExpiringSoon.length}
                 to="/seller/profile"
                 tone="warning"
               />
               <ActionRow
-                title="Closed locations"
-                detail="Stock at a closed place cannot be sold"
+                title={t('seller.dashboard.action.closedTitle')}
+                detail={t('seller.dashboard.action.closedDetail')}
                 count={data.closedLocations.length}
                 to="/seller/profile"
                 tone="brand"
@@ -693,4 +711,20 @@ function formatDay(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return '—';
   return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+}
+
+/**
+ * The three things a brand-new seller is pointed at.
+ *
+ * Keys rather than sentences, and derived from the step's own name so the two
+ * halves of a step cannot drift apart.
+ */
+type FirstStep = 'account' | 'product' | 'orders';
+
+function firstStepTitleKey(step: FirstStep): `seller.dashboard.firstStep.${FirstStep}.title` {
+  return `seller.dashboard.firstStep.${step}.title`;
+}
+
+function firstStepBodyKey(step: FirstStep): `seller.dashboard.firstStep.${FirstStep}.body` {
+  return `seller.dashboard.firstStep.${step}.body`;
 }
