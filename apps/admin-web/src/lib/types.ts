@@ -64,6 +64,17 @@ export interface UpcomingOccurrence {
 
 export interface DashboardResponse {
   sales: SalesSummary;
+  /**
+   * The same aggregate over the window of equal length immediately before
+   * this one. What the tiles' change figures are measured against.
+   */
+  previousSales: SalesSummary;
+  /**
+   * Day-by-day, for the tiles' sparklines. **Sparse** — only days that had
+   * orders appear, so it must be gap-filled against the window before it is
+   * plotted. `fillDailySeries` in `components/charts.tsx` does that.
+   */
+  salesSeries: { period: string; orderCount: number; grossSales: string; collected: string }[];
   ordersByStatus: OrdersByStatusRow[];
   payments: {
     currency: string;

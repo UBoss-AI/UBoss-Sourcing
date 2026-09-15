@@ -111,6 +111,31 @@
     --danger-soft: 254 242 242;
 
     /* ===================================================================
+     * Chart ramp
+     *
+     * An ORDINAL ramp, not a categorical palette: the things it colours are
+     * stages of a pipeline, and stage order is the information. One hue,
+     * light to dark, so "further along" reads as "heavier" without anybody
+     * consulting a legend.
+     *
+     * It cannot be the badge tones. Those collapse CONFIRMED and DELIVERED
+     * both to green, which is right for two chips in a table and useless for
+     * two segments touching each other in one bar.
+     *
+     * These six steps were checked rather than chosen by eye - monotone
+     * lightness, an OKLCH delta-L of at least 0.06 between neighbours, a
+     * single hue, and the light end clearing the surface. A fill is not a
+     * control, so it is not held to 3:1; the legend and the table under every
+     * chart are what make the values readable, and they are always present.
+     * =================================================================== */
+    --chart-seq-1: 140 176 240;
+    --chart-seq-2: 91 138 229;
+    --chart-seq-3: 52 102 210;
+    --chart-seq-4: 36 80 176;
+    --chart-seq-5: 27 60 134;
+    --chart-seq-6: 19 41 92;
+
+    /* ===================================================================
      * Surfaces
      * =================================================================== */
     --surface: 255 255 255;
@@ -309,6 +334,17 @@
       --danger-fill-hover: 196 40 40;
       --danger-soft: 66 22 22;
 
+      /* The ramp's own dark steps, selected against this surface rather than
+       * flipped. The direction is preserved as *weight*: stage one is the
+       * dimmest and the last stage the brightest, so "further along" still
+       * reads as "heavier" on a dark ground. Same four checks, same pass. */
+      --chart-seq-1: 58 94 155;
+      --chart-seq-2: 78 121 194;
+      --chart-seq-3: 106 149 222;
+      --chart-seq-4: 139 178 238;
+      --chart-seq-5: 176 206 246;
+      --chart-seq-6: 214 230 252;
+
       --surface: 20 30 48;
       --surface-raised: 26 38 58;
       --surface-sunken: 12 19 32;
@@ -366,6 +402,16 @@
     --danger-fill: 176 32 32;
     --danger-fill-hover: 196 40 40;
     --danger-soft: 66 22 22;
+
+    /* The ramp's dark steps again, for an explicit dark choice. Kept
+     * byte-identical to the block above: the contrast audit compares the two
+     * dark blocks and fails on any token that drifts between them. */
+    --chart-seq-1: 58 94 155;
+    --chart-seq-2: 78 121 194;
+    --chart-seq-3: 106 149 222;
+    --chart-seq-4: 139 178 238;
+    --chart-seq-5: 176 206 246;
+    --chart-seq-6: 214 230 252;
 
     --surface: 20 30 48;
     --surface-raised: 26 38 58;

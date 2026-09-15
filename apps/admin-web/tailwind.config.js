@@ -100,6 +100,15 @@ export default {
 
         // --- Focus ------------------------------------------------------
         ring: 'rgb(var(--ring) / <alpha-value>)',
+
+        // The ordinal chart ramp. Six steps of one hue; see the token block
+        // in index.css for why these are not the badge tones.
+        'chart-seq-1': 'rgb(var(--chart-seq-1) / <alpha-value>)',
+        'chart-seq-2': 'rgb(var(--chart-seq-2) / <alpha-value>)',
+        'chart-seq-3': 'rgb(var(--chart-seq-3) / <alpha-value>)',
+        'chart-seq-4': 'rgb(var(--chart-seq-4) / <alpha-value>)',
+        'chart-seq-5': 'rgb(var(--chart-seq-5) / <alpha-value>)',
+        'chart-seq-6': 'rgb(var(--chart-seq-6) / <alpha-value>)',
       },
 
       // The radius scale, named by what it wraps rather than by size, so the

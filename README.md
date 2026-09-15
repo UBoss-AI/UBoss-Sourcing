@@ -275,6 +275,14 @@ customers and their credit terms, coupons, sellers and their applications,
 carriers and consignments, settings, integrations, and an append-only audit
 log.
 
+The dashboard opens on a reporting window and carries, for each headline
+figure, the change against the window of equal length before it and the shape
+of the days behind it — so a month's total that arrived in one afternoon does
+not read as a steady month. Where the preceding window holds nothing, the tile
+says so rather than reporting a rise out of nothing. Underneath, one bar shows
+where every order in the period sits, from the earliest stage through to
+delivered.
+
 Two things it deliberately cannot do: mark an order as paid (only a
 signature-verified provider event confirms one), and publish a product by
 accident (a product reaches customers only when it is both Active *and*
@@ -288,7 +296,10 @@ Published; bulk import can activate, never publish).
 Gated by `FEATURE_LOGISTICS_PORTAL`. A carrier company signs in on its own
 hostname and sees only its own work: consignments to accept or decline,
 collections, dispatch manifests, exceptions, its drivers and vehicles, and a
-driver's own round with proof-of-delivery capture.
+driver's own round with proof-of-delivery capture. The dashboard leads with one
+bar splitting the whole workload between waiting, moving, finished and gone
+wrong, so a dispatcher can see whether the day is still to collect or already
+out.
 
 There is no public registration. A carrier is created from **Logistics →
 Carriers** in the console, which sends a one-time activation link; the person

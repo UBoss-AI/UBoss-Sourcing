@@ -479,6 +479,9 @@ p('The page may hide controls a role cannot use, but the server also checks the 
 h2('7.3 Dashboard and notification bell');
 bullets([
   'See orders, gross sales, collected payments, net revenue, average order value, low-stock information and upcoming recurring orders.',
+  'See how each of those figures compares with the period before it, and the shape of the days behind it, so a total that arrived in one afternoon does not look like a steady month.',
+  'Where the period before holds nothing to compare against, the figure says so rather than showing a rise out of nothing.',
+  'See where every order in the period sits, as one bar running from the earliest stage to delivered, with the exact counts listed beside it and in the table underneath.',
   'Change reporting period and refresh business totals.',
   'Open linked items from dashboard cards, order-status summaries and payment summaries.',
   'Use the notification bell for events such as staff sign-ins, customer activity, order/payment changes and operational alerts.',
@@ -792,7 +795,7 @@ note('Telephone numbers are hidden by default', 'A contact number is shown with 
 
 h2('12a.4 The carrier’s own screens');
 table(['Screen', 'What it is for'], [
-  ['Dashboard', 'What is waiting, what is moving, what has gone wrong, and how the company is doing against the times it promised.'],
+  ['Dashboard', 'What is waiting, what is moving, what has gone wrong, and how the company is doing against the times it promised. One bar across the top of it shows how the whole workload is split between those four, so a dispatcher can see at a glance whether the day is mostly still to collect or mostly already out.'],
   ['Consignments', 'The full list, with filters, search, saved filters and a spreadsheet export of whatever is on screen.'],
   ['One consignment', 'The route, everything that has happened to it, the boxes, the contacts and the documents — and where the status is changed.'],
   ['Collections', 'What has to be picked up, and confirming that it was.'],

@@ -21,11 +21,28 @@
  * that SKU in Inventory. A dashboard that can only be read is a dashboard you
  * stop opening.
  *
- * What it deliberately does not do: trends. The endpoint returns one window's
- * aggregates and nothing about the window before it, so there is no honest
- * "+12% on last month" to draw and none is invented. The proportions that *are*
- * drawn - a status's share of the period's orders, collected against gross -
- * are arithmetic on figures already on the screen, not a second data source.
+ * Trends ARE drawn here now, and every one of them is a figure the server
+ * measured. `/admin/dashboard` returns three things beyond this window's
+ * aggregates: the same aggregate over the window of equal length before it,
+ * and the day-by-day series behind the headline numbers. So "+18% on the
+ * previous 30 days" is a comparison of two database aggregates, and a
+ * sparkline is the days the orders actually fell on.
+ *
+ * Three things this page still refuses to do, because each of them is a way of
+ * drawing a number nobody measured:
+ *
+ *   - **It does not invent a percentage from nothing.** Where the previous
+ *     period holds no orders, the tile says there is nothing to compare with.
+ *     A rise from zero is not a percentage, and on the day after go-live it
+ *     would be on every tile at once.
+ *   - **It does not plot a sparse series as if it were dense.** The day series
+ *     only contains days that had orders, so it is filled against the window
+ *     before it is drawn - otherwise eight days would spread themselves evenly
+ *     across a month and describe a shape that never happened.
+ *   - **It does not compute an authoritative total from a list.** The
+ *     proportions drawn - a status's share of the period, collected against
+ *     gross - are arithmetic on figures already on the screen, and the table
+ *     under every chart is where the exact numbers live.
  */
 import { useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -43,6 +60,9 @@ import {
   Select,
 } from '@/components/ui';
 import { ChevronRightIcon, RefreshIcon } from '@/components/icons';
+import { Delta, ProportionBar, Sparkline } from '@/components/charts';
+import type { ProportionSegment } from '@/components/charts';
+import { fillDailySeries } from '@/lib/series';
 import { api } from '@/lib/api';
 import { cx } from '@/lib/cx';
 import {
@@ -96,6 +116,38 @@ function orderStatusTone(status: string): BadgeTone {
   if (status === 'PENDING_PAYMENT' || status === 'PENDING_APPROVAL') return 'warning';
   return 'neutral';
 }
+
+/*
+ * Where a status sits in the fulfilment sequence.
+ *
+ * The bar is an ORDINAL chart, so this is the information it encodes: a step
+ * number, in pipeline order, from "somebody has to approve it" to "it arrived".
+ * Two things sit outside the sequence on purpose:
+ *
+ *   - `DRAFT` has not entered it. Neutral grey, not step zero — a draft is not
+ *     early progress, it is no progress.
+ *   - `CANCELLED`, `RETURNED` and `REFUNDED` are outcomes rather than stages,
+ *     and all three are the same fact for this chart: the order did not
+ *     complete. They are folded into ONE danger segment, because three reds
+ *     touching each other in a 10px bar are one red to every reader. The table
+ *     underneath keeps them apart, which is where the breakdown belongs.
+ *
+ * Deliberately NOT `orderStatusTone`. That maps CONFIRMED and DELIVERED both
+ * to green, which is right for two chips in separate table rows and useless
+ * for two segments sharing an edge.
+ */
+const PIPELINE_STEP: Record<string, ProportionSegment['step']> = {
+  DRAFT: 'neutral',
+  PENDING_APPROVAL: 1,
+  PENDING_PAYMENT: 2,
+  CONFIRMED: 3,
+  PROCESSING: 4,
+  SHIPPED: 5,
+  DELIVERED: 6,
+};
+
+/** The three statuses folded into the single "did not complete" segment. */
+const NOT_COMPLETED = ['CANCELLED', 'RETURNED', 'REFUNDED'];
 
 /**
  * Payment status colour.
@@ -256,6 +308,93 @@ export function DashboardPage(): React.JSX.Element {
     (sum, row) => sum + row.count,
     0,
   );
+
+  /*
+   * The series behind the tiles, gap-filled against the window.
+   *
+   * `useMemo` on the response rather than on the query object: the filling
+   * walks a day at a time, and re-walking thirty days on every unrelated
+   * re-render of a page this size is waste for no gain.
+   */
+  const trend = useMemo(() => {
+    const buckets = query.data?.salesSeries ?? [];
+    const from = new Date(range.from);
+    const to = new Date(range.to);
+
+    return {
+      orders: fillDailySeries(
+        buckets.map((bucket) => ({ period: bucket.period, value: bucket.orderCount })),
+        from,
+        to,
+      ),
+      gross: fillDailySeries(
+        // Minor units are a string on the wire because a paisa-precise total
+        // can exceed 2^53. A sparkline only needs the *shape*, so it is safe
+        // to come down to a number here — and only here, for the plot. No
+        // figure on this screen is computed from it.
+        buckets.map((bucket) => ({ period: bucket.period, value: Number(bucket.grossSales) })),
+        from,
+        to,
+      ),
+      collected: fillDailySeries(
+        buckets.map((bucket) => ({ period: bucket.period, value: Number(bucket.collected) })),
+        from,
+        to,
+      ),
+    };
+  }, [query.data?.salesSeries, range.from, range.to]);
+
+  const previous = query.data?.previousSales;
+
+  /** "vs previous 30 days" — the comparison names its own period. */
+  const vsPrevious = t('dashboard.vsPrevious', {
+    days: formatNumber(effectiveDays),
+    count: effectiveDays,
+  });
+  const noPriorPeriod = t('dashboard.noPriorPeriod');
+
+  /*
+   * The bar's segments: the pipeline in order, then one folded segment for
+   * every order that did not complete.
+   */
+  const statusSegments = useMemo((): ProportionSegment[] => {
+    const rows = query.data?.ordersByStatus ?? [];
+
+    const staged = rows
+      .filter((row) => PIPELINE_STEP[row.status] !== undefined)
+      .map((row) => ({
+        id: row.status,
+        // `humanise`, the same as the table's own status column. The panel has
+        // no translated catalogue of order statuses, and inventing one here
+        // would leave the bar and the table underneath it disagreeing.
+        label: humanise(row.status),
+        value: row.count,
+        step: PIPELINE_STEP[row.status] ?? 'neutral',
+      }))
+      // Pipeline order, not the order the database happened to group them in,
+      // so the bar reads left to right as the sequence it represents.
+      .sort((a, b) => {
+        const rank = (step: ProportionSegment['step']): number =>
+          typeof step === 'number' ? step : -1;
+        return rank(a.step) - rank(b.step);
+      });
+
+    const notCompleted = rows
+      .filter((row) => NOT_COMPLETED.includes(row.status))
+      .reduce((sum, row) => sum + row.count, 0);
+
+    return notCompleted === 0
+      ? staged
+      : [
+          ...staged,
+          {
+            id: 'not-completed',
+            label: t('dashboard.didNotComplete'),
+            value: notCompleted,
+            step: 'danger' as const,
+          },
+        ];
+  }, [query.data?.ordersByStatus, t]);
 
   const statusColumns: Column<OrdersByStatusRow>[] = [
     {
@@ -565,7 +704,20 @@ export function DashboardPage(): React.JSX.Element {
               className="xl:col-span-2"
               value={formatNumber(sales?.orderCount ?? 0)}
               sub={windowLabel}
-            />
+            >
+              <Delta
+                current={sales?.orderCount ?? 0}
+                previous={previous?.orderCount ?? 0}
+                periodLabel={vsPrevious}
+                noComparisonLabel={noPriorPeriod}
+              />
+              <div className="mt-3">
+                <Sparkline
+                  points={trend.orders}
+                  label={t('dashboard.trendOf', { metric: t('label.orders') })}
+                />
+              </div>
+            </Metric>
 
             <Metric
               label={t('dashboard.grossSales')}
@@ -588,6 +740,19 @@ export function DashboardPage(): React.JSX.Element {
                   </dd>
                 </div>
               </dl>
+
+              <Delta
+                current={Number(sales?.grossSales.minor ?? '0')}
+                previous={Number(previous?.grossSales.minor ?? '0')}
+                periodLabel={vsPrevious}
+                noComparisonLabel={noPriorPeriod}
+              />
+              <div className="mt-3">
+                <Sparkline
+                  points={trend.gross}
+                  label={t('dashboard.trendOf', { metric: t('dashboard.grossSales') })}
+                />
+              </div>
             </Metric>
 
             <Metric
@@ -616,6 +781,16 @@ export function DashboardPage(): React.JSX.Element {
                   </p>
                 </div>
               )}
+
+              {/* The meter already carries the shape of this one, so it gets
+                  the change and no sparkline — three plots in one tile is
+                  where a dashboard stops being readable. */}
+              <Delta
+                current={Number(sales?.collected.minor ?? '0')}
+                previous={Number(previous?.collected.minor ?? '0')}
+                periodLabel={vsPrevious}
+                noComparisonLabel={noPriorPeriod}
+              />
             </Metric>
 
             <Metric
@@ -623,7 +798,14 @@ export function DashboardPage(): React.JSX.Element {
               className="xl:col-span-3"
               value={formatMoney(sales?.netRevenue)}
               sub={t('dashboard.afterRefunded', { amount: formatMoney(sales?.refunded) })}
-            />
+            >
+              <Delta
+                current={Number(sales?.netRevenue.minor ?? '0')}
+                previous={Number(previous?.netRevenue.minor ?? '0')}
+                periodLabel={vsPrevious}
+                noComparisonLabel={noPriorPeriod}
+              />
+            </Metric>
 
             <Metric
               label={t('dashboard.averageOrderValue')}
@@ -636,7 +818,14 @@ export function DashboardPage(): React.JSX.Element {
                 count: sales?.orderCount ?? 0,
                 orders: formatNumber(sales?.orderCount ?? 0),
               })}
-            />
+            >
+              <Delta
+                current={Number(sales?.averageOrderValue.minor ?? '0')}
+                previous={Number(previous?.averageOrderValue.minor ?? '0')}
+                periodLabel={vsPrevious}
+                noComparisonLabel={noPriorPeriod}
+              />
+            </Metric>
           </section>
 
           <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
@@ -645,6 +834,24 @@ export function DashboardPage(): React.JSX.Element {
               description={t('dashboard.whereEveryOrderInThis')}
               actions={<PanelLink to="/orders">{t('dashboard.allOrders')}</PanelLink>}
             >
+              {/*
+                The composition first, then the rows.
+                One bar answers "where is the period sitting" at a glance,
+                which a column of per-row meters cannot: those each have their
+                own track, so they compare a status against the total but
+                never against each other. The table underneath is unchanged and
+                is still where the exact figures are read.
+              */}
+              {statusSegments.length > 1 && (
+                <div className="border-b border-border-subtle px-5 py-4">
+                  <ProportionBar
+                    segments={statusSegments}
+                    total={ordersInStatuses}
+                    formatShare={(value, total) => `${String(Math.round((value / total) * 100))}%`}
+                  />
+                </div>
+              )}
+
               <DataTable
                 caption={t('dashboard.ordersByStatus')}
                 columns={statusColumns}

@@ -19,6 +19,7 @@ import { describe, expect, it } from 'vitest';
 import {
   STATUS_GROUPS,
   formatDuration,
+  groupStatusCounts,
   formatWeight,
   severityTone,
   slaTone,
@@ -158,5 +159,47 @@ describe('durations and weights read the way a person says them', () => {
     expect(formatWeight(820)).toBe('820 g');
     expect(formatWeight(1000)).toBe('1 kg');
     expect(formatWeight(4200)).toBe('4.2 kg');
+  });
+});
+
+describe('the dashboard bar accounts for every shipment it is given', () => {
+  it('folds per-status counts into the four groups', () => {
+    const grouped = groupStatusCounts([
+      { status: 'AWAITING_ASSIGNMENT', count: 2 },
+      { status: 'ACCEPTED', count: 1 },
+      { status: 'IN_TRANSIT', count: 4 },
+      { status: 'DELAYED', count: 3 },
+      { status: 'DELIVERED', count: 5 },
+    ]);
+
+    const byKey = new Map(grouped.map((group) => [group.labelKey, group.count]));
+
+    expect(byKey.get('shipments.group.waiting')).toBe(3);
+    expect(byKey.get('shipments.group.moving')).toBe(4);
+    expect(byKey.get('shipments.group.problem')).toBe(3);
+    expect(byKey.get('shipments.group.finished')).toBe(5);
+  });
+
+  /*
+   * The one way this chart can quietly lie. A status belonging to no group is
+   * counted into no segment, so the bar adds up to less than the total it was
+   * handed - and a part-to-whole bar that is not the whole says nothing on
+   * screen about the shipments it left out.
+   */
+  it('loses no shipment, whatever statuses arrive', () => {
+    const rows = STATUS_GROUPS.flatMap((group) =>
+      group.statuses.map((status) => ({ status, count: 1 })),
+    );
+
+    const total = groupStatusCounts(rows).reduce((sum, group) => sum + group.count, 0);
+
+    expect(total).toBe(rows.length);
+  });
+
+  it('returns a zero for a group nothing is in, rather than dropping it', () => {
+    const grouped = groupStatusCounts([{ status: 'IN_TRANSIT', count: 1 }]);
+
+    expect(grouped).toHaveLength(STATUS_GROUPS.length);
+    expect(grouped.filter((group) => group.count === 0)).toHaveLength(STATUS_GROUPS.length - 1);
   });
 });

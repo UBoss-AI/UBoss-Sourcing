@@ -628,20 +628,51 @@ export async function recurringReport(daysAhead = 7): Promise<RecurringReport> {
  * Every figure is a database aggregate. The Admin Panel renders these; it does
  * not compute authoritative totals from paginated data.
  */
+/**
+ * The window of the same length immediately before this one.
+ *
+ * What "up 18%" is measured against. Same length rather than "last calendar
+ * month", so a 7-day window compares with the 7 days before it and the figure
+ * means the same thing whatever period the dashboard is showing.
+ */
+function precedingWindow(window: DateWindow): DateWindow {
+  const span = window.to.getTime() - window.from.getTime();
+  return { from: new Date(window.from.getTime() - span), to: window.from };
+}
+
 export async function dashboard(window: DateWindow): Promise<Record<string, unknown>> {
-  const [sales, orders, payments, lowStock, recurring, failedNotifications, deadJobs] =
-    await Promise.all([
-      salesSummary(window),
-      ordersByStatus(window),
-      paymentsReport(window),
-      inventoryValuation({ lowStockOnly: true }),
-      recurringReport(7),
-      prisma.notificationOutbox.count({ where: { status: { in: ['FAILED', 'DEAD'] } } }),
-      prisma.jobQueue.count({ where: { status: 'DEAD' } }),
-    ]);
+  const [
+    sales,
+    previous,
+    series,
+    orders,
+    payments,
+    lowStock,
+    recurring,
+    failedNotifications,
+    deadJobs,
+  ] = await Promise.all([
+    salesSummary(window),
+    // The same aggregate over the preceding window. The dashboard shows the
+    // change between the two; it never computes a trend from a list it was
+    // sent, for the same reason nothing else here does.
+    salesSummary(precedingWindow(window)),
+    // The day-by-day series behind the headline figures, so a tile can show
+    // the shape of the period rather than only its total. Already used by the
+    // sales report, so there is one definition of "orders per day".
+    salesByPeriod(window, 'day'),
+    ordersByStatus(window),
+    paymentsReport(window),
+    inventoryValuation({ lowStockOnly: true }),
+    recurringReport(7),
+    prisma.notificationOutbox.count({ where: { status: { in: ['FAILED', 'DEAD'] } } }),
+    prisma.jobQueue.count({ where: { status: 'DEAD' } }),
+  ]);
 
   return {
     sales,
+    previousSales: previous,
+    salesSeries: series,
     ordersByStatus: orders,
     payments,
     lowStock: { count: lowStock.rows.length, items: lowStock.rows.slice(0, 10) },

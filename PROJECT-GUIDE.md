@@ -2865,7 +2865,7 @@ meantime.
 
 | Path | Screen | What it is for |
 |---|---|---|
-| `/` | Dashboard | Today's numbers, alerts, the notification bell |
+| `/` | Dashboard | The period's numbers, each with its change on the period before and the shape of the days behind it; where every order sits, as one bar; alerts and the notification bell |
 | `/categories` | Categories | The tree products are organised into |
 | `/products` | Products | The catalogue list |
 | `/products/:id` | Product editor | Details, media, variants, prices per currency, safety info |
@@ -3750,7 +3750,7 @@ an open exception on that consignment. Nobody else, at any level, at any time.
 
 | Route | What it is |
 |---|---|
-| `/dashboard` | Fourteen counters, aggregated on the server, plus today's pickups, deliveries, exceptions and recent activity. |
+| `/dashboard` | Fourteen counters, aggregated on the server, one bar showing where all the work sits, plus today's pickups, deliveries, exceptions and recent activity. |
 | `/shipments` | The list. Server-side paging, sorting, filtering, debounced search, saved filters, bulk actions and CSV export bound to the active filter and the reader's role. |
 | `/shipments/:id` | One consignment: route, timeline, packages, contacts, documents, and the status form. |
 | `/pickups` | Collections to book and to confirm, in each warehouse's own timezone. |

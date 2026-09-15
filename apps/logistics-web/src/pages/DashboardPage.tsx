@@ -9,16 +9,30 @@
  * One request, not fourteen. A screen that fires one request per card is a
  * screen whose cards populate at fourteen different moments, and on a depot's
  * connection somebody reads the third number before the first has arrived.
+ *
+ * One thing on this screen does add up: `StatusDistribution` sums the
+ * server's per-status counts into the four filter groups, because the server
+ * sends the twenty-seven statuses and not the groups. That is arithmetic on
+ * aggregates it was handed, which is a different act from counting a list -
+ * the rule above is about never deriving a total from a *page* of rows, where
+ * the page is a window onto data the screen cannot see all of.
  */
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Badge, Card, ErrorState, LoadingState, Metric, PageHeader } from '@/components/ui';
+import { ProportionBar } from '@/components/charts';
+import type { ProportionSegment } from '@/components/charts';
 import { useI18n } from '@/i18n/i18n-context';
 import { formatDateTime, formatRelative } from '@/lib/format';
 import { dashboardKey, fetchDashboard } from '@/lib/logistics';
 import { Permission } from '@/lib/permissions';
 import { useSession } from '@/auth/session-context';
-import { formatDuration, severityTone, statusTone } from '@/lib/shipment-display';
+import {
+  formatDuration,
+  groupStatusCounts,
+  severityTone,
+  statusTone,
+} from '@/lib/shipment-display';
 import type { Dashboard } from '@/lib/types';
 
 export function DashboardPage(): React.JSX.Element {
@@ -55,6 +69,8 @@ export function DashboardPage(): React.JSX.Element {
       <PageHeader title={t('dashboard.heading')} />
 
       <TodayCounts counts={data.counts} />
+
+      <StatusDistribution data={data} />
 
       <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Metric
@@ -114,6 +130,58 @@ export function DashboardPage(): React.JSX.Element {
         </div>
       ) : null}
     </>
+  );
+}
+
+/*
+ * Which step of the ordinal ramp each group takes.
+ *
+ * Three of the four are a sequence - waiting, then moving, then finished - so
+ * they take three ascending steps and the bar reads left to right as progress.
+ * "Problem" is not a stage in that sequence: it sits outside the ramp in the
+ * danger colour, where it is meant to be conspicuous.
+ */
+const GROUP_STEP: Record<string, ProportionSegment['step']> = {
+  'shipments.group.waiting': 2,
+  'shipments.group.moving': 4,
+  'shipments.group.finished': 6,
+  'shipments.group.problem': 'danger',
+};
+
+/**
+ * Where everything is, as one bar.
+ *
+ * `statusDistribution` has been on the wire since this portal was built and
+ * was never drawn - twenty-seven statuses with a count each, thrown away on
+ * arrival. Twenty-seven segments is not a chart, so it is folded onto the same
+ * four groups the shipments filter already offers, which a test holds to
+ * covering every status exactly once. A carrier asking "where is my work"
+ * means those four.
+ */
+function StatusDistribution({ data }: { data: Dashboard }): React.JSX.Element | null {
+  const { t } = useI18n();
+
+  const segments: ProportionSegment[] = groupStatusCounts(data.statusDistribution).map((group) => ({
+    id: group.labelKey,
+    label: t(group.labelKey),
+    value: group.count,
+    step: GROUP_STEP[group.labelKey] ?? 'neutral',
+  }));
+
+  const total = segments.reduce((sum, segment) => sum + segment.value, 0);
+
+  // Nothing assigned to this carrier yet. An empty track with a legend of
+  // four zeroes says less than the tiles above already do.
+  if (total === 0) return null;
+
+  return (
+    <Card title={t('dashboard.statusDistribution')} className="mt-6" bodyClassName="px-5 py-4">
+      <ProportionBar
+        segments={segments}
+        total={total}
+        formatShare={(value, whole) => `${String(Math.round((value / whole) * 100))}%`}
+      />
+    </Card>
   );
 }
 

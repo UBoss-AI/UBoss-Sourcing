@@ -144,6 +144,32 @@ export const STATUS_GROUPS: readonly {
 ];
 
 /**
+ * Fold a per-status count into the four filter groups.
+ *
+ * The dashboard's `statusDistribution` arrives as one row per status - up to
+ * twenty-seven of them - and twenty-seven segments is not a chart anybody
+ * reads. These are the same four groups the shipments filter offers, so the
+ * bar on the dashboard and the filter a carrier clicks afterwards agree about
+ * what "waiting" means.
+ *
+ * Pure, and here rather than in the component, so the one thing that can go
+ * quietly wrong is testable: a status that belongs to no group would be
+ * counted in no segment, and the bar would simply add up to less than the
+ * total with nothing on screen saying so.
+ */
+export function groupStatusCounts(
+  rows: readonly { status: ShipmentStatus; count: number }[],
+): { labelKey: (typeof STATUS_GROUPS)[number]['labelKey']; count: number }[] {
+  const counts = new Map<string, number>();
+  for (const row of rows) counts.set(row.status, (counts.get(row.status) ?? 0) + row.count);
+
+  return STATUS_GROUPS.map((group) => ({
+    labelKey: group.labelKey,
+    count: group.statuses.reduce((sum, status) => sum + (counts.get(status) ?? 0), 0),
+  }));
+}
+
+/**
  * "3h 20m", from a count of minutes.
  *
  * Deliberately not a relative-time formatter: an SLA is a duration rather than

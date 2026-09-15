@@ -464,6 +464,45 @@ describe('dashboard', () => {
     expect(panel).toHaveProperty('recurring');
     // Operational health, so a stuck queue is visible without a complaint.
     expect(panel).toHaveProperty('alerts');
+    // What the panel's change figures and sparklines are drawn from. Without
+    // both, the dashboard has nothing to compare against and silently falls
+    // back to showing a total with no trend.
+    expect(panel).toHaveProperty('previousSales');
+    expect(panel).toHaveProperty('salesSeries');
+  });
+
+  /*
+   * The comparison window is the same LENGTH as the one asked for, and ends
+   * where it begins. A comparison against a different span is the classic way
+   * a dashboard reports a 300% rise every time somebody narrows the period.
+   */
+  it('compares against a preceding window of equal length', async () => {
+    const to = new Date('2026-03-31T00:00:00.000Z');
+    const from = new Date('2026-03-21T00:00:00.000Z');
+
+    // Ten days inside the window, and ten in the window before it.
+    await makeOrder({ status: 'CONFIRMED', grandTotalMinor: 50_000n, createdAt: from });
+    await makeOrder({
+      status: 'CONFIRMED',
+      grandTotalMinor: 90_000n,
+      createdAt: new Date('2026-03-15T00:00:00.000Z'),
+    });
+
+    const panel = (await dashboard({ from, to })) as {
+      sales: { orderCount: number };
+      previousSales: { orderCount: number; window: { from: string; to: string } };
+    };
+
+    expect(panel.sales.orderCount).toBe(1);
+    expect(panel.previousSales.orderCount).toBe(1);
+
+    const previous = panel.previousSales.window;
+    // It ends exactly where the asked-for window starts...
+    expect(new Date(previous.to).toISOString()).toBe(from.toISOString());
+    // ...and is the same number of milliseconds long.
+    expect(new Date(previous.to).getTime() - new Date(previous.from).getTime()).toBe(
+      to.getTime() - from.getTime(),
+    );
   });
 });
 
