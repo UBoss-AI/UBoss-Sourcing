@@ -273,6 +273,22 @@ wants. The API reads it once at boot, so it needs a restart, not a file save.
 The marketplace is **general**, not tied to one trade. Questions specific to a
 trade hang off the category rather than the global field list.
 
+**Certificates are uploaded, not emailed.** Both document steps of the
+application take a PDF or a photograph of a CE certificate, a Declaration of
+Conformity, an ISO certificate, a licence or a registration document. The bytes
+go to private storage and come back only through a link that lives minutes and
+works once. Uploading is not approving: a document sits at *Being checked* until
+the marketplace accepts it on the seller's own screen in the console, a refusal
+carries a reason the seller reads word for word, and an expired certificate
+stops counting on the day it expires. Waiting on the marketplace never blocks
+submission — the review happens after the application is sent in.
+
+**A brand name is marketplace-wide; permission to sell it is per company.** The
+brand picker shows a seller the brands their own business has been approved for
+and nobody else's, so a name approved for a competitor never reads as
+permission. Asking for one that already exists attaches to the same brand row,
+so the catalogue never grows a second "B. Braun".
+
 </details>
 
 <details>
@@ -299,6 +315,17 @@ not read as a steady month. Where the preceding window holds nothing, the tile
 says so rather than reporting a rise out of nothing. Underneath, one bar shows
 where every order in the period sits, from the earliest stage through to
 delivered.
+
+**The navigation rail counts what is waiting.** Every row with a queue behind
+it carries a number when anything is in it — listings in review, brands asked
+for, orders held for an approver, sign-ups at the approval gate, data requests,
+open consignment exceptions, and seller applications together with the
+certificates attached to them. Each count is gated by the permission that makes
+it actionable, and a count the signed-in user may not see is absent rather than
+zero. Beside the notification bell there is a **refresh control** — the Seller
+Hub has the same one — which re-reads the screen without losing the scroll
+position or an open dialog, for the everyday case of two people working the
+same queue from two sides.
 
 Two things it deliberately cannot do: mark an order as paid (only a
 signature-verified provider event confirms one), and publish a product by
@@ -478,6 +505,44 @@ customer list. A duplicate gets the same status code and the same body as a new
 sign-up, and the truth goes to the mailbox instead: the address receives a "you
 already have an account" email with a reset link. The same reasoning governs
 `/auth/password/forgot`.
+
+</details>
+
+<details>
+<summary><b>Certificates a seller uploads</b></summary>
+
+A seller attaches evidence — a CE certificate, a Declaration of Conformity, an
+ISO certificate, a licence, a registration document — from the Compliance and
+Identity steps of their application. What the deployment actually *requires* is
+`SellerOnboardingRequirement` rows, keyed by country and seller kind, which an
+operator edits. Nothing is required by default: the marketplace is general, and
+a seller of packaging has no quality certificate.
+
+Only PDFs and pictures are accepted, decided by the file's own magic bytes and
+never by what the browser claims, up to 10 MB. The bytes are written under the
+private storage prefix, which the static route is not mounted over, and are
+served only through a link minted per press that lives minutes and works once —
+as a download with `nosniff`, never rendered in the page.
+
+| Variable | What it does |
+|---|---|
+| `SELLER_ALLOW_UNSCANNED_DOCUMENTS` | Whether a file no malware scanner has seen may be opened. Default `true` |
+| `LOGISTICS_DOCUMENT_URL_TTL_SECONDS` | How long a signed document link lives, for these and for carrier documents. Default `300` |
+
+No malware scanner ships with this software, so an upload records
+`SCANNER_UNCONFIGURED` rather than "clean" — and the state is shown beside every
+document on both the seller's screen and the operator's. The default is `true`
+because a reviewer who cannot open the evidence cannot decide the application at
+all, and the alternative is certificates going back to arriving by email where
+nobody can find them again. Set it `false` once a scanner is wired in, or where
+policy forbids opening unscanned files.
+
+Uploading is not approving. A document sits at *Being checked* until somebody
+accepts it from the Documents card on that seller's screen in the console; a
+refusal must carry a reason, which the seller reads word for word. Accepting,
+refusing and opening one are all recorded — on the operator's audit trail,
+where an auditor asks who accepted a certificate and when, and on the seller's,
+where the marketplace appears as a role rather than as a named member of staff.
 
 </details>
 
@@ -938,6 +1003,15 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
 - **One seller cannot read another seller's data.** Every owned row carries its
   `sellerAccountId`, no route takes one from the caller, and no service accepts
   a seller id without having been handed a membership first.
+- **A brand is one row; permission to sell it is one company's.** Approving a
+  name puts it in the catalogue once, for everybody. Approving a seller's
+  *request* is what lets that business list under it, and the picker and the
+  publish gate both read the same answer — so a name approved for a competitor
+  is never offered as though it were permission.
+- **A file is never called clean because nothing looked at it.** No malware
+  scanner ships here, so an upload records `SCANNER_UNCONFIGURED`, the state is
+  shown wherever the document is, and whether an unscanned file may be opened is
+  a setting somebody decides rather than an assumption the code makes.
 - **The audit log is append-only.** Every state change records who, when, from
   where and why. No screen offers a way to edit or delete an entry.
 - **One order per checkout.** The idempotency key is generated once per attempt

@@ -71,6 +71,16 @@ const CUSTOMER_REGISTERED = 'customer.registered';
  */
 const LOGISTICS_EXCEPTION_RAISED = 'logistics.exception.raised';
 
+/**
+ * A seller attached a certificate or a licence for the marketplace to accept.
+ *
+ * Carries `customer.read` on the backend, the same grant the seller queue is
+ * behind: the row names a business and what it is trying to prove about itself.
+ * The link goes to that seller's screen, which is where the Accept and Send
+ * back buttons are - the bell is the prompt, not the decision.
+ */
+const SELLER_DOCUMENT_UPLOADED = 'seller.document.uploaded';
+
 /** One page of the feed. Deliberately short: this is a bell, not the audit log. */
 const FEED_LIMIT = 20;
 
@@ -202,6 +212,18 @@ function describe(
       detail: t('notifications.logisticsException.detail', {
         exceptionType: humanise(textVariable(variables, 'exceptionType', '—')),
         receivingCompany: textVariable(variables, 'receivingCompany', '—'),
+      }),
+    };
+  }
+
+  if (notification.kind === SELLER_DOCUMENT_UPLOADED) {
+    return {
+      title: t('notifications.sellerDocumentUploaded.title', {
+        sellerName: textVariable(variables, 'sellerName', '—'),
+        documentKind: textVariable(variables, 'documentKind', '—'),
+      }),
+      detail: t('notifications.sellerDocumentUploaded.detail', {
+        fileName: textVariable(variables, 'fileName', '—'),
       }),
     };
   }

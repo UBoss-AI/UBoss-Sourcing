@@ -38,17 +38,25 @@ import { useI18n } from '@/i18n/i18n-context';
 import { cx } from '@/lib/cx';
 import { errorMessage } from '@/lib/errors';
 import {
+  SELLER_DOCUMENT_KINDS,
   acceptAgreement,
+  createDocumentLink,
+  documentKindLabel,
   fetchBusinessProfile,
   fetchLocations,
   fetchOnboarding,
   fetchPayoutAccount,
+  fetchSellerDocuments,
   saveBusinessProfile,
   saveStoreProfile,
   submitApplication,
+  uploadSellerDocument,
+  withdrawSellerDocument,
   type BusinessProfile,
   type OnboardingStep,
   type OnboardingStepState,
+  type SellerDocument,
+  type SellerDocumentKind,
 } from '@/lib/seller';
 import type { SellerOutletContext } from './SellerLayout';
 
@@ -312,7 +320,7 @@ export function SellerOnboardingPage(): React.JSX.Element {
           className="min-w-0 space-y-4 outline-none"
         >
           {active !== undefined && (
-            <StepPanel step={active} isEditable={seller.isApplicationEditable} />
+            <StepPanel step={active} seller={seller} />
           )}
 
           {/*
@@ -362,15 +370,47 @@ export function SellerOnboardingPage(): React.JSX.Element {
 
 function StepPanel({
   step,
-  isEditable,
+  seller,
 }: {
   step: OnboardingStep;
-  isEditable: boolean;
+  seller: SellerOutletContext;
 }): React.JSX.Element {
+  const isEditable = seller.isApplicationEditable;
+
+  /*
+   * Evidence is NOT gated on the application being editable, and the two are
+   * genuinely different questions.
+   *
+   * An approved seller whose ISO certificate runs out next month has to be
+   * able to send the renewal, and their application stopped being editable the
+   * day they were approved. A seller whose application is with a reviewer is
+   * exactly the person who gets asked for another document. The backend has
+   * always allowed both; this is what stops the screen hiding the control.
+   *
+   * What does close it is an account that may not trade at all — there is
+   * nothing a rejected or suspended business can fix by uploading a file, and
+   * offering the form would be inviting work that leads nowhere.
+   */
+  const canUpload = seller.status !== 'REJECTED' && seller.status !== 'SUSPENDED';
+
   switch (step.key) {
     case 'business_identity':
-    case 'kyb_kyc':
       return <RequirementForm step={step} isEditable={isEditable} />;
+    /*
+     * Identity and documents asks for both, so it draws both: the typed fields
+     * above and the evidence panel below. Splitting them across two steps was
+     * never an option - "the representative's name" and "photo identification
+     * for the representative" are one question asked twice.
+     */
+    case 'kyb_kyc':
+      return (
+        <div className="space-y-5">
+          <RequirementForm step={step} isEditable={isEditable} />
+          <DocumentsStep step={step} isEditable={canUpload} />
+        </div>
+      );
+    case 'compliance':
+      return <DocumentsStep step={step} isEditable={canUpload} />;
     case 'store_profile':
       return <StoreProfileForm step={step} isEditable={isEditable} />;
     case 'locations':
@@ -502,7 +542,6 @@ function RequirementForm({
   };
 
   const typed = step.requirements.filter((requirement) => !requirement.isDocument);
-  const documents = step.requirements.filter((requirement) => requirement.isDocument);
 
   return (
     <Card>
@@ -563,30 +602,6 @@ function RequirementForm({
           ))}
         </div>
 
-        {documents.length > 0 && (
-          <div className="rounded-lg border border-border bg-surface-sunken px-4 py-4">
-            <h3 className="text-sm font-semibold text-ink">Documents we need</h3>
-            <ul className="mt-2 space-y-1.5">
-              {documents.map((requirement) => (
-                <li key={requirement.fieldKey} className="text-sm text-ink-muted">
-                  <span className="text-ink">{requirement.label}</span>
-                  {requirement.helpText !== null && ` — ${requirement.helpText}`}
-                </li>
-              ))}
-            </ul>
-            {/*
-              Stated rather than a button that does nothing. Document upload
-              needs object storage and a malware scanner configured, and neither
-              is on this deployment - see the implementation plan. Offering an
-              upload control that silently fails would be worse than saying so.
-            */}
-            <p className="mt-3 text-xxs leading-relaxed text-ink-subtle">
-              Document uploads need encrypted object storage to be configured for this deployment.
-              Until then, send these to the marketplace team and they will attach them to your
-              application.
-            </p>
-          </div>
-        )}
 
         {isEditable && typed.length > 0 && (
           <div className="flex items-center gap-3 pt-1">
@@ -1007,6 +1022,436 @@ function AgreementsStep({
       </div>
     </Card>
   );
+}
+
+// ---------------------------------------------------------------------------
+// Evidence
+// ---------------------------------------------------------------------------
+
+/**
+ * Certificates, licences and the paperwork behind them.
+ *
+ * Shown on the two steps that ask for documents - Compliance, and Identity and
+ * documents - and it is the same panel on both, because it is the same job: put
+ * a file up, and see what the marketplace made of the last one.
+ *
+ * Three things it is careful to say out loud, because a seller who guesses any
+ * of them guesses wrong:
+ *
+ *   - **Uploading is not approving.** A file sits at "Being checked" until
+ *     somebody at the marketplace accepts it, and the badge says so.
+ *   - **A refusal comes with the reason.** Written by the reviewer, shown here
+ *     in full, because "not accepted" on its own produces the same file
+ *     uploaded again.
+ *   - **What is required, and what is merely allowed.** A seller of packaging
+ *     has no CE certificate and never will; the list below says which of these
+ *     their country and trade actually demands, and everything else is offered
+ *     rather than asked for.
+ */
+function DocumentsStep({
+  step,
+  isEditable,
+}: {
+  step: OnboardingStep;
+  isEditable: boolean;
+}): React.JSX.Element {
+  const { t } = useI18n();
+  const toast = useToast();
+  const client = useQueryClient();
+
+  const query = useQuery({ queryKey: ['seller', 'documents'], queryFn: fetchSellerDocuments });
+
+  // The requirements this step asks for as FILES. The typed fields on the same
+  // step are the requirement form's business, not this panel's.
+  const wanted = step.requirements.filter((requirement) => requirement.isDocument);
+
+  const documents = query.data?.documents ?? [];
+
+  const refresh = async (): Promise<void> => {
+    // Both, and in that order: the list this panel renders, and the checklist
+    // whose tick depends on it. The server has already recomputed the step, so
+    // this is re-reading the answer rather than deciding it.
+    await client.invalidateQueries({ queryKey: ['seller', 'documents'] });
+    await client.invalidateQueries({ queryKey: ['seller', 'onboarding'] });
+  };
+
+  const withdraw = useMutation({
+    mutationFn: withdrawSellerDocument,
+    onSuccess: async () => {
+      await refresh();
+      toast.success('Removed.');
+    },
+    onError: (error: unknown) => {
+      toast.error(errorMessage(t, error, 'That document could not be removed.'));
+    },
+  });
+
+  const open = useMutation({
+    mutationFn: createDocumentLink,
+    onSuccess: (link) => {
+      /*
+       * Opened the moment it is minted, never stored.
+       *
+       * The link is single-use and lives for minutes, so keeping it in state to
+       * render as an `<a href>` would produce a control that is dead by the
+       * time anybody clicks it. `noopener` because this is a download from our
+       * own origin and the new context has no business reaching back.
+       */
+      window.open(link.url, '_blank', 'noopener,noreferrer');
+    },
+    onError: (error: unknown) => {
+      toast.error(errorMessage(t, error, 'That document could not be opened.'));
+    },
+  });
+
+  return (
+    <Card>
+      <div className="space-y-5 px-6 py-5">
+        <StepHeader step={step} />
+
+        {step.message !== null && (
+          <p className="rounded-lg border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-ink">
+            {step.message}
+          </p>
+        )}
+
+        {/* What this country and trade actually demands. Rendered before the
+            upload form, because it is the answer to "what do you want from
+            me" and the form is only useful once that is known. */}
+        {wanted.length > 0 && (
+          <div>
+            <h3 className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
+              What we need from you
+            </h3>
+            <ul className="mt-3 divide-y divide-border-subtle rounded-lg border border-border">
+              {wanted.map((requirement) => {
+                const answer = documents.find(
+                  (document) => document.requirementFieldKey === requirement.fieldKey,
+                );
+
+                return (
+                  <li key={requirement.fieldKey} className="px-4 py-3">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-ink">
+                          {requirement.label}
+                          {requirement.isRequired && (
+                            <span aria-hidden="true" className="ml-0.5 text-danger">
+                              *
+                            </span>
+                          )}
+                        </p>
+                        {requirement.helpText !== null && (
+                          <p className="mt-0.5 max-w-prose text-xxs leading-relaxed text-ink-muted">
+                            {requirement.helpText}
+                          </p>
+                        )}
+                      </div>
+                      <Badge tone={answer === undefined ? 'neutral' : DOCUMENT_TONE[answer.status]}>
+                        {answer === undefined
+                          ? requirement.isRequired
+                            ? 'Needed'
+                            : 'Optional'
+                          : DOCUMENT_LABEL[answer.status]}
+                      </Badge>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
+
+        {step.key === 'compliance' && wanted.length === 0 && (
+          <p className="max-w-prose text-sm leading-relaxed text-ink-muted">
+            Nothing is required for the kind of seller you registered as in your country. You can
+            still attach a CE certificate, a Declaration of Conformity or a quality certificate
+            below — buyers of regulated goods ask for them, and having one accepted before you list
+            saves a round trip later.
+          </p>
+        )}
+
+        {isEditable && <DocumentUploadForm requirements={wanted} onUploaded={refresh} />}
+
+        {/* What is already up. Below the form rather than above it, because on
+            a first visit there is nothing here and the form is the thing to
+            get to. */}
+        <div>
+          <h3 className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
+            What you have sent us
+          </h3>
+
+          {query.isPending && <LoadingState label="Loading your documents" />}
+
+          {query.data !== undefined && documents.length === 0 && (
+            <p className="mt-3 text-sm text-ink-muted">Nothing yet.</p>
+          )}
+
+          {documents.length > 0 && (
+            <ul className="mt-3 divide-y divide-border-subtle rounded-lg border border-border">
+              {documents.map((document) => (
+                <li key={document.id} className="px-4 py-3">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-ink">
+                        {documentKindLabel(document.kind)}
+                      </p>
+                      <p className="mt-0.5 truncate text-xxs text-ink-subtle">
+                        {document.originalFileName} · {Math.max(1, Math.round(document.byteSize / 1024))} KB
+                        {document.expiresOn !== null && ` · expires ${document.expiresOn}`}
+                      </p>
+                    </div>
+
+                    <div className="flex shrink-0 flex-wrap items-center gap-2">
+                      <Badge tone={DOCUMENT_TONE[document.status]}>
+                        {DOCUMENT_LABEL[document.status]}
+                      </Badge>
+
+                      {document.isDownloadable && (
+                        <Button
+                          isLoading={open.isPending && open.variables === document.id}
+                          onClick={() => {
+                            open.mutate(document.id);
+                          }}
+                        >
+                          Open
+                        </Button>
+                      )}
+
+                      {/* Only while it is undecided. A document the
+                          marketplace has accepted is part of the record of why
+                          this seller was approved, so the way to change it is
+                          to upload a newer one. */}
+                      {isEditable && document.status === 'PENDING' && (
+                        <Button
+                          isLoading={withdraw.isPending && withdraw.variables === document.id}
+                          onClick={() => {
+                            withdraw.mutate(document.id);
+                          }}
+                        >
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+
+                  {document.rejectedReason !== null && (
+                    <p className="mt-2 rounded-lg border border-danger/30 bg-danger-soft px-3 py-2 text-xs leading-relaxed text-ink">
+                      {document.rejectedReason}
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+const DOCUMENT_TONE: Record<SellerDocument['status'], 'neutral' | 'brand' | 'success' | 'danger'> = {
+  PENDING: 'brand',
+  APPROVED: 'success',
+  REJECTED: 'danger',
+};
+
+const DOCUMENT_LABEL: Record<SellerDocument['status'], string> = {
+  PENDING: 'Being checked',
+  APPROVED: 'Accepted',
+  REJECTED: 'Not accepted',
+};
+
+/**
+ * The upload form.
+ *
+ * Its own component so that choosing a file, a kind and two dates does not
+ * re-render the list above on every keystroke - and so that the form can reset
+ * itself after a successful upload by remounting, which is the one reliable way
+ * to clear a file input.
+ *
+ * The "what is this" picker offers the REQUIREMENTS first where there are any,
+ * because attaching a file to the requirement it answers is what lets the
+ * checklist tick itself. A free-standing document is still allowed: a seller
+ * who wants to send a certificate nobody asked for should be able to.
+ */
+function DocumentUploadForm({
+  requirements,
+  onUploaded,
+}: {
+  requirements: OnboardingStep['requirements'];
+  onUploaded: () => Promise<void>;
+}): React.JSX.Element {
+  const { t } = useI18n();
+  const toast = useToast();
+
+  const [target, setTarget] = useState<string>(
+    requirements[0] === undefined ? `kind:${DEFAULT_DOCUMENT_KIND}` : `req:${requirements[0].fieldKey}`,
+  );
+  const [issuedOn, setIssuedOn] = useState('');
+  const [expiresOn, setExpiresOn] = useState('');
+  const [file, setFile] = useState<File | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const mutation = useMutation({
+    mutationFn: (chosen: File) =>
+      uploadSellerDocument({
+        file: chosen,
+        kind: kindFor(target, requirements),
+        requirementFieldKey: target.startsWith('req:') ? target.slice(4) : null,
+        issuedOn: issuedOn.length === 0 ? null : issuedOn,
+        expiresOn: expiresOn.length === 0 ? null : expiresOn,
+      }),
+    onSuccess: async () => {
+      setFile(null);
+      setIssuedOn('');
+      setExpiresOn('');
+      // A file input's value cannot be set to anything but the empty string,
+      // and clearing the React state alone leaves the browser still showing
+      // the old filename beside the button.
+      if (fileRef.current !== null) fileRef.current.value = '';
+
+      await onUploaded();
+      toast.success('Uploaded. We will check it and let you know.');
+    },
+    onError: (error: unknown) => {
+      toast.error(errorMessage(t, error, 'That document could not be uploaded.'));
+    },
+  });
+
+  return (
+    <div className="space-y-4 rounded-lg border border-border bg-surface-sunken px-4 py-4">
+      <Field label="What is this document?">
+        {({ inputId }) => (
+          <select
+            id={inputId}
+            value={target}
+            onChange={(event) => {
+              setTarget(event.currentTarget.value);
+            }}
+            className="h-10 w-full rounded-md border border-border-strong bg-surface px-3 text-sm text-ink"
+          >
+            {requirements.length > 0 && (
+              <optgroup label="What we asked for">
+                {requirements.map((requirement) => (
+                  <option key={requirement.fieldKey} value={`req:${requirement.fieldKey}`}>
+                    {requirement.label}
+                  </option>
+                ))}
+              </optgroup>
+            )}
+            <optgroup label="Something else">
+              {SELLER_DOCUMENT_KINDS.map((kind) => (
+                <option key={kind.value} value={`kind:${kind.value}`}>
+                  {kind.label}
+                </option>
+              ))}
+            </optgroup>
+          </select>
+        )}
+      </Field>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Issued on" hint="Optional. Leave blank if the document has no date on it.">
+          {({ inputId, describedBy }) => (
+            <Input
+              id={inputId}
+              aria-describedby={describedBy}
+              type="date"
+              value={issuedOn}
+              onChange={(event) => {
+                setIssuedOn(event.currentTarget.value);
+              }}
+            />
+          )}
+        </Field>
+
+        <Field
+          label="Expires on"
+          hint="Optional, but worth giving: we warn you before a certificate runs out."
+        >
+          {({ inputId, describedBy }) => (
+            <Input
+              id={inputId}
+              aria-describedby={describedBy}
+              type="date"
+              value={expiresOn}
+              onChange={(event) => {
+                setExpiresOn(event.currentTarget.value);
+              }}
+            />
+          )}
+        </Field>
+      </div>
+
+      <Field label="The file" hint="A PDF, or a clear photograph or scan. Up to 10 MB.">
+        {({ inputId, describedBy }) => (
+          <input
+            id={inputId}
+            aria-describedby={describedBy}
+            ref={fileRef}
+            type="file"
+            // The bytes decide the type on the server whatever this says; this
+            // is a hint to the file picker, not a control.
+            accept="application/pdf,image/jpeg,image/png,image/webp,image/gif"
+            onChange={(event) => {
+              setFile(event.currentTarget.files?.[0] ?? null);
+            }}
+            className="block w-full text-sm text-ink file:mr-3 file:rounded-md file:border-0 file:bg-brand-soft file:px-3 file:py-2 file:text-sm file:font-medium file:text-brand"
+          />
+        )}
+      </Field>
+
+      <Button
+        variant="primary"
+        isLoading={mutation.isPending}
+        disabled={file === null}
+        onClick={() => {
+          if (file !== null) mutation.mutate(file);
+        }}
+      >
+        Upload
+      </Button>
+    </div>
+  );
+}
+
+/** What a free-standing upload defaults to. The one most sellers reach for. */
+const DEFAULT_DOCUMENT_KIND: SellerDocumentKind = 'CE_CERTIFICATE';
+
+/**
+ * Which enum member to file an upload under.
+ *
+ * A requirement says what to ASK for; the KIND is what the document is, and the
+ * two are not the same field. The mapping is by the words in the requirement's
+ * own field key, which is what lets an operator add
+ * `ce_certificate_class_iib` as a requirement and have it filed correctly with
+ * no code change. Anything unrecognised is OTHER, which is honest - a reviewer
+ * reads the requirement label beside it either way.
+ */
+function kindFor(target: string, requirements: OnboardingStep['requirements']): SellerDocumentKind {
+  if (target.startsWith('kind:')) {
+    const chosen = target.slice(5);
+    const known = SELLER_DOCUMENT_KINDS.find((entry) => entry.value === chosen);
+    return known?.value ?? DEFAULT_DOCUMENT_KIND;
+  }
+
+  const fieldKey = target.slice(4);
+  const requirement = requirements.find((entry) => entry.fieldKey === fieldKey);
+  const haystack = `${fieldKey} ${requirement?.label ?? ''}`.toLowerCase();
+
+  if (haystack.includes('ce ') || haystack.includes('ce_')) return 'CE_CERTIFICATE';
+  if (haystack.includes('conformity')) return 'DECLARATION_OF_CONFORMITY';
+  if (haystack.includes('notified body')) return 'NOTIFIED_BODY_CERTIFICATE';
+  if (haystack.includes('quality') || haystack.includes('iso')) return 'ISO_13485';
+  if (haystack.includes('licence') || haystack.includes('license')) return 'REGULATORY_LICENCE';
+  if (haystack.includes('registration')) return 'BUSINESS_REGISTRATION';
+  if (haystack.includes('tax') || haystack.includes('vat')) return 'TAX_CERTIFICATE';
+  if (haystack.includes('identity') || haystack.includes('identification')) return 'IDENTITY_PROOF';
+  if (haystack.includes('address')) return 'ADDRESS_PROOF';
+  if (haystack.includes('bank')) return 'BANK_STATEMENT';
+
+  return 'OTHER';
 }
 
 function GenericStep({ step }: { step: OnboardingStep }): React.JSX.Element {

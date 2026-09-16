@@ -2589,5 +2589,9 @@
   "logistics.eventSource.LOGISTICS_PORTAL": "Ufficio del vettore",
   "logistics.eventSource.CARRIER_API": "Interrogazione del vettore",
   "logistics.eventSource.INBOUND_WEBHOOK": "Feed del vettore",
-  "logistics.eventSource.SYSTEM_AUTOMATION": "Automatico"
+  "logistics.eventSource.SYSTEM_AUTOMATION": "Automatico",
+  "shell.attention": "{{waiting}} in attesa di essere gestiti",
+  "shell.refresh": "Aggiorna questa schermata",
+  "notifications.sellerDocumentUploaded.title": "{{sellerName}} ha caricato un documento: {{documentKind}}",
+  "notifications.sellerDocumentUploaded.detail": "{{fileName}} — in attesa di verifica"
 }

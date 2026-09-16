@@ -2565,5 +2565,9 @@
   "logistics.eventSource.LOGISTICS_PORTAL": "Büro des Transportunternehmens",
   "logistics.eventSource.CARRIER_API": "Abfrage beim Transportunternehmen",
   "logistics.eventSource.INBOUND_WEBHOOK": "Feed des Transportunternehmens",
-  "logistics.eventSource.SYSTEM_AUTOMATION": "Automatisch"
+  "logistics.eventSource.SYSTEM_AUTOMATION": "Automatisch",
+  "shell.attention": "{{waiting}} warten auf Bearbeitung",
+  "shell.refresh": "Diese Ansicht aktualisieren",
+  "notifications.sellerDocumentUploaded.title": "{{sellerName}} hat ein Dokument hochgeladen: {{documentKind}}",
+  "notifications.sellerDocumentUploaded.detail": "{{fileName}} — wartet auf Prüfung"
 }

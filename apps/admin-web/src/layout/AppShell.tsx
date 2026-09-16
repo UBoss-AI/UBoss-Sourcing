@@ -12,6 +12,7 @@
  *     silently falls out of.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useSession } from '@/auth/session-context';
 import { useToast } from '@/components/toast-context';
@@ -20,13 +21,15 @@ import {
   ChevronRightIcon,
   CloseIcon,
   MenuIcon,
+  RefreshIcon,
   SignOutIcon,
 } from '@/components/icons';
 import { cx } from '@/lib/cx';
+import { useAttention, type AttentionView } from '@/lib/attention';
 import { roleLabel } from '@/lib/permissions';
 import { translateKey, useI18n } from '@/i18n/i18n-context';
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
-import { locateRoute, visibleNavigation } from './navigation';
+import { locateRoute, visibleNavigation, type NavItem } from './navigation';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { LocaleMenu } from './LocaleMenu';
 import { NotificationBell } from './NotificationBell';
@@ -68,6 +71,48 @@ function Brand({ onNavigate }: { onNavigate?: (() => void) | undefined }): React
 }
 
 /**
+ * The mark on a navigation row that has work waiting behind it.
+ *
+ * A number in a pill, not a bare dot. A dot says "something"; an operator
+ * arriving in the morning needs to know whether that something is one listing
+ * or forty, because the answer decides what they open first — and the whole
+ * point of putting this on the rail rather than on each screen is that it is
+ * readable without opening anything.
+ *
+ * Three things it is careful about:
+ *
+ *   - **It is never the only signal.** The count is in the row's accessible
+ *     name as a sentence, so a screen reader announces "Listing review, 4
+ *     waiting" rather than "Listing review 4". The pill itself is
+ *     `aria-hidden`, or the number would be read twice.
+ *   - **Zero draws nothing.** An empty queue is the normal state, and a rail
+ *     carrying fourteen zeroes is a rail whose badges mean nothing.
+ *   - **It does not move the label.** The pill sits after the truncating name
+ *     and never shrinks, so a long translation ellipsises instead of pushing
+ *     the count off the edge of the column.
+ */
+function AttentionBadge({ count }: { count: number }): React.JSX.Element {
+  return (
+    <span
+      aria-hidden="true"
+      className={cx(
+        'ml-auto flex h-[1.15rem] min-w-[1.15rem] shrink-0 items-center justify-center',
+        'rounded-full bg-danger-fill px-1.5 text-xxs font-semibold leading-none text-white',
+      )}
+    >
+      {count > 99 ? '99+' : count}
+    </span>
+  );
+}
+
+/** How many things are waiting behind one row, across every queue it carries. */
+function countFor(item: NavItem, attention: AttentionView | undefined): number {
+  if (attention === undefined || item.attentionKeys === undefined) return 0;
+
+  return item.attentionKeys.reduce((total, key) => total + (attention.counts[key] ?? 0), 0);
+}
+
+/**
  * The sidebar.
  *
  * White, over a sky-tinted page. It used to be navy, and the reason for the
@@ -87,6 +132,9 @@ function Sidebar({ onNavigate }: { onNavigate?: (() => void) | undefined }): Rea
   const { can } = useSession();
   const { t } = useI18n();
   const groups = visibleNavigation(can);
+  // De-duplicated by React Query across the desktop rail and the mobile
+  // drawer, both of which render this component.
+  const attention = useAttention().data;
 
   return (
     <nav
@@ -104,6 +152,8 @@ function Sidebar({ onNavigate }: { onNavigate?: (() => void) | undefined }): Rea
             <ul className="space-y-px">
               {group.items.map((item) => {
                 const ItemIcon = item.icon;
+                const waiting = countFor(item, attention);
+                const label = translateKey(t, item.labelKey);
 
                 return (
                   <li key={item.to}>
@@ -111,6 +161,14 @@ function Sidebar({ onNavigate }: { onNavigate?: (() => void) | undefined }): Rea
                       to={item.to}
                       end={item.matchPrefix !== true}
                       onClick={onNavigate}
+                      // The count in words, not only in a pill. Without this a
+                      // screen-reader user gets the destination and none of the
+                      // reason it is worth going there.
+                      aria-label={
+                        waiting > 0
+                          ? `${label} — ${t('shell.attention', { waiting })}`
+                          : undefined
+                      }
                       className={({ isActive }) =>
                         cx(
                           'group relative flex h-9 items-center gap-2.5 rounded-md pl-3.5 pr-2.5',
@@ -134,7 +192,8 @@ function Sidebar({ onNavigate }: { onNavigate?: (() => void) | undefined }): Rea
                               isActive ? 'text-brand' : 'text-ink-subtle group-hover:text-ink-muted',
                             )}
                           />
-                          <span className="truncate">{translateKey(t, item.labelKey)}</span>
+                          <span className="truncate">{label}</span>
+                          {waiting > 0 && <AttentionBadge count={waiting} />}
                         </>
                       )}
                     </NavLink>
@@ -196,6 +255,64 @@ function PageContext(): React.JSX.Element | null {
         )}
       </ol>
     </nav>
+  );
+}
+
+/**
+ * Bring the screen up to date.
+ *
+ * The panel caches: a list read a minute ago is served from memory so that
+ * moving between screens is instant. That is right almost always and wrong in
+ * exactly one situation, which happens here every day — two people working the
+ * same queue. An operator approves a seller, the seller refreshes their Hub and
+ * sees it, and the colleague looking at the same list in the next chair still
+ * has yesterday's answer on screen until something happens to invalidate it.
+ *
+ * So this is the browser's reload button, minus the reload: every query in the
+ * panel is marked stale and the ones actually on screen refetch. Deliberately
+ * NOT `window.location.reload()`, which would also throw away the scroll
+ * position, the open dialog and the half-typed reason in it.
+ *
+ * It lives in the top bar rather than on each page for the same reason the bell
+ * does: the screen somebody needs to refresh is whichever one they are standing
+ * on, and a control that exists on four of twenty screens is a control nobody
+ * learns.
+ */
+function RefreshButton(): React.JSX.Element {
+  const { t } = useI18n();
+  const queryClient = useQueryClient();
+  const isFetching = useIsFetching() > 0;
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const refresh = (): void => {
+    setIsRefreshing(true);
+    // Not awaited into the button's state: `invalidateQueries` resolves when
+    // every refetch it triggered has settled, and a request that hangs would
+    // leave the icon spinning for as long as the socket does. The spin is
+    // driven by `isFetching` instead, which is the honest signal.
+    void queryClient.invalidateQueries();
+    // Long enough that a refresh with nothing to fetch still acknowledges the
+    // press. A control that visibly does nothing gets pressed again.
+    window.setTimeout(() => {
+      setIsRefreshing(false);
+    }, 600);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={refresh}
+      aria-label={t('shell.refresh')}
+      title={t('shell.refresh')}
+      className={cx(
+        'flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-transparent',
+        'text-ink-muted transition-colors hover:border-border hover:bg-surface-hover hover:text-ink',
+      )}
+    >
+      <RefreshIcon
+        className={cx('h-[1.15rem] w-[1.15rem]', (isRefreshing || isFetching) && 'animate-spin')}
+      />
+    </button>
   );
 }
 
@@ -489,6 +606,11 @@ export function AppShell(): React.JSX.Element {
             {/* On every page, and that is the whole point of it being here
                 rather than on the dashboard: a new order is worth knowing
                 about while you are standing in Inventory. */}
+            {/* Before the bell, because it is the control somebody reaches
+                for when the screen in front of them looks stale — most often
+                because a colleague has just decided something on it. */}
+            <RefreshButton />
+
             <NotificationBell />
 
             {/* Beside the bell, and on every page for the same reason: somebody

@@ -292,6 +292,24 @@ async function deriveStandingSteps(membership: SellerMembership): Promise<void> 
     supportEmail: account?.businessProfile?.supportEmail,
     isResumePoint: false,
   });
+
+  /*
+   * --- The requirement steps ------------------------------------------------
+   *
+   * Derived here too, for the same reason as the two above: what a step is
+   * waiting for can change without the seller touching it. An operator accepts
+   * a certificate, or refuses one, or a certificate simply expires - and all
+   * three happen outside any request the seller makes.
+   *
+   * It also makes the checklist honest on a first visit. Without it, a seller
+   * who has filled in nothing sees "Not started" against a step that is in fact
+   * waiting on two named documents, which is the least useful thing it could
+   * say.
+   */
+  await markRequirementSteps({
+    sellerAccountId: membership.sellerAccountId,
+    registrationCountry: membership.registrationCountry,
+  });
 }
 
 /**
@@ -362,29 +380,61 @@ export async function readOnboarding(membership: SellerMembership): Promise<Onbo
 
   const steps: StepView[] = STEP_DEFINITIONS.map((definition) => {
     const entry = stored[definition.key];
+    const mine = requirements.filter((requirement) => requirement.stepKey === definition.key);
 
     return {
       key: definition.key,
       title: definition.title,
       summary: definition.summary,
       state: entry?.state ?? 'NOT_STARTED',
-      isRequiredForSubmission: definition.isRequiredForSubmission,
+      /*
+       * A step is required if the journey says so, OR if this deployment has
+       * made anything on it required.
+       *
+       * The second half is what makes Compliance work as designed. Nothing on
+       * it is required by default - a seller of packaging has no ISO
+       * certificate and never will - and an operator who regulates a trade
+       * turns a row required in a table. Without this, that edit would change
+       * what the step ASKS for and not whether it has to be answered, which is
+       * a requirement in name only.
+       */
+      isRequiredForSubmission:
+        definition.isRequiredForSubmission || mine.some((requirement) => requirement.isRequired),
       message: entry?.message ?? null,
-      requirements: requirements.filter((requirement) => requirement.stepKey === definition.key),
+      requirements: mine,
     };
   });
 
+  /*
+   * What counts as "done" for the submit gate.
+   *
+   * COMPLETE or UNDER_REVIEW, and the second one is not a loophole - it is the
+   * only thing that stops a deadlock. UNDER_REVIEW means "everything was
+   * supplied and a document is with the marketplace", and the marketplace
+   * reviews documents as part of reviewing the APPLICATION. Blocking submission
+   * on a state only the reviewer can move, when the reviewer only looks after
+   * submission, is a seller who can never submit and an operator who never sees
+   * why.
+   *
+   * What is still refused is the thing the seller can actually fix: a missing
+   * certificate, or one that was sent back.
+   */
+  const isSettled = (state: OnboardingStepState): boolean =>
+    state === 'COMPLETE' || state === 'UNDER_REVIEW';
+
   const required = steps.filter((step) => step.isRequiredForSubmission);
-  const blocking = required.filter((step) => step.state !== 'COMPLETE');
+  const blocking = required.filter((step) => !isSettled(step.state));
   const completedRequired = required.length - blocking.length;
 
   return {
     steps,
-    completedSteps: steps.filter((step) => step.state === 'COMPLETE').length,
+    completedSteps: steps.filter((step) => isSettled(step.state)).length,
     requiredSteps: required.length,
     // Out of the REQUIRED steps, not out of all of them. A seller who has
     // finished everything they must do should see 100%, not 87% because they
-    // have not connected a payout account the operator has not configured.
+    // have not connected a payout account the operator has not configured -
+    // and for the same reason, waiting on somebody else's review counts as
+    // done: it is not work they still owe.
     percentComplete:
       required.length === 0 ? 100 : Math.round((completedRequired / required.length) * 100),
     lastStepKey:
@@ -396,8 +446,20 @@ export async function readOnboarding(membership: SellerMembership): Promise<Onbo
   };
 }
 
+/**
+ * Everything `markStep` actually reads.
+ *
+ * Narrower than a `SellerMembership` on purpose, and a full membership still
+ * satisfies it. The marks that follow an OPERATOR's decision - a certificate
+ * accepted or refused - have no membership to pass, because the person who made
+ * the decision is not a member of the seller's organisation. Widening the
+ * parameter is honest about that; casting a half-built object to
+ * `SellerMembership` at those call sites would not be.
+ */
+export type StepSubject = Pick<SellerMembership, 'sellerAccountId'>;
+
 export interface MarkStepInput {
-  membership: SellerMembership;
+  membership: StepSubject;
   stepKey: OnboardingStepKey;
   state: OnboardingStepState;
   message?: string | null;
@@ -532,6 +594,175 @@ const REQUIREMENT_COLUMNS: Readonly<Record<string, keyof BusinessProfilePatch>> 
  * the same seller moving from RESELLER to MANUFACTURER can drop back to
  * IN_PROGRESS without anybody writing a special case for it.
  */
+/**
+ * Whose steps are being re-evaluated.
+ *
+ * Not a `SellerMembership`, because the OPERATOR who accepts or refuses a
+ * certificate has none - they are not a member of the seller's organisation,
+ * and their decision still has to move the seller's checklist. The country is
+ * carried because a brand-new account may not have one stored yet.
+ */
+export interface RequirementStepSubject {
+  sellerAccountId: string;
+  registrationCountry: string;
+}
+
+/** What one step is still waiting for. */
+export interface StepOutcome {
+  /** Labels of the requirements with no acceptable answer at all. */
+  missing: string[];
+  /** Documents uploaded and not yet decided by the marketplace. */
+  waitingOnReview: string[];
+}
+
+/**
+ * Work out what every requirement-driven step is still waiting for, and record
+ * it.
+ *
+ * ONE implementation, with three callers: the business-identity form, a
+ * document upload, and an operator's decision about a document. That is the
+ * point of it existing. Before this, typed fields were judged here and
+ * documents were not judged at all, so a deployment that required a business
+ * registration certificate let a seller tick `kyb_kyc` by typing two fields and
+ * uploading nothing - and once documents WERE judged, two functions marking the
+ * same step from two directions would have flapped between them on every save.
+ *
+ * The three states a step can land in, and what each means to the seller:
+ *
+ *   - `IN_PROGRESS` - something is missing and it is theirs to supply. The
+ *     message names it.
+ *   - `UNDER_REVIEW` - everything has been supplied and at least one document
+ *     is with the marketplace. Nothing for them to do but wait, and the step
+ *     says so rather than looking unfinished.
+ *   - `COMPLETE` - every required answer is in and every required document has
+ *     been accepted.
+ *
+ * A document that has EXPIRED does not count as accepted. A certificate that
+ * ran out in March is not evidence in April, and the seller finding that out
+ * from their own checklist is better than finding out from a refusal.
+ */
+export async function markRequirementSteps(
+  subject: RequirementStepSubject,
+  correlationId?: string | null,
+): Promise<Map<OnboardingStepKey, StepOutcome>> {
+  const account = await prisma.sellerAccount.findUnique({
+    where: { id: subject.sellerAccountId },
+    select: { kind: true, registrationCountry: true },
+  });
+
+  const requirements = await requirementsFor(
+    account?.registrationCountry ?? subject.registrationCountry,
+    account?.kind ?? 'RESELLER',
+  );
+
+  const [profile, documents] = await Promise.all([
+    prisma.sellerBusinessProfile.findUnique({ where: { sellerAccountId: subject.sellerAccountId } }),
+    prisma.sellerDocument.findMany({
+      where: { sellerAccountId: subject.sellerAccountId, supersededAt: null },
+      select: {
+        requirementFieldKey: true,
+        approvedAt: true,
+        rejectedReason: true,
+        expiresOn: true,
+      },
+    }),
+  ]);
+
+  /** Country-specific answers, keyed by the requirement that asked for them. */
+  const extras = (profile?.extraIdentifiersJson ?? {}) as Record<string, unknown>;
+  const stored = profile as unknown as Record<string, unknown> | null;
+  const now = Date.now();
+
+  const byStep = new Map<OnboardingStepKey, StepOutcome>();
+
+  for (const requirement of requirements) {
+    // Every step that ASKS for anything gets an entry, so a step whose only
+    // requirement is optional is still marked complete rather than left at
+    // NOT_STARTED forever.
+    const outcome = byStep.get(requirement.stepKey) ?? { missing: [], waitingOnReview: [] };
+    byStep.set(requirement.stepKey, outcome);
+
+    if (!requirement.isRequired) continue;
+
+    if (requirement.isDocument) {
+      const answers = documents.filter(
+        (document) => document.requirementFieldKey === requirement.fieldKey,
+      );
+
+      const accepted = answers.some(
+        (document) =>
+          document.approvedAt !== null &&
+          (document.expiresOn === null || document.expiresOn.getTime() >= now),
+      );
+
+      if (accepted) continue;
+
+      const waiting = answers.some(
+        (document) => document.approvedAt === null && document.rejectedReason === null,
+      );
+
+      if (waiting) outcome.waitingOnReview.push(requirement.label);
+      else outcome.missing.push(requirement.label);
+
+      continue;
+    }
+
+    const column = REQUIREMENT_COLUMNS[requirement.fieldKey];
+    const value =
+      column === undefined ? extras[requirement.fieldKey] : (stored?.[column] ?? null);
+
+    const text = typeof value === 'string' ? value.trim() : '';
+
+    if (text.length === 0) {
+      outcome.missing.push(requirement.label);
+      continue;
+    }
+
+    // An answer in the wrong format is not an answer, and letting it through
+    // means the moderator finds it instead of the seller.
+    if (
+      requirement.validationPattern !== null &&
+      requirement.validationPattern !== undefined &&
+      requirement.validationPattern.length > 0
+    ) {
+      try {
+        if (!new RegExp(requirement.validationPattern).test(text)) {
+          outcome.missing.push(requirement.label);
+        }
+      } catch {
+        // A broken pattern is an operator's mistake. Refusing the seller for it
+        // would block them on something nobody on that screen can fix.
+      }
+    }
+  }
+
+  for (const [stepKey, outcome] of byStep) {
+    await markStep({
+      membership: subject,
+      stepKey,
+      state:
+        outcome.missing.length > 0
+          ? 'IN_PROGRESS'
+          : outcome.waitingOnReview.length > 0
+            ? 'UNDER_REVIEW'
+            : 'COMPLETE',
+      message:
+        outcome.missing.length > 0
+          ? `Still needed: ${outcome.missing.join(', ')}.`
+          : outcome.waitingOnReview.length > 0
+            ? `We are checking what you uploaded: ${outcome.waitingOnReview.join(', ')}.`
+            : null,
+      // Not a bookmark. This runs on an upload, on a save and on somebody
+      // else's decision, and moving "carry on where you were" from any of those
+      // is how the application stopped opening where the seller left it.
+      isResumePoint: false,
+      correlationId: correlationId ?? null,
+    });
+  }
+
+  return byStep;
+}
+
 export async function saveBusinessProfile(
   membership: SellerMembership,
   patch: BusinessProfilePatch,
@@ -539,16 +770,6 @@ export async function saveBusinessProfile(
 ): Promise<{ state: OnboardingStepState; missing: string[] }> {
   assertSellerPermission(membership, SellerPermission.ACCOUNT_WRITE);
   assertApplicationEditable(membership);
-
-  const account = await prisma.sellerAccount.findUnique({
-    where: { id: membership.sellerAccountId },
-    select: { kind: true, registrationCountry: true },
-  });
-
-  const requirements = await requirementsFor(
-    account?.registrationCountry ?? membership.registrationCountry,
-    account?.kind ?? 'RESELLER',
-  );
 
   const { extraIdentifiers, ...columns } = patch;
 
@@ -576,66 +797,13 @@ export async function saveBusinessProfile(
    * `business_identity` was ever marked. They could complete the whole
    * application and never be allowed to submit it, with nothing on screen
    * telling them what was wrong.
-   *
-   * So the loop is over requirements grouped BY STEP. Which step a field
-   * belongs to is already on the requirement row; reading it here means a
-   * field moved between steps by an operator keeps working with no code
-   * change.
    */
-  /** Country-specific answers, keyed by the requirement that asked for them. */
-  const extras = (saved.extraIdentifiersJson ?? {}) as Record<string, unknown>;
+  const outcome = await markRequirementSteps(
+    { sellerAccountId: membership.sellerAccountId, registrationCountry: membership.registrationCountry },
+    correlationId,
+  );
 
-  const missingByStep = new Map<OnboardingStepKey, string[]>();
-
-  for (const requirement of requirements) {
-    if (!requirement.isRequired) continue;
-    // Documents are not answered by this form. Their step is marked when one
-    // is uploaded and approved, not here.
-    if (requirement.isDocument) continue;
-
-    const column = REQUIREMENT_COLUMNS[requirement.fieldKey];
-    const value =
-      column === undefined
-        ? extras[requirement.fieldKey]
-        : (saved as unknown as Record<string, unknown>)[column];
-
-    const text = typeof value === 'string' ? value.trim() : '';
-
-    const missing = missingByStep.get(requirement.stepKey) ?? [];
-    missingByStep.set(requirement.stepKey, missing);
-
-    if (text.length === 0) {
-      missing.push(requirement.label);
-      continue;
-    }
-
-    // An answer in the wrong format is not an answer, and letting it through
-    // means the moderator finds it instead of the seller.
-    if (
-      requirement.validationPattern !== null &&
-      requirement.validationPattern !== undefined &&
-      requirement.validationPattern.length > 0
-    ) {
-      try {
-        if (!new RegExp(requirement.validationPattern).test(text)) missing.push(requirement.label);
-      } catch {
-        // A broken pattern is an operator's mistake. Refusing the seller for it
-        // would block them on something nobody on that screen can fix.
-      }
-    }
-  }
-
-  for (const [stepKey, missing] of missingByStep) {
-    await markStep({
-      membership,
-      stepKey,
-      state: missing.length === 0 ? 'COMPLETE' : 'IN_PROGRESS',
-      message: missing.length === 0 ? null : `Still needed: ${missing.join(', ')}.`,
-      correlationId: correlationId ?? null,
-    });
-  }
-
-  const missing = missingByStep.get('business_identity') ?? [];
+  const missing = outcome.get('business_identity')?.missing ?? [];
   const state: OnboardingStepState = missing.length === 0 ? 'COMPLETE' : 'IN_PROGRESS';
 
   await recordSellerAudit({

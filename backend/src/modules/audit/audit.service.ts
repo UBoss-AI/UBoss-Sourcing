@@ -267,6 +267,20 @@ export const AuditAction = {
   /// A wrong Seller Hub password. One is a typo; a run of them is not.
   SELLER_LOCK_REFUSED: 'seller.lock.refused',
 
+  // A seller's evidence, and what the marketplace decided about it
+  //
+  // Recorded on the operator's trail as well as the seller's own, because
+  // "who accepted this CE certificate, and when" is a question asked from
+  // outside — by an auditor, or by a regulator after a recall. The seller's
+  // audit log answers it for the seller; this answers it for the business
+  // running the marketplace, and that one outlives the seller account.
+  SELLER_DOCUMENT_APPROVED: 'seller_document.approved',
+  SELLER_DOCUMENT_REJECTED: 'seller_document.rejected',
+  /// A member of staff opened one. Recorded because some of these are a
+  /// director's passport, and "who looked at it" is the question asked after a
+  /// complaint about how it was handled.
+  SELLER_DOCUMENT_VIEWED: 'seller_document.viewed',
+
   // Data protection
   //
   // These rows are the Art. 5(2) accountability record. "We honour erasure

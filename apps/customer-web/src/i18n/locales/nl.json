@@ -2492,5 +2492,6 @@
   "seller.media.makeMain": "Maak main",
   "seller.media.required": "Verplicht",
   "seller.media.uploading": "Bezig met uploaden…",
-  "seller.media.altPlaceholder": "Verzinkte zeskantbout, gezien vanaf de voorkant"
+  "seller.media.altPlaceholder": "Verzinkte zeskantbout, gezien vanaf de voorkant",
+  "seller.nav.refresh": "Dit scherm vernieuwen"
 }

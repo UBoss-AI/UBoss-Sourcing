@@ -2613,5 +2613,9 @@
   "logistics.eventSource.LOGISTICS_PORTAL": "Biuro przewoźnika",
   "logistics.eventSource.CARRIER_API": "Zapytanie do przewoźnika",
   "logistics.eventSource.INBOUND_WEBHOOK": "Kanał przewoźnika",
-  "logistics.eventSource.SYSTEM_AUTOMATION": "Automatycznie"
+  "logistics.eventSource.SYSTEM_AUTOMATION": "Automatycznie",
+  "shell.attention": "{{waiting}} czeka na rozpatrzenie",
+  "shell.refresh": "Odśwież ten ekran",
+  "notifications.sellerDocumentUploaded.title": "{{sellerName}} przesłał dokument: {{documentKind}}",
+  "notifications.sellerDocumentUploaded.detail": "{{fileName}} — czeka na sprawdzenie"
 }

@@ -26,6 +26,7 @@ import { prisma } from '../../infra/prisma.js';
 import { storage } from '../../infra/storage/index.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
 import { OPERATOR_LABEL, recordSellerAudit } from './audit.service.js';
+import { listDocumentsForReview } from './document.service.js';
 import { transitionApplication } from './account.service.js';
 import { loadListingSchema } from './listing-schema.service.js';
 import { notifySeller } from './notification.service.js';
@@ -128,7 +129,6 @@ export async function readApplication(sellerAccountId: string) {
       onboarding: true,
       payoutAccount: true,
       locations: { where: { archivedAt: null } },
-      documents: { where: { supersededAt: null }, orderBy: { createdAt: 'desc' } },
       agreements: { orderBy: { acceptedAt: 'desc' } },
       verificationCases: { where: { isCurrent: true } },
       members: {
@@ -144,7 +144,19 @@ export async function readApplication(sellerAccountId: string) {
 
   if (account === null) throw notFound('Seller application');
 
-  return account;
+  /*
+   * The documents come through the view rather than out of the include.
+   *
+   * Two reasons, and the second one is the important one. The first is that the
+   * seller's own Hub and this screen render the same three words for "has this
+   * been accepted", and deriving that twice is how the two end up disagreeing
+   * in front of the business they disagree about. The second is that the raw
+   * row carries `storageKey` - the object's address in the store - and there is
+   * no reason for that to be in a browser at all.
+   */
+  const documents = await listDocumentsForReview(account.id);
+
+  return { ...account, documents };
 }
 
 export interface SellerCommissionInput {

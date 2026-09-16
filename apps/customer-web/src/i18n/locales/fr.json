@@ -2533,5 +2533,6 @@
   "seller.media.makeMain": "Créer la fonction « main »",
   "seller.media.required": "Obligatoire",
   "seller.media.uploading": "Téléchargement en cours…",
-  "seller.media.altPlaceholder": "Vis à tête hexagonale zinguée, vue de face"
+  "seller.media.altPlaceholder": "Vis à tête hexagonale zinguée, vue de face",
+  "seller.nav.refresh": "Actualiser cet écran"
 }

@@ -2533,5 +2533,6 @@
   "seller.media.makeMain": "Creare la funzione main",
   "seller.media.required": "Obbligatorio",
   "seller.media.uploading": "Caricamento in corso…",
-  "seller.media.altPlaceholder": "Bullone esagonale zincato, visto frontalmente"
+  "seller.media.altPlaceholder": "Bullone esagonale zincato, visto frontalmente",
+  "seller.nav.refresh": "Aggiorna questa schermata"
 }

@@ -2492,5 +2492,6 @@
   "seller.media.makeMain": "„make main“",
   "seller.media.required": "Erforderlich",
   "seller.media.uploading": "Wird hochgeladen…",
-  "seller.media.altPlaceholder": "Verzinkte Sechskantschraube, von vorne gesehen"
+  "seller.media.altPlaceholder": "Verzinkte Sechskantschraube, von vorne gesehen",
+  "seller.nav.refresh": "Diese Ansicht aktualisieren"
 }

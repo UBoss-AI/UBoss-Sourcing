@@ -2492,5 +2492,6 @@
   "seller.media.makeMain": "Make main",
   "seller.media.required": "Required",
   "seller.media.uploading": "Uploading…",
-  "seller.media.altPlaceholder": "Zinc-plated hex bolt, viewed from the front"
+  "seller.media.altPlaceholder": "Zinc-plated hex bolt, viewed from the front",
+  "seller.nav.refresh": "Refresh this screen"
 }

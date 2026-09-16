@@ -2565,5 +2565,9 @@
   "logistics.eventSource.LOGISTICS_PORTAL": "Kantoor van de vervoerder",
   "logistics.eventSource.CARRIER_API": "Navraag bij de vervoerder",
   "logistics.eventSource.INBOUND_WEBHOOK": "Feed van de vervoerder",
-  "logistics.eventSource.SYSTEM_AUTOMATION": "Automatisch"
+  "logistics.eventSource.SYSTEM_AUTOMATION": "Automatisch",
+  "shell.attention": "{{waiting}} wachten op behandeling",
+  "shell.refresh": "Dit scherm vernieuwen",
+  "notifications.sellerDocumentUploaded.title": "{{sellerName}} heeft een document geüpload: {{documentKind}}",
+  "notifications.sellerDocumentUploaded.detail": "{{fileName}} — wacht op controle"
 }

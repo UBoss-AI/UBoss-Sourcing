@@ -36,16 +36,20 @@ import {
 } from '@/components/ui';
 import { cx } from '@/lib/cx';
 import { ApiError, api } from '@/lib/api';
+import { ATTENTION_QUERY_KEY } from '@/lib/attention';
 import {
   ONBOARDING_STEPS,
   applicationStatusLabel,
   applicationStatusTone,
+  createSellerDocumentLink,
   decideSellerApplication,
+  decideSellerDocument,
   documentKindLabel,
   fetchSellerApplication,
   setSellerCommission,
   type SellerApplicationDetail,
   type SellerDecision,
+  type SellerDocument,
 } from '@/lib/sellers';
 
 type DecisionKind = SellerDecision['status'];
@@ -338,53 +342,7 @@ function ApplicationBody({ seller }: { seller: SellerApplicationDetail }): React
           )}
         </Card>
 
-        <Card
-          title="Documents"
-          description="What they uploaded as evidence. Check each one before approving."
-        >
-          {seller.documents.length === 0 ? (
-            <p className="px-5 py-6 text-sm text-ink-muted">
-              Nothing has been uploaded yet. Document upload needs encrypted object storage to be
-              configured for this deployment — until then, evidence arrives by other means and is
-              attached by the marketplace team.
-            </p>
-          ) : (
-            <ul className="divide-y divide-border-subtle">
-              {seller.documents.map((document) => (
-                <li key={document.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-ink">
-                      {documentKindLabel(document.kind)}
-                    </p>
-                    <p className="truncate text-xxs text-ink-subtle">
-                      {document.originalFileName} · {Math.round(document.byteSize / 1024)} KB
-                      {document.expiresOn !== null && ` · expires ${document.expiresOn}`}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 gap-1.5">
-                    {/*
-                      The scan state is shown rather than hidden. An unscanned
-                      file is not a clean file, and a reviewer opening one
-                      should know which they are dealing with.
-                    */}
-                    <Badge
-                      tone={
-                        document.scanState === 'CLEAN'
-                          ? 'success'
-                          : document.scanState === 'INFECTED'
-                            ? 'danger'
-                            : 'warning'
-                      }
-                    >
-                      {document.scanState.replace(/_/g, ' ').toLowerCase()}
-                    </Badge>
-                    {document.approvedAt !== null && <Badge tone="success">accepted</Badge>}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
+        <DocumentsCard sellerId={seller.id} documents={seller.documents} />
 
         <Card
           title="Where they ship from"
@@ -666,6 +624,248 @@ function ApplicationBody({ seller }: { seller: SellerApplicationDetail }): React
  * 'Anke@northwind.example' - an address that does not exist, printed on the
  * screen a reviewer checks an address against.
  */
+/**
+ * A seller's evidence, and the decision about each piece.
+ *
+ * This is the half of the review that used to happen in an inbox. The card
+ * before it listed what had been uploaded and offered no way to open it, which
+ * in practice meant a reviewer asked for the certificate by email, looked at an
+ * attachment, and approved the seller on the strength of something nobody could
+ * find afterwards.
+ *
+ * Three things it is careful about:
+ *
+ *   - **The scan state is shown, never hidden.** An unscanned file is not a
+ *     clean file, and a reviewer about to open one should know which they are
+ *     dealing with. Where the deployment refuses to serve unscanned files, the
+ *     Open button is absent and says why.
+ *   - **Opening one is recorded.** These are sometimes a director's passport.
+ *     The link is minted per press, lives minutes and is single use, and the
+ *     press goes to the audit trail.
+ *   - **A refusal demands a reason, and the seller reads it.** The field says
+ *     so above the box, because a reviewer who thinks they are writing a
+ *     private note writes a different sentence.
+ */
+function DocumentsCard({
+  sellerId,
+  documents,
+}: {
+  sellerId: string;
+  documents: SellerDocument[];
+}): React.JSX.Element {
+  const toast = useToast();
+  const queryClient = useQueryClient();
+
+  /** The document being refused, and the reason so far. Null when none is. */
+  const [refusing, setRefusing] = useState<SellerDocument | null>(null);
+  const [reason, setReason] = useState('');
+
+  const refresh = async (): Promise<void> => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['admin', 'seller', sellerId] }),
+      // The rail's badge counts undecided documents, so it has to come down in
+      // the same breath as the decision - otherwise the console keeps saying
+      // one is waiting after the reviewer has just dealt with it.
+      queryClient.invalidateQueries({ queryKey: ATTENTION_QUERY_KEY }),
+    ]);
+  };
+
+  const decide = useMutation({
+    mutationFn: ({ id, decision, why }: { id: string; decision: 'APPROVED' | 'REJECTED'; why: string | null }) =>
+      decideSellerDocument(id, { decision, reason: why }),
+    onSuccess: async (_result, variables) => {
+      setRefusing(null);
+      setReason('');
+      await refresh();
+      toast.success(variables.decision === 'APPROVED' ? 'Accepted.' : 'Sent back to the seller.');
+    },
+    onError: (error: unknown) => {
+      toast.error(
+        error instanceof ApiError ? error.message : 'That decision could not be recorded.',
+      );
+    },
+  });
+
+  const open = useMutation({
+    mutationFn: createSellerDocumentLink,
+    onSuccess: (link) => {
+      // Opened the moment it is minted, never stored: the link is single-use
+      // and lives for minutes, so a stored one is dead before it is clicked.
+      window.open(link.url, '_blank', 'noopener,noreferrer');
+    },
+    onError: (error: unknown) => {
+      toast.error(error instanceof ApiError ? error.message : 'That file could not be opened.');
+    },
+  });
+
+  return (
+    <>
+      <Card
+        title="Documents"
+        description="What they uploaded as evidence. Open each one and decide it before approving the seller."
+      >
+        {documents.length === 0 ? (
+          <p className="px-5 py-6 text-sm text-ink-muted">
+            Nothing has been uploaded yet. The seller attaches certificates and licences from the
+            Compliance and Identity steps of their own application.
+          </p>
+        ) : (
+          <ul className="divide-y divide-border-subtle">
+            {documents.map((document) => (
+              <li key={document.id} className="px-5 py-3.5">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-ink">
+                      {documentKindLabel(document.kind)}
+                    </p>
+                    <p className="truncate text-xxs text-ink-subtle">
+                      {document.originalFileName} ·{' '}
+                      {Math.max(1, Math.round(document.byteSize / 1024))} KB
+                      {document.issuedOn !== null && ` · issued ${document.issuedOn}`}
+                      {document.expiresOn !== null && ` · expires ${document.expiresOn}`}
+                    </p>
+                  </div>
+
+                  <div className="flex shrink-0 flex-wrap items-center gap-1.5">
+                    <Badge
+                      tone={
+                        document.scanState === 'CLEAN'
+                          ? 'success'
+                          : document.scanState === 'INFECTED'
+                            ? 'danger'
+                            : 'warning'
+                      }
+                    >
+                      {document.scanState.replace(/_/g, ' ').toLowerCase()}
+                    </Badge>
+
+                    <Badge
+                      tone={
+                        document.status === 'APPROVED'
+                          ? 'success'
+                          : document.status === 'REJECTED'
+                            ? 'danger'
+                            : 'brand'
+                      }
+                    >
+                      {document.status === 'APPROVED'
+                        ? 'accepted'
+                        : document.status === 'REJECTED'
+                          ? 'not accepted'
+                          : 'undecided'}
+                    </Badge>
+                  </div>
+                </div>
+
+                {document.rejectedReason !== null && (
+                  <p className="mt-2 rounded-md border border-danger/30 bg-danger-soft px-3 py-2 text-xs leading-relaxed text-ink">
+                    {document.rejectedReason}
+                  </p>
+                )}
+
+                <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                  {document.isDownloadable ? (
+                    <Button
+                      isLoading={open.isPending && open.variables === document.id}
+                      onClick={() => {
+                        open.mutate(document.id);
+                      }}
+                    >
+                      Open
+                    </Button>
+                  ) : (
+                    <p className="text-xxs text-ink-muted">
+                      This installation does not serve files that have not been scanned for
+                      malware.
+                    </p>
+                  )}
+
+                  {document.status !== 'APPROVED' && (
+                    <Button
+                      variant="primary"
+                      isLoading={
+                        decide.isPending &&
+                        decide.variables.id === document.id &&
+                        decide.variables.decision === 'APPROVED'
+                      }
+                      onClick={() => {
+                        decide.mutate({ id: document.id, decision: 'APPROVED', why: null });
+                      }}
+                    >
+                      Accept
+                    </Button>
+                  )}
+
+                  {document.status !== 'REJECTED' && (
+                    <Button
+                      variant="danger"
+                      onClick={() => {
+                        setReason('');
+                        setRefusing(document);
+                      }}
+                    >
+                      Send back
+                    </Button>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
+
+      <Modal
+        isOpen={refusing !== null}
+        onClose={() => {
+          setRefusing(null);
+        }}
+        title="Send this document back"
+      >
+        <div className="space-y-4">
+          <Callout tone="warning">
+            The seller reads this word for word. Say what is wrong with the document and what would
+            be accepted instead — a refusal with no reason produces the same file again.
+          </Callout>
+
+          <Field label="Why it was not accepted" required>
+            {({ inputId }) => (
+              <Textarea
+                id={inputId}
+                rows={4}
+                value={reason}
+                onChange={(event) => {
+                  setReason(event.currentTarget.value);
+                }}
+              />
+            )}
+          </Field>
+
+          <div className="flex justify-end gap-2">
+            <Button
+              onClick={() => {
+                setRefusing(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              isLoading={decide.isPending}
+              disabled={reason.trim().length === 0}
+              onClick={() => {
+                if (refusing === null) return;
+                decide.mutate({ id: refusing.id, decision: 'REJECTED', why: reason.trim() });
+              }}
+            >
+              Send it back
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    </>
+  );
+}
+
 function Detail({
   label,
   value,

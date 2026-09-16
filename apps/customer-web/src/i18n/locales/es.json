@@ -2533,5 +2533,6 @@
   "seller.media.makeMain": "Definir la función «main»",
   "seller.media.required": "Obligatorio",
   "seller.media.uploading": "Cargando…",
-  "seller.media.altPlaceholder": "Perno hexagonal galvanizado, visto desde delante"
+  "seller.media.altPlaceholder": "Perno hexagonal galvanizado, visto desde delante",
+  "seller.nav.refresh": "Actualizar esta pantalla"
 }

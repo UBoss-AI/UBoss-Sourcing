@@ -2589,5 +2589,9 @@
   "logistics.eventSource.LOGISTICS_PORTAL": "Bureau du transporteur",
   "logistics.eventSource.CARRIER_API": "Interrogation du transporteur",
   "logistics.eventSource.INBOUND_WEBHOOK": "Flux du transporteur",
-  "logistics.eventSource.SYSTEM_AUTOMATION": "Automatique"
+  "logistics.eventSource.SYSTEM_AUTOMATION": "Automatique",
+  "shell.attention": "{{waiting}} en attente de traitement",
+  "shell.refresh": "Actualiser cet écran",
+  "notifications.sellerDocumentUploaded.title": "{{sellerName}} a téléversé un document : {{documentKind}}",
+  "notifications.sellerDocumentUploaded.detail": "{{fileName}} — en attente de vérification"
 }

@@ -19,6 +19,7 @@ import {
   markAllAdminNotificationsRead,
   type NotificationViewer,
 } from '../../modules/notifications/admin-notification.service.js';
+import { readAttention } from '../../modules/notifications/attention.service.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
 
 const feedQuery = z.object({
@@ -42,6 +43,22 @@ export function registerAdminNotificationRoutes(app: FastifyInstance): Promise<v
     );
 
     return reply.status(200).send(feed);
+  });
+
+  /**
+   * What is still waiting, counted per queue.
+   *
+   * No permission on the route, for the same reason the feed has none: the
+   * grant rides on each count, so a Catalog Manager and a Business Owner call
+   * this and get different keys back. `no-store` because a badge cached for
+   * thirty seconds is a badge that says a listing is still waiting after
+   * somebody has just approved it.
+   */
+  app.get('/attention', { preHandler: requireAdmin() }, async (request, reply) => {
+    const auth = currentUser(request);
+    const view = await readAttention({ permissions: auth.permissions });
+
+    return reply.header('cache-control', 'no-store').status(200).send(view);
   });
 
   app.post('/notifications/read', { preHandler: requireAdmin() }, async (request, reply) => {

@@ -151,6 +151,117 @@ export function fetchOnboarding(): Promise<OnboardingView> {
   return api.get<OnboardingView>('/seller/onboarding');
 }
 
+// ---------------------------------------------------------------------------
+// Evidence: certificates, licences and the paperwork behind the application
+// ---------------------------------------------------------------------------
+
+/**
+ * The kinds a seller may attach to their own account.
+ *
+ * Mirrors `SELLER_UPLOADABLE_KINDS` in
+ * backend/src/modules/seller/document.service.ts. The label is what the seller
+ * picks from, so it is written the way somebody holding the document would
+ * describe it rather than as the enum member.
+ */
+export const SELLER_DOCUMENT_KINDS = Object.freeze([
+  { value: 'CE_CERTIFICATE', label: 'CE certificate' },
+  { value: 'DECLARATION_OF_CONFORMITY', label: 'Declaration of Conformity' },
+  { value: 'NOTIFIED_BODY_CERTIFICATE', label: 'Notified body certificate' },
+  { value: 'ISO_13485', label: 'Quality management certificate (ISO 9001 / ISO 13485)' },
+  { value: 'REGULATORY_LICENCE', label: 'Regulatory or import licence' },
+  { value: 'BUSINESS_REGISTRATION', label: 'Business registration document' },
+  { value: 'TAX_CERTIFICATE', label: 'Tax registration certificate' },
+  { value: 'IDENTITY_PROOF', label: 'Photo identification' },
+  { value: 'ADDRESS_PROOF', label: 'Proof of address' },
+  { value: 'BANK_STATEMENT', label: 'Bank statement' },
+  { value: 'OTHER', label: 'Something else' },
+] as const);
+
+export type SellerDocumentKind = (typeof SELLER_DOCUMENT_KINDS)[number]['value'];
+
+export function documentKindLabel(kind: string): string {
+  const known = SELLER_DOCUMENT_KINDS.find((entry) => entry.value === kind);
+  if (known !== undefined) return known.label;
+
+  // A kind this build does not know about is still named, rather than shown as
+  // a raw enum member: a Hub one deploy behind the API must stay readable.
+  const words = kind.toLowerCase().split('_').join(' ');
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+export interface SellerDocument {
+  id: string;
+  kind: string;
+  /** The requirement it answers, where it answers one. */
+  requirementFieldKey: string | null;
+  originalFileName: string;
+  contentType: string;
+  byteSize: number;
+  scanState: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  /** Why the marketplace did not accept it. Written for the seller. */
+  rejectedReason: string | null;
+  issuedOn: string | null;
+  expiresOn: string | null;
+  /** False where this deployment refuses to serve unscanned files. */
+  isDownloadable: boolean;
+  createdAt: string;
+}
+
+export function fetchSellerDocuments(): Promise<{ documents: SellerDocument[] }> {
+  return api.get<{ documents: SellerDocument[] }>('/seller/documents');
+}
+
+export interface UploadDocumentInput {
+  file: File;
+  kind: SellerDocumentKind;
+  requirementFieldKey?: string | null;
+  /** `YYYY-MM-DD`, as a date input gives them. */
+  issuedOn?: string | null;
+  expiresOn?: string | null;
+}
+
+export function uploadSellerDocument(input: UploadDocumentInput): Promise<SellerDocument> {
+  const form = new FormData();
+
+  // The fields go in BEFORE the file. @fastify/multipart streams the parts in
+  // order and exposes the ones it has already seen on `upload.fields`; a field
+  // written after the file would not be there when the handler reads it.
+  form.append('kind', input.kind);
+  if (input.requirementFieldKey != null) {
+    form.append('requirementFieldKey', input.requirementFieldKey);
+  }
+  if (input.issuedOn != null && input.issuedOn.length > 0) form.append('issuedOn', input.issuedOn);
+  if (input.expiresOn != null && input.expiresOn.length > 0) {
+    form.append('expiresOn', input.expiresOn);
+  }
+  form.append('file', input.file, input.file.name);
+
+  return postFile<SellerDocument>('/seller/documents', form);
+}
+
+export function withdrawSellerDocument(documentId: string): Promise<never> {
+  return api.delete<never>(`/seller/documents/${documentId}`);
+}
+
+export interface DocumentLink {
+  url: string;
+  expiresAt: string;
+  fileName: string;
+  contentType: string;
+}
+
+/**
+ * A link to read one back.
+ *
+ * Minted per press and good for minutes, then single-use. The caller opens it
+ * straight away rather than storing it: a link held in state is a link that has
+ * expired by the time somebody clicks it.
+ */
+export function createDocumentLink(documentId: string): Promise<DocumentLink> {
+  return api.post<DocumentLink>(`/seller/documents/${documentId}/link`);
+}
+
 export interface BusinessProfile {
   representativeName: string | null;
   representativeEmail: string | null;

@@ -60,6 +60,16 @@ export const AdminNotificationKind = {
   /// Carries `logistics.read`, because it names a customer's company and what
   /// went wrong with their delivery.
   LOGISTICS_EXCEPTION_RAISED: 'logistics.exception.raised',
+  /// A seller uploaded a certificate or a licence for the marketplace to
+  /// accept. The variables are sellerName, documentKind and fileName.
+  ///
+  /// Raised because nobody is watching that table: evidence uploaded on a
+  /// Friday would otherwise sit until somebody happened to open that seller's
+  /// screen, and the seller is meanwhile blocked from finishing an application.
+  ///
+  /// Carries `customer.read`, the same grant the seller queue itself is behind:
+  /// the row names a business and what it is trying to prove about itself.
+  SELLER_DOCUMENT_UPLOADED: 'seller.document.uploaded',
 } as const;
 
 export type AdminNotificationKindKey =

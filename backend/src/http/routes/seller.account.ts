@@ -30,6 +30,14 @@ import {
   unlockSeller,
 } from '../../modules/seller/lock.service.js';
 import {
+  SELLER_UPLOADABLE_KINDS,
+  createSellerDocumentLink,
+  listSellerDocuments,
+  redeemDocumentLink,
+  uploadSellerDocument,
+  withdrawSellerDocument,
+} from '../../modules/seller/document.service.js';
+import {
   acceptAgreement,
   readOnboarding,
   requirementsFor,
@@ -114,6 +122,43 @@ const agreementSchema = z.object({
    */
   signatureStorageKey: z.string().trim().max(512).nullable().optional(),
 });
+
+/**
+ * The transport ceiling for a certificate.
+ *
+ * Ten megabytes, matching the service's own limit. `UPLOAD_MAX_BYTES` would be
+ * the wrong one - it defaults to five and exists to keep RAW files out of the
+ * catalogue, while a multi-page certificate scanned at 300dpi is routinely
+ * larger than any product photograph.
+ */
+const SELLER_DOCUMENT_MAX_BYTES = 10 * 1024 * 1024;
+
+/**
+ * The fields that arrive beside an uploaded document.
+ *
+ * Multipart carries everything as text, so the two dates are parsed here rather
+ * than trusted: `2026-02-31` is a string a browser will happily send and is not
+ * a day. Both are optional - not every kind of evidence has dates printed on
+ * it.
+ */
+const documentUploadFields = z.object({
+  kind: z.enum(SELLER_UPLOADABLE_KINDS),
+  requirementFieldKey: z.string().trim().max(64).nullable().optional(),
+  issuedOn: z.coerce.date().nullable().optional(),
+  expiresOn: z.coerce.date().nullable().optional(),
+});
+
+/**
+ * A filename safe to put in a Content-Disposition header.
+ *
+ * Quotes, newlines and control characters are stripped rather than escaped: a
+ * newline in this header is response splitting, and the seller's own filename
+ * is decoration on a download nobody needs to round-trip exactly.
+ */
+function safeFileName(name: string): string {
+  const cleaned = name.replace(/[^\w.\-() ]+/g, '_').slice(0, 120);
+  return cleaned.length > 0 ? cleaned : 'document';
+}
 
 /**
  * Routes that answer before a seller organisation exists.
@@ -420,6 +465,130 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
     const result = await saveStoreProfile(currentSeller(request), body, request.correlationId);
 
     return reply.status(200).send(result);
+  });
+
+  // --- Evidence -----------------------------------------------------------
+  //
+  // Certificates, licences and the paperwork behind the application. The bytes
+  // go to private storage and come back only through a short-lived, single-use
+  // link - see `document.service.ts`, where the reasoning lives.
+
+  /** Everything this seller has up, and what the marketplace made of each. */
+  app.get('/documents', async (request, reply) => {
+    const documents = await listSellerDocuments(currentSeller(request));
+    return reply.header('cache-control', 'no-store').status(200).send({ documents });
+  });
+
+  /**
+   * Attach one.
+   *
+   * `UPLOAD_MAX_BYTES` would be the wrong transport ceiling here: it is sized
+   * for a product photograph, and a multi-page certificate scanned at 300dpi is
+   * routinely larger. Raised to the document ceiling, and the service applies
+   * the real check once the bytes have said what they are.
+   *
+   * Rate-limited, because this writes to object storage: sixty in a quarter of
+   * an hour is far more than a seller assembling an application will ever need
+   * and well short of a script filling a disk.
+   */
+  app.post(
+    '/documents',
+    {
+      preHandler: requireSeller(SellerPermission.ACCOUNT_WRITE),
+      config: { rateLimit: { max: 60, timeWindow: '15 minutes' } },
+    },
+    async (request, reply) => {
+      const upload = await request.file({ limits: { fileSize: SELLER_DOCUMENT_MAX_BYTES } });
+
+      if (upload === undefined) {
+        return reply.status(400).send({
+          error: { code: ErrorCode.VALIDATION_FAILED, message: 'No file was attached.' },
+        });
+      }
+
+      // Read once, into memory. Bounded by the limit above, and streaming to
+      // disk first would buy nothing but a temporary file to clean up.
+      const buffer = await upload.toBuffer();
+
+      const fields = upload.fields as Record<string, { value?: unknown } | undefined>;
+      const field = (name: string): string | null =>
+        typeof fields[name]?.value === 'string' && fields[name].value.length > 0
+          ? fields[name].value
+          : null;
+
+      const parsed = documentUploadFields.parse({
+        kind: field('kind'),
+        requirementFieldKey: field('requirementFieldKey'),
+        issuedOn: field('issuedOn'),
+        expiresOn: field('expiresOn'),
+      });
+
+      const document = await uploadSellerDocument({
+        membership: currentSeller(request),
+        kind: parsed.kind,
+        requirementFieldKey: parsed.requirementFieldKey ?? null,
+        // `upload.filename` is the browser's, so it is shown back to the seller
+        // and never used to build a path - the storage key is generated.
+        fileName: upload.filename,
+        bytes: buffer,
+        issuedOn: parsed.issuedOn ?? null,
+        expiresOn: parsed.expiresOn ?? null,
+        correlationId: request.correlationId,
+      });
+
+      return reply.status(201).send(document);
+    },
+  );
+
+  /** Withdraw one nobody has decided yet. */
+  app.delete(
+    '/documents/:id',
+    { preHandler: requireSeller(SellerPermission.ACCOUNT_WRITE) },
+    async (request, reply) => {
+      const params = z.object({ id: z.string().length(26) }).parse(request.params);
+      await withdrawSellerDocument(currentSeller(request), params.id, request.correlationId);
+      return reply.status(204).send();
+    },
+  );
+
+  /** A link to read one back. Minutes, and single use. */
+  app.post('/documents/:id/link', async (request, reply) => {
+    const params = z.object({ id: z.string().length(26) }).parse(request.params);
+    const auth = currentUser(request);
+
+    const link = await createSellerDocumentLink(currentSeller(request), auth.id, params.id);
+
+    return reply.header('cache-control', 'no-store').status(200).send(link);
+  });
+
+  /**
+   * Redeem it.
+   *
+   * Served as an ATTACHMENT with `nosniff`, never inline. A PDF rendered in the
+   * page would be a PDF running in this origin, and the whole point of the
+   * private prefix is that these bytes never become part of a page.
+   */
+  app.get('/documents/:id/download', async (request, reply) => {
+    const params = z.object({ id: z.string().length(26) }).parse(request.params);
+    const query = z.object({ token: z.string().min(1).max(256) }).parse(request.query);
+    const auth = currentUser(request);
+    const seller = currentSeller(request);
+
+    const file = await redeemDocumentLink(
+      'seller',
+      auth.id,
+      params.id,
+      query.token,
+      seller.sellerAccountId,
+    );
+
+    return reply
+      .header('content-type', file.contentType)
+      .header('content-disposition', `attachment; filename="${safeFileName(file.fileName)}"`)
+      .header('x-content-type-options', 'nosniff')
+      .header('cache-control', 'no-store')
+      .status(200)
+      .send(file.body);
   });
 
   app.post('/agreements', async (request, reply) => {

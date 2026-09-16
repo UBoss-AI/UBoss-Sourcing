@@ -2492,5 +2492,6 @@
   "seller.media.makeMain": "Δημιουργία κύριας συνάρτησης",
   "seller.media.required": "Απαιτείται",
   "seller.media.uploading": "Μεταφόρτωση…",
-  "seller.media.altPlaceholder": "Εξάγωνη βίδα με επικάλυψη ψευδαργύρου, όπως φαίνεται από μπροστά"
+  "seller.media.altPlaceholder": "Εξάγωνη βίδα με επικάλυψη ψευδαργύρου, όπως φαίνεται από μπροστά",
+  "seller.nav.refresh": "Ανανέωση αυτής της οθόνης"
 }

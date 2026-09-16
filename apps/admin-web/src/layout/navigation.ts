@@ -40,6 +40,7 @@ import { Permission } from '@/lib/permissions';
 import type { ParseKeys } from 'i18next';
 import type { IconComponent } from '@/components/icons';
 import type { PermissionKey } from '@/lib/permissions';
+import type { AttentionKey } from '@/lib/attention';
 
 /**
  * A row in the sidebar.
@@ -62,6 +63,20 @@ export interface NavItem {
   permissions: PermissionKey[];
   /** Matches child routes too, so /products/:id keeps Products highlighted. */
   matchPrefix?: boolean;
+  /**
+   * The queue whose backlog this row is badged with, if any.
+   *
+   * Presentation again: the count comes from `/admin/attention`, which decides
+   * for itself whether the caller may see it. A row keyed here for a queue the
+   * user has no grant for simply gets no badge - the key is absent from the
+   * response rather than zero, so nothing has to be hidden afterwards.
+   *
+   * Several rows may share a key and one row may draw more than one, which is
+   * why `attentionKeys` is a list: the Sellers row carries both undecided
+   * applications and undecided certificates, because both are worked from the
+   * same screen and two badges on one row is two badges too many.
+   */
+  attentionKeys?: AttentionKey[];
 }
 
 export interface NavGroup {
@@ -132,6 +147,7 @@ export const NAVIGATION: NavGroup[] = [
         icon: ListingReviewIcon,
         permissions: [Permission.PRODUCT_READ],
         matchPrefix: true,
+        attentionKeys: ['listingReview'],
       },
       {
         // Directly under it, because the two are worked together: a listing is
@@ -142,6 +158,7 @@ export const NAVIGATION: NavGroup[] = [
         icon: BrandRequestIcon,
         permissions: [Permission.PRODUCT_READ],
         matchPrefix: true,
+        attentionKeys: ['brandRequests'],
       },
     ],
   },
@@ -154,6 +171,7 @@ export const NAVIGATION: NavGroup[] = [
         icon: OrdersIcon,
         permissions: [Permission.ORDER_READ],
         matchPrefix: true,
+        attentionKeys: ['orderApprovals'],
       },
       {
         labelKey: 'nav.payments',
@@ -188,6 +206,7 @@ export const NAVIGATION: NavGroup[] = [
         icon: CustomersIcon,
         permissions: [Permission.CUSTOMER_READ],
         matchPrefix: true,
+        attentionKeys: ['customerApprovals'],
       },
       {
         // Directly under Customers, because the two are the same kind of work:
@@ -198,6 +217,10 @@ export const NAVIGATION: NavGroup[] = [
         icon: SellerIcon,
         permissions: [Permission.CUSTOMER_READ],
         matchPrefix: true,
+        // Both, because both are decided on the seller's own screen: an
+        // application nobody has ruled on, and a certificate nobody has
+        // accepted.
+        attentionKeys: ['sellerApplications', 'sellerDocuments'],
       },
       {
         labelKey: 'nav.chatEnquiries',
@@ -230,6 +253,7 @@ export const NAVIGATION: NavGroup[] = [
         icon: AlertTriangleIcon,
         permissions: [Permission.LOGISTICS_READ],
         matchPrefix: true,
+        attentionKeys: ['logisticsExceptions'],
       },
       {
         labelKey: 'nav.logisticsPartners',
@@ -273,6 +297,7 @@ export const NAVIGATION: NavGroup[] = [
         icon: DataProtectionIcon,
         permissions: [Permission.DATA_REQUEST_READ],
         matchPrefix: true,
+        attentionKeys: ['dataRequests'],
       },
     ],
   },

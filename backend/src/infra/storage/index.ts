@@ -208,6 +208,40 @@ export function sniffMediaType(buffer: Buffer): SniffedMedia {
   return { mimeType: image.mimeType, extension: image.extension, kind: 'IMAGE' };
 }
 
+/**
+ * Paperwork: a scan or a photograph of a certificate.
+ *
+ * Its own sniffer rather than a flag on `sniffImageType`, because what counts
+ * as an acceptable file is a different question here. A CE certificate arrives
+ * as a PDF far more often than as a JPEG, and a catalogue photograph must never
+ * be allowed to be a PDF — an `<img>` slot that accepted one would render a
+ * broken picture in the storefront.
+ *
+ * The list is deliberately short. No Word documents and no ZIPs: both are
+ * containers that can carry a macro or an executable, and a reviewer who has to
+ * open one in an office suite to read it is a reviewer being asked to run an
+ * attachment from a stranger. A certificate that exists only as a .docx can be
+ * printed to PDF by the person who holds it.
+ */
+export function sniffDocumentType(buffer: Buffer): SniffedType {
+  // "%PDF-" - the only signature a PDF is allowed to start with.
+  if (buffer.length > 5 && buffer.subarray(0, 5).toString('ascii') === '%PDF-') {
+    return { mimeType: 'application/pdf', extension: 'pdf' };
+  }
+
+  const image = MAGIC_SIGNATURES.find((signature) => signature.matches(buffer));
+
+  if (image === undefined) {
+    throw badRequest(
+      ErrorCode.MEDIA_TYPE_NOT_ALLOWED,
+      'Upload a PDF, or a JPEG, PNG, WebP or GIF image of the document.',
+      [{ field: 'file', code: 'UNSUPPORTED_DOCUMENT_TYPE' }],
+    );
+  }
+
+  return { mimeType: image.mimeType, extension: image.extension };
+}
+
 export function assertWithinSizeLimit(sizeBytes: number): void {
   if (sizeBytes > env.UPLOAD_MAX_BYTES) {
     const limitMb = (env.UPLOAD_MAX_BYTES / 1_048_576).toFixed(1);

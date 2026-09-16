@@ -1,16 +1,32 @@
 /**
- * Brands: searching them, and asking for one that is not there.
+ * Brands: searching them, and asking to be allowed to sell one.
  *
- * A brand is MARKETPLACE-WIDE, not seller-owned, and that is the decision the
- * whole file turns on. Three distributors selling the same manufacturer's
- * catheters must attach to one brand row, or the buyer's brand filter shows
- * "B. Braun" three times and each one finds a third of the products.
+ * Two facts sit side by side here and neither one gives way to the other.
  *
- * So a seller does not create a brand. They search, and where they find
- * nothing they REQUEST one, which an operator approves once for everybody. A
- * brand approved for one seller's request is immediately available to every
- * seller, which is correct: a brand is not owned by whoever happened to ask
- * first.
+ * **A brand ROW is marketplace-wide.** Three distributors selling the same
+ * manufacturer's catheters attach to one `Brand`, or the buyer's brand filter
+ * shows "B. Braun" three times and each one finds a third of the products. So a
+ * seller never creates a brand; an operator approves the name once, for the
+ * catalogue.
+ *
+ * **Being ALLOWED to sell one is per company.** That is what a `BrandRequest`
+ * is: this seller, this brand, what evidence they gave, and what the
+ * marketplace said. A distributor authorised for Benelux is not thereby
+ * authorised for anybody else's brands, and the request row has always carried
+ * a `justification` field asking exactly that question - "why is this seller
+ * entitled to sell it".
+ *
+ * So the picker shows a seller THEIR OWN approved brands and nobody else's.
+ * The alternative - every seller seeing every approved name - reads as
+ * permission: a reseller who finds "B. Braun" in a dropdown reasonably
+ * concludes the marketplace is happy for them to list it, and the first anybody
+ * hears otherwise is a trademark complaint. A name that is missing from the
+ * list is never a dead end, because requesting it is one button away and the
+ * request is what an operator decides.
+ *
+ * A seller who asks for a brand that already exists gets that same request
+ * flow, attached to the existing row - the row is not duplicated and the
+ * catalogue does not fragment.
  */
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
 import { SellerPermission } from '../../domain/seller-permissions.js';
@@ -62,12 +78,84 @@ export interface BrandSummary {
 }
 
 /**
- * Search approved brands.
+ * Which brands one company may put on a listing.
  *
- * Pending brands are included when the seller requesting them is the one
- * searching, and only then: a seller waiting on their own request should see it
- * in the picker so they can attach it to a draft while they wait, and a seller
- * who has never heard of it should not see somebody else's unapproved name.
+ * Three sources, and they are not the same thing:
+ *
+ *   - Brands this seller has an APPROVED request for. The authorisation.
+ *   - Brands this seller has an UNDECIDED request for. Not yet permission, but
+ *     they belong in the picker so the seller can attach one to a draft and
+ *     finish the other five sections while an operator decides. The draft's own
+ *     evaluation still refuses to publish on an unapproved name.
+ *   - Brands already on this seller's live offers. A safety net rather than a
+ *     grant: an offer only exists because a listing on that brand was approved,
+ *     and a request row tidied away years later must not silently strip a
+ *     seller of a brand they are already trading under.
+ *
+ * Exported because two callers need the same answer and a second implementation
+ * of "may this company use this brand" is how the picker and the publish gate
+ * end up disagreeing.
+ */
+export async function entitledBrandIds(sellerAccountId: string): Promise<Set<string>> {
+  const [requests, offers] = await Promise.all([
+    prisma.brandRequest.findMany({
+      where: {
+        sellerAccountId,
+        status: { in: ['APPROVED', 'PENDING', 'INFORMATION_REQUESTED'] },
+        brandId: { not: null },
+      },
+      select: { brandId: true },
+    }),
+    prisma.sellerOffer.findMany({
+      where: { sellerAccountId, brandId: { not: null } },
+      select: { brandId: true },
+      distinct: ['brandId'],
+      take: 500,
+    }),
+  ]);
+
+  const ids = new Set<string>();
+
+  for (const row of [...requests, ...offers]) {
+    if (row.brandId !== null) ids.add(row.brandId);
+  }
+
+  return ids;
+}
+
+/**
+ * Whether this company may PUBLISH on a brand, as opposed to draft on one.
+ *
+ * Deliberately narrower than `entitledBrandIds`: an undecided request is enough
+ * to attach a brand to a draft and enough to see it in the picker, and it is
+ * not enough to put a product on sale under somebody else's name.
+ */
+export async function isBrandApprovedForSeller(
+  sellerAccountId: string,
+  brandId: string,
+): Promise<boolean> {
+  const [request, offer] = await Promise.all([
+    prisma.brandRequest.findFirst({
+      where: { sellerAccountId, brandId, status: 'APPROVED' },
+      select: { id: true },
+    }),
+    prisma.sellerOffer.findFirst({ where: { sellerAccountId, brandId }, select: { id: true } }),
+  ]);
+
+  return request !== null || offer !== null;
+}
+
+/**
+ * Search the brands THIS COMPANY may use.
+ *
+ * Scoped to the seller, not to the marketplace - see the header. A seller
+ * searching for a brand they have no authorisation for finds nothing here and
+ * is offered the request form, which is the honest answer: the name exists, but
+ * whether this business may sell it is a question only the marketplace can
+ * answer, and it has not been asked yet.
+ *
+ * A pending brand of the seller's own IS included, so they can attach it to a
+ * draft while they wait. Nobody else's pending name ever is.
  */
 export async function searchBrands(
   membership: SellerMembership,
@@ -77,19 +165,18 @@ export async function searchBrands(
   assertSellerPermission(membership, SellerPermission.LISTING_READ);
 
   const term = query.trim();
+  const mine = await entitledBrandIds(membership.sellerAccountId);
 
-  const pendingForThisSeller = await prisma.brandRequest.findMany({
-    where: { sellerAccountId: membership.sellerAccountId, status: 'PENDING', brandId: { not: null } },
-    select: { brandId: true },
-  });
-
-  const ownPendingIds = pendingForThisSeller
-    .map((row) => row.brandId)
-    .filter((id): id is string => id !== null);
+  // Nothing to search. Returning early rather than issuing `id: { in: [] }`,
+  // which is a query the database still has to plan.
+  if (mine.size === 0) return [];
 
   const rows = await prisma.brand.findMany({
     where: {
-      OR: [{ status: 'APPROVED' }, { id: { in: ownPendingIds } }],
+      id: { in: [...mine] },
+      // A brand this seller was refused, or one an operator retired, is not a
+      // brand they may keep listing under.
+      status: { in: ['APPROVED', 'PENDING'] },
       ...(term.length === 0 ? {} : { name: { contains: term } }),
     },
     orderBy: [{ status: 'asc' }, { name: 'asc' }],
@@ -195,23 +282,34 @@ export async function requestBrand(input: BrandRequestInput): Promise<{ requestI
     select: { id: true, name: true, status: true },
   });
 
-  if (existing !== null && existing.status === 'APPROVED') {
-    throw conflict(
-      ErrorCode.BRAND_ALREADY_EXISTS,
-      `${existing.name} is already in the catalogue. Choose it from the list instead.`,
-      [{ field: 'requestedName', code: 'ALREADY_APPROVED', meta: { brandId: existing.id } }],
-    );
-  }
-
   if (existing !== null) {
     const mine = await prisma.brandRequest.findFirst({
       where: {
         sellerAccountId: membership.sellerAccountId,
         brandId: existing.id,
-        status: { in: ['PENDING', 'INFORMATION_REQUESTED'] },
+        status: { in: ['PENDING', 'INFORMATION_REQUESTED', 'APPROVED'] },
       },
-      select: { id: true },
+      select: { id: true, status: true },
     });
+
+    /*
+     * The only two refusals, and both are about THIS seller rather than about
+     * the brand.
+     *
+     * A name that already exists in the catalogue is emphatically NOT a
+     * refusal: the marketplace approving "B. Braun" for one distributor says
+     * nothing about whether a second may sell it, and that second request is
+     * the thing an operator is supposed to decide. It attaches to the existing
+     * brand row, so the catalogue keeps one "B. Braun" and the buyer's filter
+     * keeps working.
+     */
+    if (mine !== null && mine.status === 'APPROVED') {
+      throw conflict(
+        ErrorCode.BRAND_ALREADY_EXISTS,
+        `You are already approved for ${existing.name}. Choose it from the list instead.`,
+        [{ field: 'requestedName', code: 'ALREADY_APPROVED', meta: { brandId: existing.id } }],
+      );
+    }
 
     if (mine !== null) {
       throw conflict(

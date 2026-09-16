@@ -25,7 +25,7 @@
  */
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/toast-context';
 import {
   Badge,
@@ -591,6 +591,9 @@ function CategoryStep({
 // Step 2 - the brand
 // ---------------------------------------------------------------------------
 
+/** Module-level so the debounce survives a re-render without a ref. */
+let brandSearchTimer = 0;
+
 function BrandStep({
   draft,
   onChoose,
@@ -602,12 +605,44 @@ function BrandStep({
 }): React.JSX.Element {
   const { t } = useI18n();
   const toast = useToast();
-  const [search, setSearch] = useState('');
+
+  /*
+   * Two states for one box, and that is the whole fix for a step that used to
+   * shudder on every keystroke.
+   *
+   * `typed` is what is in the field and updates on every character, so typing
+   * stays instant. `term` is what the server is asked about and lags by a third
+   * of a second. Before this they were one state used as the query key, which
+   * meant every character produced a brand-new query: `data` went undefined,
+   * `isPending` went true, the whole results list unmounted, a loading line
+   * took its place at a different height, and the page jumped under the
+   * cursor — six times while somebody typed "Braun".
+   */
+  const [typed, setTyped] = useState('');
+  const [term, setTerm] = useState('');
   const [isRequesting, setIsRequesting] = useState(false);
 
+  const setSearch = (value: string): void => {
+    setTyped(value);
+    window.clearTimeout(brandSearchTimer);
+    brandSearchTimer = window.setTimeout(() => {
+      setTerm(value.trim());
+    }, 350);
+  };
+
   const query = useQuery({
-    queryKey: ['seller', 'brands', search],
-    queryFn: () => fetchBrands(search),
+    queryKey: ['seller', 'brands', term],
+    queryFn: () => fetchBrands(term),
+    /*
+     * The previous answer stays on screen while the next one is fetched.
+     *
+     * The list is replaced when the new data lands rather than being torn down
+     * and rebuilt around a spinner, so the rows a seller was about to click do
+     * not move out from under them. `isPlaceholderData` below is what dims it,
+     * which is an honest "this is last moment's answer" without costing the
+     * layout.
+     */
+    placeholderData: keepPreviousData,
   });
 
   const requestMutation = useMutation({
@@ -622,11 +657,12 @@ function BrandStep({
   });
 
   const warnings = query.data?.warnings ?? [];
+  const search = typed;
 
   return (
     <Card
       title="Who makes it?"
-      description="Pick the brand exactly as it appears on the product. Do not add words like 'original' or 'genuine'."
+      description="These are the brands your business has been approved to sell. Pick one exactly as it appears on the product, or ask for a brand that is not here yet."
       actions={<Button onClick={onBack}>Back</Button>}
     >
       <div className="space-y-5 px-6 py-5">
@@ -679,17 +715,31 @@ function BrandStep({
           </div>
         )}
 
+        {/* Only on the very first load, when there is nothing to keep on
+            screen. Every search after that keeps the previous list in place —
+            see `placeholderData` above. */}
         {query.isPending && <LoadingState label="Searching brands" />}
 
         {query.data !== undefined && (
-          <div>
+          <div
+            // Dimmed, not replaced, while the next answer is on its way. The
+            // rows stay exactly where they are, so nothing moves under a
+            // cursor that was already heading for one of them.
+            className={cx('transition-opacity', query.isPlaceholderData && 'opacity-60')}
+          >
             <h3 className="text-xxs font-semibold uppercase tracking-wider text-ink-subtle">
-              {search.length === 0 ? 'All approved brands' : 'Matching brands'}
+              {search.length === 0 ? 'Brands you are approved for' : 'Matching brands'}
             </h3>
 
             {query.data.brands.length === 0 ? (
-              <p className="mt-3 text-sm text-ink-muted">
-                No brand here is called that yet.
+              <p className="mt-3 max-w-prose text-sm leading-relaxed text-ink-muted">
+                {/* Deliberately not "no such brand". The name may well exist in
+                    the catalogue — what does not exist is this company's
+                    permission to sell under it, and saying so is what sends the
+                    seller to the request form instead of to support. */}
+                {search.length === 0
+                  ? 'You have not been approved for any brands yet. Ask for the one on your product below.'
+                  : 'You are not approved to sell anything called that yet. Ask for it below and tell us why you are entitled to.'}
               </p>
             ) : (
               <ul className="mt-3 divide-y divide-border-subtle rounded-lg border border-border">
@@ -750,7 +800,7 @@ function BrandStep({
                     requestMutation.mutate(search.trim());
                   }}
                 >
-                  Request this brand
+                  Ask to sell this brand
                 </Button>
                 <Button
                   onClick={() => {
@@ -761,19 +811,19 @@ function BrandStep({
                 </Button>
               </div>
               <p className="text-xxs leading-relaxed text-ink-muted">
-                We will check it and let you know. You can finish the rest of this listing while
-                you wait — it just cannot go on sale until the brand is approved.
+                We will check who you are entitled to sell for and let you know. You can finish the rest of this
+                listing while you wait — it just cannot go on sale until we have approved the brand for your business.
               </p>
             </div>
           ) : (
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="text-sm text-ink-muted">Cannot find the brand?</p>
+              <p className="text-sm text-ink-muted">Not approved for the brand you need?</p>
               <Button
                 onClick={() => {
                   setIsRequesting(true);
                 }}
               >
-                Request a new brand
+                Ask for a brand
               </Button>
             </div>
           )}

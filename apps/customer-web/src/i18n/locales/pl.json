@@ -2574,5 +2574,6 @@
   "seller.media.makeMain": "Utwórz funkcję main",
   "seller.media.required": "Wymagane",
   "seller.media.uploading": "Trwa przesyłanie…",
-  "seller.media.altPlaceholder": "Śruba sześciokątna ocynkowana, widok z przodu"
+  "seller.media.altPlaceholder": "Śruba sześciokątna ocynkowana, widok z przodu",
+  "seller.nav.refresh": "Odśwież ten ekran"
 }

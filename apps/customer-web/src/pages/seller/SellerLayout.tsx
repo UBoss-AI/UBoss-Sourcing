@@ -24,7 +24,7 @@
  * seller loses the orders queue.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useIsFetching, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useI18n } from '@/i18n/i18n-context';
 import type { TranslationKey } from '@/i18n/i18n-context';
@@ -163,6 +163,27 @@ function LockIcon({ className }: IconProps): React.JSX.Element {
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
       <rect x="5" y="10.5" width="14" height="9.5" rx="1.8" stroke="currentColor" strokeWidth="1.6" />
       <path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/** A circular arrow. The one silhouette nobody has to be taught. */
+function RefreshIcon({ className }: IconProps): React.JSX.Element {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <path
+        d="M20.4 12a8.4 8.4 0 1 1-2.6-6"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      <path
+        d="M20.6 3.6v3.2h-3.2"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -416,6 +437,70 @@ function ApplicationBanner({ seller }: { seller: SellerIdentity }): React.JSX.El
         )}
       </div>
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Bringing the Hub up to date
+// ---------------------------------------------------------------------------
+
+/**
+ * Re-read everything on this screen.
+ *
+ * The Hub caches, and it should: a seller moving between Orders and Listings
+ * forty times an hour should not wait for a round trip each time. That is right
+ * almost always and wrong in exactly the situation this product creates
+ * constantly — the decisions that matter to a seller are made by SOMEBODY ELSE,
+ * in another application, minutes or days later. An operator approves the
+ * account, accepts a certificate or lets a brand through, and the seller
+ * staring at the screen has no way to know, because nothing about their browser
+ * changed.
+ *
+ * Polling every screen would be the other answer, and it is the wrong one: a
+ * marketplace with four hundred sellers each holding a tab open is four hundred
+ * pollers asking a self-hosted box a question whose answer changes twice a
+ * week.
+ *
+ * So: one control, on every page of the Hub, that marks every query stale and
+ * refetches the ones on screen. Deliberately not `location.reload()`, which
+ * would also lose the scroll position and a half-filled form.
+ */
+function RefreshButton(): React.JSX.Element {
+  const { t } = useI18n();
+  const client = useQueryClient();
+  const isFetching = useIsFetching() > 0;
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const refresh = (): void => {
+    setIsRefreshing(true);
+    /*
+     * Not awaited into the button's state: `invalidateQueries` resolves only
+     * when every refetch it triggered has settled, so one slow request would
+     * leave the icon spinning for as long as the socket did. `isFetching`
+     * drives the spin instead, which is the honest signal.
+     */
+    void client.invalidateQueries();
+    // Long enough that a refresh with nothing to fetch still acknowledges the
+    // press. A control that visibly does nothing gets pressed again.
+    window.setTimeout(() => {
+      setIsRefreshing(false);
+    }, 600);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={refresh}
+      aria-label={t('seller.nav.refresh')}
+      title={t('seller.nav.refresh')}
+      className={cx(
+        'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border',
+        'border-border-strong bg-surface text-ink-muted transition-colors',
+        'hover:bg-surface-hover hover:text-ink',
+      )}
+    >
+      <RefreshIcon className={cx('h-4 w-4', (isRefreshing || isFetching) && 'animate-spin')} />
+    </button>
   );
 }
 
@@ -769,6 +854,11 @@ export function SellerLayout(): React.JSX.Element {
             </div>
 
             <div className="flex shrink-0 items-center gap-2">
+              {/* On every page of the Hub, and that is the point: what a seller
+                  needs to re-read is whichever screen an operator has just
+                  decided something on, and they cannot know which that is. */}
+              <RefreshButton />
+
               <NavLink
                 to="/"
                 className="inline-flex h-9 items-center gap-2 rounded-md border border-border-strong bg-surface px-3 text-sm font-medium text-ink hover:bg-surface-hover lg:hidden"

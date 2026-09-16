@@ -346,7 +346,21 @@ table(['Step', 'What it covers'], [
 ], [3000, 7000]);
 note('Working through it', 'The application opens at its first step, contact verification, for anybody who has not filled any of it in yet, and at whichever step was last saved for anybody coming back to it. Each step has Back and Continue underneath it, and the list of steps down the side jumps straight to any of them. Moving to another step puts the page back at the top, so the new step is read from its heading down rather than from the middle.', C.blue);
 note('Being told what is still missing', 'Where a step needs more than one thing — store details needs both a description of the business and a support email address — saving it says which of them is still outstanding, in words, on the step itself. Filling in one thing never clears another that was entered earlier.', C.blue);
-note('Two steps do not block the application', 'Payout and compliance are not required to send an application in. A seller is never held up because the marketplace has not finished setting up payments, and a seller of ordinary goods is not asked for certificates that do not exist for what they sell.', C.orange);
+note('Payout does not block the application', 'A seller is never held up from sending their application in because the marketplace has not finished setting up payments.', C.orange);
+note('Compliance only asks for what the marketplace decides it needs', 'Nothing on the compliance step is required unless the marketplace has said so for that country and that kind of seller. A seller of ordinary goods is not asked for certificates that do not exist for what they sell. Where the marketplace does regulate a trade, it marks what it needs, and the step then has to be answered before the application can be sent in.', C.orange);
+
+h2('6a.2a Sending in certificates and licences');
+p('Both steps that ask for paperwork — identity and documents, and compliance — let the seller attach files. A CE certificate, a Declaration of Conformity, a quality certificate, an import or manufacturing licence, a registration document, proof of identity or address: each one is uploaded, stored privately, and checked by the marketplace before it counts for anything.');
+table(['What the seller does', 'What the system does back'], [
+  ['Chooses what the document is, attaches a PDF or a photograph, and can give the date it was issued and the date it runs out', 'Checks the file really is a PDF or a picture — from the file itself, not from what the browser claims — refuses anything else, and stores it where nobody can reach it by guessing an address.'],
+  ['Sends it', 'Marks it "being checked", tells the marketplace at once, and shows the step as waiting rather than finished.'],
+  ['Comes back later', 'Shows every document sent, what the marketplace decided about each, and the reason in full for anything not accepted.'],
+  ['Sends a better copy of the same document', 'Uses the new one from then on and keeps the old one, so it stays clear what was accepted and when.'],
+  ['Wants to remove one', 'Allowed while nobody has decided it. Once the marketplace has accepted a document, the way to change it is to send a newer one.'],
+], [4200, 5800]);
+note('Uploading is not approving', 'A certificate counts for nothing until somebody at the marketplace accepts it. A step waiting on a decision says "being checked" rather than showing a tick — and waiting never stops the seller sending the application in, because the marketplace looks at the documents as part of reviewing the application.', C.blue);
+note('A certificate that has run out is not a certificate', 'If a document was given an expiry date and that date has passed, it stops counting and the step says so. The seller finds out from their own checklist rather than from a refusal weeks later.', C.purple);
+note('Checking files for viruses', 'No virus checker is installed with this software. Every uploaded file therefore says plainly that nothing has checked it, rather than claiming to be safe, and that wording is shown to the seller and to staff alike. Whether an unchecked file may be opened is a setting the business running the marketplace decides.', C.orange);
 note('About the signature', 'The application records a typed name, a tick, the version of each document, the time, the address and the browser. This is a record of consent. It is not an electronic signature tied to a verified identity, and the system never describes it as one.', C.orange);
 
 h2('6a.3 What the marketplace sees, and how a seller is approved');
@@ -357,7 +371,8 @@ table(['What staff see', 'Why it is there'], [
   ['The registered and trading names, country and seller type', 'The basic question of who this business claims to be.'],
   ['Company registration number, tax registration, and any country-specific identifiers', 'The numbers staff check against a public register.'],
   ['The authorised representative, their role and contact details', 'Who signs for the business, and who to contact about a problem.'],
-  ['Every document uploaded, with its scan state and any expiry date', 'Evidence, and whether it has been checked for malware. An unchecked file is shown as unchecked rather than as safe.'],
+  ['Every document uploaded, with its scan state and any expiry date', 'Evidence, and whether it has been checked for viruses. An unchecked file is shown as unchecked rather than as safe.'],
+  ['A button to open each document, and buttons to accept it or send it back', 'This is where a certificate is actually decided. Opening one gives a link that works for a few minutes and once only; sending one back needs a reason, which the seller reads word for word.'],
   ['Every address the seller would ship from or take returns at', 'A seller with no address that can dispatch cannot fulfil an order.'],
   ['Every agreement accepted, with its version, the time and the address it came from', 'What exactly the business has agreed to, and when.'],
   ['Step-by-step application progress', 'Which parts are finished, which need attention, and any note the system attached.'],
@@ -453,9 +468,12 @@ table(['Role', 'What they can do'], [
 note('Nobody can promote themselves', 'A person can only give somebody else a role that carries no more than their own. Only the owner can accept agreements, and only the owner or an admin can change who is in the business. Removing somebody stops their access immediately and changes nothing about what they already did — that stays on the record with their name on it.', C.orange);
 
 h2('6a.10 Brands');
+p('A brand name belongs to the whole marketplace. Being allowed to sell under one belongs to a single business. Those are two different things and the system keeps them apart.');
 bullets([
-  'Brands belong to the whole marketplace, not to one seller, so every seller of the same manufacturer’s goods attaches to the same brand.',
-  'A seller who cannot find a brand asks for it, and staff approve it once for everybody.',
+  'There is one entry per brand, however many sellers offer that manufacturer’s goods, so a buyer filtering by brand sees it once and finds everything under it.',
+  'When a seller picks a brand for a listing, they see the brands their own business has been approved for, and nobody else’s. A brand approved for a competitor is not offered — a name in a list reads as permission, and permission is exactly what has not been given yet.',
+  'A brand the seller has asked for and is still waiting on is shown too, so they can attach it and finish the rest of the listing while they wait. It still cannot go on sale until the answer comes.',
+  'A seller who cannot find the brand they need asks for it and says why they are entitled to sell it. If the name already exists, the request attaches to the existing entry rather than creating a second one.',
   'The seller is warned about names that will be corrected — trademark symbols, words like "original" or "best" — but the request is still accepted, because a warning must never silently refuse a real business name.',
   'Staff can approve a request under a corrected spelling.',
   'The seller has their own screen listing every name they have asked for, what was decided and why — because otherwise the only sign that anything happened is a listing quietly refusing to go on sale.',
@@ -490,8 +508,15 @@ bullets([
   'See where every order in the period sits, as one bar running from the earliest stage to delivered, with the exact counts listed beside it and in the table underneath.',
   'Change reporting period and refresh business totals.',
   'Open linked items from dashboard cards, order-status summaries and payment summaries.',
-  'Use the notification bell for events such as staff sign-ins, customer activity, order/payment changes and operational alerts.',
+  'Use the notification bell for events such as staff sign-ins, customer activity, order/payment changes, certificates a seller has sent in, and operational alerts.',
 ]);
+p('The list of screens down the side of the console also says what is waiting. Any entry with a queue behind it carries a number when there is something in it: listings sent for quality review, brands asked for, orders held for approval, sign-ups waiting to be let in, data protection requests, deliveries that have gone wrong, and seller applications together with the certificates attached to them.');
+bullets([
+  'The bell says what has happened lately and clears when it is read. These numbers say what is still sitting there, and only a decision clears one.',
+  'A number rather than a dot, because whether it is one listing or forty decides what gets opened first.',
+  'Each number is only shown to staff whose role lets them act on it. A member of staff who cannot act on something is not shown a count of it at all — not even a zero, because "none waiting" is itself a piece of information.',
+]);
+p('Beside the bell there is a refresh button, and the seller’s own workspace has the same one. Both screens remember what they last loaded so that moving around is instant, which is right nearly always and wrong in one everyday case: two people working the same queue, or a seller and a member of staff looking at the same decision from opposite sides. Pressing it re-reads what is on screen without losing the page position or anything half typed into it.');
 page();
 
 // 8
@@ -954,6 +979,8 @@ table(['Optional capability', 'When it appears / what is required'], [
   ['Admin location gate', 'Can be enabled for staff sign-in; production deployment needs HTTPS for browser location access.'],
   ['Seller shop fronts', 'Each seller gets a web address of their own once the business configures the domain to hang them off. Without it every visitor is on the business’s own shop, exactly as before.'],
   ['Marketplace commission', 'A standard percentage set once by the business, with an agreed rate per seller where one has been negotiated. Both start at nothing, so a business that has not decided what it charges charges nothing.'],
+  ['Certificates a seller must supply', 'Nothing is demanded out of the box. The business running the marketplace decides, per country and per kind of seller, which certificates and documents are required — and a step only has to be answered once something on it has been marked required.'],
+  ['Opening a document nobody has checked for viruses', 'No virus checker is installed with this software, so every uploaded file says plainly that nothing has checked it. Whether staff and sellers may still open one is a setting. It is on to begin with, because somebody who cannot open a certificate cannot decide an application; turn it off once a virus checker is connected.'],
   ['Logistics partner portal', 'Turned on by the logistics feature. Gives haulage companies their own place to work and the business its own view of every delivery. Off, and none of chapter 12a exists. On, it works straight away with carriers whose staff record each status themselves; connecting a haulage company’s computer system needs that company’s own credentials, and until they are in place the system says so rather than pretending.'],
 ], [3500, 6500]);
 note('Configuration rule', 'A feature being in the code does not mean it is always enabled in every customer installation. This guide describes the capability and clearly identifies when setup controls visibility.', C.orange);
@@ -1009,6 +1036,19 @@ bullets([
   'Maintains tax, markets, notifications, business settings and policy links.',
   'Configures payment/integration/ERP settings with controlled credentials and tests.',
 ]);
+h2('Example F — A seller sends in a CE certificate and is approved to sell a brand');
+table(['Step', 'Who acts', 'What happens'], [
+  ['1', 'The seller', 'Opens the compliance step of their application, chooses "CE certificate", attaches the PDF and gives the date it runs out.'],
+  ['2', 'The system', 'Checks the file really is a PDF, stores it where nobody can reach it by guessing an address, marks it "being checked", and shows the step as waiting rather than finished.'],
+  ['3', 'The system', 'Tells the marketplace at once — the bell rings, and the Sellers entry in the list of screens shows one more thing waiting.'],
+  ['4', 'The seller', 'Carries on. Waiting on the marketplace does not stop them sending the application in, because the marketplace looks at the documents while reviewing it.'],
+  ['5', 'A member of staff', 'Opens the seller’s screen, opens the document, and accepts it. A link that works for a few minutes and once only is used to read it, and who opened it is written down.'],
+  ['6', 'The system', 'Tells the seller, marks the step finished, and takes the waiting count back down.'],
+  ['7', 'The seller', 'Starts a listing and looks for their brand. They have not been approved for any yet, so the list is empty and the screen says so.'],
+  ['8', 'The seller', 'Asks for the brand on their product and says why they are entitled to sell it. If the name is already in the catalogue, the request attaches to the existing entry.'],
+  ['9', 'A member of staff', 'Reads the reason and approves it. From then on that brand appears in this seller’s list — and only in theirs — and the listing can go on sale once it has passed quality review.'],
+], [700, 2300, 7000]);
+
 note('Document status', 'This guide is based on the current UBOSS Sourcing codebase, including customer storefront routes, admin routes, warehouse rules, API business rules, background-worker behaviour and feature configuration.', C.teal);
 
 const doc = new Document({

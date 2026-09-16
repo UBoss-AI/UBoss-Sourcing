@@ -2565,5 +2565,9 @@
   "logistics.eventSource.LOGISTICS_PORTAL": "Γραφείο του μεταφορέα",
   "logistics.eventSource.CARRIER_API": "Αναζήτηση στον μεταφορέα",
   "logistics.eventSource.INBOUND_WEBHOOK": "Ροή του μεταφορέα",
-  "logistics.eventSource.SYSTEM_AUTOMATION": "Αυτόματα"
+  "logistics.eventSource.SYSTEM_AUTOMATION": "Αυτόματα",
+  "shell.attention": "{{waiting}} περιμένουν χειρισμό",
+  "shell.refresh": "Ανανέωση αυτής της οθόνης",
+  "notifications.sellerDocumentUploaded.title": "Ο πωλητής {{sellerName}} ανέβασε έγγραφο: {{documentKind}}",
+  "notifications.sellerDocumentUploaded.detail": "{{fileName}} — αναμένει έλεγχο"
 }

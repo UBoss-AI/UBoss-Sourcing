@@ -2138,15 +2138,82 @@ That table is the whole reason this is a product rather than one company's
 marketplace. Hard-coding a GSTIN field would make a German deployment
 impossible.
 
-**Two steps are deliberately not required to submit.** Payout, because a seller
-must never be blocked on the operator not having configured a payment provider.
-And compliance, because a seller of cable ties has no quality certificate and
-never will — where a deployment does regulate a trade, it marks those
-requirements required and the step blocks submission on its own.
+**Payout is deliberately not required to submit**, because a seller must never
+be blocked on the operator not having configured a payment provider.
+
+**Compliance is required only where the deployment has made it so.** A seller
+of cable ties has no quality certificate and never will, so nothing on that step
+is required by default. Where an operator marks a requirement required, the step
+becomes required with it — that is a property of the requirement rows, not a
+constant in the code, which is what makes "we regulate this trade" an edit in a
+table rather than a change to the software.
 
 Progress is a percentage **of the required steps**. A seller who has done
 everything they must do sees 100%, not 87% because of a step nobody asked them
-to finish.
+to finish. Waiting on the marketplace counts as done for that figure, for the
+same reason: it is not work the seller still owes.
+
+### Certificates: uploading them, and what happens next
+
+Both document steps — **Identity and documents** and **Compliance** — carry the
+same panel: what the deployment asks for, a form to attach a file, and
+everything already sent with what the marketplace made of each one.
+
+**Uploading is not approving, and the screen says so.** A file sits at "Being
+checked" until somebody at the marketplace accepts it. A step with a required
+document that has been uploaded and not yet decided reads **Being checked**, not
+Done — and a step with one that was sent back drops to "In progress" with the
+reviewer's reason on it.
+
+**Being checked does not block submission, and that is not a loophole.** The
+marketplace reviews documents as part of reviewing the application, and the
+application is only reviewed once it has been submitted. A gate that demanded an
+acceptance the reviewer only gives after submission is a seller who can never
+submit. What still blocks is the thing the seller can actually fix: a required
+document missing, or one that was sent back.
+
+What is accepted, and what is done with it:
+
+- **PDFs and pictures only**, decided by the file's own magic bytes and never by
+  what the browser claims. No Word documents and no archives: both can carry a
+  macro, and a reviewer who has to open one in an office suite to read it is a
+  reviewer being asked to run an attachment from a stranger. Up to 10 MB —
+  its own ceiling, because a certificate scanned at 300dpi is bigger than any
+  product photograph and raising the catalogue's limit to fit one would raise it
+  for everything.
+- **The bytes go to the private storage prefix**, which the static route is not
+  mounted over. They come back only through a link that is minted per press,
+  lives minutes and works once, and they are served as a download with
+  `nosniff` — never rendered in the page.
+- **No scanner is configured**, so an upload records `SCANNER_UNCONFIGURED`
+  rather than "clean". Whether an unscanned file may then be opened is
+  `SELLER_ALLOW_UNSCANNED_DOCUMENTS`, which defaults to true: a reviewer who
+  cannot open the evidence cannot review the application, and the alternative is
+  certificates going back to arriving by email where nobody can find them. The
+  scan state is shown beside every document on both screens.
+- **A second upload supersedes the first rather than replacing it.** The old row
+  is kept, because the document an approval was granted against has to stay
+  readable — "we accepted their CE certificate in March" is only an answer if
+  the March file still exists.
+- **A seller can withdraw one only while it is undecided.** One the marketplace
+  has accepted is part of the record of why they were approved; the way to
+  change it is to upload a newer one.
+- **An expired certificate is not a certificate.** A document with an expiry
+  date in the past stops satisfying its requirement, and the step says so — the
+  seller finds out from their own checklist rather than from a refusal weeks
+  later.
+
+On the operator's side this is the Documents card on the seller's own screen:
+Open, Accept, and Send back. A refusal must carry a reason, the seller reads it
+word for word, and every one of the three goes to both audit trails — the
+operator's, where an auditor asks who accepted a certificate and when, and the
+seller's, where the marketplace appears as a role rather than as a named member
+of staff. Opening one is recorded too, because some of these are a director's
+passport.
+
+Each upload also rings the console's bell and adds to the count on its Sellers
+row, so evidence attached on a Friday is not waiting until somebody happens to
+open that seller.
 
 ### The signature, and what it is not
 
@@ -2242,7 +2309,40 @@ listing into a new draft, which is how the next size of the same thing gets
 listed, and it insists on a new seller code because two listings under one SKU
 is an order nobody can pick.
 
-### Brands: what you asked for, and what happened
+### Brands: a name is marketplace-wide, permission to sell it is not
+
+Two facts sit side by side here, and the system holds both.
+
+**A brand row is marketplace-wide.** Three distributors selling the same
+manufacturer's catheters attach to one `Brand`, or the buyer's brand filter
+shows "B. Braun" three times and each one finds a third of the products. So a
+seller never creates a brand; an operator approves the name once, for the
+catalogue.
+
+**Being allowed to sell one is per company.** That is what a `BrandRequest` has
+always been: this seller, this brand, the evidence they gave, and what the
+marketplace said — the row has a `justification` field asking exactly that
+question.
+
+So **the brand picker shows a seller their own approved brands and nobody
+else's.** A name approved for a competitor is not offered: a dropdown that
+listed it would read as permission, a reseller who found "B. Braun" in it would
+reasonably conclude the marketplace was happy for them to list it, and the first
+anybody would hear otherwise is a trademark complaint. Their own *undecided*
+request is shown, so they can attach it to a draft and finish the rest of the
+listing while they wait.
+
+A missing name is never a dead end. Asking for it is one button away, and a
+request for a brand that already exists attaches to the **same row** — so the
+catalogue never grows a second "B. Braun" and the operator gets the one question
+that actually needs answering: may this business sell it.
+
+The gate on publication asks both questions in turn. A brand that is not
+approved at all blocks it; so does a brand that is approved for the catalogue
+but not for this seller, with a message saying which and what to do about it.
+Neither blocks drafting.
+
+### What you asked for, and what happened
 
 `/seller/brands`. Requesting a brand is the one thing in the wizard a seller
 does and then cannot see again: the request is made at step two, the brand
@@ -2900,9 +3000,13 @@ honest boundary.
 2. **Bank verification.** There is no provider that could run the penny-transfer
    check the reference workflow shows, so no verification is claimed.
 3. **E-signature.** Consent is recorded; a verified signature is not claimed.
-4. **Document and image upload.** These need encrypted object storage and a
-   malware scanner. The slots render, say what will be required, and explain why
-   they are not yet live rather than offering a control that fails silently.
+4. **Malware scanning of uploaded documents.** Certificates and licences upload
+   for real, to the private storage prefix, and are accepted or refused on the
+   operator's own screen — but nothing scans them. An upload records
+   `SCANNER_UNCONFIGURED` rather than "clean", which is the truth, and the state
+   is shown beside every document on both screens. A function that returned
+   CLEAN because nothing looked would be worse than no scanner at all, because
+   every control downstream would be reading a value it had no reason to trust.
 
 Each of those is a configuration away from working, and none of them lies in the
 meantime.
@@ -2960,6 +3064,48 @@ meantime.
 | `/staff` | Staff | Staff accounts and their roles |
 | `/settings` | Settings | Business profile, policy links, tax, shipping, currencies, notifications |
 | `/settings/erp` | Settings → ERP | The ERP connection: address, credentials, endpoints, field mapping, test, sync, activity |
+
+## The navigation rail says what is waiting
+
+Every row in the sidebar that has a queue behind it carries a count when
+anything is in it: listings submitted for review, brands asked for, orders held
+for an approver, sign-ups waiting on the approval gate, data-subject requests,
+open consignment exceptions, and — on one row, because they are decided on one
+screen — seller applications and the certificates attached to them.
+
+This is not the bell next door, and the difference is worth stating. The bell
+answers *what happened lately* and is cleared by reading it. These are things
+that are still sitting there, and the only thing that clears one is somebody
+deciding it. An operator opening the console at nine should be able to see that
+four listings and one brand are waiting without opening a single screen.
+
+Three decisions in it:
+
+- **A number, not a dot.** A dot says "something"; whether that something is one
+  listing or forty decides what gets opened first, and the whole point of
+  putting this on the rail is that it is readable without opening anything.
+- **Each count is gated by the permission that makes it actionable**, not by the
+  one that makes the page visible. Somebody who may read orders but not approve
+  them does not need a badge about approvals.
+- **A count the caller may not see is absent, not zero.** Zero is itself a fact
+  about the business: the difference between "no data-subject requests" and "you
+  may not know" is the reason the key is missing rather than nil.
+
+One request for the whole panel, refreshed once a minute and only while the tab
+is in front — every screen renders the sidebar, so a per-row fetch would be
+eight requests on every page load for eight numbers that come out of one
+endpoint.
+
+**Beside the bell there is a refresh control**, and the Seller Hub has the same
+one in the same place. Both applications cache, and they should: moving between
+screens should be instant. That is right almost always and wrong in exactly the
+situation this product creates constantly — two people working the same queue,
+or a seller and an operator looking at the same decision from two sides. An
+operator approves a seller, and the colleague in the next chair still has the
+old list on screen; the seller refreshes their Hub and the approval is there.
+It marks every query stale and refetches what is on screen — deliberately not a
+page reload, which would also throw away the scroll position, the open dialog
+and the half-typed reason in it.
 
 ## Companies: one business, all of its accounts
 
@@ -8693,6 +8839,17 @@ before that answer lands.
 Neither has a feature flag, and neither needs one. A deployment that has drawn
 no delivery zones gets no warehouse options, the checkout section says nothing,
 and orders are fulfilled the way they were before any of this existed.
+
+## A seller's evidence
+
+| Variable | Default | Effect |
+|---|---|---|
+| `SELLER_ALLOW_UNSCANNED_DOCUMENTS` | `true` | Whether a certificate no malware scanner has seen may be opened. The opposite default to `LOGISTICS_ALLOW_UNSCANNED_DOCUMENTS`, because of who is on each end: a carrier document is handed to a third party's staff, while a seller document is handed back to the seller who uploaded it or to the operator who has to read it in order to decide the application at all. With it off and no scanner configured, nobody could ever open a CE certificate — which does not make the deployment safer, it makes evidence go back to arriving by email. Everything that does not depend on it stays either way: the bytes are sniffed, only PDFs and pictures are accepted, the file is served as an attachment with `nosniff` and never rendered in the page, and the scan state is shown beside every document. Set it false once a scanner is wired in |
+
+The link a document is read through reuses `LOGISTICS_DOCUMENT_URL_TTL_SECONDS`
+rather than adding a setting of its own: a deployment that has decided how long
+a signed document link should last has decided it for every private document,
+and two settings is one of them being wrong.
 
 ## Pluggable adapters
 

@@ -2565,5 +2565,9 @@
   "logistics.eventSource.LOGISTICS_PORTAL": "Carrier office",
   "logistics.eventSource.CARRIER_API": "Carrier lookup",
   "logistics.eventSource.INBOUND_WEBHOOK": "Carrier feed",
-  "logistics.eventSource.SYSTEM_AUTOMATION": "Automatic"
+  "logistics.eventSource.SYSTEM_AUTOMATION": "Automatic",
+  "shell.attention": "{{waiting}} waiting for attention",
+  "shell.refresh": "Refresh this screen",
+  "notifications.sellerDocumentUploaded.title": "{{sellerName}} uploaded a {{documentKind}}",
+  "notifications.sellerDocumentUploaded.detail": "{{fileName}} — waiting to be checked"
 }

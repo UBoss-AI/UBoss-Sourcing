@@ -39,6 +39,7 @@ import {
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { recordSellerAudit } from './audit.service.js';
+import { isBrandApprovedForSeller } from './brand.service.js';
 import {
   assertSellerOwnership,
   assertSellerPermission,
@@ -257,9 +258,20 @@ async function evaluateDraft(
     );
   }
 
-  // A brand that is not approved blocks publication but not drafting - a seller
-  // waiting on a brand request should be able to finish everything else in the
-  // meantime rather than being stopped at step two.
+  /*
+   * The brand gate, and it asks TWO questions rather than one.
+   *
+   * "Is this brand in the catalogue" is about the name. "Is this seller allowed
+   * to sell it" is about the company, and the two have different answers all
+   * the time: a brand approved for one distributor's request is an approved
+   * brand, and that says nothing about whether a second business may list under
+   * it. Checking only the first is how somebody ends up publishing another
+   * company's products under a name nobody authorised them for.
+   *
+   * Both block publication and neither blocks drafting - a seller waiting on a
+   * brand request should be able to finish everything else in the meantime
+   * rather than being stopped at step two.
+   */
   if (row.brand !== null && row.brand.status !== 'APPROVED') {
     issues.push({
       severity: 'BLOCKER',
@@ -270,6 +282,16 @@ async function evaluateDraft(
         row.brand.status === 'PENDING'
           ? `${row.brand.name} is still being reviewed. You can finish the rest of this listing while you wait.`
           : `${row.brand.name} cannot be used on a published listing.`,
+    });
+  } else if (row.brand !== null && !(await isBrandApprovedForSeller(row.sellerAccountId, row.brand.id))) {
+    issues.push({
+      severity: 'BLOCKER',
+      code: 'BRAND_NOT_APPROVED',
+      section: 'PRODUCT_DESCRIPTION',
+      attributeKey: 'brand',
+      message:
+        `${row.brand.name} is in the catalogue, but your business has not been approved to sell ` +
+        'it yet. Ask for it from the brand step and tell us why you are entitled to.',
     });
   }
 

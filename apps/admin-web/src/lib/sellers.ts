@@ -121,19 +121,7 @@ export interface SellerApplicationDetail {
     handlingTimeDays: number;
   }[];
 
-  documents: {
-    id: string;
-    kind: string;
-    originalFileName: string;
-    contentType: string;
-    byteSize: number;
-    scanState: string;
-    approvedAt: string | null;
-    rejectedReason: string | null;
-    issuedOn: string | null;
-    expiresOn: string | null;
-    createdAt: string;
-  }[];
+  documents: SellerDocument[];
 
   agreements: {
     id: string;
@@ -397,10 +385,105 @@ export const ONBOARDING_STEPS: readonly { key: string; title: string }[] = Objec
   { key: 'agreements', title: 'Agreements' },
 ]);
 
+/**
+ * What a document kind is called, in the words somebody holding it would use.
+ *
+ * A map rather than a rule, because no rule gets these right: title-casing the
+ * enum gives "Ce certificate" and "Iso 13485", and sentence-casing it gives
+ * "Ce certificate" too. Both read as a typo on a screen whose whole job is
+ * deciding whether a business is real.
+ *
+ * Mirrors `SELLER_DOCUMENT_KINDS` in the storefront's own seller client — the
+ * seller and the reviewer must be looking at the same words for the same file.
+ */
+const DOCUMENT_KIND_LABELS: Readonly<Record<string, string>> = Object.freeze({
+  CE_CERTIFICATE: 'CE certificate',
+  DECLARATION_OF_CONFORMITY: 'Declaration of Conformity',
+  NOTIFIED_BODY_CERTIFICATE: 'Notified body certificate',
+  ISO_13485: 'Quality management certificate (ISO 9001 / ISO 13485)',
+  REGULATORY_LICENCE: 'Regulatory or import licence',
+  BUSINESS_REGISTRATION: 'Business registration document',
+  TAX_CERTIFICATE: 'Tax registration certificate',
+  IDENTITY_PROOF: 'Photo identification',
+  ADDRESS_PROOF: 'Proof of address',
+  BANK_STATEMENT: 'Bank statement',
+  BRAND_AUTHORISATION: 'Brand authorisation',
+  TRADEMARK_EVIDENCE: 'Trademark evidence',
+  INSTRUCTIONS_FOR_USE: 'Instructions for use',
+  STERILISATION_EVIDENCE: 'Sterilisation evidence',
+  OTHER: 'Something else',
+});
+
 export function documentKindLabel(kind: string): string {
-  return kind
-    .toLowerCase()
-    .split('_')
-    .map((part, index) => (index === 0 ? part.charAt(0).toUpperCase() + part.slice(1) : part))
-    .join(' ');
+  const known = DOCUMENT_KIND_LABELS[kind];
+  if (known !== undefined) return known;
+
+  // A kind this build has not heard of is still named rather than shown as a
+  // raw enum member: a console one deploy behind the API must stay readable.
+  const words = kind.toLowerCase().split('_').join(' ');
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+// ---------------------------------------------------------------------------
+// A seller's evidence
+// ---------------------------------------------------------------------------
+
+/**
+ * One certificate, licence or proof, as the review screen renders it.
+ *
+ * `status` is derived on the server from `approvedAt` and `rejectedReason`
+ * rather than here, because the seller's own Hub renders the same three words
+ * from the same field and two derivations of "has this been accepted" is how
+ * the two screens end up disagreeing in front of the person they disagree
+ * about.
+ */
+export interface SellerDocument {
+  id: string;
+  kind: string;
+  /** The onboarding requirement it answers, where it answers one. */
+  requirementFieldKey: string | null;
+  originalFileName: string;
+  contentType: string;
+  byteSize: number;
+  /** What, if anything, looked at the file for malware. */
+  scanState: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  /** Seller-visible. Written by whoever refused it. */
+  rejectedReason: string | null;
+  issuedOn: string | null;
+  expiresOn: string | null;
+  /** False where this deployment refuses to serve unscanned files. */
+  isDownloadable: boolean;
+  createdAt: string;
+}
+
+export interface SellerDocumentLink {
+  url: string;
+  expiresAt: string;
+  fileName: string;
+  contentType: string;
+}
+
+/**
+ * A link to read one back.
+ *
+ * A POST because it MINTS a single-use token with a life of minutes. Opened the
+ * moment it arrives and never stored: a link held in state is a link that has
+ * expired by the time anybody clicks it.
+ */
+export function createSellerDocumentLink(documentId: string): Promise<SellerDocumentLink> {
+  return api.post<SellerDocumentLink>(`/admin/seller-documents/${documentId}/link`);
+}
+
+export interface SellerDocumentDecision {
+  decision: 'APPROVED' | 'REJECTED';
+  /** Seller-visible, and the server requires it on a refusal. */
+  reason?: string | null;
+}
+
+export function decideSellerDocument(
+  documentId: string,
+  decision: SellerDocumentDecision,
+): Promise<never> {
+  return api.post<never>(`/admin/seller-documents/${documentId}/decision`, decision);
 }

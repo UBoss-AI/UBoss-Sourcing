@@ -2589,5 +2589,9 @@
   "logistics.eventSource.LOGISTICS_PORTAL": "Oficina del transportista",
   "logistics.eventSource.CARRIER_API": "Consulta al transportista",
   "logistics.eventSource.INBOUND_WEBHOOK": "Feed del transportista",
-  "logistics.eventSource.SYSTEM_AUTOMATION": "Automático"
+  "logistics.eventSource.SYSTEM_AUTOMATION": "Automático",
+  "shell.attention": "{{waiting}} pendientes de atención",
+  "shell.refresh": "Actualizar esta pantalla",
+  "notifications.sellerDocumentUploaded.title": "{{sellerName}} ha subido un documento: {{documentKind}}",
+  "notifications.sellerDocumentUploaded.detail": "{{fileName}} — pendiente de revisión"
 }

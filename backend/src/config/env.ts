@@ -958,6 +958,24 @@ const envSchema = z
     /// on is a link that ends up in a chat window.
     LOGISTICS_DOCUMENT_URL_TTL_SECONDS: intFromString(30, 3600).default(300),
 
+    /// Whether a seller's unscanned certificate may be served.
+    ///
+    /// TRUE, which is the opposite of the carrier setting above, and the reason
+    /// is who is on each end. A carrier document is handed to a third party's
+    /// staff; a seller document is handed back to the seller who uploaded it,
+    /// or to the operator who must read it in order to decide the application
+    /// at all. With this false and no scanner configured, nobody could ever
+    /// open a CE certificate, which does not make the deployment safer - it
+    /// makes evidence go back to arriving by email, unrecorded.
+    ///
+    /// The protections that do not depend on it stay either way: the bytes are
+    /// sniffed, only PDFs and pictures are accepted, the file is served as an
+    /// attachment with `X-Content-Type-Options: nosniff` and never rendered in
+    /// the page, and the scan state is shown beside every document so a
+    /// reviewer knows what they are opening. Set it false once a scanner is
+    /// wired in, or where policy forbids opening unscanned files at all.
+    SELLER_ALLOW_UNSCANNED_DOCUMENTS: booleanFromString.default(true),
+
     // --- Rate limits ---
     RATE_LIMIT_GLOBAL_PER_MINUTE: intFromString(10, 100_000).default(300),
     RATE_LIMIT_LOGIN_PER_15MIN: intFromString(1, 1000).default(10),
