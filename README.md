@@ -264,6 +264,19 @@ item produce one product row and ten offers, because "the same product" must
 not mean "the same price". `isMarketplaceProduct` says price and stock come
 from the offers rather than from the product row.
 
+**A seller's listing appears in the shop the moment they put it on sale**, in
+its category, in search and in the facet counts, at their own price. The
+storefront grid is rooted at the price row for the shopper's currency, so a
+marketplace product's row is kept as a projection of its cheapest live offer —
+written in the same transaction as the offer change, so the grid can never quote
+a figure the basket will not charge. Pausing the last offer takes it back off
+the shelf. Adding one to a basket binds that seller's offer server-side, so
+every existing route into a cart works without knowing marketplaces exist.
+
+An installation that approved listings before this existed has products that are
+published, offered and invisible; `cd backend; npm run marketplace:sync` builds
+their rows once and is safe to re-run.
+
 Give a seller a shop front of its own with `SELLER_STOREFRONT_DOMAIN`:
 `northwind.localhost:5174` serves the shop of the seller whose slug is
 `northwind`. Leave it empty and there are no seller shop fronts at all — every
@@ -1008,6 +1021,13 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
   *request* is what lets that business list under it, and the picker and the
   publish gate both read the same answer — so a name approved for a competitor
   is never offered as though it were permission.
+- **A seller's product is on the shelf because a live offer points at it.** The
+  storefront grid is rooted at the price row for the shopper's currency, and for
+  a product a seller described that row is a projection of their cheapest live
+  offer, written in the same transaction as the offer change. Pausing the last
+  offer takes the product out of every category; a price change moves the grid
+  with it. The offer stays the only figure anybody is charged — the projection
+  exists so the catalogue can find and sort the product, never to price it.
 - **A file is never called clean because nothing looked at it.** No malware
   scanner ships here, so an upload records `SCANNER_UNCONFIGURED`, the state is
   shown wherever the document is, and whether an unscanned file may be opened is

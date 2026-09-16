@@ -432,6 +432,8 @@ bullets([
   'A listing sent back arrives with comments attached to the individual fields that need changing.',
   'A listing still waiting to be checked can be taken back at any time, changed, and sent again. Nothing is lost by doing so — it only loses its place in the queue.',
 ]);
+note('Putting it on sale is what buyers see', 'The moment a seller switches an approved listing on, it appears in its category, in search and in the filter counts of the shop, at the seller’s own price. Pausing it takes it straight back out again. That is the whole meaning of the on-sale switch: the shop shows what somebody is actually selling right now, not everything that has ever been approved.', C.teal);
+note('Whose price a buyer sees', 'Where several sellers offer the same thing, the shop shows the lowest price anyone is currently selling it at, and the basket buys from that seller. Prices are never converted between currencies to make that comparison — a seller who prices in rupees is compared with other rupee prices and with nothing else.', C.purple);
 
 h2('6a.8 Running the shop');
 table(['Area', 'What the seller can do'], [
@@ -1047,6 +1049,18 @@ table(['Step', 'Who acts', 'What happens'], [
   ['7', 'The seller', 'Starts a listing and looks for their brand. They have not been approved for any yet, so the list is empty and the screen says so.'],
   ['8', 'The seller', 'Asks for the brand on their product and says why they are entitled to sell it. If the name is already in the catalogue, the request attaches to the existing entry.'],
   ['9', 'A member of staff', 'Reads the reason and approves it. From then on that brand appears in this seller’s list — and only in theirs — and the listing can go on sale once it has passed quality review.'],
+], [700, 2300, 7000]);
+
+h2('Example G — A seller puts a listing on sale and a buyer finds it');
+table(['Step', 'Who acts', 'What happens'], [
+  ['1', 'The seller', 'Finishes a listing and sends it for quality review.'],
+  ['2', 'A member of staff', 'Approves it. A catalogue entry now exists, switched off — nothing is on sale yet.'],
+  ['3', 'The seller', 'Sets their price and stock and switches the listing on.'],
+  ['4', 'The system', 'Puts the product on the shop’s shelf at that seller’s price, in the same moment — so it appears in its category, in search and in the filter counts straight away.'],
+  ['5', 'A buyer', 'Opens that category, sees the product, and adds it to their basket.'],
+  ['6', 'The system', 'Attaches that seller to the basket line, so the price shown is the price charged, the order reaches the seller who has to pack it, and the commission is worked out against the right agreement.'],
+  ['7', 'The seller', 'Pauses the listing later — to restock, or because it is withdrawn.'],
+  ['8', 'The system', 'Takes it out of every category at once. A buyer cannot find or order something nobody is selling.'],
 ], [700, 2300, 7000]);
 
 note('Document status', 'This guide is based on the current UBOSS Sourcing codebase, including customer storefront routes, admin routes, warehouse rules, API business rules, background-worker behaviour and feature configuration.', C.teal);

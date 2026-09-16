@@ -16,6 +16,7 @@ import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.j
 import { SellerPermission } from '../../domain/seller-permissions.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
+import { syncMarketplacePriceForOffer } from '../catalog/marketplace-price.service.js';
 import { recordSellerAudit } from './audit.service.js';
 import {
   assertSellerOwnership,
@@ -220,14 +221,28 @@ export async function setOfferStatus(
     }
   }
 
-  await prisma.sellerOffer.update({
-    where: { id: offerId },
-    data: {
-      status: next,
-      ...(next === 'ACTIVE' ? { publishedAt: new Date(), statusReason: null } : {}),
-      ...(next === 'ARCHIVED' ? { archivedAt: new Date() } : {}),
-      version: { increment: 1 },
-    },
+  /*
+   * The status change and the shelf, together.
+   *
+   * In one transaction because this is what puts a marketplace product into a
+   * category and takes it out again: the storefront's grid is rooted at the
+   * price rows, and for a product a seller described those rows are a
+   * projection of the live offers. Written separately, a crash between the two
+   * leaves a paused offer still on sale in every category - or, worse, a live
+   * offer that no category can show and the seller cannot explain.
+   */
+  await prisma.$transaction(async (tx) => {
+    await tx.sellerOffer.update({
+      where: { id: offerId },
+      data: {
+        status: next,
+        ...(next === 'ACTIVE' ? { publishedAt: new Date(), statusReason: null } : {}),
+        ...(next === 'ARCHIVED' ? { archivedAt: new Date() } : {}),
+        version: { increment: 1 },
+      },
+    });
+
+    await syncMarketplacePriceForOffer(tx, offerId);
   });
 
   await recordSellerAudit({
@@ -346,6 +361,16 @@ export async function updateOfferPrice(
         });
       }
     }
+
+    /*
+     * And the shelf, in the same transaction.
+     *
+     * A marketplace product is found and sorted in the storefront by a price
+     * row projected from its live offers. Leaving that behind would show every
+     * shopper the old figure in the grid and charge them the new one in the
+     * basket - the dispute this codebase is written to avoid.
+     */
+    await syncMarketplacePriceForOffer(tx, offerId);
   });
 
   await recordSellerAudit({

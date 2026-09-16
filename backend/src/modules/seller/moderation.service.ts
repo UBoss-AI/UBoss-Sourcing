@@ -25,6 +25,7 @@ import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
 import { storage } from '../../infra/storage/index.js';
 import { AuditAction, recordAudit } from '../audit/audit.service.js';
+import { syncMarketplacePrice } from '../catalog/marketplace-price.service.js';
 import { OPERATOR_LABEL, recordSellerAudit } from './audit.service.js';
 import { listDocumentsForReview } from './document.service.js';
 import { transitionApplication } from './account.service.js';
@@ -864,6 +865,17 @@ async function publishApprovedListing(
     where: { id: draftId },
     data: { publishedProductId: productId, publishedOfferId: offerId },
   });
+
+  /*
+   * Put the product on the operator's shelf, if the offer is live.
+   *
+   * It is not, at this moment - the offer above is created INACTIVE on purpose,
+   * because the seller decides when it goes on sale. So this writes nothing
+   * today and is here because the alternative is worse: a future change that
+   * approves straight to ACTIVE would otherwise create a product no category
+   * could show, and the failure is silent.
+   */
+  await syncMarketplacePrice(tx, productId);
 
   return { productId, offerId };
 }

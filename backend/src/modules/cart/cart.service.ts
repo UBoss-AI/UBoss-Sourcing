@@ -37,6 +37,7 @@ import { publicProductWhere } from '../catalog/catalog.visibility.js';
 import { assertPurchasable } from '../catalog/purchasability.js';
 import { isScheduleEligible } from '../catalog/recurring-eligibility.js';
 import { loadPricesForCurrency, priceKey } from '../catalog/price.service.js';
+import { cheapestOfferFor } from '../catalog/marketplace-price.service.js';
 import {
   evaluateCoupon,
   findCouponByCode,
@@ -1066,6 +1067,16 @@ async function addLines(
       isPriceOnRequest: true,
       isOrderable: true,
       unavailabilityReason: true,
+      /*
+       * Whose product this is, which decides whether a line needs an offer.
+       *
+       * A product a SELLER described has no price of the operator's own - what
+       * the shopper was shown in the grid is a projection of the cheapest live
+       * offer. So a line for one has to carry that offer, or it would be
+       * charged against a price row nobody is selling at, settle against
+       * nobody, and never reach the seller who has to pack it.
+       */
+      isMarketplaceProduct: true,
     },
   });
   const productById = new Map(products.map((product) => [product.id, product]));
@@ -1086,6 +1097,17 @@ async function addLines(
           select: { id: true, productId: true },
         });
   const variantById = new Map(variants.map((variant) => [variant.id, variant]));
+
+  /*
+   * The currency this basket will be priced in.
+   *
+   * Read once for the whole request, and it is the same function `resolveCart`
+   * uses - so the offer bound to a marketplace line below is one priced in the
+   * currency the line is about to be shown and charged in. Choosing the
+   * cheapest offer across currencies would compare 40000 with 500 and pick the
+   * euro over the rupee, which is the conversion this system does not do.
+   */
+  const cartCurrency = await resolveCurrency(customerProfileId);
 
   // Keyed by SKU, so the same option twice in one request is one line.
   const wanted = new Map<string, WantedLine>();
@@ -1147,11 +1169,55 @@ async function addLines(
      * product they do not sell. It must also be on sale, for the same reason a
      * paused listing does not appear in search.
      */
-    const sellerOfferId = input.sellerOfferId ?? null;
+    /*
+     * Nobody named one, and the product is a seller's: pick it here.
+     *
+     * Resolved on the SERVER rather than sent by the browser, which is the
+     * decision worth keeping. Every existing way into a basket - a product
+     * card, a reorder, AI Mode, a scheduled basket - then works on a
+     * marketplace product without any of them learning that marketplaces
+     * exist, and there is no request shape in which a client can nominate an
+     * offer it was never shown.
+     *
+     * The cheapest live one, because that is the figure the grid and the
+     * product page both showed them: the price row they were quoted from is a
+     * projection of exactly this offer. Picking any other would charge them
+     * something other than what they read.
+     */
+    const sellerOfferId =
+      input.sellerOfferId ??
+      (product.isMarketplaceProduct
+        ? ((await cheapestOfferFor(prisma, product.id, variantKey, cartCurrency))?.id ?? null)
+        : null);
 
-    if (sellerOfferId !== null) {
+    /*
+     * A marketplace product with no live offer is not for sale by anybody.
+     *
+     * Refused here rather than allowed through to be priced off a stale row.
+     * It is reachable at all only in the seconds between a seller pausing their
+     * last offer and the shelf being rebuilt, or by a direct link to a page
+     * somebody had open.
+     */
+    if (product.isMarketplaceProduct && sellerOfferId === null) {
+      throw badRequest(
+        ErrorCode.CART_ITEM_UNAVAILABLE,
+        'Nobody is selling this at the moment.',
+        [{ field: nameField(index, 'productId'), code: 'NO_LIVE_OFFER' }],
+      );
+    }
+
+    /*
+     * Only an offer the CLIENT named is checked here.
+     *
+     * The one resolved above came out of a query that already required the
+     * product, the option and an ACTIVE status, so re-reading it would be
+     * asking the database to confirm its own answer.
+     */
+    const namedOfferId = input.sellerOfferId ?? null;
+
+    if (namedOfferId !== null) {
       const offer = await prisma.sellerOffer.findUnique({
-        where: { id: sellerOfferId },
+        where: { id: namedOfferId },
         select: { id: true, productId: true, variantKey: true, status: true },
       });
 

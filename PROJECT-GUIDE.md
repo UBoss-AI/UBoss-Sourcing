@@ -2050,6 +2050,62 @@ than from the product row, and `createdBySellerAccountId` records who first
 described it. Both default to the behaviour every product already had, so
 nothing that existed before behaves differently.
 
+### How a seller's product reaches a category
+
+The storefront's grid is **rooted at `product_prices`** — "rooted at the price
+row for this currency, so the filter and the sort both operate on the amount the
+shopper is actually shown". That is the right design and it had a hole in it: a
+seller never writes a price row. They write an **offer**.
+
+So an approved listing, on sale, with stock, appeared in **no category, no
+search result and no facet count**. The product existed and the shelf it should
+have sat on had nothing pointing at it. By direct link it rendered as "not sold
+in this currency", which is the same fault wearing a different coat.
+
+The fix is that the price row for a marketplace product is a **projection of its
+live offers** — the cheapest one, per currency — maintained in
+`marketplace-price.service.ts`. It is not a second opinion about what something
+costs. The offer remains the only price anybody is ever charged; the cart has
+read `seller_offers.priceMinor` since the day it was written. The row exists so
+the catalogue can **find and sort** the product at the figure the buyer is
+shown.
+
+Four rules keep the projection from becoming a lie:
+
+- **It is written in the same transaction as the offer change.** Not on a
+  schedule and not on a queue. A projection that can lag is one that shows a
+  price in the grid and charges a different one in the basket, which is the
+  dispute this codebase is arranged to make impossible.
+- **It only ever touches `isMarketplaceProduct` rows.** The operator's own
+  prices are typed by a person; a bug here that reached them would rewrite the
+  catalogue.
+- **No live offer means no row.** A seller pausing their last offer takes the
+  product off the shelf, which is what "a marketplace product becomes visible
+  because a live offer points at it" has always meant. The product row stays
+  published — it is a real catalogue entry another seller can offer tomorrow.
+- **A currency is never crossed to find a cheaper number.** €90 is a smaller
+  number than ₹12,000 and a larger amount of money.
+
+Stock is deliberately not part of it. An offer with an empty warehouse stays on
+the shelf marked out of stock, exactly as the operator's own products do: a
+buyer needs to find the thing and then learn it is unavailable, not fail to find
+it at all.
+
+**And the basket binds the offer, on the server.** Adding a marketplace product
+without naming an offer resolves the cheapest live one — the same offer the
+projection quoted — and stores it on the line. Done server-side so that every
+existing route into a basket (a product card, a reorder, AI Mode, a scheduled
+basket) works on a seller's product without any of them learning marketplaces
+exist, and so no client can nominate an offer it was never shown. A marketplace
+product with no live offer is refused rather than priced off a row nobody sells
+at.
+
+`npm run marketplace:sync` rebuilds every marketplace product's row. It is for
+an installation that approved listings before the projection existed — those
+products are published, offered and invisible until it is run once — and for
+proving the rows still match the offers after a restore. Idempotent, and safe
+while the API is serving.
+
 ## Becoming a seller
 
 `Become a seller` sits in the storefront header — in the top bar itself, not
