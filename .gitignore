@@ -38,3 +38,31 @@ UBOSS_Sourcing_Screen_Flow_Poster_2026.pptx
 # on boot is diagnosable rather than just a Vite proxy error. Per-machine
 # scratch, and they contain local connection strings and seed credentials.
 .dev-logs/
+
+# Environment files.
+#
+# `backend/.env` holds every secret this system has: the database password, the
+# payment gateway keys, the token-signing secrets and the key that decrypts
+# customers' stored ERP credentials. It has never been committed - but nothing
+# was stopping it, and it sits in the working tree one `git add -A` away from
+# being in the history permanently, where it cannot practically be removed.
+# The same goes for the `.env.before-*` copies left behind when a feature added
+# new settings.
+#
+# So the default is to ignore every environment file, and the exceptions are
+# named rather than assumed:
+#
+#   .env.example    The template. Placeholders only, and the thing every
+#                   deployment starts from - it has to be committed.
+#   apps/*/.env     The three frontends. These hold ONE setting,
+#                   VITE_API_BASE_URL, pointing at localhost for development.
+#                   Not a secret, and committed on purpose so a fresh clone
+#                   runs. Production does NOT use them: deploy/scripts/
+#                   release.sh exports VITE_API_BASE_URL at build time from
+#                   the real public URL, because Vite bakes this value into
+#                   the bundle and a released build that kept the localhost
+#                   default would load perfectly and talk to nobody.
+.env
+.env.*
+!.env.example
+!apps/*/.env

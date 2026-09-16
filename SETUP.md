@@ -183,7 +183,8 @@ this whole section.
 
 You need:
 
-- Node.js 20.11 or newer
+- Node.js **24** (the Active LTS release). `.nvmrc` in the repository root names
+  it, every `package.json` requires it, and the server and CI both run it
 - XAMPP, installed at `C:\xampp` — it supplies MariaDB
 
 Check Node in PowerShell:
@@ -193,8 +194,10 @@ node --version
 npm --version
 ```
 
-If `node` is not recognised, install the current Node.js LTS release, close
-PowerShell, open it again, and check once more.
+If `node` is not recognised, or it reports a version below 24, install the
+current Node.js LTS release, close PowerShell, open it again, and check once
+more. An older major appears to work and then fails in CI or on the server,
+which is a slower way to find out.
 
 > XAMPP's **MySQL** is MariaDB. For this project they are the same thing. Do
 > not install PostgreSQL or Redis for local development.

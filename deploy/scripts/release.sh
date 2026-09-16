@@ -49,6 +49,53 @@ trap 'die "failed at line $LINENO"' ERR
 
 [[ -f "$SHARED/.env" ]] || die "no $SHARED/.env - copy backend/.env.example and fill it in first"
 
+# -----------------------------------------------------------------------------
+# One release at a time
+#
+# Two of these running together is not a slow deploy, it is a broken one: one
+# swaps the `current` symlink while the other is still migrating, so the code
+# being served and the schema underneath it come from different commits. A
+# pushed hotfix on top of a release already in flight is exactly how that
+# happens, and neither operator sees anything wrong until the site does.
+#
+# `flock -n` rather than a wait: the second release is redundant anyway - the
+# first one is deploying the same branch - so failing fast and saying so is
+# better than queueing a build nobody is watching.
+#
+# fd 9 stays open for the life of the script, so the lock is released by the
+# kernel when this process ends, however it ends. A lock file holding a PID
+# would survive a kill -9 and block every later deploy.
+# -----------------------------------------------------------------------------
+exec 9>"$SHARED/.release.lock"
+flock -n 9 || die "another release is already running (lock: $SHARED/.release.lock)"
+
+# -----------------------------------------------------------------------------
+# Restarting a unit as the `uboss` user
+#
+# This script runs as `uboss`, which is a --system account with no shell and no
+# business owning the machine. It cannot call `systemctl restart`; without the
+# sudoers rule that bootstrap.sh installs, every release builds perfectly and
+# then fails at the restart, having already moved the symlink.
+#
+# `sudo -n` - never prompt. There is no terminal here to answer a password
+# prompt, so a missing rule must fail immediately with a message that names the
+# file to create rather than hanging until the deploy times out.
+#
+# The rule lists each unit by name. `systemctl *` would let the service user
+# stop, mask or start anything on the box, which is a large privilege to hand
+# over for the sake of three restarts.
+# -----------------------------------------------------------------------------
+restart_unit() {
+  local unit="$1"
+
+  if [[ $EUID -eq 0 ]]; then
+    systemctl restart "$unit"
+  else
+    sudo -n systemctl restart "$unit" \
+      || die "cannot restart $unit as $(id -un). Install the sudoers rule - bootstrap.sh writes /etc/sudoers.d/uboss-release, and docs/DEPLOYMENT.md section 14.4 has it verbatim."
+  fi
+}
+
 STAMP="$(date -u +%Y%m%d-%H%M%S)"
 RELEASE="$RELEASES/$STAMP"
 
@@ -82,15 +129,70 @@ npm ci
 npx prisma generate
 npm run build
 
-log "building the storefront"
-cd "$REPO/apps/customer-web"
-npm ci
-npm run build
+# -----------------------------------------------------------------------------
+# The frontends, and the one setting that decides whether any of this works
+#
+# `VITE_API_BASE_URL` is BAKED INTO THE BUNDLE AT BUILD TIME. It is not read at
+# runtime and it cannot be changed by editing .env afterwards - a wrong value
+# means rebuilding.
+#
+# The repository commits `apps/*/.env` holding `http://localhost:4000/api/v1`,
+# which is right for a developer and catastrophic here: this script builds from
+# a fresh checkout, so without an override every visitor's browser is told to
+# call the API on THEIR OWN machine. The site loads perfectly and nothing works.
+#
+# A shell variable wins over the committed .env file - that is Vite's own
+# precedence, not a trick - so exporting it here is the whole fix. The values
+# come from shared/.env, which is also where the API reads the origins it will
+# accept through CORS, so the two cannot drift apart.
+# -----------------------------------------------------------------------------
+# Read ONE setting out of shared/.env, without exporting the whole file.
+#
+# `set -a; . .env` would put DATABASE_URL, the payment secrets and the ERP
+# encryption key into the environment of `npm ci` and every install script it
+# runs. A frontend build has no business seeing the database password, and a
+# compromised dependency is exactly how that becomes somebody else's.
+env_value() {
+  sed -n "s/^[[:space:]]*$1[[:space:]]*=[[:space:]]*//p" "$SHARED/.env" \
+    | tail -n 1 \
+    | sed -e 's/[[:space:]]*$//' -e 's/^"\(.*\)"$/\1/' -e "s/^'\(.*\)'\$/\1/"
+}
 
-log "building the admin panel"
-cd "$REPO/apps/admin-web"
-npm ci
-npm run build
+build_frontend() {
+  local name="$1" dir="$2" base="$3"
+
+  [[ -n "$base" ]] || die "cannot build $name: its public URL is not set in $SHARED/.env"
+
+  log "building $name against ${base%/}/api/v1"
+  cd "$REPO/apps/$dir"
+  npm ci
+  VITE_API_BASE_URL="${base%/}/api/v1" npm run build
+
+  # Source maps are generated deliberately (vite.config.ts) and are worth
+  # uploading to an error tracker, but they must not be SERVED: they are the
+  # complete TypeScript source of the admin console and the carrier portal,
+  # including every route and permission name. Deleted after the build, before
+  # the dist is copied into the release.
+  #
+  # The trailing `sourceMappingURL` comment goes too. Left behind it points at
+  # a file that is no longer there, which costs a 404 in every developer
+  # console that opens the site and tells a reader the maps exist somewhere.
+  find dist -name '*.map' -delete
+  find dist -name '*.js' -exec sed -i 's|^//# sourceMappingURL=.*$||' {} +
+}
+
+build_frontend "the storefront"  customer-web "$(env_value CUSTOMER_WEB_PUBLIC_URL)"
+build_frontend "the admin panel" admin-web    "$(env_value ADMIN_WEB_PUBLIC_URL)"
+
+# The carrier portal is optional - an installation with no third-party couriers
+# never turns it on - so it is built only when it is switched on, and its
+# absence from the release is then correct rather than an oversight.
+if [[ "$(env_value FEATURE_LOGISTICS_PORTAL)" == "true" ]]; then
+  build_frontend "the logistics portal" logistics-web "$(env_value LOGISTICS_WEB_PUBLIC_URL)"
+else
+  log "logistics portal is off (FEATURE_LOGISTICS_PORTAL) - not building it"
+  rm -rf "$REPO/apps/logistics-web/dist"
+fi
 
 # -----------------------------------------------------------------------------
 # 3. Assemble the release directory
@@ -107,13 +209,47 @@ cp -r "$REPO/backend/node_modules"  "$RELEASE/backend/node_modules"
 cp -r "$REPO/backend/prisma"        "$RELEASE/backend/prisma"
 cp    "$REPO/backend/package.json"  "$RELEASE/backend/package.json"
 
+# NOT optional, and the reason is not obvious.
+#
+# Prisma 7 removed `url` from the schema's `datasource` block: the connection
+# string is supplied by prisma.config.ts instead. Without this file the
+# migration step below fails with "The datasource.url property is required in
+# your Prisma config file", whatever DATABASE_URL is set to - so a release that
+# builds perfectly dies at step 4, every time.
+cp    "$REPO/backend/prisma.config.ts" "$RELEASE/backend/prisma.config.ts"
+
 cp -r "$REPO/apps/customer-web/dist/." "$RELEASE/customer-web/"
 cp -r "$REPO/apps/admin-web/dist/."    "$RELEASE/admin-web/"
+
+if [[ -d "$REPO/apps/logistics-web/dist" ]]; then
+  mkdir -p "$RELEASE/logistics-web"
+  cp -r "$REPO/apps/logistics-web/dist/." "$RELEASE/logistics-web/"
+fi
 
 cp -r "$REPO/docs/." "$RELEASE/docs/" 2>/dev/null || true
 
 echo "$REVISION" > "$RELEASE/REVISION"
 date -u +%FT%TZ  > "$RELEASE/RELEASED_AT"
+
+# -----------------------------------------------------------------------------
+# What this release is, byte for byte
+#
+# Written before the symlink moves, so it describes the artifact as assembled
+# rather than as it stands after somebody edited a file in `current/` to get
+# through an incident. That is the question it answers months later: is what is
+# being served still what was released?
+#
+#   cd /srv/uboss/current && sha256sum -c SHA256SUMS --quiet
+#
+# `node_modules` is excluded. It is ~40,000 files, it would take longer to hash
+# than the rest of the release takes to build, and `npm ci` already guarantees
+# it from the lockfile - which is itself in the manifest.
+# -----------------------------------------------------------------------------
+log "writing SHA256SUMS"
+( cd "$RELEASE" && find . -type f \
+    ! -path './backend/node_modules/*' \
+    ! -name 'SHA256SUMS' \
+    -exec sha256sum {} + > SHA256SUMS )
 
 # -----------------------------------------------------------------------------
 # 4. Migrate
@@ -172,7 +308,7 @@ mv -Tf "$CURRENT.tmp" "$CURRENT"
 # -----------------------------------------------------------------------------
 for port in "${API_PORTS[@]}"; do
   log "restarting API on $port"
-  systemctl restart "uboss-api@$port"
+  restart_unit "uboss-api@$port"
 
   deadline=$(( SECONDS + HEALTH_TIMEOUT ))
   until curl -fsS --max-time 3 "http://127.0.0.1:$port/health/ready" >/dev/null 2>&1; do
@@ -184,7 +320,7 @@ for port in "${API_PORTS[@]}"; do
 done
 
 log "restarting the worker"
-systemctl restart uboss-worker
+restart_unit uboss-worker
 
 # -----------------------------------------------------------------------------
 # 7. Tidy

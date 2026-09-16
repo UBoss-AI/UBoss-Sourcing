@@ -1,0 +1,201 @@
+# =============================================================================
+# Build a release artifact and hand it to a server.
+#
+# THIS WORKFLOW IS MANUAL ON PURPOSE, AND IT WILL NOT RUN UNTIL SOMEBODY
+# CONFIGURES IT.
+#
+# `workflow_dispatch` only: no push to main deploys anything. Two reasons, and
+# the second is the real one.
+#
+#   1. No server exists yet. The environments, the deploy key and the host names
+#      are all owner decisions that have not been made - docs/DEPLOYMENT.md §26.
+#   2. Automatic deployment to production is a decision, not a default. Turning
+#      it on means deciding who approves a release, what happens when the
+#      approver is asleep, and whether a Friday afternoon commit should reach
+#      customers. Adding `push: { branches: [main] }` below is one line; make it
+#      after those questions have answers.
+#
+# WHAT IT DOES AND DOES NOT DO
+#
+# It builds, checksums and uploads an artifact, then asks a server to activate
+# it over SSH. It never sends `.env` - that file lives only in
+# /srv/uboss/shared/.env on the server and nothing in CI has a copy. It never
+# prints a variable read from it, and there is no `set -x` anywhere here.
+#
+# The `production` environment must be configured in the repository settings
+# with REQUIRED REVIEWERS. That approval is the gate; the workflow has no other.
+#
+# BEFORE THE FIRST RUN
+#
+#   Environments:  staging, production (production: required reviewers)
+#   Secrets:       DEPLOY_SSH_KEY, DEPLOY_HOST, DEPLOY_USER, DEPLOY_KNOWN_HOSTS
+#   Variables:     CUSTOMER_API_BASE, ADMIN_API_BASE, LOGISTICS_API_BASE
+#
+# The deploy key must be a dedicated ed25519 key belonging to a `deploy` user -
+# not root, and not the `uboss` service user - restricted in authorized_keys to
+# a single command:
+#
+#   command="/srv/uboss/bin/deploy-activate",no-agent-forwarding,
+#   no-port-forwarding,no-pty,no-X11-forwarding ssh-ed25519 AAAA...
+#
+# so that a stolen key can activate a release and do nothing else at all.
+# =============================================================================
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Where to deploy
+        required: true
+        default: staging
+        type: choice
+        options: [staging, production]
+
+# One deployment at a time, ever, and never cancelled halfway. A cancelled
+# deploy leaves a half-swapped release, which is worse than a slow one.
+concurrency:
+  group: deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build the release artifact
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      # VITE_API_BASE_URL is BAKED INTO THE BUNDLE at build time. It is not read
+      # at runtime and cannot be changed by editing anything on the server - a
+      # wrong value here means every visitor's browser calls an API on their own
+      # machine, the site loads perfectly, and nothing works.
+      #
+      # Repository variables rather than the committed apps/*/.env, which holds
+      # http://localhost:4000/api/v1 and is right only for a developer.
+      - name: Build the front ends
+        env:
+          CUSTOMER_API_BASE: ${{ vars.CUSTOMER_API_BASE }}
+          ADMIN_API_BASE: ${{ vars.ADMIN_API_BASE }}
+          LOGISTICS_API_BASE: ${{ vars.LOGISTICS_API_BASE }}
+        run: |
+          set -euo pipefail
+          for v in CUSTOMER_API_BASE ADMIN_API_BASE LOGISTICS_API_BASE; do
+            if [ -z "${!v}" ]; then
+              echo "::error::$v is not set. Set it as a repository variable before deploying."
+              exit 1
+            fi
+          done
+
+          ( cd apps/customer-web  && npm ci && VITE_API_BASE_URL="$CUSTOMER_API_BASE"  npm run build )
+          ( cd apps/admin-web     && npm ci && VITE_API_BASE_URL="$ADMIN_API_BASE"     npm run build )
+          ( cd apps/logistics-web && npm ci && VITE_API_BASE_URL="$LOGISTICS_API_BASE" npm run build )
+
+      - name: Build the API
+        run: |
+          set -euo pipefail
+          cd backend
+          npm ci
+          npx prisma generate
+          npm run build
+
+      # Source maps are the complete TypeScript source of the admin console and
+      # the carrier portal, including every route and permission name. They are
+      # worth uploading to an error tracker; they must never be served.
+      - name: Strip front-end source maps
+        run: |
+          find apps/*/dist -name '*.map' -delete
+          find apps/*/dist -name '*.js' -exec sed -i 's|^//# sourceMappingURL=.*$||' {} +
+
+      # prisma.config.ts is not optional. Prisma 7 removed `url` from the
+      # datasource block, so without this file every migration on the server
+      # fails with "The datasource.url property is required in your Prisma
+      # config file" whatever DATABASE_URL says.
+      - name: Package and checksum
+        run: |
+          set -euo pipefail
+          tar -czf "uboss-${GITHUB_SHA}.tgz" \
+            backend/dist backend/prisma backend/prisma.config.ts \
+            backend/package.json backend/package-lock.json \
+            apps/customer-web/dist apps/admin-web/dist apps/logistics-web/dist
+          sha256sum "uboss-${GITHUB_SHA}.tgz" > "uboss-${GITHUB_SHA}.tgz.sha256"
+          cat "uboss-${GITHUB_SHA}.tgz.sha256"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ github.sha }}
+          path: uboss-*.tgz*
+          retention-days: 30
+
+  deploy:
+    name: Activate on ${{ inputs.environment }}
+    needs: build
+    runs-on: ubuntu-24.04
+
+    # The approval gate. `production` must have required reviewers configured in
+    # the repository settings; without them this is not a gate at all.
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-${{ github.sha }}
+
+      # Pinned host keys, not TOFU. `StrictHostKeyChecking=accept-new` on a
+      # deploy job means the first machine to answer on that address gets the
+      # artifact, which is the whole of a man-in-the-middle attack against a
+      # deployment.
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          if [ -z "$DEPLOY_SSH_KEY" ] || [ -z "$DEPLOY_KNOWN_HOSTS" ]; then
+            echo "::error::DEPLOY_SSH_KEY and DEPLOY_KNOWN_HOSTS are not configured for this environment."
+            exit 1
+          fi
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY"     > ~/.ssh/id_ed25519
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/id_ed25519 ~/.ssh/known_hosts
+
+      - name: Upload and activate
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          set -euo pipefail
+          scp -o StrictHostKeyChecking=yes \
+            "uboss-${GITHUB_SHA}.tgz" "uboss-${GITHUB_SHA}.tgz.sha256" \
+            "$DEPLOY_USER@$DEPLOY_HOST:/srv/uboss/incoming/"
+
+          # The forced command on the server side is what actually runs; the
+          # argument is a request, not a shell line. deploy-activate verifies
+          # the checksum, unpacks, migrates, restarts one instance at a time and
+          # refuses anything it does not recognise.
+          ssh -o StrictHostKeyChecking=yes "$DEPLOY_USER@$DEPLOY_HOST" \
+            "activate uboss-${GITHUB_SHA}.tgz"
+
+      # Independent of the release script's own health checks, because a script
+      # that declares itself healthy is not evidence. These run from outside the
+      # machine, against the public address.
+      - name: Smoke test
+        env:
+          SMOKE_URL: ${{ vars.SMOKE_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "$SMOKE_URL" ]; then
+            echo "::warning::SMOKE_URL is not set - skipping the post-deploy check. Set it."
+            exit 0
+          fi
+          curl -fsS --max-time 10 "$SMOKE_URL/health/live"  >/dev/null
+          curl -fsS --max-time 20 "$SMOKE_URL/health/ready" >/dev/null
+          echo "health checks pass"

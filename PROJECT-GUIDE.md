@@ -1010,24 +1010,71 @@ so it can be read and tested without rendering an SVG.
 
 ### The WebGL stage
 
-**The orb is rendered, not drawn.** `components/greeting/HeroStage.tsx` puts a
-real 3D scene behind the whole hero card — a faceted core with its own lattice,
-two rings that genuinely pass in front of and behind it, a depth field of
-particles, and a ground plane receding into fog — with an actual perspective
-camera, actual lights, and lighting that rakes across the facets as the pointer
-moves. It is anchored to `.orch-stage` by **measurement**, so the core sits
-exactly where the drawn sphere used to and the four cards still orbit that
-point at every window width.
+**The orb is a rendered globe, not a drawing.**
+`components/greeting/HeroStage.tsx` puts a real 3D scene behind the whole hero
+card, with an actual perspective camera, actual lights, a depth field of
+particles and a ground plane receding into fog. At the middle of it is a glass
+globe carrying the world's coastlines, and around it three orbits that genuinely
+pass in front of it and behind it. It is anchored to `.orch-stage` by
+**measurement**, so the globe sits exactly where the drawn sphere used to and
+the four cards still orbit that point at every window width.
+
+The scene is three files, because a single one had become a scene graph, a
+renderer and a colour scheme at once:
+
+| File | What it owns |
+|---|---|
+| `scene/world-land.ts` | The coastlines, as coordinates, and the rasteriser that turns them into a texture |
+| `scene/globe.ts` | Everything inside the globe's silhouette, plus the lit platform under it |
+| `scene/orbits.ts` | The three orbital paths and the lights riding them |
+| `HeroStage.tsx` | Camera, lights, particles, ground, layout, and the loop with its brakes |
+
+**Nothing in the scene fetches an image.** The continents are about 6 KB of
+longitude/latitude pairs in `world-land.ts`, rasterised into a canvas at
+runtime. That is a decision about what this product *is*: UBOSS is installed and
+run by other companies, so a landing page that reached for a NASA or Natural
+Earth bitmap would be a landing page depending on somebody else's uptime,
+somebody else's CORS policy and somebody else's privacy footprint — and would
+render a blue marble with no marble on it on an air-gapped network. Shipping a
+downloaded texture instead would be most of a megabyte, for an object 180 pixels
+across, carrying a licence somebody has to track for the life of the product.
+
+The outlines are deliberately coarse, and they are a **visual, not a map**:
+nothing in the product measures anything against them, and no shipping, tax or
+market decision reads that file. Three rules keep them renderable, and
+`scene/world-land.test.ts` asserts each one because all three fail *silently*:
+no ring may cross the antimeridian (the projection has no wrapping in it, so one
+such ring paints a stripe across the Pacific), every ring must be closed, and
+every coordinate must be on the planet.
+
+The globe itself is layers rather than one transmissive material — real
+transmission means re-rendering the scene into a back buffer every frame for a
+refraction nobody can inspect behind a headline. In order: an inner glow, a
+metallic ocean, a land shell whose sea is transparent, a geodesic wireframe,
+glowing connection points that sit **on land only**, a few great-circle arcs
+between them, two polished titanium bands, a Fresnel rim and a Fresnel
+atmosphere. The last two are a twelve-line shader rather than the usual
+billboarded gradient sprite, because a sprite has no depth: an orbit crossing it
+would be drawn either wholly over or wholly under the halo.
 
 **It is an enhancement and never a dependency.** The CSS backdrop and the drawn
 sphere stay underneath it and are what a visitor sees until the scene fades in
-over them. `HeroStage` stands down completely — rendering *nothing*, not an
-empty canvas — when any of these hold:
+over them. The stage picks one of three answers:
 
-- the environment has no `WebGL2RenderingContext` (a blocklisted driver, a
-  locked-down browser, jsdom in the test suite);
-- the device reports 4 GB of memory or fewer, or four cores or fewer;
-- the context cannot be created, or the chunk never arrives.
+| Answer | What renders |
+|---|---|
+| `full` | The globe with its wireframe, its arcs and three orbits, at a 1024px texture |
+| `reduced` | The same globe with a quarter of the texture, no wireframe, no arcs, two orbits, a thinner particle field and a lower pixel ratio |
+| nothing at all | No canvas; `orchestration.css` keeps drawing the sphere it has always drawn |
+
+`reduced` is what a mid-range machine gets, and what **every window under
+1024px** gets whatever its hardware — below `lg` the globe is roughly a third of
+the area it has on a desktop, at which point the wireframe is under a pixel per
+cell and the arcs are three pixels long. Nothing at all is the answer when the
+environment has no `WebGL2RenderingContext` (a blocklisted driver, a locked-down
+browser, jsdom in the test suite), when the device reports 4 GB of memory or
+fewer or four cores or fewer, or when the context cannot be created or the chunk
+never arrives. That last tier is a finished page too, and it is a good one.
 
 Only when it has rendered a real frame does it call `onActive`, at which point
 `HomePage` sets `data-stage="on"` on the hero and `orchestration.css` fades out
@@ -1037,43 +1084,78 @@ a blocked driver gets a hero with a hole in it.
 
 **three.js is lazily imported inside the effect**, so it builds as its own
 chunk (~705 kB raw, ~181 kB gzipped) that the rest of the storefront never
-downloads. `HomePage`'s own chunk is ~38 kB. The landing page's job is to get
+downloads. `HomePage`'s own chunk is ~28 kB. The landing page's job is to get
 somebody to the products; a hero that put half a megabyte in front of that
 would be working against the page it decorates.
 
-**Four brakes stop it costing anything**, and the first is measurable: with the
-hero scrolled out of view the render loop runs **zero** frames, and resumes at
-~60 on return.
+**Four brakes stop it costing anything**, and two of them are measurable. With
+the hero scrolled out of view the render loop runs **zero** draw calls, and
+resumes at ~60 fps on return; under `prefers-reduced-motion` it draws one frame
+— 47 calls — and then **zero** for as long as you care to watch.
 
 | Brake | Mechanism |
 |---|---|
 | Off-screen | `IntersectionObserver` stops the loop |
 | Hidden tab | `visibilitychange` |
 | Reduced motion | One frame is drawn, then nothing — a still image, which is what was asked for |
-| Pixel density | `devicePixelRatio` capped at 2 |
+| Pixel density | `devicePixelRatio` capped at 1.5, or 1.25 on the reduced tier |
 
-Everything is disposed on unmount — geometries, materials, the renderer and
-every listener. Browsers cap live WebGL contexts per page at around sixteen and
-silently kill the oldest, so a storefront that leaked one per visit to `/` would
-watch earlier scenes go black.
+The pixel cap came down from 2, because the cost of a pixel ratio is quadratic
+and this scene is mostly transparent shells stacked on one another, so every
+fragment is shaded several times over. What 2 bought over 1.5 was a slightly
+crisper edge on a hairline orbit.
+
+Everything is disposed on unmount — geometries, materials, textures, the
+renderer and every listener — and the context is then explicitly killed with
+`forceContextLoss()`. `renderer.dispose()` alone releases three.js's own GPU
+objects and leaves the context alive; browsers cap live contexts per page at
+around sixteen and silently kill the oldest, so a storefront that leaked one per
+visit to `/` would watch earlier scenes go black. Twelve round trips from `/` to
+`/cart` and back leave exactly one canvas and zero `webglcontextlost` events.
 
 **Colours come from the storefront's own CSS custom properties** and are re-read
-when the theme changes, so a deployment that changes `--brand` gets a core in
-its own blue. Two of them are *derived* rather than read, in
+when the theme changes, so a deployment that changes `--brand` gets a globe in
+its own blue. Four of them are *derived* rather than read, in
 `stage-palette.ts`, and the reason is a real bug: **no token in the palette is
 light on both themes, and none is dark on both.** `--bloom` is a pale sky on
 the light theme and a deep navy on the dark one — used as a bead riding a ring
-it rendered darker than the page and read as a hole punched through it. So
-highlights are `lighten(--brand)` and the core's body is `darken(--brand)`,
-the latter because the hub paints **Sourcing** over the middle of it in white
-and the pale version of that was about 1.9:1. `HeroStage.test.tsx` asserts both:
-the highlight reads as light on either theme, and the body clears 4.5:1 against
-white on either theme.
+it rendered darker than the page and read as a hole punched through it.
 
-**Below `lg` the core is much larger** (0.62 of the square against 0.38). The
+| Derived | How | Why |
+|---|---|---|
+| `highlight` | `lighten(--brand)` | Reads as a highlight on either theme |
+| `deep` | `darken(--brand)` | The ocean, under the white label |
+| `land` | `mix(deep, --brand)` | The continents, lifted out of the ocean |
+| `steel` | `mix(highlight, cool grey)` | The titanium bands |
+
+The land is mixed towards the **brand** rather than towards white, and that is
+the whole point of it: `lighten` raises lightness and drops saturation together,
+so the first version's continents came out flat slate grey on a blue sea and
+read as a weather map. It is squeezed from both sides — too dark and the globe
+is a plain blue ball, too light and the word **Sourcing** painted over the
+middle of it stops clearing 4.5:1 on the dark theme. `HeroStage.test.tsx`
+asserts every end of that: the highlight reads as light on either theme, and
+both the ocean and the land clear 4.5:1 against white on either theme, and the
+land is at least twice the ocean's luminance so the continents are visible at
+all. Holding only the ocean to 4.5:1 would give a label that passed when the
+Pacific was facing us and failed when Africa was.
+
+**The globe turns once every 22 seconds** and the orbits take 14, 16 and 18 — a
+rotation you notice only if you look. One orbit is the warm accent and the other
+two are sky blue; a second warm one would tip the whole composition orange.
+`GLOBE_ROTATION_SECONDS` in `scene/globe.ts` and `seconds` on each entry of
+`ORBITS` in `scene/orbits.ts` are the numbers to change, and
+`CORE_DIAMETER_FRACTION` in `HeroStage.tsx` is the one that makes the globe
+bigger or smaller — everything else in the scene is expressed in globe radii and
+follows it.
+
+**Below `lg` the globe is much larger** (0.52 of the square against 0.42). The
 ceiling on the desktop figure exists because four cards ride a circle around
 the square — and below `lg` they do not, they sit still in a grid underneath,
-which leaves the square empty and the ceiling with nothing to protect.
+which leaves the square empty and the ceiling with nothing to protect. The
+orbits *are* allowed past that ceiling and should be: the cards are opaque
+panels, so an orbit disappearing behind one and coming out the other side is
+depth rather than collision.
 
 ### The animation
 
@@ -1174,6 +1256,47 @@ grid under it — one column on a phone, two from `sm` — with no rotation at a
 A radial layout that merely scaled down would put one node's label on top of
 another's, and a rotating one would have four cards taking turns to cover each
 other.
+
+### The four cards are glass
+
+Each card is a piece of glass lying over the scene rather than a tile painted on
+it, and three things together are what sell that: a translucent background, a
+blur behind it, and a one-pixel lit edge along the top that fades out at both
+ends. The blur carries extra saturation, which is the half of it that is easy to
+leave out and obvious once it is there — a plain blur averages the scene behind
+the card towards grey, so a panel over the blue globe came out a dull slate.
+
+**The surface is CSS and the layout is Tailwind, and that split is deliberate.**
+It was `bg-surface/85 backdrop-blur-sm shadow-card` on the element, and each of
+those is a single-class selector with exactly the same specificity as
+`orchestration.css`'s own `.orch-node-control` rule — so which one won depended
+on which stylesheet the bundler happened to emit second. A panel whose
+appearance is decided by import order will change the day somebody reorders an
+import. The colours are custom properties declared once on `.orch` and
+overridden in six lines under the dark selectors, so there is one description of
+what a panel *is* rather than two to keep in step. The dark theme is not the
+light one with a darker shadow: glass over navy needs a *less* opaque body (the
+scene behind it is what makes it read as glass at all), a stronger edge, and a
+much deeper shadow, because a 30%-black shadow is invisible on a dark ground.
+
+**The depth sits on the wrapper, and that is the trap worth remembering.**
+`index.css` gives every focusable thing in the storefront one focus ring, as
+`ring-2 ring-ring ring-offset-2` — and a Tailwind ring is a `box-shadow`.
+Tailwind composes a ring with a shadow through shared custom properties, so
+`shadow-card` and `ring-2` coexist happily; a hand-written `box-shadow` on the
+same element does not join that scheme, it replaces the whole property. Putting
+the panel shadow on the control itself therefore **deleted the keyboard focus
+ring outright**, silently, on the four tiles that are this page's main
+navigation. It now sits on `.orch-node-float`, the wrapper the card already had
+— same size, same corners, one element out — and the control never sets
+`box-shadow` at all. `:focus-visible` changes only the border colour.
+
+**The float came down from 6px to 3px.** Six was visible as *movement*: four
+cards each drifting a finger-width beside a paragraph somebody is trying to
+read, which is motion a landing page adds because it can rather than because the
+page wanted it. Three registers as the cards being alive without pulling the eye
+off the search bar. `prefers-reduced-motion` stops it entirely, along with
+everything else here.
 
 ### What used to sit underneath
 
@@ -4151,6 +4274,46 @@ Contact details are **masked by role and by need**. A telephone number comes
 back as a prefix and its last two digits. It is revealed whole to exactly two
 people: the driver whose active round the stop is on, and the person handling
 an open exception on that consignment. Nobody else, at any level, at any time.
+
+## Who the portal thinks you are
+
+The company on screen comes from one place: the session. A carrier's browser
+posts a password, the backend authenticates a LOGISTICS account, and
+`resolveLogisticsMembership` reads that account's one membership row and hands
+the request its company. Nothing else may decide it — not a company id in a
+query string, not one in a body, not a name somebody typed, not the first row
+in the table. There is no `?logisticsPartnerId=` on any portal route, and no
+service in the module takes a partner id from a caller that has not been handed
+a membership first.
+
+Three things can go wrong, and all three are refusals rather than fallbacks:
+
+- **No membership** — `LOGISTICS_PARTNER_REQUIRED`. The account exists and
+  belongs to no carrier, and is told exactly that.
+- **Membership turned off** — `LOGISTICS_MEMBER_DISABLED`.
+- **Carrier not activated yet, or closed** — `LOGISTICS_PARTNER_NOT_ACTIVE`. A
+  carrier starts `PENDING_ACTIVATION` and becomes usable when the marketplace
+  says so, not when its owner accepts the invitation. Closing a carrier also
+  revokes its people's sessions.
+
+None of the three falls back to another company. A portal that answered with
+somebody else's carrier when it could not find yours would be worse than one
+that answered nothing.
+
+**Opening the portal while already signed in names the session rather than
+acting on it.** The sign-in screen says "You are currently signed in as ...",
+gives the address that session belongs to, and offers two things: continue as
+that company, or sign out and use another account. It used to redirect silently
+to the dashboard — which is how an operator who had just created a carrier came
+to report the portal as showing the wrong one. It was showing the carrier that
+browser was still signed in as, correctly, and saying nothing at all about it.
+
+**Creating a carrier does not sign anybody in as it.** The two are separate
+actions and always have been: the console creates the company and emails its
+first owner a link that works once; the owner chooses their own password, sets
+up a second factor if their role needs one, and signs in at the portal
+themselves. The marketplace never holds that password, and there is no
+impersonation door anywhere in this product.
 
 ## The carrier's own screens
 
@@ -9047,16 +9210,33 @@ and two settings is one of them being wrong.
 Each of these is an interface with more than one implementation, chosen by a
 setting:
 
-| Setting | Options |
-|---|---|
-| `QUEUE_DRIVER` | `database` (default) or `redis` |
-| `CACHE_DRIVER` | `memory` or `redis` |
-| `STORAGE_DRIVER` | `local` or `s3` |
-| `EMAIL_DRIVER` | `log` (prints to the worker terminal) or `smtp` |
-| `PAYMENT_DEFAULT_PROVIDER` | `razorpay` or `stripe` |
+| Setting | Options | Built? |
+|---|---|---|
+| `QUEUE_DRIVER` | `database` (default) or `redis` | `database` only |
+| `CACHE_DRIVER` | `memory` or `redis` | `memory` only |
+| `STORAGE_DRIVER` | `local` (development) or `s3` (production) | both |
+| `EMAIL_DRIVER` | `log` (prints to the worker terminal) or `smtp` | both |
+| `PAYMENT_DEFAULT_PROVIDER` | `razorpay` or `stripe` | both |
+
+The "Built?" column is not padding. `redis` is a declared boundary rather than a
+working option: selecting it throws at startup with a message naming the file
+somebody would have to write. That is deliberate — booting a production instance
+that believes it has Redis and quietly does not is worse than refusing to start
+— but it does mean two of the rows above are a plan, not a choice.
 
 `EMAIL_DRIVER=log` is where you find confirmation links and temporary passwords
-while developing. It is refused in production.
+while developing. It is refused in production, and so is `STORAGE_DRIVER=local`:
+a VPS disk is one disk, and product images and generated invoices are not in the
+database, not in git and not recoverable from anywhere else. The S3 driver
+speaks plain S3, so it works against AWS, Cloudflare R2, Backblaze B2,
+DigitalOcean Spaces, Wasabi or a MinIO you run yourself.
+
+That driver keeps two prefixes apart, and the separation matters more than it
+looks: `products/` is catalogue media a browser that has never signed in is
+meant to load, and `private/` is report exports and Art. 15 personal-data
+bundles. Only the first is ever given a public URL — asking for one for a
+private object throws rather than handing out a link with no token and no
+expiry.
 
 ---
 
@@ -9064,6 +9244,9 @@ while developing. It is refused in production.
 
 `docs/DEPLOYMENT.md` is the procedure, `deploy/` holds the files, and
 `backend/docs/RUNBOOK.md` remains the authority on operating it once it is up.
+`docs/PRODUCT-READINESS.md` answers the other question — not "can this be put on
+a server" but "is what is being deployed the thing the product description says
+it is", capability by capability, including what is missing.
 What follows is only the shape, so the rest of this guide makes sense in a
 production context.
 
@@ -9117,6 +9300,85 @@ append-only audit trail the application can rewrite is not an audit trail. That
 user cannot run a migration, so `release.sh` uses a second one for that single
 command via `MIGRATE_DATABASE_URL`, which the running application never reads.
 See `backend/docs/RUNBOOK.md` §7.
+
+## Who the request says it came from
+
+nginx is the only way in, and the API sits on loopback behind it. So the API
+has to be told the visitor's real address — and the way that is done decides
+whether two security controls work at all.
+
+nginx sends `X-Forwarded-For: <the real peer address>` and **throws away
+whatever the caller put in that header**. The API trusts that header from the
+loopback hop and from nowhere else (`trustProxy: 'loopback'`). The alternative —
+appending to the caller's header and trusting the whole chain — lets a caller
+choose its own `request.ip`, and with a fresh address for every attempt it walks
+straight through the per-IP rate limit and the per-IP login lockout. Both halves
+are in place; either alone would do for this shape, and both together survive
+somebody putting a CDN in front and forgetting one.
+
+The lockout itself counts in the **database**, so it is correct across all three
+API instances. The request rate limit counts in memory, per process, which is
+why `RATE_LIMIT_GLOBAL_PER_MINUTE` has to be divided by the number of instances
+you run.
+
+## Surviving the loss of the box
+
+Two timers, and they answer different questions.
+
+`uboss-backup.timer` takes a nightly dump at 02:30, encrypts it along with the
+media archive and `.env`, copies it to a different provider, and **verifies it
+arrived**. A run that cannot do that exits non-zero rather than reporting
+success.
+
+`uboss-binlog.timer` runs every fifteen minutes. MariaDB writes down every
+change as it happens; on its own that protects against a bad `UPDATE` and
+nothing else, because the log is on the disk being protected against. So the
+timer closes the current log, fetches the completed ones **over the MySQL
+protocol, the way a replica would**, encrypts them and ships them off.
+
+That interval is the recovery point: lose the machine and you lose about fifteen
+minutes of orders rather than everything since last night. On a system that
+takes card payments those are different kinds of morning. Restoring means the
+dump, then replaying the logs forward to the moment before the damage.
+
+Fetching over the protocol rather than copying files is a security choice as
+well as a convenience: the logs are readable only by `mysql`, so copying them
+would mean a root timer running a script out of a directory the service user can
+write to — which hands anything that compromises the application a path to root.
+
+## Nobody is watching, so the box watches itself
+
+A site can answer `200` on every page while the worker has quietly stopped
+claiming jobs — and the scheduled card charges are in that queue. Nothing
+external can see that.
+
+`uboss-monitor.timer` runs every five minutes and checks what only the box can:
+each API instance's `/health/ready`, the worker unit, queue depth, **how long
+the oldest due job has been waiting** (the signal that catches a worker which is
+running and not working), jobs that have exhausted their retries, the age of the
+newest backup and the newest shipped binlog, disk *and inodes*, and certificate
+expiry. It exits non-zero and calls `UBOSS_ALERT_COMMAND` — any executable,
+handed the message — so the installation sends alerts wherever it already sends
+them.
+
+**It is not monitoring, and it cannot be.** It runs on the machine it is
+watching, so the one failure it can never report is that machine being gone. An
+uptime check from outside the network is still required.
+
+## The gate before a release
+
+`.github/workflows/ci.yml` runs the same `npm run verify` a developer runs, on
+every pull request, against **MariaDB 10.11** — the version production runs,
+which is strict where the 10.4 in XAMPP is not, so a value too long for its
+column fails there rather than on launch night. It also audits dependencies,
+records a bill of materials, scans the whole history for secrets, and warns when
+a new migration contains a `DROP`, a `RENAME` or a `NOT NULL` — none of which is
+safe in a single release, for the reason in *Releasing* above.
+
+There is a deploy workflow too, and it is deliberately manual and inert until
+somebody configures it. Deploying to production automatically is a decision
+about who approves a release and what happens when they are asleep, not a
+default.
 
 ## What it will and will not carry
 
@@ -9197,6 +9459,21 @@ UBoss-Software/
 │   │                               and never in production
 │   ├── tests/                      Unit and integration tests
 │   └── docs/                       RUNBOOK, EU-VAT, DATA-PROTECTION, ...
+│
+├── deploy/                         Everything a server needs, each file
+│   │                               commented with why it is what it is
+│   ├── scripts/bootstrap.sh        ← First-time setup of a bare Ubuntu box
+│   ├── scripts/release.sh          ← Build, migrate, swap, rolling restart
+│   ├── scripts/rollback.sh         Back to the previous release. Never the DB.
+│   ├── scripts/backup.sh           Nightly: encrypted, off-site, verified
+│   ├── scripts/ship-binlogs.sh     ← Every 15 min. This IS the recovery point.
+│   ├── scripts/monitor.sh          ← The checks only the box itself can make
+│   ├── nginx/                      The vhosts, and the security headers
+│   ├── systemd/                    One unit per process, and three timers
+│   └── mariadb/uboss.cnf           Buffer pool, binlog, durability
+│
+├── .github/workflows/              CI, CodeQL, and a deploy that is manual
+│                                   until somebody configures it
 │
 ├── apps/customer-web/src/
 │   ├── app/router.tsx              ← Every storefront page

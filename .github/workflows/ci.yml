@@ -1,0 +1,301 @@
+# =============================================================================
+# The gate between a commit and a release.
+#
+# Everything here can be run by hand - it is the same `npm run verify` a
+# developer runs before committing. The value is not that it is clever, it is
+# that it cannot be skipped, and that it runs against a MariaDB configured the
+# way production is rather than the way XAMPP is.
+#
+# THE ONE DIFFERENCE FROM A DEVELOPER'S MACHINE, AND IT MATTERS
+#
+# Development runs MariaDB 10.4 out of XAMPP, which is not strict. Production
+# runs 10.11 on Ubuntu, which is: a value too long for its column is truncated
+# with a warning on one and rejected with an error on the other. This workflow
+# uses 10.11 so that difference surfaces here rather than on launch night. See
+# docs/DEPLOYMENT.md section 13.
+# =============================================================================
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# A second push to the same branch makes the first run pointless. Not for main,
+# where every commit's result is worth keeping.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # The API, its migrations and its tests
+  # ---------------------------------------------------------------------------
+  backend:
+    name: Backend (typecheck, lint, tests)
+    runs-on: ubuntu-24.04
+
+    services:
+      mariadb:
+        # 10.11 is what Ubuntu 24.04 packages and what production runs.
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: ci-root-not-a-secret
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=30
+        ports:
+          - 3306:3306
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      # TWO databases, and this is not tidiness.
+      #
+      # tests/setup.ts refuses to run when TEST_DATABASE_URL and DATABASE_URL
+      # are the same string, because the integration suite truncates every
+      # table it touches. One database here would mean either a refused test run
+      # or - worse, if the guard were ever relaxed - a suite that wipes the
+      # database it is meant to be testing against.
+      - name: Create the two databases
+        run: |
+          mysql -h 127.0.0.1 -P 3306 -uroot -pci-root-not-a-secret -e "
+            CREATE DATABASE uboss      CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+            CREATE DATABASE uboss_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+            SELECT @@version, @@sql_mode;"
+
+      # The committed example, with the three values that cannot be placeholders.
+      #
+      # SECRETS_ENCRYPTION_KEY is checked in every environment, not just
+      # production: env.ts refuses to start unless it decodes to exactly 32
+      # bytes. The signing secrets are only rejected as placeholders when
+      # NODE_ENV=production, and this is not, but they are generated anyway so
+      # that nothing in CI is ever signed with a value that is in the repository.
+      - name: Write the CI environment file
+        working-directory: backend
+        run: |
+          cp .env.example .env
+          {
+            echo "DATABASE_URL=mysql://root:ci-root-not-a-secret@127.0.0.1:3306/uboss"
+            echo "TEST_DATABASE_URL=mysql://root:ci-root-not-a-secret@127.0.0.1:3306/uboss_test"
+            echo "SECRETS_ENCRYPTION_KEY=$(openssl rand -base64 32)"
+            echo "SESSION_COOKIE_SECRET=$(openssl rand -base64 36)"
+            echo "ACCESS_TOKEN_SECRET=$(openssl rand -base64 36)"
+            echo "REFRESH_TOKEN_SECRET=$(openssl rand -base64 36)"
+          } >> .env
+
+      - name: Install
+        working-directory: backend
+        run: npm ci
+
+      - name: Generate the Prisma client
+        working-directory: backend
+        run: npx prisma generate
+
+      # `migrate deploy`, never `migrate dev`. `dev` rewrites migration files and
+      # offers to reset the database; in this repository it also renames eighteen
+      # foreign keys and drops defaults, which would then show up as a diff
+      # nobody asked for.
+      #
+      # Both databases. A migration applied only to `uboss` is exactly the shape
+      # of failure that produces ninety sign-in 500s in the test suite and no
+      # explanation.
+      - name: Migrate both databases
+        working-directory: backend
+        run: |
+          DATABASE_URL="mysql://root:ci-root-not-a-secret@127.0.0.1:3306/uboss" \
+            npx prisma migrate deploy
+          DATABASE_URL="mysql://root:ci-root-not-a-secret@127.0.0.1:3306/uboss_test" \
+            npx prisma migrate deploy
+
+      # Proves the committed migrations and the committed schema agree. A schema
+      # edited without a migration passes every test on a developer's machine -
+      # their database already has the column - and fails on a fresh one.
+      - name: Migrations match the schema
+        working-directory: backend
+        run: npx prisma migrate status
+        env:
+          DATABASE_URL: mysql://root:ci-root-not-a-secret@127.0.0.1:3306/uboss
+
+      - name: Verify (typecheck, lint, tests)
+        working-directory: backend
+        run: npm run verify
+
+  # ---------------------------------------------------------------------------
+  # The three front ends
+  #
+  # `npm run verify` differs slightly between them - the admin panel has no test
+  # script, the other two do - so each runs its own rather than a list assembled
+  # here that would drift out of step with their package.json files.
+  # ---------------------------------------------------------------------------
+  frontends:
+    name: ${{ matrix.app }}
+    runs-on: ubuntu-24.04
+
+    strategy:
+      # One failing application should not hide the state of the other two.
+      fail-fast: false
+      matrix:
+        app: [customer-web, admin-web, logistics-web]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: apps/${{ matrix.app }}/package-lock.json
+
+      - name: Install
+        working-directory: apps/${{ matrix.app }}
+        run: npm ci
+
+      # typecheck, lint, the contrast audit (accessibility evidence - see
+      # docs/DEPLOYMENT.md section 19), tests where they exist, and the build.
+      - name: Verify
+        working-directory: apps/${{ matrix.app }}
+        run: npm run verify
+
+      # Source maps are generated deliberately and must never be published;
+      # release.sh deletes them before assembling a release. This is the check
+      # that the build still produces what that step expects to find.
+      - name: Report bundle size
+        working-directory: apps/${{ matrix.app }}
+        run: du -sh dist && find dist -name '*.map' | wc -l
+
+  # ---------------------------------------------------------------------------
+  # Supply chain
+  #
+  # Separate from the build so that a new advisory published overnight shows as
+  # its own red mark rather than as "the frontend build failed".
+  # ---------------------------------------------------------------------------
+  audit:
+    name: Dependency audit (${{ matrix.slug }})
+    runs-on: ubuntu-24.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # `slug` exists because an uploaded artifact's name cannot contain a
+        # slash, and `apps/customer-web` does.
+        include:
+          - project: backend
+            slug: backend
+          - project: apps/customer-web
+            slug: customer-web
+          - project: apps/admin-web
+            slug: admin-web
+          - project: apps/logistics-web
+            slug: logistics-web
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      # High and critical only. Blocking on `low` trains everybody to ignore
+      # this job, which costs more than the advisories it would have caught.
+      - name: npm audit
+        working-directory: ${{ matrix.project }}
+        run: npm audit --audit-level=high
+
+      # A software bill of materials, kept for 90 days. It is what answers "were
+      # we running the affected version on the day of the advisory?" - and it is
+      # an input to the Cyber Resilience Act work in docs/DEPLOYMENT.md §7.
+      - name: SBOM
+        if: always()
+        working-directory: ${{ matrix.project }}
+        run: |
+          npm ci --ignore-scripts
+          npm sbom --sbom-format cyclonedx > sbom.cdx.json
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sbom-${{ matrix.slug }}
+          path: ${{ matrix.project }}/sbom.cdx.json
+          retention-days: 90
+
+  # ---------------------------------------------------------------------------
+  # Secrets
+  #
+  # The whole history, not the diff: a secret committed and then removed is
+  # still in the history, still fetchable by anyone who has ever cloned, and
+  # still valid until it is rotated.
+  #
+  # Run from the published container rather than the marketplace action, which
+  # requires a paid licence key for organisation-owned repositories.
+  # ---------------------------------------------------------------------------
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: gitleaks
+        run: |
+          docker run --rm -v "$PWD:/repo" -w /repo \
+            zricethezav/gitleaks:latest detect \
+            --source=. --redact --verbose --exit-code=1
+
+  # ---------------------------------------------------------------------------
+  # Migration safety
+  #
+  # Advisory, deliberately. Migrations run BEFORE the new code starts, so for
+  # the length of a rolling restart the old code runs against the new schema. A
+  # dropped or renamed column throws on every request the old instances are
+  # still serving; an added nullable one is harmless. No script can tell which
+  # of those a given statement is in context - but it can make sure a human
+  # looked. See docs/DEPLOYMENT.md section 15.5.
+  # ---------------------------------------------------------------------------
+  migration-review:
+    name: Migration safety review
+    runs-on: ubuntu-24.04
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Flag destructive statements in new migrations
+        run: |
+          base="${{ github.event.pull_request.base.sha }}"
+          files="$(git diff --name-only --diff-filter=A "$base" HEAD -- 'backend/prisma/migrations/**/*.sql')"
+
+          if [ -z "$files" ]; then
+            echo "No new migrations in this pull request."
+            exit 0
+          fi
+
+          echo "New migrations:"
+          echo "$files"
+          echo
+
+          # `|| true` on the grep: no match is the good case, and grep says so
+          # with exit 1.
+          found="$(grep -Ein 'DROP (TABLE|COLUMN)|RENAME|MODIFY|NOT NULL' $files || true)"
+
+          if [ -n "$found" ]; then
+            echo "::warning title=Destructive migration::These statements are not safe in a single release unless every existing row already satisfies them. Expand and contract over two releases - see docs/DEPLOYMENT.md section 15.5."
+            echo "$found"
+          else
+            echo "Nothing destructive found."
+          fi

@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "description": "Repository maintenance scripts. Kept out of both apps because they belong to neither and should not ship in either bundle.",
+  "engines": {
+    "node": ">=24.0.0"
+  },
   "scripts": {
     "guide": "node build-feature-guide-doc.mjs",
     "dev": "powershell -ExecutionPolicy Bypass -File ./dev-stack.ps1",

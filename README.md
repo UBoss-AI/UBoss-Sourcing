@@ -8,7 +8,7 @@ A customer storefront, a marketplace other businesses sell through, a staff
 console and a carrier portal — all on one Fastify + MariaDB backend.
 
 <p>
-<img alt="Node 20.11+" src="https://img.shields.io/badge/Node-20.11%2B-5FA04E?style=flat-square&logo=node.js&logoColor=white">
+<img alt="Node 24 LTS" src="https://img.shields.io/badge/Node-24%20LTS-5FA04E?style=flat-square&logo=node.js&logoColor=white">
 <img alt="TypeScript strict" src="https://img.shields.io/badge/TypeScript-strict-3178C6?style=flat-square&logo=typescript&logoColor=white">
 <img alt="Fastify 5" src="https://img.shields.io/badge/Fastify-5-000000?style=flat-square&logo=fastify&logoColor=white">
 <img alt="Prisma 7" src="https://img.shields.io/badge/Prisma-7-2D3748?style=flat-square&logo=prisma&logoColor=white">
@@ -360,7 +360,18 @@ out.
 
 There is no public registration. A carrier is created from **Logistics →
 Carriers** in the console, which sends a one-time activation link; the person
-who opens it chooses their own password.
+who opens it chooses their own password. The carrier starts
+`PENDING_ACTIVATION` and its people cannot use the portal until the console
+marks it active — accepting an invitation proves somebody read an email, not
+that the checks are finished.
+
+**Creating a carrier does not sign anybody in as it**, and there is no
+impersonation door. The company the portal shows is derived on the server from
+the authenticated membership and nothing else: no query parameter, no stored
+value and no default company can change it. A browser that already holds a
+session for another carrier is told whose it is by name and offered *continue*
+or *sign out and use another account*, rather than being taken silently into
+that carrier's dashboard.
 
 Live vehicle tracking is not part of this release, and nothing in the interface
 suggests otherwise. Where a driver's device has reported a position the last
@@ -947,6 +958,30 @@ one are a Vite cache, not a code bug.
 11. **Delete the seeded accounts** and create real ones from **Staff**.
 12. **Work through `backend/docs/RUNBOOK.md`** for backups, restore drills and
     incident procedure.
+13. **Turn on the timers that watch the machine.** `deploy/scripts/bootstrap.sh`
+    installs them; nothing enables them for you:
+
+    ```bash
+    sudo systemctl enable --now uboss-backup.timer    # nightly, encrypted, off-site
+    sudo systemctl enable --now uboss-binlog.timer    # every 15 min — see below
+    sudo systemctl enable --now uboss-monitor.timer   # queue, worker, disk, certificates
+    ```
+
+    **`uboss-binlog.timer` is the difference between losing fifteen minutes of
+    orders and losing everything since last night.** It ships MariaDB's binary
+    logs off the machine, encrypted, so a restore can be replayed forward to a
+    moment rather than only to the nightly dump. It needs `UBOSS_BINLOG_URL` in
+    `/etc/uboss/backup.env`, pointing at a MariaDB user with
+    `REPLICATION SLAVE, REPLICATION CLIENT, RELOAD` and no `SELECT` on anything.
+
+    `uboss-monitor.timer` runs the checks that an external uptime service cannot
+    see — a worker that has stopped claiming jobs, a queue backing up, a backup
+    that did not run, a certificate three weeks from expiry. Give it somewhere to
+    shout: `UBOSS_ALERT_COMMAND` in `/etc/uboss/monitor.env` is any executable,
+    called with the message as its single argument.
+14. **Point an external uptime check at `/health/live`,** from outside the
+    network. Everything above runs *on* the machine, so none of it can report
+    the one failure that matters most.
 
 </details>
 
@@ -971,6 +1006,18 @@ against `DATABASE_URL` at all, for the same reason.
 `backend/openapi.json` is generated from the live Fastify route table
 (`npm run openapi:export`), so it cannot drift from what the server serves — a
 contract test fails the build if it does.
+
+**The same checks run on every pull request**, in `.github/workflows/ci.yml`,
+against MariaDB **10.11** rather than the 10.4 a development machine runs — so a
+value too long for its column fails there rather than on launch night. That
+workflow also audits dependencies, produces a bill of materials, scans the whole
+history for secrets, and warns when a new migration contains a `DROP`, a
+`RENAME` or a `NOT NULL`, none of which is safe in a single release.
+
+`.github/workflows/deploy.yml` builds and activates a release. It is **manual
+only** and does nothing until an owner configures the environments, the deploy
+key and the API base URLs — deploying automatically is a decision, not a
+default. `docs/DEPLOYMENT.md` §15 has the settings it needs.
 
 ---
 
@@ -1016,6 +1063,13 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
 - **One seller cannot read another seller's data.** Every owned row carries its
   `sellerAccountId`, no route takes one from the caller, and no service accepts
   a seller id without having been handed a membership first.
+- **A carrier is whichever company its session says it is.** The logistics
+  portal derives the company from the authenticated membership and from nothing
+  else — no query parameter, no route parameter, no stored value in the browser,
+  no default and no first row in the table. A missing, disabled or unactivated
+  membership is refused by name; none of the three falls back to another
+  carrier. Creating a carrier in the console creates no login and authenticates
+  nobody, and there is no impersonation path.
 - **A brand is one row; permission to sell it is one company's.** Approving a
   name puts it in the catalogue once, for everybody. Approving a seller's
   *request* is what lets that business list under it, and the picker and the
@@ -1073,6 +1127,8 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
 | **This file** | Features, configuration, markets, payments, languages, going live |
 | `backend/README.md` | Backend architecture, schema and migration notes |
 | `backend/docs/HANDOFF.md` | Environment details, the MariaDB constraints that shaped the schema, the full endpoint map, and what is deliberately not built |
+| **[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)** | Putting it on a server: the VPS build, releases, rollback, backups, monitoring, the EU/Poland compliance matrix and what must be decided before going live |
+| **[`docs/PRODUCT-READINESS.md`](docs/PRODUCT-READINESS.md)** | What is actually built, capability by capability, against the product description — what is built, what is switched off, what refuses rather than pretending, and what is missing |
 | `backend/docs/RUNBOOK.md` | Backups, restore drills, incident procedure, going-live tasks |
 | `backend/docs/STATUS.md` | What is built, what is not, and the reasoning behind the money and tax rules |
 | `backend/docs/DATA-PROTECTION.md` | GDPR: what is held, for how long, and how it is exported and erased |

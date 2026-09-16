@@ -1,0 +1,19 @@
+# Every fifteen minutes. That interval IS the recovery point objective: whatever
+# it is set to is the maximum amount of paid-for work this system can lose if
+# the machine disappears between one run and the next.
+[Unit]
+Description=UBOSS binary log shipping every 15 minutes
+
+[Timer]
+OnCalendar=*:0/15
+
+# Small, and only so a shipping run and the nightly dump never start on the same
+# second and fight over the uplink.
+RandomizedDelaySec=60
+
+# A machine that was down catches up on the way back, rather than leaving a
+# silent hole in the log sequence.
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,18 @@
+# Every five minutes, from one minute after boot.
+#
+# Five rather than one: nothing here changes that fast, and a check that runs
+# every minute mostly produces noise plus a small constant load. Five rather
+# than fifteen: a worker that has stopped claiming jobs should be noticed within
+# one card-charging window, not three.
+[Unit]
+Description=UBOSS self-checks every 5 minutes
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=5min
+
+# Not Persistent. A missed check while the machine was off is not worth running
+# late - the next one, a few minutes later, reports the same state and reports
+# it as it is now.
+[Install]
+WantedBy=timers.target

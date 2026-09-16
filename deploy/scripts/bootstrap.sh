@@ -11,7 +11,7 @@
 # would produce a site that starts and is wrong.
 #
 # What it leaves you with is a machine where `release.sh` will work, and a
-# printed list of the four things still to do.
+# printed list of the five things still to do.
 #
 # Idempotent: safe to run again after fixing something.
 # =============================================================================
@@ -20,9 +20,11 @@ set -Eeuo pipefail
 ROOT=/srv/uboss
 SERVICE_USER=uboss
 
-# Node 20 is the floor (`engines` in backend/package.json says >=20.11). 22 is
-# the current LTS and what this is tested against.
-NODE_MAJOR=22
+# Node 24 is Active LTS and is what `.nvmrc` and every `engines` field in this
+# repository name. Keeping the server, CI and the development machines on one
+# major is the point: three majors in play is how a build passes everywhere
+# except the box that matters.
+NODE_MAJOR=24
 
 log()  { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
 warn() { printf '\033[1;33m!!\033[0m %s\n' "$*" >&2; }
@@ -46,9 +48,11 @@ apt-get install -y -qq \
   mariadb-server \
   certbot python3-certbot-nginx \
   ufw fail2ban \
-  gzip tar gpg coreutils
+  unattended-upgrades apt-listchanges \
+  gzip tar gpg coreutils \
+  rclone
 
-if ! command -v node >/dev/null || [[ "$(node -v | cut -c2- | cut -d. -f1)" -lt 20 ]]; then
+if ! command -v node >/dev/null || [[ "$(node -v | cut -c2- | cut -d. -f1)" -lt "$NODE_MAJOR" ]]; then
   log "installing Node $NODE_MAJOR"
   curl -fsSL "https://deb.nodesource.com/setup_${NODE_MAJOR}.x" | bash -
   apt-get install -y -qq nodejs
@@ -108,9 +112,201 @@ else
   warn "edit /etc/nginx/sites-available/uboss.conf and replace example.com"
 fi
 
+# -----------------------------------------------------------------------------
+# The backup's own secrets
+#
+# Root-owned and 0600, read by systemd (which is root) before it drops to the
+# uboss user. Created empty rather than left absent on purpose: a missing
+# EnvironmentFile makes the unit fail with a systemd error about a file, where
+# an empty one lets backup.sh run and print the message that actually says what
+# is wrong and why.
+# -----------------------------------------------------------------------------
+log "creating the backup secrets file"
+install -d -m 700 -o root -g root /etc/uboss
+if [[ ! -f /etc/uboss/backup.env ]]; then
+  cat > /etc/uboss/backup.env <<'BACKUPENV'
+# Read by uboss-backup.service. Root-owned, 0600 - keep it that way.
+#
+# UBOSS_BACKUP_PASSPHRASE encrypts the database dump, the media archive and the
+# environment file. STORE IT SOMEWHERE THAT SURVIVES LOSING THIS MACHINE; it is
+# deliberately not in the backups, and without it they are noise.
+#
+#   openssl rand -base64 36
+#
+# UBOSS_OFFSITE_REMOTE is an rclone destination on a DIFFERENT provider or
+# account from this server. Configure it with `rclone config` as root first.
+#
+# UBOSS_BINLOG_URL points at a MariaDB user holding REPLICATION SLAVE,
+# REPLICATION CLIENT and RELOAD - and no SELECT on anything. It lets
+# uboss-binlog.timer ship the binary logs off the machine every fifteen minutes,
+# which is the difference between losing a quarter of an hour of orders and
+# losing everything since last night's dump. Leave it unset and that timer
+# refuses to run rather than pretending to protect you.
+#
+# UBOSS_BACKUP_PASSPHRASE=
+# UBOSS_OFFSITE_REMOTE=
+# UBOSS_BINLOG_URL=
+BACKUPENV
+  chmod 600 /etc/uboss/backup.env
+fi
+
+# Where alerts go. Separate from the backup's secrets because it is read by a
+# different unit and holds a different kind of secret - a chat webhook URL is a
+# credential, and anyone holding it can post as this system.
+if [[ ! -f /etc/uboss/monitor.env ]]; then
+  cat > /etc/uboss/monitor.env <<'MONITORENV'
+# Read by uboss-monitor.service. Root-owned, 0600 - keep it that way.
+#
+# UBOSS_ALERT_COMMAND is anything executable, called with a single argument: the
+# message. A one-line script that curls a chat webhook is enough. Without it the
+# checks still run and a failure still shows in `systemctl --failed`, but
+# nothing goes looking for a person.
+#
+# Thresholds can be overridden here too; deploy/scripts/monitor.sh names them
+# all at the top.
+#
+# UBOSS_ALERT_COMMAND=
+MONITORENV
+  chmod 600 /etc/uboss/monitor.env
+fi
+
 log "installing systemd units"
 cp "$HERE/systemd/"*.service "$HERE/systemd/"*.timer /etc/systemd/system/
 systemctl daemon-reload
+
+# -----------------------------------------------------------------------------
+# Letting release.sh restart the units - and nothing else
+#
+# release.sh and rollback.sh run as the `uboss` service user, which is a
+# --system account with no shell. Without this rule a release builds perfectly,
+# migrates, moves the `current` symlink and THEN fails at `systemctl restart` -
+# the worst possible place to stop, because the new code is linked and none of
+# it is running.
+#
+# Each unit is named. `systemctl *` would let a compromised application stop,
+# mask or start anything on the machine, which is an enormous privilege to hand
+# over in exchange for three restarts. `nginx reload` is included because a
+# certificate renewal hook needs it.
+#
+# `visudo -c` before the file is trusted: a syntax error in /etc/sudoers.d
+# breaks sudo for EVERY user, including the one you would use to fix it.
+# -----------------------------------------------------------------------------
+log "installing the release sudoers rule"
+cat > /etc/sudoers.d/uboss-release.tmp <<SUDOERS
+# Installed by deploy/scripts/bootstrap.sh. Do not add a wildcard here.
+$SERVICE_USER ALL=(root) NOPASSWD: /usr/bin/systemctl restart uboss-api@4000, \\
+  /usr/bin/systemctl restart uboss-api@4001, \\
+  /usr/bin/systemctl restart uboss-api@4002, \\
+  /usr/bin/systemctl restart uboss-worker, \\
+  /usr/bin/systemctl reload nginx
+SUDOERS
+chmod 440 /etc/sudoers.d/uboss-release.tmp
+if visudo -cf /etc/sudoers.d/uboss-release.tmp >/dev/null; then
+  mv /etc/sudoers.d/uboss-release.tmp /etc/sudoers.d/uboss-release
+else
+  rm -f /etc/sudoers.d/uboss-release.tmp
+  die "the generated sudoers rule did not parse - refusing to install it"
+fi
+
+# -----------------------------------------------------------------------------
+# Automatic security updates
+#
+# An unpatched box is the most likely way this deployment is compromised, and
+# "somebody will run apt upgrade" is not a plan. Security updates only - the
+# whole point is that this file changes nothing anyone has to think about.
+#
+# No automatic reboot. A machine that reboots itself at 02:00 takes the site
+# with it, and there is only one of it; the flag file it writes instead is what
+# `deploy/scripts/monitor.sh` reports, so a kernel update is a decision somebody
+# makes in the morning rather than an outage nobody scheduled.
+# -----------------------------------------------------------------------------
+log "enabling unattended security updates"
+cat > /etc/apt/apt.conf.d/51-uboss-unattended <<'UNATTENDED'
+Unattended-Upgrade::Allowed-Origins {
+    "${distro_id}:${distro_codename}-security";
+    "${distro_id}ESMApps:${distro_codename}-apps-security";
+    "${distro_id}ESM:${distro_codename}-infra-security";
+};
+Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
+Unattended-Upgrade::Remove-New-Unused-Dependencies "true";
+// Deliberately false. See bootstrap.sh - one box, no automatic outage.
+Unattended-Upgrade::Automatic-Reboot "false";
+UNATTENDED
+
+cat > /etc/apt/apt.conf.d/20auto-upgrades <<'AUTOUPGRADES'
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Unattended-Upgrade "1";
+APT::Periodic::AutocleanInterval "7";
+AUTOUPGRADES
+
+systemctl enable --now unattended-upgrades >/dev/null 2>&1 || \
+  warn "could not enable unattended-upgrades - check 'systemctl status unattended-upgrades'"
+
+# -----------------------------------------------------------------------------
+# fail2ban policy
+#
+# The package was installed above; on its own it bans nobody. Three jails:
+#
+#   sshd             the constant background of credential stuffing. `backend =
+#                    systemd` because Ubuntu 24.04 logs sshd to the journal and
+#                    there may be no /var/log/auth.log to read.
+#   nginx-http-auth  basic-auth brute force, if any location ever uses it.
+#   nginx-limit-req  the one that matters here. nginx's own rate limiter writes
+#                    a line to error.log every time it delays or rejects a
+#                    request; twenty of those in a minute is a client that has
+#                    been told to slow down and has not, so it stops being
+#                    nginx's problem and starts being the firewall's.
+#
+# The nginx jails read a file rather than the journal, so they must NOT inherit
+# `backend = systemd` - a systemd backend with no journalmatch makes fail2ban
+# skip the jail at start-up, and it says so in a log nobody reads.
+# -----------------------------------------------------------------------------
+log "configuring fail2ban jails"
+cat > /etc/fail2ban/jail.local <<'JAIL'
+# Installed by deploy/scripts/bootstrap.sh.
+[DEFAULT]
+bantime  = 1h
+findtime = 10m
+maxretry = 5
+
+[sshd]
+enabled = true
+backend = systemd
+
+[nginx-http-auth]
+enabled = true
+
+[nginx-limit-req]
+enabled  = true
+filter   = nginx-limit-req
+logpath  = /var/log/nginx/error.log
+maxretry = 20
+findtime = 1m
+bantime  = 10m
+JAIL
+
+systemctl enable fail2ban >/dev/null 2>&1 || true
+systemctl restart fail2ban || warn "fail2ban did not restart - check 'fail2ban-client status'"
+
+# -----------------------------------------------------------------------------
+# Journal size and retention
+#
+# Without a cap the journal grows until the disk is full, and a full disk on
+# this machine stops MariaDB rather than just the logging. The retention window
+# is also a privacy decision: these logs hold IP addresses and user agents, so
+# 30 days is a starting point the operator should confirm against their own
+# record of processing (docs/DEPLOYMENT.md section 8).
+# -----------------------------------------------------------------------------
+log "capping the journal"
+mkdir -p /etc/systemd/journald.conf.d
+cat > /etc/systemd/journald.conf.d/99-uboss.conf <<'JOURNALD'
+[Journal]
+SystemMaxUse=2G
+SystemKeepFree=5G
+MaxRetentionSec=30day
+Compress=yes
+JOURNALD
+systemctl restart systemd-journald
 
 log "installing MariaDB tuning"
 cp "$HERE/mariadb/uboss.cnf" /etc/mysql/mariadb.conf.d/99-uboss.cnf
@@ -170,7 +366,7 @@ cat <<DONE
 
 $(printf '\033[1;32m✓\033[0m') bootstrap complete.
 
-Four things left, and none of them can be guessed:
+Five things left, and none of them can be guessed:
 
   1. Create the database and TWO users. Two, not one - RUNBOOK.md section 7
      explains why, and the short version is that the application must not be
@@ -190,6 +386,13 @@ Four things left, and none of them can be guessed:
          CREATE USER 'uboss_migrate'@'localhost' IDENTIFIED BY '<different long random>';
          GRANT ALL PRIVILEGES ON uboss.* TO 'uboss_migrate'@'localhost';
 
+         -- Reads the binary logs so they can be shipped off the machine. This
+         -- is what makes point-in-time recovery possible; without it the most
+         -- you can lose is a whole day of orders. No SELECT on any table - it
+         -- reads the log of changes, never the data.
+         CREATE USER 'uboss_binlog'@'localhost' IDENTIFIED BY '<a third long random>';
+         GRANT REPLICATION SLAVE, REPLICATION CLIENT, RELOAD ON *.* TO 'uboss_binlog'@'localhost';
+
          FLUSH PRIVILEGES;
        SQL
 
@@ -203,12 +406,47 @@ Four things left, and none of them can be guessed:
        COOKIE_SECURE/COOKIE_DOMAIN, which sign everybody out if they are wrong.
        chown $SERVICE_USER:$SERVICE_USER $ROOT/shared/.env && chmod 600 it.
 
-  3. Point your DNS at this machine, then:
-       sudo certbot --nginx -d shop.example.com -d admin.example.com
+  3. Point your DNS at this machine, then issue certificates. Include the
+     carrier portal host only if FEATURE_LOGISTICS_PORTAL is on:
 
-  4. Deploy:
+       sudo certbot --nginx -d shop.example.com -d admin.example.com \\
+                            -d carriers.example.com
+
+  4. Fill in /etc/uboss/backup.env - all three values:
+
+       UBOSS_BACKUP_PASSPHRASE   encrypts the dump, the media archive, the
+                                 binary logs and .env. Store it somewhere that
+                                 survives losing this machine. It is not in the
+                                 backups, and without it they are noise.
+       UBOSS_OFFSITE_REMOTE      an rclone destination on a DIFFERENT provider
+                                 or account. Run 'sudo rclone config' first.
+       UBOSS_BINLOG_URL          mysql://uboss_binlog:<pass>@127.0.0.1:3306/
+                                 The third user from step 1. Leave it out and
+                                 the most this system can lose is everything
+                                 since 02:30 this morning; set it and that
+                                 becomes fifteen minutes.
+
+     Without the first two the nightly backup refuses to write an unencrypted
+     dump, and reports failure rather than quietly keeping the only copy of your
+     data on the same disk as the database.
+
+     Somewhere for alerts to go is worth a fourth line, in
+     /etc/uboss/monitor.env:
+
+       UBOSS_ALERT_COMMAND       anything executable, called with one argument.
+                                 A curl to a chat webhook is enough. Without it
+                                 the checks still run and still fail the unit -
+                                 but somebody has to be looking.
+
+  5. Deploy:
        sudo -u $SERVICE_USER $ROOT/repo/deploy/scripts/release.sh
        sudo systemctl enable --now uboss-api@4000 uboss-api@4001 uboss-api@4002
        sudo systemctl enable --now uboss-worker uboss-backup.timer
+       sudo systemctl enable --now uboss-monitor.timer uboss-binlog.timer
+
+     And then the thing this machine cannot do for itself: point an EXTERNAL
+     uptime check at https://<your shop>/health/live, from outside this network.
+     uboss-monitor.timer watches the queue, the worker and the backups from the
+     inside; it goes quiet exactly when the machine does.
 
 DONE

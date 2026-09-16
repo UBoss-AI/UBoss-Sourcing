@@ -1,0 +1,40 @@
+# Runs deploy/scripts/monitor.sh once. Driven by uboss-monitor.timer.
+#
+# A failed run means at least one check failed. `systemctl --failed` will list
+# this unit, and monitor.sh will additionally have run UBOSS_ALERT_COMMAND for
+# each finding if one is configured.
+#
+# THIS IS NOT EXTERNAL MONITORING. It runs on the machine it watches, so it
+# cannot report the one failure that matters most - the machine being gone. See
+# docs/DEPLOYMENT.md section 18.
+[Unit]
+Description=UBOSS self-checks (queue, worker, backups, disk, certificates)
+Documentation=file:/srv/uboss/current/docs/DEPLOYMENT.md
+
+[Service]
+Type=oneshot
+User=uboss
+Group=uboss
+
+# Optional, and read from the same root-owned file as the backup's secrets
+# because an alerting webhook URL is a credential:
+#
+#   UBOSS_ALERT_COMMAND=/usr/local/bin/uboss-alert
+#
+# plus any threshold override named in monitor.sh. `-` so that a machine with no
+# alerting configured still runs the checks rather than failing to start.
+EnvironmentFile=-/etc/uboss/backup.env
+EnvironmentFile=-/etc/uboss/monitor.env
+
+ExecStart=/srv/uboss/repo/deploy/scripts/monitor.sh
+
+TimeoutStartSec=120
+
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=uboss-monitor

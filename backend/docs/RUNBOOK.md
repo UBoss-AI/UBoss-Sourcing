@@ -55,7 +55,8 @@ a dump that can contain an order without its items.
 ### Frequency and retention
 
 Both are `<APPROVE>` decisions, driven by the agreed RPO. Point-in-time
-recovery requires binary logging, which MariaDB does not enable by default:
+recovery requires binary logging, which MariaDB does not enable by default —
+`deploy/mariadb/uboss.cnf` turns it on:
 
 ```ini
 # my.ini  [mysqld]
@@ -64,7 +65,37 @@ binlog_format = ROW
 expire_logs_days = <APPROVE>
 ```
 
-Without binlogs, the recovery point is the last full dump — no better.
+Binary logging on its own is not recovery. The logs sit on the same disk as the
+database, so they protect against a bad `UPDATE` and against nothing else.
+`deploy/scripts/ship-binlogs.sh`, driven by `uboss-binlog.timer`, closes the
+current log every fifteen minutes and copies the completed ones off the machine,
+encrypted with the same passphrase as the nightly dump.
+
+**That interval is the recovery point objective.** With the timer running, a
+lost machine costs about fifteen minutes of orders; without it, everything since
+last night's dump. On a system that takes card payments those are different
+kinds of morning.
+
+It fetches the logs over the MySQL protocol as a replica would, rather than
+reading `/var/log/mysql` — so it needs no root and no filesystem access, and a
+compromised application cannot use it as a path to either. Set
+`UBOSS_BINLOG_URL` in `/etc/uboss/backup.env`, pointing at a user created for
+this and nothing else:
+
+```sql
+CREATE USER 'uboss_binlog'@'localhost' IDENTIFIED BY '<long random>';
+GRANT REPLICATION SLAVE, REPLICATION CLIENT, RELOAD ON *.* TO 'uboss_binlog'@'localhost';
+```
+
+No `SELECT` on any table: it reads the log of changes, never the data.
+
+To restore to a moment rather than to last night: restore the dump, then replay
+the decrypted logs up to just before the damage.
+
+```bash
+gpg --batch --decrypt -o mysql-bin.000123 mysql-bin.000123.gpg
+mariadb-binlog --stop-datetime='2026-09-16 14:29:00' mysql-bin.000123   | mariadb -u root -p uboss
+```
 
 ### Object storage
 
@@ -72,6 +103,28 @@ Product media and export files are **not** in the database dump. Under
 `STORAGE_DRIVER=s3`, enable bucket versioning and a lifecycle policy. Under
 `STORAGE_DRIVER=local` there is no durability at all, which is why
 `config/env.ts` refuses to start in production with it.
+
+### Encryption and off-site, which the automation enforces
+
+The manual command above writes a plaintext dump, which is right for a scratch
+restore on a machine you control and wrong for anything you keep. The nightly
+job in `deploy/scripts/backup.sh` therefore does two further things, and a run
+that cannot do them reports failure rather than succeeding quietly:
+
+- **AES-256 on everything it writes** — the dump, the media archive and a copy
+  of `.env` — with a SHA-256 written beside each file. The dump is every
+  customer, address, order and invoice in the system; it must not sit in a
+  directory in clear text.
+- **A verified off-site copy.** `rclone copy` followed by `rclone check`, to a
+  destination on a *different provider or account*. A copy the same compromised
+  password can delete is not an off-site backup.
+
+Both are configured in `/etc/uboss/backup.env` (root-owned, 0600):
+`UBOSS_BACKUP_PASSPHRASE` and `UBOSS_OFFSITE_REMOTE`. The binary-log shipper
+reads the same file for `UBOSS_BINLOG_URL`.
+
+**Store the passphrase somewhere that survives losing the machine.** It is
+deliberately not in the backups, and without it they are noise.
 
 ### Verify the backup, not just the job
 
@@ -111,7 +164,15 @@ Restore drills are a quarterly item in SOP §16.
    CREATE DATABASE uboss_damaged_<date>;
    -- then move tables, or take a dump of the damaged state first
    ```
-3. **Restore the dump** into a clean `uboss`.
+3. **Decrypt the dump, then restore it** into a clean `uboss`. Files written by
+   the nightly job are `db-<stamp>.sql.gz.gpg` with a `.sha256` beside them —
+   check the hash before trusting the bytes, because a half-finished transfer
+   looks exactly like a complete one.
+   ```bash
+   sha256sum -c db-<stamp>.sql.gz.gpg.sha256
+   gpg --batch --decrypt -o db.sql.gz db-<stamp>.sql.gz.gpg
+   gunzip -c db.sql.gz | mariadb -u root -p uboss
+   ```
 4. **Replay binlogs** to the target point, if binary logging is enabled:
    ```bash
    mysqlbinlog --start-datetime="<last dump time>" \
@@ -236,7 +297,12 @@ Things this codebase enforces, and things only the deployment can:
       ```
 - [ ] Separate backup user with `SELECT, LOCK TABLES, SHOW VIEW` only.
 - [ ] Bind MariaDB to a private interface. Never expose 3306 publicly.
-- [ ] TLS terminated in front of the API; `trustProxy` is already on in production.
+- [ ] TLS terminated in front of the API. `trustProxy` is on in production and
+      narrowed to `loopback`, so it trusts the nginx hop and nothing beyond it.
+      **This only works alongside `proxy_set_header X-Forwarded-For $remote_addr`**
+      in `deploy/nginx/snippets/uboss-proxy.conf`, which discards the client's
+      own header. Appending to it instead lets a caller choose its own
+      `request.ip` and walk through the per-IP rate limit and the login lockout.
 - [ ] `/metrics` on an internal port or behind a network policy. It is
       unauthenticated by design (a scraper has no session) and exposes no
       customer data, but it does reveal system shape.

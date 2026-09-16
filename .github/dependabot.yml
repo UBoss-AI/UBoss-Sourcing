@@ -1,0 +1,93 @@
+# =============================================================================
+# Dependency updates, weekly, grouped.
+#
+# Grouped deliberately. Twenty separate pull requests every Monday is how a team
+# learns to ignore Dependabot; one pull request per project, with the patch and
+# minor bumps together, is one review somebody actually does.
+#
+# Security updates are NOT grouped - GitHub opens those individually as soon as
+# an advisory lands, and that is right: a security fix should not wait behind a
+# grouped update that is failing CI for an unrelated reason.
+#
+# Major versions are left out on purpose. A major is a piece of work with its
+# own testing, not something to merge on a Monday morning - and two of them in
+# this repository (`@hookform/resolvers` and `zod`) must move together or form
+# validation silently stops running.
+# =============================================================================
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /backend
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/Warsaw
+    open-pull-requests-limit: 3
+    groups:
+      backend:
+        patterns: ['*']
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: '*'
+        update-types: [version-update:semver-major]
+
+  - package-ecosystem: npm
+    directory: /apps/customer-web
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/Warsaw
+    open-pull-requests-limit: 3
+    groups:
+      customer-web:
+        patterns: ['*']
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: '*'
+        update-types: [version-update:semver-major]
+
+  - package-ecosystem: npm
+    directory: /apps/admin-web
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/Warsaw
+    open-pull-requests-limit: 3
+    groups:
+      admin-web:
+        patterns: ['*']
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: '*'
+        update-types: [version-update:semver-major]
+
+  - package-ecosystem: npm
+    directory: /apps/logistics-web
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/Warsaw
+    open-pull-requests-limit: 3
+    groups:
+      logistics-web:
+        patterns: ['*']
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: '*'
+        update-types: [version-update:semver-major]
+
+  # The workflows in .github/workflows pin actions by major tag. This is what
+  # notices when one of those tags stops being maintained.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/Warsaw
+    open-pull-requests-limit: 2

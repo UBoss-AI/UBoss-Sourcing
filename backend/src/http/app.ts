@@ -138,10 +138,28 @@ declare module 'fastify' {
 export async function buildApp() {
   const app = Fastify({
     loggerInstance: logger,
-    // Trust the proxy only in production, where one actually terminates TLS.
-    // Trusting it in development would let a local client spoof its own IP and
-    // walk straight through the per-IP rate limits.
-    trustProxy: isProduction,
+    // Trust the proxy only in production, where one actually terminates TLS,
+    // and trust exactly ONE address rather than `true`.
+    //
+    // `true` trusts the whole forwarded chain and takes its left-most entry as
+    // `request.ip`. Every request here arrives from nginx on loopback - the
+    // unit forces `API_HOST=127.0.0.1` and the upstream block names
+    // `127.0.0.1:400x` - so `'loopback'` means that hop is trusted and nothing
+    // else is: a header forged further out cannot extend the chain past it.
+    // `'loopback'` rather than the literal address because it also covers `::1`,
+    // which is what an upstream spelled `localhost` resolves to first. Paired
+    // with `proxy_set_header X-Forwarded-For $remote_addr` in
+    // deploy/nginx/snippets/uboss-proxy.conf, which discards the client's own
+    // header before it ever reaches here.
+    //
+    // Both halves matter. Either alone closes the hole for the shipped
+    // topology; both together survive somebody adding a second proxy and
+    // forgetting one of them. Without them a client picks its own `request.ip`
+    // and walks through the per-IP rate limit and the per-IP login lockout.
+    //
+    // Trusting the header in development would let a local client do the same,
+    // so there it stays off.
+    trustProxy: isProduction ? 'loopback' : false,
     bodyLimit: 1_048_576,
     // Fastify's default is 100 characters per route parameter, and a slug is a
     // route parameter. Product and category slugs are VARCHAR(255) and come

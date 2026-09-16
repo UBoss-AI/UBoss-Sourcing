@@ -20,8 +20,30 @@
 #
 # A backup on the same disk as the database protects against a bad UPDATE and
 # against nothing else - not a failed volume, not a deleted VPS, not
-# ransomware. The off-site step at the bottom is commented out because only the
-# operator knows where it should go, and it is the most important line here.
+# ransomware. So the off-site copy is not an optional extra at the bottom of
+# this script: it is configured, it is verified, and a run that cannot do it
+# EXITS NON-ZERO so the timer records a failure and somebody is told.
+#
+# TWO SETTINGS, BOTH REQUIRED. Put them in the systemd unit, never in this file:
+#
+#   UBOSS_BACKUP_PASSPHRASE   Encrypts the dump, the media archive and .env.
+#                             The dump is every customer, address, order and
+#                             invoice in the system; it must not sit in a
+#                             directory in clear text.
+#   UBOSS_OFFSITE_REMOTE      An rclone destination, e.g. `b2:uboss-backups`.
+#                             It must be a DIFFERENT PROVIDER OR ACCOUNT from
+#                             the one hosting this machine - a copy that the
+#                             same compromised password can delete is not an
+#                             off-site backup.
+#
+# KEEP THE PASSPHRASE SOMEWHERE THAT SURVIVES LOSING THIS MACHINE. It is not in
+# the backups, deliberately. A passphrase stored beside the ciphertext protects
+# nothing, and a passphrase stored only on the server protects nothing once the
+# server is gone.
+#
+# To run without an off-site copy anyway - a staging box, a first rehearsal -
+# set UBOSS_OFFSITE_OPTOUT=true. It is spelled out like that so that nobody
+# reaches production having skipped it by accident.
 # =============================================================================
 set -Eeuo pipefail
 
@@ -50,6 +72,38 @@ set -a; . "$SHARED/.env"; set +a
 
 STAMP="$(date -u +%Y%m%d-%H%M%S)"
 mkdir -p "$DEST"
+
+[[ -n "${UBOSS_BACKUP_PASSPHRASE:-}" ]] || die \
+  "UBOSS_BACKUP_PASSPHRASE is not set. The dump holds every customer, address,
+   order and invoice in this system and will not be written unencrypted. Set it
+   in the systemd unit and store it off this machine - see the header."
+
+# -----------------------------------------------------------------------------
+# Encrypt in place, then remove the plaintext.
+#
+# `--passphrase-fd 3` rather than `--passphrase`, because an argument is visible
+# to every process on the box in `ps` output for as long as gpg runs. fd 3 is
+# used rather than stdin so that stdin stays free.
+#
+# `shred` rather than `rm`: the plaintext dump existed on the disk, and on a
+# machine that may later be resized, snapshotted or handed back to the provider
+# the difference is worth the few seconds.
+# -----------------------------------------------------------------------------
+encrypt_file() {
+  local plain="$1" cipher="$1.gpg"
+
+  gpg --batch --yes --symmetric --cipher-algo AES256 \
+      --passphrase-fd 3 -o "$cipher" "$plain" 3<<<"$UBOSS_BACKUP_PASSPHRASE"
+
+  shred -u "$plain" 2>/dev/null || rm -f "$plain"
+
+  # Written next to the file, and copied off-site with it. This is what lets a
+  # restore prove the bytes it has are the bytes that were taken, rather than
+  # something a half-finished transfer left behind.
+  sha256sum "$cipher" > "$cipher.sha256"
+
+  printf '%s' "$cipher"
+}
 
 # The credentials come from DATABASE_URL rather than a second copy in this
 # file. One place for them, and rotating the password does not mean remembering
@@ -117,6 +171,10 @@ zcat "$DUMP" | tail -5 | grep -q "Dump completed" || die "dump has no completion
 
 log "database ok ($(numfmt --to=iec "$size"))"
 
+# Encrypted only AFTER the three checks above, which have to read the plaintext.
+log "encrypting the dump"
+DUMP="$(encrypt_file "$DUMP")"
+
 # --- What this script deliberately does NOT check -----------------------------
 #
 # The three checks above prove the FILE is complete. They do not prove the dump
@@ -144,10 +202,14 @@ log "database ok ($(numfmt --to=iec "$size"))"
 # not recoverable from anywhere else - a restore without these leaves a
 # catalogue of broken images.
 # -----------------------------------------------------------------------------
+# Encrypted like the dump, and for the same reason: alongside product
+# photographs this tree holds generated invoices, seller certificates and
+# proof-of-delivery images, all of which name people.
 if [[ -d "$MEDIA" ]]; then
   log "archiving media"
   tar -czf "$DEST/media-$STAMP.tar.gz" -C "$(dirname "$MEDIA")" "$(basename "$MEDIA")"
   log "media ok ($(numfmt --to=iec "$(stat -c%s "$DEST/media-$STAMP.tar.gz")"))"
+  encrypt_file "$DEST/media-$STAMP.tar.gz" >/dev/null
 fi
 
 # -----------------------------------------------------------------------------
@@ -158,26 +220,53 @@ fi
 # application that reads it - the session and token secrets in particular
 # cannot be regenerated without signing every user out.
 #
-# Set UBOSS_BACKUP_PASSPHRASE in the systemd unit, not here.
+# Set UBOSS_BACKUP_PASSPHRASE in the systemd unit, not here. Its absence is a
+# hard failure at the top of this script, so by here it is always present.
+#
+# Copied first rather than encrypted in place, because encrypt_file shreds its
+# input and that input would be the live environment file.
 # -----------------------------------------------------------------------------
-if [[ -n "${UBOSS_BACKUP_PASSPHRASE:-}" ]]; then
-  log "encrypting the environment file"
-  gpg --batch --yes --symmetric --cipher-algo AES256 \
-      --passphrase "$UBOSS_BACKUP_PASSPHRASE" \
-      -o "$DEST/env-$STAMP.gpg" "$SHARED/.env"
-else
-  log "UBOSS_BACKUP_PASSPHRASE is not set - skipping the environment file (see docs/DEPLOYMENT.md)"
-fi
+log "encrypting the environment file"
+cp "$SHARED/.env" "$DEST/env-$STAMP"
+encrypt_file "$DEST/env-$STAMP" >/dev/null
 
 # -----------------------------------------------------------------------------
 # Off-site
 #
-# UNCOMMENT ONE OF THESE. Everything above protects against a mistake; only
-# this protects against losing the machine.
+# Everything above protects against a mistake. Only this protects against
+# losing the machine - so it is configuration rather than a comment, and a run
+# that cannot complete it fails.
+#
+# `rclone copy` then `rclone check`: the copy can succeed quietly against a
+# misconfigured remote, and a backup strategy nobody has verified is the
+# failure this whole script exists to prevent. The check is one-way because the
+# remote legitimately holds older runs this box has already pruned.
 # -----------------------------------------------------------------------------
-# rclone copy "$DEST" remote:uboss-backups/ --max-age 25h
-# aws s3 sync "$DEST" s3://your-bucket/uboss/ --exclude '*' --include "*-$STAMP.*"
-# rsync -az --delete "$DEST/" backup-host:/srv/uboss-backups/
+if [[ -n "${UBOSS_OFFSITE_REMOTE:-}" ]]; then
+  command -v rclone >/dev/null || die "UBOSS_OFFSITE_REMOTE is set but rclone is not installed"
+
+  log "copying off-site to $UBOSS_OFFSITE_REMOTE"
+  rclone copy "$DEST" "$UBOSS_OFFSITE_REMOTE" --max-age 25h --checksum \
+    || die "off-site copy FAILED - the only copy of tonight's backup is on this machine"
+
+  rclone check "$DEST" "$UBOSS_OFFSITE_REMOTE" --one-way --max-age 25h \
+    || die "off-site VERIFY failed - rclone reported a copy but the files are not there"
+
+  log "off-site copy verified"
+  OFFSITE_OK=1
+elif [[ "${UBOSS_OFFSITE_OPTOUT:-false}" == "true" ]]; then
+  log "UBOSS_OFFSITE_OPTOUT=true - keeping backups on this machine only"
+  OFFSITE_OK=1
+else
+  # Not `die`: the local backup above is good and the prune below should still
+  # run. But the script must not report success, or the timer looks healthy
+  # while the only copy of the data sits on the disk it is meant to survive.
+  printf '\033[1;31mxx\033[0m %s\n' \
+    "NO OFF-SITE BACKUP. Set UBOSS_OFFSITE_REMOTE (an rclone destination on a
+     different provider or account), or UBOSS_OFFSITE_OPTOUT=true to accept
+     that losing this machine loses the data. See docs/DEPLOYMENT.md section 17." >&2
+  OFFSITE_OK=0
+fi
 
 # -----------------------------------------------------------------------------
 # Prune
@@ -187,8 +276,20 @@ fi
 # deletes the last good copy.
 # -----------------------------------------------------------------------------
 log "pruning backups older than $KEEP_DAYS days"
-find "$DEST" -maxdepth 1 -type f -name 'db-*.sql.gz'     -mtime "+$KEEP_DAYS" -delete
-find "$DEST" -maxdepth 1 -type f -name 'media-*.tar.gz'  -mtime "+$KEEP_DAYS" -delete
-find "$DEST" -maxdepth 1 -type f -name 'env-*.gpg'       -mtime "+$KEEP_DAYS" -delete
+find "$DEST" -maxdepth 1 -type f -name 'db-*.sql.gz.gpg'       -mtime "+$KEEP_DAYS" -delete
+find "$DEST" -maxdepth 1 -type f -name 'db-*.sql.gz.gpg.sha256' -mtime "+$KEEP_DAYS" -delete
+find "$DEST" -maxdepth 1 -type f -name 'media-*.tar.gz.gpg'    -mtime "+$KEEP_DAYS" -delete
+find "$DEST" -maxdepth 1 -type f -name 'media-*.tar.gz.gpg.sha256' -mtime "+$KEEP_DAYS" -delete
+find "$DEST" -maxdepth 1 -type f -name 'env-*.gpg'             -mtime "+$KEEP_DAYS" -delete
+find "$DEST" -maxdepth 1 -type f -name 'env-*.gpg.sha256'      -mtime "+$KEEP_DAYS" -delete
+
+# Leftovers from a run that died between writing a plaintext file and encrypting
+# it. Narrow patterns: this must never match the encrypted copies above.
+find "$DEST" -maxdepth 1 -type f -name 'db-*.sql.gz'    -delete
+find "$DEST" -maxdepth 1 -type f -name 'media-*.tar.gz' -delete
+
+if (( OFFSITE_OK == 0 )); then
+  die "backup $STAMP is on this machine ONLY - see the message above"
+fi
 
 log "backup $STAMP complete"

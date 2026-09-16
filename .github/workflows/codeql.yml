@@ -1,0 +1,56 @@
+# =============================================================================
+# Static analysis.
+#
+# Kept in its own file rather than as a job in ci.yml for one practical reason:
+# on a PRIVATE repository CodeQL needs GitHub Advanced Security, and without it
+# this workflow fails at the `init` step with a licensing error. That is a red
+# mark on a setting, not on the code, and it should not be mixed in with the red
+# mark that means a test failed.
+#
+# If this repository is private and does not have Advanced Security, disable
+# this workflow in the Actions settings rather than deleting it - the day the
+# repository becomes public, or the licence is bought, is the day you want it
+# back.
+#
+# The schedule matters as much as the pull-request trigger: most findings here
+# arrive because a new query was published, not because somebody wrote new code.
+# =============================================================================
+name: CodeQL
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    # Monday, early. A weekly run against unchanged code is the point.
+    - cron: '17 4 * * 1'
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          # security-extended over the default: this application takes card
+          # payments and holds personal data, so the extra queries - including
+          # the ones about server-side request forgery and unsafe deserialisation
+          # - are the ones worth the extra minutes.
+          queries: security-extended
+
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:javascript-typescript

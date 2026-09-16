@@ -1,0 +1,45 @@
+# Ships the MariaDB binary logs off-site. Driven by uboss-binlog.timer.
+#
+# This is the difference between a recovery point of 24 hours and one of about
+# fifteen minutes. See deploy/scripts/ship-binlogs.sh and docs/DEPLOYMENT.md
+# section 17.
+[Unit]
+Description=UBOSS binary log shipping (point-in-time recovery)
+Documentation=file:/srv/uboss/current/docs/DEPLOYMENT.md
+After=mariadb.service
+Requires=mariadb.service
+
+[Service]
+Type=oneshot
+User=uboss
+Group=uboss
+
+# The same root-owned, 0600 file the nightly backup reads. It needs
+# UBOSS_BACKUP_PASSPHRASE and UBOSS_OFFSITE_REMOTE from there, plus one of its
+# own:
+#
+#   UBOSS_BINLOG_URL=mysql://uboss_binlog:<pass>@127.0.0.1:3306/
+#
+# whose user holds REPLICATION SLAVE, REPLICATION CLIENT and RELOAD - and no
+# SELECT on anything. It reads the log of changes, never the tables.
+EnvironmentFile=/etc/uboss/backup.env
+
+ExecStart=/srv/uboss/repo/deploy/scripts/ship-binlogs.sh
+
+# Never compete with customers for the disk or the uplink.
+IOSchedulingClass=idle
+Nice=19
+
+# Fifteen minutes is the interval; a run that has not finished in ten is stuck
+# on the network, and the next tick skips anyway because of the lock.
+TimeoutStartSec=600
+
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/srv/uboss/backups
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=uboss-binlog

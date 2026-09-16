@@ -9,11 +9,34 @@ Type=oneshot
 User=uboss
 Group=uboss
 
-# The passphrase that encrypts the environment file in the backup. Set it here
-# rather than in the script, and `chmod 600` this unit if you do - the default
-# unit permissions are world-readable.
+# --- The two settings backup.sh requires ------------------------------------
 #
-# Environment=UBOSS_BACKUP_PASSPHRASE=...
+# DO NOT put either of these in this file. Unit files are world-readable by
+# default and end up in `systemctl cat` output, support tickets and
+# screenshots. Use a root-owned drop-in that nothing else can read:
+#
+#   sudo install -d -m 700 /etc/uboss
+#   sudo install -m 600 /dev/null /etc/uboss/backup.env
+#   sudo nano /etc/uboss/backup.env      # write the two lines below into it
+#
+#     UBOSS_BACKUP_PASSPHRASE=<long random>
+#     UBOSS_OFFSITE_REMOTE=<rclone remote, e.g. b2:uboss-backups>
+#
+# UBOSS_BACKUP_PASSPHRASE encrypts the database dump, the media archive and the
+# environment file. The dump is every customer, address, order and invoice in
+# the system. **Store this passphrase somewhere that survives losing this
+# machine** - it is deliberately not in the backups, and without it they are
+# noise.
+#
+# UBOSS_OFFSITE_REMOTE must point at a DIFFERENT PROVIDER OR ACCOUNT from the
+# one hosting this server. A copy the same compromised password can delete is
+# not an off-site backup. Without it the script still takes a good local backup
+# but EXITS NON-ZERO, so this unit shows as failed and the backup-age alert
+# fires - which is the intended behaviour, not a bug to work around.
+#
+# To accept local-only backups on purpose (staging, a first rehearsal), add
+# UBOSS_OFFSITE_OPTOUT=true to the same file.
+EnvironmentFile=/etc/uboss/backup.env
 
 ExecStart=/srv/uboss/repo/deploy/scripts/backup.sh
 
