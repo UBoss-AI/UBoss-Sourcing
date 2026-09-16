@@ -45,6 +45,7 @@
  * looking for something needs to find it and then learn it is out of stock, not
  * fail to find it at all.
  */
+import type { OrderingUnit } from '../../domain/ordering-unit.js';
 import type { Prisma } from '../../generated/prisma/client.js';
 import { newId } from '../../infra/ids.js';
 import { logger } from '../../infra/logger.js';
@@ -263,7 +264,7 @@ export async function cheapestOfferFor(
   productId: string,
   variantKey: string,
   currency: string | null,
-): Promise<{ id: string } | null> {
+): Promise<OfferSellTerms | null> {
   const where: Prisma.SellerOfferWhereInput = {
     productId,
     variantKey,
@@ -275,6 +276,29 @@ export async function cheapestOfferFor(
   return client.sellerOffer.findFirst({
     where,
     orderBy: [{ priceMinor: 'asc' }, { createdAt: 'asc' }],
-    select: { id: true },
+    select: OFFER_SELL_TERMS,
   });
+}
+
+/**
+ * How a seller's offer is counted, read straight off the offer.
+ *
+ * Selected together everywhere, because a caller that fetched the id and then
+ * assumed the unit is the caller that charges a piece price for five hundred
+ * pieces. Whoever resolves an offer resolves its terms in the same query.
+ */
+export const OFFER_SELL_TERMS = {
+  id: true,
+  orderingUnit: true,
+  minimumOrderQuantity: true,
+  orderIncrement: true,
+  maximumOrderQuantity: true,
+} as const;
+
+export interface OfferSellTerms {
+  id: string;
+  orderingUnit: OrderingUnit;
+  minimumOrderQuantity: number;
+  orderIncrement: number;
+  maximumOrderQuantity: number | null;
 }

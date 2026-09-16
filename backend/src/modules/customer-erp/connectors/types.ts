@@ -133,8 +133,42 @@ export interface PurchaseOrderLine {
   sku: string;
   productId: string;
   name: string;
+  /**
+   * PIECES. Always, on every line, whatever the buyer chose to count in.
+   *
+   * This is the figure the warehouse picks and the invoice charges, and it has
+   * never been anything else - see `ordering-unit.ts`. What changed is that
+   * `unitOfMeasure` now says so, instead of being null.
+   */
   quantity: number;
+  /**
+   * The unit `quantity` is counted in.
+   *
+   * Sent rather than left null, because a receiving ERP given a bare number
+   * has to guess - and the two plausible guesses here differ by a factor of
+   * five hundred. "A box of ten, sent as quantity 1 and read as ten units" is
+   * the failure the mapping service's own header warns about; this is the same
+   * failure with a bigger multiplier.
+   *
+   * A connection that maps its own UOM field still wins: this is the default
+   * the pipeline fills in, not an override.
+   */
   unitOfMeasure: string | null;
+  /**
+   * What the buyer actually chose, beside what it came to.
+   *
+   * `sellUnit` is CARTON on the operator's own line and PIECE on a third-party
+   * seller's; `sellUnitQuantity` is how many of them; `piecesPerSellUnit` is
+   * the conversion, frozen at the moment of purchase.
+   *
+   * Sent so a buyer's ERP can raise a purchase order that reads the way the
+   * person who placed it remembers it - "2 cartons" rather than "1,000" - while
+   * still receiving stock in the unit its own inventory is kept in. On a
+   * seller's line all three are the piece, the piece count, and 1.
+   */
+  sellUnit: string;
+  sellUnitQuantity: number;
+  piecesPerSellUnit: number;
   unitPriceMinor: string;
   netAmountMinor: string;
   taxAmountMinor: string;

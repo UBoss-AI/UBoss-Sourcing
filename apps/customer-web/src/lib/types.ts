@@ -299,6 +299,30 @@ export interface ProductPurchasability {
   canAddToCart: boolean;
 }
 
+/**
+ * What this product's price is a price FOR.
+ *
+ * `price` on a product is, and always has been, the price of one PIECE. This
+ * says what to multiply it by before printing it, and what to call the result.
+ * The operator's own products are cartons; a product a third-party seller
+ * described is a piece, and its factor is 1.
+ *
+ * Decided by the SERVER from product ownership, on the same code path that
+ * prices the basket - never worked out in the browser. A storefront that
+ * derived it would eventually derive it differently from the cart, and the
+ * shopper would be quoted one figure and charged another.
+ */
+export interface ProductSellUnit {
+  unit: 'PIECE' | 'INNER_PACK' | 'OUTER_CARTON';
+  piecesPerUnit: number;
+  /** In sell units. What the quantity control must not go below. */
+  minimumOrderQuantity: number;
+  /** In sell units. What the quantity control must step by. */
+  orderIncrement: number;
+  maximumOrderQuantity: number | null;
+  isPricedPerSellUnit: boolean;
+}
+
 export interface TaxInfo {
   code: string;
   name: string;
@@ -365,6 +389,14 @@ export interface Product {
   purchasability?: ProductPurchasability | null;
   /** The product-level packing row. Null where none was recorded. */
   packaging?: ProductPackaging | null;
+  /**
+   * What `price` above is a price for, and how the quantity control may move.
+   *
+   * Optional so a response cached from before it existed still renders.
+   * `sellUnitOf()` supplies the operator's carton in that case, which is what
+   * every such response can only have been - see the note there.
+   */
+  sellUnit?: ProductSellUnit | null;
 }
 
 /** One company named on a listing under Union product law. */
@@ -550,9 +582,23 @@ export interface CartLine {
    */
   ordering?: {
     unit: 'PIECE' | 'INNER_PACK' | 'OUTER_CARTON';
-    /** Cartons. */
+    /** Cartons on the operator's line; pieces on a seller's. */
     unitQuantity: number;
     piecesPerUnit: number;
+    /**
+     * How this line's quantity may be moved, in its own unit.
+     *
+     * The OFFER's terms on a seller's line, so the stepper steps by what the
+     * seller will actually pick and pack rather than by the product row's
+     * figure — which on a product a seller described was typed by somebody
+     * else and is not applied to their line by the server either.
+     *
+     * Optional: a response cached from before these existed steps by one,
+     * which is what it did before.
+     */
+    minimumOrderQuantity?: number;
+    orderIncrement?: number;
+    maximumOrderQuantity?: number | null;
   } | null;
   /** Per-line problems: out of stock, below minimum, no longer published. */
   issues: CartIssue[];
@@ -693,6 +739,14 @@ export interface WishlistItem {
   /** Null where the product is not priced in the requested currency. */
   priceMinor: string | null;
   currency: string;
+  /**
+   * What `priceMinor` is a price for — the operator's carton, or a piece.
+   *
+   * Optional so a response cached from before it existed still renders; the
+   * carton is what it falls back to, which is what every such response can
+   * only have been. See `sellUnitOf`.
+   */
+  sellUnit?: ProductSellUnit | null;
   /** Whether it could be added to a basket right now. */
   isAvailable: boolean;
   savedAt: string;
@@ -1117,6 +1171,19 @@ export interface ScheduleEstimateLine {
   lineTotal: Money;
   /** Null for a product this store does not count. Never read as zero. */
   availableQty: number | null;
+  /**
+   * What this line is counted in, and the conversion it was quoted on.
+   *
+   * Sent by `quoteSchedule` and previously not declared here, so every screen
+   * showing an estimate multiplied the quoted piece price by the deployment's
+   * carton instead — right for the operator's lines and five hundred times too
+   * large for a seller's.
+   */
+  ordering?: {
+    unit: 'PIECE' | 'INNER_PACK' | 'OUTER_CARTON';
+    unitQuantity: number;
+    piecesPerUnit: number;
+  } | null;
   substitutedFor: { productId: string; name: string } | null;
 }
 

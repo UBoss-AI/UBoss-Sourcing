@@ -374,6 +374,16 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
             )
             .max(50)
             .optional(),
+          /**
+           * The submitted revision this moderator read.
+           *
+           * Sent by the review screen from what it was given. The decision is
+           * refused if the listing has moved on since - a seller resubmitting
+           * a newer version, or another administrator deciding first. Optional
+           * so an older client is not broken by it, and every current one
+           * sends it.
+           */
+          expectedVersion: z.number().int().min(0).nullable().optional(),
         })
         .parse(request.body);
 
@@ -383,6 +393,7 @@ export function registerAdminSellerRoutes(app: FastifyInstance): Promise<void> {
         comment: body.comment ?? null,
         ...(body.fieldComments === undefined ? {} : { fieldComments: body.fieldComments }),
         adminUserId: auth.id,
+        expectedVersion: body.expectedVersion ?? null,
         correlationId: request.correlationId,
       });
 

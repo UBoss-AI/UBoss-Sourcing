@@ -73,6 +73,19 @@ const PUBLIC_PRODUCT_SELECT_BASE = {
   qtyIncrement: true,
   isRecurringEligible: true,
   isStockTracked: true,
+
+  /**
+   * Public because it decides what the price on the card MEANS.
+   *
+   * The operator sells cartons, so the operator's per-piece figure is rendered
+   * as a carton total. A third-party seller sells pieces, and rendering their
+   * offer the same way multiplies it by five hundred on the shopper's screen
+   * before they have clicked anything. A storefront that could not see this
+   * flag has no way to tell the two apart, and the bug it caused was silent in
+   * exactly that way - every number was real, and one of them was five hundred
+   * times too big.
+   */
+  isMarketplaceProduct: true,
   hasVariants: true,
   publishedAt: true,
   metaTitle: true,

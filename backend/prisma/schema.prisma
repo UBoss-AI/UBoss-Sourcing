@@ -8497,6 +8497,18 @@ model SellerListingDraft {
   /// sellers leave two open; this is what stops one overwriting the other.
   version Int @default(0)
 
+  /// The value of `version` at the moment the seller pressed submit.
+  ///
+  /// What the moderator is actually looking at. `version` alone cannot answer
+  /// that: it moves every time the seller saves, and a seller whose listing
+  /// came back as ACTION_REQUIRED edits it while the queue still holds a row
+  /// for the revision they sent. An approval carries this number back, and the
+  /// decision is refused if it no longer matches - so an approval of revision
+  /// N can never land on revision N+1.
+  ///
+  /// Null on a draft that has never been submitted.
+  submittedVersion Int?
+
   createdByProfileId String? @db.Char(26)
 
   createdAt DateTime @default(now()) @db.DateTime(3)

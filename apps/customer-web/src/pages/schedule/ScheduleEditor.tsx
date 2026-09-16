@@ -54,6 +54,7 @@ import { cx } from '@/lib/cx';
 import { errorMessage } from '@/lib/errors';
 import { formatDateTime, formatMoney, formatMoneyMinor, formatNumber } from '@/lib/format';
 import { cartonPriceMinor, usePiecesPerCarton } from '@/lib/packaging';
+import type { OrderingUnit } from '@/lib/packaging';
 import { clampToRules } from '@/lib/quantity-rules';
 import { scheduleStatusLabel, scheduleStatusTone } from '@/lib/order-status';
 import { cadenceDraftFrom, isSameCadence, recurrencePayload } from '@/lib/schedule-cadence';
@@ -143,6 +144,22 @@ function lockReason(schedule: Schedule): 'cancelled' | 'completed' | 'cutoff' | 
   }
 
   return null;
+}
+
+/**
+ * The conversion a quoted line was priced on.
+ *
+ * Off the line's own snapshot wherever there is one, and the deployment's
+ * carton only where a quote predates the field. Never the deployment's carton
+ * on a line that named its own - that is the substitution that multiplies a
+ * seller's piece price by five hundred.
+ */
+function pricedPiecesPerUnit(
+  ordering: { unit: OrderingUnit; piecesPerUnit: number } | null | undefined,
+  piecesPerCarton: number,
+): number {
+  const snapshot = ordering?.piecesPerUnit;
+  return snapshot !== undefined && snapshot > 0 ? snapshot : piecesPerCarton;
 }
 
 export function ScheduleEditor({ scheduleId }: { scheduleId: string }): React.JSX.Element {
@@ -555,13 +572,22 @@ export function ScheduleEditor({ scheduleId }: { scheduleId: string }): React.JS
 
                     {priced !== undefined && (
                       <p className="mt-1 text-xs text-ink-muted">
-                        {/* The carton price, like every other price a
-                            customer is shown. The estimate quotes a piece,
-                            which is what the plan is worked out from and
-                            nothing anybody can order. */}
+                        {/* Multiplied by the LINE's own factor, not by the
+                            deployment's carton.
+
+                            The estimate quotes a piece, which is what the plan
+                            is worked out from. On the operator's line that is
+                            a figure nobody can order and the carton is what to
+                            show; on a seller's line the piece IS the thing
+                            being bought, and the same multiplication put their
+                            price up by five hundred. The quote carries the
+                            line's own conversion for exactly this. */}
                         {t('scheduleCart.unitPrice', {
                           price: formatMoneyMinor(
-                            cartonPriceMinor(priced.unitPrice.minor, piecesPerCarton),
+                            cartonPriceMinor(
+                              priced.unitPrice.minor,
+                              pricedPiecesPerUnit(priced.ordering, piecesPerCarton),
+                            ),
                             priced.unitPrice.currency,
                           ),
                         })}

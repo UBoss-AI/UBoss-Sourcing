@@ -365,7 +365,10 @@ export async function reserveStock(
  * `recordStockMovement` already sums: one query that cannot drift beats an
  * increment that drifts the first time a caller forgets it.
  */
-async function refreshOfferTotals(tx: PrismaTransaction, offerId: string): Promise<void> {
+export async function refreshOfferTotals(
+  tx: PrismaTransaction,
+  offerId: string,
+): Promise<void> {
   const totals = await tx.sellerInventory.aggregate({
     where: { offerId },
     _sum: { availableQuantity: true, reservedQuantity: true },

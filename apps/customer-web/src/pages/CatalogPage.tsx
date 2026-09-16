@@ -410,11 +410,24 @@ function FilterFields({
   /**
    * The shopper types carton prices; the API filters on piece prices.
    *
-   * Every other figure on this page is what a carton costs, so a filter that
+   * Most figures on this page are what a carton costs, so a filter that
    * quietly meant "per piece" would return an empty grid for any number a
    * shopper actually typed. The URL parameter stays in piece minor units - it
    * is the API's own contract and a bookmarked link has to keep working - and
    * the conversion happens on the way in and on the way out, here.
+   *
+   * THE GRID NOW MIXES TWO BASES, and this filter does not try to hide it.
+   *
+   * The operator's products are priced per carton on the card; a third-party
+   * seller's are priced per piece. Both are STORED per piece, and the range is
+   * matched against that stored figure - so the sort and the filter compare
+   * like with like, and a shopper asking for "cheapest first" gets a genuine
+   * ordering rather than one where every seller's line sits below every
+   * carton simply for being counted differently.
+   *
+   * What that costs is that a range typed as carton money also admits seller
+   * listings at the equivalent per-piece price, which is surprising unless it
+   * is said. So it is said, under the boxes.
    */
   const piecesPerCarton = usePiecesPerCarton();
   const toCarton = (pieceMinor: string): string =>
@@ -613,6 +626,11 @@ function FilterFields({
               })}
             </p>
           )}
+
+          {/* What the range is matched on, said once rather than left to be
+              worked out from a surprising result. See the note above the
+              conversion. */}
+          <p className="mt-1 text-xs text-ink-subtle">{t('catalog.priceBasisNote')}</p>
 
           {priceError !== null && (
             <p role="alert" className="mt-2 text-xs font-medium text-danger">

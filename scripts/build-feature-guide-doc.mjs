@@ -177,23 +177,28 @@ bullets([
   'View tax and market price context before adding to the basket.',
   'Add the item to the basket or save it for later where the relevant feature is available.',
 ]);
-h2('3.3 Ordering by the carton');
-p('Everything in this shop is sold by the carton, and one carton holds 500 pieces. There is nothing else to choose: no single pieces, no inner boxes, and no different carton size to check from one product to the next. The buyer types a number of cartons, and every price they have been shown is the price of one carton.');
+h2('3.3 What a buyer counts in: cartons and pieces');
+p('There are two ways something is sold here, and which one applies depends on who is selling it. What the shop itself sells is sold by the carton, and one carton holds 500 pieces: the buyer types a number of cartons, and every price they have been shown is the price of one carton. What an outside seller sells is sold by the piece, at that seller’s own price for one piece.');
+p('The buyer never has to work out which is which. Every product says it, in plain words, under its name and above its quantity box, and the price beside those words is the price of the thing named.');
 table(['What the customer sees', 'What the customer can do'], [
-  ['A line under every product in the list: “One carton has 500 pieces”, with the price of a carton beside it.', 'Compare prices down a page knowing that every figure is the price of the same thing.'],
-  ['The same sentence above the quantity box on the product page: “Ordered by the carton · one carton has 500 pieces”.', 'Know what the number they are about to type is counting, before they type it.'],
+  ['A line under every product in the list: either “One carton has 500 pieces” or “Sold by the piece”, with the matching price beside it.', 'Compare prices down a page knowing exactly what each figure is the price of.'],
+  ['The same sentence above the quantity box on the product page: “Ordered by the carton · one carton has 500 pieces”, or “Sold by the piece” with the seller’s smallest order and any step beside it.', 'Know what the number they are about to type is counting, and what they are allowed to type, before they type it.'],
   ['Under the price, what that price is the price of: “per carton of 500 pieces”, with the price of one piece beside it.', 'Read what a carton costs straight off the page, and check the arithmetic behind it if they want to.'],
-  ['A Packaging and ordering section stating the carton, with a ready-reckoner for 1, 2, 5 and 10 cartons.', 'Answer “if I order five cartons, how many is that?” without a calculator.'],
+  ['A Packaging and ordering section stating the carton, with a ready-reckoner for 1, 2, 5 and 10 cartons. On something sold by the piece the section simply says so, because one piece is one piece and there is nothing to convert.', 'Answer “if I order five cartons, how many is that?” without a calculator — and not be shown a conversion table that does not apply.'],
   ['A running line under the quantity box: “That comes to 1,000 pieces.”', 'See the number the warehouse will pick before committing to it.'],
   ['A Dimensions section with the box sizes as the supplier recorded them.', 'Check what will arrive against the space they have.'],
 ]);
 bullets([
-  'The basket counts cartons and prints the piece total under them, and so does a repeating plan.',
-  'An order shows both: how many cartons were ordered, and the pieces those came to. The invoice names the packing in the line description, such as “Disposable Syringe 5ml (2 cartons of 500)”.',
+  'The basket counts cartons and prints the piece total under them, and so does a repeating plan. A line sold by the piece is counted in pieces, and the basket says so under the quantity.',
+  'An order shows both: how many cartons were ordered, and the pieces those came to. The invoice names the packing in the line description, such as “Disposable Syringe 5ml (2 cartons of 500)”. A line bought by the piece is shown and invoiced in pieces, with no mention of a carton.',
+  'One basket can hold both at once — cartons from the shop and pieces from two different sellers — and each line keeps its own unit, its own quantity and its own price. Nothing is converted between them.',
   'A carton is not a minimum order. Any minimum is a separate rule the business sets, and the page says so.',
-  'The price of a carton is the price of one piece multiplied by 500. It is not a total: tax, discounts and how many cartons were ordered are still worked out at the basket and the checkout.',
+  'A seller sets their own smallest order and their own step, in pieces. A buyer asking for fewer than the smallest is moved up to it, and a quantity between two steps is moved up to the next one.',
+  'The price of a carton is the price of one piece multiplied by 500. The price of a piece is simply the price of a piece. Neither is a total: tax, discounts and how many were ordered are still worked out at the basket and the checkout.',
 ]);
 note('How many is in a carton', 'Five hundred is a setting, not a fixed part of the software. A business that packs its own product differently changes one number, and every price, every quantity box and every page that says “one carton has 500 pieces” follows it.', C.purple);
+note('Why an outside seller’s goods are not sold by the carton', 'The carton belongs to the business running this shop — it is how they pack and ship their own product. An outside seller packs their own way, and their price is the price of one item. Applying the shop’s carton to their listing would have shown a ten-rupee item at five thousand rupees, and charged it. So what a line is counted in is decided by who is selling it, worked out by the system before any quantity or price is calculated, and never guessed from the name of the product or the department it sits in.', C.orange);
+note('Searching by price when both appear together', 'A price range is matched on what one piece costs, for everything, so that “cheapest first” genuinely orders a page rather than putting every by-the-piece listing below every carton. The search panel says this under the boxes, because a range typed in carton money will also bring back by-the-piece listings at the matching piece price.', C.blue);
 h2('3.4 AI Mode');
 p('AI Mode is a full page, not a small floating chat window. A visitor can ask product questions before opening an account when guest access is allowed. A signed-in customer can keep a conversation history.');
 bullets([
@@ -397,10 +402,12 @@ table(['Step', 'What the seller does', 'What the system does'], [
   ['Choose a category', 'Searches or browses to the right category.', 'Creates a saved draft straight away, so closing the tab loses nothing.'],
   ['Choose a brand', 'Picks an approved brand, or asks for one that is missing.', 'Offers brands already used by this seller first. A requested brand can be used on a draft while it is decided, but not on anything on sale.'],
   ['Add product details', 'Fills in five sections: photos, price and stock, description, extra information, and compliance.', 'Counts each section as it is filled in, shows what is missing, and puts every problem beside the field that caused it.'],
+  ['Set the price and how it is sold', 'Enters the price per piece, the stock in pieces at each address, the smallest order, any step, and any per-order limit.', 'Labels every one of those boxes in pieces, refuses a smallest order or a step below one, and refuses a limit that no allowed quantity could reach.'],
 ], [1800, 4100, 4100]);
 note('There is a department for whatever they sell', 'A new business starts with twenty-five departments already in place — medical, laboratory, industrial supplies, tools, electrical, electronics, IT, phones, office, packaging, safety, cleaning, building, automotive, agriculture, catering, furniture, home, clothing, beauty, sports, toys, books, chemicals and energy — each with sections underneath. A seller therefore always has somewhere sensible to file a product, whatever it is, from the first day the shop opens.', C.teal);
 note('The questions fit the product', 'A seller listing a bolt is asked for a thread size, a length and a grade. A seller listing a power supply is asked for voltage and whether it ships with a battery. A seller listing a medical instrument is asked for a device class and a UDI. Nobody is asked for somebody else’s fields.', C.teal);
 note('Photographs', 'Every listing needs a front view and a picture of the packaging. A category that asks for a barcode or UDI also asks for a readable photograph of that label, and one that asks about sterility asks for a photograph of the seal.', C.blue);
+note('A seller prices one piece', 'Everything on the price and stock step is counted in pieces, and every label says so: price per piece, stock in pieces, smallest order, and step. That is what a buyer will see and what the seller will be paid on. Nothing a seller lists is shown to buyers as a carton, and the shop’s own carton of 500 never appears on a seller’s listing.', C.teal);
 
 h2('6a.6 Photographs and videos');
 p('A seller uploads real photographs and real videos against a listing. Photographs go into named slots so that everybody knows which picture is which; videos are a separate strip, because a video either exists or it does not.');
@@ -431,7 +438,10 @@ bullets([
   'An approved listing is created switched off, so the seller chooses when it goes on sale rather than it appearing at an unexpected hour with no stock.',
   'A listing sent back arrives with comments attached to the individual fields that need changing.',
   'A listing still waiting to be checked can be taken back at any time, changed, and sent again. Nothing is lost by doing so — it only loses its place in the queue.',
+  'A listing that is with the marketplace cannot be edited while it is being read. Sending a changed version means sending a new one, so the person reading it is never looking at something that is quietly changing underneath them.',
+  'Nobody has to be online at the same time. A seller can send a listing in and sign out; staff can decide it hours or days later; and the decision, the reason and any comments are waiting in the seller’s account the next time they sign in.',
 ]);
+note('The decision applies to the version that was read', 'If a seller sends in a newer version while a member of staff has the older one open, or if a colleague has already decided it, the decision is refused and the screen says which of the two happened. Approving a version nobody read is the mistake this prevents, and it is worth preventing because the record would afterwards show that person approving it.', C.orange);
 note('Putting it on sale is what buyers see', 'The moment a seller switches an approved listing on, it appears in its category, in search and in the filter counts of the shop, at the seller’s own price. Pausing it takes it straight back out again. That is the whole meaning of the on-sale switch: the shop shows what somebody is actually selling right now, not everything that has ever been approved.', C.teal);
 note('Whose price a buyer sees', 'Where several sellers offer the same thing, the shop shows the lowest price anyone is currently selling it at, and the basket buys from that seller. Prices are never converted between currencies to make that comparison — a seller who prices in rupees is compared with other rupee prices and with nothing else.', C.purple);
 
@@ -993,8 +1003,8 @@ h1('16. Simple End-to-End Examples');
 h2('Example A — Customer buys a product');
 table(['Step', 'Customer action', 'System response'], [
   ['1', 'Opens home page and searches products.', 'Shows catalogue items available in the chosen country/currency.'],
-  ['2', 'Opens a product, chooses variant and how many cartons.', 'Checks product/variant relationship and quantity rules, and shows what the cartons come to in pieces.'],
-  ['3', 'Adds item to basket.', 'Turns the cartons into pieces using its own carton size, stores the basket line and recalculates server-owned totals.'],
+  ['2', 'Opens a product, chooses variant and how many — cartons where the shop is selling it, pieces where an outside seller is.', 'Checks product/variant relationship and quantity rules, and shows what the choice comes to in pieces.'],
+  ['3', 'Adds item to basket.', 'Works out who is selling the line first, then turns the chosen quantity into pieces — by its own carton size for the shop’s own goods, and one for one for a seller’s. Stores the basket line and recalculates server-owned totals.'],
   ['4', 'Reviews “Where this can ship from”.', 'Shows eligible warehouses, lead-time/fee information and any partial-stock warnings.'],
   ['5', 'Chooses a warehouse preference and continues.', 'Records preference; actual total remains the clearly shown checkout total.'],
   ['6', 'Selects address/payment choice and places order.', 'Creates one order, reserves stock, applies tax/coupon/limits and starts payment/approval path.'],

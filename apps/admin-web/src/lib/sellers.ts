@@ -196,6 +196,14 @@ export interface ListingReviewRow {
   categoryId: string | null;
   brandName: string | null;
   submittedAt: string | null;
+  /**
+   * Which revision is waiting.
+   *
+   * Shown in the queue so two administrators looking at the same row can see
+   * they are looking at the same thing - and so one of them can tell, after a
+   * refusal, that the seller has sent something newer since.
+   */
+  submittedVersion: number | null;
   openIssues: number;
 }
 
@@ -279,6 +287,14 @@ export interface ListingReviewDetail {
     mediaSlots: { slot: string; label: string; isRequired: boolean }[];
   } | null;
   submittedAt: string | null;
+  /**
+   * The revision this screen is showing, which its decision must carry back.
+   *
+   * Not an autosave counter: it is the version AS SUBMITTED, so it changes
+   * only when the listing leaves the queue and comes back. The server refuses
+   * a decision quoting a revision that is no longer the one under review.
+   */
+  submittedVersion: number | null;
   reviewComment: string | null;
   updatedAt: string;
 }
@@ -293,6 +309,14 @@ export function decideListing(
     status: 'APPROVED' | 'ACTION_REQUIRED' | 'REJECTED';
     comment?: string | null;
     fieldComments?: { section?: string | null; attributeKey?: string | null; message: string }[];
+    /**
+     * The revision that was read, from `fetchListingForReview`.
+     *
+     * Always sent. A decision without it is a decision that will land on
+     * whatever the listing happens to hold when it arrives, which on a queue
+     * two people share is a review of one revision approving another.
+     */
+    expectedVersion?: number | null;
   },
 ): Promise<{ offerId: string | null }> {
   return api.post<{ offerId: string | null }>(`/admin/seller-listings/${id}/decision`, body);

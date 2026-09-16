@@ -47,7 +47,7 @@ import { Badge, Button, ButtonLink, ErrorState, LoadingState } from '@/component
 import { api } from '@/lib/api';
 import { autoPayApi, autoPayKeys } from '@/lib/autopay';
 import { formatMoney, formatMoneyMinor, formatNumber } from '@/lib/format';
-import { cartonPriceMinor } from '@/lib/packaging';
+import { cartonPriceMinor, lineIsSoldByThePiece } from '@/lib/packaging';
 import { useI18n } from '@/i18n/i18n-context';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import type { Cart, CartIssue, CartLine, PurchaseRules } from '@/lib/types';
@@ -55,6 +55,29 @@ import { errorMessage } from '@/lib/errors';
 
 /** The cart's rules, widened back to what the quantity control expects. */
 function toPurchaseRules(line: CartLine): PurchaseRules {
+  /*
+   * A seller's line is stepped by the SELLER's terms, not the operator's.
+   *
+   * `line.purchaseRules` is the PRODUCT row's minimum and increment, written in
+   * pieces by whoever catalogued the product. On a product a third-party
+   * seller described, that is a figure the seller never agreed to - and the
+   * server does not apply it to their line either, so a stepper that used it
+   * would refuse quantities the basket would happily accept, or offer ones it
+   * would silently round.
+   *
+   * The offer's own terms arrive on `line.ordering` for exactly this.
+   */
+  const ordering = line.ordering ?? null;
+
+  if (ordering !== null && lineIsSoldByThePiece(ordering)) {
+    return {
+      minOrderQty: ordering.minimumOrderQuantity ?? 1,
+      maxOrderQty: ordering.maximumOrderQuantity ?? null,
+      qtyIncrement: ordering.orderIncrement ?? 1,
+      isRecurringEligible: line.isRecurringEligible,
+    };
+  }
+
   return {
     ...line.purchaseRules,
     isRecurringEligible: line.isRecurringEligible,
@@ -153,6 +176,10 @@ function LineRow({
   const rules = toPurchaseRules(line);
   const available = typeof line.availableQty === 'number' ? line.availableQty : null;
   const packs = cartonsOf(line, t);
+
+  // Read off the LINE's own snapshot, so a basket agreed in cartons keeps
+  // reading in cartons whatever the product is sold as today.
+  const soldByThePiece = lineIsSoldByThePiece(line.ordering ?? null);
 
   /**
    * What one carton of this line costs.
@@ -269,9 +296,19 @@ function LineRow({
               {formatMoney(line.lineTotal)}
             </span>
             <span className="mt-0.5 block text-xxs text-ink-muted">
-              {cartonPrice === null
-                ? `${formatMoney(line.unitPrice)} each`
-                : t('cart.perCarton', { price: cartonPrice })}
+              {/* Three cases, and the middle one is the new one. A carton line
+                  quotes the carton; a seller's line quotes the piece, which is
+                  what its price already is; and a line from before either says
+                  "each", which is all that can honestly be said about it.
+
+                  The English "each" was previously hardcoded here and reached
+                  every seller line - untranslated, on the one row where the
+                  basis most needed saying. */}
+              {cartonPrice !== null
+                ? t('cart.perCarton', { price: cartonPrice })
+                : soldByThePiece
+                  ? t('cart.perPiece', { price: formatMoney(line.unitPrice) })
+                  : t('cart.eachPrice', { price: formatMoney(line.unitPrice) })}
               {line.taxInclusive
                 ? ` ${t('cart.taxIncludedNote')}`
                 : ` ${t('cart.plusTaxRate', { rate: line.taxRatePercent })}`}
@@ -306,16 +343,30 @@ function LineRow({
               the basket was agreed at even if the packing has been corrected
               since. The server re-derives the pieces from the same snapshot. */}
           {packs === null ? (
-            <QuantityInput
-              value={line.quantity}
-              onChange={onQuantityChange}
-              rules={rules}
-              label={t('cart.quantity')}
-              disabled={isBusy}
-              // Two lines of one product mean two steppers a screen reader would
-              // otherwise hear as "Increase quantity by 5" twice over.
-              itemName={line.variantName ?? line.name}
-            />
+            <div>
+              <QuantityInput
+                value={line.quantity}
+                onChange={onQuantityChange}
+                rules={rules}
+                label={t('cart.quantity')}
+                disabled={isBusy}
+                // Two lines of one product mean two steppers a screen reader
+                // would otherwise hear as "Increase quantity by 5" twice over.
+                itemName={line.variantName ?? line.name}
+              />
+              {/* What the number above counts, said once, so a basket holding
+                  the operator's cartons beside a seller's pieces does not
+                  leave the shopper converting between two unlabelled columns. */}
+              {soldByThePiece && (
+                <p className="mt-1 text-xxs tabular text-ink-subtle">
+                  {t('packaging.soldByThePiece')}
+                  {rules.minOrderQty > 1 &&
+                    ` · ${t('packaging.minimumNPieces', { n: formatNumber(rules.minOrderQty) })}`}
+                  {rules.qtyIncrement > 1 &&
+                    ` · ${t('packaging.inMultiplesOfNPieces', { n: formatNumber(rules.qtyIncrement) })}`}
+                </p>
+              )}
+            </div>
           ) : (
             <div>
               <QuantityInput

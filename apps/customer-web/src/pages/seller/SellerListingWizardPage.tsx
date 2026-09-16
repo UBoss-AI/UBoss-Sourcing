@@ -47,6 +47,7 @@ import {
   createDraft,
   fetchBrands,
   fetchDraft,
+  fetchLocations,
   previewTitle,
   requestBrand,
   saveDraft,
@@ -1627,11 +1628,19 @@ function AttributeField({
 }
 
 /**
- * Price, minimum order and stock.
+ * Price, minimum order and stock — all of it per PIECE.
  *
  * These live on the OFFER rather than in `attributes`, because they are the
  * seller's commercial terms rather than facts about the product - and because
  * they survive into `SellerOffer` unchanged when the listing is approved.
+ *
+ * **Every field here counts pieces, and every label says so.** The operator's
+ * own catalogue is sold by the carton, and a seller filling in a box marked
+ * only "Price per unit" on a marketplace that also sells five-hundred-piece
+ * cartons has a fair reason to wonder which one they are pricing. The answer
+ * is always the piece: it is what the storefront will print, what the basket
+ * will multiply, and what the seller will be settled against. Saying it four
+ * times on one panel is cheaper than one seller pricing a carton by mistake.
  *
  * The price is typed in major units and converted here, once. Two conversions
  * in two places is how a price ends up a hundred times too large.
@@ -1652,7 +1661,50 @@ function OfferFields({
   );
   const [currency, setCurrency] = useState(draft.offer.currency ?? 'EUR');
   const [moq, setMoq] = useState(String(draft.offer.minimumOrderQuantity ?? 1));
+  const [increment, setIncrement] = useState(String(draft.offer.orderIncrement ?? 1));
+  const [maximum, setMaximum] = useState(
+    draft.offer.maximumOrderQuantity === null || draft.offer.maximumOrderQuantity === undefined
+      ? ''
+      : String(draft.offer.maximumOrderQuantity),
+  );
   const [sku, setSku] = useState(draft.sellerSku ?? '');
+
+  /*
+   * Opening stock, per location, in pieces.
+   *
+   * Applied to `SellerInventory` on approval with a movement each, so the
+   * ledger explains where it came from. Typed here rather than after approval
+   * because a listing that goes on sale with nothing behind it is a listing
+   * every buyer bounces off - and the seller has the figure in front of them
+   * now, not in three days when a moderator gets to it.
+   */
+  const [stock, setStock] = useState<Record<string, string>>(() =>
+    Object.fromEntries(
+      draft.stock.map((entry) => [entry.locationId, String(entry.availableQuantity)]),
+    ),
+  );
+
+  /*
+   * The seller's own places, for the stock boxes below.
+   *
+   * Fetched here rather than carried on the draft: `toView` is the one place
+   * the whole wizard is assembled and it stays synchronous, and a seller's
+   * locations are the same list on every draft they open - so this is a query
+   * the cache answers once rather than a join on every autosave.
+   */
+  const locationsQuery = useQuery({
+    queryKey: ['seller', 'locations'],
+    queryFn: fetchLocations,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const locations = locationsQuery.data?.locations ?? [];
+
+  /** A whole number at or above `floor`, or the fallback. */
+  const whole = (value: string, fallback: number, floor = 1): number => {
+    const parsed = Number(value.trim());
+    return Number.isInteger(parsed) && parsed >= floor ? parsed : fallback;
+  };
 
   return (
     <div className="space-y-4 rounded-lg border border-border bg-surface-sunken px-4 py-4">
@@ -1670,10 +1722,15 @@ function OfferFields({
           )}
         </Field>
 
-        <Field label="Minimum order quantity" required>
-          {({ inputId }) => (
+        <Field
+          label="Minimum order quantity"
+          hint="In pieces. The fewest a buyer may take in one order."
+          required
+        >
+          {({ inputId, describedBy }) => (
             <Input
               id={inputId}
+              aria-describedby={describedBy}
               type="number"
               min={1}
               value={moq}
@@ -1684,16 +1741,57 @@ function OfferFields({
           )}
         </Field>
 
-        <Field label="Price per unit" required>
-          {({ inputId }) => (
+        <Field
+          label="Price per piece"
+          hint="What one piece costs. Buyers see this figure, not a carton price."
+          required
+        >
+          {({ inputId, describedBy }) => (
             <Input
               id={inputId}
+              aria-describedby={describedBy}
               type="number"
               min={0}
               step="0.01"
               value={price}
               onChange={(event) => {
                 setPrice(event.currentTarget.value);
+              }}
+            />
+          )}
+        </Field>
+
+        <Field
+          label="Quantity increment"
+          hint="In pieces. Leave at 1 unless buyers must order in fixed multiples."
+        >
+          {({ inputId, describedBy }) => (
+            <Input
+              id={inputId}
+              aria-describedby={describedBy}
+              type="number"
+              min={1}
+              value={increment}
+              onChange={(event) => {
+                setIncrement(event.currentTarget.value);
+              }}
+            />
+          )}
+        </Field>
+
+        <Field
+          label="Maximum order quantity"
+          hint="In pieces. Leave blank for no limit."
+        >
+          {({ inputId, describedBy }) => (
+            <Input
+              id={inputId}
+              aria-describedby={describedBy}
+              type="number"
+              min={1}
+              value={maximum}
+              onChange={(event) => {
+                setMaximum(event.currentTarget.value);
               }}
             />
           )}
@@ -1718,6 +1816,44 @@ function OfferFields({
         </Field>
       </div>
 
+      {/* Stock, per location, in pieces.
+
+          One box per place the seller holds it, because that is how it will be
+          picked: a single total would have to be split by somebody, and the
+          only person who knows the split is the seller. */}
+      {locations.length > 0 && (
+        <div>
+          <p className="text-sm font-medium text-ink">Stock in pieces</p>
+          <p className="mt-0.5 text-xs text-ink-muted">
+            How many pieces you have, at each of your locations.
+          </p>
+
+          <div className="mt-3 grid gap-4 sm:grid-cols-2">
+            {locations.map((location) => (
+              <Field key={location.id} label={location.name}>
+                {({ inputId }) => (
+                  <Input
+                    id={inputId}
+                    type="number"
+                    min={0}
+                    value={stock[location.id] ?? ''}
+                    onChange={(event) => {
+                      const typed = event.currentTarget.value;
+                      setStock((current) => ({ ...current, [location.id]: typed }));
+                    }}
+                  />
+                )}
+              </Field>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <p className="text-xs text-ink-muted">
+        Everything on this panel is counted in pieces. Buyers order pieces, and
+        you are paid per piece.
+      </p>
+
       <Button
         variant="primary"
         size="sm"
@@ -1734,8 +1870,20 @@ function OfferFields({
             offer: {
               priceMinor: minor,
               currency,
-              minimumOrderQuantity: Number(moq) > 0 ? Number(moq) : 1,
+              minimumOrderQuantity: whole(moq, 1),
+              orderIncrement: whole(increment, 1),
+              // Blank means no ceiling, which is not the same as zero - and
+              // zero would make the offer unbuyable at every quantity.
+              maximumOrderQuantity: maximum.trim().length === 0 ? null : whole(maximum, 1),
             },
+            ...(locations.length === 0
+              ? {}
+              : {
+                  stock: locations.map((location) => ({
+                    locationId: location.id,
+                    availableQuantity: Math.max(0, whole(stock[location.id] ?? '', 0, 0)),
+                  })),
+                }),
           });
         }}
       >

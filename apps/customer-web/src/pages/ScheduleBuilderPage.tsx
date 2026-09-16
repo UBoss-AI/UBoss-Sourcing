@@ -47,6 +47,7 @@ import {
   DEFAULT_PIECES_PER_CARTON,
   SELLING_UNIT,
   cartonPriceMinor,
+  lineIsSoldByThePiece,
   usePiecesPerCarton,
 } from '@/lib/packaging';
 import { clampToRules } from '@/lib/quantity-rules';
@@ -558,7 +559,14 @@ export function ScheduleBuilderPage(): React.JSX.Element {
                         )}
                         <span className="text-xs text-ink-muted">
                           {' '}
-                          {t('productCard.perCartonLabel')}
+                          {/* The figure above was already right - it is
+                              multiplied by the LINE's own snapshot, which is 1
+                              on a seller's piece line. Only the word beside it
+                              was wrong, and a correct number under the wrong
+                              noun is the harder error to spot. */}
+                          {lineIsSoldByThePiece(item.ordering)
+                            ? t('productCard.perPieceLabel')
+                            : t('productCard.perCartonLabel')}
                         </span>
                       </p>
                     )}

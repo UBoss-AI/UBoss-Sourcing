@@ -41,7 +41,12 @@
 import { Link } from 'react-router-dom';
 import { Badge } from './ui';
 import { formatMoneyMinor, formatNumber } from '@/lib/format';
-import { cartonPriceMinor, usePiecesPerCarton } from '@/lib/packaging';
+import {
+  isSoldByThePiece,
+  sellUnitOf,
+  sellUnitPriceMinor,
+  usePiecesPerCarton,
+} from '@/lib/packaging';
 import type { Product } from '@/lib/types';
 import { useTilt } from '@/lib/pointer-tilt';
 import { useI18n } from '@/i18n/i18n-context';
@@ -113,19 +118,25 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
   const model = product.variants.length === 1 ? (product.variants[0]?.name ?? null) : null;
 
   /*
-   * Priced by the carton, like everything else a shopper sees.
+   * Priced in whatever this product is actually sold in.
    *
-   * The catalogue prices a piece and the shop sells a carton of them, so a
-   * card that printed the piece price would be quoting a figure nobody can
-   * buy - and it would be five hundred times smaller than the one on the
-   * product page it links to.
+   * The catalogue prices a PIECE. The operator sells cartons of them, so an
+   * operator card that printed the piece price would be quoting a figure
+   * nobody can buy - and it would be five hundred times smaller than the one
+   * on the product page it links to. A third-party seller sells pieces, so
+   * their card printing a carton price was five hundred times too BIG, which
+   * is the direction that actually costs somebody an order.
+   *
+   * The basis comes off the server per product. This card does not decide it.
    */
   const piecesPerCarton = usePiecesPerCarton();
-  const cartonMinor = cartonPriceMinor(product.price.minor, piecesPerCarton);
-  const compareAtCartonMinor =
+  const sellUnit = sellUnitOf(product, piecesPerCarton);
+  const soldByThePiece = isSoldByThePiece(sellUnit);
+  const displayMinor = sellUnitPriceMinor(product.price.minor, sellUnit);
+  const compareAtDisplayMinor =
     product.compareAtPrice === null
       ? null
-      : cartonPriceMinor(product.compareAtPrice.minor, piecesPerCarton);
+      : sellUnitPriceMinor(product.compareAtPrice.minor, sellUnit);
 
   /*
    * The bottom strip only earns its hairline when it has something in it.
@@ -276,10 +287,14 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
         )}
 
         {/* What the price below is the price of. Every card in the grid says
-            it, because a shopper scanning prices is comparing cartons and has
-            to know that is what they are comparing. */}
+            it, because a grid now mixes the operator's cartons with sellers'
+            pieces - and a shopper comparing two figures on two bases without
+            being told which is which is being misled by arithmetic that is
+            individually correct. */}
         <p className="truncate text-xxs tabular text-ink-subtle">
-          {t('packaging.oneCartonHas', { n: formatNumber(piecesPerCarton) })}
+          {soldByThePiece
+            ? t('packaging.soldByThePiece')
+            : t('packaging.oneCartonHas', { n: formatNumber(piecesPerCarton) })}
         </p>
 
         <div className="mt-auto pt-1">
@@ -296,18 +311,18 @@ export function ProductCard({ product }: { product: Product }): React.JSX.Elemen
             <>
               <p className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                 <span className="text-base font-semibold tabular text-ink">
-                  {formatMoneyMinor(cartonMinor, product.price.currency)}
+                  {formatMoneyMinor(displayMinor, product.price.currency)}
                 </span>
-                {hasDiscount && compareAtCartonMinor !== null && (
+                {hasDiscount && compareAtDisplayMinor !== null && (
                   <span className="text-xs tabular text-ink-subtle">
                     {/* The strikethrough is the only thing that says "was" to a
                         sighted reader; a screen reader gets the word itself. */}
                     <span className="sr-only">{t('productCard.was')}</span>
-                    <s>{formatMoneyMinor(compareAtCartonMinor, product.price.currency)}</s>
+                    <s>{formatMoneyMinor(compareAtDisplayMinor, product.price.currency)}</s>
                   </span>
                 )}
                 <span className="text-xxs text-ink-subtle">
-                  {t('productCard.perCartonLabel')}
+                  {soldByThePiece ? t('productCard.perPieceLabel') : t('productCard.perCartonLabel')}
                 </span>
               </p>
 

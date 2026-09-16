@@ -20,6 +20,7 @@
  *     listing to go live at 2am with no stock.
  */
 import { ErrorCode, badRequest, conflict, notFound } from '../../domain/errors.js';
+import { SELLER_SELLING_UNIT } from '../../domain/ordering-unit.js';
 import { assertListingTransition } from '../../domain/seller-state.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
@@ -30,6 +31,7 @@ import { OPERATOR_LABEL, recordSellerAudit } from './audit.service.js';
 import { listDocumentsForReview } from './document.service.js';
 import { transitionApplication } from './account.service.js';
 import { loadListingSchema } from './listing-schema.service.js';
+import { refreshOfferTotals } from './inventory.service.js';
 import { notifySeller } from './notification.service.js';
 import type { SellerApplicationStatusName } from '../../domain/seller-state.js';
 
@@ -357,6 +359,8 @@ export async function listReviewQueue(query: { page?: number; pageSize?: number 
     categoryId: string | null;
     brandName: string | null;
     submittedAt: string | null;
+    /** The revision waiting, so two moderators can see they hold the same one. */
+    submittedVersion: number | null;
     openIssues: number;
   }[];
   total: number;
@@ -391,6 +395,7 @@ export async function listReviewQueue(query: { page?: number; pageSize?: number 
       categoryId: row.categoryId,
       brandName: row.brand?.name ?? null,
       submittedAt: row.submittedAt?.toISOString() ?? null,
+      submittedVersion: row.submittedVersion,
       openIssues: row._count.issues,
     })),
     total,
@@ -455,6 +460,13 @@ export async function readListingForReview(draftId: string): Promise<{
   }[];
   schema: Awaited<ReturnType<typeof loadListingSchema>> | null;
   submittedAt: string | null;
+  /**
+   * The revision under review, which the decision must carry back.
+   *
+   * Not `version`: that moves on every autosave, and a moderator holding it
+   * would be holding a number that changes while the seller is still typing.
+   */
+  submittedVersion: number | null;
   reviewComment: string | null;
   updatedAt: string;
 }> {
@@ -515,9 +527,30 @@ export async function readListingForReview(draftId: string): Promise<{
     })),
     schema,
     submittedAt: row.submittedAt?.toISOString() ?? null,
+    submittedVersion: row.submittedVersion,
     reviewComment: row.reviewComment,
     updatedAt: row.updatedAt.toISOString(),
   };
+}
+
+/**
+ * A whole number the wizard typed, or the fallback.
+ *
+ * `Number(undefined)` is NaN and `Number(null)` is 0, and both of them reach
+ * the database as a minimum order quantity - one of which refuses every
+ * purchase and the other of which refuses nothing. Neither is what the seller
+ * left the field blank to mean.
+ */
+function positiveInt(value: unknown, fallback: number): number {
+  const parsed = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(parsed) && parsed >= 1 ? Math.trunc(parsed) : fallback;
+}
+
+/** The same, for a ceiling that is genuinely optional. */
+function optionalPositiveInt(value: unknown): number | null {
+  if (value === null || value === undefined || value === '') return null;
+  const parsed = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(parsed) && parsed >= 1 ? Math.trunc(parsed) : null;
 }
 
 function asJsonObject(value: unknown): Record<string, unknown> {
@@ -540,6 +573,26 @@ export interface ListingDecisionInput {
   fieldComments?: { section?: string | null; attributeKey?: string | null; message: string }[];
   adminUserId: string;
   correlationId?: string | null;
+  /**
+   * The submitted revision the moderator was looking at.
+   *
+   * When supplied, the decision applies only if the listing is still on that
+   * revision. Two things it stops, and they are different problems with the
+   * same shape:
+   *
+   *   - **An approval of revision N landing on revision N+1.** A listing sent
+   *     back for changes, edited and resubmitted while a moderator had the old
+   *     one open would otherwise be approved on the strength of a review of
+   *     content that is no longer there.
+   *
+   *   - **Two moderators deciding at once.** The second decision would
+   *     silently overwrite the first, and a rejection would become an approval
+   *     nobody made.
+   *
+   * Optional, so an internal caller that has just read the row itself - or a
+   * worker - is not forced to invent one. Every human decision sends it.
+   */
+  expectedVersion?: number | null;
 }
 
 /**
@@ -560,6 +613,42 @@ export async function decideListing(input: ListingDecisionInput): Promise<{ offe
     });
 
     if (draft === null) throw notFound('Listing');
+
+    /*
+     * Still the revision this moderator read?
+     *
+     * Checked BEFORE the transition, so the message a moderator gets is about
+     * the thing that actually happened - "somebody changed this" rather than
+     * "this listing is already approved", which is what the state machine
+     * would say a moment later and which sends them looking for the wrong
+     * problem.
+     *
+     * Same code and same shape as the seller application's guard in
+     * `transitionApplication`: there is one way to lose a decision to a race in
+     * this system, and one error for it.
+     */
+    if (
+      input.expectedVersion !== undefined &&
+      input.expectedVersion !== null &&
+      draft.submittedVersion !== input.expectedVersion
+    ) {
+      throw conflict(
+        ErrorCode.SELLER_STALE_VERSION,
+        draft.status === 'PENDING_REVIEW'
+          ? 'The seller has sent a newer version of this listing since you opened it. Reload to review what they sent.'
+          : 'Another administrator has already decided this listing. Reload to see their decision.',
+        [
+          {
+            code: 'STALE_REVISION',
+            meta: {
+              expected: input.expectedVersion,
+              actual: draft.submittedVersion ?? 0,
+              status: draft.status,
+            },
+          },
+        ],
+      );
+    }
 
     assertListingTransition({
       from: draft.status,
@@ -589,6 +678,18 @@ export async function decideListing(input: ListingDecisionInput): Promise<{ offe
         reviewComment: input.comment ?? null,
         reviewedByUserId: input.adminUserId,
         reviewedAt: now,
+        /*
+         * Nothing is under review any more.
+         *
+         * `submittedVersion` means "the revision a moderator is deciding on",
+         * and once one has decided there is no such revision until the seller
+         * sends another. Clearing it is what makes a SECOND moderator holding
+         * the same number get told somebody has already decided, rather than
+         * getting the state machine complaining that a listing cannot move
+         * from REJECTED to APPROVED - which is true, and sends them looking
+         * for the wrong problem.
+         */
+        submittedVersion: null,
       },
     });
 
@@ -749,11 +850,25 @@ async function publishApprovedListing(
       // header of this file. A listing approved at 2am with no stock allocated
       // would otherwise go straight in front of buyers.
       status: 'INACTIVE',
+      /*
+       * Pieces, stated rather than left to the column default.
+       *
+       * A third-party seller sells by the piece: their price is a price per
+       * piece and their stock is a count of pieces. Relying on the default
+       * would mean a later change to it silently re-denominating every listing
+       * approved before the change, and the number it would re-denominate is
+       * the price a buyer is charged.
+       */
+      orderingUnit: SELLER_SELLING_UNIT,
       priceMinor,
       currency,
       taxClassId: text('taxClassId'),
-      minimumOrderQuantity: Number(offerJson['minimumOrderQuantity'] ?? 1),
-      orderIncrement: Number(offerJson['orderIncrement'] ?? 1),
+      minimumOrderQuantity: positiveInt(offerJson['minimumOrderQuantity'], 1),
+      orderIncrement: positiveInt(offerJson['orderIncrement'], 1),
+      // Carried across at last. A seller who set a per-order ceiling in the
+      // wizard had it dropped on approval, so the ceiling they agreed to with
+      // their own warehouse was never enforced against a buyer.
+      maximumOrderQuantity: optionalPositiveInt(offerJson['maximumOrderQuantity']),
       sourceDraftId: draftId,
       sellingRegionsJson: (offerJson['sellingRegions'] ?? []) as never,
     },
@@ -791,6 +906,18 @@ async function publishApprovedListing(
       },
     });
   }
+
+  /*
+   * Roll the opening stock up onto the offer.
+   *
+   * `SellerOffer.availableQuantity` is the denormalised total the buyer's page
+   * and the seller's listings table both read - nothing walks the locations at
+   * read time. Creating the location rows without refreshing it left every
+   * newly approved listing at zero: the seller pressed "Put on sale", the
+   * listing went live, and the product page said out of stock with stock
+   * sitting in the ledger underneath it.
+   */
+  await refreshOfferTotals(tx, offerId);
 
   /*
    * Carry the seller's photographs onto the catalogue product.

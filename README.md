@@ -1028,6 +1028,19 @@ Enforced in code. Changing any of them is a deliberate act rather than an edit.
   offer takes the product out of every category; a price change moves the grid
   with it. The offer stays the only figure anybody is charged — the projection
   exists so the catalogue can find and sort the product, never to price it.
+- **What a line is counted in is decided by who is selling it.** The operator
+  sells cartons of `PIECES_PER_CARTON` pieces; a third-party seller sells
+  pieces, at their own minimum and step. The basket resolves the offer *before*
+  it resolves the quantity, because deciding "how many pieces is this" first can
+  only ever produce the operator's answer — and the operator's answer on a
+  seller's line multiplies their price by the carton. Never decided from a
+  category, a route or a string comparison: it comes from product ownership and
+  the offer's own stored unit, on the server. A request naming the wrong unit on
+  a seller's offer is refused rather than reinterpreted.
+- **A listing decision applies to the revision that was reviewed.** A moderator
+  carries `submittedVersion` back with their decision, and it is refused if the
+  seller has resubmitted or a colleague has already decided. Approval makes a
+  listing *eligible*; the seller still has to put it on sale.
 - **A file is never called clean because nothing looked at it.** No malware
   scanner ships here, so an upload records `SCANNER_UNCONFIGURED`, the state is
   shown wherever the document is, and whether an unscanned file may be opened is

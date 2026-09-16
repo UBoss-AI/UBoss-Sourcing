@@ -2585,6 +2585,46 @@ A refused submission comes back with one entry per blocking issue, each naming
 its section and its field. "Validation failed" is a dead end on a form with
 sixty inputs across five sections.
 
+#### Which revision is being decided
+
+The whole flow is asynchronous on purpose — a seller submits and signs out, a
+moderator opens the queue hours later — and everything dangerous about that
+arrangement lives in the gap between reading a listing and deciding it.
+
+A moderator opens a submitted listing and goes to lunch. A colleague sends it
+back for changes; the seller edits it and resubmits. The first moderator
+returns and presses Approve. Nothing in the path noticed: the draft was read by
+id, `PENDING_REVIEW → APPROVED` was a legal transition, and whatever the row
+now held was published. A revision nobody had read was approved, with a
+moderator's name on it.
+
+`seller_listing_drafts.submittedVersion` closes it. It is the value of
+`version` at the moment the seller pressed submit — not `version` itself, which
+moves on every autosave and would refuse every ordinary decision. It is stable
+for exactly as long as the listing sits in the queue (`PENDING_REVIEW` is not
+an editable status), and it is cleared the moment a decision is made, so it
+changes precisely when — and only when — the thing under review stops being the
+thing that was sent.
+
+The review screen is told which revision it is showing, prints it beside the
+submitted time, and sends it back as `expectedVersion`. A decision quoting a
+revision that is no longer under review is refused with `SELLER_STALE_VERSION`,
+and the message distinguishes the two cases a moderator can be in: the seller
+has sent something newer, or a colleague has already decided. This is the same
+guard the seller application has always had through `transitionApplication`, and
+it uses the same error code — there is one way to lose a decision to a race in
+this system, and one name for it.
+
+The check runs **before** the state machine, so the message is about what
+actually happened. The machine would otherwise say "a listing cannot move from
+REJECTED to APPROVED", which is true and sends the moderator looking for the
+wrong problem.
+
+A seller cannot edit what is being reviewed at all: `PENDING_REVIEW` is absent
+from `LISTING_EDITABLE_STATUSES`, so a resubmission is a new revision rather
+than a mutation of the one on a moderator's screen. `tests/integration/seller-review-races.test.ts`
+holds all of it.
+
 ### Stock
 
 Keyed by offer **and** location. A seller holding the same catheter in Antwerp
@@ -8091,16 +8131,37 @@ sub-categories sit behind it.
 
 ---
 
-## The carton, which is the only thing this shop sells
+## The carton, and the piece: what a buyer counts in
 
 A wholesale buyer's first question about a consumable is not what it costs, it
 is how it arrives — that is the unit they order in, the unit their store room
 counts in, and the unit their own purchase order is written in.
 
-Here the answer is the same for everything in the catalogue: **one carton, and
-one carton has 500 pieces.** There is no piece to buy, no inner box to buy, and
-no per-product carton size to check. A buyer types a number of cartons and
-every price they have been shown is the price of one of those.
+There are two answers, and **which one applies is decided by who is selling**:
+
+- **The operator sells cartons.** One carton, and one carton has 500 pieces.
+  There is no piece to buy, no inner box to buy, and no per-product carton size
+  to check. A buyer types a number of cartons and every price they have been
+  shown is the price of one of those.
+- **A third-party seller sells pieces.** A marketplace listing is an ordinary
+  one: a price per piece, stock in pieces, and a minimum and a step the seller
+  chose. The operator's carton is the operator's.
+
+That second answer is newer than the first, and it exists because the first was
+being applied to both. A seller listing a ten-rupee item priced it per piece, a
+buyer asked for twelve, and the basket converted "twelve pieces" into one
+carton of five hundred and charged five thousand for it. Nothing was broken in
+a way that showed up as an error: the arithmetic was right, it was simply the
+operator's arithmetic applied to somebody else's offer.
+
+**The fix is an ordering, not a formula.** The basket resolves WHO IS SELLING a
+line before it decides what the line is counted in. Deciding "how many pieces
+is this" first can only ever produce the operator's answer.
+
+Nothing here is decided from a category name, a seller's name, a route or a
+string comparison — it comes from product ownership (`Product.isMarketplaceProduct`)
+and the offer's own `orderingUnit`, on the server, on the same code path that
+prices the basket.
 
 The number is `PIECES_PER_CARTON`, an environment setting that defaults to 500.
 It is a setting rather than a constant because the next company to buy this
@@ -8127,11 +8188,24 @@ out of the public shape. A supplier's "2,000 to a carton" printed beside this
 shop's carton of 500 is a buyer working out which of the two their order was
 priced at, and one of those answers is always wrong.
 
-**The price is always the price of a carton.** The catalogue prices a piece;
-every customer-facing figure is that piece price multiplied by the carton size.
-That happens in one function — `cartonPriceMinor` in
+**The price on a card is the price of one sell unit.** The catalogue prices a
+piece; every customer-facing figure is that piece price multiplied by the
+line's own factor — the carton size on the operator's products, and 1 on a
+seller's. That happens in one function — `sellUnitPriceMinor` in
 `apps/customer-web/src/lib/packaging.ts` — so the card, the product page, the
 basket and the schedule cannot quote four different numbers for one product.
+
+The factor is never worked out in the browser. The server sends it per product
+in a `sellUnit` block on every catalogue read (`unit`, `piecesPerUnit`,
+`minimumOrderQuantity`, `orderIncrement`, `maximumOrderQuantity`), and
+`sellUnitOf()` falls back to the operator's carton where a cached response
+predates the field — the safe direction, because such a response can only be an
+operator product.
+
+**Every card says which basis it is on.** *One carton has 500 pieces*, or *Sold
+by the piece*, under the name on every card in the grid. A grid that mixes the
+two without saying so is a shopper comparing five thousand against ten and
+being misled by arithmetic that is individually correct.
 
 This is not a second pricing engine and must not become one. It multiplies one
 catalogue price by one carton size, both of which came off the server, and it
@@ -8146,6 +8220,16 @@ The catalogue's price filter takes carton prices too, and converts them back to
 piece prices before it calls the API — rounding the floor up and the ceiling
 down, both outwards, so a product sitting exactly on the number somebody typed
 is never hidden by it.
+
+**Sorting and filtering are per piece, for both.** The sort key stays
+`product_prices.basePriceMinor`, which is the piece price of the operator's own
+product and — through the projection in `marketplace-price.service.ts` — the
+piece price of the cheapest live offer on a seller's. Comparing like with like
+is what makes "cheapest first" a genuine ordering; sorting on the displayed
+figure instead would put every seller's line below every carton for no reason
+other than being counted differently. What it costs is that a range typed as
+carton money also admits seller listings at the equivalent per-piece price,
+which is surprising unless it is said — so the filter says it.
 
 Three rules hold this together.
 
@@ -8164,20 +8248,51 @@ snapshotted.** A client that could post its own "pieces per carton" could post
 agreed. That matters most on a schedule, where the charge happens months later
 inside a worker with nobody watching.
 
-**No route can produce a part carton.** `POST /cart/items` accepts
-`orderingUnit: "OUTER_CARTON"` and a carton count, and refuses `PIECE` and
-`INNER_PACK` outright rather than reinterpreting them — a client asking for
-three pieces is told the shop does not sell them. A caller that sends a bare
-`quantity` in pieces (an ERP, an API client, a reorder of an old line) is
-rounded **up** to whole cartons, because part of a carton is not something this
-shop can ship and quietly delivering less than was asked for is the worse of
-the two answers. A product minimum that lands mid-carton takes the whole carton
-above it. `PATCH /cart/items/:id` does the same with a piece count.
+**No route can produce a part carton.** On the operator's own line,
+`POST /cart/items` accepts `orderingUnit: "OUTER_CARTON"` and a carton count. A
+caller that sends a bare `quantity` in pieces (an ERP, an API client, a reorder
+of an old line) is rounded **up** to whole cartons, because part of a carton is
+not something this shop can ship and quietly delivering less than was asked for
+is the worse of the two answers. A product minimum that lands mid-carton takes
+the whole carton above it. `PATCH /cart/items/:id` does the same with a piece
+count.
+
+**A seller's line is refused rather than reinterpreted.** A request naming
+`OUTER_CARTON` against a seller's piece offer gets
+`SELLER_OFFER_UNIT_MISMATCH` and nothing in the basket. The generous reading of
+it hands the shopper five hundred pieces at the price of one, and the factor
+between the two units is why the operator's line can afford to be lenient and
+this one cannot. The asymmetry is deliberate and is documented where it is
+implemented, in `requestedUnits` in `backend/src/domain/ordering-unit.ts`.
 
 **A carton is not a minimum.** A carton of 500 does not mean 500 is the least
 somebody may buy in one order; the minimum order quantity is a separate rule
 the operator sets deliberately, written in pieces. The page says so, because a
 B2B buyer who has met both will assume otherwise.
+
+**A seller's minimum and step are the seller's, and they are applied in sell
+units.** `minimumOrderQuantity`, `orderIncrement` and `maximumOrderQuantity` on
+`seller_offers` are counted in pieces, and `resolveSellUnitQuantity` raises a
+request to the minimum and then onto the step — in that order, so a minimum of
+5 with a step of 4 means 8 rather than 5. The product row's own `minOrderQty`
+is **not** applied to a seller's line: on a product a seller described it was
+typed by somebody who is not the one selling it, and letting the operator's
+"minimum 1,000" overrule a seller who accepts five is how a listing becomes
+unbuyable for a reason nobody can see.
+
+Three ways to make an offer unbuyable are refused when the seller saves it: a
+minimum below one, a step below one, and a ceiling that no quantity satisfying
+the first two can reach. The migration repairs those where old rows carry them,
+because none of the three can change what a buyer is charged.
+
+**What a seller's unit may be.** `PIECE`, and only `PIECE`. Packs, boxes and
+seller-defined cartons are not modelled. An offer found holding anything else
+is taken off sale with `NEEDS_CHANGES` and a message asking the seller to
+restate it, rather than being guessed at — the guess is the difference between
+a price meaning one piece and it meaning five hundred, and there is no safe
+default available. `sellerSellUnit()` refuses it at runtime with
+`SELLER_OFFER_UNIT_UNSUPPORTED`; the migration
+`20260916120000_seller_offers_sold_by_the_piece` flags it for a human.
 
 **What the rest of the system shows.** The basket steps in cartons and prints
 the piece total under it. An order line, on the customer's page and in the
@@ -8190,12 +8305,32 @@ line, and names the packing in the description: *Disposable Syringe 5ml
 told a single price, and every price in its catalogue snapshot is a carton
 price.
 
+**What the rest of the system shows for a seller's line.** The basket steps in
+pieces at the seller's own minimum and increment, and prints *Sold by the
+piece* under the stepper. The product page says it above the quantity box, with
+the minimum and the step beside it. *Packaging and ordering* drops the carton
+size and the ready-reckoner entirely — there is nothing to reckon when one
+piece is one piece, and every line of it would be a claim about the seller's
+listing that is not true. Order and invoice lines read in pieces, because the
+line's own snapshot says `PIECE` and the screens already branch on it.
+
 **In the tests.** `tests/unit/ordering-unit.test.ts` pins the arithmetic and
 the rounding. The integration suite runs with a carton of one piece — see the
 note in `backend/tests/setup.ts` — so that its seeded prices, stock figures and
-expected totals stay the size a person can check by hand; and
-`tests/integration/carton-ordering.test.ts` sets the carton to 500 itself and
-proves the whole path end to end, basket to order row.
+expected totals stay the size a person can check by hand. Two files set the
+carton to 500 themselves, because at one piece to the carton every assertion
+below would pass against the unfixed code:
+
+- `tests/integration/carton-ordering.test.ts` proves the operator's path end to
+  end, basket to order row.
+- `tests/integration/seller-piece-selling.test.ts` proves a seller's twelve
+  pieces cost twelve times the piece price, that the operator's two cartons
+  still come to a thousand, and that both sit in one basket each keeping its
+  own unit and its own price basis.
+- `tests/integration/seller-offer-authority.test.ts` proves where those numbers
+  are allowed to come from: the factor is always 1, a carton request on a piece
+  offer is refused, one seller cannot touch another's offer, and a suspended
+  seller cannot switch an already-approved listing on.
 
 ---
 

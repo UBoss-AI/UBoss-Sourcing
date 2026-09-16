@@ -29,7 +29,7 @@ import { Badge, Button, Field, Input, Spinner } from '@/components/ui';
 import { SearchIcon } from '@/components/icons';
 import { api } from '@/lib/api';
 import { formatMoneyMinor } from '@/lib/format';
-import { cartonPriceMinor, usePiecesPerCarton } from '@/lib/packaging';
+import { sellUnitOf, sellUnitPriceMinor, usePiecesPerCarton } from '@/lib/packaging';
 import { useI18n } from '@/i18n/i18n-context';
 import type { Product } from '@/lib/types';
 
@@ -184,8 +184,15 @@ export function ScheduleProductPicker({
                       <span className="block truncate text-sm text-ink">{product.name}</span>
                       <span className="block truncate font-mono text-xxs uppercase text-ink-subtle">
                         {product.sku} ·{' '}
+                        {/* Priced in whatever this product is sold in. The
+                            picker used the deployment’s carton for every row,
+                            which put a seller’s piece price up by five
+                            hundred on the one screen where a plan is built. */}
                         {formatMoneyMinor(
-                          cartonPriceMinor(product.price.minor, piecesPerCarton),
+                          sellUnitPriceMinor(
+                            product.price.minor,
+                            sellUnitOf(product, piecesPerCarton),
+                          ),
                           product.price.currency,
                         )}
                       </span>

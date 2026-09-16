@@ -44,7 +44,12 @@ import { AlertIcon, BoxIcon, CartIcon } from '@/components/icons';
 import { api } from '@/lib/api';
 import { errorMessage } from '@/lib/errors';
 import { formatMoneyMinor, formatNumber } from '@/lib/format';
-import { SELLING_UNIT, cartonPriceMinor, usePiecesPerCarton } from '@/lib/packaging';
+import {
+  isSoldByThePiece,
+  sellUnitOf,
+  sellUnitPriceMinor,
+  usePiecesPerCarton,
+} from '@/lib/packaging';
 import { useI18n } from '@/i18n/i18n-context';
 import type { Money, Product } from '@/lib/types';
 
@@ -173,6 +178,12 @@ function ProductTile({ product }: { product: AiProductCard }): React.JSX.Element
 
   const rules = product.purchaseRules;
   const piecesPerCarton = usePiecesPerCarton();
+
+  // What this card's figure is a price for, and what pressing Add asks for.
+  // Both come off the same server-sent basis, so the card cannot quote one
+  // thing and add another.
+  const sellUnit = sellUnitOf(product, piecesPerCarton);
+  const soldByThePiece = isSoldByThePiece(sellUnit);
   const needsOptions = product.hasVariants && product.variants.length > 0;
   const soldOut = product.availability.isStockTracked && !product.availability.inStock;
   const unpriced = product.price === null;
@@ -196,15 +207,24 @@ function ProductTile({ product }: { product: AiProductCard }): React.JSX.Element
       api.post('/cart/items', {
         productId: product.id,
         variantId: null,
-        // One carton. A card cannot ask for a quantity, so it asks for the
-        // smallest thing this shop sells - and the piece count that goes with
-        // it is the carton, not the product's minimum, because a minimum
-        // written in pieces would buy part of a carton nobody can ship.
-        //
-        // The server recomputes the pieces from its own setting regardless.
-        orderingUnit: SELLING_UNIT,
+        /*
+         * One sell unit. A card cannot ask for a quantity, so it asks for the
+         * smallest thing this product is sold in - one carton where the
+         * operator is selling, one piece where a seller is.
+         *
+         * Naming the unit matters here rather than being a formality: the
+         * server refuses a request that asks for a seller's piece offer by the
+         * carton, because the generous reading of it would hand the shopper
+         * five hundred pieces at the price of one. This card used to send
+         * exactly that request for every marketplace product.
+         *
+         * The server recomputes the pieces from its own figures regardless,
+         * and raises the quantity to the seller's own minimum where there is
+         * one.
+         */
+        orderingUnit: sellUnit.unit,
         unitQuantity: 1,
-        quantity: piecesPerCarton,
+        quantity: sellUnit.piecesPerUnit,
       }),
     onSuccess: async () => {
       setAddError(null);
@@ -273,12 +293,14 @@ function ProductTile({ product }: { product: AiProductCard }): React.JSX.Element
                 <>
                   <span className="text-sm font-semibold tabular text-ink">
                     {formatMoneyMinor(
-                      cartonPriceMinor(product.price.minor, piecesPerCarton),
+                      sellUnitPriceMinor(product.price.minor, sellUnit),
                       product.price.currency,
                     )}
                   </span>
                   <span className="text-xxs text-ink-subtle">
-                    {t('packaging.oneCartonHas', { n: formatNumber(piecesPerCarton) })}
+                    {soldByThePiece
+                      ? t('packaging.soldByThePiece')
+                      : t('packaging.oneCartonHas', { n: formatNumber(piecesPerCarton) })}
                   </span>
                   <span className="text-xxs text-ink-subtle">
                     {product.tax.inclusive

@@ -14514,6 +14514,7 @@ export const SellerListingDraftScalarFieldEnum = {
   reviewedAt: 'reviewedAt',
   submittedAt: 'submittedAt',
   version: 'version',
+  submittedVersion: 'submittedVersion',
   createdByProfileId: 'createdByProfileId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

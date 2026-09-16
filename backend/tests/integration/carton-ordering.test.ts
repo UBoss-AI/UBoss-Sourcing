@@ -195,7 +195,7 @@ describe('a shop that sells cartons of 500', () => {
     // The pieces, which is what the warehouse picks and what the price is per.
     expect(line?.quantity).toBe(2 * PER_CARTON);
     // The cartons, which is what the buyer chose and what they are shown back.
-    expect(line?.ordering).toEqual({
+    expect(line?.ordering).toMatchObject({
       unit: 'OUTER_CARTON',
       unitQuantity: 2,
       piecesPerUnit: PER_CARTON,

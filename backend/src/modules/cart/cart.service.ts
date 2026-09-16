@@ -28,7 +28,10 @@ import {
 import {
   SELLING_UNIT,
   cartonsForPieces,
-  resolveOrderingQuantity,
+  operatorSellUnit,
+  resolveSellUnitQuantity,
+  sellerSellUnit,
+  type SellUnitSpec,
   type OrderingUnit,
 } from '../../domain/ordering-unit.js';
 import { newId, variantKeyOf } from '../../infra/ids.js';
@@ -37,7 +40,7 @@ import { publicProductWhere } from '../catalog/catalog.visibility.js';
 import { assertPurchasable } from '../catalog/purchasability.js';
 import { isScheduleEligible } from '../catalog/recurring-eligibility.js';
 import { loadPricesForCurrency, priceKey } from '../catalog/price.service.js';
-import { cheapestOfferFor } from '../catalog/marketplace-price.service.js';
+import { cheapestOfferFor, OFFER_SELL_TERMS, type OfferSellTerms } from '../catalog/marketplace-price.service.js';
 import {
   evaluateCoupon,
   findCouponByCode,
@@ -112,9 +115,24 @@ export interface CartLine {
    */
   ordering: {
     unit: OrderingUnit;
-    /** Cartons. */
+    /** Cartons on the operator's line; pieces on a seller's. */
     unitQuantity: number;
     piecesPerUnit: number;
+    /**
+     * How this line's quantity may be moved, in its own unit.
+     *
+     * Sent so the basket's stepper can be right rather than approximately
+     * right. Without it the UI steps by one and the server silently rounds the
+     * result up to the seller's minimum, which reads to the buyer as a control
+     * that does not do what it says - they press minus and the number does not
+     * move, or moves by five.
+     *
+     * The operator's line carries 1 and 1: its per-product minimum is written
+     * in pieces and is applied to the piece count, not to the carton count.
+     */
+    minimumOrderQuantity: number;
+    orderIncrement: number;
+    maximumOrderQuantity: number | null;
   };
   /** Non-empty when this line cannot go to checkout as it stands. */
   issues: CartLineIssue[];
@@ -343,6 +361,14 @@ export async function resolveCart(
           priceMinor: true,
           currency: true,
           availableQuantity: true,
+          // The terms the buyer is stepped by. Read from the offer rather than
+          // from the line, so a seller who has raised their minimum since the
+          // line was added is telling the buyer so in the basket rather than
+          // at checkout.
+          orderingUnit: true,
+          minimumOrderQuantity: true,
+          orderIncrement: true,
+          maximumOrderQuantity: true,
           sellerAccount: { select: { displayName: true, status: true } },
         },
       },
@@ -541,14 +567,24 @@ export async function resolveCart(
       imageUrl: product.media[0]?.media.url ?? null,
       availableQty,
       issues,
-      // The unit is not the supplier's word for their own outer pack - it is
-      // the carton this shop sells, which the storefront names in the
-      // reader's own language. A sheet that called its outer pack a "box"
-      // would otherwise print "box" beside a carton count.
+      /*
+       * The unit is not the supplier's word for their own outer pack. On the
+       * operator's line it is the carton this shop sells, which the storefront
+       * names in the reader's own language - a sheet that called its outer
+       * pack a "box" would otherwise print "box" beside a carton count. On a
+       * seller's line it is a piece, because that is what a seller sells.
+       *
+       * Taken from the line's own snapshot, not from the offer: a basket
+       * agreed at 500 to a carton keeps reading "2 cartons (1,000 pieces)"
+       * even after the deployment re-specifies a carton at 250.
+       */
       ordering: {
         unit: item.orderingUnit,
         unitQuantity: item.unitQuantity,
         piecesPerUnit: item.piecesPerUnitSnapshot,
+        minimumOrderQuantity: offer?.minimumOrderQuantity ?? 1,
+        orderIncrement: offer?.orderIncrement ?? 1,
+        maximumOrderQuantity: offer?.maximumOrderQuantity ?? null,
       },
     });
   }
@@ -1148,18 +1184,6 @@ async function addLines(
 
     const variantKey = variantKeyOf(variantId);
 
-    // The carton is the only thing on sale, and its size is the deployment's
-    // setting rather than anything the supplier's sheet said or the client
-    // sent. The sheet's own packing still describes the product on the page;
-    // it no longer decides what a carton is.
-    const resolved = resolveOrderingQuantity({
-      unit: input.orderingUnit,
-      unitQuantity: input.unitQuantity,
-      pieces: input.quantity,
-      piecesPerCarton: env.PIECES_PER_CARTON,
-      field: nameField(index, 'unitQuantity'),
-    });
-
     /*
      * Whose offer, where one was named.
      *
@@ -1169,26 +1193,52 @@ async function addLines(
      * product they do not sell. It must also be on sale, for the same reason a
      * paused listing does not appear in search.
      */
-    /*
-     * Nobody named one, and the product is a seller's: pick it here.
-     *
-     * Resolved on the SERVER rather than sent by the browser, which is the
-     * decision worth keeping. Every existing way into a basket - a product
-     * card, a reorder, AI Mode, a scheduled basket - then works on a
-     * marketplace product without any of them learning that marketplaces
-     * exist, and there is no request shape in which a client can nominate an
-     * offer it was never shown.
-     *
-     * The cheapest live one, because that is the figure the grid and the
-     * product page both showed them: the price row they were quoted from is a
-     * projection of exactly this offer. Picking any other would charge them
-     * something other than what they read.
-     */
-    const sellerOfferId =
-      input.sellerOfferId ??
-      (product.isMarketplaceProduct
-        ? ((await cheapestOfferFor(prisma, product.id, variantKey, cartCurrency))?.id ?? null)
-        : null);
+    const namedOfferId = input.sellerOfferId ?? null;
+    let offerTerms: OfferSellTerms | null = null;
+
+    if (namedOfferId !== null) {
+      const offer = await prisma.sellerOffer.findUnique({
+        where: { id: namedOfferId },
+        select: { ...OFFER_SELL_TERMS, productId: true, variantKey: true, status: true },
+      });
+
+      if (offer === null || offer.productId !== product.id || offer.variantKey !== variantKey) {
+        throw badRequest(
+          ErrorCode.VALIDATION_FAILED,
+          'That seller does not offer this product.',
+          [{ field: nameField(index, 'sellerOfferId'), code: 'NOT_FOUND' }],
+        );
+      }
+
+      if (offer.status !== 'ACTIVE') {
+        throw badRequest(
+          ErrorCode.VALIDATION_FAILED,
+          'That seller is not selling this at the moment.',
+          [{ field: nameField(index, 'sellerOfferId'), code: 'NOT_ON_SALE' }],
+        );
+      }
+
+      offerTerms = offer;
+    } else if (product.isMarketplaceProduct) {
+      /*
+       * Nobody named one, and the product is a seller's: pick it here.
+       *
+       * Resolved on the SERVER rather than sent by the browser, which is the
+       * decision worth keeping. Every existing way into a basket - a product
+       * card, a reorder, AI Mode, a scheduled basket - then works on a
+       * marketplace product without any of them learning that marketplaces
+       * exist, and there is no request shape in which a client can nominate an
+       * offer it was never shown.
+       *
+       * The cheapest live one, because that is the figure the grid and the
+       * product page both showed them: the price row they were quoted from is a
+       * projection of exactly this offer. Picking any other would charge them
+       * something other than what they read.
+       */
+      offerTerms = await cheapestOfferFor(prisma, product.id, variantKey, cartCurrency);
+    }
+
+    const sellerOfferId = offerTerms?.id ?? null;
 
     /*
      * A marketplace product with no live offer is not for sale by anybody.
@@ -1207,36 +1257,31 @@ async function addLines(
     }
 
     /*
-     * Only an offer the CLIENT named is checked here.
+     * What this line is counted in, decided by WHO IS SELLING IT.
      *
-     * The one resolved above came out of a query that already required the
-     * product, the option and an ACTIVE status, so re-reading it would be
-     * asking the database to confirm its own answer.
+     * The offer had to be resolved first, and that ordering is the fix rather
+     * than an incidental tidy-up: deciding "how many pieces is this" before
+     * knowing whose line it is can only ever produce the operator's answer,
+     * and the operator's answer on a seller's line multiplies their price by
+     * the carton.
+     *
+     * A seller's offer is counted in pieces at their own minimum and step. The
+     * operator's line is counted in cartons at this deployment's carton size,
+     * exactly as before - the sheet's own packing still describes the product
+     * on the page; it does not decide what a carton is.
      */
-    const namedOfferId = input.sellerOfferId ?? null;
+    const spec =
+      offerTerms === null
+        ? operatorSellUnit(env.PIECES_PER_CARTON)
+        : sellerSellUnit(offerTerms);
 
-    if (namedOfferId !== null) {
-      const offer = await prisma.sellerOffer.findUnique({
-        where: { id: namedOfferId },
-        select: { id: true, productId: true, variantKey: true, status: true },
-      });
-
-      if (offer === null || offer.productId !== product.id || offer.variantKey !== variantKey) {
-        throw badRequest(
-          ErrorCode.VALIDATION_FAILED,
-          'That seller does not offer this product.',
-          [{ field: nameField(index, 'sellerOfferId'), code: 'NOT_FOUND' }],
-        );
-      }
-
-      if (offer.status !== 'ACTIVE') {
-        throw badRequest(
-          ErrorCode.VALIDATION_FAILED,
-          'That seller is not selling this at the moment.',
-          [{ field: nameField(index, 'sellerOfferId'), code: 'NOT_ON_SALE' }],
-        );
-      }
-    }
+    const resolved = resolveSellUnitQuantity({
+      spec,
+      unit: input.orderingUnit,
+      unitQuantity: input.unitQuantity,
+      pieces: input.quantity,
+      field: nameField(index, 'unitQuantity'),
+    });
 
     // The offer is part of the key: the same product from two sellers is two
     // basket lines, because they are two things to buy at two prices out of two
@@ -1303,17 +1348,28 @@ async function addLines(
         continue;
       }
 
-      // A brand-new line starts at the product minimum when the request asks
-      // for less - a B2B product with a minimum of 10 should not sit in the
-      // cart at 1 and fail only at checkout.
-      //
-      // The minimum is written in pieces and the shop ships whole cartons, so
-      // a minimum that lands mid-carton takes the whole carton above it.
+      /*
+       * A brand-new line starts at the product minimum when the request asks
+       * for less - a B2B product with a minimum of 10 should not sit in the
+       * cart at 1 and fail only at checkout.
+       *
+       * The minimum is written in pieces and the shop ships whole cartons, so
+       * a minimum that lands mid-carton takes the whole carton above it.
+       *
+       * ONLY on the operator's line. A seller's line has already been raised
+       * to the SELLER's own minimum and step, in pieces, by
+       * `resolveSellUnitQuantity` - and `product.minOrderQty` is the operator's
+       * figure for a product the operator is not the one selling. Applying it
+       * here would let the operator's "minimum 1,000" silently overrule a
+       * seller who accepts five.
+       */
       const perCarton = Math.max(1, line.piecesPerUnitSnapshot);
       const quantity =
-        line.orderingUnit === SELLING_UNIT
-          ? cartonsForPieces(Math.max(line.quantity, line.minOrderQty), perCarton) * perCarton
-          : Math.max(line.quantity, line.minOrderQty);
+        line.sellerOfferId !== null
+          ? line.quantity
+          : line.orderingUnit === SELLING_UNIT
+            ? cartonsForPieces(Math.max(line.quantity, line.minOrderQty), perCarton) * perCarton
+            : Math.max(line.quantity, line.minOrderQty);
       const itemId = newId();
 
       // If the minimum raised the piece count, the carton count has to follow
@@ -1379,28 +1435,65 @@ export async function updateItemQuantity(
     return;
   }
 
-  // The quantity arrives in pieces, and the shop sells whole cartons, so it is
-  // rounded up to one and the piece count moves with it. Rounding is against
-  // the line's own snapshot rather than the current setting - the carton this
-  // line was agreed at is the carton it keeps.
-  //
-  // A line left over from before cartons is stepped in pieces exactly as it
-  // always was. Nothing new is ever written that way.
-  if (item.orderingUnit === 'PIECE') {
-    await prisma.cartItem.update({
-      where: { id: itemId },
-      data: { quantity, unitQuantity: quantity },
-    });
-    return;
-  }
+  /*
+   * A seller's line is stepped by the SELLER's terms.
+   *
+   * Re-read rather than taken from the line, because the seller may have
+   * raised their minimum since it was added, and the basket is where the
+   * buyer finds that out rather than at checkout. Their offer decides the
+   * minimum and the step; the operator's carton has nothing to do with it.
+   */
+  const spec = await sellUnitSpecForItem(item);
 
-  const perCarton = Math.max(1, item.piecesPerUnitSnapshot);
-  const unitQuantity = cartonsForPieces(quantity, perCarton);
+  const resolved = resolveSellUnitQuantity({
+    spec,
+    // Pieces, named as such. On a seller's line that IS the sell unit; on the
+    // operator's it is rounded up to whole cartons exactly as before.
+    unit: null,
+    unitQuantity: null,
+    pieces: quantity,
+    field: 'quantity',
+  });
 
   await prisma.cartItem.update({
     where: { id: itemId },
-    data: { quantity: unitQuantity * perCarton, unitQuantity },
+    data: { quantity: resolved.quantity, unitQuantity: resolved.unitQuantity },
   });
+}
+
+/**
+ * What an existing basket line is counted in.
+ *
+ * Read from the OFFER where there is one, and from the line's own snapshot
+ * where there is not. The two disagree only for a seller who has changed their
+ * terms since the line was added, and in that case the seller's current terms
+ * are the ones that can actually be fulfilled.
+ *
+ * A line whose offer has vanished falls back to its snapshot rather than
+ * throwing: the basket still has to render, and `resolveCart` is what tells
+ * the buyer the line can no longer be bought.
+ */
+async function sellUnitSpecForItem(item: {
+  sellerOfferId: string | null;
+  orderingUnit: OrderingUnit;
+  piecesPerUnitSnapshot: number;
+}): Promise<SellUnitSpec> {
+  if (item.sellerOfferId !== null) {
+    const offer = await prisma.sellerOffer.findUnique({
+      where: { id: item.sellerOfferId },
+      select: OFFER_SELL_TERMS,
+    });
+
+    if (offer !== null) return sellerSellUnit(offer);
+  }
+
+  return {
+    unit: item.orderingUnit,
+    piecesPerUnit: Math.max(1, item.piecesPerUnitSnapshot),
+    minimumOrderQuantity: 1,
+    orderIncrement: 1,
+    maximumOrderQuantity: null,
+  };
 }
 
 /**
@@ -1411,6 +1504,10 @@ export async function updateItemQuantity(
  * pieces and derives the packs. A single function taking both would have to
  * decide which to believe when they disagree, and whichever it chose would be
  * wrong for one of the two screens that calls it.
+ *
+ * On a seller's piece line the two are the same number, and the screen that
+ * calls this is the quantity stepper - so the seller's minimum and step apply
+ * here just as they do there.
  */
 export async function updateItemPackQuantity(
   customerProfileId: string,
@@ -1432,9 +1529,19 @@ export async function updateItemPackQuantity(
     return;
   }
 
+  const spec = await sellUnitSpecForItem(item);
+
+  const resolved = resolveSellUnitQuantity({
+    spec,
+    unit: spec.unit,
+    unitQuantity,
+    pieces: 0,
+    field: 'unitQuantity',
+  });
+
   await prisma.cartItem.update({
     where: { id: itemId },
-    data: { unitQuantity, quantity: unitQuantity * Math.max(item.piecesPerUnitSnapshot, 1) },
+    data: { unitQuantity: resolved.unitQuantity, quantity: resolved.quantity },
   });
 }
 

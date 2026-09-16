@@ -293,6 +293,9 @@ export async function updateOfferPrice(
       priceMinor: true,
       currency: true,
       sellerSku: true,
+      minimumOrderQuantity: true,
+      orderIncrement: true,
+      maximumOrderQuantity: true,
     },
   });
 
@@ -323,6 +326,65 @@ export async function updateOfferPrice(
       ErrorCode.VALIDATION_FAILED,
       'The was-price cannot be lower than the price buyers pay.',
       [{ field: 'compareAtPriceMinor', code: 'BELOW_PRICE' }],
+    );
+  }
+
+  /*
+   * The terms a buyer is stepped by, checked before they can be stored.
+   *
+   * These are pieces: this is a seller's offer, and a seller sells by the
+   * piece. All three went to the database unchecked, and each of the three
+   * wrong values breaks the shop in a different direction - a minimum of 0
+   * makes `resolveSellUnitQuantity` accept nothing, an increment of 0 makes
+   * every quantity invalid, and a ceiling below the minimum makes the offer
+   * unbuyable at any quantity at all. None of them are visible to the seller
+   * until a buyer reports it.
+   */
+  const minimum = update.minimumOrderQuantity;
+  const increment = update.orderIncrement;
+  const maximum = update.maximumOrderQuantity;
+
+  if (minimum !== null && minimum !== undefined && (!Number.isInteger(minimum) || minimum < 1)) {
+    throw badRequest(ErrorCode.VALIDATION_FAILED, 'The minimum order quantity is at least one piece.', [
+      { field: 'minimumOrderQuantity', code: 'BELOW_ONE' },
+    ]);
+  }
+
+  if (increment !== null && increment !== undefined && (!Number.isInteger(increment) || increment < 1)) {
+    throw badRequest(ErrorCode.VALIDATION_FAILED, 'Buyers must be able to step by at least one piece.', [
+      { field: 'orderIncrement', code: 'BELOW_ONE' },
+    ]);
+  }
+
+  if (maximum !== null && maximum !== undefined && (!Number.isInteger(maximum) || maximum < 1)) {
+    throw badRequest(ErrorCode.VALIDATION_FAILED, 'The most a buyer may take is at least one piece.', [
+      { field: 'maximumOrderQuantity', code: 'BELOW_ONE' },
+    ]);
+  }
+
+  // Checked against what the offer will actually hold once this update lands,
+  // not against what was sent - a seller raising only the minimum must still
+  // be caught against the ceiling they set last week.
+  const nextMinimum = minimum ?? offer.minimumOrderQuantity;
+  const nextIncrement = increment ?? offer.orderIncrement;
+  const nextMaximum = maximum === undefined ? offer.maximumOrderQuantity : maximum;
+
+  if (nextMaximum !== null && nextMaximum < nextMinimum) {
+    throw badRequest(
+      ErrorCode.VALIDATION_FAILED,
+      'The most a buyer may take cannot be below the minimum.',
+      [{ field: 'maximumOrderQuantity', code: 'BELOW_MINIMUM' }],
+    );
+  }
+
+  // A minimum of 5 stepping in 4s means the first buyable quantity is 8. That
+  // is legal and the resolver handles it, but a seller almost never means it,
+  // and an offer whose ceiling then sits at 5 can never be bought at all.
+  if (nextMaximum !== null && Math.ceil(nextMinimum / nextIncrement) * nextIncrement > nextMaximum) {
+    throw badRequest(
+      ErrorCode.VALIDATION_FAILED,
+      'No quantity satisfies the minimum, the step and the maximum together.',
+      [{ field: 'orderIncrement', code: 'NO_VALID_QUANTITY' }],
     );
   }
 

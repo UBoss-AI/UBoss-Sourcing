@@ -49,7 +49,12 @@ import { Link } from 'react-router-dom';
 import { Badge } from './ui';
 import { SaveForLaterButton } from './SaveForLaterButton';
 import { formatMoneyMinor, formatNumber } from '@/lib/format';
-import { cartonPriceMinor, usePiecesPerCarton } from '@/lib/packaging';
+import {
+  isSoldByThePiece,
+  sellUnitOf,
+  sellUnitPriceMinor,
+  usePiecesPerCarton,
+} from '@/lib/packaging';
 import type { Product } from '@/lib/types';
 import { useI18n } from '@/i18n/i18n-context';
 
@@ -116,14 +121,17 @@ export function ProductRow({ product }: { product: Product }): React.JSX.Element
   const isPriceOnRequest = purchasability?.isPriceOnRequest ?? false;
   const isUnavailable = purchasability !== null && !purchasability.isOrderable;
 
-  // Priced by the carton, because that is the only thing a shopper can buy.
-  // See ProductCard, which does the same arithmetic for the same reason.
+  // Priced in whatever this product is actually sold in - the operator's
+  // carton, or a seller's piece. See ProductCard, which does the same
+  // arithmetic off the same server-sent basis for the same reason.
   const piecesPerCarton = usePiecesPerCarton();
-  const cartonMinor = cartonPriceMinor(product.price.minor, piecesPerCarton);
-  const compareAtCartonMinor =
+  const sellUnit = sellUnitOf(product, piecesPerCarton);
+  const soldByThePiece = isSoldByThePiece(sellUnit);
+  const displayMinor = sellUnitPriceMinor(product.price.minor, sellUnit);
+  const compareAtDisplayMinor =
     product.compareAtPrice === null
       ? null
-      : cartonPriceMinor(product.compareAtPrice.minor, piecesPerCarton);
+      : sellUnitPriceMinor(product.compareAtPrice.minor, sellUnit);
 
   return (
     /*
@@ -216,11 +224,15 @@ export function ProductRow({ product }: { product: Product }): React.JSX.Element
           </ul>
         )}
 
-        {/* How it is boxed, in one line. A wholesale buyer scanning a list
-            is deciding whether this is sold in the size they buy in, and that
-            is a different question from what it costs. */}
+        {/* How it is sold, in one line. A wholesale buyer scanning a list is
+            deciding whether this comes in the size they buy in, and that is a
+            different question from what it costs. It is also the line that
+            tells them the price beside it is on a different basis from the row
+            above, now that a list mixes cartons and pieces. */}
         <p className="text-xs tabular text-ink-subtle">
-          {t('packaging.oneCartonHas', { n: formatNumber(piecesPerCarton) })}
+          {soldByThePiece
+            ? t('packaging.soldByThePiece')
+            : t('packaging.oneCartonHas', { n: formatNumber(piecesPerCarton) })}
         </p>
 
         {(rules.minOrderQty > 1 || rules.qtyIncrement > 1 || isUnavailable) && (
@@ -257,17 +269,19 @@ export function ProductRow({ product }: { product: Product }): React.JSX.Element
         ) : (
           <>
             <p className="text-xl font-semibold tabular text-ink">
-              {formatMoneyMinor(cartonMinor, product.price.currency)}
+              {formatMoneyMinor(displayMinor, product.price.currency)}
             </p>
-            <p className="text-xxs text-ink-subtle">{t('productCard.perCartonLabel')}</p>
+            <p className="text-xxs text-ink-subtle">
+              {soldByThePiece ? t('productCard.perPieceLabel') : t('productCard.perCartonLabel')}
+            </p>
 
-            {discount !== null && compareAtCartonMinor !== null && (
+            {discount !== null && compareAtDisplayMinor !== null && (
               <p className="mt-0.5 flex flex-wrap items-baseline gap-x-2 sm:justify-end">
                 <span className="text-sm tabular text-ink-subtle">
                   {/* The strikethrough is all a sighted reader gets; a screen
                       reader is given the word. */}
                   <span className="sr-only">{t('productCard.was')}</span>
-                  <s>{formatMoneyMinor(compareAtCartonMinor, product.price.currency)}</s>
+                  <s>{formatMoneyMinor(compareAtDisplayMinor, product.price.currency)}</s>
                 </span>
                 <span className="text-sm font-semibold text-success">
                   {t('catalog.rowPercentOff', { percent: formatNumber(discount) })}

@@ -58,7 +58,13 @@ import type {
 import { ProductSafetyPanel } from '@/components/ProductSafetyPanel';
 import { ProductDevicePanel } from '@/components/ProductDevicePanel';
 import { DimensionsSection, PackagingSection } from '@/components/ProductPackagingPanel';
-import { SELLING_UNIT, cartonPriceMinor, usePiecesPerCarton, type OrderingUnit } from '@/lib/packaging';
+import {
+  isSoldByThePiece,
+  sellUnitOf,
+  sellUnitPriceMinor,
+  usePiecesPerCarton,
+  type OrderingUnit,
+} from '@/lib/packaging';
 import { useI18n } from '@/i18n/i18n-context';
 import type { Translate } from '@/i18n/i18n-context';
 import { errorMessage } from '@/lib/errors';
@@ -585,12 +591,18 @@ export function ProductPage(): React.JSX.Element {
   const [addError, setAddError] = useState<string | null>(null);
 
   /**
-   * What the numbers on this page are counting: cartons.
+   * What the numbers on this page are counting.
    *
-   * There is no control for this and no state behind it. The shop sells one
-   * unit, every quantity box on the page counts in it, and every price on the
-   * page is the price of one of it. A picker offering a choice that has one
-   * option is a control that reads as broken.
+   * There is no control for this and no state behind it, and there must not
+   * be: it is a fact about WHO IS SELLING the product, not a choice the
+   * shopper gets. The operator sells cartons; a third-party seller sells
+   * pieces. Every quantity box on the page counts in whichever it is, and
+   * every price on the page is the price of one of it.
+   *
+   * Decided by the server and sent on the product. This page multiplies by the
+   * factor it is given and never works one out - the basket is priced on the
+   * same basis by the same rule, and a page that derived its own would
+   * eventually quote a figure the basket disagreed with.
    */
   const piecesPerCarton = usePiecesPerCarton();
 
@@ -617,6 +629,14 @@ export function ProductPage(): React.JSX.Element {
   });
 
   const product = query.data?.product;
+
+  // What this product is counted and priced in. Derived here rather than with
+  // the rest of the storefront context above because it depends on the product
+  // itself - see the note on the carton size. An empty object while the query
+  // is in flight, which falls back to the operator's carton and renders
+  // nothing anyway.
+  const sellUnit = sellUnitOf(product ?? {}, piecesPerCarton);
+  const soldByThePiece = isSoldByThePiece(sellUnit);
 
   // Set the opening quantity to the lowest the rules allow, and turn on the
   // only option when there is exactly one — an unnecessary choice is friction.
@@ -663,20 +683,27 @@ export function ProductPage(): React.JSX.Element {
     if (product === undefined) return [];
 
     /**
-     * One line: a number of cartons, and the pieces they come to.
+     * One line: a number of sell units, and the pieces they come to.
      *
      * `quantity` is always pieces, because that is what the server, the
-     * basket, the warehouse and the invoice all count in. The carton figures
-     * travel beside it so the basket can show the choice back - and the server
-     * recomputes the pieces from its own setting regardless, so a browser that
-     * got this arithmetic wrong cannot buy anything at the wrong price.
+     * basket, the warehouse and the invoice all count in. On a seller's line
+     * the factor is 1, so the two are the same number - which is the whole of
+     * what "sold by the piece" means here.
+     *
+     * The unit travels beside it so the basket can show the choice back, and
+     * naming it is no longer a formality: the server refuses a request that
+     * asks for a seller's piece offer by the carton, because reading it
+     * generously would hand the shopper five hundred pieces at the price of
+     * one. The server recomputes the pieces from its own figures regardless,
+     * so a browser that got this arithmetic wrong cannot buy at the wrong
+     * price.
      */
     const lineFor = (variantId: string | null, typed: number): ChosenLine => ({
       variantId,
-      quantity: typed * piecesPerCarton,
-      orderingUnit: SELLING_UNIT,
+      quantity: typed * sellUnit.piecesPerUnit,
+      orderingUnit: sellUnit.unit,
       unitQuantity: typed,
-      piecesPerUnit: piecesPerCarton,
+      piecesPerUnit: sellUnit.piecesPerUnit,
     });
 
     if (!product.hasVariants || product.variants.length === 0) {
@@ -687,7 +714,7 @@ export function ProductPage(): React.JSX.Element {
       const wanted = chosen.get(variant.id);
       return wanted === undefined ? [] : [lineFor(variant.id, wanted)];
     });
-  }, [product, chosen, quantity, piecesPerCarton]);
+  }, [product, chosen, quantity, sellUnit.piecesPerUnit, sellUnit.unit]);
 
 
   const addToCart = useMutation({
@@ -809,9 +836,9 @@ export function ProductPage(): React.JSX.Element {
   const unitPriceOf = (variant: ProductVariant | null): UnitPrice => {
     const price = variant?.price ?? product.price;
     return {
-      minor: cartonPriceMinor(price.minor, piecesPerCarton),
+      minor: sellUnitPriceMinor(price.minor, sellUnit),
       pieceMinor: price.minor,
-      pieces: piecesPerCarton,
+      pieces: sellUnit.piecesPerUnit,
     };
   };
 
@@ -1042,9 +1069,33 @@ export function ProductPage(): React.JSX.Element {
             <div className="space-y-5">
               {/* What the quantity boxes below are counting, said before they
                   are reached rather than after. There is no control here
-                  because there is no choice: this shop sells cartons. */}
+                  because there is no choice - what this is sold in is a fact
+                  about who is selling it, not something the shopper picks.
+
+                  A seller's line adds their minimum and step, because those
+                  are what the box below will actually snap to, and a control
+                  that silently corrects what was typed is one the shopper
+                  stops trusting. */}
               <p className="text-xs font-medium text-ink-muted">
-                {t('packaging.orderingInCartons', { n: formatNumber(piecesPerCarton) })}
+                {soldByThePiece
+                  ? t('packaging.soldByThePiece')
+                  : t('packaging.orderingInCartons', { n: formatNumber(piecesPerCarton) })}
+                {soldByThePiece && sellUnit.minimumOrderQuantity > 1 && (
+                  <>
+                    {' · '}
+                    {t('packaging.minimumNPieces', {
+                      n: formatNumber(sellUnit.minimumOrderQuantity),
+                    })}
+                  </>
+                )}
+                {soldByThePiece && sellUnit.orderIncrement > 1 && (
+                  <>
+                    {' · '}
+                    {t('packaging.inMultiplesOfNPieces', {
+                      n: formatNumber(sellUnit.orderIncrement),
+                    })}
+                  </>
+                )}
               </p>
 
               {needsVariant ? (
@@ -1283,7 +1334,7 @@ export function ProductPage(): React.JSX.Element {
               specification is a fact about the product, and this is how it
               arrives on a pallet - a different question, asked by a different
               person, in a different part of the buying decision. */}
-          <PackagingSection packaging={shownPackaging} />
+          <PackagingSection packaging={shownPackaging} soldByThePiece={soldByThePiece} />
           <DimensionsSection packaging={shownPackaging} />
 
           {/* GPSR Art. 19. Below the specifications because it is reference

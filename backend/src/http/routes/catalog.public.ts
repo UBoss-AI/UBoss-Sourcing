@@ -45,6 +45,13 @@ import {
   ImageSearchUnreadableError,
   analyseProductImage,
 } from '../../modules/assistant/image-search.service.js';
+import { env } from '../../config/env.js';
+import {
+  SELLER_SELLING_UNIT,
+  operatorSellUnit,
+  sellerSellUnit,
+} from '../../domain/ordering-unit.js';
+import { cheapestOfferFor } from '../../modules/catalog/marketplace-price.service.js';
 import type { PUBLIC_PRODUCT_SELECT } from '../../modules/catalog/catalog.visibility.js';
 import {
   publicProductSelect,
@@ -302,6 +309,52 @@ function serialiseOperator(
   };
 }
 
+/**
+ * What the figure on this product's card is a price FOR.
+ *
+ * The one place the storefront's whole display basis is decided, and it is
+ * decided from product OWNERSHIP - never from a category, a seller's name, a
+ * route or a string comparison. The operator's own line is a carton at this
+ * deployment's carton size; a product a seller described is a piece.
+ *
+ * `minimumOrderQuantity` and `orderIncrement` are the OFFER's, and are filled in
+ * only where the caller has actually loaded an offer - the grid has not, and
+ * would need one query per card to. The detail page has, so that is where a
+ * "Minimum 5 pieces" can be shown. The defaults are the permissive ones,
+ * because the server applies the real terms on every basket write regardless.
+ */
+function sellUnitFor(
+  product: { isMarketplaceProduct: boolean },
+  offer?: {
+    minimumOrderQuantity: number;
+    orderIncrement: number;
+    maximumOrderQuantity: number | null;
+  } | null,
+): Record<string, unknown> {
+  const spec = product.isMarketplaceProduct
+    ? sellerSellUnit({
+        // The unit is not read off the offer here on purpose. Only PIECE is
+        // sellable by a seller, and an offer holding anything else has already
+        // been taken off sale by the migration - so a product reaching a public
+        // grid is a product whose live offers are pieces.
+        orderingUnit: SELLER_SELLING_UNIT,
+        minimumOrderQuantity: offer?.minimumOrderQuantity ?? 1,
+        orderIncrement: offer?.orderIncrement ?? 1,
+        maximumOrderQuantity: offer?.maximumOrderQuantity ?? null,
+      })
+    : operatorSellUnit(env.PIECES_PER_CARTON);
+
+  return {
+    unit: spec.unit,
+    piecesPerUnit: spec.piecesPerUnit,
+    minimumOrderQuantity: spec.minimumOrderQuantity,
+    orderIncrement: spec.orderIncrement,
+    maximumOrderQuantity: spec.maximumOrderQuantity,
+    /** True when the figure above is already the price of one sell unit. */
+    isPricedPerSellUnit: spec.piecesPerUnit === 1,
+  };
+}
+
 function serialiseProduct(
   product: PublicProduct,
   currency: string,
@@ -309,6 +362,11 @@ function serialiseProduct(
   variantPrices: Map<string, PricePair>,
   shelf: ShelfContext,
   variantPackaging?: Map<string, SerialisedPackaging>,
+  offerTerms?: {
+    minimumOrderQuantity: number;
+    orderIncrement: number;
+    maximumOrderQuantity: number | null;
+  } | null,
 ): Record<string, unknown> {
   const primaryImage = product.media[0]?.media ?? null;
 
@@ -359,6 +417,19 @@ function serialiseProduct(
     availableInCurrency: price !== null,
     price: quote === null ? null : serialiseMoney(quote.unitPriceMinor, currency),
     compareAtPrice: compareAt === null ? null : serialiseMoney(compareAt, currency),
+
+    /**
+     * What that price is PER, and how the quantity control may move.
+     *
+     * `price` above is, and always has been, the price of one PIECE - that is
+     * how the catalogue stores money, and none of this changes it. What this
+     * block adds is the missing half of the sentence: multiply it by
+     * `piecesPerUnit` to get the figure to put on the card, and name the unit
+     * beside it. The storefront used to supply that factor itself from the
+     * deployment's carton setting, which was right for the operator's products
+     * and wrong for every seller's.
+     */
+    sellUnit: sellUnitFor(product, offerTerms),
 
     /**
      * Whether this can be bought, and what to say instead when it cannot.
@@ -1057,6 +1128,20 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
      */
     let sellerOffer: { basePriceMinor: bigint; compareAtPriceMinor: bigint | null } | null = null;
 
+    /**
+     * The terms the buyer will be stepped by, for the detail page's control.
+     *
+     * Loaded here and nowhere in the grid: the grid would need one query per
+     * card for a figure it does not render, and the detail page is where
+     * somebody actually chooses a quantity. Null on the operator's own
+     * products, which are stepped by the carton.
+     */
+    let offerTerms: {
+      minimumOrderQuantity: number;
+      orderIncrement: number;
+      maximumOrderQuantity: number | null;
+    } | null = null;
+
     if (request.storefront !== null) {
       const offer = await prisma.sellerOffer.findFirst({
         where: {
@@ -1068,7 +1153,13 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
         // Cheapest first, so a seller listing several options of one product
         // shows the "from" figure rather than whichever row came back first.
         orderBy: { priceMinor: 'asc' },
-        select: { priceMinor: true, compareAtPriceMinor: true },
+        select: {
+          priceMinor: true,
+          compareAtPriceMinor: true,
+          minimumOrderQuantity: true,
+          orderIncrement: true,
+          maximumOrderQuantity: true,
+        },
       });
 
       if (offer === null) throw notFound('Product');
@@ -1077,6 +1168,15 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
         basePriceMinor: offer.priceMinor,
         compareAtPriceMinor: offer.compareAtPriceMinor,
       };
+      offerTerms = offer;
+    } else if (product.isMarketplaceProduct) {
+      /*
+       * Off the marketplace shop front, the buyer gets the cheapest live
+       * offer - which is the one the cart will bind when they press Add. Its
+       * terms are the ones that will be applied to them, so they are the ones
+       * the control has to step by.
+       */
+      offerTerms = await cheapestOfferFor(prisma, product.id, '', currency);
     }
 
     const base = sellerOffer ?? prices.get(priceKey(product.id, null)) ?? null;
@@ -1103,7 +1203,15 @@ export function registerPublicCatalogRoutes(app: FastifyInstance): Promise<void>
 
 
     return reply.status(200).send({
-      product: serialiseProduct(product, currency, base, prices, shelf, variantPackaging),
+      product: serialiseProduct(
+        product,
+        currency,
+        base,
+        prices,
+        shelf,
+        variantPackaging,
+        offerTerms,
+      ),
       currency,
       country: shelf.country,
       /**

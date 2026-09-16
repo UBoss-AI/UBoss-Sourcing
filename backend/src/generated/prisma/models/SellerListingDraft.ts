@@ -34,10 +34,12 @@ export type AggregateSellerListingDraft = {
 
 export type SellerListingDraftAvgAggregateOutputType = {
   version: number | null
+  submittedVersion: number | null
 }
 
 export type SellerListingDraftSumAggregateOutputType = {
   version: number | null
+  submittedVersion: number | null
 }
 
 export type SellerListingDraftMinAggregateOutputType = {
@@ -57,6 +59,7 @@ export type SellerListingDraftMinAggregateOutputType = {
   reviewedAt: Date | null
   submittedAt: Date | null
   version: number | null
+  submittedVersion: number | null
   createdByProfileId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -79,6 +82,7 @@ export type SellerListingDraftMaxAggregateOutputType = {
   reviewedAt: Date | null
   submittedAt: Date | null
   version: number | null
+  submittedVersion: number | null
   createdByProfileId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -107,6 +111,7 @@ export type SellerListingDraftCountAggregateOutputType = {
   reviewedAt: number
   submittedAt: number
   version: number
+  submittedVersion: number
   createdByProfileId: number
   createdAt: number
   updatedAt: number
@@ -116,10 +121,12 @@ export type SellerListingDraftCountAggregateOutputType = {
 
 export type SellerListingDraftAvgAggregateInputType = {
   version?: true
+  submittedVersion?: true
 }
 
 export type SellerListingDraftSumAggregateInputType = {
   version?: true
+  submittedVersion?: true
 }
 
 export type SellerListingDraftMinAggregateInputType = {
@@ -139,6 +146,7 @@ export type SellerListingDraftMinAggregateInputType = {
   reviewedAt?: true
   submittedAt?: true
   version?: true
+  submittedVersion?: true
   createdByProfileId?: true
   createdAt?: true
   updatedAt?: true
@@ -161,6 +169,7 @@ export type SellerListingDraftMaxAggregateInputType = {
   reviewedAt?: true
   submittedAt?: true
   version?: true
+  submittedVersion?: true
   createdByProfileId?: true
   createdAt?: true
   updatedAt?: true
@@ -189,6 +198,7 @@ export type SellerListingDraftCountAggregateInputType = {
   reviewedAt?: true
   submittedAt?: true
   version?: true
+  submittedVersion?: true
   createdByProfileId?: true
   createdAt?: true
   updatedAt?: true
@@ -304,6 +314,7 @@ export type SellerListingDraftGroupByOutputType = {
   reviewedAt: Date | null
   submittedAt: Date | null
   version: number
+  submittedVersion: number | null
   createdByProfileId: string | null
   createdAt: Date
   updatedAt: Date
@@ -355,6 +366,7 @@ export type SellerListingDraftWhereInput = {
   reviewedAt?: Prisma.DateTimeNullableFilter<"SellerListingDraft"> | Date | string | null
   submittedAt?: Prisma.DateTimeNullableFilter<"SellerListingDraft"> | Date | string | null
   version?: Prisma.IntFilter<"SellerListingDraft"> | number
+  submittedVersion?: Prisma.IntNullableFilter<"SellerListingDraft"> | number | null
   createdByProfileId?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerListingDraft"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerListingDraft"> | Date | string
@@ -388,6 +400,7 @@ export type SellerListingDraftOrderByWithRelationInput = {
   reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
+  submittedVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -425,6 +438,7 @@ export type SellerListingDraftWhereUniqueInput = Prisma.AtLeast<{
   reviewedAt?: Prisma.DateTimeNullableFilter<"SellerListingDraft"> | Date | string | null
   submittedAt?: Prisma.DateTimeNullableFilter<"SellerListingDraft"> | Date | string | null
   version?: Prisma.IntFilter<"SellerListingDraft"> | number
+  submittedVersion?: Prisma.IntNullableFilter<"SellerListingDraft"> | number | null
   createdByProfileId?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerListingDraft"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerListingDraft"> | Date | string
@@ -458,6 +472,7 @@ export type SellerListingDraftOrderByWithAggregationInput = {
   reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
+  submittedVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -494,6 +509,7 @@ export type SellerListingDraftScalarWhereWithAggregatesInput = {
   reviewedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerListingDraft"> | Date | string | null
   submittedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SellerListingDraft"> | Date | string | null
   version?: Prisma.IntWithAggregatesFilter<"SellerListingDraft"> | number
+  submittedVersion?: Prisma.IntNullableWithAggregatesFilter<"SellerListingDraft"> | number | null
   createdByProfileId?: Prisma.StringNullableWithAggregatesFilter<"SellerListingDraft"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SellerListingDraft"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SellerListingDraft"> | Date | string
@@ -519,6 +535,7 @@ export type SellerListingDraftCreateInput = {
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
   version?: number
+  submittedVersion?: number | null
   createdByProfileId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -552,6 +569,7 @@ export type SellerListingDraftUncheckedCreateInput = {
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
   version?: number
+  submittedVersion?: number | null
   createdByProfileId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -579,6 +597,7 @@ export type SellerListingDraftUpdateInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -612,6 +631,7 @@ export type SellerListingDraftUncheckedUpdateInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -642,6 +662,7 @@ export type SellerListingDraftCreateManyInput = {
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
   version?: number
+  submittedVersion?: number | null
   createdByProfileId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -667,6 +688,7 @@ export type SellerListingDraftUpdateManyMutationInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -695,6 +717,7 @@ export type SellerListingDraftUncheckedUpdateManyInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -739,6 +762,7 @@ export type SellerListingDraftCountOrderByAggregateInput = {
   reviewedAt?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
+  submittedVersion?: Prisma.SortOrder
   createdByProfileId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -746,6 +770,7 @@ export type SellerListingDraftCountOrderByAggregateInput = {
 
 export type SellerListingDraftAvgOrderByAggregateInput = {
   version?: Prisma.SortOrder
+  submittedVersion?: Prisma.SortOrder
 }
 
 export type SellerListingDraftMaxOrderByAggregateInput = {
@@ -765,6 +790,7 @@ export type SellerListingDraftMaxOrderByAggregateInput = {
   reviewedAt?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
+  submittedVersion?: Prisma.SortOrder
   createdByProfileId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -787,6 +813,7 @@ export type SellerListingDraftMinOrderByAggregateInput = {
   reviewedAt?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
+  submittedVersion?: Prisma.SortOrder
   createdByProfileId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -794,6 +821,7 @@ export type SellerListingDraftMinOrderByAggregateInput = {
 
 export type SellerListingDraftSumOrderByAggregateInput = {
   version?: Prisma.SortOrder
+  submittedVersion?: Prisma.SortOrder
 }
 
 export type SellerListingDraftScalarRelationFilter = {
@@ -979,6 +1007,7 @@ export type SellerListingDraftCreateWithoutCategoryInput = {
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
   version?: number
+  submittedVersion?: number | null
   createdByProfileId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1010,6 +1039,7 @@ export type SellerListingDraftUncheckedCreateWithoutCategoryInput = {
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
   version?: number
+  submittedVersion?: number | null
   createdByProfileId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1069,6 +1099,7 @@ export type SellerListingDraftScalarWhereInput = {
   reviewedAt?: Prisma.DateTimeNullableFilter<"SellerListingDraft"> | Date | string | null
   submittedAt?: Prisma.DateTimeNullableFilter<"SellerListingDraft"> | Date | string | null
   version?: Prisma.IntFilter<"SellerListingDraft"> | number
+  submittedVersion?: Prisma.IntNullableFilter<"SellerListingDraft"> | number | null
   createdByProfileId?: Prisma.StringNullableFilter<"SellerListingDraft"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SellerListingDraft"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SellerListingDraft"> | Date | string
@@ -1094,6 +1125,7 @@ export type SellerListingDraftCreateWithoutSellerAccountInput = {
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
   version?: number
+  submittedVersion?: number | null
   createdByProfileId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1125,6 +1157,7 @@ export type SellerListingDraftUncheckedCreateWithoutSellerAccountInput = {
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
   version?: number
+  submittedVersion?: number | null
   createdByProfileId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1178,6 +1211,7 @@ export type SellerListingDraftCreateWithoutBrandInput = {
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
   version?: number
+  submittedVersion?: number | null
   createdByProfileId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1209,6 +1243,7 @@ export type SellerListingDraftUncheckedCreateWithoutBrandInput = {
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
   version?: number
+  submittedVersion?: number | null
   createdByProfileId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1262,6 +1297,7 @@ export type SellerListingDraftCreateWithoutMediaInput = {
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
   version?: number
+  submittedVersion?: number | null
   createdByProfileId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1294,6 +1330,7 @@ export type SellerListingDraftUncheckedCreateWithoutMediaInput = {
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
   version?: number
+  submittedVersion?: number | null
   createdByProfileId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1336,6 +1373,7 @@ export type SellerListingDraftUpdateWithoutMediaInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1368,6 +1406,7 @@ export type SellerListingDraftUncheckedUpdateWithoutMediaInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1394,6 +1433,7 @@ export type SellerListingDraftCreateWithoutIssuesInput = {
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
   version?: number
+  submittedVersion?: number | null
   createdByProfileId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1426,6 +1466,7 @@ export type SellerListingDraftUncheckedCreateWithoutIssuesInput = {
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
   version?: number
+  submittedVersion?: number | null
   createdByProfileId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1468,6 +1509,7 @@ export type SellerListingDraftUpdateWithoutIssuesInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1500,6 +1542,7 @@ export type SellerListingDraftUncheckedUpdateWithoutIssuesInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1528,6 +1571,7 @@ export type SellerListingDraftCreateManyCategoryInput = {
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
   version?: number
+  submittedVersion?: number | null
   createdByProfileId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1553,6 +1597,7 @@ export type SellerListingDraftUpdateWithoutCategoryInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1584,6 +1629,7 @@ export type SellerListingDraftUncheckedUpdateWithoutCategoryInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1613,6 +1659,7 @@ export type SellerListingDraftUncheckedUpdateManyWithoutCategoryInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1640,6 +1687,7 @@ export type SellerListingDraftCreateManySellerAccountInput = {
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
   version?: number
+  submittedVersion?: number | null
   createdByProfileId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1665,6 +1713,7 @@ export type SellerListingDraftUpdateWithoutSellerAccountInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1696,6 +1745,7 @@ export type SellerListingDraftUncheckedUpdateWithoutSellerAccountInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1725,6 +1775,7 @@ export type SellerListingDraftUncheckedUpdateManyWithoutSellerAccountInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1752,6 +1803,7 @@ export type SellerListingDraftCreateManyBrandInput = {
   reviewedAt?: Date | string | null
   submittedAt?: Date | string | null
   version?: number
+  submittedVersion?: number | null
   createdByProfileId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1777,6 +1829,7 @@ export type SellerListingDraftUpdateWithoutBrandInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1808,6 +1861,7 @@ export type SellerListingDraftUncheckedUpdateWithoutBrandInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1837,6 +1891,7 @@ export type SellerListingDraftUncheckedUpdateManyWithoutBrandInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdByProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1905,6 +1960,7 @@ export type SellerListingDraftSelect<ExtArgs extends runtime.Types.Extensions.In
   reviewedAt?: boolean
   submittedAt?: boolean
   version?: boolean
+  submittedVersion?: boolean
   createdByProfileId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1941,12 +1997,13 @@ export type SellerListingDraftSelectScalar = {
   reviewedAt?: boolean
   submittedAt?: boolean
   version?: boolean
+  submittedVersion?: boolean
   createdByProfileId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type SellerListingDraftOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "status" | "categoryId" | "brandId" | "matchedProductId" | "publishedProductId" | "publishedOfferId" | "sellerSku" | "attributesJson" | "offerJson" | "stockJson" | "packagingJson" | "generatedTitle" | "generatedTitleSource" | "sellerEditedTitle" | "sectionStateJson" | "reviewComment" | "reviewedByUserId" | "reviewedAt" | "submittedAt" | "version" | "createdByProfileId" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerListingDraft"]>
+export type SellerListingDraftOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sellerAccountId" | "status" | "categoryId" | "brandId" | "matchedProductId" | "publishedProductId" | "publishedOfferId" | "sellerSku" | "attributesJson" | "offerJson" | "stockJson" | "packagingJson" | "generatedTitle" | "generatedTitleSource" | "sellerEditedTitle" | "sectionStateJson" | "reviewComment" | "reviewedByUserId" | "reviewedAt" | "submittedAt" | "version" | "submittedVersion" | "createdByProfileId" | "createdAt" | "updatedAt", ExtArgs["result"]["sellerListingDraft"]>
 export type SellerListingDraftInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sellerAccount?: boolean | Prisma.SellerAccountDefaultArgs<ExtArgs>
   category?: boolean | Prisma.SellerListingDraft$categoryArgs<ExtArgs>
@@ -2045,6 +2102,19 @@ export type $SellerListingDraftPayload<ExtArgs extends runtime.Types.Extensions.
      * sellers leave two open; this is what stops one overwriting the other.
      */
     version: number
+    /**
+     * The value of `version` at the moment the seller pressed submit.
+     * 
+     * What the moderator is actually looking at. `version` alone cannot answer
+     * that: it moves every time the seller saves, and a seller whose listing
+     * came back as ACTION_REQUIRED edits it while the queue still holds a row
+     * for the revision they sent. An approval carries this number back, and the
+     * decision is refused if it no longer matches - so an approval of revision
+     * N can never land on revision N+1.
+     * 
+     * Null on a draft that has never been submitted.
+     */
+    submittedVersion: number | null
     createdByProfileId: string | null
     createdAt: Date
     updatedAt: Date
@@ -2444,6 +2514,7 @@ export interface SellerListingDraftFieldRefs {
   readonly reviewedAt: Prisma.FieldRef<"SellerListingDraft", 'DateTime'>
   readonly submittedAt: Prisma.FieldRef<"SellerListingDraft", 'DateTime'>
   readonly version: Prisma.FieldRef<"SellerListingDraft", 'Int'>
+  readonly submittedVersion: Prisma.FieldRef<"SellerListingDraft", 'Int'>
   readonly createdByProfileId: Prisma.FieldRef<"SellerListingDraft", 'String'>
   readonly createdAt: Prisma.FieldRef<"SellerListingDraft", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"SellerListingDraft", 'DateTime'>

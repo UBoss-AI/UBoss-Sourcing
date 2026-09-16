@@ -124,7 +124,14 @@ export function ListingReviewPage(): React.JSX.Element {
     <div className="space-y-5">
       <PageHeader
         title={listing.title ?? 'Untitled listing'}
-        description={`${listing.sellerName} · submitted ${formatRelative(listing.submittedAt)}`}
+        description={
+          listing.submittedVersion === null
+            ? `${listing.sellerName} · submitted ${formatRelative(listing.submittedAt)}`
+            : // The revision, beside the time. Two administrators comparing
+              // notes need something more precise than "this morning", and it
+              // is the number the decision is pinned to.
+              `${listing.sellerName} · submitted ${formatRelative(listing.submittedAt)} · revision ${String(listing.submittedVersion)}`
+        }
         back={{ to: '/listing-review', label: 'Listing review' }}
       />
 
@@ -877,6 +884,15 @@ function DecisionDialog({
       decideListing(listing.id, {
         status: decision,
         comment: comment.trim().length === 0 ? null : comment.trim(),
+        /*
+         * The revision this screen is showing.
+         *
+         * The server applies the decision only if the listing is still on it.
+         * A queue two people share is a queue where one of them can be holding
+         * a listing the seller has since replaced - and approving a revision
+         * nobody read is the failure this one field exists to prevent.
+         */
+        expectedVersion: listing.submittedVersion,
         ...(sentNotes.length === 0
           ? {}
           : {

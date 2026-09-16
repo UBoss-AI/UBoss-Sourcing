@@ -41,17 +41,55 @@ function Row({ term, detail }: { term: string; detail: string }): React.JSX.Elem
 /**
  * How it is sold, and what that comes to.
  *
- * The carton line is the centre of it, and it is shown for every product
- * whether or not the supplier's sheet said anything about packing — it is a
- * fact about this shop, not about the row the importer read.
+ * The carton line is the centre of it on the OPERATOR's products, and it is
+ * shown whether or not the supplier's sheet said anything about packing — it
+ * is a fact about this shop, not about the row the importer read.
+ *
+ * On a third-party seller's product almost none of it applies. There is no
+ * carton, so there is no carton size, no "one carton has 500 pieces" and
+ * nothing for the ready-reckoner to reckon: one piece is one piece, and a
+ * table converting it would be a column of identical numbers. Worse, every
+ * one of those lines would be a claim about the seller's listing that is
+ * simply untrue, on the page where a buyer goes to check exactly that. So the
+ * section says the one thing that IS true about it, plus whatever the seller
+ * recorded about their own packing.
  */
 export function PackagingSection({
   packaging,
+  soldByThePiece = false,
 }: {
   packaging: ProductPackaging | null;
+  /** True for a third-party seller's product. See above. */
+  soldByThePiece?: boolean;
 }): React.JSX.Element | null {
   const { t } = useI18n();
   const piecesPerCarton = usePiecesPerCarton();
+
+  if (soldByThePiece) {
+    return (
+      <section aria-labelledby="packaging-heading" className="min-w-0">
+        <h2 id="packaging-heading" className="text-title-sm text-ink">
+          {t('packaging.heading')}
+        </h2>
+
+        <dl className="mt-3">
+          <Row term={t('packaging.soldIn')} detail={t('packaging.soldByThePiece')} />
+          {packaging?.packingType != null && (
+            <Row term={t('packaging.packedAs')} detail={packaging.packingType} />
+          )}
+        </dl>
+
+        {/* The same prominence the carton rule gets on the operator's own
+            products, because it is answering the same question. */}
+        <p
+          className="mt-3 rounded-md bg-brand-soft px-3 py-2 text-center text-sm font-medium tabular text-brand"
+          data-testid="packing-formula"
+        >
+          {t('packaging.soldByThePiece')}
+        </p>
+      </section>
+    );
+  }
 
   return (
     <section aria-labelledby="packaging-heading" className="min-w-0">

@@ -574,7 +574,20 @@ async function buildPurchaseOrder(event: ClaimedEvent): Promise<PurchaseOrderPay
       productId: item.productId,
       name: item.nameSnapshot,
       quantity: item.quantity,
-      unitOfMeasure: null,
+      // Pieces, named. See the note on the field - a bare number here is read
+      // by the receiving system as whatever it keeps stock in.
+      unitOfMeasure: 'PIECE',
+      /*
+       * And what the buyer chose, from the ORDER's own snapshot.
+       *
+       * Never recomputed from today's settings or today's offer: an order
+       * placed when a carton held 500 keeps saying 500, and a seller's line
+       * keeps saying one piece to a piece however the seller has since
+       * restated their listing.
+       */
+      sellUnit: item.orderingUnit,
+      sellUnitQuantity: item.unitQuantity,
+      piecesPerSellUnit: item.piecesPerUnitSnapshot,
       unitPriceMinor: item.unitPriceMinor.toString(),
       netAmountMinor: item.lineSubtotalMinor.toString(),
       taxAmountMinor: item.taxAmountMinor.toString(),
@@ -684,7 +697,9 @@ async function buildGoodsReceipt(event: ClaimedEvent): Promise<GoodsReceiptPaylo
         sku: item.skuSnapshot,
         erpMaterialNumber: materials.get(`${item.productId}:${item.variantId ?? ''}`) ?? null,
         quantity: item.quantity,
-        unitOfMeasure: null,
+        // Pieces, named - the same unit the purchase order was raised in, so
+        // the receipt reconciles against it rather than against a guess.
+        unitOfMeasure: 'PIECE',
         erpPlant: placement?.plant ?? null,
         erpStorageLocation: placement?.storageLocation ?? null,
       };

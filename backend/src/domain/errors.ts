@@ -651,6 +651,21 @@ export const ErrorCode = {
   LISTING_PACK_CONVERSION_INVALID: 'LISTING_PACK_CONVERSION_INVALID',
   /// Volume price bands overlap, or a band is not cheaper than the one below.
   SELLER_PRICE_TIER_INVALID: 'SELLER_PRICE_TIER_INVALID',
+  /// The offer is stored in an ordering unit a seller may not sell in.
+  ///
+  /// A third-party seller sells by the PIECE. The carton belongs to the
+  /// operator, and an offer carrying it — written before the two were told
+  /// apart, or brought in by an import — cannot be priced without guessing
+  /// whether the seller meant their figure per piece or per five hundred of
+  /// them. Guessing is what this code exists to refuse: the offer is held for
+  /// the seller to restate rather than multiplied by a number nobody agreed to.
+  SELLER_OFFER_UNIT_UNSUPPORTED: 'SELLER_OFFER_UNIT_UNSUPPORTED',
+  /// The request named an ordering unit this offer is not sold in.
+  ///
+  /// A client asking for a seller's piece offer "by the carton" is either out
+  /// of date or probing. Either way the honest answer is a refusal, not a
+  /// quantity five hundred times the one the shopper was shown.
+  SELLER_OFFER_UNIT_MISMATCH: 'SELLER_OFFER_UNIT_MISMATCH',
 
   /// The brand is not approved for use on a published listing.
   BRAND_NOT_APPROVED: 'BRAND_NOT_APPROVED',

@@ -781,7 +781,7 @@ export async function submitDraft(
   await prisma.$transaction(async (tx) => {
     const row = await tx.sellerListingDraft.findUnique({
       where: { id: draftId },
-      select: { status: true, sellerAccountId: true },
+      select: { status: true, sellerAccountId: true, version: true },
     });
 
     if (row === null) throw notFound('Listing');
@@ -795,7 +795,22 @@ export async function submitDraft(
 
     await tx.sellerListingDraft.update({
       where: { id: draftId },
-      data: { status: 'PENDING_REVIEW', submittedAt: new Date(), reviewComment: null },
+      data: {
+        status: 'PENDING_REVIEW',
+        submittedAt: new Date(),
+        reviewComment: null,
+        /*
+         * Which revision the moderator will be deciding on.
+         *
+         * Read inside the same transaction as the status change, so it is the
+         * version that is actually going into the queue rather than one read a
+         * moment earlier. It stays put while the listing is in PENDING_REVIEW,
+         * because that status is not editable - so a change to it means the
+         * listing left the queue and came back, which is exactly the case a
+         * moderator's decision must not be allowed to straddle.
+         */
+        submittedVersion: row.version,
+      },
     });
   });
 

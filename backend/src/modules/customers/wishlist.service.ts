@@ -30,6 +30,7 @@
  * `product_prices` row would show a figure with the wrong country's VAT in it,
  * which is the specific discrepancy that whole module exists to prevent.
  */
+import { env } from '../../config/env.js';
 import { notFound } from '../../domain/errors.js';
 import { newId } from '../../infra/ids.js';
 import { prisma } from '../../infra/prisma.js';
@@ -62,6 +63,17 @@ export interface WishlistLine {
    */
   priceMinor: string | null;
   currency: string;
+  /**
+   * What `priceMinor` is a price FOR.
+   *
+   * The figure above is per PIECE, as it is everywhere in this catalogue. The
+   * operator sells cartons of them, so a saved operator line renders the piece
+   * price times the carton; a saved seller line renders it as it stands. Sent
+   * so the saved list reaches the same conclusion as the grid it was saved
+   * from - before this, every saved line was multiplied by the carton, which
+   * put a seller's ten-rupee item on the list at five thousand.
+   */
+  sellUnit: { unit: 'PIECE' | 'OUTER_CARTON'; piecesPerUnit: number };
   /** Whether it could be added to a basket right now. */
   isAvailable: boolean;
   savedAt: string;
@@ -178,6 +190,9 @@ export async function listWishlist(
       imageUrl: product.media[0]?.media.url ?? null,
       priceMinor: quoted === null ? null : quoted.unitPriceMinor.toString(),
       currency: options.currency,
+      sellUnit: product.isMarketplaceProduct
+        ? { unit: 'PIECE' as const, piecesPerUnit: 1 }
+        : { unit: 'OUTER_CARTON' as const, piecesPerUnit: env.PIECES_PER_CARTON },
       isAvailable,
       savedAt: row.createdAt.toISOString(),
     };
