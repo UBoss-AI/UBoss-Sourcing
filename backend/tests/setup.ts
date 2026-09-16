@@ -71,9 +71,42 @@ process.env.MAP_GOOGLE_MAP_ID = '';
  *   - `tests/integration/carton-ordering.test.ts` end to end at 500, which
  *     sets this variable itself before it loads the app.
  *
- * `??=`, so a test file that has already chosen a size keeps it.
+ * Assigned outright, not with `??=`, and that is a fix rather than a style
+ * choice. `??=` looks like it protects a test file that wants a different size,
+ * but it cannot: `setupFiles` run BEFORE the test file's own body, so
+ * `carton-ordering.test.ts` sets 500 after this line and wins either way. What
+ * `??=` actually protected was the developer's `.env` — and `.env.example` sets
+ * `PIECES_PER_CARTON=500`, so the suite ran at 1 on a machine whose `.env`
+ * omitted the key and at 500 on one that copied the example. Two machines, two
+ * different answers, from a file that is not in git.
  */
-process.env.PIECES_PER_CARTON ??= '1';
+process.env.PIECES_PER_CARTON = '1';
+
+/*
+ * The payment gateways, pinned to values that are obviously not real.
+ *
+ * Same reasoning as the map keys above, and the same bug: `payments.test.ts`
+ * and `security.test.ts` sign webhook payloads with `env.RAZORPAY_WEBHOOK_SECRET`
+ * and assert that `env.RAZORPAY_KEY_SECRET` never appears in stored data.
+ * `.env.example` leaves all six empty, so on a machine that copied it the tests
+ * signed with an empty string and asserted `not.toContain('')` - which every
+ * string fails, because every string contains the empty string. They passed
+ * only where the developer's own `.env` happened to carry gateway credentials.
+ *
+ * Set here rather than taken from `.env` so the suite tests the same thing
+ * everywhere, and so a real test account's keys are never what a run depends
+ * on. Nothing here reaches a provider: these sign and compare locally.
+ *
+ * Test-shaped on purpose. `config/env.ts` refuses an `rzp_live_`, `sk_live_` or
+ * `pk_live_` key outside production, and refuses to pair a live key with a test
+ * one - so a value that looked live would stop the suite at boot.
+ */
+process.env.RAZORPAY_KEY_ID = 'rzp_test_suite_not_a_real_key';
+process.env.RAZORPAY_KEY_SECRET = 'razorpay-suite-secret-not-real';
+process.env.RAZORPAY_WEBHOOK_SECRET = 'razorpay-suite-webhook-not-real';
+process.env.STRIPE_PUBLISHABLE_KEY = 'pk_test_suite_not_a_real_key';
+process.env.STRIPE_SECRET_KEY = 'sk_test_suite_not_a_real_key';
+process.env.STRIPE_WEBHOOK_SECRET = 'whsec_suite_not_a_real_secret';
 
 // No VIES either. Checking a VAT number reaches a member state's own register
 // through the Commission's service, which is slow, offline as often as not,

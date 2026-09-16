@@ -25,9 +25,30 @@
  * request to it in this file is one that fails before the provider is reached,
  * and the turns are appended through the service the route uses - the same
  * write path without the bill.
+ *
+ * WHICH IS WHY `isAssistantConfigured` IS MOCKED, AND WHY IT HAD TO BE
+ *
+ * Every `/assistant/*` route answers 404 before anything else when no provider
+ * key is set, and `.env.example` sets none - so this whole file passed only on
+ * a machine whose own `.env` happened to carry a real key, and failed in CI
+ * from the first run. A test that depends on an optional external credential
+ * being present is not a gate; it is a coin flip on whose machine it ran.
+ *
+ * Mocked to `true` rather than a key being invented, because the thing under
+ * test is ownership and authorisation, not provider wiring - and because a real
+ * key in a test environment is an invitation to spend somebody's money by
+ * accident. `catalog-image-search.test.ts` does the same, for the same reason.
  */
-import { afterAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { LightMyRequestResponse } from 'fastify';
+import type * as AssistantService from '../../src/modules/assistant/assistant.service.js';
+
+const isAssistantConfigured = vi.hoisted(() => vi.fn(() => true));
+
+vi.mock('../../src/modules/assistant/assistant.service.js', async (importOriginal) => ({
+  ...(await importOriginal<typeof AssistantService>()),
+  isAssistantConfigured,
+}));
 import { signInAdmin } from '../support/admin-session.js';
 import { env } from '../../src/config/env.js';
 import { ROLE_DEFINITIONS, Permission, Role } from '../../src/domain/permissions.js';

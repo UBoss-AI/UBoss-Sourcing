@@ -52,6 +52,10 @@ Tick only the ones that apply; ignore the rest.
 - [ ] **New copy** — all eight languages, in this piece of work
 - [ ] **A dependency that runs code at install time** — `npm install-scripts ls`
       in the affected project, and record the decision
+- [ ] **A test that needs a setting, a key or a provider** — state it in the test
+      or in `tests/setup.ts`, never by assuming your own `backend/.env`. CI runs
+      against `.env.example`, which has no AI key, no gateway credentials, and
+      `PIECES_PER_CARTON=500`. All three have already broken a build
 
 <!--
 If CI fails on "The install actually built what it needed to", a dependency bump

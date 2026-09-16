@@ -2107,6 +2107,27 @@ a file nobody opens mid-change.
 | Licence review | `license-checker` against an allowlist | warn | **[OD]** — matters because UBOSS is *sold* |
 | Artifact checksum | `sha256sum` manifest | ✅ | |
 
+**The suite must not depend on your `.env`, and CI is what proves it.**
+
+The backend job failed on its first four runs for three separate instances of
+one mistake: a test whose result depended on a file that is not in git.
+
+| What | On a machine whose `.env`… | In CI, which copies `.env.example` |
+|---|---|---|
+| `PIECES_PER_CARTON` | omits it → `??=` in `tests/setup.ts` gives 1 | sets **500**, and every quantity assertion is out by 500× |
+| AI provider key | has a real Gemini key → `/assistant/*` routes exist | has none → **every one of them 404s**, and 147 tests fail |
+| Gateway credentials | has test keys → webhooks sign and compare | are empty → payloads sign with `''`, and `not.toContain('')` fails for every string |
+
+None of these was a bad test. Each was a test that quietly borrowed a
+precondition from whoever wrote it. The fix in all three is the same: the suite
+states what it needs — `tests/setup.ts` pins the carton size and fake gateway
+credentials outright, and `assistant-conversations.test.ts` mocks
+`isAssistantConfigured` the way `catalog-image-search.test.ts` already did.
+
+**This is the value of the CI job, not a cost of it.** A suite that passes on
+the author's machine and fails on a clean one is not a gate, and until there was
+a clean machine running it nobody could have known which of the two it was.
+
 **npm 11 does not run a dependency's install script unless you say so, and this
 project has two that matter.**
 
