@@ -146,6 +146,15 @@ export interface StorefrontConfig {
     isAi: boolean;
     model: string | null;
     vendor: { name: string; country: string } | null;
+    /**
+     * Whether a visitor with no account may ask anything.
+     *
+     * `ASSISTANT_ALLOW_GUESTS` on the API, and it defaults to off. Known before
+     * the page draws, so a guest is offered the way in where the composer would
+     * have been rather than discovering it by typing a question and being
+     * refused.
+     */
+    allowsGuests: boolean;
   };
 }
 

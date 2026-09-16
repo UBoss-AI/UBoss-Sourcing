@@ -68,9 +68,16 @@ jobs:
       # table it touches. One database here would mean either a refused test run
       # or - worse, if the guard were ever relaxed - a suite that wipes the
       # database it is meant to be testing against.
+      # The client is installed rather than assumed. The runner image's MySQL
+      # client has come and gone between Ubuntu versions, and a workflow that
+      # depends on whatever happens to be baked in fails one morning for a
+      # reason that has nothing to do with the commit.
+      - name: Install the MariaDB client
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq mariadb-client
+
       - name: Create the two databases
         run: |
-          mysql -h 127.0.0.1 -P 3306 -uroot -pci-root-not-a-secret -e "
+          mariadb -h 127.0.0.1 -P 3306 -uroot -pci-root-not-a-secret -e "
             CREATE DATABASE uboss      CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
             CREATE DATABASE uboss_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
             SELECT @@version, @@sql_mode;"
@@ -228,6 +235,9 @@ jobs:
         with:
           name: sbom-${{ matrix.slug }}
           path: ${{ matrix.project }}/sbom.cdx.json
+          # The audit above can fail before the SBOM is written. That is a
+          # missing artifact, not a second failure to report.
+          if-no-files-found: warn
           retention-days: 90
 
   # ---------------------------------------------------------------------------
@@ -235,14 +245,26 @@ jobs:
   #
   # The whole history, not the diff: a secret committed and then removed is
   # still in the history, still fetchable by anyone who has ever cloned, and
-  # still valid until it is rotated.
+  # still valid until it is rotated. `fetch-depth: 0` is what makes that
+  # possible.
   #
-  # Run from the published container rather than the marketplace action, which
-  # requires a paid licence key for organisation-owned repositories.
+  # The released binary rather than the marketplace action, which wants a paid
+  # licence key for organisation-owned repositories - and rather than the
+  # container, which adds a Docker Hub pull and its rate limit to every run.
+  #
+  # PINNED, deliberately. `latest` means a new release can turn a green pipeline
+  # red overnight with no commit to blame, and gitleaks has renamed subcommands
+  # across minor versions before. Bump it on purpose, having run it once.
+  #
+  # `.gitleaks.toml` at the repository root holds the exceptions, each one a
+  # single string with a note saying why it is not a secret.
   # ---------------------------------------------------------------------------
   secrets:
     name: Secret scan
     runs-on: ubuntu-24.04
+
+    env:
+      GITLEAKS_VERSION: 8.30.0
 
     steps:
       - uses: actions/checkout@v4
@@ -251,9 +273,12 @@ jobs:
 
       - name: gitleaks
         run: |
-          docker run --rm -v "$PWD:/repo" -w /repo \
-            zricethezav/gitleaks:latest detect \
-            --source=. --redact --verbose --exit-code=1
+          set -euo pipefail
+          curl -sSfL \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | tar -xz gitleaks
+          ./gitleaks version
+          ./gitleaks detect --source=. --redact --no-banner --exit-code=1
 
   # ---------------------------------------------------------------------------
   # Migration safety

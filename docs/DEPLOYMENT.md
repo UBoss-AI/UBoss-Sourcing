@@ -1527,7 +1527,22 @@ routines, no generated columns, no `TIMESTAMP`.
 
 | # | Risk | What actually happens | Mitigation |
 |---|---|---|---|
-| **M1** | **`sql_mode` becomes strict** | An `INSERT` or `UPDATE` that silently truncated or coerced a value locally **throws** in production. It surfaces weeks later as a 500 on a screen nobody tested — not as an import error | **Set strict mode locally and on staging and run the full test suite there before cutover.** §13.3 step 0 |
+| **M1** | **`sql_mode` becomes strict** | An `INSERT` or `UPDATE` that silently truncated or coerced a value locally **throws** in production. It surfaces weeks later as a 500 on a screen nobody tested — not as an import error | **Done once, and it found a real defect** — see below. Repeat it on staging before cutover. §13.3 step 0 |
+
+**What the first strict run found, recorded because it is the shape of the next
+one.** Setting `sql_mode` to the 10.11 default on the development server and
+running the suite produced **26 failures across 2 files**. One cause:
+`correlationId` was `CHAR(26)` — the width of a ULID — in **ten** tables, while
+`app.ts` accepts a client-supplied `x-correlation-id` of **up to 64
+characters** and echoes it back. On 10.4 the extra characters were dropped in
+silence. On 10.11 the insert fails with `ERROR 1406`, and several of those
+writes sit **inside a transaction**, so the failure would not merely have lost
+an audit row — it would have rolled the order back with it.
+
+Nothing in development would ever have shown this. It needed a customer or an
+API gateway that stamps its own trace header, and a strict server. Fixed in
+`20260916210000_correlation_id_matches_what_the_api_accepts`, which widens all
+ten to `VARCHAR(64)` — a widening, so it is safe in a single release.
 | **M2** | **`lower_case_table_names` 1 → 0** | Identifiers become case-sensitive. A dump written on Windows referring to a differently-cased identifier will not match on Linux | Prisma `@@map` names are consistently lower-case **[VR]**, so no impact is expected — but **verify** with the query in §13.4 |
 | **M3** | **Server collation differs** (`general_ci` vs `unicode_ci`) | Sorting and `UNIQUE` comparison change for Polish, Greek and German text | **No impact expected: every table already carries `utf8mb4_unicode_ci` explicitly [VR].** Create the production database with `COLLATE utf8mb4_unicode_ci` so any future table inherits the right one |
 | **M4** | **Client version skew** | A 10.4 `mysqldump` writes version-conditional comments a 10.11 server may read differently | **Build the schema from `prisma migrate deploy`, never from a dumped schema.** §13.3 separates schema from data for exactly this reason |
@@ -2048,15 +2063,15 @@ reason:
 | Locked install | `npm ci` in each of the four projects | ✅ | Fails if `package.json` and the lock disagree |
 | Lint | `npm run lint` (`--max-warnings=0`) | ✅ | ESLint forbids the void-arrow shorthand; `lint:fix` will not add the braces |
 | Typecheck | `npm run typecheck` / `tsc -b` | ✅ | Backend verified passing **[VR]** |
-| Unit tests | `npm test` (44 files) | ✅ | |
-| Integration tests | `npm test` (75 files) | ✅ | **Needs a MariaDB service container and its own migrated database** |
+| Unit tests | `npm test` | ✅ | |
+| Integration tests | `npm test` | ✅ | **Needs a MariaDB service container and its own migrated database — two databases, because the suite refuses to run when `TEST_DATABASE_URL` equals `DATABASE_URL`.** 120 files, 2319 tests, and they run against **10.11 with strict `sql_mode`**, which is where the `correlationId` defect above surfaced |
 | Contrast audit | `npm run audit:contrast` in each app | ✅ | Accessibility evidence (§7, §19) |
 | Build | `npm run build` in all four | ✅ | |
 | **Migration validation** | `prisma migrate status` against a scratch database, then `prisma migrate deploy` | ✅ | Catches a migration that does not apply cleanly |
 | **Migration safety review** | grep the diff for `DROP`, `RENAME`, `MODIFY`, `NOT NULL` without a default | ✅ warn | §15.5 |
-| Secret scanning | `gitleaks detect --no-git` + GitHub push protection | ✅ | **Especially important while `.gitignore` has no `.env` rule** |
-| Dependency audit | `npm audit --audit-level=high` | ✅ high/critical | |
-| SAST | CodeQL (`javascript-typescript`) | ✅ high | |
+| Secret scanning | `gitleaks detect` over the **full history**, version pinned, exceptions in `.gitleaks.toml` | ✅ | A secret committed and then deleted is still in the history and still valid until it is rotated. The four exceptions are test fixtures shaped like live keys, each allowlisted by its exact text — never by path, because a fixture directory is where somebody eventually pastes a real one |
+| Dependency audit | `npm audit --audit-level=high` | ✅ high/critical | Green in all four projects. Where an advisory's fix is pinned away by a parent package, `overrides` in `backend/package.json` forces the patched version rather than an exception being written down — and the suite is what proves the forced version works |
+| SAST | CodeQL (`javascript-typescript`, `security-extended`) | **skipped until enabled** | `.github/workflows/codeql.yml` runs only when the repository variable `ENABLE_CODEQL` is `true`. On a private repository without Advanced Security the `init` step fails on licensing, and a permanent red mark nobody can fix with code is how people stop reading CI results. A skipped job says "not run", which is the truth |
 | SBOM | `npm sbom --sbom-format cyclonedx` per project, uploaded as an artifact | ✅ | **Also a Cyber Resilience Act input (§7)** |
 | Licence review | `license-checker` against an allowlist | warn | **[OD]** — matters because UBOSS is *sold* |
 | Artifact checksum | `sha256sum` manifest | ✅ | |
@@ -2614,7 +2629,7 @@ class of finding a penetration test would otherwise raise.
 | **S6** | **`/metrics` is unauthenticated** — protected only by the nginx `allow 127.0.0.1` block | **Low** | Keep the nginx restriction; scrape over an SSH tunnel |
 | **S7** | **No MFA on staff accounts by default** — MFA exists (`mfaSecretEnc`, logistics enrolment screens) but is not shown to be mandatory for admins | **Medium** | **[OD]** Require MFA for every admin. Verify in the console |
 | ~~S8~~ | ~~**No automatic security updates** — `bootstrap.sh` installs neither `unattended-upgrades` nor a fail2ban jail~~ | **Fixed** | Both, plus journald caps, in `bootstrap.sh`. No automatic reboot: one box. §10.6 |
-| ~~S9~~ | ~~**No dependency or secret scanning in CI**, because there is no CI~~ | **Fixed** | `npm audit --audit-level=high` per project, CycloneDX SBOMs kept 90 days, gitleaks over the full history, CodeQL `security-extended`, Dependabot weekly. **Outstanding:** turn on GitHub push protection, which is a repository setting §15 cannot write |
+| ~~S9~~ | ~~**No dependency or secret scanning in CI**, because there is no CI~~ | **Fixed, and it found things** | `npm audit --audit-level=high` per project — which failed on first run and is now green: a **critical XSS in `maplibre-gl`** (the admin warehouse map) fixed by taking v6, and three high advisories in transitive packages Prisma pins away from, fixed with `overrides` (`mariadb@^3.5.4`, `mysql2@^3.24.4`, `deepmerge-ts@^8`) and proved by the full 2319-test suite. Plus CycloneDX SBOMs kept 90 days, gitleaks v8.30.0 pinned and run over the full history, Dependabot weekly. **Outstanding:** GitHub push protection, and `ENABLE_CODEQL=true` once Advanced Security is confirmed on the repository |
 | **S10** | **MariaDB 10.4 in development is EOL** since 2024-06-18 **[VE]** | **Medium** | Production is 10.11; align development (§13) |
 | **S11** | **No penetration test** | **High before launch** | **[OD]** Commission one against staging, scoped to all three surfaces |
 | **S12** | **AI prompt injection and data exfiltration** not independently tested | **Medium** | The system prompt forbids clinical advice and the assistant is given the catalogue rather than account data **[VR]** — but a red-team pass on the assistant and image search is warranted before launch |
@@ -3013,7 +3028,7 @@ Probability and impact: **H**igh / **M**edium / **L**ow.
 | **R6** | **A secret is committed** | `.gitignore` had no `.env` rule | **L** (was M) | **H** | `git check-ignore`; gitleaks once CI exists | Ignore-by-default with named exceptions, verified | Rotate every secret in the file | Rotate + purge history | Tech owner | Before go-live | **Largely closed.** Remaining: delete the three `backend/.env.before-*` files, and add push protection + gitleaks (§15) |
 | **R7** | **Single-VPS failure** | One machine, one disk, one host | **M** | **H** | External uptime monitor (alert 1) | Cannot be prevented on one box | Snapshots; documented rebuild; off-site backups | Rebuild and restore — measure the RTO in the drill | Tech owner | Ongoing | Accepted for launch |
 | **R8** | **Database and media on one disk** | Single-node design | **M** | **H** | Disk alerts 7, 8 | Media to object storage (R1) | Alert at 70 % | Resize the VPS | Tech owner | Before go-live | Open |
-| **R9** | **XAMPP → production incompatibility** | Local is non-strict 10.4; production is strict 10.11 | **M** | **M** | `SELECT @@sql_mode` on both | §13.3 step 0 — turn strict on locally and run `verify` | Staging rehearsal | Fix forward | Tech owner | Before go-live | Open |
+| **R9** | **XAMPP → production incompatibility** | Local is non-strict 10.4; production is strict 10.11 | **M** | **M** | `SELECT @@sql_mode` on both | §13.3 step 0 — done once: it found ten `CHAR(26)` `correlationId` columns against a header the API accepts at 64, now widened. **CI runs every commit against 10.11**, so the next one of these is caught by a pull request rather than by production | Staging rehearsal | Fix forward | Tech owner | Before go-live | **Reduced — the class is now under a gate** |
 | **R10** | **Connection-pool exhaustion** | `DB_POOL_SIZE` × 4 processes vs `max_connections` | **L** | **H** | Alerts 15, 16 | 12 × 4 = 48 of 200 — comfortable | Raise `max_connections` or lower the pool | Restart | Tech owner | Ongoing | Controlled |
 | **R11** | **Disk exhaustion** | 5 releases × `node_modules`, backups, binlogs, journald, media | **M** | **H** | Alerts 7, 8 | Retention everywhere; journald caps (§10.6) | Prune releases; move backups off | Resize | Tech owner | Ongoing | Open |
 | **R12** | **Security misconfiguration** | Hand-edited nginx; the `add_header` inheritance trap | **M** | **H** | Header check in smoke test 24 | Config in git; `nginx -t`; snippets | Re-verify after every nginx edit | Roll back the config | Tech owner | Ongoing | Open |

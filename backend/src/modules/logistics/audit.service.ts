@@ -160,7 +160,7 @@ export async function recordLogisticsAudit(
         correlationId: entry.correlationId ?? null,
       },
     });
-  } catch {
+  } catch (error) {
     /*
      * Swallowed on purpose, and only when no transaction was supplied.
      *
@@ -169,8 +169,15 @@ export async function recordLogisticsAudit(
      * Outside one, this is a best-effort record beside an action that has
      * already happened, and failing the request would be reporting a failure
      * that did not occur.
+     *
+     * `cause` carries the database's own message up with it. Without it this
+     * threw a sentence that named the symptom and nothing else, which on a
+     * build machine - where nobody can reach the database to ask it - is the
+     * difference between a five-minute diagnosis and an afternoon.
      */
-    if (tx !== undefined) throw new Error('logistics audit write failed inside a transaction');
+    if (tx !== undefined) {
+      throw new Error('logistics audit write failed inside a transaction', { cause: error });
+    }
   }
 }
 

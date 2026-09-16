@@ -55,6 +55,39 @@ interface LocationState {
   from?: string;
 }
 
+/**
+ * Where to go once they are in.
+ *
+ * Two spellings reach this page and both are in use:
+ *
+ *   - router state (`state.from`), set by `RequireCustomer`, the service
+ *     banner, the product page and AI Mode's sign-in panel;
+ *   - `?next=`, in the Seller Hub's plain links, which are `<a href>`s with
+ *     nowhere to hang router state.
+ *
+ * The second was being ignored, so pressing "Sign in" on the Sell page landed
+ * somebody on the home page having forgotten what they came for.
+ *
+ * **Same-origin paths only.** An open redirect is a phishing primitive: a link
+ * to our own sign-in page that hands the visitor to somebody else's site
+ * afterwards borrows this shop's credibility for it. Anything that is not a
+ * single leading slash - `//evil.example`, `https://…`, a backslash Windows
+ * clients normalise into a slash - is discarded rather than corrected.
+ */
+function returnTarget(state: unknown, search: string): string {
+  const candidate =
+    (state as LocationState | null)?.from ?? new URLSearchParams(search).get('next') ?? null;
+
+  if (candidate === null) return '/';
+
+  // One leading slash, and the next character must not be another slash or a
+  // backslash: `//evil.example` is a protocol-relative URL, and `/\evil.example`
+  // is the same thing after a browser normalises the backslash.
+  if (!/^\/(?![/\\])/.test(candidate)) return '/';
+
+  return candidate;
+}
+
 export function LoginPage(): React.JSX.Element {
   const { user, isCustomer, isLoading, login } = useSession();
   const { business, features } = useStorefront();
@@ -105,8 +138,7 @@ export function LoginPage(): React.JSX.Element {
   }
 
   if (isCustomer) {
-    const from = (location.state as LocationState | null)?.from;
-    return <Navigate to={from ?? '/'} replace />;
+    return <Navigate to={returnTarget(location.state, location.search)} replace />;
   }
 
   /**
@@ -157,8 +189,7 @@ export function LoginPage(): React.JSX.Element {
       // an email and a password, and the acceptance that is recorded against
       // an account is the one given at registration or activation.
       await login(values.email, values.password);
-      const from = (location.state as LocationState | null)?.from;
-      void navigate(from ?? '/', { replace: true });
+      void navigate(returnTarget(location.state, location.search), { replace: true });
     } catch (error) {
       if (error instanceof NetworkError) {
         setFormError(errorMessage(t, error));

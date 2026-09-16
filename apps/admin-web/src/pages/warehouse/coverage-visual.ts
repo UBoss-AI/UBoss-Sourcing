@@ -687,15 +687,24 @@ export function coverageVisual(map: MapLibreMap): CoverageVisual {
     // `build()` above added all four, so the optional call is for the one case
     // that can still happen: a style swapped underneath us between the guard
     // and here.
-    map.getSource<GeoJSONSource>(SOURCE.ring)?.setData({
+    //
+    // `void`, because `setData` became asynchronous in MapLibre 6 and this
+    // function is a synchronous draw called from a render path. The promise it
+    // now returns settles when the data has been applied, which is not
+    // something this code has anything to do after: the next frame draws
+    // whatever is there. Awaiting the five in turn would serialise five layer
+    // updates that are meant to land together, and a rejection means the source
+    // was removed underneath us - the same case the `?.` above already treats
+    // as ordinary.
+    void map.getSource<GeoJSONSource>(SOURCE.ring)?.setData({
       type: 'FeatureCollection',
       features: [ring],
     });
     const areas = areasFor(coverage);
-    map.getSource<GeoJSONSource>(SOURCE.areas)?.setData(areas.served);
-    map.getSource<GeoJSONSource>(SOURCE.excluded)?.setData(areas.excluded);
-    map.getSource<GeoJSONSource>(SOURCE.routes)?.setData(routesFor(coverage));
-    map.getSource<GeoJSONSource>(SOURCE.targets)?.setData(targetsFor(coverage));
+    void map.getSource<GeoJSONSource>(SOURCE.areas)?.setData(areas.served);
+    void map.getSource<GeoJSONSource>(SOURCE.excluded)?.setData(areas.excluded);
+    void map.getSource<GeoJSONSource>(SOURCE.routes)?.setData(routesFor(coverage));
+    void map.getSource<GeoJSONSource>(SOURCE.targets)?.setData(targetsFor(coverage));
 
     active = true;
 

@@ -1,0 +1,57 @@
+# =============================================================================
+# Secret scanning.
+#
+# Read by `gitleaks` in .github/workflows/ci.yml, which scans the WHOLE HISTORY
+# on every pull request. A secret that was committed and then deleted is still
+# in the history, still fetchable by anyone who has ever cloned, and still valid
+# until it is rotated - so the diff is not the thing worth scanning.
+#
+# HOW TO USE THIS FILE, AND HOW NOT TO
+#
+# Every entry below is one specific string in one specific place, with a note
+# saying why it is not a secret. That is the whole design.
+#
+# What must NOT go in here: a path. `paths = ['backend/tests/.*']` would make
+# the scanner blind to an entire directory, and a fixture file is exactly where
+# somebody eventually pastes a real key "just to reproduce it". If a new finding
+# appears, the first question is whether it is real - not how to silence it.
+#
+# If you are adding an entry because a test needs a credential-shaped string,
+# consider instead giving the fixture a shape no scanner recognises. The four
+# below predate that advice and are kept because they are already in the
+# history, where renaming them changes nothing.
+# =============================================================================
+
+[extend]
+# Every default rule stays on. This file adds exceptions, never removes rules.
+useDefault = true
+
+# -----------------------------------------------------------------------------
+# Test fixtures that imitate live credentials on purpose
+#
+# Each of these is a made-up value in a test, and each is shaped like a real key
+# BECAUSE THAT IS WHAT THE TEST IS ABOUT: a credential hint that redacts
+# correctly has to be handed something that looks worth redacting, and an ERP
+# connector test that proves a key reached the far end has to send one.
+#
+# None of them authorises anything anywhere. They are matched by their exact
+# text, so a genuine key pasted into the same file on the same line is still
+# reported.
+# -----------------------------------------------------------------------------
+[[rules]]
+  id = "placeholder-rule-so-the-config-is-valid"
+  description = "Never matches. gitleaks requires at least one rule when [[rules]] is present; the real rules come from useDefault above."
+  regex = '''\$\^never-matches-anything\^\$'''
+  keywords = ["never-matches-anything"]
+
+[[allowlists]]
+  description = "backend/tests/unit/customer-erp-reliability.test.ts - the input to `hintFor`, which the test then asserts is NOT echoed back in full. A short or plain string would prove nothing."
+  regexes = ['''sk_live_abcdefghijklmnop9f2a''']
+
+[[allowlists]]
+  description = "backend/tests/integration/erp-integration.test.ts - the API key a stub ERP server checks it actually received. The assertion is that the key travelled, so the test has to know the value."
+  regexes = ['''sk_live_erp_key_9f2a''']
+
+[[allowlists]]
+  description = "backend/tests/integration/erp-integration.test.ts - the bearer token for the same stub server, same reason."
+  regexes = ['''tok_live_abc123''']

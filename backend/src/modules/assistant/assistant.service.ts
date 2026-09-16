@@ -108,13 +108,25 @@ export interface AssistantDisclosure {
    * matters.
    */
   vendor: { name: string; country: string } | null;
+  /**
+   * Whether a visitor with no account may ask anything at all.
+   *
+   * `ASSISTANT_ALLOW_GUESTS`, and it defaults to off. Public because the
+   * storefront has to know it BEFORE it draws the page: without it the only way
+   * to discover the answer is to type a question, press send and be refused,
+   * which is a worse way to learn something the server already knows. With it,
+   * a guest is offered the way in where the composer would have been.
+   *
+   * It reveals nothing a visitor could not establish by trying once.
+   */
+  allowsGuests: boolean;
 }
 
 export function assistantDisclosure(): AssistantDisclosure {
   const provider = activeProvider();
 
   if (provider === null) {
-    return { available: false, isAi: true, model: null, vendor: null };
+    return { available: false, isAi: true, model: null, vendor: null, allowsGuests: false };
   }
 
   return {
@@ -122,6 +134,7 @@ export function assistantDisclosure(): AssistantDisclosure {
     isAi: true,
     model: provider.model,
     vendor: PROVIDER_VENDORS[provider.name],
+    allowsGuests: env.ASSISTANT_ALLOW_GUESTS,
   };
 }
 

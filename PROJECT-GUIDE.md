@@ -511,6 +511,14 @@ comes back in the exact same shape:
   that request. A customer can read it off the screen and support can find the
   exact log line.
 
+  A caller may supply their own instead, in `x-correlation-id`, **up to 64
+  characters**, and it is echoed back — so one id can follow a request through
+  a buyer's systems and ours. Every column that stores it is `VARCHAR(64)` to
+  match. They were `CHAR(26)`, the width of the id we generate, which was
+  invisible on a development MariaDB (it truncates in silence) and would have
+  thrown `ERROR 1406` on the strict one production runs — inside a transaction
+  in several places, taking the order down with the audit row.
+
 ---
 
 # 4. The customer storefront
@@ -1744,13 +1752,28 @@ bounds that spend rather than removing it, and a default that costs money on
 software somebody else pays to run is the wrong default. An operator who would
 rather let a buyer evaluate the catalogue before opening an account turns it on.
 
-With it off, a signed-out visitor's first send comes back 401 — and the page is
-careful about which 401 it is. A 401 for somebody who *was* signed in means the
-session expired; a 401 for somebody who never was means this deployment keeps
-the assistant for account holders. They are different sentences, and telling
-somebody their session expired when they never had one sends them looking for a
-problem that is not there. Either way the question goes back into the composer,
-so it survives the trip through sign-in.
+With it off, a signed-out visitor never reaches a composer at all. The setting
+is published in `/config`, so the page knows before it draws: where the composer
+would be there is a short panel saying the assistant is for account holders and
+a **Sign in** button, and the starter chips are not offered — a chip that opens
+a conversation the deployment will refuse looks like an invitation and is not
+one. Nothing is requested from the API.
+
+Not a *disabled* composer, which was the other option and the worse one: people
+type into a greyed-out box anyway and then wonder why nothing happened.
+
+A question carried here from the landing page's search bar is **left parked**
+rather than consumed — `takePendingQuestion` clears as it reads, so taking it on
+a page that is about to send somebody to sign in would lose it. It waits in
+`sessionStorage` through the sign-in page load and is asked on the way back, and
+`state.from` brings them back to `/ai` rather than to the home page.
+
+The 401 branch still exists, for the case where the browser's copy of the config
+and the server disagree — an operator flipping the setting while somebody has
+the page open. It is careful about *which* 401 it is: for somebody who **was**
+signed in it means the session expired; for somebody who never was it means the
+assistant is for account holders. Telling the second that their session expired
+sends them looking for a problem that is not there.
 
 **The shell gets out of the way for this one route.** `<main>` drops the
 storefront's reading measure and its padding, the footer is not rendered, and
@@ -9087,7 +9110,7 @@ hostname adds it to that check, in every mode, and nothing else with it. See
 | `FEATURE_ADMIN_LOGIN_LOCATION` | `true` | Ask staff's browser for its location at sign-in |
 | `FEATURE_LOGISTICS_PORTAL` | `false` | The whole of section 5a. Off means the third application has nothing to sign in to, every `/api/v1/logistics/*` route refuses, no carrier can be created, and the Logistics group is absent from the admin sidebar |
 | `ASSISTANT_ENABLED` | — | AI Mode and image search |
-| `ASSISTANT_ALLOW_GUESTS` | `false` | May somebody with no account use AI Mode? **Off**, so `/start` and `/chat` answer a caller with no session 401 and the page invites them to sign in. On, and a visitor may ask before signing up — understand what that costs first: an anonymous caller spends the operator's AI provider budget on a page anybody on the internet can open, and a rate limit bounds that rather than removing it |
+| `ASSISTANT_ALLOW_GUESTS` | `false` | May somebody with no account use AI Mode? **Off**, so `/start` and `/chat` answer a caller with no session 401 — and the value is **published in `/config`**, so the page offers the way in where the composer would be rather than letting somebody type a paragraph and then refusing it. On, and a visitor may ask before signing up; understand what that costs first, because an anonymous caller spends the operator's AI provider budget on a page anybody on the internet can open, and a rate limit bounds that rather than removing it |
 
 ## Carriage
 
@@ -9441,7 +9464,7 @@ UBoss-Software/
 ├── backend/
 │   ├── prisma/
 │   │   ├── schema.prisma           ← THE DATABASE SHAPE. 170 models.
-│   │   └── migrations/             45 numbered, committed SQL steps
+│   │   └── migrations/             49 numbered, committed SQL steps
 │   ├── src/
 │   │   ├── config/env.ts           ← Every setting, validated at boot
 │   │   ├── domain/                 Pure rules, no I/O

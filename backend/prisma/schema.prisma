@@ -2315,7 +2315,7 @@ model OrderStatusHistory {
   reason      String?   @db.VarChar(512)
   metaJson    Json?
 
-  correlationId String?  @db.Char(26)
+  correlationId String?  @db.VarChar(64)
   createdAt     DateTime @default(now()) @db.DateTime(3)
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
@@ -3999,7 +3999,7 @@ model AuditLog {
 
   ipAddress     String? @db.VarChar(45)
   userAgent     String? @db.VarChar(512)
-  correlationId String? @db.Char(26)
+  correlationId String? @db.VarChar(64)
 
   createdAt DateTime @default(now()) @db.DateTime(3)
 
@@ -5468,7 +5468,7 @@ model ErpInventorySyncRun {
 
   /// Shared with every log line, audit row and integration event this run
   /// produces, so one incident reads back as one story.
-  correlationId String @db.Char(26)
+  correlationId String @db.VarChar(64)
 
   startedAt  DateTime  @default(now()) @db.DateTime(3)
   finishedAt DateTime? @db.DateTime(3)
@@ -5631,7 +5631,7 @@ model IntegrationEvent {
   /// What the ERP called it back.
   erpOrderReference String? @db.VarChar(191)
 
-  correlationId  String  @db.Char(26)
+  correlationId  String  @db.VarChar(64)
   /// Stable across every attempt at the same logical operation. NULL for events
   /// that are not operations against the ERP's state - a connection test, say,
   /// which may be run as often as anybody likes.
@@ -6766,7 +6766,7 @@ model CustomerErpSyncEvent {
   /// Shared with every log line, audit row and child event this operation
   /// produces, so one incident reads back as one story. This is the id the
   /// dashboard's log search is keyed on.
-  correlationId String @db.Char(26)
+  correlationId String @db.VarChar(64)
 
   /// The mapped request as it was actually sent, with every credential
   /// redacted and the size capped. Kept because a disagreement about a
@@ -6841,7 +6841,7 @@ model CustomerErpSyncJob {
   /// A dry run reads, maps and reports, and writes nothing on either side.
   isDryRun Boolean @default(false)
 
-  correlationId String @db.Char(26)
+  correlationId String @db.VarChar(64)
 
   startedAt  DateTime  @default(now()) @db.DateTime(3)
   finishedAt DateTime? @db.DateTime(3)
@@ -6920,7 +6920,7 @@ model CustomerErpWebhookEvent {
   /// The body, redacted and capped. The evidence behind "we did receive it".
   payloadJson Json?
 
-  correlationId String @db.Char(26)
+  correlationId String @db.VarChar(64)
 
   connection CustomerErpConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
 
@@ -7284,7 +7284,7 @@ model CustomerErpAuditLog {
   ipAddress String? @db.VarChar(45)
   userAgent String? @db.VarChar(512)
 
-  correlationId String? @db.Char(26)
+  correlationId String? @db.VarChar(64)
 
   createdAt DateTime @default(now()) @db.DateTime(3)
 
@@ -9505,7 +9505,7 @@ model SellerAuditLog {
   /// JSON, because the JSON is a diff and a diff is not a sentence.
   summary String? @db.VarChar(512)
 
-  correlationId String? @db.Char(26)
+  correlationId String? @db.VarChar(64)
 
   createdAt DateTime @default(now()) @db.DateTime(3)
 
@@ -11498,7 +11498,7 @@ model LogisticsAuditLog {
   isContactReveal Boolean @default(false)
 
   ipAddress     String? @db.VarChar(45)
-  correlationId String? @db.Char(26)
+  correlationId String? @db.VarChar(64)
 
   createdAt DateTime @default(now()) @db.DateTime(3)
 

@@ -98,7 +98,7 @@ three and it decides whose prices they are charged **[VR]**.
 | Product cards and links in replies | **Built** | A reply may only become a product the catalogue actually has — `lib/ai-products.ts` |
 | Not presented as medical advice | **Built** | The system prompt forbids clinical advice |
 | Isolation from other customers' data | **Built** | The assistant is given the catalogue, not account data **[VR]** |
-| Guests are refused by default | **Built, and matches the brief** | `ASSISTANT_ALLOW_GUESTS` defaults to **`false`**: a caller with no session gets 401 from `/assistant/start` and `/assistant/chat`, and the page answers with an invitation to sign in rather than with "your session has expired" — which is the other thing a 401 means there. An operator who wants trial access sets it to `true`, and guests then get their own lower per-IP allowance |
+| Guests are refused by default | **Built, and matches the brief** | `ASSISTANT_ALLOW_GUESTS` defaults to **`false`**. The setting is published in `/config`, so the storefront knows *before it draws the page*: a signed-out visitor is given the way in where the composer would be, the starter chips are not offered, and no request is made at all. A question carried from the landing page's search bar is left parked rather than consumed, so it survives the trip through sign-in and is asked on the way back. An operator who wants trial access sets it to `true`, and guests then get their own lower per-IP allowance |
 | Provider failure behaviour | **Built** | Degrades; the shop keeps working |
 | Prompt-injection red-teaming | **Unverified** | Not tested in this session. `DEPLOYMENT.md` S12 |
 

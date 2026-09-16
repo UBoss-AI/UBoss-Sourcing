@@ -4,6 +4,11 @@
   "private": true,
   "description": "UBOSS Sourcing backend API and worker (Fastify + TypeScript + Prisma + MariaDB)",
   "type": "module",
+  "overrides": {
+    "mariadb": "^3.5.4",
+    "mysql2": "^3.24.4",
+    "deepmerge-ts": "^8.0.0"
+  },
   "engines": {
     "node": ">=24.0.0"
   },

@@ -39,6 +39,21 @@ jobs:
     name: Analyze
     runs-on: ubuntu-24.04
 
+    # OFF UNTIL SOMEBODY TURNS IT ON, and the switch is one repository variable:
+    #
+    #   Settings -> Secrets and variables -> Actions -> Variables
+    #   ENABLE_CODEQL = true
+    #
+    # Because on a PRIVATE repository CodeQL needs GitHub Advanced Security, and
+    # without it `init` fails with a licensing error on every push. That is a red
+    # mark about a billing setting, sitting next to the red marks that mean a
+    # test broke - and the fastest way to make people stop reading CI results is
+    # to leave one there that nobody can fix by changing code.
+    #
+    # A skipped job says "not run", which is true. `continue-on-error` would say
+    # "passed", which would not be.
+    if: vars.ENABLE_CODEQL == 'true'
+
     steps:
       - uses: actions/checkout@v4
 

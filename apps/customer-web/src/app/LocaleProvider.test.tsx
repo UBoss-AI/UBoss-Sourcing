@@ -26,7 +26,7 @@ import { useLocale } from './locale-context';
 
 /** A store selling in its home market and in Poland. */
 const CONFIG: StorefrontConfig = {
-  assistant: { available: false, isAi: true, model: null, vendor: null },
+  assistant: { available: false, isAi: true, model: null, vendor: null, allowsGuests: false },
   business: {
     displayName: 'Test Supplies',
     supportEmail: null,

@@ -40,11 +40,23 @@
  *     list. The token lives in React state and nowhere else — see the note on
  *     `guestToken`.
  *
- * With guests off, a signed-out visitor's first send comes back 401 and is
- * answered with an invitation to sign in — **not** with "your session has
+ * With guests off, a signed-out visitor is offered the way in **instead of a
+ * composer**. The setting is published in `/config`, so the page knows before
+ * it draws rather than after somebody has typed out what they need and pressed
+ * Send. Not a disabled text box either: people type into those anyway and then
+ * wonder why nothing happened. The starter chips are withheld for the same
+ * reason — a chip that opens a conversation the deployment will refuse looks
+ * like an invitation and is not one. No request is made at all.
+ *
+ * A question carried here from the landing page's search bar is left parked in
+ * `sessionStorage` rather than consumed, so it survives the page load that
+ * signing in costs and is asked on the way back.
+ *
+ * The 401 branch below still matters for the case where the config and the
+ * server disagree — an operator flipping the setting while somebody has the
+ * page open. It answers with the same invitation rather than "your session has
  * expired", which is the other thing a 401 means here and would send somebody
- * looking for a problem that does not exist. Their question goes back into the
- * composer so it survives the round trip through sign-in.
+ * who never had a session looking for a problem that does not exist.
  *
  * The server holds the transcript, whoever asked. This page sends one message
  * at a time with a conversation id and does not post history back, so what
@@ -56,12 +68,12 @@ import { useSession } from '@/auth/session-context';
 import { useAccountIdentity } from '@/pages/account/useAccountIdentity';
 import { useStorefront } from '@/app/storefront-context';
 import { ImageSearchDialog } from '@/components/hero-search/ImageSearchDialog';
-import { Button, Spinner } from '@/components/ui';
+import { Button, ButtonLink, Spinner } from '@/components/ui';
 import { SidebarIcon, SparkIcon } from '@/components/icons';
 import { cx } from '@/lib/cx';
 import { ApiError, api, requestStream } from '@/lib/api';
 import { readAssistantStream } from '@/lib/assistant-stream';
-import { takePendingQuestion } from '@/lib/ai-mode';
+import { AI_MODE_PATH, takePendingQuestion } from '@/lib/ai-mode';
 import type { ImageSearchResult } from '@/lib/image-search';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { useI18n } from '@/i18n/i18n-context';
@@ -99,7 +111,7 @@ export function AiModePage(): React.JSX.Element {
   const { t } = useI18n();
   const queryClient = useQueryClient();
   const { business, features, assistant } = useStorefront();
-  const { user, logout, isCustomer } = useSession();
+  const { user, logout, isCustomer, isLoading: isSessionLoading } = useSession();
 
   /**
    * The first name on the account, for the greeting, and nothing else.
@@ -114,6 +126,30 @@ export function AiModePage(): React.JSX.Element {
    * and "Hello, Ops" is worse than no name at all.
    */
   const identity = useAccountIdentity(isCustomer);
+
+  /**
+   * Whether this visitor will be refused before they have typed anything.
+   *
+   * True when nobody is signed in and the deployment keeps the assistant for
+   * account holders — `ASSISTANT_ALLOW_GUESTS`, which ships off.
+   *
+   * The whole point of knowing this up front is that the page can say so
+   * instead of offering a composer whose only outcome is a 401. Somebody who
+   * has typed out what they need and pressed Send has spent something; being
+   * told *then* that they needed an account is the version of this interaction
+   * that annoys people.
+   *
+   * It is deliberately not `assistant.available === false`: that is a
+   * deployment with no AI provider at all, which the router already keeps this
+   * page out of.
+   *
+   * False while the session is still settling. `isCustomer` is false during the
+   * first `/auth/me` call for everybody, signed in or not, so without this a
+   * customer who reloads the page watches a sign-in panel appear and then
+   * vanish - and a panel that flashes reads as a bug even when the page ends up
+   * correct.
+   */
+  const mustSignIn = !isSessionLoading && !isCustomer && !assistant.allowsGuests;
 
   useDocumentMeta({ title: t('aiMode.title'), description: t('aiMode.metaDescription') }, business.displayName);
 
@@ -431,12 +467,23 @@ export function AiModePage(): React.JSX.Element {
   }, [send]);
 
   useEffect(() => {
+    /*
+     * Left where it is when this visitor cannot ask.
+     *
+     * `takePendingQuestion` clears as it reads, so taking it here would consume
+     * the question on a page that is about to send them to sign in — and it
+     * would be gone by the time they came back. Leaving it parked means the
+     * question waits in `sessionStorage` through the sign-in page load and is
+     * asked on the way back, which is what somebody who typed it expects.
+     */
+    if (mustSignIn) return;
+
     const pending = takePendingQuestion();
     if (pending === null) return;
 
     if (pending.intent === 'send') void sendRef.current(pending.text);
     else setDraft(pending.text);
-  }, []);
+  }, [mustSignIn]);
 
   // --- Switching threads ---------------------------------------------------
 
@@ -661,21 +708,27 @@ export function AiModePage(): React.JSX.Element {
                   {t('aiMode.greetingQuestion')}
                 </h1>
 
-                <ul className="mt-8 flex flex-wrap justify-center gap-2">
-                  {SUGGESTIONS.map((key) => (
-                    <li key={key}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          void send(t(key));
-                        }}
-                        className="rounded-full border border-border bg-surface px-3.5 py-2 text-sm text-ink-muted shadow-card transition-[background-color,border-color,color,box-shadow] hover:border-brand hover:bg-brand-soft hover:text-brand hover:shadow-card-hover focus-visible:border-brand focus-visible:bg-brand-soft focus-visible:text-brand motion-reduce:transition-none"
-                      >
-                        {t(key)}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+                {/* Not offered to somebody who cannot ask. A chip that opens a
+                    conversation the deployment will refuse is the same mistake
+                    as a composer that can only end in a 401 - and it is worse
+                    here, because a chip looks like an invitation. */}
+                {!mustSignIn && (
+                  <ul className="mt-8 flex flex-wrap justify-center gap-2">
+                    {SUGGESTIONS.map((key) => (
+                      <li key={key}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            void send(t(key));
+                          }}
+                          className="rounded-full border border-border bg-surface px-3.5 py-2 text-sm text-ink-muted shadow-card transition-[background-color,border-color,color,box-shadow] hover:border-brand hover:bg-brand-soft hover:text-brand hover:shadow-card-hover focus-visible:border-brand focus-visible:bg-brand-soft focus-visible:text-brand motion-reduce:transition-none"
+                        >
+                          {t(key)}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
 
                 {/* AI Act Art. 50(1): said before they engage, not after. The
                     vendor is named because that vendor receives whatever is
@@ -747,26 +800,68 @@ export function AiModePage(): React.JSX.Element {
           </div>
         </div>
 
-        <AiComposer
-          value={draft}
-          onChange={setDraft}
-          onSend={() => {
-            void send(draft);
-          }}
-          onStop={() => {
-            abortRef.current?.abort();
-          }}
-          onAttach={
-            features.imageSearch === true
-              ? () => {
-                  setIsAttachOpen(true);
-                }
-              : undefined
-          }
-          isStreaming={isStreaming}
-          isDisabled={isFull}
-          disabledNote={isFull ? t('aiMode.turnLimit') : undefined}
-        />
+        {mustSignIn ? (
+          /*
+           * The way in, where the composer would have been.
+           *
+           * Not a disabled composer: a text box that will not accept text is a
+           * puzzle, and somebody will type into it anyway and wonder why
+           * nothing happened. This says what is true - the assistant answers
+           * account holders here - and gives them the one thing that changes
+           * it.
+           *
+           * `state.from` is what `LoginPage` reads to come back, so signing in
+           * returns them to this page rather than the home page. A question
+           * carried from the landing page's search bar is still parked in
+           * `sessionStorage`, untouched, and is asked on the way back.
+           */
+          <section
+            aria-labelledby="ai-sign-in-heading"
+            className="border-t border-border bg-surface px-4 py-6 sm:px-6"
+          >
+            <div className="mx-auto flex max-w-2xl flex-col items-center gap-3 text-center">
+              {/* A real heading, and a named region around it. The rail already
+                  has a Sign in link of its own, so "the Sign in link" is
+                  ambiguous on this page unless this panel can be addressed as
+                  one thing - by a screen reader and by a test alike. */}
+              <h2 id="ai-sign-in-heading" className="text-base font-semibold text-ink">
+                {t('aiMode.signInHeading')}
+              </h2>
+              <p className="max-w-lg text-sm leading-relaxed text-ink-muted">
+                {t('aiMode.signInBody')}
+              </p>
+              <ButtonLink
+                to="/login"
+                state={{ from: AI_MODE_PATH }}
+                variant="primary"
+                className="mt-1"
+              >
+                {t('aiMode.signInAction')}
+              </ButtonLink>
+            </div>
+          </section>
+        ) : (
+          <AiComposer
+            value={draft}
+            onChange={setDraft}
+            onSend={() => {
+              void send(draft);
+            }}
+            onStop={() => {
+              abortRef.current?.abort();
+            }}
+            onAttach={
+              features.imageSearch === true
+                ? () => {
+                    setIsAttachOpen(true);
+                  }
+                : undefined
+            }
+            isStreaming={isStreaming}
+            isDisabled={isFull}
+            disabledNote={isFull ? t('aiMode.turnLimit') : undefined}
+          />
+        )}
       </section>
 
       {/* Mounted only while open — see the note on the same dialog in

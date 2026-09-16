@@ -73,6 +73,11 @@ describe('GET /api/v1/config', () => {
     ]);
 
     expect(Object.keys(body.assistant).sort()).toEqual([
+      // Whether a visitor with no account may ask anything. Published because
+      // the storefront has to know it BEFORE it draws the page: the alternative
+      // is offering a composer whose only outcome is a 401, which somebody
+      // discovers after typing out what they needed.
+      'allowsGuests',
       'available',
       'isAi',
       'model',

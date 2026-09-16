@@ -29,9 +29,25 @@ import { AiModePage } from './AiModePage';
 import { setPendingQuestion } from '@/lib/ai-mode';
 import type { StorefrontConfig } from '@/lib/types';
 
+/**
+ * A deployment with the assistant on AND guests allowed.
+ *
+ * `allowsGuests` is spelled out rather than inherited, because the shipped
+ * default is `false` and most of what this file describes - a guest opening a
+ * conversation, carrying a token, being refused a history - only exists in a
+ * deployment that has turned guests on. The tests for the default are in their
+ * own block at the bottom, against CONFIG_ACCOUNTS_ONLY.
+ */
 const CONFIG: StorefrontConfig = {
   ...FALLBACK_CONFIG,
   features: { ...FALLBACK_CONFIG.features, assistant: true, imageSearch: true },
+  assistant: { ...FALLBACK_CONFIG.assistant, available: true, allowsGuests: true },
+};
+
+/** The same deployment with `ASSISTANT_ALLOW_GUESTS` off, which is how it ships. */
+const CONFIG_ACCOUNTS_ONLY: StorefrontConfig = {
+  ...CONFIG,
+  assistant: { ...CONFIG.assistant, allowsGuests: false },
 };
 
 interface Conversation {
@@ -390,7 +406,7 @@ describe('the conversation history', () => {
   });
 });
 
-describe('a visitor with no account', () => {
+describe('a visitor with no account, where the deployment lets guests ask', () => {
   /** The signed-out session the harness would otherwise not give us. */
   const GUEST = { session: makeSession({ user: null, isCustomer: false }), config: CONFIG };
 
@@ -398,11 +414,8 @@ describe('a visitor with no account', () => {
     stubFetch();
     renderWithProviders(<AiModePage />, GUEST);
 
-    // The page never refuses to be a page. Whether the assistant then ANSWERS a
-    // guest is `ASSISTANT_ALLOW_GUESTS` on the API, which ships off - the test
-    // below covers what that looks like. The composer is here either way,
-    // because a deployment that has switched guests on should not have to
-    // change the frontend to get one.
+    // The whole point of the setting being on: somebody deciding whether this
+    // catalogue has what they need can ask before opening an account.
     expect(screen.getByRole('textbox')).toBeEnabled();
     expect(
       screen.getByRole('heading', { name: /what are you looking for today/i }),
@@ -444,16 +457,17 @@ describe('a visitor with no account', () => {
   });
 
   /*
-   * The default path, and the reason this test is here rather than in a
-   * follow-up.
+   * Config says yes, the server says no.
    *
-   * `ASSISTANT_ALLOW_GUESTS` ships `false`, so this is what every signed-out
-   * visitor meets. A 401 on this page means one of two different things - a
-   * session that expired, or a deployment that keeps the assistant for account
-   * holders - and the copy for the first sends somebody who never had a session
-   * looking for a problem that does not exist.
+   * A real race rather than a contrived one: the operator turns
+   * `ASSISTANT_ALLOW_GUESTS` off while somebody has the page open, and the
+   * first send is refused by an API the browser's copy of the config no longer
+   * agrees with. A 401 here means one of two different things - a session that
+   * expired, or an assistant kept for account holders - and the copy for the
+   * first sends somebody who never had a session looking for a problem that
+   * does not exist.
    */
-  it('is invited to sign in when the deployment does not answer guests', async () => {
+  it('is told to sign in, not that a session it never had expired', async () => {
     const user = userEvent.setup();
     stubFetch({ startStatus: 401 });
 
@@ -728,5 +742,88 @@ describe('the products an answer is about', () => {
     // No references, so no request and no heading over an empty row.
     expect(seen).toEqual([]);
     expect(screen.queryByText(/From the catalogue/i)).not.toBeInTheDocument();
+  });
+});
+
+/**
+ * The shipped default: `ASSISTANT_ALLOW_GUESTS` off.
+ *
+ * This is what a signed-out visitor meets on a fresh installation, so it is
+ * worth being precise about. The page still opens — it is a public route and
+ * nothing 404s — but it does not hand somebody a text box whose only outcome is
+ * a refusal. What it offers instead is the one thing that changes the outcome.
+ */
+describe('a visitor with no account, where the assistant is for account holders', () => {
+  const ACCOUNTS_ONLY = {
+    session: makeSession({ user: null, isCustomer: false }),
+    config: CONFIG_ACCOUNTS_ONLY,
+  };
+
+  it('is offered the way in instead of a composer', () => {
+    stubFetch();
+    renderWithProviders(<AiModePage />, ACCOUNTS_ONLY);
+
+    const panel = screen.getByRole('region', { name: /sign in to ask the assistant/i });
+    expect(within(panel).getByRole('link', { name: 'Sign in' })).toHaveAttribute('href', '/login');
+
+    // Not a disabled text box. Somebody types into one of those anyway and then
+    // wonders why nothing happened.
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+
+    // And no starter chips: a chip that opens a conversation the deployment
+    // will refuse looks like an invitation and is not one.
+    expect(
+      screen.queryByRole('button', { name: 'Check warehouse availability' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('never asks the API to start a conversation it cannot have', async () => {
+    const seen: string[] = [];
+    stubFetch({
+      onRequest: (url) => {
+        seen.push(url);
+      },
+    });
+
+    renderWithProviders(<AiModePage />, ACCOUNTS_ONLY);
+
+    await waitFor(() => {
+      expect(screen.getByText(/sign in to ask the assistant/i)).toBeInTheDocument();
+    });
+
+    // The refusal is known from the config, so there is nothing to ask and
+    // nothing to spend. Neither the history nor `/start` is called.
+    expect(seen.filter((url) => url.includes('/assistant/'))).toEqual([]);
+  });
+
+  /*
+   * The hand-off from the landing page, through sign-in, and back.
+   *
+   * `takePendingQuestion` CLEARS as it reads. Reading it on a page that is
+   * about to send somebody to sign in would consume the question and leave them
+   * with nothing to come back to — so it is deliberately left parked, and this
+   * is the test that says so.
+   */
+  it('keeps a question carried from the landing page rather than consuming it', async () => {
+    stubFetch();
+    setPendingQuestion('Do you stock 22G safety cannulae?', 'send');
+
+    renderWithProviders(<AiModePage />, ACCOUNTS_ONLY);
+
+    await waitFor(() => {
+      expect(screen.getByText(/sign in to ask the assistant/i)).toBeInTheDocument();
+    });
+
+    // Still there, waiting for an account that can ask it.
+    expect(sessionStorage.getItem('uboss_ai_pending_question')).toContain('22G safety cannulae');
+  });
+
+  it('sends a signed-in customer straight to the composer', () => {
+    stubFetch();
+    renderWithProviders(<AiModePage />, { config: CONFIG_ACCOUNTS_ONLY });
+
+    // The setting is about guests. An account holder never sees any of the above.
+    expect(screen.getByRole('textbox')).toBeEnabled();
+    expect(screen.queryByText(/sign in to ask the assistant/i)).not.toBeInTheDocument();
   });
 });

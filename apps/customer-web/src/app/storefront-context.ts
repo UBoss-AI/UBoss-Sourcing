@@ -55,7 +55,10 @@ export const FALLBACK_CONFIG: StorefrontConfig = {
   // Nothing claimed until the real config arrives. `isAi` is still true,
   // because if this widget ever renders it is an AI widget - the flag says
   // what the thing IS, not whether it is switched on.
-  assistant: { available: false, isAi: true, model: null, vendor: null },
+  // `allowsGuests: false` for the same reason everything else here is off: a
+  // composer offered before the config arrives, to a visitor the deployment
+  // does not answer, is a composer that can only end in a refusal.
+  assistant: { available: false, isAi: true, model: null, vendor: null, allowsGuests: false },
 };
 
 export const StorefrontContext = createContext<StorefrontConfig>(FALLBACK_CONFIG);
