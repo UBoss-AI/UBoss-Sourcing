@@ -611,6 +611,7 @@
   "activatePage.activateYourAccount": "Activez votre compte",
   "activatePage.activateMyAccount": "Activer mon compte",
   "chat.sessionExpired": "Votre session a expiré, ce message n'a donc pas été envoyé. Reconnectez-vous, il sera toujours là.",
+  "chat.signInToAsk": "L’assistant est réservé aux titulaires d’un compte. Connectez-vous pour poser votre question, elle sera toujours là.",
   "chat.thisAnswerWasCutOff": "Cette réponse a été tronquée. Veuillez reformuler votre question pour obtenir la réponse complète.",
   "chat.thinking": "Je réfléchis…",
   "home.onlineTradeCatalogue": "Catalogue commercial en ligne",

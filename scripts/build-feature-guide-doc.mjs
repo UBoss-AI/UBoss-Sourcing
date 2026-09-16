@@ -129,7 +129,7 @@ page();
 h1('2. Customer Features — Entry, Account and Market');
 h2('2.1 Browse first, sign in when buying');
 bullets([
-  'Visitors can open the home page, catalogue, categories, search results, product pages and AI Mode without signing in.',
+  'Visitors can open the home page, catalogue, categories, search results and product pages without signing in. AI Mode opens for anybody too, but answers only account holders unless the business has chosen to let visitors ask as well.',
   'An activated customer session is required before cart, checkout, payment, order history, schedules and account pages can be used.',
   'A customer who opens a protected link directly is checked again by the application; hiding a button is not the only protection.',
 ]);
@@ -201,7 +201,7 @@ note('How many is in a carton', 'Five hundred is a setting, not a fixed part of 
 note('Why an outside seller’s goods are not sold by the carton', 'The carton belongs to the business running this shop — it is how they pack and ship their own product. An outside seller packs their own way, and their price is the price of one item. Applying the shop’s carton to their listing would have shown a ten-rupee item at five thousand rupees, and charged it. So what a line is counted in is decided by who is selling it, worked out by the system before any quantity or price is calculated, and never guessed from the name of the product or the department it sits in.', C.orange);
 note('Searching by price when both appear together', 'A price range is matched on what one piece costs, for everything, so that “cheapest first” genuinely orders a page rather than putting every by-the-piece listing below every carton. The search panel says this under the boxes, because a range typed in carton money will also bring back by-the-piece listings at the matching piece price.', C.blue);
 h2('3.4 AI Mode');
-p('AI Mode is a full page, not a small floating chat window. A visitor can ask product questions before opening an account when guest access is allowed. A signed-in customer can keep a conversation history.');
+p('AI Mode is a full page, not a small floating chat window. A signed-in customer can ask product questions and keep a conversation history. Whether somebody without an account can ask at all is a setting, and it starts switched off — every answer costs the business money with its AI supplier, and a page anybody on the internet can open is not where that spending should begin by default. Switched on, a visitor can ask before opening an account; left off, the page invites them to sign in and keeps the question they typed so they do not lose it.');
 bullets([
   'Ask natural-language questions such as “show sterile syringes” or “which item matches this need?”.',
   'Receive product-aware answers and product cards where results are available.',
@@ -1000,7 +1000,7 @@ table(['Optional capability', 'When it appears / what is required'], [
   ['Customer ERP', 'Requires customer integration path/configuration and safe endpoint validation.'],
   ['Live monday.com connections', 'Requires the store to register an application with monday.com and hold its details in configuration. Without one, customers can still set up a monday.com test connection.'],
   ['Warehouse map provider', 'Works with configured Google Maps, vector-map or raster-tile settings; the screen still works without a map background.'],
-  ['AI assistant / image search', 'Requires assistant configuration; guest AI access is separately configurable.'],
+  ['AI assistant / image search', 'Requires assistant configuration. Asking without an account is a separate setting and starts switched off.'],
   ['Admin location gate', 'Can be enabled for staff sign-in; production deployment needs HTTPS for browser location access.'],
   ['Seller shop fronts', 'Each seller gets a web address of their own once the business configures the domain to hang them off. Without it every visitor is on the business’s own shop, exactly as before.'],
   ['Marketplace commission', 'A standard percentage set once by the business, with an agreed rate per seller where one has been negotiated. Both start at nothing, so a business that has not decided what it charges charges nothing.'],

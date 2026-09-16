@@ -1,19 +1,22 @@
 /**
  * Storefront assistant chat.
  *
- * **Anybody may ask; only a customer gets a history.** `/start` and `/chat`
- * answer a visitor with no account, on the same reasoning that puts the
- * sign-in wall at the cart rather than the front door: a buyer deciding
- * whether this catalogue has what they need should be able to ask before
- * opening an account. The four `/conversations` routes below stay behind
- * `requireCustomer`, because a history is a thing an account has.
+ * **`/start` and `/chat` are open routes; whether they answer a guest is
+ * `ASSISTANT_ALLOW_GUESTS`, and it defaults to `false`.** Open here means
+ * unauthenticated callers reach the handler rather than a 404 — with guests off
+ * they are then refused with a 401 and a message that says to sign in. The four
+ * `/conversations` routes below stay behind `requireCustomer` whatever the
+ * setting, because a history is a thing an account has.
  *
- * An operator who would rather pay only for their own customers sets
- * `ASSISTANT_ALLOW_GUESTS=false`, and the two open routes answer a guest with
- * a 401 again. Read the note on that setting before leaving it on: a rate
- * limit bounds what an anonymous caller can spend, it does not make it free.
+ * Off by default because an anonymous caller spends the operator's AI provider
+ * budget on a page anybody on the internet can open, and
+ * `ASSISTANT_GUEST_RATE_LIMIT_PER_5MIN` bounds that spend rather than making it
+ * free. An operator who would rather let a buyer evaluate the catalogue before
+ * opening an account turns it on — the same reasoning that puts the sign-in
+ * wall at the cart rather than at the front door.
  *
- * What a guest is *not* given, which is the part worth being precise about:
+ * What a guest is *not* given where guests are allowed, which is the part worth
+ * being precise about:
  *
  *   - **No access to anybody else's conversation.** A guest conversation is
  *     owned by an opaque token this server minted and only that browser holds.

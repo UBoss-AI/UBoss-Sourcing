@@ -775,23 +775,25 @@ const envSchema = z
     /**
      * May somebody who is not signed in use AI Mode?
      *
-     * On by default, because a buyer evaluating this catalogue should be able
-     * to ask what is in it before opening an account — the same reasoning that
-     * puts the sign-in wall at the cart rather than the front door.
+     * **Off by default.** An anonymous caller spends the operator's AI
+     * provider budget, and no rate limit makes that free: a limit bounds the
+     * spend, it does not remove it. The default that costs an operator money
+     * on a page anybody on the internet can open is the wrong default for
+     * software somebody else pays to run — so this ships closed, and letting
+     * guests in is a decision a deployment makes with its own bill in view.
      *
-     * Understand what it costs before leaving it on. An anonymous caller
-     * spends the operator's AI provider budget, and no rate limit makes that
-     * free: it bounds the spend, it does not remove it. A deployment that
-     * would rather pay only for its own customers sets this to `false`, and
-     * AI Mode then offers a guest a way in instead of a composer — exactly as
-     * it did before guests were let in.
+     * Set it to `true` where a buyer evaluating the catalogue should be able
+     * to ask what is in it before opening an account — the same reasoning that
+     * puts the sign-in wall at the cart rather than at the front door. AI Mode
+     * handles both settings: with guests off it offers a way in where the
+     * composer would be, rather than a composer that fails on send.
      *
      * What a guest can never do, whatever this is set to: read anybody else's
      * conversation, keep a history, or name a model, a system prompt or a
      * token budget. Ownership and the fixed parameters are enforced the same
      * way for everyone.
      */
-    ASSISTANT_ALLOW_GUESTS: booleanFromString.default(true),
+    ASSISTANT_ALLOW_GUESTS: booleanFromString.default(false),
 
     /**
      * The chat allowance for a caller with no account, per IP per 5 minutes.

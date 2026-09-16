@@ -617,6 +617,7 @@
   "activatePage.activateYourAccount": "Proszę aktywować swoje konto",
   "activatePage.activateMyAccount": "Aktywuj moje konto",
   "chat.sessionExpired": "Twoja sesja wygasła, więc ta wiadomość nie została wysłana. Zaloguj się ponownie, a nadal tu będzie.",
+  "chat.signInToAsk": "Asystent jest dostępny dla posiadaczy konta. Zaloguj się, aby zapytać — Twoje pytanie nadal tu będzie.",
   "chat.thisAnswerWasCutOff": "Ta odpowiedź została ucięta. Proszę zadać pytanie ponownie, aby uzyskać pełną odpowiedź.",
   "chat.thinking": "Zastanawiam się…",
   "home.onlineTradeCatalogue": "Katalog handlowy online",

@@ -605,6 +605,7 @@
   "activatePage.activateYourAccount": "Activeer uw account",
   "activatePage.activateMyAccount": "Mijn account activeren",
   "chat.sessionExpired": "Uw sessie is verlopen, dus dat bericht is niet verzonden. Meld u opnieuw aan; het staat er dan nog.",
+  "chat.signInToAsk": "De assistent is er voor houders van een account. Meld u aan om iets te vragen; uw vraag blijft zolang staan.",
   "chat.thisAnswerWasCutOff": "Dit antwoord is afgebroken. Gelieve uw vraag opnieuw te stellen om het volledige antwoord te ontvangen.",
   "chat.thinking": "Ik denk na…",
   "home.onlineTradeCatalogue": "Online handelscatalogus",

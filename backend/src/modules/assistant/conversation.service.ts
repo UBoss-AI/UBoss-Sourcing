@@ -6,10 +6,12 @@
  *   - **A customer's**, owned by `customerProfileId` and therefore theirs on
  *     every machine they sign in from. These are what AI Mode's history lists.
  *   - **A guest's**, owned by an opaque token their browser holds for the life
- *     of the tab. Anyone may ask this catalogue a question without opening an
- *     account, on the same reasoning that puts the sign-in wall at the cart
- *     rather than the front door — see `ASSISTANT_ALLOW_GUESTS`, which lets an
- *     operator close it again, and read the note there on what it costs.
+ *     of the tab. These exist only where the deployment has set
+ *     `ASSISTANT_ALLOW_GUESTS`, which **defaults to off** — see the note on
+ *     that setting for why, and for the argument an operator makes when they
+ *     turn it on. Everything below handles both kinds whatever it is set to:
+ *     the flag decides whether a guest conversation can be *started*, not how
+ *     one that exists is owned.
  *
  * Four decisions worth stating:
  *

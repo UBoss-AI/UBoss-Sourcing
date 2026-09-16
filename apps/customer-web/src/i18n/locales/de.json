@@ -605,6 +605,7 @@
   "activatePage.activateYourAccount": "Aktivieren Sie Ihr Konto",
   "activatePage.activateMyAccount": "Mein Konto aktivieren",
   "chat.sessionExpired": "Ihre Sitzung ist abgelaufen, die Nachricht wurde daher nicht gesendet. Melden Sie sich erneut an, sie ist dann noch da.",
+  "chat.signInToAsk": "Der Assistent steht Kontoinhabern zur Verfügung. Melden Sie sich an, um zu fragen — Ihre Frage bleibt so lange stehen.",
   "chat.thisAnswerWasCutOff": "Diese Antwort wurde abgeschnitten. Bitte stellen Sie die Frage erneut, um die vollständige Antwort zu erhalten.",
   "chat.thinking": "Ich denke nach…",
   "home.onlineTradeCatalogue": "Online-Handelskatalog",

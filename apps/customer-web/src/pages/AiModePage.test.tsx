@@ -94,6 +94,13 @@ interface Routes {
   cards?: { products: unknown[]; unresolved: string[] };
   /** Returned by `/start`, as the API does for a caller with no session. */
   guestToken?: string;
+  /**
+   * What `/start` answers with instead of 201.
+   *
+   * 401 is the one that matters: it is what the API returns to a caller with no
+   * session when `ASSISTANT_ALLOW_GUESTS` is off, which is how it ships.
+   */
+  startStatus?: number;
   detail?: { messages: { id: string; role: 'user' | 'assistant'; content: string }[] };
   chat?: () => Response;
   onRequest?: (url: string, init: RequestInit | undefined) => void;
@@ -138,6 +145,15 @@ function stubFetch(routes: Routes = {}): void {
       }
 
       if (url.includes('/assistant/start')) {
+        if (routes.startStatus !== undefined && routes.startStatus !== 201) {
+          return Promise.resolve(
+            jsonResponse(
+              { code: 'UNAUTHENTICATED', message: 'Sign in to use the assistant.' },
+              routes.startStatus,
+            ),
+          );
+        }
+
         return Promise.resolve(
           jsonResponse(
             {
@@ -382,8 +398,11 @@ describe('a visitor with no account', () => {
     stubFetch();
     renderWithProviders(<AiModePage />, GUEST);
 
-    // The whole point: somebody deciding whether this catalogue has what they
-    // need can ask before opening an account.
+    // The page never refuses to be a page. Whether the assistant then ANSWERS a
+    // guest is `ASSISTANT_ALLOW_GUESTS` on the API, which ships off - the test
+    // below covers what that looks like. The composer is here either way,
+    // because a deployment that has switched guests on should not have to
+    // change the frontend to get one.
     expect(screen.getByRole('textbox')).toBeEnabled();
     expect(
       screen.getByRole('heading', { name: /what are you looking for today/i }),
@@ -422,6 +441,39 @@ describe('a visitor with no account', () => {
       conversationId: 'conv-new',
       conversationToken: 'guest-token-abc',
     });
+  });
+
+  /*
+   * The default path, and the reason this test is here rather than in a
+   * follow-up.
+   *
+   * `ASSISTANT_ALLOW_GUESTS` ships `false`, so this is what every signed-out
+   * visitor meets. A 401 on this page means one of two different things - a
+   * session that expired, or a deployment that keeps the assistant for account
+   * holders - and the copy for the first sends somebody who never had a session
+   * looking for a problem that does not exist.
+   */
+  it('is invited to sign in when the deployment does not answer guests', async () => {
+    const user = userEvent.setup();
+    stubFetch({ startStatus: 401 });
+
+    renderWithProviders(<AiModePage />, GUEST);
+
+    await user.type(screen.getByRole('textbox'), 'Do you stock feeding tubes?');
+    await user.click(screen.getByRole('button', { name: 'Send' }));
+
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent(/sign in to ask/i);
+
+    // Not this one. They never had a session to expire.
+    expect(alert).not.toHaveTextContent(/expired/i);
+
+    // No Retry: pressing it would fail identically every time, and a button
+    // that cannot work is worse than no button.
+    expect(screen.queryByRole('button', { name: 'Retry' })).not.toBeInTheDocument();
+
+    // The question survives, so it is still there after signing in.
+    expect(screen.getByRole('textbox')).toHaveValue('Do you stock feeding tubes?');
   });
 
   it('asks for no history, because there is no account to have one', async () => {

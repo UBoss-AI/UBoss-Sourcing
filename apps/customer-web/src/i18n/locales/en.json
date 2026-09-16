@@ -605,6 +605,7 @@
   "activatePage.activateYourAccount": "Activate your account",
   "activatePage.activateMyAccount": "Activate my account",
   "chat.sessionExpired": "Your session has expired, so that message was not sent. Sign in again and it will still be here.",
+  "chat.signInToAsk": "The assistant is for account holders. Sign in to ask — your question will still be here.",
   "chat.thisAnswerWasCutOff": "This answer was cut off. Please ask again for the full reply.",
   "chat.thinking": "Thinking…",
   "home.onlineTradeCatalogue": "Online trade catalogue",

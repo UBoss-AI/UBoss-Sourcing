@@ -21,24 +21,30 @@
  *     page's search bar sends a question here and it is asked on arrival. That
  *     flow has nowhere to live in a widget.
  *
- * **The page is open to everybody**, on the same reasoning that puts the
- * sign-in wall at the cart rather than the front door: somebody deciding
- * whether this catalogue has what they need should be able to ask before
- * opening an account. Signing in is what adds a history, not what buys an
- * answer.
+ * **The page is reachable by everybody; whether it answers a guest is the
+ * deployment's decision, and it ships as no.** `ASSISTANT_ALLOW_GUESTS`
+ * defaults to `false` on the API, because an anonymous caller spends the
+ * operator's AI provider budget on a page anybody on the internet can open. An
+ * operator who would rather let a buyer evaluate the catalogue before opening
+ * an account sets it to `true` — the same reasoning that puts the sign-in wall
+ * at the cart rather than at the front door.
  *
- * So there are two kinds of visitor here and the difference is small but real:
+ * So this page handles two kinds of visitor, and the difference is small but
+ * real:
  *
  *   - A **customer** is recognised by their session. The rail lists their
  *     threads; they can open, rename and delete them.
- *   - A **guest** holds one conversation, proved by an opaque token the API
- *     handed back when it was opened. The rail invites them to sign in instead
- *     of listing anything, because there is nothing to list. The token lives in
- *     React state and nowhere else — see the note on `guestToken`.
+ *   - A **guest**, where guests are allowed, holds one conversation, proved by
+ *     an opaque token the API handed back when it was opened. The rail invites
+ *     them to sign in instead of listing anything, because there is nothing to
+ *     list. The token lives in React state and nowhere else — see the note on
+ *     `guestToken`.
  *
- * An operator who would rather pay only for their own customers sets
- * `ASSISTANT_ALLOW_GUESTS=false` on the API, and a guest's first send comes
- * back 401.
+ * With guests off, a signed-out visitor's first send comes back 401 and is
+ * answered with an invitation to sign in — **not** with "your session has
+ * expired", which is the other thing a 401 means here and would send somebody
+ * looking for a problem that does not exist. Their question goes back into the
+ * composer so it survives the round trip through sign-in.
  *
  * The server holds the transcript, whoever asked. This page sends one message
  * at a time with a conversation id and does not post history back, so what
@@ -226,6 +232,22 @@ export function AiModePage(): React.JSX.Element {
           activeId === null ? null : { id: activeId, token: guestToken },
         );
       } catch (caught) {
+        /*
+         * A 401 here is not a failure to reach the API. It is the deployment
+         * saying the assistant is for account holders — `ASSISTANT_ALLOW_GUESTS`
+         * is off, which is how it ships.
+         *
+         * So no Retry button: pressing it would fail identically, every time,
+         * and a button that cannot work is worse than none. The question goes
+         * back into the composer instead, so it is still there after signing
+         * in.
+         */
+        if (caught instanceof ApiError && caught.status === 401) {
+          setError(t('chat.signInToAsk'));
+          setDraft(question);
+          return;
+        }
+
         setError(
           caught instanceof ApiError && caught.isRateLimited
             ? t('chat.tooManyAttempts')
@@ -266,20 +288,29 @@ export function AiModePage(): React.JSX.Element {
 
           if (response.status === 401) {
             /*
-             * The session went while they were typing.
+             * Two different things arrive here as the same status, and telling
+             * somebody the wrong one is worse than saying nothing.
              *
-             * The page is public, so this is not the end of the road: the
-             * conversation that belonged to the dead session is dropped and the
-             * next send opens a guest one. The question goes back in the
-             * composer rather than being lost — somebody who spent a minute
-             * describing what they need should not have to type it twice
-             * because a token expired while they did.
+             *   - They WERE signed in, and the session went while they were
+             *     typing. The page is public, so this is not the end of the
+             *     road: the conversation that belonged to the dead session is
+             *     dropped and the next send opens a guest one, where guests are
+             *     allowed.
+             *   - They were NEVER signed in, and this deployment keeps the
+             *     assistant for account holders (`ASSISTANT_ALLOW_GUESTS` off,
+             *     which is the default). Nothing expired. Telling them their
+             *     session did would send them looking for a problem that is not
+             *     there.
+             *
+             * Either way the question goes back into the composer rather than
+             * being lost — somebody who spent a minute describing what they
+             * need should not type it twice because of a token.
              */
             setActiveId(null);
             setGuestToken(null);
             setMessages([]);
             setDraft(question);
-            setError(t('chat.sessionExpired'));
+            setError(isCustomer ? t('chat.sessionExpired') : t('chat.signInToAsk'));
             return;
           }
 
@@ -357,7 +388,7 @@ export function AiModePage(): React.JSX.Element {
         abortRef.current = null;
       }
     },
-    [activeId, ensureConversation, guestToken, isStreaming, queryClient, t],
+    [activeId, ensureConversation, guestToken, isCustomer, isStreaming, queryClient, t],
   );
 
   // Leaving mid-answer aborts the request, which stops the generation the

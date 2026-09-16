@@ -611,6 +611,7 @@
   "activatePage.activateYourAccount": "Active su cuenta",
   "activatePage.activateMyAccount": "Activar mi cuenta",
   "chat.sessionExpired": "Tu sesión ha caducado, así que ese mensaje no se envió. Vuelve a iniciar sesión y seguirá aquí.",
+  "chat.signInToAsk": "El asistente es para titulares de una cuenta. Inicia sesión para preguntar y tu pregunta seguirá aquí.",
   "chat.thisAnswerWasCutOff": "Esta respuesta se ha cortado. Por favor, vuelva a formular la pregunta para obtener la respuesta completa.",
   "chat.thinking": "Reflexionando…",
   "home.onlineTradeCatalogue": "Catálogo comercial en línea",

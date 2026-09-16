@@ -539,7 +539,7 @@ comes back in the exact same shape:
 | `/order-confirmation/:orderId` | "Thank you" | **Yes** |
 | `/confirm-contact` | Confirm a new email address or telephone number (from the emailed link) | Asks for one |
 | `/schedules/new` | Build a repeating order | **Yes** |
-| `/ai` | AI Mode: the assistant. A history needs an account | No |
+| `/ai` | AI Mode: the assistant. The page opens for anybody; whether it answers a guest is `ASSISTANT_ALLOW_GUESTS`, which ships off. A history needs an account either way | No |
 
 Everything under `/account` shares one frame — a profile card and a grouped
 sidebar on the left, the page on the right — and one session guard, which sits
@@ -589,12 +589,19 @@ at the front door — because the backend puts it there too. A visitor can see
 the whole catalogue and prices, and is only asked to identify themselves when
 they want to actually buy.
 
-**AI Mode is in front of that wall too.** `/ai` is a page, not a panel, and
-anybody may ask it a question — the same reasoning as the catalogue: somebody
+**AI Mode's page is in front of that wall; its answers are not.** `/ai` is a
+page, not a panel, and it opens for anybody — but `ASSISTANT_ALLOW_GUESTS`
+ships `false`, so out of the box the assistant answers account holders and
+invites everybody else to sign in. The reasoning is the operator's bill rather
+than secrecy: every reply costs them money with an AI supplier, and a page
+anybody on the internet can open is the wrong place for that to start by
+default.
+
+An operator who wants the catalogue argument applied here too — somebody
 deciding whether this store has what they need should be able to ask before
-opening an account. Signing in is what adds a *history*, not what buys an
-answer. See *The AI assistant* in section 8 for what a guest gets and what they
-do not, and for the setting that closes the door again.
+opening an account — turns it on, and then signing in is what adds a *history*
+rather than what buys an answer. See *The AI assistant* in section 8 for what a
+guest gets and what they do not.
 
 **There is no longer a floating chat button.** The widget that used to sit in
 the bottom-right corner of every page has been removed outright — the launcher,
@@ -992,9 +999,11 @@ are `<button>` depending on who is looking:
 - A **guest** pressing Scheduled Orders or Autopay gets a short explanation and
   a **Sign in** link, never the guarded route.
 - **AI Assistant is the exception, and it is the rule being followed rather
-  than broken.** AI Mode is open, so there is nowhere a guest pressing it
-  cannot go — it is a plain link for everybody, and the only node with no
-  session branch at all.
+  than broken.** The AI Mode *page* is open to everybody, so there is nowhere a
+  guest pressing it cannot go — it is a plain link for everybody, and the only
+  node with no session branch at all. Whether the assistant then answers a guest
+  is `ASSISTANT_ALLOW_GUESTS`, and with it off the page says so in its own words
+  rather than the link refusing to be a link.
 - A capability this deployment has **switched off** (`recurringOrders`,
   `assistant`) explains that instead of linking to a page that would 404.
 - **ERP used to explain itself to everybody and no longer does.** It had no
@@ -1568,8 +1577,9 @@ left, the conversation on the right.
 - **There is room to answer properly.** A 23rem panel over a product grid is
   the wrong shape for a reply that lists eight product codes.
 - **It can be linked, guarded and returned to.** The front page's search bar
-  sends a question here; a guest goes to sign-in first and arrives with the
-  question intact. That flow has nowhere to live in a widget.
+  sends a question here, parked in `sessionStorage` so it survives a real page
+  load — which is what a trip through sign-in is. Whoever arrives, the question
+  arrives with them. That flow has nowhere to live in a widget.
 
 | Left rail | Main pane |
 |---|---|
@@ -1702,8 +1712,11 @@ what came back — the description, and the matched products written as
 `/product/…` paths — is dropped into the composer as context for the question
 they were about to ask. It is not sent on its own.
 
-**Anybody may ask; only an account gets a history.** The page is public and so
-are `/assistant/start` and `/assistant/chat`. What differs is the rail:
+**The page is public; whether it answers a guest is the deployment's choice,
+and it ships as no.** `/assistant/start` and `/assistant/chat` are open routes,
+so nothing 404s and nothing is hidden — but with guests off they answer a caller
+with no session 401 rather than opening a conversation. Where guests *are*
+allowed, this is what differs between the two:
 
 | | A customer | A guest |
 |---|---|---|
@@ -1724,8 +1737,20 @@ conversation goes with it, and the visitor carries on as a guest. There is
 nowhere to be ejected to, and dropping somebody onto the home page for pressing
 Sign out would be a worse answer than simply forgetting who they were.
 
-An operator who would rather pay only for their own customers sets
-`ASSISTANT_ALLOW_GUESTS=false`, and a guest's first send comes back 401.
+**`ASSISTANT_ALLOW_GUESTS` decides whether the guest column above exists at
+all, and it ships `false`.** An anonymous caller spends the operator's AI
+provider budget on a page anybody on the internet can open; the guest rate limit
+bounds that spend rather than removing it, and a default that costs money on
+software somebody else pays to run is the wrong default. An operator who would
+rather let a buyer evaluate the catalogue before opening an account turns it on.
+
+With it off, a signed-out visitor's first send comes back 401 — and the page is
+careful about which 401 it is. A 401 for somebody who *was* signed in means the
+session expired; a 401 for somebody who never was means this deployment keeps
+the assistant for account holders. They are different sentences, and telling
+somebody their session expired when they never had one sends them looking for a
+problem that is not there. Either way the question goes back into the composer,
+so it survives the trip through sign-in.
 
 **The shell gets out of the way for this one route.** `<main>` drops the
 storefront's reading measure and its padding, the footer is not rendered, and
@@ -9062,7 +9087,7 @@ hostname adds it to that check, in every mode, and nothing else with it. See
 | `FEATURE_ADMIN_LOGIN_LOCATION` | `true` | Ask staff's browser for its location at sign-in |
 | `FEATURE_LOGISTICS_PORTAL` | `false` | The whole of section 5a. Off means the third application has nothing to sign in to, every `/api/v1/logistics/*` route refuses, no carrier can be created, and the Logistics group is absent from the admin sidebar |
 | `ASSISTANT_ENABLED` | — | AI Mode and image search |
-| `ASSISTANT_ALLOW_GUESTS` | `true` | May somebody with no account use AI Mode? On, and a visitor may ask before signing up; off, and `/start` and `/chat` answer a guest 401. Understand what it costs before leaving it on — an anonymous caller spends the operator's AI provider budget, and a rate limit bounds that rather than removing it |
+| `ASSISTANT_ALLOW_GUESTS` | `false` | May somebody with no account use AI Mode? **Off**, so `/start` and `/chat` answer a caller with no session 401 and the page invites them to sign in. On, and a visitor may ask before signing up — understand what that costs first: an anonymous caller spends the operator's AI provider budget on a page anybody on the internet can open, and a rate limit bounds that rather than removing it |
 
 ## Carriage
 

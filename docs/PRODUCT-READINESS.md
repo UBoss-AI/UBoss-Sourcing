@@ -2,7 +2,10 @@
 
 **UBOSS Sourcing — capability audit against the product brief**
 
-Version 1.0 · 2026-09-16 · Repository at `87b7a86` plus the working tree
+Version 1.1 · 2026-09-16 · Repository at `28b89fe`
+
+*1.1 — `ASSISTANT_ALLOW_GUESTS` now defaults to `false`, which closes the one
+deviation from the brief that was a setting rather than a decision. §2.3, §3.*
 
 ---
 
@@ -95,7 +98,7 @@ three and it decides whose prices they are charged **[VR]**.
 | Product cards and links in replies | **Built** | A reply may only become a product the catalogue actually has — `lib/ai-products.ts` |
 | Not presented as medical advice | **Built** | The system prompt forbids clinical advice |
 | Isolation from other customers' data | **Built** | The assistant is given the catalogue, not account data **[VR]** |
-| **Guests may use it** | **Built, and contrary to the brief** | `ASSISTANT_ALLOW_GUESTS` defaults to **`true`**, with its own lower per-IP allowance. The brief says a guest must not get protected AI access. **Set it to `false` if that is the intent** — one setting, no code change. See §3 |
+| Guests are refused by default | **Built, and matches the brief** | `ASSISTANT_ALLOW_GUESTS` defaults to **`false`**: a caller with no session gets 401 from `/assistant/start` and `/assistant/chat`, and the page answers with an invitation to sign in rather than with "your session has expired" — which is the other thing a 401 means there. An operator who wants trial access sets it to `true`, and guests then get their own lower per-IP allowance |
 | Provider failure behaviour | **Built** | Degrades; the shop keeps working |
 | Prompt-injection red-teaming | **Unverified** | Not tested in this session. `DEPLOYMENT.md` S12 |
 
@@ -215,22 +218,25 @@ three and it decides whose prices they are charged **[VR]**.
 
 ## 3. Where the build differs from the brief — and why that is a decision
 
-Three of these are settings. None is a defect. All three are **[OD]**.
+Two of these are decisions to make. None is a defect. Both are **[OD]**.
 
-1. **Guests can use the assistant.** `ASSISTANT_ALLOW_GUESTS` defaults to `true`
-   with a lower per-IP allowance; the brief says guests must not have protected
-   AI access. A guest never reaches another conversation and never reaches
-   account data **[VR]**, so this is a commercial choice — trial access versus
-   cost — rather than a security one. **If the brief is the intent, set it to
-   `false` before launch.**
+The third is now settled: **the assistant refuses guests by default**.
+`ASSISTANT_ALLOW_GUESTS` shipped `true` and has been changed to `false`, which
+is what the brief asks for and also the right default for software somebody else
+pays to run — every reply costs the operator money with an AI supplier, and the
+guest rate limit bounds that spend rather than removing it. A guest never
+reached another conversation or any account data even before the change **[VR]**,
+so this was a commercial default rather than a security hole. An operator who
+wants a buyer to be able to evaluate the catalogue before opening an account
+turns it back on.
 
-2. **Driver location tracking exists in the data model.** The brief says not to
+1. **Driver location tracking exists in the data model.** The brief says not to
    introduce GPS without a privacy review. It is already modelled, with
    retention and log redaction. Nothing here decides whether it is switched on,
    and it should not be until D4 (controller/processor roles for carrier data)
    and a DPIA are done.
 
-3. **Seller payouts refuse rather than pretend.** There is no payout provider
+2. **Seller payouts refuse rather than pretend.** There is no payout provider
    and no bank-verification provider, so the adapter returns
    `PROVIDER_UNCONFIGURED`. A seller can be onboarded, sell, and have a
    settlement calculated; **money does not move**. That is the correct behaviour
