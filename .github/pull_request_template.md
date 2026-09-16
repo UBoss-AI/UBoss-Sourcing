@@ -57,8 +57,10 @@ Tick only the ones that apply; ignore the rest.
       against `.env.example`, which has no AI key, no gateway credentials, and
       `PIECES_PER_CARTON=500`. All three have already broken a build
 - [ ] **A test that needs data to already be there** — CI's database has only
-      been migrated. Reference data comes from `tests/global-setup.ts`; anything
-      else the test seeds itself
+      been migrated. Reference data and roles come from `tests/global-setup.ts`;
+      anything else the test seeds itself. **Never rely on an earlier file having
+      seeded it** — file order differs between platforms, and that is how a
+      suite that is green here goes red on the runner
 
 <!--
 If CI fails on "The install actually built what it needed to", a dependency bump

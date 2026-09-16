@@ -2118,13 +2118,21 @@ one mistake: a test whose result depended on a file that is not in git.
 | AI provider key | has a real Gemini key → `/assistant/*` routes exist | has none → **every one of them 404s**, and 147 tests fail |
 | Gateway credentials | has test keys → webhooks sign and compare | are empty → payloads sign with `''`, and `not.toContain('')` fails for every string |
 | **Reference data** | was seeded once during setup, years ago, and has been there ever since | **a database that has only been migrated has zero countries** — `prisma migrate deploy` creates tables, `npm run db:reference` fills them — so the first warehouse insert dies on `Foreign key constraint violated on the fields: (countryCode)`, and 38 tests go with it |
+| **The roles** | were left behind by whichever test file seeded them first | **six of the seventy-five integration files seed roles; the other sixty-nine assume it.** Nothing deletes a role, so on any machine where the six run early the rest are fine — and file order is not the same on every platform. On the runner, `inventory-warehouses.test.ts` ran before any of the six and died on `role.findUniqueOrThrow` before one of its tests started |
 
 None of these was a bad test. Each was a test that quietly borrowed a
-precondition from whoever wrote it. The fix in all four is the same: the suite
-states what it needs — `tests/setup.ts` pins the carton size and fake gateway
-credentials outright, `assistant-conversations.test.ts` mocks
-`isAssistantConfigured` the way `catalog-image-search.test.ts` already did, and
-`tests/global-setup.ts` installs the reference data once before the first file.
+precondition from whoever wrote it — from the author's `.env`, from a database
+that had been used before, or from whichever file happened to run first. The fix
+in all five is the same: the suite states what it needs. `tests/setup.ts` pins
+the carton size and fake gateway credentials outright,
+`assistant-conversations.test.ts` mocks `isAssistantConfigured` the way
+`catalog-image-search.test.ts` already did, and `tests/global-setup.ts` installs
+the reference data and the roles once, before the first file.
+
+**The last one is worth generalising.** An ordering dependency between test
+files is invisible until something changes the order, and a different operating
+system is enough to do that. If a file needs a row, it should create it or the
+global setup should — never "the file before me probably did".
 
 That last one carries a wrinkle worth knowing before touching it. The reference
 seed also plants a starter category tree, and `Category.parentId` points at

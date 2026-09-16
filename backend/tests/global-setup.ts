@@ -77,10 +77,42 @@ export async function setup(): Promise<void> {
    * before any statement in this file — including the line above.
    */
   const { seedReferenceData } = await import('../src/seed/reference-data.js');
+  const { ROLE_DEFINITIONS } = await import('../src/domain/permissions.js');
+  const { newId } = await import('../src/infra/ids.js');
   const { prisma } = await import('../src/infra/prisma.js');
 
   try {
     await seedReferenceData();
+
+    /*
+     * The roles, for the same reason and with a sharper edge.
+     *
+     * Six of the seventy-five integration files seed roles themselves. The
+     * other sixty-nine just expect them to be there — and they were, because
+     * whichever of the six ran first left them behind, and because nothing in
+     * the suite ever deletes a role.
+     *
+     * That is an ordering dependency, and ordering is not the same everywhere:
+     * on this machine `inventory-warehouses.test.ts` happened to run after a
+     * file that seeds them, and on the Linux runner it did not, so it died on
+     * `role.findUniqueOrThrow` before a single test in it ran.
+     *
+     * Seeded here, once, so no file has to care what ran before it. The six
+     * that seed their own keep working — the upsert is idempotent.
+     */
+    for (const definition of ROLE_DEFINITIONS) {
+      await prisma.role.upsert({
+        where: { key: definition.key },
+        update: {},
+        create: {
+          id: newId(),
+          key: definition.key,
+          name: definition.name,
+          description: definition.description,
+          isSystem: true,
+        },
+      });
+    }
 
     /*
      * And then take the starter departments back out.
