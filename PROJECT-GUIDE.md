@@ -2109,6 +2109,24 @@ Eight steps, each saving on its own, resumable for as long as it takes:
 7. **Compliance** — any certificates the things they sell need.
 8. **Agreements** — the marketplace contract, commission schedule and policies.
 
+**It opens at the beginning, and there is a path through it.** A seller who
+has never seen this screen lands on step one, Contact verification, rather than
+on the first step that happens to be unfinished — which, since contact
+verification is normally already done, dropped them into the middle of their
+own application. Somebody returning carries on from the step they last *saved*.
+Under each step are **Back** and **Continue**, so the way forward does not
+require going back to the list; the rail is still there for jumping about.
+Moving between steps puts the page back at its top, as does moving between any
+two pages of the Hub — a single-page app does not reload, so without it a step
+opens already scrolled past its own heading.
+
+**A step that needs two things says which one is missing.** Store details needs
+a description and a support email; saving answers with what is still
+outstanding, and the screen repeats it above the fields. The form sends what is
+on screen rather than a null for every box the seller did not touch this
+visit — a null means "clear this", so entering the second thing used to wipe the
+first and the step could never be finished at all.
+
 **What each step asks for is a database row, not code.** A German seller is
 asked for a VAT number matching `^DE[0-9]{9}$`; an Indian one for a GSTIN with
 its own fifteen-character format; a manufacturer for a Declaration of

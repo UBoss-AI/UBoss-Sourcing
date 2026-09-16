@@ -23,7 +23,7 @@
  * permanent sidebar, and a hamburger that hides the only navigation is how a
  * seller loses the orders queue.
  */
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useI18n } from '@/i18n/i18n-context';
@@ -601,6 +601,26 @@ export function SellerLayout(): React.JSX.Element {
   const location = useLocation();
   const client = useQueryClient();
 
+  const mainRef = useRef<HTMLElement | null>(null);
+
+  /*
+   * Every page in the Hub opens at its own top.
+   *
+   * A single-page app does not reload, so a seller who was at the bottom of a
+   * three-hundred-row listings table and then opens their application arrives
+   * at it already scrolled past the heading, the progress and the first field.
+   * The storefront has done this since it was written; the Hub is a second
+   * frame and never picked it up.
+   *
+   * Focus moves with it for the same reason: a full page load would have put
+   * focus at the top of the new document, and without it a screen reader is
+   * never told the page changed at all.
+   */
+  useEffect(() => {
+    mainRef.current?.focus({ preventScroll: true });
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [location.pathname]);
+
   /*
    * Shutting the Hub only has to invalidate the identity: the layout re-reads
    * it, finds `isOpen` false and draws the lock screen in place of the
@@ -772,7 +792,12 @@ export function SellerLayout(): React.JSX.Element {
           </div>
         </header>
 
-        <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8">
+        <main
+          id="main"
+          ref={mainRef}
+          tabIndex={-1}
+          className="min-w-0 flex-1 px-4 py-6 outline-none sm:px-6 lg:px-8"
+        >
           <div className="mx-auto max-w-7xl space-y-6">
             {/* Keyed on the path so the banner re-announces itself to a screen
                 reader on navigation rather than being read once and forgotten. */}

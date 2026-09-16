@@ -19,7 +19,7 @@
  *   - **Submission names what is missing.** A disabled "submit" with no
  *     explanation is the single most common way an application is abandoned.
  */
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/toast-context';
@@ -79,6 +79,29 @@ export function SellerOnboardingPage(): React.JSX.Element {
 
   const [activeKey, setActiveKey] = useState<string | null>(null);
 
+  /*
+   * The panel, so the step that opens starts at its own heading.
+   *
+   * Switching step swaps the whole right-hand column, and without this the
+   * page keeps the scroll position it had - so somebody who pressed a button
+   * at the bottom of a long step arrives at the next one already halfway down
+   * it, with the heading and the first field above the top of the screen.
+   */
+  const panelRef = useRef<HTMLElement | null>(null);
+  const hasOpenedAStep = useRef(false);
+
+  useEffect(() => {
+    // Not on arrival: the layout has just put the page at the top, and doing
+    // it again would take focus off the region it moved it to.
+    if (!hasOpenedAStep.current) {
+      hasOpenedAStep.current = true;
+      return;
+    }
+
+    panelRef.current?.focus({ preventScroll: true });
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [activeKey]);
+
   const submitMutation = useMutation({
     mutationFn: submitApplication,
     onSuccess: async () => {
@@ -105,13 +128,32 @@ export function SellerOnboardingPage(): React.JSX.Element {
 
   const view = query.data;
 
-  // Open on the step they were last on, then on the first unfinished one -
-  // which is almost always the one they came back for.
+  /*
+   * Which step is on screen.
+   *
+   * In order: the one they just clicked, then the one they last SAVED, then
+   * the beginning.
+   *
+   * The beginning, and not the first unfinished step, is the part worth being
+   * deliberate about. Contact verification is step one because the email and
+   * mobile are how everything that follows is answered, and it is usually
+   * already done - so "first unfinished" skipped straight past it and dropped
+   * a seller who had never seen this screen into the middle of their own
+   * application, with no sense of what it consists of or how far in they were.
+   * Somebody returning mid-application still lands where they stopped.
+   */
   const active =
     view.steps.find((step) => step.key === activeKey) ??
     view.steps.find((step) => step.key === view.lastStepKey && step.state !== 'COMPLETE') ??
-    view.steps.find((step) => step.state !== 'COMPLETE') ??
     view.steps[0];
+
+  const activeIndex = view.steps.findIndex((step) => step.key === active?.key);
+  const previousStep = activeIndex > 0 ? view.steps[activeIndex - 1] : undefined;
+  const nextStep = activeIndex >= 0 ? view.steps[activeIndex + 1] : undefined;
+
+  const openStep = (key: string): void => {
+    setActiveKey(key);
+  };
 
   return (
     <div className="space-y-6">
@@ -159,7 +201,7 @@ export function SellerOnboardingPage(): React.JSX.Element {
                       <button
                         type="button"
                         onClick={() => {
-                          setActiveKey(step.key);
+                          openStep(step.key);
                         }}
                         aria-current={isActive ? 'step' : undefined}
                         className={cx(
@@ -245,7 +287,7 @@ export function SellerOnboardingPage(): React.JSX.Element {
                             <button
                               type="button"
                               onClick={() => {
-                                setActiveKey(step.key);
+                                openStep(step.key);
                               }}
                               className="text-xxs text-ink-muted hover:text-brand"
                             >
@@ -263,9 +305,56 @@ export function SellerOnboardingPage(): React.JSX.Element {
         </div>
 
         {/* ---- The step itself ------------------------------------------- */}
-        <div className="min-w-0">
-          {active !== undefined && <StepPanel step={active} isEditable={seller.isApplicationEditable} />}
-        </div>
+        <section
+          ref={panelRef}
+          tabIndex={-1}
+          aria-label={active?.title}
+          className="min-w-0 space-y-4 outline-none"
+        >
+          {active !== undefined && (
+            <StepPanel step={active} isEditable={seller.isApplicationEditable} />
+          )}
+
+          {/*
+            Back and next, under the step rather than only in the rail.
+
+            The rail is a map; this is the path. A seller working through an
+            application for the first time should not have to go back to a list
+            to find out what comes after the thing they have just filled in -
+            and on a phone the rail is above the panel and off the screen by the
+            time they finish a step.
+          */}
+          {(previousStep !== undefined || nextStep !== undefined) && (
+            <nav
+              aria-label="Move between steps"
+              className="flex flex-wrap items-center justify-between gap-3"
+            >
+              {previousStep === undefined ? (
+                <span />
+              ) : (
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    openStep(previousStep.key);
+                  }}
+                >
+                  ← {t('common.back')}
+                </Button>
+              )}
+
+              {nextStep !== undefined && (
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    openStep(nextStep.key);
+                  }}
+                >
+                  {t('common.continue')}: {nextStep.title} →
+                </Button>
+              )}
+            </nav>
+          )}
+        </section>
       </div>
     </div>
   );
@@ -532,28 +621,53 @@ function StoreProfileForm({
 
   const query = useQuery({ queryKey: ['seller', 'business-profile'], queryFn: fetchBusinessProfile });
 
+  /*
+   * `null` means "not touched on this visit", and the box falls back to what is
+   * stored. Every field is SENT through `edited` below rather than as it sits
+   * here, which is the whole bug this closes:
+   *
+   * a seller who filled in the description and pressed Save sent
+   * `supportEmail: null` with it - and a null on the wire means "clear this",
+   * so the save wiped the support address they had entered a minute earlier.
+   * The step needs both, so it could never be finished from this form, and
+   * nothing on the screen said why the tick had not appeared.
+   */
   const [description, setDescription] = useState<string | null>(null);
   const [supportEmail, setSupportEmail] = useState<string | null>(null);
   const [supportPhone, setSupportPhone] = useState<string | null>(null);
 
+  const account = query.data?.account ?? null;
+  const profile = query.data?.profile ?? null;
+
+  /** What is in the box on screen: this visit's edit, or what is stored. */
+  const edited = (typed: string | null, stored: string | null | undefined): string =>
+    typed ?? stored ?? '';
+
+  /** An emptied box is an absent value, not an empty string - the support
+      email is validated as an address and `''` is not one. */
+  const orNull = (value: string): string | null =>
+    value.trim().length === 0 ? null : value.trim();
+
   const mutation = useMutation({
     mutationFn: () =>
       saveStoreProfile({
-        description,
-        supportEmail,
-        supportPhone,
+        description: orNull(edited(description, account?.description)),
+        supportEmail: orNull(edited(supportEmail, profile?.supportEmail)),
+        supportPhone: orNull(edited(supportPhone, profile?.supportPhone)),
       }),
-    onSuccess: async () => {
+    onSuccess: async (result) => {
       await client.invalidateQueries({ queryKey: ['seller'] });
-      toast.success('Store details saved.');
+
+      toast.success(
+        result.missing.length === 0
+          ? 'Saved. This step is finished.'
+          : `Saved. Still needed: ${result.missing.join(', ')}.`,
+      );
     },
     onError: (error: unknown) => {
       toast.error(errorMessage(t, error, 'Your store details could not be saved.'));
     },
   });
-
-  const account = query.data?.account ?? null;
-  const profile = query.data?.profile ?? null;
 
   return (
     <Card>
@@ -565,6 +679,12 @@ function StoreProfileForm({
         }}
       >
         <StepHeader step={step} />
+
+        {step.message !== null && (
+          <p className="rounded-lg border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-ink">
+            {step.message}
+          </p>
+        )}
 
         <Field
           label="Shop name buyers see"
@@ -583,7 +703,7 @@ function StoreProfileForm({
               aria-describedby={describedBy}
               rows={4}
               disabled={!isEditable}
-              value={description ?? account?.description ?? ''}
+              value={edited(description, account?.description)}
               onChange={(event) => {
                 setDescription(event.currentTarget.value);
               }}
@@ -599,7 +719,7 @@ function StoreProfileForm({
                 aria-describedby={describedBy}
                 type="email"
                 disabled={!isEditable}
-                value={supportEmail ?? profile?.supportEmail ?? ''}
+                value={edited(supportEmail, profile?.supportEmail)}
                 onChange={(event) => {
                   setSupportEmail(event.currentTarget.value);
                 }}
@@ -613,7 +733,7 @@ function StoreProfileForm({
                 id={inputId}
                 type="tel"
                 disabled={!isEditable}
-                value={supportPhone ?? profile?.supportPhone ?? ''}
+                value={edited(supportPhone, profile?.supportPhone)}
                 onChange={(event) => {
                   setSupportPhone(event.currentTarget.value);
                 }}

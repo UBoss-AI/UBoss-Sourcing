@@ -280,28 +280,60 @@ async function deriveStandingSteps(membership: SellerMembership): Promise<void> 
     stepKey: 'account_verification',
     state: contactOutstanding.length === 0 ? 'COMPLETE' : 'IN_PROGRESS',
     message: contactOutstanding.length === 0 ? null : contactOutstanding.join('. ') + '.',
+    // Derived on a read, not done by the seller - see `isResumePoint`.
+    isResumePoint: false,
   });
 
   // --- Store details -------------------------------------------------------
-  //
-  // The public shop name is chosen when the application starts, so the only
-  // things outstanding here are what a buyer needs in order to reach the seller
-  // about an order they have placed.
-  const storeOutstanding: string[] = [];
 
-  if ((account?.description ?? '').trim().length === 0) {
-    storeOutstanding.push('A description of your business');
+  await markStoreProfileStep({
+    membership,
+    description: account?.description,
+    supportEmail: account?.businessProfile?.supportEmail,
+    isResumePoint: false,
+  });
+}
+
+/**
+ * Decide whether the store details step is finished, and record the answer.
+ *
+ * The public shop name is chosen when the application starts, so the only
+ * things outstanding here are what a buyer needs in order to reach the seller
+ * about an order they have placed.
+ *
+ * One implementation with two callers on purpose. The derive above runs on
+ * every read of the application; the save behind the form calls it too, so the
+ * seller is told what is still missing in the same words the moment they press
+ * the button, instead of being left to work out why the tick never appeared.
+ */
+async function markStoreProfileStep(input: {
+  membership: SellerMembership;
+  description: string | null | undefined;
+  supportEmail: string | null | undefined;
+  isResumePoint: boolean;
+  correlationId?: string | null;
+}): Promise<{ state: OnboardingStepState; missing: string[] }> {
+  const missing: string[] = [];
+
+  if ((input.description ?? '').trim().length === 0) {
+    missing.push('A description of your business');
   }
-  if ((account?.businessProfile?.supportEmail ?? '').trim().length === 0) {
-    storeOutstanding.push('A support email address');
+  if ((input.supportEmail ?? '').trim().length === 0) {
+    missing.push('A support email address');
   }
+
+  const state: OnboardingStepState = missing.length === 0 ? 'COMPLETE' : 'IN_PROGRESS';
 
   await markStep({
-    membership,
+    membership: input.membership,
     stepKey: 'store_profile',
-    state: storeOutstanding.length === 0 ? 'COMPLETE' : 'IN_PROGRESS',
-    message: storeOutstanding.length === 0 ? null : `Still needed: ${storeOutstanding.join(', ')}.`,
+    state,
+    message: missing.length === 0 ? null : `Still needed: ${missing.join(', ')}.`,
+    isResumePoint: input.isResumePoint,
+    correlationId: input.correlationId ?? null,
   });
+
+  return { state, missing };
 }
 
 /** Everything the onboarding screen and the dashboard progress bar need. */
@@ -371,6 +403,17 @@ export interface MarkStepInput {
   message?: string | null;
   correlationId?: string | null;
   tx?: PrismaTransaction;
+  /**
+   * Whether this mark is where the seller left off.
+   *
+   * Defaults to true, because almost every mark follows something the seller
+   * just saved. The two standing steps are the exception: they are re-derived
+   * on every READ of the application, and writing the bookmark from there
+   * moved it on every page load - so "carry on where you were" always landed
+   * on Store details, whatever the seller had actually been working on, and
+   * the application never opened where it begins.
+   */
+  isResumePoint?: boolean;
 }
 
 /**
@@ -407,7 +450,7 @@ export async function markStep(input: MarkStepInput): Promise<void> {
       stepsJson: steps as never,
       completedSteps: completed,
       requiredSteps: requiredTotal,
-      lastStepKey: input.stepKey,
+      ...(input.isResumePoint === false ? {} : { lastStepKey: input.stepKey }),
     };
 
     if (progress === null) {
@@ -606,6 +649,76 @@ export async function saveBusinessProfile(
   });
 
   return { state, missing };
+}
+
+// ---------------------------------------------------------------------------
+// The store details
+// ---------------------------------------------------------------------------
+
+export interface StoreProfilePatch {
+  description?: string | null;
+  supportEmail?: string | null;
+  supportPhone?: string | null;
+}
+
+/**
+ * Save the store details step and answer, in the same breath, whether it is
+ * finished.
+ *
+ * The answer is returned rather than left to be discovered on the next read.
+ * A seller who fills this step in and sees no tick has no way of knowing
+ * whether the save worked, what is still missing, or whether the form is
+ * broken - and the honest reply to "I filled it in" is the list of what is
+ * still outstanding, said straight away.
+ */
+export async function saveStoreProfile(
+  membership: SellerMembership,
+  patch: StoreProfilePatch,
+  correlationId?: string | null,
+): Promise<{ state: OnboardingStepState; missing: string[] }> {
+  assertSellerPermission(membership, SellerPermission.ACCOUNT_WRITE);
+  assertApplicationEditable(membership);
+
+  if (patch.description !== undefined) {
+    await prisma.sellerAccount.update({
+      where: { id: membership.sellerAccountId },
+      data: { description: patch.description },
+    });
+  }
+
+  // The support contacts live on the business profile, so they go through the
+  // one function that writes it - which also re-evaluates the requirement
+  // steps, and would otherwise be bypassed by this route.
+  if (patch.supportEmail !== undefined || patch.supportPhone !== undefined) {
+    await saveBusinessProfile(
+      membership,
+      {
+        ...(patch.supportEmail === undefined ? {} : { supportEmail: patch.supportEmail }),
+        ...(patch.supportPhone === undefined ? {} : { supportPhone: patch.supportPhone }),
+      },
+      correlationId,
+    );
+  }
+
+  // Read back rather than judging the patch: a save that left one of the two
+  // fields alone is still a save, and what decides the step is what is now
+  // stored, not what this request happened to carry.
+  const account = await prisma.sellerAccount.findUnique({
+    where: { id: membership.sellerAccountId },
+    select: {
+      description: true,
+      businessProfile: { select: { supportEmail: true } },
+    },
+  });
+
+  return markStoreProfileStep({
+    membership,
+    description: account?.description,
+    supportEmail: account?.businessProfile?.supportEmail,
+    // This one the seller did do, so it is where they carry on from.
+    isResumePoint: true,
+    correlationId: correlationId ?? null,
+  });
 }
 
 // ---------------------------------------------------------------------------

@@ -344,6 +344,8 @@ table(['Step', 'What it covers'], [
   ['Compliance', 'Any certificates or declarations the things being sold actually need.'],
   ['Agreements', 'The marketplace agreement, commission schedule, returns policy, privacy policy and a declaration that the seller is entitled to sell what it lists.'],
 ], [3000, 7000]);
+note('Working through it', 'The application opens at its first step, contact verification, for anybody who has not filled any of it in yet, and at whichever step was last saved for anybody coming back to it. Each step has Back and Continue underneath it, and the list of steps down the side jumps straight to any of them. Moving to another step puts the page back at the top, so the new step is read from its heading down rather than from the middle.', C.blue);
+note('Being told what is still missing', 'Where a step needs more than one thing — store details needs both a description of the business and a support email address — saving it says which of them is still outstanding, in words, on the step itself. Filling in one thing never clears another that was entered earlier.', C.blue);
 note('Two steps do not block the application', 'Payout and compliance are not required to send an application in. A seller is never held up because the marketplace has not finished setting up payments, and a seller of ordinary goods is not asked for certificates that do not exist for what they sell.', C.orange);
 note('About the signature', 'The application records a typed name, a tick, the version of each document, the time, the address and the browser. This is a record of consent. It is not an electronic signature tied to a verified identity, and the system never describes it as one.', C.orange);
 

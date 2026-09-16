@@ -34,6 +34,7 @@ import {
   readOnboarding,
   requirementsFor,
   saveBusinessProfile,
+  saveStoreProfile,
   submitApplication,
 } from '../../modules/seller/onboarding.service.js';
 import { prisma } from '../../infra/prisma.js';
@@ -78,6 +79,19 @@ const businessProfileSchema = z.object({
   billingPostcode: z.string().trim().max(24).nullable().optional(),
   billingCountry: z.string().trim().length(2).toUpperCase().nullable().optional(),
   extraIdentifiers: z.record(z.string(), z.string().max(255)).nullable().optional(),
+});
+
+/**
+ * The store details step.
+ *
+ * An empty support email arrives as `null` rather than as an empty string,
+ * because `.email()` would refuse `''` and the seller would be told their
+ * details could not be saved when what they did was clear a field.
+ */
+const storeProfileSchema = z.object({
+  description: z.string().trim().max(4000).nullable().optional(),
+  supportEmail: z.string().trim().email().max(320).nullable().optional(),
+  supportPhone: z.string().trim().max(32).nullable().optional(),
 });
 
 const agreementSchema = z.object({
@@ -350,7 +364,6 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
     return reply.status(200).send(result);
   });
 
-  /** The store details step: the public name, description and support contacts. */
   /**
    * The mark on the seller's own shop front.
    *
@@ -393,31 +406,20 @@ export function registerSellerAccountRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
+  /**
+   * The store details step: the description and the support contacts.
+   *
+   * Answers with the state of the step and what is still missing, the way
+   * `/business-profile` does. A 204 told the form nothing, so it said "Store
+   * details saved" and left the seller looking at a step with no tick on it
+   * and no explanation.
+   */
   app.patch('/store-profile', async (request, reply) => {
-    const seller = currentSeller(request);
-    const body = z
-      .object({
-        description: z.string().trim().max(4000).nullable().optional(),
-        supportEmail: z.string().trim().email().max(320).nullable().optional(),
-        supportPhone: z.string().trim().max(32).nullable().optional(),
-      })
-      .parse(request.body);
+    const body = storeProfileSchema.parse(request.body);
 
-    await prisma.sellerAccount.update({
-      where: { id: seller.sellerAccountId },
-      data: { ...(body.description === undefined ? {} : { description: body.description }) },
-    });
+    const result = await saveStoreProfile(currentSeller(request), body, request.correlationId);
 
-    await saveBusinessProfile(
-      seller,
-      {
-        ...(body.supportEmail === undefined ? {} : { supportEmail: body.supportEmail }),
-        ...(body.supportPhone === undefined ? {} : { supportPhone: body.supportPhone }),
-      },
-      request.correlationId,
-    );
-
-    return reply.status(204).send();
+    return reply.status(200).send(result);
   });
 
   app.post('/agreements', async (request, reply) => {

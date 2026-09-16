@@ -226,12 +226,22 @@ export function removeSellerLogo(): Promise<never> {
   return api.delete<never>('/seller/logo');
 }
 
+/**
+ * Save the store details step.
+ *
+ * Answers with the state of the step and what is still outstanding, so the
+ * form can say which of the two things it needs is still missing instead of
+ * reporting a save and leaving the seller staring at a step with no tick.
+ */
 export function saveStoreProfile(patch: {
   description?: string | null;
   supportEmail?: string | null;
   supportPhone?: string | null;
-}): Promise<never> {
-  return api.patch<never>('/seller/store-profile', patch);
+}): Promise<{ state: OnboardingStepState; missing: string[] }> {
+  return api.patch<{ state: OnboardingStepState; missing: string[] }>(
+    '/seller/store-profile',
+    patch,
+  );
 }
 
 export function acceptAgreement(input: {
