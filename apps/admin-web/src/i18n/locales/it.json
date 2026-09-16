@@ -2306,6 +2306,7 @@
   "logistics.partners.invited.body": "Un link è stato inviato per e-mail a {{email}}.",
   "logistics.partners.invited.expires": "Funziona una sola volta e smette di funzionare il {{date}}.",
   "logistics.partners.invited.noPassword": "Non è stata creata né inviata alcuna password. Sceglieranno la propria e imposteranno un secondo fattore prima di poter fare qualsiasi cosa.",
+  "logistics.partners.invited.notSignedIn": "Qui nessuno ha effettuato l’accesso come questo vettore. Il vettore accede al portale logistico con l’account che gli è appena stato inviato.",
   "logistics.partner.loading": "Apertura del vettore…",
   "logistics.partner.changeStatus": "Cambia stato",
   "logistics.partner.changeStatusIntro": "Sospendere o chiudere un vettore impedisce che gli arrivi nuovo lavoro. Il lavoro che ha già accettato resta suo da portare a termine.",

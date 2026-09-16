@@ -2306,6 +2306,7 @@
   "logistics.partners.invited.body": "Un lien a été envoyé par e-mail à {{email}}.",
   "logistics.partners.invited.expires": "Il fonctionne une fois et cesse de fonctionner le {{date}}.",
   "logistics.partners.invited.noPassword": "Aucun mot de passe n'a été créé ni envoyé par e-mail. La personne choisit le sien et configure un deuxième facteur avant de pouvoir faire quoi que ce soit.",
+  "logistics.partners.invited.notSignedIn": "Personne ici n’est connecté en tant que ce transporteur. Il se connecte sur le portail logistique avec le compte qui vient de lui être envoyé.",
   "logistics.partner.loading": "Ouverture du transporteur…",
   "logistics.partner.changeStatus": "Changer le statut",
   "logistics.partner.changeStatusIntro": "Suspendre ou fermer un transporteur empêche tout nouveau travail de lui parvenir. Le travail qu'il a déjà accepté lui revient de le terminer.",

@@ -2282,6 +2282,7 @@
   "logistics.partners.invited.body": "Ein Link wurde an {{email}} gesendet.",
   "logistics.partners.invited.expires": "Er funktioniert einmal und verfällt am {{date}}.",
   "logistics.partners.invited.noPassword": "Es wurde kein Passwort erstellt und keines versendet. Sie wählen ihr eigenes und richten einen zweiten Faktor ein, bevor sie etwas tun können.",
+  "logistics.partners.invited.notSignedIn": "Niemand hier ist als dieses Transportunternehmen angemeldet. Es meldet sich im Logistikportal mit dem soeben versendeten Konto an.",
   "logistics.partner.loading": "Transportunternehmen wird geöffnet …",
   "logistics.partner.changeStatus": "Status ändern",
   "logistics.partner.changeStatusIntro": "Eine Sperrung oder Schließung verhindert, dass neue Arbeit zu ihnen gelangt. Bereits angenommene Arbeit bleibt ihre, um sie abzuschließen.",

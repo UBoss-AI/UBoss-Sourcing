@@ -2282,6 +2282,7 @@
   "logistics.partners.invited.body": "A link has been emailed to {{email}}.",
   "logistics.partners.invited.expires": "It works once and stops working on {{date}}.",
   "logistics.partners.invited.noPassword": "No password was created and none was emailed. They choose their own, and set up a second factor before they can do anything.",
+  "logistics.partners.invited.notSignedIn": "Nobody here is signed in as this carrier. They sign in on the logistics portal with the account they have just been sent.",
   "logistics.partner.loading": "Opening the carrier…",
   "logistics.partner.changeStatus": "Change status",
   "logistics.partner.changeStatusIntro": "Suspending or closing a carrier stops any new work reaching them. Work they have already accepted is theirs to finish.",

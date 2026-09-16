@@ -2306,6 +2306,7 @@
   "logistics.partners.invited.body": "Se ha enviado un enlace por correo a {{email}}.",
   "logistics.partners.invited.expires": "Funciona una vez y deja de funcionar el {{date}}.",
   "logistics.partners.invited.noPassword": "No se ha creado ninguna contraseña ni se ha enviado ninguna. Ellos eligen la suya y configuran un segundo factor antes de poder hacer nada.",
+  "logistics.partners.invited.notSignedIn": "Nadie aquí tiene la sesión iniciada como este transportista. Inicia sesión en el portal de logística con la cuenta que se le acaba de enviar.",
   "logistics.partner.loading": "Abriendo el transportista…",
   "logistics.partner.changeStatus": "Cambiar el estado",
   "logistics.partner.changeStatusIntro": "Suspender o cerrar un transportista impide que le llegue trabajo nuevo. El trabajo que ya ha aceptado es suyo para terminarlo.",

@@ -2330,6 +2330,7 @@
   "logistics.partners.invited.body": "Link został wysłany na adres {{email}}.",
   "logistics.partners.invited.expires": "Działa raz i przestaje działać {{date}}.",
   "logistics.partners.invited.noPassword": "Nie utworzono ani nie wysłano żadnego hasła. Wybiorą je sami i ustawią drugi składnik logowania, zanim będą mogli cokolwiek zrobić.",
+  "logistics.partners.invited.notSignedIn": "Nikt tutaj nie jest zalogowany jako ten przewoźnik. Przewoźnik loguje się w portalu logistycznym kontem, które właśnie zostało wysłane.",
   "logistics.partner.loading": "Otwieranie przewoźnika…",
   "logistics.partner.changeStatus": "Zmień status",
   "logistics.partner.changeStatusIntro": "Zawieszenie lub zamknięcie przewoźnika sprawia, że nie trafia do niego nowa praca. Pracę, którą już przyjął, kończy sam.",

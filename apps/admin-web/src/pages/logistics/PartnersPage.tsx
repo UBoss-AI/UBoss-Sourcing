@@ -384,6 +384,14 @@ function CreatePartnerDialog({
             })}
           </p>
           <p className="mt-2">{t('logistics.partners.invited.noPassword')}</p>
+          {/*
+            Said out loud because its absence was read as a bug. Creating a
+            carrier here signs nobody in as that carrier, so an operator who
+            opened the portal straight afterwards saw whichever carrier that
+            browser had last signed in as - and reported the portal as having
+            chosen the wrong company.
+          */}
+          <p className="mt-2">{t('logistics.partners.invited.notSignedIn')}</p>
         </Callout>
       ) : (
         <form

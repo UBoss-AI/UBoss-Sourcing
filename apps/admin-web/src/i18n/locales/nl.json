@@ -2282,6 +2282,7 @@
   "logistics.partners.invited.body": "Er is een link gemaild naar {{email}}.",
   "logistics.partners.invited.expires": "De link werkt één keer en werkt niet meer na {{date}}.",
   "logistics.partners.invited.noPassword": "Er is geen wachtwoord aangemaakt en geen gemaild. Ze kiezen er zelf een en stellen een tweede factor in voordat ze iets kunnen doen.",
+  "logistics.partners.invited.notSignedIn": "Niemand hier is ingelogd als deze vervoerder. De vervoerder logt in op het logistieke portaal met het account dat zojuist is verstuurd.",
   "logistics.partner.loading": "Vervoerder wordt geopend…",
   "logistics.partner.changeStatus": "Status wijzigen",
   "logistics.partner.changeStatusIntro": "Een vervoerder schorsen of sluiten zorgt ervoor dat er geen nieuw werk meer bij hen komt. Werk dat ze al hebben aangenomen, maken ze zelf af.",
