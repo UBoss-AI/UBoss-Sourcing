@@ -106,6 +106,23 @@ jobs:
         working-directory: backend
         run: npm ci
 
+      # npm 11 skips a dependency's install script unless package.json lists it
+      # in `allowScripts`, and it skips it with a warning and exit 0. argon2 is
+      # a native addon and @prisma/engines downloads the query engine, so
+      # without their scripts the install "succeeds" and nothing works.
+      #
+      # Checked here rather than left to the test run: the symptom otherwise is
+      # a wall of failures four minutes later that look like application bugs.
+      # `release.sh` makes the same two checks before it swaps a release.
+      - name: The install actually built what it needed to
+        working-directory: backend
+        run: |
+          node -e "require('argon2')" \
+            || { echo "::error::argon2 has no native binding - npm skipped its build script. Run 'npm install-scripts ls' in backend/ and approve it."; exit 1; }
+          npx prisma --version >/dev/null \
+            || { echo "::error::Prisma engines missing - npm skipped @prisma/engines' postinstall. Same fix."; exit 1; }
+          npm install-scripts ls
+
       - name: Generate the Prisma client
         working-directory: backend
         run: npx prisma generate
@@ -278,7 +295,34 @@ jobs:
             "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
             | tar -xz gitleaks
           ./gitleaks version
-          ./gitleaks detect --source=. --redact --no-banner --exit-code=1
+          # `--config` named rather than left to discovery, and the commit count
+          # echoed beside it: if a run scans FEWER commits than this, the history
+          # walk stopped early and a clean result means nothing. `--no-merges`,
+          # because gitleaks skips merge commits - their content is already in
+          # the parents - so the raw total would be wrong by exactly the number
+          # of merges and the check would cry wolf.
+          echo "non-merge commits in history: $(git rev-list --count --no-merges HEAD)"
+          ./gitleaks detect \
+            --source=. \
+            --config=.gitleaks.toml \
+            --redact \
+            --no-banner \
+            --report-path=gitleaks-report.json \
+            --exit-code=1
+
+      # The findings, readable without admin rights on the repository.
+      #
+      # Job logs are admin-only through the API, so a failure here was
+      # diagnosable only by somebody who could open the run in a browser. The
+      # report is redacted - it says which rule fired, in which file, at which
+      # line, and never prints the matched value.
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: gitleaks-report
+          path: gitleaks-report.json
+          if-no-files-found: warn
+          retention-days: 14
 
   # ---------------------------------------------------------------------------
   # Migration safety

@@ -17,9 +17,36 @@
 # appears, the first question is whether it is real - not how to silence it.
 #
 # If you are adding an entry because a test needs a credential-shaped string,
-# consider instead giving the fixture a shape no scanner recognises. The four
+# consider instead giving the fixture a shape no scanner recognises. The ones
 # below predate that advice and are kept because they are already in the
 # history, where renaming them changes nothing.
+#
+# RUNNING THIS ON WINDOWS GIVES A FALSE PASS, AND IT IS A QUIET ONE
+#
+# Git for Windows registers an `astextplain` textconv for `.docx`, and this
+# repository has `.docx` files at its root. `astextplain` needs `docx2txt`,
+# which is not installed, so `git log -p` **dies part-way through the history**:
+#
+#   astextplain: line 18: docx2txt.exe: command not found
+#   E: unsupported filetype ... .docx
+#   fatal: unable to read files to diff
+#
+# gitleaks reports those as ERR lines, scans however many commits it got, and
+# then says "no leaks found" with exit code 0. It scanned 76 of 87 commits here
+# and missed four findings that CI then caught on Linux.
+#
+# So on Windows, disable the inherited config or you are not testing what CI
+# tests:
+#
+#   GIT_CONFIG_SYSTEM=/dev/null GIT_CONFIG_GLOBAL=/dev/null \
+#     gitleaks detect --source=. --redact --no-banner
+#
+# Then check the commit count it prints against
+# `git rev-list --count --no-merges HEAD` - `--no-merges` because gitleaks
+# skips merge commits, whose content is already in their parents, so comparing
+# against the raw total is wrong by exactly the number of merges. If the two
+# disagree, the walk stopped early and a clean result is meaningless. The
+# workflow prints the same number for the same reason.
 # =============================================================================
 
 [extend]
@@ -55,3 +82,31 @@ useDefault = true
 [[allowlists]]
   description = "backend/tests/integration/erp-integration.test.ts - the bearer token for the same stub server, same reason."
   regexes = ['''tok_live_abc123''']
+
+[[allowlists]]
+  description = "backend/tests/unit/crypto.test.ts - the plaintext fed to `encryptSecret` in the round-trip test. It has to look like a gateway key, because the thing under test is whether a gateway key survives encryption."
+  regexes = ['''rzp_test_secret_key_9f2a4b''']
+
+[[allowlists]]
+  description = "backend/tests/unit/crypto.test.ts - the plaintext for the test that asserts ciphertext differs each time and NEVER CONTAINS the plaintext. A bland string would make that assertion prove nothing."
+  regexes = ['''sk_live_abcdef123456''']
+
+[[allowlists]]
+  description = "backend/tests/integration/auth.test.ts - a deliberately WRONG password, in the test that an unactivated account is refused. It has never opened anything."
+  regexes = ['''anything12345''']
+
+# -----------------------------------------------------------------------------
+# Not a credential at all
+#
+# The one entry here that is not a test fixture, and the one worth reading
+# twice before anybody removes it.
+# -----------------------------------------------------------------------------
+[[allowlists]]
+  description = """backend/src/infra/crypto.ts - TEMPORARY_PASSWORD_ALPHABET. \
+This is the CHARACTER SET temporary passwords are drawn from, not a password: \
+32 characters with I, O, 0 and 1 left out because the string gets read off a \
+screen and retyped by hand. It is flagged because it is a long random-looking \
+literal on a line whose name contains PASSWORD, which is exactly the heuristic \
+working - it just happens to be wrong here. Changing the alphabet means \
+changing this line too."""
+  regexes = ['''ABCDEFGHJKLMNPQRSTUVWXYZ23456789''']

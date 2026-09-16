@@ -1007,6 +1007,13 @@ against `DATABASE_URL` at all, for the same reason.
 (`npm run openapi:export`), so it cannot drift from what the server serves — a
 contract test fails the build if it does.
 
+> **If CI fails on "The install actually built what it needed to",** a
+> dependency that runs code at install time was bumped, and npm 11 re-blocked
+> its script. Run `npm install-scripts ls` in that project and
+> `npm install-scripts approve <pkg>` to record the decision. The approvals name
+> an exact version on purpose, so a new one is reviewed rather than inherited.
+> `argon2` and `@prisma/engines` are the two the backend cannot run without.
+
 **The same checks run on every pull request**, in `.github/workflows/ci.yml`,
 against MariaDB **10.11** rather than the 10.4 a development machine runs — so a
 value too long for its column fails there rather than on launch night. That

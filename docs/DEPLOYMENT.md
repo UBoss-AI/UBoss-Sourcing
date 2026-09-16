@@ -2045,22 +2045,53 @@ reason:
 
 ### 15.1 Branch protection
 
-| Rule | Setting |
+**`main` is unprotected today.** GitHub says so on the repository page, and it
+is correct: anyone with write access can push straight to the branch that
+`release.sh` deploys from, and can force-push over it.
+
+This cannot be fixed by a file in the repository — it is a setting, at
+**Settings → Rules → Rulesets → New branch ruleset** (or the older
+Settings → Branches). Target `main` and apply:
+
+| Rule | Setting | Why |
+|---|---|---|
+| Restrict deletions | On | `main` is what the server builds from |
+| Block force pushes | On | A force-push rewrites the history that `SHA256SUMS` and `REVISION` are supposed to make answerable |
+| Require a pull request | On | Nothing reaches `main` without a diff somebody could have read |
+| Required approvals | **See the warning below before choosing a number** | |
+| Dismiss stale approvals on new commits | On | An approval of an earlier diff is not an approval of this one |
+| Require status checks to pass | On, and **require the branch to be up to date** | The checks are §15.2. Add them by name once they have each run once — GitHub only offers checks it has seen |
+| Require conversation resolution | On | |
+| Require linear history | On | Makes "which commit is live" answerable |
+| Require signed commits | **[OD]** recommended | |
+| Include administrators | **On** — the rule is worth nothing if the person most likely to be in a hurry is exempt | |
+
+**The trap that stops a small team dead: a pull request needs an approver who is
+not its author.** With "required approvals: 1" on a repository with one active
+developer, every pull request is permanently unmergeable — you cannot approve
+your own. If that is the situation today, set **required approvals to 0** and
+keep everything else. You still get: no force-pushes, no deletions, a diff for
+every change, and **CI green before merge**, which is the part that was actually
+missing. Raise it to 1 the day a second person can review.
+
+**And know what it costs before you turn it on:** direct `git push origin main`
+stops working, for everybody, including whoever set it up. Every change becomes
+a branch and a pull request. That is the point of it — but it should be a
+decision rather than a surprise on the next hotfix.
+
+`.github/pull_request_template.md` carries the checklist that `CLAUDE.md` asks
+for, so the documentation rule travels with the diff rather than living only in
+a file nobody opens mid-change.
+
+| Environments | `staging` (auto), `production` (**required reviewers**) — separate from branch rules, at Settings → Environments |
 |---|---|
-| Protected branch | `main` |
-| Require a pull request | Yes, **1 approval minimum**; dismiss stale approvals on new commits |
-| Require status checks | All of §15.2, and require the branch to be up to date |
-| Require conversation resolution | Yes |
-| Require signed commits | **[OD]** recommended |
-| Linear history | Yes — makes "which commit is live" answerable |
-| Force push / deletion | Disabled for everyone, including admins |
-| Environments | `staging` (auto), `production` (**required reviewers**) |
 
 ### 15.2 Required gates
 
 | Gate | Command | Blocking | Note |
 |---|---|---|---|
 | Locked install | `npm ci` in each of the four projects | ✅ | Fails if `package.json` and the lock disagree |
+| **Install scripts actually ran** | `node -e "require('argon2')"` and `npx prisma --version` | ✅ | **See the note below. This is not a formality.** |
 | Lint | `npm run lint` (`--max-warnings=0`) | ✅ | ESLint forbids the void-arrow shorthand; `lint:fix` will not add the braces |
 | Typecheck | `npm run typecheck` / `tsc -b` | ✅ | Backend verified passing **[VR]** |
 | Unit tests | `npm test` | ✅ | |
@@ -2075,6 +2106,39 @@ reason:
 | SBOM | `npm sbom --sbom-format cyclonedx` per project, uploaded as an artifact | ✅ | **Also a Cyber Resilience Act input (§7)** |
 | Licence review | `license-checker` against an allowlist | warn | **[OD]** — matters because UBOSS is *sold* |
 | Artifact checksum | `sha256sum` manifest | ✅ | |
+
+**npm 11 does not run a dependency's install script unless you say so, and this
+project has two that matter.**
+
+Node 24 ships npm 11, which blocks a dependency's `preinstall`/`install`/
+`postinstall` unless the package is listed in `allowScripts` in `package.json`.
+It does not fail when it blocks one. It prints a warning among a hundred other
+lines and **exits 0**.
+
+Two of the backend's dependencies are useless without theirs:
+
+| Package | Script | Without it |
+|---|---|---|
+| `argon2` | `node-gyp rebuild` | No native binding. Every password hash and every sign-in throws |
+| `@prisma/engines` | `postinstall` | The query engine is never downloaded. Prisma cannot open a connection |
+
+This is why the backend job failed on **every one of the first three CI runs**
+while the three frontend jobs passed: the frontends' only blocked script is
+esbuild's, and modern esbuild ships its binary as a per-platform optional
+dependency, so it does not need one.
+
+**The same thing would have happened on the server.** `release.sh` runs
+`npm ci`, and `bootstrap.sh` installs Node 24. A release would have installed
+cleanly, built cleanly, swapped the symlink and produced an API that could not
+answer a single request. Both `release.sh` and the CI job now check the two
+artifacts directly and stop rather than continue.
+
+The approvals in `backend/package.json` name an **exact version** — npm's own
+behaviour, and the right one: a new version of a package that runs code at
+install time is reviewed rather than inherited. The consequence to expect is
+that **a Dependabot bump of `argon2`, `prisma`, `@prisma/engines` or `esbuild`
+will fail CI at that check** until somebody runs `npm install-scripts approve`
+on the new version. That is the system working; do not turn it off.
 
 ### 15.3 Workflow shape
 
@@ -3075,7 +3139,7 @@ must be resolved before deployment.
 | B11 | **Enforce the CSP** (§11.4) | **Extended — the origins Stripe needs are in the shipped policy, so enforcing it no longer blocks card entry.** What remains is a day of staging with nothing reported, the two-line swap, and a 3-D Secure test card immediately afterwards | Tech owner — **the swap is a go-live step** |
 | ~~B12~~ | ~~Set `unattended-upgrades` and a fail2ban jail~~ | **DONE** in `bootstrap.sh`, with journald caps. A machine bootstrapped before this change needs §10.6 run by hand | Tech owner — done |
 | B13 | **Commission a penetration test** and a load test | No capacity or security evidence exists. Not a code change | Tech owner |
-| ~~B14~~ | ~~Set up CI/CD (§15)~~ | **DONE for CI.** `ci.yml`, `codeql.yml`, `dependabot.yml`. **Still yours:** branch protection on `main`, GitHub push protection, and — before `deploy.yml` can do anything — the environments, the restricted deploy key and the API base URLs | Tech owner — **repository settings outstanding** |
+| ~~B14~~ | ~~Set up CI/CD (§15)~~ | **DONE for CI**, and green: `ci.yml`, `codeql.yml`, `dependabot.yml`. **Still yours, and all of it is repository settings rather than code:** branch protection on `main` — **it is unprotected right now**, §15.1 has the ruleset and the one-developer trap — GitHub push protection, `ENABLE_CODEQL`, and, before `deploy.yml` can do anything, the environments, the restricted deploy key and the API base URLs | Tech owner — **repository settings outstanding** |
 | B15 | **Stand up monitoring, alerting and external uptime checks** | **The on-box half is done** — `monitor.sh` + `uboss-monitor.timer` make a silent worker failure noisy, and `UBOSS_ALERT_COMMAND` delivers it. **The external half is not, and cannot be:** an uptime check from outside this network, an error tracker and a metrics scraper are all services somebody must choose and pay for (D11) | Tech owner — **external monitoring outstanding** |
 
 ### 26.2 Business and legal decisions

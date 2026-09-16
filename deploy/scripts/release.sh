@@ -126,6 +126,37 @@ mkdir -p "$RELEASE"
 log "building the API"
 cd "$REPO/backend"
 npm ci
+
+# -----------------------------------------------------------------------------
+# Did the install actually build what it needed to?
+#
+# npm 11 - which is what Node 24 ships, and what bootstrap.sh installs - DOES
+# NOT RUN A DEPENDENCY'S INSTALL SCRIPT UNLESS IT IS LISTED IN `allowScripts`
+# in package.json. It skips it, prints a warning among a hundred other lines,
+# and exits 0.
+#
+# Two of this project's dependencies are useless without theirs:
+#
+#   argon2           a native addon. No `node-gyp rebuild`, no binding, and
+#                    every password hash and every sign-in throws.
+#   @prisma/engines  downloads the query engine. Without it Prisma cannot
+#                    open a connection.
+#
+# So a release can install cleanly, build cleanly, swap the symlink, and give
+# you an API that cannot answer a single request. The two checks below cost a
+# second and turn that into a release that stops before it touches anything.
+#
+# If one of these fails after a dependency bump, the approval lapsed: the keys
+# in `allowScripts` name an exact version, deliberately, so a new version is
+# reviewed rather than inherited. `npm install-scripts ls` lists what is
+# waiting, and `approve <pkg>` records the decision.
+# -----------------------------------------------------------------------------
+node -e "require('argon2')" 2>/dev/null \
+  || die "argon2 has no native binding - 'npm ci' skipped its build script. Run 'npm install-scripts ls' in backend/ and approve it, then release again."
+
+npx prisma --version >/dev/null 2>&1 \
+  || die "the Prisma engines are missing - 'npm ci' skipped @prisma/engines' postinstall. Same fix: 'npm install-scripts ls' in backend/."
+
 npx prisma generate
 npm run build
 
