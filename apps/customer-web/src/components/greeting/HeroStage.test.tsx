@@ -29,7 +29,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { HeroStage } from './HeroStage';
-import { DEEP_MIX, HIGHLIGHT_MIX, darken, lighten } from './stage-palette';
+import { DEEP_MIX, HIGHLIGHT_MIX, LAND_MIX, darken, lighten, mix } from './stage-palette';
 
 /** Relative luminance, to the WCAG definition. */
 function luminance(colour: number): number {
@@ -132,6 +132,54 @@ describe('colours that have to work on both themes', () => {
     for (const brand of [BRAND_LIGHT, BRAND_DARK]) {
       expect(contrastWithWhite(darken(brand, DEEP_MIX))).toBeGreaterThanOrEqual(4.5);
     }
+  });
+
+  /*
+   * The land is the half of the globe that is easy to forget.
+   *
+   * "Sourcing" is painted over the middle of the sphere, and what is behind it
+   * is whatever has rotated there — which for most of every revolution is a
+   * continent rather than an ocean. Holding only the ocean to 4.5:1 would give
+   * a label that passes when the Pacific is facing us and fails when Africa is.
+   */
+  it('produces land that white text can sit on, on either theme', () => {
+    for (const brand of [BRAND_LIGHT, BRAND_DARK]) {
+      const land = mix(darken(brand, DEEP_MIX), brand, LAND_MIX);
+      expect(contrastWithWhite(land)).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it('lifts the land clear of the ocean, on either theme', () => {
+    /*
+     * The other end of the same squeeze. A globe whose continents are within a
+     * few percent of its sea is a plain blue ball, and the one thing the globe
+     * is on the page to say is that it is the world.
+     *
+     * A ratio rather than a difference in luminance: on the light theme both
+     * values are very dark, where a fixed difference would be an enormous
+     * change, and on the dark theme both are mid, where the same difference
+     * would be invisible.
+     */
+    for (const brand of [BRAND_LIGHT, BRAND_DARK]) {
+      const ocean = darken(brand, DEEP_MIX);
+      const land = mix(ocean, brand, LAND_MIX);
+
+      expect(luminance(land) / (luminance(ocean) + 0.0001)).toBeGreaterThan(2);
+    }
+  });
+});
+
+describe('mixing colours', () => {
+  it('lands on each end at the ends of the range', () => {
+    expect(mix(0x000000, 0xffffff, 0)).toBe(0x000000);
+    expect(mix(0x000000, 0xffffff, 1)).toBe(0xffffff);
+    expect(mix(0x1d4ed8, 0x8ab4ff, 0)).toBe(0x1d4ed8);
+  });
+
+  it('mixes each channel independently', () => {
+    // Half way from pure red to pure blue is neither, in both channels.
+    // 0x80 rather than 0x7f in each: 255/2 is 127.5, and it rounds up.
+    expect(mix(0xff0000, 0x0000ff, 0.5)).toBe(0x800080);
   });
 
   it('leaves black and white alone at the ends of the range', () => {

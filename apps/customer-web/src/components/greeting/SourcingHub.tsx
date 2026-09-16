@@ -344,11 +344,19 @@ interface HubNote {
   ctaKey?: TranslationKey | undefined;
 }
 
+/*
+ * Layout only.
+ *
+ * The panel itself — the glass, the blur, the lit edge, the depth and how each
+ * of those changes between themes — is `.orch-node-control` in
+ * `orchestration.css`. It used to be `bg-surface/85 backdrop-blur-sm
+ * shadow-card` here, and every one of those is a single-class selector with
+ * exactly the same specificity as the stylesheet's own rule: which one won
+ * depended on emit order. See the note above that rule.
+ */
 const NODE_SHELL =
-  'orch-node-control flex w-full items-center gap-3 rounded-lg border border-border ' +
-  'bg-surface/85 p-3 text-left shadow-card backdrop-blur-sm transition-[border-color,box-shadow] ' +
-  'hover:border-brand/40 hover:shadow-card-hover lg:flex-col lg:gap-2 lg:p-3.5 lg:text-center ' +
-  'disabled:opacity-60';
+  'orch-node-control flex w-full items-center gap-3 p-3 text-left ' +
+  'lg:flex-col lg:gap-2 lg:p-3.5 lg:text-center disabled:opacity-60';
 
 const NODE_MARK =
   'orch-node-mark flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ' +

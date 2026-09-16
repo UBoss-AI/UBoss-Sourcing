@@ -1,12 +1,22 @@
 /**
  * The greeting's WebGL stage.
  *
- * A real 3D scene behind the hero: a faceted core, two rings that genuinely
- * pass in front of and behind it, a depth field of particles and a ground
- * plane receding into fog. Not a video, not a sprite sheet, not a CSS
- * approximation of perspective — an actual camera looking at actual geometry,
- * which is the only way the rings can occlude the core on one side of their
- * travel and be occluded by it on the other.
+ * A real 3D scene behind the hero: a glass globe with the world's coastlines on
+ * it, three orbits that genuinely pass in front of and behind it, a lit
+ * platform under it, a depth field of particles and a ground plane receding
+ * into fog. Not a video, not a sprite sheet, not a CSS approximation of
+ * perspective — an actual camera looking at actual geometry, which is the only
+ * way an orbit can occlude the globe on one side of its travel and be occluded
+ * by it on the other.
+ *
+ * The globe itself is `scene/globe.ts` and the orbits are `scene/orbits.ts`.
+ * This file owns what is left: the camera, the lights, the depth field, the
+ * ground, where the hub sits on screen, and the loop and the four brakes on it.
+ *
+ * **Nothing here fetches an image.** The continents are coordinates in
+ * `scene/world-land.ts`, rasterised into a canvas at runtime. See that file for
+ * why a downloaded earth texture was the wrong answer for a product that other
+ * companies install on their own networks.
  *
  * WHY THIS IS AN ENHANCEMENT AND NEVER A DEPENDENCY
  *
@@ -99,16 +109,30 @@ interface HeroStageProps {
 }
 
 /**
- * Whether this visit should get the scene at all.
+ * How much scene this visit should get.
  *
- * Deliberately conservative. A device that reports four cores or fewer is
- * usually a phone that will render this at fifteen frames a second and get
- * hot doing it, and fifteen frames a second reads as broken rather than as
- * atmospheric — the CSS backdrop is genuinely the better page there.
+ * Three answers, and the page is finished at every one of them:
+ *
+ *   - `full` — the globe with its network, its arcs and three orbits.
+ *   - `reduced` — the same globe with a quarter of the texture, no wireframe,
+ *     no arcs, two orbits, a thinner particle field and a lower pixel ratio.
+ *     A mid-range laptop or a large tablet gets a picture that still says
+ *     everything the full one says, at roughly a third of the fill rate.
+ *   - `null` — no canvas at all, and `orchestration.css` keeps drawing the
+ *     sphere it has always drawn. This is a finished page too; see the note at
+ *     the top of this file.
+ *
+ * Deliberately conservative at the bottom end. A device reporting four cores or
+ * fewer is usually a phone that would render even the reduced tier at fifteen
+ * frames a second and get hot doing it, and fifteen frames a second reads as
+ * broken rather than as atmospheric — the CSS drawing is genuinely the better
+ * page there, and it is a good one.
  */
-function shouldRender(): boolean {
-  if (typeof window === 'undefined') return false;
-  if (typeof document === 'undefined') return false;
+type StageTier = 'full' | 'reduced';
+
+function chooseTier(): StageTier | null {
+  if (typeof window === 'undefined') return null;
+  if (typeof document === 'undefined') return null;
 
   /*
    * Does this environment have WebGL 2 at all?
@@ -125,17 +149,35 @@ function shouldRender(): boolean {
    * The constructor is present in every browser that can run the scene and
    * absent in jsdom, so this is both the cheap check and the honest one.
    */
-  if (typeof WebGL2RenderingContext === 'undefined') return false;
+  if (typeof WebGL2RenderingContext === 'undefined') return null;
 
   // `deviceMemory` is Chromium-only; its absence is not evidence of anything,
   // so it only ever rules a device out, never in.
   const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
-  if (typeof memory === 'number' && memory > 0 && memory < 4) return false;
+  if (typeof memory === 'number' && memory > 0 && memory < 4) return null;
 
   const cores = navigator.hardwareConcurrency;
-  if (typeof cores === 'number' && cores > 0 && cores <= 4) return false;
+  if (typeof cores === 'number' && cores > 0 && cores <= 4) return null;
 
-  return true;
+  // Comfortable, not merely capable. Six cores or four gigabytes is a machine
+  // that can render this well; it is not one to hand the full texture and a
+  // thousand extra wireframe segments to.
+  if (typeof memory === 'number' && memory > 0 && memory < 8) return 'reduced';
+  if (typeof cores === 'number' && cores > 0 && cores <= 6) return 'reduced';
+
+  /*
+   * A narrow window gets the reduced tier whatever the hardware says.
+   *
+   * Below `lg` the hub is a 17rem square under the search bar rather than a
+   * 30rem one beside it, so the globe is roughly a third of the area it gets on
+   * a desktop — at which point the wireframe is below a pixel per cell and the
+   * arcs are three pixels long. They are not visible, so they are not rendered.
+   * That a phone is also the device that can least afford them is a bonus
+   * rather than the reason.
+   */
+  if (window.matchMedia('(max-width: 1023px)').matches) return 'reduced';
+
+  return 'full';
 }
 
 export function HeroStage({ anchorRef, onActive }: HeroStageProps): React.JSX.Element | null {
@@ -163,7 +205,8 @@ export function HeroStage({ anchorRef, onActive }: HeroStageProps): React.JSX.El
   onActiveRef.current = onActive;
 
   useEffect(() => {
-    if (!shouldRender()) return;
+    const tier = chooseTier();
+    if (tier === null) return;
 
     const canvas = canvasRef.current;
     const host = hostRef.current;
@@ -194,7 +237,27 @@ export function HeroStage({ anchorRef, onActive }: HeroStageProps): React.JSX.El
     const isDisposed = (): boolean => disposed;
 
     void (async () => {
-      const THREE = await import('three');
+      /*
+       * The library and the scene together, in one round trip.
+       *
+       * The scene modules are imported here rather than at the top of the file
+       * for the same reason three.js is, and the cost of getting it wrong is
+       * measurable: they carry the world's coastlines, and as static imports
+       * they put 14 kB of longitude and latitude into the landing page's OWN
+       * chunk — which the browser has to finish downloading before it can draw
+       * the headline the page exists to show. Deferred, they land in the chunk
+       * beside three.js, fetched after the first paint and not fetched at all
+       * by a device that has decided it does not want the scene.
+       *
+       * `Promise.all` rather than three awaits in a row: they do not depend on
+       * one another, and serialising them would cost two extra round trips on
+       * exactly the connection least able to afford them.
+       */
+      const [THREE, globeModule, orbitsModule] = await Promise.all([
+        import('three'),
+        import('./scene/globe'),
+        import('./scene/orbits'),
+      ]);
 
       // The component may have unmounted while the chunk was in flight.
       if (isDisposed()) return;
@@ -217,9 +280,17 @@ export function HeroStage({ anchorRef, onActive }: HeroStageProps): React.JSX.El
         return;
       }
 
-      // 2 rather than the device's own. Beyond 2 the difference on a backdrop
-      // this soft is invisible and the cost is quadratic.
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      /*
+       * 1.5, not the device's own, and not 2 as this used to be.
+       *
+       * The cost of a pixel ratio is quadratic: a 3x phone rendering at native
+       * density shades nine times the fragments of a 1x laptop, and this scene
+       * is almost entirely transparent shells stacked on top of one another, so
+       * every one of those fragments is shaded several times over. Against that,
+       * what 2 buys over 1.5 is a slightly crisper edge on a hairline orbit.
+       * 1.5 is where that trade stops being worth it.
+       */
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, tier === 'full' ? 1.5 : 1.25));
 
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
@@ -239,157 +310,38 @@ export function HeroStage({ anchorRef, onActive }: HeroStageProps): React.JSX.El
       const fog = new THREE.Fog(palette.surface, 6, 17);
       scene.fog = fog;
 
-      // --- The core ------------------------------------------------------
+      // --- The globe -----------------------------------------------------
       //
-      // Two shells rather than one transmissive material. Real transmission
-      // means rendering the scene again into a back buffer every frame for a
-      // refraction nobody can inspect behind a headline; a flat-shaded solid
-      // inside an open wireframe reads as precision-made from a metre away and
-      // costs two draw calls.
+      // Layers rather than one transmissive material. Real transmission means
+      // rendering the scene again into a back buffer every frame for a
+      // refraction nobody can inspect behind a headline; a metallic sphere
+      // under a Fresnel rim reads as glass from a metre away and costs two
+      // draw calls. See `scene/globe.ts` for what each layer is doing.
 
       /*
        * Everything that belongs to the hub, in one group.
        *
        * Positioned and SCALED together, because the hub is not a fixed size:
        * it is a 30rem square beside the headline on a desktop and a much
-       * smaller one under the text on a phone. A core built at one world size
+       * smaller one under the text on a phone. A globe built at one world size
        * would be correct at one window width and either lost in the middle of
        * the square or bursting out of it everywhere else. Scaling the group
-       * rather than the core keeps the rings, the aura and the beads in
-       * proportion to it for free.
+       * rather than the globe keeps the orbits, the atmosphere and the platform
+       * in proportion to it for free.
        */
       const hub = new THREE.Group();
       scene.add(hub);
 
-      const coreGeometry = new THREE.IcosahedronGeometry(1, 1);
-      const coreMaterial = new THREE.MeshStandardMaterial({
-        color: palette.deep,
-        flatShading: true,
-        /*
-         * Bright, and deliberately so.
-         *
-         * The first version of this was a dark metal with a faint emissive,
-         * which is a beautiful object in a studio and invisible on a navy
-         * page: every facet landed within a few percent of the background it
-         * sat on. What makes faceted geometry read as solid is the SPREAD
-         * between the facets facing the light and the ones facing away, so
-         * the emissive floor is high enough that the dark side still separates
-         * from the page, and the metalness is low enough that the lit side is
-         * a colour rather than a mirror of an environment this scene does not
-         * have.
-         */
-        metalness: 0.18,
-        roughness: 0.46,
-        emissive: palette.deep,
-        emissiveIntensity: 0.4,
-      });
-      const core = new THREE.Mesh(coreGeometry, coreMaterial);
-      hub.add(core);
+      const globe = globeModule.createGlobe(THREE, palette, globeModule.GLOBE_QUALITY[tier]);
+      hub.add(globe.group);
 
-      /*
-       * The inner lattice, seen through the facets.
-       *
-       * Turning the opposite way to the core, so the two read as separate
-       * objects at different depths rather than as one textured ball. This is
-       * the detail that makes the core look *made* rather than moulded.
-       */
-      const shellGeometry = new THREE.IcosahedronGeometry(1.38, 2);
-      const shellMaterial = new THREE.MeshBasicMaterial({
-        color: palette.highlight,
-        wireframe: true,
-        transparent: true,
-        /*
-         * Quiet. At a third opacity this was a white cage with a crystal
-         * somewhere inside it: the lattice has far more edge length than the
-         * core has facets, so equal weights are not equal presence. A fifth
-         * puts it back where it belongs — something you notice is there, and
-         * then look past.
-         */
-        opacity: 0.2,
-        depthWrite: false,
-      });
-      const shell = new THREE.Mesh(shellGeometry, shellMaterial);
-      hub.add(shell);
+      const orbits = orbitsModule.createOrbits(THREE, palette, orbitsModule.ORBIT_COUNT[tier]);
+      hub.add(orbits.group);
 
-      /*
-       * The aura. A back-faced sphere, so the camera sees its inside and the
-       * shading falls off towards the silhouette instead of towards the
-       * centre — a cheap approximation of the glow a real light would leave in
-       * the air around something this bright.
-       */
-      const auraGeometry = new THREE.SphereGeometry(1.72, 32, 32);
-      const auraMaterial = new THREE.MeshBasicMaterial({
-        color: palette.bloom,
-        transparent: true,
-        opacity: 0.16,
-        side: THREE.BackSide,
-        depthWrite: false,
-      });
-      const aura = new THREE.Mesh(auraGeometry, auraMaterial);
-      hub.add(aura);
-
-      // --- The rings -----------------------------------------------------
-      //
-      // Tilted on two different axes and turned in opposite directions, which
-      // is what makes the depth legible: at any moment one ring is crossing in
-      // front of the core and the other behind it, and the eye reads the
-      // occlusion as distance without being told.
-
-      const ringGroup = new THREE.Group();
-      hub.add(ringGroup);
-
-      /*
-       * Where the rings sit, in core radii.
-       *
-       * Tight. The four cards orbit at 0.37 of the square and are 9rem wide,
-       * so the nearest a card's inner edge comes to the middle is about 0.22
-       * of the square — rings wider than that are drawn under cards for a
-       * quarter of every revolution, which looks like a mistake rather than
-       * like depth. These two sit just outside the core and just inside that
-       * limit, so what crosses a card is the odd bead rather than a whole arc.
-       */
-      const RING_RADII = [1.22, 1.45] as const;
-
-      const rings = [
-        { radius: RING_RADII[0], tilt: 1.16, spin: 0.055, colour: palette.brand, opacity: 0.85 },
-        { radius: RING_RADII[1], tilt: -0.72, spin: -0.038, colour: palette.action, opacity: 0.6 },
-      ].map((spec) => {
-        const geometry = new THREE.TorusGeometry(spec.radius, 0.014, 3, 220);
-        const material = new THREE.MeshBasicMaterial({
-          color: spec.colour,
-          transparent: true,
-          opacity: spec.opacity,
-        });
-        const mesh = new THREE.Mesh(geometry, material);
-        mesh.rotation.x = spec.tilt;
-        ringGroup.add(mesh);
-
-        return { mesh, geometry, material, spin: spec.spin };
-      });
-
-      /*
-       * A bead on each ring.
-       *
-       * The rings alone turn invisibly: a circle of constant thickness looks
-       * identical at every rotation, so a viewer cannot tell the scene is
-       * moving at all. One small sphere riding each one is the reference point
-       * that makes the rotation readable — and it is the detail that reads as
-       * "this is a live instrument" rather than "this is a picture".
-       */
-      const beadGeometry = new THREE.SphereGeometry(0.062, 16, 16);
-      const beads = rings.map((ring, index) => {
-        const material = new THREE.MeshBasicMaterial({
-          color: index === 0 ? palette.highlight : palette.action,
-        });
-        const mesh = new THREE.Mesh(beadGeometry, material);
-        ring.mesh.add(mesh);
-
-        return { mesh, material, radius: RING_RADII[index] ?? RING_RADII[0] };
-      });
 
       // --- The depth field -----------------------------------------------
 
-      const PARTICLES = 620;
+      const PARTICLES = tier === 'full' ? 620 : 280;
       const positions = new Float32Array(PARTICLES * 3);
       const drifts = new Float32Array(PARTICLES);
 
@@ -437,31 +389,48 @@ export function HeroStage({ anchorRef, onActive }: HeroStageProps): React.JSX.El
       // --- Light ---------------------------------------------------------
 
       /*
-       * Three lights, and the fill is the one that matters.
+       * Four lights, and the fill is the one that matters.
        *
-       * A key light alone puts half the core in the dark, and on a navy page
+       * A key light alone puts half the globe in the dark, and on a navy page
        * "in the dark" means "gone" — the object loses its silhouette and what
        * is left reads as a crescent floating in the hero. The cool fill on the
        * opposite side lifts the shadow half just far enough to keep its edge
        * against the background while staying clearly the shadow side.
        */
-      const ambient = new THREE.AmbientLight(palette.highlight, 1.1);
+      const ambient = new THREE.AmbientLight(palette.highlight, 0.7);
       scene.add(ambient);
 
-      const key = new THREE.DirectionalLight(0xffffff, 2.55);
+      const key = new THREE.DirectionalLight(0xffffff, 2.1);
       key.position.set(3.2, 3.4, 4.6);
       scene.add(key);
 
-      const fill = new THREE.DirectionalLight(palette.highlight, 1.5);
+      const fill = new THREE.DirectionalLight(palette.highlight, 0.95);
       fill.position.set(-3.8, -1.6, 1.8);
       scene.add(fill);
 
       // The one that follows the pointer. Warm, and on the opposite side of
-      // the core from the key light, so moving a mouse across the hero rakes
-      // the facets rather than merely brightening them.
+      // the globe from the key light, so moving a mouse across the hero rakes
+      // the surface rather than merely brightening it.
       const rim = new THREE.PointLight(palette.action, 34, 24, 2);
       rim.position.set(-3.4, -1.2, 3.2);
       scene.add(rim);
+
+      /*
+       * The moving reflection, and it is a light rather than an animated
+       * texture.
+       *
+       * The ocean is a metal and the two bands are polished titanium, which
+       * means almost everything you see on them is a reflection of something.
+       * With every light nailed down, those reflections are nailed down too and
+       * the globe looks like a photograph of a globe — correct, and inert. One
+       * specular circling slowly behind the camera's shoulder is what puts a
+       * highlight travelling across the glass and along the bands, and it is
+       * the single cheapest thing in this file that makes the object read as
+       * real. Its period is deliberately not a multiple of the globe's, so the
+       * two never fall into step and start looking mechanical.
+       */
+      const sweep = new THREE.PointLight(palette.steel, 26, 22, 2);
+      scene.add(sweep);
 
       // --- Layout --------------------------------------------------------
 
@@ -471,23 +440,30 @@ export function HeroStage({ anchorRef, onActive }: HeroStageProps): React.JSX.El
       let height = 1;
 
       /**
-       * How wide the core should be, as a fraction of the square it is given.
+       * How wide the GLOBE should be, as a fraction of the square it is given.
        *
-       * 0.38 against the CSS sphere's 0.33, deliberately. A rendered object
-       * needs more room than a drawn one to read as an object: the drawing was
-       * a flat disc whose whole silhouette was the shape, and this is a solid
-       * whose silhouette is broken by facets, a lattice and two rings crossing
-       * it. At 0.33 it read as a busy smudge; at 0.38 the facets are large
-       * enough to tell apart, which is what makes it look made rather than
-       * noisy.
+       * **This is the number to change to make the globe bigger or smaller.**
+       * Everything else in the scene is expressed in globe radii and follows
+       * it: the atmosphere reaches 1.24, the outermost orbit 1.6 and the lit
+       * platform 2.1, so the whole ecosystem spans about five times this.
        *
-       * The ceiling is `NODE_RADIUS_FRACTION` in `orchestration-nodes.ts`:
-       * the cards ride at 0.37 of the square and are 9rem across, so anything
-       * here past about 0.44 puts the core itself under a card. Check due
+       * 0.42, against the CSS sphere's 0.33. A rendered object needs more room
+       * than a drawn one to read as an object: the drawing was a flat disc
+       * whose whole silhouette was the shape, and this is a sphere whose
+       * silhouette is broken by coastlines, a wireframe and three orbits
+       * crossing it. Below about 0.36 the continents stop being recognisable,
+       * which loses the one thing the globe is here to say.
+       *
+       * The ceiling is `NODE_RADIUS_FRACTION` in `orchestration-nodes.ts`: the
+       * cards ride at 0.37 of the square and are 9.5rem across, so anything
+       * here past about 0.44 puts the globe ITSELF under a card. The orbits
+       * around it are already allowed to pass behind the cards, and should —
+       * the cards are opaque panels, so an orbit disappearing behind one and
+       * coming out the other side is depth rather than collision. Check due
        * north and due east, not the diagonal — that note applies to this
        * number for the same reason it applies to that one.
        */
-      const CORE_DIAMETER_FRACTION = 0.38;
+      const CORE_DIAMETER_FRACTION = 0.42;
 
       /**
        * The same number below `lg`, where nothing is orbiting.
@@ -499,12 +475,16 @@ export function HeroStage({ anchorRef, onActive }: HeroStageProps): React.JSX.El
        * Holding the desktop fraction there wastes most of a phone's most
        * valuable screen on padding around a 100px object.
        *
+       * 0.52 rather than the 0.62 a lone core used to get: the globe now brings
+       * orbits and a platform out to five times its own width, and at 0.62 the
+       * outer orbit ran off both sides of a 17rem square.
+       *
        * The breakpoint is read from a media query rather than from the
        * measured width, so it is the same 1024px the stylesheet switches on. A
        * second definition of "narrow" in this file is a second thing to keep
        * in step.
        */
-      const CORE_DIAMETER_FRACTION_NARROW = 0.62;
+      const CORE_DIAMETER_FRACTION_NARROW = 0.52;
       const wideLayout = window.matchMedia('(min-width: 1024px)');
 
       /**
@@ -622,20 +602,15 @@ export function HeroStage({ anchorRef, onActive }: HeroStageProps): React.JSX.El
         palette = readStagePalette();
 
         fog.color.setHex(palette.surface);
-        coreMaterial.color.setHex(palette.deep);
-        coreMaterial.emissive.setHex(palette.deep);
-        shellMaterial.color.setHex(palette.highlight);
-        auraMaterial.color.setHex(palette.bloom);
         fieldMaterial.color.setHex(palette.brand);
         gridMaterial.color.setHex(palette.brand);
         ambient.color.setHex(palette.highlight);
         fill.color.setHex(palette.highlight);
         rim.color.setHex(palette.action);
+        sweep.color.setHex(palette.steel);
 
-        rings[0]?.material.color.setHex(palette.brand);
-        rings[1]?.material.color.setHex(palette.action);
-        beads[0]?.material.color.setHex(palette.highlight);
-        beads[1]?.material.color.setHex(palette.action);
+        globe.repaint(palette);
+        orbits.repaint(palette);
       };
 
       const themeObserver = new MutationObserver(() => { repaint(); });
@@ -660,25 +635,14 @@ export function HeroStage({ anchorRef, onActive }: HeroStageProps): React.JSX.El
       const draw = (delta: number): void => {
         elapsed += delta;
 
-        core.rotation.x += delta * 0.085;
-        core.rotation.y += delta * 0.115;
-        shell.rotation.x -= delta * 0.045;
-        shell.rotation.y -= delta * 0.062;
+        globe.update(elapsed, delta);
+        orbits.update(elapsed, delta);
 
-        for (const ring of rings) ring.mesh.rotation.z += delta * ring.spin * Math.PI;
-
-        // The beads ride their own ring's local space, so this is a plain
-        // circle in x/y — the ring's tilt and spin carry it into three
-        // dimensions for free.
-        beads.forEach((bead, index) => {
-          const speed = index === 0 ? 0.42 : -0.29;
-          const angle = elapsed * speed;
-          bead.mesh.position.set(
-            Math.cos(angle) * bead.radius,
-            Math.sin(angle) * bead.radius,
-            0,
-          );
-        });
+        // The travelling specular. Behind the camera's shoulder and well off
+        // to one side, circling once every 26 seconds — see the note where it
+        // is created for why this light exists at all.
+        const sweepAngle = elapsed * 0.242;
+        sweep.position.set(Math.cos(sweepAngle) * 3.4, 1.9, Math.sin(sweepAngle) * 2.2 + 3.4);
 
         field.rotation.y += delta * 0.012;
 
@@ -772,25 +736,26 @@ export function HeroStage({ anchorRef, onActive }: HeroStageProps): React.JSX.El
         window.removeEventListener('pointermove', onPointerMove);
         host.removeEventListener('pointerleave', onPointerLeave);
 
-        coreGeometry.dispose();
-        coreMaterial.dispose();
-        shellGeometry.dispose();
-        shellMaterial.dispose();
-        auraGeometry.dispose();
-        auraMaterial.dispose();
-        beadGeometry.dispose();
+        globe.dispose();
+        orbits.dispose();
+
         fieldGeometry.dispose();
         fieldMaterial.dispose();
         grid.geometry.dispose();
         gridMaterial.dispose();
 
-        for (const ring of rings) {
-          ring.geometry.dispose();
-          ring.material.dispose();
-        }
-        for (const bead of beads) bead.material.dispose();
-
         renderer.dispose();
+        /*
+         * And the context itself.
+         *
+         * `renderer.dispose()` releases three.js's own GPU objects but leaves
+         * the WebGL context alive — browsers cap those at around sixteen per
+         * page and silently kill the oldest when a seventeenth is asked for.
+         * A single-page storefront mounts this every time somebody comes back
+         * to the landing page, so without this a visitor who navigated home a
+         * dozen times would watch an earlier scene go black.
+         */
+        renderer.forceContextLoss();
       };
     })();
 
@@ -801,7 +766,7 @@ export function HeroStage({ anchorRef, onActive }: HeroStageProps): React.JSX.El
     };
   }, [anchorRef]);
 
-  if (!shouldRender()) return null;
+  if (chooseTier() === null) return null;
 
   return (
     <div

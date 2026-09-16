@@ -640,6 +640,38 @@
   text-align: center;
 }
 
+/*
+ * The cube, lit.
+ *
+ * `drop-shadow` rather than a `box-shadow` or a blurred copy behind it: the
+ * mark is an open outline, and the two shadow properties work on the element's
+ * BOX, so either would put a rectangle of glow round a shape that is mostly
+ * holes. `drop-shadow` follows the drawn strokes, which is the difference
+ * between an icon that is glowing and an icon sitting on a glowing card.
+ *
+ * Two of them, tight and wide. One alone reads as a blur; the pair reads as a
+ * light source, because that is what a real one does — a hot core and a soft
+ * falloff.
+ */
+.orch-hub-label svg {
+  filter: drop-shadow(0 0 5px rgb(125 211 252 / 0.9)) drop-shadow(0 0 14px rgb(56 189 248 / 0.5));
+}
+
+/*
+ * And the word underneath it.
+ *
+ * The globe's own colours are held at 4.5:1 against white by `stage-palette.ts`,
+ * so this is not what makes "Sourcing" legible — it is what keeps it legible
+ * when a travelling orbit node, which is a small bright additive sphere, passes
+ * directly behind a letter. The dark halo is doing the same job a subtitle's
+ * does over a film.
+ */
+.orch-hub-label span {
+  text-shadow:
+    0 1px 2px rgb(2 6 23 / 0.75),
+    0 0 18px rgb(2 6 23 / 0.6);
+}
+
 /* ==========================================================================
  * The web: rings, radial lines and the lights that travel them
  *
@@ -776,6 +808,153 @@
 }
 
 /* ==========================================================================
+ * The panel
+ *
+ * Each card is a piece of glass lying over the scene rather than a tile
+ * painted on it, and three things together are what sell that: a background
+ * that is genuinely translucent, a blur behind it, and a lit edge along the
+ * top where the light in the scene would catch it.
+ *
+ * **Why this is CSS and not Tailwind utilities.** It was `bg-surface/85
+ * backdrop-blur-sm shadow-card`, and each of those is a single-class selector
+ * with exactly the same specificity as `.orch-node-control` — so which one won
+ * depended on whether `index.css` or this file happened to be emitted second.
+ * A panel whose appearance is decided by bundler ordering is a panel that will
+ * change the day somebody reorders an import. The layout utilities stay on the
+ * element in `SourcingHub.tsx`, where they read well; the surface lives here,
+ * where it can be written once and varied by theme.
+ *
+ * **Why the colours are custom properties.** The panel rule itself is
+ * identical on both themes; only the values differ. Declaring them once on
+ * `.orch` and overriding six lines under the dark selectors keeps one
+ * description of what a panel IS, rather than two that have to be kept in step
+ * — which is the arrangement `index.css` already uses and explains at length.
+ *
+ * The dark theme is not the light one with a darker shadow. Glass over a navy
+ * page needs a LESS opaque body (the scene behind it is what makes it read as
+ * glass at all), a stronger edge (a hairline at 18% disappears on navy), and a
+ * much deeper shadow (a 28%-black shadow is invisible on a dark ground).
+ * ========================================================================== */
+
+.orch {
+  --orch-panel-top: rgb(var(--surface-raised) / 0.96);
+  --orch-panel-bottom: rgb(var(--surface-raised) / 0.84);
+  --orch-panel-edge: rgb(var(--brand) / 0.18);
+  --orch-panel-edge-lit: rgb(var(--brand) / 0.45);
+  --orch-panel-sheen: rgb(255 255 255 / 0.7);
+  --orch-panel-shadow:
+    0 18px 34px -20px rgb(15 23 42 / 0.3), 0 4px 12px -6px rgb(15 23 42 / 0.16);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .orch {
+    --orch-panel-top: rgb(var(--surface-raised) / 0.95);
+    --orch-panel-bottom: rgb(var(--surface-raised) / 0.82);
+    --orch-panel-edge: rgb(var(--brand) / 0.26);
+    --orch-panel-edge-lit: rgb(var(--brand) / 0.6);
+    --orch-panel-sheen: rgb(var(--brand) / 0.4);
+    --orch-panel-shadow:
+      0 22px 44px -22px rgb(2 6 23 / 0.85), 0 6px 18px -10px rgb(2 6 23 / 0.6);
+  }
+}
+
+:root[data-theme='dark'] .orch {
+  --orch-panel-top: rgb(var(--surface-raised) / 0.95);
+  --orch-panel-bottom: rgb(var(--surface-raised) / 0.82);
+  --orch-panel-edge: rgb(var(--brand) / 0.26);
+  --orch-panel-edge-lit: rgb(var(--brand) / 0.6);
+  --orch-panel-sheen: rgb(var(--brand) / 0.4);
+  --orch-panel-shadow:
+    0 22px 44px -22px rgb(2 6 23 / 0.85), 0 6px 18px -10px rgb(2 6 23 / 0.6);
+}
+
+/*
+ * THE DEPTH IS ON THE WRAPPER, AND THAT IS NOT TIDINESS.
+ *
+ * `index.css` gives every focusable thing in the storefront one focus ring, as
+ * `ring-2 ring-ring ring-offset-2` — and a Tailwind ring is a `box-shadow`.
+ * Tailwind composes a ring with a shadow through shared custom properties, so
+ * `shadow-card` and `ring-2` coexist; a hand-written `box-shadow` on the same
+ * element does not join that scheme, it replaces the whole property. Putting
+ * this shadow on the control itself therefore deleted the keyboard focus ring
+ * outright, silently, in the one component whose four tiles are the page's main
+ * navigation.
+ *
+ * `.orch-node-float` is the wrapper the card already sits in — same size, same
+ * corners, one element out. The shadow goes there, the control never sets
+ * `box-shadow` at all, and the ring is left entirely to `index.css`, which is
+ * where the whole app's focus styling belongs.
+ *
+ * `:hover` on the wrapper, not the control: an ancestor is hovered whenever its
+ * child is, so this fires on exactly the same pointer as the control's own
+ * hover and needs no `:has()`.
+ */
+.orch-node-float {
+  border-radius: 0.875rem;
+  box-shadow: var(--orch-panel-shadow);
+  transition: box-shadow 220ms var(--ease-ui);
+}
+
+.orch-node-float:hover {
+  box-shadow:
+    var(--orch-panel-shadow),
+    0 0 0 4px rgb(var(--brand) / 0.1),
+    0 0 26px -4px rgb(var(--brand) / 0.4);
+}
+
+.orch-node-control {
+  position: relative;
+  /* The lit edge below is a child, and the card is translucent. Without a
+     stacking context of its own, that edge composites against whatever the
+     hero happens to be painting rather than against the card. */
+  isolation: isolate;
+  border-radius: 0.875rem;
+  border: 1px solid var(--orch-panel-edge);
+  background-image: linear-gradient(158deg, var(--orch-panel-top), var(--orch-panel-bottom));
+  /*
+   * 16px and a little extra saturation.
+   *
+   * The saturation is the half of this that is easy to leave out and obvious
+   * once it is there: a plain blur averages the scene behind the card towards
+   * grey, so a panel sitting over the blue globe came out a dull slate. Pushing
+   * saturation back up keeps the blue in what it is blurring, which is what
+   * makes the card look like it is made OF this page rather than dropped onto
+   * it.
+   */
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  /* No `box-shadow` here, ever. See the note above `.orch-node-float`. */
+  transition: border-color 220ms var(--ease-ui);
+}
+
+/*
+ * The lit top edge.
+ *
+ * One pixel, inset from both ends and fading out at each, which is what a sheet
+ * of glass catching a light above it actually looks like. An edge that ran the
+ * full width at constant brightness reads as a border somebody forgot to
+ * finish.
+ */
+.orch-node-control::before {
+  content: '';
+  position: absolute;
+  inset-inline: 14%;
+  top: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--orch-panel-sheen), transparent);
+  pointer-events: none;
+}
+
+/* Hover and keyboard focus light the same edge, for the reason given above the
+   mark's own glow: a card that only answers a pointer is a card a keyboard user
+   cannot tell they have reached. `border-color` only — the ring belongs to
+   `index.css`, and the outer glow to the wrapper. */
+.orch-node-control:hover,
+.orch-node-control:focus-visible {
+  border-color: var(--orch-panel-edge-lit);
+}
+
+/* ==========================================================================
  * Keyframes
  * ========================================================================== */
 
@@ -842,13 +1021,22 @@
   }
 }
 
+/*
+ * The bob.
+ *
+ * 3px, down from 6. Six was visible as MOVEMENT — four cards each drifting a
+ * finger-width beside a paragraph somebody is trying to read, which is the
+ * kind of motion a landing page adds because it can rather than because the
+ * page wanted it. Three is the amount that registers as the cards being alive
+ * without ever pulling the eye off the search bar.
+ */
 @keyframes orch-float {
   0%,
   100% {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-6px);
+    transform: translateY(-3px);
   }
 }
 
@@ -951,6 +1139,6 @@
  * leave four tiles floating for no stated reason.
  */
 [data-stage='on'] .orch-web {
-  opacity: 0.26;
+  opacity: 0.42;
   transition: opacity 900ms ease-out;
 }

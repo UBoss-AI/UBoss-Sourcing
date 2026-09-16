@@ -35,8 +35,25 @@ export interface StagePalette {
   bloom: number;
   /** A light tint of the brand, for anything that has to read as a highlight. */
   highlight: number;
-  /** A deep tint of the brand: the core's body, under the white label. */
+  /** A deep tint of the brand: the globe's ocean, under the white label. */
   deep: number;
+  /**
+   * The land on the globe, one step up from the ocean.
+   *
+   * It has to be light enough to read as a continent against the sea and dark
+   * enough for the white label the hub paints over the middle of it. Both ends
+   * are asserted in `HeroStage.test.tsx`; see `LAND_MIX`.
+   */
+  land: number;
+  /**
+   * Polished titanium, for the structural bands round the globe.
+   *
+   * Cool and nearly neutral rather than blue: a metal band in the same hue as
+   * everything else stops reading as metal and starts reading as another ring.
+   * What makes it look machined is that it is the one thing in the scene with
+   * a bright, tight specular and almost no colour of its own.
+   */
+  steel: number;
   surface: number;
 }
 
@@ -93,20 +110,57 @@ export function darken(colour: number, amount: number): number {
   );
 }
 
+/** A colour blended towards another, channel by channel. */
+export function mix(from: number, to: number, amount: number): number {
+  const channel = (shift: number): number =>
+    Math.round(
+      ((from >> shift) & 0xff) + (((to >> shift) & 0xff) - ((from >> shift) & 0xff)) * amount,
+    );
+
+  return (channel(16) << 16) | (channel(8) << 8) | channel(0);
+}
+
 /**
- * How far the derived pair sit from the brand hue.
+ * How far the derived colours sit from the brand hue.
  *
- * Named because both are asserted: `HeroStage.test.tsx` checks that the
- * highlight reads as light on either theme and that the body clears 4.5:1
- * against the white label on either theme. Move either number and that suite
- * is where you find out what it cost.
+ * Named because every one of them is asserted: `HeroStage.test.tsx` checks that
+ * the highlight reads as light on either theme, and that both the ocean and the
+ * land clear 4.5:1 against the white label on either theme. Move any of these
+ * numbers and that suite is where you find out what it cost.
  */
 export const HIGHLIGHT_MIX = 0.62;
-export const DEEP_MIX = 0.62;
+export const DEEP_MIX = 0.78;
+
+/**
+ * How far the land is lifted out of the ocean.
+ *
+ * Towards the BRAND rather than towards white, and that is the whole point of
+ * it. `lighten` mixes towards white, which raises lightness and drops
+ * saturation together — the first version of the globe used it and the
+ * continents came out a flat slate grey sitting on a blue sea, which reads as
+ * a weather map rather than as sapphire. Mixing towards the brand raises the
+ * lightness and keeps the hue, so the land is the same blue as the ocean with
+ * the light turned up on it.
+ *
+ * Squeezed from both sides. Below about 0.25 the continents stop separating
+ * from the sea on the dark theme and the globe reads as a plain ball; above
+ * about 0.6 the land behind the word "Sourcing" drops under 4.5:1 on that same
+ * theme. 0.46 sits inside that window at roughly 5.6:1.
+ */
+export const LAND_MIX = 0.46;
+
+/** Titanium: the highlight taken most of the way to a neutral cool grey. */
+const STEEL_TARGET = 0xe2e8f0;
+const STEEL_MIX = 0.55;
 
 export function readStagePalette(): StagePalette {
   const styles = getComputedStyle(document.documentElement);
   const brand = readChannel(styles, '--brand', 0x1d4ed8);
+
+  // Light on white and light on navy, which no token is.
+  const highlight = lighten(brand, HIGHLIGHT_MIX);
+  // Dark enough for white text in both themes, for the same reason.
+  const deep = darken(brand, DEEP_MIX);
 
   return {
     brand,
@@ -114,9 +168,9 @@ export function readStagePalette(): StagePalette {
     action: readChannel(styles, '--action', 0xea580c),
     bloom: readChannel(styles, '--bloom', 0xbae6fd),
     surface: readChannel(styles, '--surface', 0xffffff),
-    // Light on white and light on navy, which no token is.
-    highlight: lighten(brand, HIGHLIGHT_MIX),
-    // Dark enough for white text in both themes, for the same reason.
-    deep: darken(brand, DEEP_MIX),
+    highlight,
+    deep,
+    land: mix(deep, brand, LAND_MIX),
+    steel: mix(highlight, STEEL_TARGET, STEEL_MIX),
   };
 }
