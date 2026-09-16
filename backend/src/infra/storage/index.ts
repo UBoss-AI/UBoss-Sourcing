@@ -19,6 +19,24 @@ import { dirname, join, resolve } from 'node:path';
 import { env, isProduction } from '../../config/env.js';
 import { ErrorCode, badRequest } from '../../domain/errors.js';
 import { newId } from '../ids.js';
+/*
+ * Circular by construction, and safe because of WHEN each side is read.
+ *
+ * This module owns the shared pieces - the driver interface, the key layout,
+ * the magic-byte sniffing - and s3-storage.ts owns one implementation of them,
+ * so each needs something from the other. ES modules resolve this as long as
+ * neither side reaches into the other while the other is still evaluating:
+ * s3-storage.ts only touches `buildStorageKey`, `readImageDimensions` and
+ * `PRIVATE_PREFIX` from inside method bodies, which do not run until long
+ * after both modules have finished loading.
+ *
+ * The one line that would break it is `createStorageDriver()` below, which DOES
+ * run at module evaluation time - but it only calls `new S3StorageDriver()`,
+ * and a class declaration is fully initialised before the importing module's
+ * body runs. `tests/unit/s3-storage.test.ts` imports this module with
+ * STORAGE_DRIVER=s3 precisely to keep that true.
+ */
+import { S3StorageDriver } from './s3-storage.js';
 
 export interface StoredObject {
   storageKey: string;
@@ -351,7 +369,7 @@ export const PRIVATE_PREFIX = 'private';
  * thousands of entries on a local filesystem, and matches the prefix layout S3
  * likes for request distribution.
  */
-function buildStorageKey(extension: string, visibility: StorageVisibility): string {
+export function buildStorageKey(extension: string, visibility: StorageVisibility): string {
   const id = newId();
   const root = visibility === 'private' ? PRIVATE_PREFIX : PUBLIC_PREFIX;
   return `${root}/${id.slice(0, 2).toLowerCase()}/${id.slice(2, 4).toLowerCase()}/${id}.${extension}`;
@@ -439,10 +457,7 @@ function createStorageDriver(): StorageDriver {
       }
       return new LocalStorageDriver();
     case 's3':
-      throw new Error(
-        'STORAGE_DRIVER=s3 is not implemented yet. Add src/infra/storage/s3-storage.ts ' +
-          'implementing StorageDriver.',
-      );
+      return new S3StorageDriver();
     default: {
       const exhaustive: never = env.STORAGE_DRIVER;
       throw new Error(`Unknown STORAGE_DRIVER: ${String(exhaustive)}`);
