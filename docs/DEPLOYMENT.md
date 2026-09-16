@@ -2117,12 +2117,24 @@ one mistake: a test whose result depended on a file that is not in git.
 | `PIECES_PER_CARTON` | omits it → `??=` in `tests/setup.ts` gives 1 | sets **500**, and every quantity assertion is out by 500× |
 | AI provider key | has a real Gemini key → `/assistant/*` routes exist | has none → **every one of them 404s**, and 147 tests fail |
 | Gateway credentials | has test keys → webhooks sign and compare | are empty → payloads sign with `''`, and `not.toContain('')` fails for every string |
+| **Reference data** | was seeded once during setup, years ago, and has been there ever since | **a database that has only been migrated has zero countries** — `prisma migrate deploy` creates tables, `npm run db:reference` fills them — so the first warehouse insert dies on `Foreign key constraint violated on the fields: (countryCode)`, and 38 tests go with it |
 
 None of these was a bad test. Each was a test that quietly borrowed a
-precondition from whoever wrote it. The fix in all three is the same: the suite
+precondition from whoever wrote it. The fix in all four is the same: the suite
 states what it needs — `tests/setup.ts` pins the carton size and fake gateway
-credentials outright, and `assistant-conversations.test.ts` mocks
-`isAssistantConfigured` the way `catalog-image-search.test.ts` already did.
+credentials outright, `assistant-conversations.test.ts` mocks
+`isAssistantConfigured` the way `catalog-image-search.test.ts` already did, and
+`tests/global-setup.ts` installs the reference data once before the first file.
+
+That last one carries a wrinkle worth knowing before touching it. The reference
+seed also plants a starter category tree, and `Category.parentId` points at
+`Category` — while nearly every `reset()` helper in the suite clears categories
+with a single `prisma.category.deleteMany({})`. A bulk delete on a
+self-referencing table removes parents while children still point at them, so
+seeding the tree makes every one of those resets fail instead. The global setup
+therefore seeds the reference data and then removes the starter categories,
+children first. The database the tests meet is the one they have always
+assumed: currencies and countries present, no categories.
 
 **This is the value of the CI job, not a cost of it.** A suite that passes on
 the author's machine and fails on a clean one is not a gate, and until there was

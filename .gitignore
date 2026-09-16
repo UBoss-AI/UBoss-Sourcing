@@ -66,3 +66,7 @@ UBOSS_Sourcing_Screen_Flow_Poster_2026.pptx
 .env.*
 !.env.example
 !apps/*/.env
+
+# The vitest JSON report, written by CI so a failure names its tests without
+# admin rights on the repository. Never committed.
+vitest-report.json

@@ -56,6 +56,9 @@ Tick only the ones that apply; ignore the rest.
       or in `tests/setup.ts`, never by assuming your own `backend/.env`. CI runs
       against `.env.example`, which has no AI key, no gateway credentials, and
       `PIECES_PER_CARTON=500`. All three have already broken a build
+- [ ] **A test that needs data to already be there** — CI's database has only
+      been migrated. Reference data comes from `tests/global-setup.ts`; anything
+      else the test seeds itself
 
 <!--
 If CI fails on "The install actually built what it needed to", a dependency bump

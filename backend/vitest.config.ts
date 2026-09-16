@@ -11,6 +11,10 @@ export default defineConfig({
     testTimeout: 30_000,
     hookTimeout: 60_000,
     setupFiles: ['tests/setup.ts'],
+    // Once, before the first file: the reference data that `migrate deploy`
+    // does not create. A freshly migrated database has no countries, and the
+    // first warehouse insert then fails on a foreign key. See the file.
+    globalSetup: ['tests/global-setup.ts'],
     coverage: { provider: 'v8', reporter: ['text', 'html'], include: ['src/**/*.ts'] },
   },
   resolve: {

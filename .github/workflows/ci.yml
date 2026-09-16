@@ -152,9 +152,38 @@ jobs:
         env:
           DATABASE_URL: mysql://root:ci-root-not-a-secret@127.0.0.1:3306/uboss
 
-      - name: Verify (typecheck, lint, tests)
+      # Split into three, deliberately.
+      #
+      # `npm run verify` is one command and therefore one step, and a failed
+      # step tells the API only that "Verify" failed - not whether the types,
+      # the lint or the tests did. Job logs need admin rights on the repository,
+      # so for anybody without them a red mark here carried almost no
+      # information. Three steps cost nothing and name the half of the problem
+      # that is otherwise a guess.
+      - name: Typecheck
         working-directory: backend
-        run: npm run verify
+        run: npm run typecheck
+
+      - name: Lint
+        working-directory: backend
+        run: npm run lint
+
+      - name: Tests
+        working-directory: backend
+        run: npm test -- --reporter=default --reporter=json --outputFile.json=vitest-report.json
+
+      # The failing test names, readable without admin rights.
+      #
+      # The report holds test names, files and error messages - no environment,
+      # no secrets; the suite's credentials are the fake ones pinned in
+      # tests/setup.ts.
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: vitest-report
+          path: backend/vitest-report.json
+          if-no-files-found: warn
+          retention-days: 14
 
   # ---------------------------------------------------------------------------
   # The three front ends
